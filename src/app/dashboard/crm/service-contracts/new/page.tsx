@@ -17,14 +17,11 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle,
-  Wrench } from 'lucide-react';
-import Link from 'next/link';
+import { Save,
+  LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveServiceContract } from '@/app/actions/crm-service-contracts.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
@@ -65,21 +62,11 @@ export default function NewServiceContractPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Service Contract"
-        subtitle="Create an AMC or field service agreement."
-        icon={Wrench}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/crm/service-contracts">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="SERVICE CONTRACT"
+      title="New Service Contract"
+      back={{ href: '/dashboard/crm/service-contracts', label: 'Service Contracts' }}
+    >
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           {/* Row 1: Contract No + Customer Name */}
@@ -192,6 +179,6 @@ export default function NewServiceContractPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

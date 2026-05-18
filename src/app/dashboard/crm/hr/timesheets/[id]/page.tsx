@@ -1,6 +1,4 @@
-import { ZoruButton } from '@/components/zoruui';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock } from 'lucide-react';
 
 /**
  * Timesheet detail — read & edit.
@@ -9,9 +7,7 @@ import { ArrowLeft, Clock } from 'lucide-react';
  * Adds approval action bar (submit / approve / reject) gated on status.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 
 import { getCrmTimesheetById } from '@/app/actions/crm-timesheets.actions';
 
@@ -30,28 +26,13 @@ export default async function TimesheetDetailPage({
     if (!doc) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/crm/hr' },
-                    { label: 'Timesheets', href: '/dashboard/crm/hr/timesheets' },
-                    { label: doc.employeeName || 'Timesheet' },
-                ]}
-                title={`Timesheet — ${doc.employeeName || doc.employeeId}`}
-                subtitle={`Week of ${doc.weekStartDate?.slice(0, 10) ?? ''}`}
-                icon={Clock}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href="/dashboard/crm/hr/timesheets">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            title={`Timesheet — ${doc.employeeName || doc.employeeId}`}
+            eyebrow="TIMESHEET"
+            back={{ href: '/dashboard/crm/hr/timesheets', label: 'Timesheets' }}
+        >
             <TimesheetStatusBar id={doc._id} status={doc.status} />
             <TimesheetForm initial={doc} />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -13,7 +13,7 @@ import {
   Plus,
   Package } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Products list — `/dashboard/crm/store/products`.
@@ -60,25 +60,18 @@ export default async function ProductListPage({ searchParams }: PageProps) {
         : '/dashboard/crm/store/products/new';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Products"
-                subtitle="Catalog with images, pricing and inventory toggles."
-                icon={Package}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    { label: 'Products' },
-                ]}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href={newHref}>
-                            <Plus className="h-4 w-4" />
-                            New product
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Products"
+            subtitle="Catalog with images, pricing and inventory toggles."
+            primaryAction={
+                <ZoruButton variant="outline" asChild>
+                    <Link href={newHref}>
+                        <Plus className="h-4 w-4" />
+                        New product
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-4">
                 <StorefrontFilterClient
@@ -173,6 +166,6 @@ export default async function ProductListPage({ searchParams }: PageProps) {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

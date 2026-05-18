@@ -14,7 +14,6 @@ import {
 import {
   Download,
   SlidersHorizontal,
-  CalendarCheck,
   LoaderCircle,
   Users,
   TrendingUp,
@@ -31,7 +30,7 @@ import Papa from 'papaparse';
 import { format } from 'date-fns';
 import { DatePicker } from '@/components/ui/date-picker';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type AttendanceRow = {
     employeeId: string;
@@ -129,20 +128,18 @@ export default function AttendanceReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Attendance Report"
-                subtitle="Detailed attendance summary for your employees."
-                icon={CalendarCheck}
-                actions={
-                    <>
-                        <ZoruPopover>
-                            <ZoruPopoverTrigger asChild>
-                                <ZoruButton variant="outline">
-                                    <SlidersHorizontal className="h-4 w-4" />
-                                    Filters
-                                </ZoruButton>
-                            </ZoruPopoverTrigger>
+        <EntityListShell
+            title="Attendance Report"
+            subtitle="Detailed attendance summary for your employees."
+            primaryAction={
+                <>
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
+                                <SlidersHorizontal className="h-4 w-4" />
+                                Filters
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
                             <ZoruPopoverContent className="w-80 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <ZoruLabel className="text-[12.5px]">Start Date</ZoruLabel>
@@ -190,7 +187,7 @@ export default function AttendanceReportPage() {
                         </ZoruButton>
                     </>
                 }
-            />
+        >
 
             {/* Summary stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -285,6 +282,6 @@ export default function AttendanceReportPage() {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

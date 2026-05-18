@@ -18,12 +18,11 @@ import {
   useState,
   useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { CalendarPlus,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
   getLeaveTypes,
   saveLeave,
@@ -113,12 +112,11 @@ export default function ApplyLeavePage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Apply for Leave"
-        subtitle="Submit a leave application for an employee."
-        icon={CalendarPlus}
-      />
+    <EntityDetailShell
+      title="Apply for Leave"
+      eyebrow="LEAVE"
+      back={{ href: '/dashboard/crm/hr-payroll/leave', label: 'Leave' }}
+    >
       <ZoruCard className="p-6">
         {isLoading ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
@@ -297,6 +295,6 @@ export default function ApplyLeavePage() {
           </form>
         )}
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

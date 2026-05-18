@@ -22,13 +22,12 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { CalendarDays,
-  Plus,
+import { Plus,
   Pencil,
   Trash2,
   LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getEmployeeLeaveQuotas,
   saveEmployeeLeaveQuota,
@@ -136,18 +135,16 @@ export default function EmployeeLeaveQuotasPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Quotas"
-        subtitle="Allocate annual leave quotas per employee and leave type."
-        icon={CalendarDays}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Quota
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Leave Quotas"
+      subtitle="Allocate annual leave quotas per employee and leave type."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Quota
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -255,6 +252,6 @@ export default function EmployeeLeaveQuotasPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

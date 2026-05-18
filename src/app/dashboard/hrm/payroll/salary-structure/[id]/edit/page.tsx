@@ -32,28 +32,11 @@ export default async function EditSalaryStructurePage({
     const label = doc.employeeName ?? doc.employeeId ?? id;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Salary structures', href: BASE },
-                    { label, href: `${BASE}/${id}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${label}`}
-                subtitle="Update earnings, deductions, or archive this structure."
-                icon={Wallet}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${label}`}
+            subtitle="Update earnings, deductions, or archive this structure."
+        >
             <SalaryStructureForm initialData={doc} />
-        </div>
+        </EntityListShell>
     );
 }

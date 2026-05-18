@@ -4,7 +4,6 @@ import { ZoruButton, ZoruCard, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruP
 import {
   Download,
   SlidersHorizontal,
-  FileSpreadsheet,
   LoaderCircle,
   IndianRupee,
   Users,
@@ -18,7 +17,7 @@ import { generatePayrollSummaryData,
   getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type PayrollRow = {
     employeeId: string;
@@ -113,20 +112,18 @@ export default function PayrollSummaryPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Payroll Summary"
-                subtitle="Monthly payroll breakdown with all deduction components per employee."
-                icon={FileSpreadsheet}
-                actions={
-                    <>
-                        <ZoruPopover>
-                            <ZoruPopoverTrigger asChild>
-                                <ZoruButton variant="outline">
-                                    <SlidersHorizontal className="h-4 w-4" />
-                                    Filters
-                                </ZoruButton>
-                            </ZoruPopoverTrigger>
+        <EntityListShell
+            title="Payroll Summary"
+            subtitle="Monthly payroll breakdown with all deduction components per employee."
+            primaryAction={
+                <>
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
+                                <SlidersHorizontal className="h-4 w-4" />
+                                Filters
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
                             <ZoruPopoverContent className="w-72 space-y-4 p-4">
                                 <div className="space-y-1.5">
                                     <ZoruLabel className="text-[12.5px]">Month</ZoruLabel>
@@ -175,7 +172,7 @@ export default function PayrollSummaryPage() {
                         </ZoruButton>
                     </>
                 }
-            />
+        >
 
             {/* Summary stat cards */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -259,6 +256,6 @@ export default function PayrollSummaryPage() {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

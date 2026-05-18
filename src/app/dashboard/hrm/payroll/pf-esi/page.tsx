@@ -6,11 +6,10 @@ import {
   useEffect,
   useTransition,
   useCallback } from 'react';
-import { ShieldCheck,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import { startOfMonth } from 'date-fns';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getPayslips } from '@/app/actions/crm-payroll.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
@@ -77,32 +76,30 @@ export default function PfEsiPage() {
     const periodLabel = `${months.find(m => m.value === month)?.label} ${year}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="PF & ESI Compliance"
-                subtitle={`Provident Fund and Employee State Insurance contributions for ${periodLabel}.`}
-                icon={ShieldCheck}
-                actions={
-                    <>
-                        <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
-                            <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
-                            <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                                <ZoruSelectValue />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                    </>
-                }
-            />
+        <EntityListShell
+            title="PF & ESI Compliance"
+            subtitle={`Provident Fund and Employee State Insurance contributions for ${periodLabel}.`}
+            primaryAction={
+                <>
+                    <ZoruSelect value={String(month)} onValueChange={val => setMonth(Number(val))}>
+                        <ZoruSelectTrigger className="w-36 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                            <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {months.map(m => <ZoruSelectItem key={m.value} value={String(m.value)}>{m.label}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruSelect value={String(year)} onValueChange={val => setYear(Number(val))}>
+                        <ZoruSelectTrigger className="w-28 h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                            <ZoruSelectValue />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            {years.map(y => <ZoruSelectItem key={y} value={String(y)}>{y}</ZoruSelectItem>)}
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                </>
+            }
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
@@ -194,6 +191,6 @@ export default function PfEsiPage() {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

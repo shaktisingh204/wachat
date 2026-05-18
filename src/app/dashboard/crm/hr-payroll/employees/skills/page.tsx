@@ -19,10 +19,9 @@ import {
 import { LoaderCircle,
   Pencil,
   Plus,
-  Sparkles,
   Trash2 } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   deleteSkill,
   getSkills,
@@ -89,18 +88,16 @@ export default function SkillsMasterPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Skills Master"
-        subtitle={`Manage the master list of skills used across the organisation.${!isLoading && skills.length > 0 ? `  ${skills.length} skill${skills.length !== 1 ? 's' : ''} defined.` : ''}`}
-        icon={Sparkles}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Skill
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Skills Master"
+      subtitle={`Manage the master list of skills used across the organisation.${!isLoading && skills.length > 0 ? `  ${skills.length} skill${skills.length !== 1 ? 's' : ''} defined.` : ''}`}
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Skill
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading ? (
@@ -190,6 +187,6 @@ export default function SkillsMasterPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

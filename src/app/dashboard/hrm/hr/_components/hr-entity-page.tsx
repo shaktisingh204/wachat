@@ -51,7 +51,7 @@ import { useActionState,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
 
@@ -565,32 +565,30 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle={subtitle}
-        icon={icon}
-        actions={
-          basePath ? (
-            <ZoruButton asChild>
-              <Link href={`${basePath}/new`}>
-                <Plus className="h-4 w-4" strokeWidth={1.75} />
-                Add {singular}
-              </Link>
-            </ZoruButton>
-          ) : (
-            <ZoruButton
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
+    <EntityListShell
+      title={title}
+      subtitle={subtitle}
+      primaryAction={
+        basePath ? (
+          <ZoruButton asChild>
+            <Link href={`${basePath}/new`}>
               <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add {singular}
-            </ZoruButton>
-          )
-        }
-      />
+            </Link>
+          </ZoruButton>
+        ) : (
+          <ZoruButton
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            Add {singular}
+          </ZoruButton>
+        )
+      }
+    >
 
       {kpis && kpis.length > 0 ? (
         <HrKpiStrip rows={rows} kpis={kpis} />
@@ -757,7 +755,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }
 

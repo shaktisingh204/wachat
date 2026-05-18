@@ -5,8 +5,6 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { FolderKanban } from 'lucide-react';
-
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { useT } from '@/lib/i18n/client';
@@ -16,7 +14,7 @@ import type { WithId,
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type TabId = 'todo' | 'inProgress' | 'completed';
 
@@ -73,13 +71,11 @@ export default function TasksPage() {
         : completedTasks;
 
   return (
-    <div className="flex h-full w-full flex-col gap-6">
-      <CrmPageHeader
-        title={t('crm.tasks.list.title')}
-        subtitle={t('crm.tasks.list.subtitle')}
-        icon={FolderKanban}
-        actions={<CreateTaskDialog onTaskCreated={fetchData} />}
-      />
+    <EntityListShell
+      title={t('crm.tasks.list.title')}
+      subtitle={t('crm.tasks.list.subtitle')}
+      primaryAction={<CreateTaskDialog onTaskCreated={fetchData} />}
+    >
 
       <ZoruCard className="flex min-h-0 flex-1 flex-col p-5">
         <div className="grid w-full grid-cols-3 gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-1">
@@ -103,6 +99,6 @@ export default function TasksPage() {
           <CrmTaskList tasks={visibleTasks} onTaskUpdated={fetchData} />
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

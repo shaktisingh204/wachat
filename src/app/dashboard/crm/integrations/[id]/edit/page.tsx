@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Webhook } from 'lucide-react';
 
 /**
  * Edit integration page — loads the doc by id and passes it to
@@ -12,9 +9,7 @@ import { ArrowLeft,
  * the operator types a fresh JSON payload.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getIntegrationById } from '@/app/actions/crm-integrations.actions';
 
@@ -38,28 +33,12 @@ export default async function EditIntegrationPage({
     if (!integration) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Integrations', href: BASE },
-                    { label: integration.name, href: `${BASE}/${id}/edit` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${integration.name}`}
-                subtitle="Update connection settings. Credentials stay hidden — leave blank to keep current."
-                icon={Webhook}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="INTEGRATION"
+            title={`Edit · ${integration.name}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+        >
             <IntegrationForm initialData={integration} />
-        </div>
+        </EntityDetailShell>
     );
 }

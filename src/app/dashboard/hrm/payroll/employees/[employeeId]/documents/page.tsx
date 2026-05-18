@@ -3,7 +3,6 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
   ExternalLink,
   FileText,
   Plus,
@@ -21,7 +20,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getEmployee } from '@/app/actions/crm/employees.actions';
@@ -107,37 +106,18 @@ export default async function EmployeeDocumentsSubPage({
     const NEW_DOC_HREF = `/dashboard/hrm/hr/documents/new?employeeId=${employeeId}&entityKind=employee&entityId=${employeeId}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Employees',
-                        href: '/dashboard/hrm/payroll/employees',
-                    },
-                    { label: fullName, href: BASE },
-                    { label: 'Documents' },
-                ]}
-                title={`Documents · ${fullName}`}
-                subtitle="HR documents linked to this employee."
-                icon={FileText}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Overview
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={NEW_DOC_HREF}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Upload
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={`Documents · ${fullName}`}
+            subtitle="HR documents linked to this employee."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={NEW_DOC_HREF}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Upload
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <div className="flex flex-wrap gap-1 border-b border-zoru-line">
                 {[
@@ -278,7 +258,7 @@ export default async function EmployeeDocumentsSubPage({
                     })}
                 </div>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

@@ -5,14 +5,12 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
+import {
   Save,
-  LoaderCircle,
-  Clock } from 'lucide-react';
-import Link from 'next/link';
+  LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveSla } from '@/app/actions/crm-sla.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
@@ -54,20 +52,11 @@ export default function NewSlaPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New SLA Policy"
-        subtitle="Define first-response and resolution targets for a ticket priority."
-        icon={Clock}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/crm/tickets/sla">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="SLA POLICY"
+      title="New SLA Policy"
+      back={{ href: '/dashboard/crm/tickets/sla', label: 'SLA Policies' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -171,6 +160,6 @@ export default function NewSlaPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

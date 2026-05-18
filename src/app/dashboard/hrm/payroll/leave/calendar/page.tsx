@@ -6,13 +6,11 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import Link from 'next/link';
 import { CalendarDays,
   ChevronLeft,
-  ChevronRight,
-  ArrowLeft } from 'lucide-react';
+  ChevronRight } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getLeavesForDateRange } from '@/app/actions/worksuite/leave.actions';
 import type { WsLeaveCalendarEntry } from '@/lib/worksuite/leave-types';
 
@@ -84,20 +82,10 @@ export default function LeaveCalendarPage() {
   const today = toIso(new Date());
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Calendar"
-        subtitle="Monthly view of approved leaves across the organization."
-        icon={CalendarDays}
-        actions={
-          <Link href="/dashboard/hrm/payroll/leave">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Leave Calendar"
+      subtitle="Monthly view of approved leaves across the organization."
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -187,6 +175,6 @@ export default function LeaveCalendarPage() {
           <p className="mt-4 text-center text-[12px] text-zoru-ink-muted">Loading…</p>
         ) : null}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

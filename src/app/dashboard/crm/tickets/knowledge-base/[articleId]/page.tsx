@@ -1,8 +1,6 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  BookOpen } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 
 /**
@@ -17,9 +15,7 @@ import { ObjectId } from 'mongodb';
  * helpful counters server-side.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -79,23 +75,11 @@ export default async function KbArticleDetailPage({
     const visibility = String(article.visibility ?? '').toLowerCase();
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title={title}
-                subtitle={
-                    article.slug
-                        ? `/${article.slug}`
-                        : 'Knowledge base article'
-                }
-                icon={BookOpen}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href="/dashboard/crm/tickets/knowledge-base">
-                            <ArrowLeft className="h-4 w-4" /> Back
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="KNOWLEDGE BASE"
+            title={title}
+            back={{ href: '/dashboard/crm/tickets/knowledge-base', label: 'Knowledge Base' }}
+        >
 
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
@@ -235,6 +219,6 @@ export default async function KbArticleDetailPage({
                     />
                 </aside>
             </div>
-        </div>
+        </EntityDetailShell>
     );
 }

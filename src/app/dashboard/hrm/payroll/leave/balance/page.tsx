@@ -5,11 +5,7 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import Link from 'next/link';
-import { CalendarCheck,
-  ArrowLeft } from 'lucide-react';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeaveBalance,
   getLeaveTypes,
@@ -36,20 +32,10 @@ export default function LeaveBalancePage() {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Balance"
-        subtitle="Per-employee remaining leaves across every leave type."
-        icon={CalendarCheck}
-        actions={
-          <Link href="/dashboard/hrm/payroll/leave">
-            <ZoruButton variant="outline">
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Leave Balance"
+      subtitle="Per-employee remaining leaves across every leave type."
+    >
 
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -141,6 +127,6 @@ export default function LeaveBalancePage() {
           </table>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -1,9 +1,7 @@
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { Activity,
-  ArrowLeft,
-  LifeBuoy } from 'lucide-react';
+import { LifeBuoy } from 'lucide-react';
 
 /**
  * Ticket activity — `/dashboard/crm/tickets/[id]/activity` (§1D.2).
@@ -15,9 +13,7 @@ import { Activity,
  * route.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getTicket } from '@/app/actions/crm/tickets.actions';
 
@@ -111,19 +107,11 @@ export default async function TicketActivityPage({
     entries.sort((a, b) => new Date(b.ts).getTime() - new Date(a.ts).getTime());
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title={`Activity — ${ticket.subject || 'Ticket'}`}
-                subtitle="Audit trail, assignments, notes, and replies."
-                icon={Activity}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href={`/dashboard/crm/tickets/${String(ticket._id)}`}>
-                            <ArrowLeft className="h-4 w-4" /> Back to ticket
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="TICKET"
+            title={`Activity — ${ticket.subject || 'Ticket'}`}
+            back={{ href: `/dashboard/crm/tickets/${String(ticket._id)}`, label: 'Back to ticket' }}
+        >
 
             <ZoruCard className="p-4">
                 {entries.length === 0 ? (
@@ -164,6 +152,6 @@ export default async function TicketActivityPage({
                     </ol>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

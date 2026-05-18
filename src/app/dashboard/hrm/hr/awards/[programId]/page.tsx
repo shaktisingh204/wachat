@@ -12,7 +12,7 @@ import {
 import {
   redirect } from 'next/navigation';
 import { ObjectId } from 'mongodb';
-import { ArrowLeft,
+import {
   Trophy,
   PlusCircle } from 'lucide-react';
 
@@ -30,9 +30,7 @@ import { ArrowLeft,
 
 export const dynamic = 'force-dynamic';
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
@@ -127,20 +125,11 @@ export default async function AwardProgramDetailPage({
     const criteria = (p.criteria as string) || (p.description as string) || '';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={name}
-                subtitle="Award program detail"
-                icon={Trophy}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Link href={AWARDS_LIST_HREF}>
-                            <ZoruButton variant="outline">
-                                <ArrowLeft className="h-4 w-4" />
-                                Back
-                            </ZoruButton>
-                        </Link>
-                        <HrActionButtons
+        <EntityListShell
+            title={name}
+            subtitle="Award program detail"
+            primaryAction={
+                <HrActionButtons
                             actions={[
                                 {
                                     key: 'vote',
@@ -192,9 +181,8 @@ export default async function AwardProgramDetailPage({
                                 },
                             ]}
                         />
-                    </div>
-                }
-            />
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
@@ -310,6 +298,6 @@ export default async function AwardProgramDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Zap } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Automation detail page.
@@ -16,7 +14,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getAutomationById } from '@/app/actions/crm-automations.actions';
@@ -59,34 +57,19 @@ export default async function AutomationDetailPage({
     const actionNodes = nodes.filter((n) => !n.type?.startsWith('trigger'));
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Automations', href: BASE },
-                    { label: automation.name },
-                ]}
-                title={automation.name}
-                subtitle={automation.description || 'Automation detail'}
-                icon={Zap}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${automationId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="AUTOMATION"
+            title={automation.name}
+            back={{ href: BASE, label: 'Automations' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${automationId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
             {/* Summary card */}
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -168,6 +151,6 @@ export default async function AutomationDetailPage({
                     </ol>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

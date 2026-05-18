@@ -3,13 +3,14 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Package } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ProductForm } from '../../_components/product-form';
 import { getProductById } from '@/app/actions/crm-store.actions';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/store/products';
 
 export default async function EditProductPage({
     params,
@@ -22,26 +23,12 @@ export default async function EditProductPage({
     const title = (product.title as string) || `Product ${id.slice(-6)}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit · ${title}`}
-                subtitle="Update product details, pricing and inventory."
-                icon={Package}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    {
-                        label: 'Products',
-                        href: '/dashboard/crm/store/products',
-                    },
-                    {
-                        label: title,
-                        href: `/dashboard/crm/store/products/${id}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-            />
+        <EntityDetailShell
+            eyebrow="PRODUCT"
+            title={`Edit · ${title}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to product' }}
+        >
             <ProductForm initial={product} productId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -8,9 +8,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { CalendarDays } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { LeaveForm } from '@/app/dashboard/crm/hr-payroll/leave/_components/leave-form';
 import {
   getLeave,
@@ -38,13 +37,11 @@ export default async function EditLeavePage({
     : 'Leave request';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${ltLabel}`}
-        subtitle="Update leave request details."
-        icon={CalendarDays}
-      />
+    <EntityListShell
+      title={`Edit ${ltLabel}`}
+      subtitle="Update leave request details."
+    >
       <LeaveForm initial={leave} leaveTypes={leaveTypes} />
-    </div>
+    </EntityListShell>
   );
 }

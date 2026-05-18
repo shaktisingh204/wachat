@@ -22,13 +22,13 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { Zap,
+import {
   Plus,
   Pencil,
   Trash2,
   LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getEmployeeSkills,
   saveEmployeeSkill,
@@ -131,18 +131,16 @@ export default function EmployeeSkillsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Employee Skills"
-        subtitle="Assign skills from the master list to employees."
-        icon={Zap}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Assign Skill
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Employee Skills"
+      subtitle="Assign skills from the master list to employees."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Assign Skill
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -242,6 +240,6 @@ export default function EmployeeSkillsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

@@ -5,14 +5,12 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
+import {
   Save,
-  LoaderCircle,
-  Gavel } from 'lucide-react';
-import Link from 'next/link';
+  LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveDisciplinaryCase } from '@/app/actions/crm-disciplinary.actions';
 
 export const dynamic = 'force-dynamic';

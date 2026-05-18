@@ -9,7 +9,7 @@ import {
   ArrowRight,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Store overview — `/dashboard/crm/store`.
@@ -76,23 +76,17 @@ export default async function StoreOverviewPage() {
     const kpi = await getStoreOverviewKpis();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Online store"
-                subtitle="Storefronts, products, pricing rules, shipping zones and orders."
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store' },
-                ]}
-                actions={
-                    <ZoruButton asChild variant="outline">
-                        <Link href="/dashboard/crm/store/storefronts/new">
-                            New storefront
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Online store"
+            subtitle="Storefronts, products, pricing rules, shipping zones and orders."
+            primaryAction={
+                <ZoruButton asChild variant="outline">
+                    <Link href="/dashboard/crm/store/storefronts/new">
+                        New storefront
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 <ZoruStatCard
@@ -139,6 +133,6 @@ export default async function StoreOverviewPage() {
                     );
                 })}
             </div>
-        </div>
+        </EntityListShell>
     );
 }

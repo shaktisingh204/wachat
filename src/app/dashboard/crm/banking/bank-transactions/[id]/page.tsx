@@ -1,10 +1,9 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
 import {
     ArrowDownLeft,
-  ArrowLeft,
   ArrowLeftRight,
   ArrowUpRight,
   CheckCircle2,
@@ -23,7 +22,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { getSession } from '@/app/actions/user.actions';
@@ -81,25 +80,11 @@ export default async function BankTransactionDetailPage({
     const isCredit = tx.type === 'credit';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Bank Transactions', href: BASE },
-                    { label: tx.referenceNumber || tx._id.slice(0, 8) },
-                ]}
-                title={tx.description || 'Transaction'}
-                subtitle={`${isCredit ? 'Credit' : 'Debit'} · ${fmtDate(tx.transactionDate)}`}
-                icon={ArrowLeftRight}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BANK TRANSACTION"
+            title={tx.description || 'Transaction'}
+            back={{ href: BASE, label: 'Bank Transactions' }}
+        >
 
             {/* Summary */}
             <ZoruCard className="p-6">
@@ -230,6 +215,6 @@ export default async function BankTransactionDetailPage({
                     <span>Updated {fmtDate(tx.updatedAt)}</span>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

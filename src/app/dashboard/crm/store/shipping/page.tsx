@@ -13,7 +13,7 @@ import {
   Plus,
   Truck } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * Shipping zones list — `/dashboard/crm/store/shipping`.
@@ -56,25 +56,18 @@ export default async function ShippingZoneListPage({ searchParams }: PageProps) 
         : '/dashboard/crm/store/shipping/new';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Shipping zones"
-                subtitle="Country / state coverage with per-method rates."
-                icon={Truck}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    { label: 'Shipping' },
-                ]}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link href={newHref}>
-                            <Plus className="h-4 w-4" />
-                            New zone
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Shipping zones"
+            subtitle="Country / state coverage with per-method rates."
+            primaryAction={
+                <ZoruButton variant="outline" asChild>
+                    <Link href={newHref}>
+                        <Plus className="h-4 w-4" />
+                        New zone
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-4">
                 <StorefrontFilterClient
@@ -165,6 +158,6 @@ export default async function ShippingZoneListPage({ searchParams }: PageProps) 
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

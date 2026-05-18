@@ -1,18 +1,13 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Package } from 'lucide-react';
 
 /**
  * Edit asset page — server wrapper that loads the asset and passes it as
  * `initialData` to `<AssetForm />`.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getAssetById } from '@/app/actions/crm-assets.actions';
 
@@ -36,28 +31,11 @@ export default async function EditAssetPage({
     if (!asset) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Assets', href: BASE },
-                    { label: asset.name, href: `${BASE}/${assetId}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${asset.name}`}
-                subtitle="Update asset fields. Changes are revalidated immediately."
-                icon={Package}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${assetId}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title={`Edit · ${asset.name}`}
+            subtitle="Update asset fields. Changes are revalidated immediately."
+        >
             <AssetForm initialData={asset} />
-        </div>
+        </EntityListShell>
     );
 }

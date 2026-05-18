@@ -29,7 +29,6 @@ import {
 import {
   useParams } from 'next/navigation';
 import {
-    ArrowLeft,
   ExternalLink,
   FileUp,
   LoaderCircle,
@@ -53,7 +52,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -248,35 +247,16 @@ export default function EmployeeVisaDetailsSubPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HR', href: '/dashboard/hrm/hr' },
-                        {
-                            label: 'Employees',
-                            href: '/dashboard/hrm/payroll/employees',
-                        },
-                        { label: 'Employee', href: BASE },
-                        { label: 'Visa details' },
-                    ]}
-                    title="Visa details"
-                    subtitle="Travel visas, sponsorship and supporting documents."
-                    icon={Plane}
-                    actions={
-                        <div className="flex items-center gap-2">
-                            <ZoruButton variant="outline" asChild>
-                                <Link href={BASE}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" />
-                                    Overview
-                                </Link>
-                            </ZoruButton>
-                            <ZoruButton onClick={openAdd}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add visa
-                            </ZoruButton>
-                        </div>
-                    }
-                />
+            <EntityListShell
+                title="Visa details"
+                subtitle="Travel visas, sponsorship and supporting documents."
+                primaryAction={
+                    <ZoruButton onClick={openAdd}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add visa
+                    </ZoruButton>
+                }
+            >
 
                 <div className="flex flex-wrap gap-1 border-b border-zoru-line">
                     {[
@@ -442,7 +422,7 @@ export default function EmployeeVisaDetailsSubPage() {
                         })}
                     </div>
                 )}
-            </div>
+            </EntityListShell>
 
             {/* Add / Edit dialog */}
             <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>

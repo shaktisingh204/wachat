@@ -28,7 +28,6 @@ import {
   LoaderCircle,
   Plus,
   Trash2,
-  Wallet,
   } from 'lucide-react';
 
 /**
@@ -42,7 +41,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -176,26 +174,16 @@ export default function PayrollRunsListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Payroll', href: '/dashboard/crm/hr-payroll' },
-                        { label: 'Payroll runs' },
-                    ]}
+            <EntityListShell
                     title="Payroll runs"
                     subtitle="One run per pay period — generate, finalize, and archive."
-                    icon={Wallet}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New payroll run
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -317,8 +305,7 @@ export default function PayrollRunsListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

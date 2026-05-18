@@ -7,7 +7,7 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { CalendarDays,
+import {
   ChevronLeft,
   ChevronRight,
   Users } from 'lucide-react';
@@ -15,7 +15,7 @@ import { format,
   addDays,
   startOfWeek } from 'date-fns';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 import type { WithId, CrmEmployee } from '@/lib/definitions';
 import {
@@ -107,38 +107,36 @@ export default function ShiftSchedulePage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Shift Schedule"
-        subtitle="Click a cell to assign the selected shift. Click again to clear."
-        icon={CalendarDays}
-        actions={
-          <>
-            <ZoruButton
-              variant="outline"
-              size="icon"
-              onClick={() => setWeekStart(addDays(weekStart, -7))}
-              aria-label="Previous week"
-            >
-              <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-            <ZoruButton
-              variant="outline"
-              onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
-            >
-              Today
-            </ZoruButton>
-            <ZoruButton
-              variant="outline"
-              size="icon"
-              onClick={() => setWeekStart(addDays(weekStart, 7))}
-              aria-label="Next week"
-            >
-              <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityListShell
+      title="Shift Schedule"
+      subtitle="Click a cell to assign the selected shift. Click again to clear."
+      primaryAction={
+        <>
+          <ZoruButton
+            variant="outline"
+            size="icon"
+            onClick={() => setWeekStart(addDays(weekStart, -7))}
+            aria-label="Previous week"
+          >
+            <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
+            onClick={() => setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))}
+          >
+            Today
+          </ZoruButton>
+          <ZoruButton
+            variant="outline"
+            size="icon"
+            onClick={() => setWeekStart(addDays(weekStart, 7))}
+            aria-label="Next week"
+          >
+            <ChevronRight className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+        </>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -220,7 +218,7 @@ export default function ShiftSchedulePage() {
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }
 

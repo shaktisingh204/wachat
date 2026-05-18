@@ -23,7 +23,7 @@ import {
   useMemo,
   useState,
   useTransition } from 'react';
-import { Plane,
+import {
   Plus,
   Pencil,
   Trash2,
@@ -33,7 +33,7 @@ import { Plane,
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getVisaDetails,
   saveVisaDetail,
@@ -151,18 +151,16 @@ export default function VisaDetailsPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Visa Details"
-        subtitle="Track employee work visas and expiry dates."
-        icon={Plane}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Visa
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Visa Details"
+      subtitle="Track employee work visas and expiry dates."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Visa
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading ? (
@@ -280,6 +278,6 @@ export default function VisaDetailsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

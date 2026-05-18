@@ -13,7 +13,7 @@ import { useEffect,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 
 type Employee = {
@@ -183,20 +183,18 @@ export default function OrgChartPage() {
   }, []);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Org Chart"
-        subtitle="Reporting hierarchy built from employee records."
-        icon={Network}
-        actions={
-          <Link href="/dashboard/crm/hr/directory">
-            <ZoruButton variant="outline">
-              View Directory
-              <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Org Chart"
+      subtitle="Reporting hierarchy built from employee records."
+      primaryAction={
+        <Link href="/dashboard/crm/hr/directory">
+          <ZoruButton variant="outline">
+            View Directory
+            <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard>
         {isLoading ? (
@@ -240,6 +238,6 @@ export default function OrgChartPage() {
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

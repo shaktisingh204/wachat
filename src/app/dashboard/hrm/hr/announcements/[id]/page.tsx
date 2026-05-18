@@ -3,11 +3,9 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
   Calendar,
   CheckCircle2,
   Eye,
-  Megaphone,
   MessageSquare,
   Pencil,
   Pin,
@@ -29,7 +27,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getAnnouncementById } from '@/app/actions/crm-announcements.actions';
 import { getSession } from '@/app/actions/user.actions';
@@ -90,34 +88,18 @@ export default async function AnnouncementDetailPage({
     const ackCount = announcement.acknowledgementCount ?? 0;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HRM', href: '/dashboard/hrm' },
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Announcements', href: BASE },
-                    { label: announcement.title },
-                ]}
-                title={announcement.title}
-                subtitle={titleCase(announcement.category as string)}
-                icon={Megaphone}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-1.5 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${announcement._id}/edit`}>
-                                <Pencil className="mr-1.5 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={announcement.title}
+            subtitle={titleCase(announcement.category as string)}
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${announcement._id}/edit`}>
+                        <Pencil className="mr-1.5 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Header card */}
             <ZoruCard className="p-6">
@@ -285,6 +267,6 @@ export default async function AnnouncementDetailPage({
                     </span>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

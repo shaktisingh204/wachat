@@ -1,9 +1,6 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  GitCompare } from 'lucide-react';
 
 /**
  * Edit reconciliation — server wrapper around `<ReconciliationForm
@@ -11,9 +8,7 @@ import { ArrowLeft,
  * notes blob so it can be re-rendered as a SabFile chip.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getReconciliationById } from '@/app/actions/crm-reconciliation.actions';
 import type { CrmReconciliationDoc } from '@/lib/rust-client/crm-reconciliation';
@@ -53,30 +48,15 @@ export default async function EditReconciliationPage({ params }: PageProps) {
     const { recon, statementUrl } = splitStatement(fetched);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Reconciliation', href: BASE },
-                    { label: 'Detail', href: `${BASE}/${id}` },
-                    { label: 'Edit' },
-                ]}
-                title="Edit reconciliation"
-                subtitle="Update balances, counts or notes."
-                icon={GitCompare}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="RECONCILIATION"
+            title="Edit reconciliation"
+            back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+        >
             <ReconciliationForm
                 initialData={recon}
                 initialStatementUrl={statementUrl}
             />
-        </div>
+        </EntityDetailShell>
     );
 }

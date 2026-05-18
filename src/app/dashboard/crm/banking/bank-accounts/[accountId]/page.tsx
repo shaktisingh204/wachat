@@ -3,11 +3,9 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
   ArrowLeftRight,
   Edit,
   FileText,
-  Landmark,
   RotateCw,
   } from 'lucide-react';
 
@@ -21,7 +19,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import { getCrmPaymentAccountById } from '@/app/actions/crm-payment-accounts.actions';
@@ -71,43 +69,32 @@ export default async function BankAccountDetailPage({
         (account as { currentBalance?: number }).currentBalance ?? account.openingBalance;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    { label: 'Bank Accounts', href: BASE },
-                    { label: account.accountName },
-                ]}
-                title={account.accountName}
-                subtitle={account.bankDetails?.bankName ?? 'Bank account'}
-                icon={Landmark}
-                actions={
-                    <div className="flex flex-wrap items-center gap-2">
-                        <ZoruButton variant="ghost" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link
-                                href={`/dashboard/crm/banking/bank-transactions?accountId=${accountId}`}
-                            >
-                                <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" /> Transactions
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/crm/banking/reconciliation">
-                                <RotateCw className="mr-1.5 h-3.5 w-3.5" /> Reconcile
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${accountId}/edit`}>
-                                <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="BANK ACCOUNT"
+            title={account.accountName}
+            back={{ href: BASE, label: 'Bank Accounts' }}
+            actions={
+                <div className="flex flex-wrap items-center gap-2">
+                    <ZoruButton variant="outline" asChild>
+                        <Link
+                            href={`/dashboard/crm/banking/bank-transactions?accountId=${accountId}`}
+                        >
+                            <ArrowLeftRight className="mr-1.5 h-3.5 w-3.5" /> Transactions
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton variant="outline" asChild>
+                        <Link href="/dashboard/crm/banking/reconciliation">
+                            <RotateCw className="mr-1.5 h-3.5 w-3.5" /> Reconcile
+                        </Link>
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${accountId}/edit`}>
+                            <Edit className="mr-1.5 h-3.5 w-3.5" /> Edit
+                        </Link>
+                    </ZoruButton>
+                </div>
+            }
+        >
 
             {/* Balance card */}
             <ZoruCard className="p-6">
@@ -202,7 +189,7 @@ export default async function BankAccountDetailPage({
                     </Link>
                 </p>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }
 

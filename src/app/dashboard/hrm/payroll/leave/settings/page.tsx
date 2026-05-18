@@ -5,11 +5,11 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { Settings,
+import {
   LoaderCircle,
   Save } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getLeaveSettings,
   saveLeaveSettings,
@@ -57,12 +57,10 @@ export default function LeaveSettingsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Leave Settings"
-        subtitle="Configure how leave applications behave across the organization."
-        icon={Settings}
-      />
+    <EntityListShell
+      title="Leave Settings"
+      subtitle="Configure how leave applications behave across the organization."
+    >
       <ZoruCard className="p-6">
         {isLoading ? (
           <div className="py-12 text-center text-[13px] text-zoru-ink-muted">
@@ -128,7 +126,7 @@ export default function LeaveSettingsPage() {
           </form>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }
 

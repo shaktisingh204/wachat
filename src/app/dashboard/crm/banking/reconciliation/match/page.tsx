@@ -35,7 +35,7 @@ import {
 
 import React, { useEffect, useMemo, useState, useTransition } from 'react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
 import {
     getReconciliationData,
@@ -219,21 +219,10 @@ export default function BankReconciliationMatchPage() {
     const difference = clearedBookAmount - clearedStatementAmount;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Banking', href: '/dashboard/crm/banking' },
-                    {
-                        label: 'Reconciliation',
-                        href: '/dashboard/crm/banking/reconciliation',
-                    },
-                    { label: 'Match worksheet' },
-                ]}
-                title="Match worksheet"
-                subtitle="Import a CSV bank statement and tick matched book entries."
-                icon={GitCompare}
-            />
+        <EntityListShell
+            title="Match worksheet"
+            subtitle="Import a CSV bank statement and tick matched book entries."
+        >
 
             <ZoruCard>
                 <div className="grid grid-cols-1 items-end gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -334,7 +323,7 @@ export default function BankReconciliationMatchPage() {
                     </div>
                 </>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

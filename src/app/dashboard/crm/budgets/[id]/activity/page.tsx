@@ -4,7 +4,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getBudgetById } from '@/app/actions/crm-budgets.actions';
@@ -21,21 +20,15 @@ export default async function BudgetActivityPage({ params }: PageProps) {
     const title = (budget.budgetHead as string) || 'Budget';
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${title} — Activity`}
-                subtitle="Audit trail of changes made to this budget."
-            />
-            <EntityDetailShell
-                title={title}
-                eyebrow="BUDGET ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/budgets/${id}`,
-                    label: 'Back to budget',
-                }}
-            >
-                <EntityAuditTimeline entityKind="budget" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={`${title} — Activity`}
+            eyebrow="BUDGET ACTIVITY"
+            back={{
+                href: `/dashboard/crm/budgets/${id}`,
+                label: 'Back to budget',
+            }}
+        >
+            <EntityAuditTimeline entityKind="budget" entityId={id} />
+        </EntityDetailShell>
     );
 }

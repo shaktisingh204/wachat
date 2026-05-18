@@ -50,7 +50,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import {
   getBankTransactionsExt,
@@ -140,24 +140,20 @@ export default function BankTransactionsExtPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Bank Transactions (ext)"
-        subtitle="Extended ledger — deposits, withdrawals, transfers. Auto-populated by payments & refunds."
-        icon={ArrowLeftRight}
-        actions={
-          <ZoruButton
-           
-           
-            onClick={() => {
-              setEditing(null);
-              setOpen(true);
-            }}
-          >
-            Add Transaction
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Bank Transactions (ext)"
+      subtitle="Extended ledger — deposits, withdrawals, transfers. Auto-populated by payments & refunds."
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setOpen(true);
+          }}
+        >
+          Add Transaction
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard>
         <div className="mb-4 flex flex-wrap items-end gap-3">
@@ -408,6 +404,6 @@ export default function BankTransactionsExtPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

@@ -21,10 +21,9 @@ import { useFormStatus } from 'react-dom';
 
 export const dynamic = 'force-dynamic';
 
-import { ArrowLeft, Save, LoaderCircle, Target } from 'lucide-react';
-import Link from 'next/link';
+import { Save, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveBudget } from '@/app/actions/crm-budgets.actions';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { EntityKey } from '@/lib/lookup-registry';
@@ -60,21 +59,11 @@ export default function NewBudgetPage() {
   }, [state, router, toast]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Budget"
-        subtitle="Set a period budget to track actuals against plan."
-        icon={Target}
-        actions={
-          <Link href="/dashboard/crm/budgets">
-            <ZoruButton variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Budgets
-            </ZoruButton>
-          </Link>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="BUDGET"
+      title="New Budget"
+      back={{ href: '/dashboard/crm/budgets', label: 'Budgets' }}
+    >
       <ZoruCard className="p-6">
         <form action={formAction} className="space-y-6">
           {/* Budget Head Type + Head Picker */}
@@ -215,6 +204,6 @@ export default function NewBudgetPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

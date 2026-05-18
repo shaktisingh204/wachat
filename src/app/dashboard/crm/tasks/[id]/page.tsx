@@ -4,9 +4,7 @@ import {
   redirect } from 'next/navigation';
 import Link from 'next/link';
 import {
-    ArrowLeft,
   CheckCircle2,
-  FolderKanban,
   Paperclip,
   Pencil,
   } from 'lucide-react';
@@ -18,7 +16,7 @@ import {
  * task overview, checklist (read-only), attachments and notes.
  */
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getTaskById } from '@/app/actions/crm-tasks-rust.actions';
@@ -86,32 +84,21 @@ export default async function TaskDetailPage({ params }: PageProps) {
     const attachments = task.attachments ?? [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Tasks', href: BASE },
-                    { label: task.title },
-                ]}
-                title={task.title}
-                subtitle={task.type ? `Type: ${task.type}` : 'Task detail'}
-                icon={FolderKanban}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                        <TaskDetailActions taskId={id} status={status} />
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="TASK"
+            title={task.title}
+            back={{ href: BASE, label: 'Tasks' }}
+            actions={
+                <div className="flex items-center gap-2">
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" /> Edit
+                        </Link>
+                    </ZoruButton>
+                    <TaskDetailActions taskId={id} status={status} />
+                </div>
+            }
+        >
 
             <ZoruCard>
                 <ZoruCardHeader>
@@ -224,6 +211,6 @@ export default async function TaskDetailPage({ params }: PageProps) {
                     </ZoruCardContent>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

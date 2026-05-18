@@ -30,7 +30,7 @@ import { LoaderCircle, Plus, Trash2, Edit, Landmark } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
     const { toast } = useZoruToast();
@@ -94,12 +94,10 @@ export default function BankAccountsPage() {
 
     if (!isLoading && accounts.length === 0) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Bank Accounts"
-                    subtitle="A list of all your connected bank accounts."
-                    icon={Landmark}
-                />
+            <EntityListShell
+                title="Bank Accounts"
+                subtitle="A list of all your connected bank accounts."
+            >
                 <ZoruCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
                         <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
@@ -118,29 +116,27 @@ export default function BankAccountsPage() {
                         </Link>
                     </div>
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         )
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Bank Accounts"
-                subtitle="A list of all your connected bank accounts."
-                icon={Landmark}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Link href="/dashboard/crm/banking/bank-transactions">
-                            <ZoruButton variant="ghost">Ext. Transactions</ZoruButton>
-                        </Link>
-                        <Link href="/dashboard/crm/banking/all/new">
-                            <ZoruButton>
-                                Add Bank Account
-                            </ZoruButton>
-                        </Link>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title="Bank Accounts"
+            subtitle="A list of all your connected bank accounts."
+            primaryAction={
+                <div className="flex items-center gap-2">
+                    <Link href="/dashboard/crm/banking/bank-transactions">
+                        <ZoruButton variant="ghost">Ext. Transactions</ZoruButton>
+                    </Link>
+                    <Link href="/dashboard/crm/banking/all/new">
+                        <ZoruButton>
+                            Add Bank Account
+                        </ZoruButton>
+                    </Link>
+                </div>
+            }
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -176,6 +172,6 @@ export default function BankAccountsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

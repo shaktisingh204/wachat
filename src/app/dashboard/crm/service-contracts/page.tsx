@@ -1,11 +1,9 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  Plus,
-  Wrench } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -102,20 +100,17 @@ export default async function ServiceContractsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Service Contracts (AMC)"
-        subtitle="Annual maintenance contracts with coverage and visit frequency."
-        icon={Wrench}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/service-contracts/new">
-              <Plus className="h-4 w-4" /> New contract
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title="Service Contracts (AMC)"
+      subtitle="Annual maintenance contracts with coverage and visit frequency."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/crm/service-contracts/new">
+            <Plus className="h-4 w-4" /> New contract
+          </Link>
+        </ZoruButton>
+      }
+    >
       {loadError ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
           Could not load service contracts. Please try again.
@@ -123,6 +118,6 @@ export default async function ServiceContractsPage() {
       ) : null}
 
       <ServiceContractsListClient contracts={contracts} />
-    </div>
+    </EntityListShell>
   );
 }

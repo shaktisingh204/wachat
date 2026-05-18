@@ -1,8 +1,6 @@
 import { ZoruButton } from '@/components/zoruui';
-import {
-  Target } from 'lucide-react';
 import { ObjectId } from 'mongodb';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -79,20 +77,17 @@ export default async function BudgetsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Budgets & Forecasting"
-        subtitle="Track revenue and expense targets against actuals."
-        icon={Target}
-        actions={
-          <Link href="/dashboard/crm/budgets/new">
-            <ZoruButton variant="outline" size="sm">
-              New budget
-            </ZoruButton>
-          </Link>
-        }
-      />
-
+    <EntityListShell
+      title="Budgets & Forecasting"
+      subtitle="Track revenue and expense targets against actuals."
+      primaryAction={
+        <Link href="/dashboard/crm/budgets/new">
+          <ZoruButton variant="outline" size="sm">
+            New budget
+          </ZoruButton>
+        </Link>
+      }
+    >
       {loadError ? (
         <div className="rounded-md border border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
           Could not load budgets.
@@ -100,6 +95,6 @@ export default async function BudgetsPage() {
       ) : null}
 
       <BudgetsListClient budgets={budgets} />
-    </div>
+    </EntityListShell>
   );
 }

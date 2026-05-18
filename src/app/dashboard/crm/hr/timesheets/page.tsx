@@ -24,7 +24,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Clock,
   Edit,
   LoaderCircle,
   Plus,
@@ -43,7 +42,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -136,26 +134,16 @@ export default function TimesheetsListPage(): React.JSX.Element {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HR', href: '/dashboard/crm/hr' },
-                        { label: 'Timesheets' },
-                    ]}
+            <EntityListShell
                     title="Weekly Timesheets"
                     subtitle="Weekly time records per employee with submit / approve workflow."
-                    icon={Clock}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New timesheet
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -252,8 +240,7 @@ export default function TimesheetsListPage(): React.JSX.Element {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

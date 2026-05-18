@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Timer } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * SLA policy detail page.
@@ -16,7 +14,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getSlaById } from '@/app/actions/crm-sla.actions';
@@ -65,33 +63,19 @@ export default async function SlaDetailPage({
   const priorityTone = PRIORITY_TONE[priority] ?? 'neutral';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        breadcrumbs={[
-          { label: 'Tickets', href: '/dashboard/crm/tickets' },
-          { label: 'SLA', href: BASE },
-          { label: sla.name },
-        ]}
-        title={sla.name}
-        subtitle={sla.description || 'SLA policy detail'}
-        icon={Timer}
-        actions={
-          <div className="flex items-center gap-2">
-            <ZoruButton variant="outline" asChild>
-              <Link href={BASE}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back
-              </Link>
-            </ZoruButton>
-            <ZoruButton asChild>
-              <Link href={`${BASE}/${id}/edit`}>
-                <Pencil className="mr-2 h-4 w-4" />
-                Edit
-              </Link>
-            </ZoruButton>
-          </div>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="SLA POLICY"
+      title={sla.name}
+      back={{ href: BASE, label: 'SLA Policies' }}
+      actions={
+        <ZoruButton asChild>
+          <Link href={`${BASE}/${id}/edit`}>
+            <Pencil className="mr-2 h-4 w-4" />
+            Edit
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -166,6 +150,6 @@ export default async function SlaDetailPage({
           ) : null}
         </ZoruCard>
       ) : null}
-    </div>
+    </EntityDetailShell>
   );
 }

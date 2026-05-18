@@ -21,13 +21,12 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { Users2,
-  Plus,
+import { Plus,
   Pencil,
   Trash2,
   LoaderCircle } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getEmployeeTeams,
   saveEmployeeTeam,
@@ -108,18 +107,16 @@ export default function EmployeeTeamsPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Employee Teams"
-        subtitle="Define employee teams with designated leaders."
-        icon={Users2}
-        actions={
-          <ZoruButton onClick={openAdd}>
-            <Plus className="h-4 w-4" />
-            Add Team
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Employee Teams"
+      subtitle="Define employee teams with designated leaders."
+      primaryAction={
+        <ZoruButton onClick={openAdd}>
+          <Plus className="h-4 w-4" />
+          Add Team
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         {isLoading ? (
@@ -212,6 +209,6 @@ export default function EmployeeTeamsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

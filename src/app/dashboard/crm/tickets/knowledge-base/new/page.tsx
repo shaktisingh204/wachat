@@ -5,22 +5,19 @@
  * shared `<KbArticleForm mode="create" />`.
  */
 
-import { BookOpen } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { KbArticleForm } from '../_components/kb-article-form';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewKbArticlePage() {
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title="New Knowledge Base article"
-                subtitle="Create a help article for customers or your support team."
-                icon={BookOpen}
-            />
+        <EntityDetailShell
+            eyebrow="KNOWLEDGE BASE"
+            title="New Knowledge Base article"
+            back={{ href: '/dashboard/crm/tickets/knowledge-base', label: 'Knowledge Base' }}
+        >
             <KbArticleForm mode="create" />
-        </div>
+        </EntityDetailShell>
     );
 }

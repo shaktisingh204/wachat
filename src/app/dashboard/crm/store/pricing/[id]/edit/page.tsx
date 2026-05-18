@@ -3,13 +3,14 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Tag } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { PricingRuleForm } from '../../_components/pricing-rule-form';
 import { getPricingRuleById } from '@/app/actions/crm-store.actions';
 
 export const dynamic = 'force-dynamic';
+
+const BASE = '/dashboard/crm/store/pricing';
 
 export default async function EditPricingRulePage({
     params,
@@ -22,26 +23,12 @@ export default async function EditPricingRulePage({
     const name = (rule.name as string) || `Rule ${id.slice(-6)}`;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit · ${name}`}
-                subtitle="Update the rule's kind, conditions and validity window."
-                icon={Tag}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Store', href: '/dashboard/crm/store' },
-                    {
-                        label: 'Pricing',
-                        href: '/dashboard/crm/store/pricing',
-                    },
-                    {
-                        label: name,
-                        href: `/dashboard/crm/store/pricing/${id}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-            />
+        <EntityDetailShell
+            eyebrow="PRICING RULE"
+            title={`Edit · ${name}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to rule' }}
+        >
             <PricingRuleForm initial={rule} pricingRuleId={id} />
-        </div>
+        </EntityDetailShell>
     );
 }

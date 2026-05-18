@@ -1,8 +1,7 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ZoruCard } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
-import { Activity,
-  ArrowLeft,
+import {
   BookOpen,
   Eye,
   ThumbsDown,
@@ -18,9 +17,7 @@ import { ObjectId } from 'mongodb';
  * layer starts emitting events.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -89,21 +86,11 @@ export default async function KbArticleActivityPage({
     ];
 
     return (
-        <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <CrmPageHeader
-                title={`Activity — ${article.title || 'Article'}`}
-                subtitle="Lifecycle, engagement counters, and feedback."
-                icon={Activity}
-                actions={
-                    <ZoruButton variant="outline" asChild>
-                        <Link
-                            href={`/dashboard/crm/tickets/knowledge-base/${articleId}`}
-                        >
-                            <ArrowLeft className="h-4 w-4" /> Back to article
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="KNOWLEDGE BASE"
+            title={`Activity — ${article.title || 'Article'}`}
+            back={{ href: `/dashboard/crm/tickets/knowledge-base/${articleId}`, label: 'Back to article' }}
+        >
 
             <ZoruCard className="p-4">
                 <ul className="flex flex-col gap-3">
@@ -121,6 +108,6 @@ export default async function KbArticleActivityPage({
                     ))}
                 </ul>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

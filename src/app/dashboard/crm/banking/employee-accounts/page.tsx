@@ -30,7 +30,7 @@ import { LoaderCircle, Plus, Trash2, Edit, Users } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
     const { toast } = useZoruToast();
@@ -94,12 +94,10 @@ export default function EmployeeAccountsPage() {
 
     if (!isLoading && accounts.length === 0) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Employee Accounts"
-                    subtitle="A list of all your employee-related accounts."
-                    icon={Users}
-                />
+            <EntityListShell
+                title="Employee Accounts"
+                subtitle="A list of all your employee-related accounts."
+            >
                 <ZoruCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-4 py-12 text-center">
                         <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
@@ -118,24 +116,22 @@ export default function EmployeeAccountsPage() {
                         </Link>
                     </div>
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         )
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Employee Accounts"
-                subtitle="A list of all your employee-related accounts."
-                icon={Users}
-                actions={
-                    <Link href="/dashboard/crm/banking/all/new">
-                        <ZoruButton>
-                            Add Employee Account
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityListShell
+            title="Employee Accounts"
+            subtitle="A list of all your employee-related accounts."
+            primaryAction={
+                <Link href="/dashboard/crm/banking/all/new">
+                    <ZoruButton>
+                        Add Employee Account
+                    </ZoruButton>
+                </Link>
+            }
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -169,6 +165,6 @@ export default function EmployeeAccountsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

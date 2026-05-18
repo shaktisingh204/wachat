@@ -23,8 +23,7 @@ import {
   useEffect,
   useState,
   useTransition } from 'react';
-import { Globe,
-  LoaderCircle } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 
 /**
  * Careers page settings — §1D.4 specialised "settings list" upgrade.
@@ -44,7 +43,7 @@ import { Globe,
 import * as React from 'react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getCareersPageConfig,
   saveCareersPageConfig,
@@ -112,12 +111,10 @@ export default function CareersPageConfigPage() {
     : '';
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Careers Page"
-        subtitle="Public-facing careers site — slug, theme, intro, jobs & SEO."
-        icon={Globe}
-      />
+    <EntityListShell
+      title="Careers Page"
+      subtitle="Public-facing careers site — slug, theme, intro, jobs & SEO."
+    >
 
       {isLoading && !config ? (
         <div className="space-y-4">
@@ -275,6 +272,6 @@ export default function CareersPageConfigPage() {
           </div>
         </form>
       )}
-    </div>
+    </EntityListShell>
   );
 }

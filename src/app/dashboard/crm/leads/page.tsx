@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { Users, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM Leads list — `/dashboard/crm/leads`.
@@ -15,7 +15,7 @@ import { Users, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { getT } from '@/lib/i18n/server';
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listLeads } from '@/app/actions/crm/leads.actions';
 import { LeadListClient } from './_components/lead-list-client';
 
@@ -43,21 +43,18 @@ export default async function LeadsPage({
   ]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={t('crm.leads.list.title')}
-        subtitle={t('crm.leads.list.subtitle')}
-        icon={Users}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/leads/new">
-              <Plus className="h-4 w-4" />
-              {t('crm.leads.list.action.new')}
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title={t('crm.leads.list.title')}
+      subtitle={t('crm.leads.list.subtitle')}
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/leads/new">
+            <Plus className="h-4 w-4" />
+            {t('crm.leads.list.action.new')}
+          </Link>
+        </ZoruButton>
+      }
+    >
       <LeadListClient
         leads={leads}
         page={page}
@@ -66,6 +63,6 @@ export default async function LeadsPage({
         initialQuery={q}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

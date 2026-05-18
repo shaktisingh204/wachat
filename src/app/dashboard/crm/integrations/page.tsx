@@ -13,7 +13,7 @@ export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const btnBase =
   'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
@@ -80,13 +80,10 @@ export default async function IntegrationsPage() {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Integrations"
-        subtitle="Connect your CRM to other tools and services to streamline your workflow."
-        icon={Zap}
-      />
-
+    <EntityListShell
+      title="Integrations"
+      subtitle="Connect your CRM to other tools and services to streamline your workflow."
+    >
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {integrations.map((integration) => {
           const Icon = integration.icon;
@@ -137,6 +134,6 @@ export default async function IntegrationsPage() {
           );
         })}
       </div>
-    </div>
+    </EntityListShell>
   );
 }

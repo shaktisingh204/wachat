@@ -14,8 +14,6 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
-  CalendarClock,
   CalendarDays,
   Plus,
   } from 'lucide-react';
@@ -32,7 +30,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getEmployee } from '@/app/actions/crm/employees.actions';
 import { getCrmLeaveBalances } from '@/app/actions/crm-leave-balances.actions';
@@ -87,37 +85,18 @@ export default async function EmployeeLeaveQuotasSubPage({
     );
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    {
-                        label: 'Employees',
-                        href: '/dashboard/hrm/payroll/employees',
-                    },
-                    { label: fullName, href: BASE },
-                    { label: 'Leave quotas' },
-                ]}
-                title={`Leave quotas · ${fullName}`}
-                subtitle="Per-leave-type allotment, usage and carry-forward."
-                icon={CalendarClock}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Overview
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={NEW_HREF}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                Manage balances
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={`Leave quotas · ${fullName}`}
+            subtitle="Per-leave-type allotment, usage and carry-forward."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={NEW_HREF}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Manage balances
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <div className="flex flex-wrap gap-1 border-b border-zoru-line">
                 {[
@@ -267,7 +246,7 @@ export default async function EmployeeLeaveQuotasSubPage({
                     </div>
                 </ZoruCard>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 
