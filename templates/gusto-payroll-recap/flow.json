@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_gusto_webhook",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "gusto.payroll.processed",
+    "options": {
+      "path": "gusto/payroll-processed",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_gusto_trigger",
+      "name": "Gusto Payroll Processed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "path": "gusto/payroll-processed",
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      }
+    },
+    {
+      "id": "n_gusto_payroll_get",
+      "name": "Fetch Payroll Detail",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.gusto.com/v1/companies/{{ $json.body.company_uuid }}/payrolls/{{ $json.body.payroll_uuid }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {
+          "response": { "response": { "fullResponse": false } }
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "gusto-cred", "name": "Gusto API Token" }
+      }
+    },
+    {
+      "id": "n_summarise",
+      "name": "Summarise Recap",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "headline", "value": "Payroll Recap — {{ $json.pay_period.start_date }} → {{ $json.pay_period.end_date }}" },
+            { "name": "totals", "value": "Gross: ${{ $json.totals.gross_pay }} | Net: ${{ $json.totals.net_pay }} | Taxes: ${{ $json.totals.employer_taxes }}" },
+            { "name": "headcount", "value": "={{ $json.employee_compensations ? $json.employee_compensations.length : 0 }}" },
+            { "name": "anomalies", "value": "={{ ($json.employee_compensations || []).filter(e => Number(e.gross_pay) > 25000).map(e => e.employee_first_name + ' ' + e.employee_last_name + ' ($' + e.gross_pay + ')').join(', ') || 'none' }}" }
+          ]
+        },
+        "options": { "include": "all" }
+      }
+    },
+    {
+      "id": "n_slack_post",
+      "name": "Slack Post Recap",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -160],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.PEOPLE_OPS_CHANNEL }}",
+        "text": "*{{ $json.headline }}*\n{{ $json.totals }}\nHeadcount: {{ $json.headcount }}\nAnomalies: {{ $json.anomalies }}",
+        "otherOptions": { "reply_broadcast": false }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_thread_departments",
+      "name": "Slack Thread Per Department",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -160],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.PEOPLE_OPS_CHANNEL }}",
+        "text": "Per-department breakdown thread for {{ $node['Summarise Recap'].json.headline }}",
+        "otherOptions": {
+          "thread_ts": "={{ $json.ts }}"
+        }
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_build_csv",
+      "name": "Build Finance CSV",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 2,
+      "position": [720, 160],
+      "parameters": {
+        "operation": "toFile",
+        "fileFormat": "csv",
+        "options": {
+          "fileName": "payroll-recap-{{ $node['Fetch Payroll Detail'].json.pay_period.end_date }}.csv"
+        }
+      }
+    },
+    {
+      "id": "n_email_finance",
+      "name": "Email Finance CSV",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 160],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.FINANCE_RECIPIENTS }}",
+        "subject": "={{ $node['Summarise Recap'].json.headline }}",
+        "contentType": "text/html",
+        "content": "<p>{{ $node['Summarise Recap'].json.totals }}</p><p>Headcount: {{ $node['Summarise Recap'].json.headcount }}</p><p>Anomalies: {{ $node['Summarise Recap'].json.anomalies }}</p><p>CSV attached.</p>",
+        "additionalFields": {
+          "attachments": "data"
+        }
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_audit_merge",
+      "name": "Converge Branches",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "mode": "mergeByPosition"
+      }
+    },
+    {
+      "id": "n_audit_mongo",
+      "name": "Mongo Audit Row",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "payroll_recap_audit",
+        "fields": "payrollUuid,headline,totals,headcount,anomalies,deliveredAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "SabNode Mongo" }
+      }
+    }
+  ],
+  "connections": {
+    "n_gusto_trigger": {
+      "main": [[{ "node": "n_gusto_payroll_get", "type": "main", "index": 0 }]]
+    },
+    "n_gusto_payroll_get": {
+      "main": [[{ "node": "n_summarise", "type": "main", "index": 0 }]]
+    },
+    "n_summarise": {
+      "main": [
+        [
+          { "node": "n_slack_post", "type": "main", "index": 0 },
+          { "node": "n_build_csv", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack_post": {
+      "main": [[{ "node": "n_slack_thread_departments", "type": "main", "index": 0 }]]
+    },
+    "n_slack_thread_departments": {
+      "main": [[{ "node": "n_audit_merge", "type": "main", "index": 0 }]]
+    },
+    "n_build_csv": {
+      "main": [[{ "node": "n_email_finance", "type": "main", "index": 0 }]]
+    },
+    "n_email_finance": {
+      "main": [[{ "node": "n_audit_merge", "type": "main", "index": 1 }]]
+    },
+    "n_audit_merge": {
+      "main": [[{ "node": "n_audit_mongo", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_gusto_trigger",
+        "n_gusto_payroll_get",
+        "n_summarise",
+        "n_slack_post",
+        "n_slack_thread_departments",
+        "n_build_csv",
+        "n_email_finance",
+        "n_audit_merge",
+        "n_audit_mongo"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_people_ops", "name": "PEOPLE_OPS_CHANNEL", "defaultValue": "#people-ops" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "people-ops@example.com" },
+    { "id": "v_finance", "name": "FINANCE_RECIPIENTS", "defaultValue": "finance@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
