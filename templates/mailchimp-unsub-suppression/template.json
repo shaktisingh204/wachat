@@ -1,0 +1,10 @@
+{
+  "id": "mailchimp-unsub-suppression",
+  "name": "Mailchimp Unsubscribe Suppression",
+  "description": "When a contact unsubscribes from Mailchimp, mirrors the suppression into HubSpot (marks unsubscribed=true), into Salesforce (sets HasOptedOutOfEmail), and into your internal Mongo email-suppression list. Ensures the unsubscribe is honored everywhere it matters.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mailchimp", "hubspot", "salesforce", "unsubscribe", "marketing", "compliance"],
+  "version": "0.1.0"
+}
