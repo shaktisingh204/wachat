@@ -22,6 +22,7 @@ import {
 } from './chrome/EditorCollabMount';
 import { saveSabFlow, activateSabFlow, deactivateSabFlow } from '@/app/actions/sabflow';
 import { toJsonSafe } from '@/lib/sabflow/toJsonSafe';
+import { SABFLOW_COLLAB_ENABLED } from '@/lib/sabflow/features';
 import type { SabFlowDoc } from '@/lib/sabflow/types';
 import { countValidationResults } from '@/lib/sabflow/validation';
 import type { ValidationError } from '@/lib/sabflow/validation';
@@ -41,22 +42,9 @@ import {
 
 const MAX_HISTORY = 50;
 
-/**
- * Phase C.8.1 feature flag — when truthy, the editor swaps its in-memory
- * `useState(initialFlow)` for `useSabFlowDoc(flowId)` and rewires every
- * mutation handler to a Yjs transaction. Default is OFF so production keeps
- * the legacy REST-save path; the CRDT path lands behind this flag per the
- * rollback plan in `docs/adr/sabflow-state-management.md` §4.1.
- *
- * `NEXT_PUBLIC_*` env vars are inlined at build time — this expression
- * collapses to a literal boolean and the legacy branch tree-shakes cleanly
- * when the flag is unset.
- */
-const COLLAB_FLAG_RAW = process.env.NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED;
-const SABFLOW_COLLAB_ENABLED =
-  COLLAB_FLAG_RAW === '1' ||
-  COLLAB_FLAG_RAW === 'true' ||
-  COLLAB_FLAG_RAW === 'TRUE';
+// SABFLOW_COLLAB_ENABLED is imported from '@/lib/sabflow/features'.
+// It is a build-time constant (NEXT_PUBLIC_*) so the disabled branch
+// tree-shakes cleanly when the flag is unset.
 
 /* ── Types ───────────────────────────────────────────────────────────────── */
 
@@ -552,14 +540,20 @@ export function EditorPage({ flow }: Props) {
   return (
     <GraphProvider>
       <GraphDndProvider>
-        {/* CollabProvider runs the presence beacon once and fans the result
-           out to the header avatar stack and the canvas cursor overlay via
-           React context. When NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED is unset
-           (default) the provider passes an empty flowId to `usePresence`,
-           short-circuiting its polling effect so no network beacons fire. */}
-        <CollabProvider flowId={flow._id}>
+        {SABFLOW_COLLAB_ENABLED ? (
+          /* CollabProvider runs the presence beacon and fans the result out to
+             the header avatar stack and the canvas cursor overlay via React
+             context. Only mounted when NEXT_PUBLIC_SABFLOW_COLLAB_ENABLED is
+             'true'/'1'. When the flag is off the collab bundle (Yjs, y-protocols,
+             WebSocket provider) is excluded via tree-shaking and the editor falls
+             back to the standalone REST-save path below. */
+          <CollabProvider flowId={flow._id}>
+            <EditorContentCollab flow={flow} />
+          </CollabProvider>
+        ) : (
+          /* Non-collab path: plain in-memory useState editor, zero Yjs dep. */
           <EditorContent flow={flow} />
-        </CollabProvider>
+        )}
       </GraphDndProvider>
     </GraphProvider>
   );
