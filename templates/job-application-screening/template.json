@@ -1,0 +1,10 @@
+{
+  "id": "job-application-screening",
+  "name": "Job Application Screening",
+  "description": "Triggered when Greenhouse signals a new candidate, parses the attached resume, and runs OpenAI against a rubric to produce a structured score. A switch routes high-fit applicants to the next Greenhouse stage with a follow-up email and a Slack ping to recruiting; mid-fit goes to screen; weak fits get a polite rejection.",
+  "category": "HR",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["greenhouse", "openai", "slack", "sendgrid", "hiring", "screening"],
+  "version": "0.1.0"
+}

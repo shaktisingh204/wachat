@@ -1,0 +1,10 @@
+{
+  "id": "notion-pr-template-creator",
+  "name": "Notion PR Template Creator",
+  "description": "Watches for GitHub pull requests labeled [design], fetches the PR body, and asks GPT-4o to draft a design-doc skeleton with the same intent. The flow creates a new Notion page in the design DB, then comments back on the PR with a deep link so reviewers can find the doc instantly.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["github", "notion", "openai", "design", "pr", "engineering"],
+  "version": "0.1.0"
+}

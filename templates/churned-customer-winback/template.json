@@ -1,0 +1,10 @@
+{
+  "id": "churned-customer-winback",
+  "name": "Churned Customer Winback",
+  "description": "Runs daily to find Stripe customers who cancelled their subscription in the last 30 days, creates a personalized winback campaign in Klaviyo, and sends each customer a SendGrid email with a returning-customer discount code. Every send is logged in Mongo so the same person isn't pinged twice.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "klaviyo", "sendgrid", "winback", "retention", "mongo"],
+  "version": "0.1.0"
+}

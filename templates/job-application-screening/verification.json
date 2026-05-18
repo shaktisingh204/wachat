@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "job-application-screening",
+  "cases": [
+    {
+      "id": "candidate",
+      "description": "Greenhouse candidate triggers parse, score, and switch by bucket.",
+      "triggerPayload": { "id": 1, "email": "cand@example.com", "resumeUrl": "https://files.example.com/r.pdf" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

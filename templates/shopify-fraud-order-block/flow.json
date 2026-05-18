@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.orders.create",
+    "options": {
+      "path": "/webhooks/shopify-fraud-order-block",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Shopify New Order",
+      "type": "n8n-nodes-base.shopifyTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "topic": "orders/create" },
+      "credentials": { "shopifyApi": { "id": "shopify-cred", "name": "Shopify" } }
+    },
+    {
+      "id": "n_stripe_charge",
+      "name": "Fetch Stripe Charge",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "charge", "operation": "get", "chargeId": "={{ $json.transactions[0].authorization }}" },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe" } }
+    },
+    {
+      "id": "n_if_high",
+      "name": "High Risk?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.outcome.risk_level }}", "operation": "equal", "value2": "elevated" }]
+        }
+      }
+    },
+    {
+      "id": "n_cancel_order",
+      "name": "Cancel Shopify Order",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [720, -240],
+      "parameters": { "resource": "order", "operation": "cancel", "orderId": "={{ $node['Shopify New Order'].json.id }}" },
+      "credentials": { "shopifyApi": { "id": "shopify-cred", "name": "Shopify" } }
+    },
+    {
+      "id": "n_refund",
+      "name": "Refund Stripe Charge",
+      "type": "n8n-nodes-base.stripe",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": { "resource": "charge", "operation": "refund", "chargeId": "={{ $node['Fetch Stripe Charge'].json.id }}" },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #fraud-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 80],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#fraud-ops",
+        "text": "Blocked high-risk Shopify order {{ $node['Shopify New Order'].json.id }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_hubspot_tag",
+      "name": "Tag Customer in HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [720, 240],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $node['Shopify New Order'].json.email }}",
+        "additionalFields": { "lifecyclestage": "fraud_risk" }
+      },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Low Risk OK",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 380],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_stripe_charge", "type": "main", "index": 0 }]] },
+    "n_stripe_charge": { "main": [[{ "node": "n_if_high", "type": "main", "index": 0 }]] },
+    "n_if_high": {
+      "true": [[
+        { "node": "n_cancel_order", "type": "main", "index": 0 },
+        { "node": "n_refund", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_hubspot_tag", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_stripe_charge", "n_if_high", "n_cancel_order", "n_refund", "n_slack", "n_hubspot_tag", "n_noop"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

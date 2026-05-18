@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "eventbrite-rsvp-confirmer",
+  "cases": [
+    {
+      "id": "order",
+      "description": "Eventbrite order triggers fan-out and convergence.",
+      "triggerPayload": { "api_url": "12345" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

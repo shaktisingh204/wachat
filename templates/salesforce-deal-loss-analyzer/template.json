@@ -1,0 +1,10 @@
+{
+  "id": "salesforce-deal-loss-analyzer",
+  "name": "Salesforce Deal Loss Analyzer",
+  "description": "Fires when a Salesforce opportunity moves to Closed Lost, pulls the opportunity details and the AE's SalesLoft call/email activity, and merges them into a single context blob. GPT-4o produces a structured loss reason, attached as a Salesforce note, then DMs the AE on Slack and posts a coachable insight to #sales-leadership.",
+  "category": "CRM",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["salesforce", "salesloft", "openai", "slack", "win-loss", "coaching"],
+  "version": "0.1.0"
+}

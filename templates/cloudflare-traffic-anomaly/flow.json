@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cf",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cloudflare.traffic.spike",
+    "options": {
+      "path": "/webhooks/cloudflare-traffic-anomaly",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-CF-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "CF Spike Notification",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "cloudflare-traffic-anomaly",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "cloudflare-traffic-anomaly"
+    },
+    {
+      "id": "n_analytics",
+      "name": "Pull CF Analytics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.cloudflare.com/client/v4/zones/{{ $vars.CF_ZONE_ID }}/analytics/dashboard",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "cloudflareApi"
+      },
+      "credentials": { "cloudflareApi": { "id": "cf-cred", "name": "Cloudflare" } }
+    },
+    {
+      "id": "n_check",
+      "name": "Anomaly Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const lastHour = $input.first().json.result?.totals?.requests?.all ?? 0; const baseline = $input.first().json.result?.timeseries?.[0]?.requests?.all ?? 0; return [{ json: { anomalous: lastHour > 2 * baseline, lastHour, baseline } }];"
+      }
+    },
+    {
+      "id": "n_if",
+      "name": "Anomalous?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.anomalous }}", "value2": true }] }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #infra",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#infra",
+        "text": "Traffic anomaly detected."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_pd",
+      "name": "PagerDuty",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": { "resource": "incident", "operation": "create" },
+      "credentials": { "pagerDutyApi": { "id": "pd-cred", "name": "PagerDuty" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Within Baseline",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 240],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_analytics", "type": "main", "index": 0 }]] },
+    "n_analytics": { "main": [[{ "node": "n_check", "type": "main", "index": 0 }]] },
+    "n_check": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_pd", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_analytics", "n_check", "n_if", "n_slack", "n_pd", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_zone", "name": "CF_ZONE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

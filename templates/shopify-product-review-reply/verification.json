@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-product-review-reply",
+  "cases": [
+    {
+      "id": "review",
+      "description": "New review triggers conditional reply.",
+      "triggerPayload": { "id": 1, "rating": 5 },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

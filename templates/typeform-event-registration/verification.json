@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "typeform-event-registration",
+  "cases": [
+    {
+      "id": "register",
+      "description": "Form submission fans out to four systems and converges on Mongo.",
+      "triggerPayload": { "form_response": { "answers": [{ "email": "a@example.com" }, { "text": "Alice" }] } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

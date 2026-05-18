@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cld",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cloudinary.upload",
+    "options": {
+      "path": "/webhooks/ai-image-tagger-cloudinary",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Cld-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Cloudinary Upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-image-tagger-cloudinary",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ai-image-tagger-cloudinary"
+    },
+    {
+      "id": "n_download",
+      "name": "Download Asset",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": { "method": "GET", "url": "={{ $json.secure_url }}" }
+    },
+    {
+      "id": "n_vision",
+      "name": "OpenAI Vision Tag",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON with { tags: string[], altText: string }." },
+            { "role": "user", "content": "Describe this image for alt text and tagging." }
+          ]
+        },
+        "options": { "responseFormat": "json_object" }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_update",
+      "name": "Update Cloudinary Metadata",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.cloudinary.com/v1_1/{{ $vars.CLOUDINARY_CLOUD }}/resources/image/upload/{{ $node['Cloudinary Upload'].json.public_id }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "cloudinaryApi"
+      },
+      "credentials": { "cloudinaryApi": { "id": "cld-cred", "name": "Cloudinary" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "image_tags" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #content",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#content",
+        "text": "Image tagged with AI."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_download", "type": "main", "index": 0 }]] },
+    "n_download": { "main": [[{ "node": "n_vision", "type": "main", "index": 0 }]] },
+    "n_vision": { "main": [[{ "node": "n_update", "type": "main", "index": 0 }]] },
+    "n_update": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_download", "n_vision", "n_update", "n_airtable", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_c", "name": "CLOUDINARY_CLOUD", "defaultValue": "your-cloud" },
+    { "id": "v_b", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "crisp-chat-handoff",
+  "cases": [
+    {
+      "id": "fail",
+      "description": "Bot-failure increments counter and conditionally hands off.",
+      "triggerPayload": { "sessionId": "sess_1", "email": "user@example.com" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

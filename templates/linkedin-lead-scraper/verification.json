@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "linkedin-lead-scraper",
+  "cases": [
+    {
+      "id": "capture",
+      "description": "Profile captured by extension is enriched and routed by ICP match.",
+      "triggerPayload": { "email": "vp@example.com" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

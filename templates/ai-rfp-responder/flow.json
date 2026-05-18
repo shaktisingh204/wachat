@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_upload",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "rfp.uploaded",
+    "options": {
+      "path": "/webhooks/ai-rfp-responder",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Internal-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "RFP Uploaded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ai-rfp-responder",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ai-rfp-responder"
+    },
+    {
+      "id": "n_ocr",
+      "name": "Extract Text (OCR)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.OCR_URL }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "fileUrl", "value": "={{ $json.fileUrl }}" }] }
+      }
+    },
+    {
+      "id": "n_vision",
+      "name": "GPT-4o Vision Structure",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Extract sections, questions, and deadlines from this RFP. Return JSON." },
+            { "role": "user", "content": "={{ $json.text }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object" }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_pinecone",
+      "name": "Pinecone Query Past RFPs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PINECONE_URL }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pineconeApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "topK", "value": "5" },
+            { "name": "vector", "value": "={{ $json.embedding }}" }
+          ]
+        }
+      },
+      "credentials": { "pineconeApi": { "id": "pinecone-cred", "name": "Pinecone API" } }
+    },
+    {
+      "id": "n_draft",
+      "name": "Draft Response",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Draft a polished, sectioned RFP reply using prior wins as guidance." },
+            { "role": "user", "content": "Sections: {{ $node['GPT-4o Vision Structure'].json.message.content }}\nPrior: {{ JSON.stringify($json.matches) }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_email_docx",
+      "name": "Email Draft to Requester",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "rfp@example.com",
+        "toEmail": "={{ $node['RFP Uploaded'].json.requesterEmail }}",
+        "subject": "=Draft RFP Response: {{ $node['RFP Uploaded'].json.opportunityName }}",
+        "content": "={{ $node['Draft Response'].json.message.content }}"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_sf_attach",
+      "name": "Attach to Salesforce Opp",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [1200, 120],
+      "parameters": {
+        "resource": "attachment",
+        "operation": "create",
+        "parentId": "={{ $node['RFP Uploaded'].json.opportunityId }}",
+        "name": "=RFP Draft - {{ $now }}.md",
+        "body": "={{ $node['Draft Response'].json.message.content }}"
+      },
+      "credentials": { "salesforceOAuth2Api": { "id": "sf-cred", "name": "Salesforce" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_ocr", "type": "main", "index": 0 }]] },
+    "n_ocr": { "main": [[{ "node": "n_vision", "type": "main", "index": 0 }]] },
+    "n_vision": { "main": [[{ "node": "n_pinecone", "type": "main", "index": 0 }]] },
+    "n_pinecone": { "main": [[{ "node": "n_draft", "type": "main", "index": 0 }]] },
+    "n_draft": {
+      "main": [[
+        { "node": "n_email_docx", "type": "main", "index": 0 },
+        { "node": "n_sf_attach", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_ocr", "n_vision", "n_pinecone", "n_draft", "n_email_docx", "n_sf_attach"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ocr", "name": "OCR_URL", "defaultValue": "https://ocr.example.com/extract" },
+    { "id": "v_pc", "name": "PINECONE_URL", "defaultValue": "https://example.svc.pinecone.io" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

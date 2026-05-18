@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "slack-standup-collector",
+  "cases": [
+    {
+      "id": "daily-tick",
+      "description": "Weekday 09:00 cron fires, roster is pulled, prompts go out, replies collected, digest posted.",
+      "triggerPayload": { "tick": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

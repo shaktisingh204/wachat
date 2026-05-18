@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_nightly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 2 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Nightly 02:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 2 * * *" }] } }
+    },
+    {
+      "id": "n_fetch_usage",
+      "name": "Fetch OpenAI Usage",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.openai.com/v1/organization/usage/completions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "start_time", "value": "={{ Math.floor(Date.now()/1000) - 86400 }}" },
+            { "name": "group_by", "value": "project" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Per-Project",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const rows = $input.first().json.data || []; const out = rows.map(r => ({ project: r.project_id, spend: Number(r.amount?.value ?? 0) })); const total = out.reduce((s, r) => s + r.spend, 0); return [{ json: { rows: out, total } }];"
+      }
+    },
+    {
+      "id": "n_airtable_upsert",
+      "name": "Upsert Daily Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "upsert",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "openai_daily_spend",
+        "fields": {
+          "date": "={{ $now.format('yyyy-MM-dd') }}",
+          "total": "={{ $json.total }}",
+          "raw": "={{ JSON.stringify($json.rows) }}"
+        }
+      },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable Token" } }
+    },
+    {
+      "id": "n_check_budget",
+      "name": "Over Budget?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $node['Aggregate Per-Project'].json.total }}", "operation": "larger", "value2": "={{ $vars.DAILY_BUDGET_USD }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack #ai-spend",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#ai-spend",
+        "text": "OpenAI spend ${{ $node['Aggregate Per-Project'].json.total }} exceeded budget ${{ $vars.DAILY_BUDGET_USD }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack Bot" } }
+    },
+    {
+      "id": "n_email_finance",
+      "name": "Email Finance",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "ops@example.com",
+        "toEmail": "finance@example.com",
+        "subject": "OpenAI spend over budget",
+        "content": "Daily spend exceeded budget. See Airtable row."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Within Budget",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 240],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_fetch_usage", "type": "main", "index": 0 }]] },
+    "n_fetch_usage": { "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]] },
+    "n_aggregate": { "main": [[{ "node": "n_airtable_upsert", "type": "main", "index": 0 }]] },
+    "n_airtable_upsert": { "main": [[{ "node": "n_check_budget", "type": "main", "index": 0 }]] },
+    "n_check_budget": {
+      "true": [[
+        { "node": "n_slack_alert", "type": "main", "index": 0 },
+        { "node": "n_email_finance", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_fetch_usage", "n_aggregate", "n_airtable_upsert", "n_check_budget", "n_slack_alert", "n_email_finance", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXXXXX" },
+    { "id": "v_budget", "name": "DAILY_BUDGET_USD", "defaultValue": "250" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

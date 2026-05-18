@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] } }
+    },
+    {
+      "id": "n_costs",
+      "name": "AWS Cost Explorer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://ce.us-east-1.amazonaws.com/",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "aws"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_compute",
+      "name": "Compute Yesterday vs 7d Avg",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const results = $input.first().json.ResultsByTime || []; const days = results.map(r => Number(r.Total?.UnblendedCost?.Amount ?? 0)); const yesterday = days.at(-1) ?? 0; const avg = days.slice(0, -1).reduce((s, n) => s + n, 0) / Math.max(days.length - 1, 1); return [{ json: { yesterday, avg, spike: yesterday > 1.5 * avg } }];"
+      }
+    },
+    {
+      "id": "n_if",
+      "name": "Over 1.5x?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.spike }}", "value2": true }] }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #aws-spend",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#aws-spend",
+        "text": "=AWS spend spike detected: ${{ $json.yesterday }} vs avg ${{ $json.avg }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_email",
+      "name": "Email CFO",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "ops@example.com",
+        "toEmail": "cfo@example.com",
+        "subject": "AWS daily spend spike",
+        "content": "Investigate AWS cost spike."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Within Range",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 260],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_costs", "type": "main", "index": 0 }]] },
+    "n_costs": { "main": [[{ "node": "n_compute", "type": "main", "index": 0 }]] },
+    "n_compute": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_costs", "n_compute", "n_if", "n_slack", "n_email", "n_noop"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "discord-spam-filter",
+  "name": "Discord Spam Filter",
+  "description": "Listens to every new Discord message, runs OpenAI's moderation endpoint, and when content is flagged deletes the message, times the offender out, and logs the action to #mod-log. Legitimate messages flow through with no friction so moderators only see the noise that matters.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["discord", "moderation", "openai", "slack", "spam", "community"],
+  "version": "0.1.0"
+}

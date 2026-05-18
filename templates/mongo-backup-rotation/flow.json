@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_03am",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 3 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 03:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * *" }] } }
+    },
+    {
+      "id": "n_mongodump",
+      "name": "Run mongodump",
+      "type": "n8n-nodes-base.executeCommand",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "command": "mongodump --uri=$MONGO_URI --archive=/tmp/dump-$(date +%F).gz --gzip"
+      }
+    },
+    {
+      "id": "n_s3_upload",
+      "name": "Upload to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.BACKUP_BUCKET }}",
+        "fileName": "=mongo/dump-{{ $now.format('yyyy-MM-dd') }}.gz"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_s3_list",
+      "name": "List Existing Backups",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "operation": "getAll", "bucketName": "={{ $vars.BACKUP_BUCKET }}", "filterByPrefix": "mongo/" },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_filter_old",
+      "name": "Filter Older Than Retention",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const cutoff = Date.now() - 30 * 86400000; return items.filter(i => new Date(i.json.LastModified).getTime() < cutoff);"
+      }
+    },
+    {
+      "id": "n_s3_delete",
+      "name": "Delete Old Backups",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": { "operation": "delete", "bucketName": "={{ $vars.BACKUP_BUCKET }}", "fileKey": "={{ $json.Key }}" },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #infra-backups",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#infra-backups",
+        "text": "Nightly mongo backup uploaded and rotated."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_mongodump", "type": "main", "index": 0 }]] },
+    "n_mongodump": { "main": [[{ "node": "n_s3_upload", "type": "main", "index": 0 }]] },
+    "n_s3_upload": { "main": [[{ "node": "n_s3_list", "type": "main", "index": 0 }]] },
+    "n_s3_list": { "main": [[{ "node": "n_filter_old", "type": "main", "index": 0 }]] },
+    "n_filter_old": { "main": [[{ "node": "n_s3_delete", "type": "main", "index": 0 }]] },
+    "n_s3_delete": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_mongodump", "n_s3_upload", "n_s3_list", "n_filter_old", "n_s3_delete", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_bucket", "name": "BACKUP_BUCKET", "defaultValue": "company-backups" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

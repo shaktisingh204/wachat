@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_gh",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "greenhouse.candidate.created",
+    "options": {
+      "path": "/webhooks/job-application-screening",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Greenhouse-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Greenhouse Candidate",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "job-application-screening",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "job-application-screening"
+    },
+    {
+      "id": "n_parse",
+      "name": "Resume Parser",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.RESUME_PARSER_URL }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "fileUrl", "value": "={{ $json.resumeUrl }}" }] }
+      }
+    },
+    {
+      "id": "n_score",
+      "name": "OpenAI Rubric Score",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Score this candidate against the rubric. Return JSON: { bucket: 'advance'|'screen'|'reject', score: number, reasons: string }." },
+            { "role": "user", "content": "={{ JSON.stringify($json) }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object" }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ JSON.parse($json.message.content).bucket }}", "operation": "equal", "value2": "advance" }] }, "outputKey": "advance" },
+            { "conditions": { "string": [{ "value1": "={{ JSON.parse($json.message.content).bucket }}", "operation": "equal", "value2": "screen" }] }, "outputKey": "screen" }
+          ]
+        },
+        "fallbackOutput": "reject"
+      }
+    },
+    {
+      "id": "n_advance",
+      "name": "Greenhouse Advance + Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -200],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://harvest.greenhouse.io/v1/candidates/{{ $node['Greenhouse Candidate'].json.id }}/advance",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "gh-cred", "name": "Greenhouse Harvest" } }
+    },
+    {
+      "id": "n_advance_email",
+      "name": "Advance Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, -260],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "recruit@example.com",
+        "toEmail": "={{ $node['Greenhouse Candidate'].json.email }}",
+        "subject": "Next steps in your application",
+        "content": "We'd love to chat."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_advance_slack",
+      "name": "Slack #recruiting",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -140],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#recruiting",
+        "text": "Strong candidate advanced."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_screen",
+      "name": "Greenhouse → Screen",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://harvest.greenhouse.io/v1/candidates/{{ $node['Greenhouse Candidate'].json.id }}/screen",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "gh-cred", "name": "Greenhouse Harvest" } }
+    },
+    {
+      "id": "n_reject",
+      "name": "Greenhouse Reject + Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://harvest.greenhouse.io/v1/candidates/{{ $node['Greenhouse Candidate'].json.id }}/reject",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": { "httpBasicAuth": { "id": "gh-cred", "name": "Greenhouse Harvest" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_score", "type": "main", "index": 0 }]] },
+    "n_score": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "advance": [[{ "node": "n_advance", "type": "main", "index": 0 }]],
+      "screen": [[{ "node": "n_screen", "type": "main", "index": 0 }]],
+      "reject": [[{ "node": "n_reject", "type": "main", "index": 0 }]]
+    },
+    "n_advance": {
+      "main": [[
+        { "node": "n_advance_email", "type": "main", "index": 0 },
+        { "node": "n_advance_slack", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_parse", "n_score", "n_route", "n_advance", "n_advance_email", "n_advance_slack", "n_screen", "n_reject"]
+    }
+  ],
+  "variables": [
+    { "id": "v_p", "name": "RESUME_PARSER_URL", "defaultValue": "https://parser.example.com/parse" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

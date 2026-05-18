@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ai-image-tagger-cloudinary",
+  "cases": [
+    {
+      "id": "upload",
+      "description": "Upload triggers vision tagging and metadata update.",
+      "triggerPayload": { "public_id": "samples/cat", "secure_url": "https://cdn.example.com/cat.jpg" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

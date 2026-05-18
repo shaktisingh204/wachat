@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_submit",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "expense.submitted",
+    "options": {
+      "path": "/webhooks/expense-approval-workflow",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Internal-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Expense Submitted",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "expense-approval-workflow",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "expense-approval-workflow"
+    },
+    {
+      "id": "n_if",
+      "name": "Under $100?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": { "number": [{ "value1": "={{ $json.amount }}", "operation": "smaller", "value2": 100 }] }
+      }
+    },
+    {
+      "id": "n_auto",
+      "name": "Auto-Approve",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, -180],
+      "parameters": {
+        "values": { "string": [{ "name": "status", "value": "approved" }] }
+      }
+    },
+    {
+      "id": "n_dm_submitter",
+      "name": "Slack DM Submitter",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -180],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Expense Submitted'].json.submitterSlackId }}",
+        "text": "Auto-approved!"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_slack_approvals",
+      "name": "Slack #expense-approvals",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#expense-approvals",
+        "text": "=New expense pending: ${{ $node['Expense Submitted'].json.amount }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Pending",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "expenses_pending" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_email_manager",
+      "name": "Email Manager",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "expenses@example.com",
+        "toEmail": "={{ $node['Expense Submitted'].json.managerEmail }}",
+        "subject": "Expense awaits your approval",
+        "content": "Open the link to approve."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[{ "node": "n_auto", "type": "main", "index": 0 }]],
+      "false": [[
+        { "node": "n_slack_approvals", "type": "main", "index": 0 },
+        { "node": "n_airtable", "type": "main", "index": 0 },
+        { "node": "n_email_manager", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_auto": { "main": [[{ "node": "n_dm_submitter", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_if", "n_auto", "n_dm_submitter", "n_slack_approvals", "n_airtable", "n_email_manager"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

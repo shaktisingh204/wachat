@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 5 * * 2", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Tuesday 05:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 5 * * 2" }] } }
+    },
+    {
+      "id": "n_list",
+      "name": "List Pending Rows",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": { "operation": "list", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "leads_pending_enrichment" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Batch of 50",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 50 }
+    },
+    {
+      "id": "n_clay",
+      "name": "Clay Enrichment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.CLAY_WEBHOOK_URL }}",
+        "sendBody": true
+      }
+    },
+    {
+      "id": "n_update",
+      "name": "Update Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "operation": "update", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "leads_pending_enrichment" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #data-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#data-ops",
+        "text": "Weekly Clay enrichment batch finished."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_clay", "type": "main", "index": 0 }]] },
+    "n_clay": { "main": [[{ "node": "n_update", "type": "main", "index": 0 }]] },
+    "n_update": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list", "n_split", "n_clay", "n_update", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" },
+    { "id": "v_clay", "name": "CLAY_WEBHOOK_URL", "defaultValue": "https://api.clay.com/webhook" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
