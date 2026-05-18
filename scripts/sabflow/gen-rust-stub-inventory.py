@@ -116,7 +116,7 @@ inventory = {
         "implementedCount": impl_count,
         "stubCount": stub_count,
         "referenceNode": "n8n-nodes-base.httpRequest",
-        "phase": "C.2.10",
+        "phase": "C.3.9",
     },
     "notes": [
         "Source of truth for which n8n nodes the SabFlow Rust crate ships as full implementations vs. registry-only stubs.",
