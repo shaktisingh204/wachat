@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard, ZoruProgress } from '@/components/zoru
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Flag,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Milestone detail page.
@@ -15,7 +13,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, statusToTone, type StatusTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getSession } from '@/app/actions/user.actions';
@@ -60,35 +58,21 @@ export default async function MilestoneDetailPage({
     const tags = Array.isArray(milestone.tags) ? milestone.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Projects', href: '/dashboard/crm/projects' },
-                    { label: 'Milestones', href: BASE },
-                    { label: milestone.name },
-                ]}
-                title={milestone.name}
-                subtitle={milestone.description || 'Milestone detail'}
-                icon={Flag}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        {canEdit ? (
-                            <ZoruButton asChild>
-                                <Link href={`${BASE}/${id}/edit`}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Edit
-                                </Link>
-                            </ZoruButton>
-                        ) : null}
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="MILESTONE"
+            title={milestone.name}
+            back={{ href: BASE, label: 'Milestones' }}
+            actions={
+                canEdit ? (
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </ZoruButton>
+                ) : undefined
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -182,6 +166,6 @@ export default async function MilestoneDetailPage({
                     <div className="text-zoru-ink">{fmtDate(milestone.updatedAt)}</div>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

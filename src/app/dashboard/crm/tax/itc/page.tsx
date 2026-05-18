@@ -1,9 +1,9 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { ScrollText, FileDown } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     StatCard,
     fmtMoney,
@@ -66,13 +66,11 @@ export default async function ItcReconciliationPage(props: {
     const needsImport = !reconRes.ok && 'needsImport' in reconRes && reconRes.needsImport;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="ITC Reconciliation"
-                subtitle="Books vs GSTR-2B — claimable Input Tax Credit per supplier."
-                icon={ScrollText}
-                actions={<PeriodForm period={period} />}
-            />
+        <EntityListShell
+            title="ITC Reconciliation"
+            subtitle="Books vs GSTR-2B — claimable Input Tax Credit per supplier."
+            primaryAction={<PeriodForm period={period} />}
+        >
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 <StatCard
@@ -323,6 +321,6 @@ export default async function ItcReconciliationPage(props: {
                     </div>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityListShell>
     );
 }

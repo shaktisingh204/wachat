@@ -9,7 +9,7 @@ import {
   PauseCircle,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * POS home / overview — `/dashboard/crm/pos`.
@@ -100,23 +100,17 @@ export default async function PosHomePage() {
     const kpis = await getPosOverviewKpis();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Point of Sale"
-                subtitle="Run shifts, ring up sales, recall held tickets and process refunds."
-                icon={Store}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS' },
-                ]}
-                actions={
-                    <ZoruButton size="sm" asChild>
-                        <Link href="/dashboard/crm/pos/terminal">
-                            <ShoppingCart className="h-4 w-4" /> Open terminal
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Point of Sale"
+            subtitle="Run shifts, ring up sales, recall held tickets and process refunds."
+            primaryAction={
+                <ZoruButton size="sm" asChild>
+                    <Link href="/dashboard/crm/pos/terminal">
+                        <ShoppingCart className="h-4 w-4" /> Open terminal
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
                 <KpiCard label="Open sessions" value={kpis.openSessions} icon={Store} />
@@ -179,6 +173,6 @@ export default async function PosHomePage() {
                     icon={ScrollText}
                 />
             </section>
-        </div>
+        </EntityListShell>
     );
 }

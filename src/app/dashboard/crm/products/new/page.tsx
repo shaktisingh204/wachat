@@ -8,11 +8,9 @@
  * Per CRM_REBUILD_PLAN §1D.3.
  */
 
-import { Package } from 'lucide-react';
-
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ItemForm } from '../_components/item-form';
 
 export const dynamic = 'force-dynamic';
@@ -50,19 +48,12 @@ export default async function NewItemPage({ searchParams }: PageProps) {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={initial ? 'Duplicate item' : 'New item'}
-        subtitle="Add a new product, service, or bundle to inventory."
-        icon={Package}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Inventory', href: '/dashboard/crm/inventory' },
-          { label: 'Items', href: '/dashboard/crm/products' },
-          { label: initial ? 'Duplicate' : 'New' },
-        ]}
-      />
+    <EntityDetailShell
+      eyebrow="PRODUCT"
+      title={initial ? 'Duplicate item' : 'New item'}
+      back={{ href: '/dashboard/crm/products', label: 'Products' }}
+    >
       <ItemForm initial={initial} />
-    </div>
+    </EntityDetailShell>
   );
 }

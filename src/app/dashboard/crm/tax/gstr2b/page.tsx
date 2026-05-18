@@ -18,7 +18,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  FileText,
   LoaderCircle,
   FileInput } from 'lucide-react';
 
@@ -39,7 +38,7 @@ import * as React from 'react';
 
 import { SabFilePickerButton } from '@/components/sabfiles';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getGstr2bImport,
     importGstr2b,
@@ -137,12 +136,10 @@ export default function Gstr2bPage() {
     );
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="GSTR-2B"
-                subtitle="Auto-drafted ITC statement — upload the JSON exported from the GST portal."
-                icon={FileText}
-            />
+        <EntityListShell
+            title="GSTR-2B"
+            subtitle="Auto-drafted ITC statement — upload the JSON exported from the GST portal."
+        >
 
             <ZoruCard>
                 <div className="flex flex-wrap items-end gap-3">
@@ -301,7 +298,7 @@ export default function Gstr2bPage() {
                     </ZoruCard>
                 </>
             )}
-        </div>
+        </EntityListShell>
     );
 }
 

@@ -1,8 +1,6 @@
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
-import { ArrowLeft,
-  Truck } from 'lucide-react';
 
 /**
  * E-way bill detail — `/dashboard/crm/tax/eway-bills/[id]`.
@@ -13,7 +11,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getEWayBill } from '@/app/actions/crm-india-eway.actions';
 import { EWayBillRowActions } from '../_components/row-actions';
 
@@ -35,20 +33,11 @@ export default async function EWayBillDetailPage(props: {
     if (!bill) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`E-way bill · ${bill.ewbNo}`}
-                subtitle={`Generated via ${bill.provider}`}
-                icon={Truck}
-                actions={
-                    <ZoruButton asChild variant="outline">
-                        <Link href="/dashboard/crm/tax/eway-bills">
-                            <ArrowLeft className="h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="E-WAY BILL"
+            title={`E-way bill · ${bill.ewbNo}`}
+            back={{ href: '/dashboard/crm/tax/eway-bills', label: 'E-way bills' }}
+        >
 
             <ZoruCard>
                 <ZoruCardHeader className="flex flex-row items-center justify-between gap-3">
@@ -128,7 +117,7 @@ export default async function EWayBillDetailPage(props: {
                     )}
                 </ZoruCardContent>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }
 

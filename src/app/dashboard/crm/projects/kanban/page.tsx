@@ -20,7 +20,6 @@ import {
   useTransition } from 'react';
 import Link from 'next/link';
 import {
-  LayoutGrid,
   ArrowLeft,
   ArrowRight,
   Columns3,
@@ -37,7 +36,7 @@ import type {
   WsTaskboardColumn,
   } from '@/lib/worksuite/project-types';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
@@ -180,43 +179,35 @@ export default function KanbanPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Task Board"
-        subtitle="Drag tasks across customisable columns."
-        icon={LayoutGrid}
-        actions={
-          <>
-            <div className="w-[220px]">
-              <ZoruSelect value={projectFilter} onValueChange={setProjectFilter}>
-                <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
-                  <ZoruSelectValue placeholder="All projects" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  <ZoruSelectItem value="all">All projects</ZoruSelectItem>
-                  {projects.map((p) => (
-                    <ZoruSelectItem key={p._id} value={p._id}>
-                      {p.name || p.projectName}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <Link href="/dashboard/crm/projects/taskboard-columns">
-              <ZoruButton variant="outline" size="sm">
-                <Columns3 className="h-4 w-4" />
-                Columns
-              </ZoruButton>
-            </Link>
-            <Link href="/dashboard/crm/projects">
-              <ZoruButton variant="outline" size="sm">
-                <ArrowLeft className="h-4 w-4" />
-                Projects
-              </ZoruButton>
-            </Link>
-          </>
-        }
-      />
+    <EntityListShell
+      title="Task Board"
+      subtitle="Drag tasks across customisable columns."
+      primaryAction={
+        <>
+          <div className="w-[220px]">
+            <ZoruSelect value={projectFilter} onValueChange={setProjectFilter}>
+              <ZoruSelectTrigger className="h-9 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="All projects" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All projects</ZoruSelectItem>
+                {projects.map((p) => (
+                  <ZoruSelectItem key={p._id} value={p._id}>
+                    {p.name || p.projectName}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+          </div>
+          <Link href="/dashboard/crm/projects/taskboard-columns">
+            <ZoruButton variant="outline" size="sm">
+              <Columns3 className="h-4 w-4" />
+              Columns
+            </ZoruButton>
+          </Link>
+        </>
+      }
+    >
 
       <div
         className="grid gap-4"
@@ -312,6 +303,6 @@ export default function KanbanPage() {
           );
         })}
       </div>
-    </div>
+    </EntityListShell>
   );
 }

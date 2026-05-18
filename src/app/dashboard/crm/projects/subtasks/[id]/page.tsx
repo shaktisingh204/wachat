@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ListChecks,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Subtask detail page.
@@ -16,7 +14,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { canServer } from '@/lib/rbac-server';
@@ -51,35 +49,21 @@ export default async function SubtaskDetailPage({
     const canEdit = await canServer('crm_subtask', 'update');
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Projects', href: '/dashboard/crm/projects' },
-                    { label: 'Subtasks', href: BASE },
-                    { label: subtask.title || 'Subtask' },
-                ]}
-                title={subtask.title || 'Untitled subtask'}
-                subtitle="Subtask detail"
-                icon={ListChecks}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        {canEdit ? (
-                            <ZoruButton asChild>
-                                <Link href={`${BASE}/${id}/edit`}>
-                                    <Pencil className="mr-2 h-4 w-4" />
-                                    Edit
-                                </Link>
-                            </ZoruButton>
-                        ) : null}
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="SUBTASK"
+            title={subtask.title || 'Untitled subtask'}
+            back={{ href: BASE, label: 'Subtasks' }}
+            actions={
+                canEdit ? (
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${id}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </ZoruButton>
+                ) : undefined
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
@@ -148,6 +132,6 @@ export default async function SubtaskDetailPage({
                     <div className="text-zoru-ink">{fmtDate(subtask.updatedAt)}</div>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

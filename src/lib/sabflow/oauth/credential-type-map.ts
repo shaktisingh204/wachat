@@ -36,6 +36,15 @@ export const OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE: Readonly<Record<string, string>
   google_firestore: 'google',
   // Atlassian
   jira: 'atlassian',
+  // Batch 3
+  trello: 'trello',
+  box: 'box',
+  dropbox: 'dropbox',
+  salesforce: 'salesforce',
+  pipedrive: 'pipedrive',
+  intercom: 'intercom',
+  clickup: 'clickup',
+  calendly: 'calendly',
 };
 
 /** Pretty label for a provider id, used in the Connect button. */
@@ -52,6 +61,14 @@ export const OAUTH_PROVIDER_LABEL: Readonly<Record<string, string>> = {
   atlassian: 'Atlassian',
   zoom: 'Zoom',
   spotify: 'Spotify',
+  trello: 'Trello',
+  box: 'Box',
+  dropbox: 'Dropbox',
+  salesforce: 'Salesforce',
+  pipedrive: 'Pipedrive',
+  intercom: 'Intercom',
+  clickup: 'ClickUp',
+  calendly: 'Calendly',
 };
 
 /** Brand-tinted ring color for the Connect CTA per provider. */
@@ -68,6 +85,14 @@ export const OAUTH_PROVIDER_ACCENT: Readonly<Record<string, string>> = {
   atlassian: 'from-blue-600/15 to-cyan-400/15',
   zoom: 'from-sky-500/15 to-blue-600/15',
   spotify: 'from-emerald-500/15 to-green-600/15',
+  trello: 'from-blue-500/15 to-sky-400/15',
+  box: 'from-blue-600/15 to-indigo-500/15',
+  dropbox: 'from-sky-500/15 to-blue-500/15',
+  salesforce: 'from-sky-400/15 to-cyan-500/15',
+  pipedrive: 'from-zinc-700/15 to-zinc-500/15',
+  intercom: 'from-blue-500/15 to-indigo-500/15',
+  clickup: 'from-purple-500/15 to-pink-500/15',
+  calendly: 'from-blue-500/15 to-violet-500/15',
 };
 
 export function getOAuthProviderIdForCredentialType(

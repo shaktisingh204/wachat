@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard, ZoruProgress } from '@/components/zoru
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Target } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * OKR detail page.
@@ -15,7 +13,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getOkrById } from '@/app/actions/crm-okrs.actions';
@@ -87,33 +85,18 @@ export default async function OkrDetailPage({
     const tags = Array.isArray(okr.tags) ? okr.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'OKRs', href: BASE },
-                    { label: okr.objective },
-                ]}
-                title={okr.objective}
-                subtitle={okr.description || 'OKR detail'}
-                icon={Target}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${okrId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title={okr.objective}
+            subtitle={okr.description || 'OKR detail'}
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${okrId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Summary card */}
             <ZoruCard className="p-6">
@@ -258,6 +241,6 @@ export default async function OkrDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

@@ -1,9 +1,7 @@
 import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import {
-  PauseCircle,
-  ShoppingCart } from 'lucide-react';
+import { ShoppingCart } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 /**
  * POS held tickets — `/dashboard/crm/pos/hold-recall`.
@@ -40,25 +38,17 @@ export default async function PosHoldRecallPage() {
     const holds = await getPosHolds({ status: 'held' });
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Held tickets"
-                subtitle="Parked transactions waiting to be recalled."
-                icon={PauseCircle}
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'POS', href: '/dashboard/crm/pos' },
-                    { label: 'Held tickets' },
-                ]}
-                actions={
-                    <ZoruButton size="sm" variant="outline" asChild>
-                        <Link href="/dashboard/crm/pos/terminal">
-                            <ShoppingCart className="h-4 w-4" /> Back to
-                            terminal
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Held tickets"
+            subtitle="Parked transactions waiting to be recalled."
+            primaryAction={
+                <ZoruButton size="sm" variant="outline" asChild>
+                    <Link href="/dashboard/crm/pos/terminal">
+                        <ShoppingCart className="h-4 w-4" /> Back to terminal
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <ZoruCard className="p-0">
                 <div className="overflow-x-auto">
                     <ZoruTable>
@@ -134,6 +124,6 @@ export default async function PosHoldRecallPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

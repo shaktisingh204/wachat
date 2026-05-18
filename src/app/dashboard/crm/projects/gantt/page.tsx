@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+import { ZoruBadge, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
 import {
   useCallback,
   useEffect,
@@ -8,9 +8,7 @@ import {
   useState,
   useTransition } from 'react';
 import Link from 'next/link';
-import { GanttChart,
-  ArrowLeft,
-  Flag } from 'lucide-react';
+import { GanttChart, Flag } from 'lucide-react';
 import {
   getWsProjects,
   getWsProjectMilestones,
@@ -20,7 +18,7 @@ import type {
   WsProjectMilestone,
   } from '@/lib/worksuite/project-types';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type Project = WsProject & { _id: string };
 type Milestone = WsProjectMilestone & { _id: string };
@@ -122,20 +120,10 @@ export default function GanttPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Project Timeline"
-        subtitle="Gantt view across 12 months with milestone markers."
-        icon={GanttChart}
-        actions={
-          <Link href="/dashboard/crm/projects">
-            <ZoruButton variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-              Projects
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Project Timeline"
+      subtitle="Gantt view across 12 months with milestone markers."
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4 flex flex-wrap items-center gap-3">
@@ -271,6 +259,6 @@ export default function GanttPage() {
           </div>
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

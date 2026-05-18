@@ -45,7 +45,6 @@ import {
   useActionState } from 'react';
 import Link from 'next/link';
 import {
-  Briefcase,
   Plus,
   Pencil,
   Trash2,
@@ -98,7 +97,7 @@ import type {
   WsGanttLink,
   } from '@/lib/worksuite/project-types';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 type Task = WsTask & { _id: string };
@@ -407,20 +406,11 @@ export default function ProjectDetailPage(props: {
   ];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={projectName}
-        subtitle={project.description || project.projectSummary || 'Project details.'}
-        icon={Briefcase}
-        actions={
-          <Link href="/dashboard/crm/projects">
-            <ZoruButton variant="outline" size="sm">
-              <ArrowLeft className="h-4 w-4" />
-              All Projects
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="PROJECT"
+      title={projectName}
+      back={{ href: '/dashboard/crm/projects', label: 'Projects' }}
+    >
 
       {/* Overview summary */}
       <ZoruCard className="p-6">
@@ -1208,7 +1198,7 @@ export default function ProjectDetailPage(props: {
         <FormInput label="Title" name="title" required />
         <FormInput label="Details" name="details" type="textarea" />
       </SimpleFormDialog>
-    </div>
+    </EntityDetailShell>
   );
 }
 

@@ -1,7 +1,5 @@
 import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import {
-  Truck,
-  Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * E-way bills list — `/dashboard/crm/tax/eway-bills`.
@@ -12,7 +10,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listEWayBills } from '@/app/actions/crm-india-eway.actions';
 import { EWayBillRowActions } from './_components/row-actions';
 
@@ -54,20 +52,18 @@ export default async function EWayBillsPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="E-way bills"
-                subtitle="Generate, cancel, extend and update e-way bills for goods movement."
-                icon={Truck}
-                actions={
-                    <ZoruButton asChild>
-                        <Link href="/dashboard/crm/tax/eway-bills/new">
-                            <Plus className="h-4 w-4" />
-                            Generate e-way bill
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="E-way bills"
+            subtitle="Generate, cancel, extend and update e-way bills for goods movement."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href="/dashboard/crm/tax/eway-bills/new">
+                        <Plus className="h-4 w-4" />
+                        Generate e-way bill
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                 <Kpi label="Active" value={counts.active} variant="success" />
@@ -143,7 +139,7 @@ export default async function EWayBillsPage() {
                     )}
                 </ZoruCardContent>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }
 

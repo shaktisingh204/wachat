@@ -24,7 +24,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Bell,
   Edit,
   LoaderCircle,
   Plus,
@@ -45,7 +44,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -193,27 +191,16 @@ export default function NoticesListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'HRM', href: '/dashboard/hrm' },
-                        { label: 'HR', href: '/dashboard/hrm/hr' },
-                        { label: 'Notices' },
-                    ]}
+            <EntityListShell
                     title="Notices"
                     subtitle="Company-wide notices, advisories, and circulars."
-                    icon={Bell}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href="/dashboard/hrm/hr/notices/new">
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New notice
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -411,8 +398,7 @@ export default function NoticesListPage() {
                             </ZoruTableBody>
                         </ZoruTable>
                     </div>
-                </EntityListShell>
-            </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}
