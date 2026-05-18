@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "templateId": "chargebee-to-quickbooks-sync",
+  "cases": [
+    {
+      "id": "renewed-creates-invoice",
+      "description": "subscription_renewed → QuickBooks invoice + Slack ledger entry.",
+      "triggerPayload": {
+        "event_type": "subscription_renewed",
+        "content": {
+          "subscription": {
+            "id": "sub_8aXY9K1mP",
+            "plan_id": "growth-monthly",
+            "plan_amount": 4900,
+            "currency_code": "USD"
+          },
+          "customer": {
+            "email": "ada@example.com",
+            "first_name": "Ada",
+            "last_name": "Lovelace"
+          }
+        }
+      },
+      "fixtures": {
+        "quickbooks.customer.getAll": {
+          "status": 200,
+          "body": { "QueryResponse": { "Customer": [{ "Id": "qb_cust_42", "DisplayName": "Ada Lovelace" }] } }
+        },
+        "quickbooks.invoice.create": {
+          "status": 200,
+          "body": { "Id": "qb_inv_1001", "CustomerRef": { "value": "qb_cust_42" }, "TotalAmt": 4900 }
+        },
+        "slack.message.post": {
+          "status": 200,
+          "body": { "ok": true, "ts": "1715900000.000100" }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_chargebee_webhook",
+          "n_extract",
+          "n_event_switch",
+          "n_qb_lookup_renewed",
+          "n_qb_invoice",
+          "n_slack_renewed"
+        ]
+      }
+    },
+    {
+      "id": "cancelled-creates-credit-memo",
+      "description": "subscription_cancelled → QuickBooks credit memo + Slack ledger entry.",
+      "triggerPayload": {
+        "event_type": "subscription_cancelled",
+        "content": {
+          "subscription": {
+            "id": "sub_9bZQ0L2nR",
+            "plan_id": "growth-monthly",
+            "plan_amount": 4900,
+            "currency_code": "USD"
+          },
+          "customer": {
+            "email": "grace@example.com",
+            "first_name": "Grace",
+            "last_name": "Hopper"
+          }
+        }
+      },
+      "fixtures": {
+        "quickbooks.customer.getAll": {
+          "status": 200,
+          "body": { "QueryResponse": { "Customer": [{ "Id": "qb_cust_77", "DisplayName": "Grace Hopper" }] } }
+        },
+        "quickbooks.creditMemo.create": {
+          "status": 200,
+          "body": { "Id": "qb_cm_2002", "CustomerRef": { "value": "qb_cust_77" }, "TotalAmt": 4900 }
+        },
+        "slack.message.post": {
+          "status": 200,
+          "body": { "ok": true, "ts": "1715900100.000200" }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_chargebee_webhook",
+          "n_extract",
+          "n_event_switch",
+          "n_qb_lookup_cancelled",
+          "n_qb_credit_memo",
+          "n_slack_cancelled"
+        ]
+      }
+    }
+  ]
+}
