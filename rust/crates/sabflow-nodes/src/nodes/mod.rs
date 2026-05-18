@@ -95,6 +95,8 @@ pub mod segment_node;
 pub mod metabase;
 pub mod html;
 pub mod xml;
+pub mod convert_to_file;
+pub mod convert_to_text;
 pub mod jwt;
 pub mod crypto;
 pub mod date_time;
@@ -198,6 +200,8 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(metabase::MetabaseNode);
     r.register(html::HtmlNode);
     r.register(xml::XmlNode);
+    r.register(convert_to_file::ConvertToFileNode);
+    r.register(convert_to_text::ConvertToTextNode);
     r.register(jwt::JwtNode);
     r.register(crypto::CryptoNode);
     r.register(date_time::DateTimeNode);
@@ -256,6 +260,8 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("compareDatasets", "Compare Datasets", NodeCategory::Transform, "Diff two datasets"),
         ("contentful", "Contentful", NodeCategory::Developer, "Headless CMS"),
         ("convertKit", "ConvertKit", NodeCategory::Marketing, "Email marketing for creators"),
+        ("convertToFile", "Convert to File", NodeCategory::Transform, "Convert items into a binary file (CSV/JSON/TSV/XML/HTML/iCal/RTF)"),
+        ("convertToText", "Convert to Text", NodeCategory::Transform, "Parse a binary file back into items"),
         ("copper", "Copper", NodeCategory::Crm, "CRM built for Google Workspace"),
         ("cortex", "Cortex", NodeCategory::Developer, "Threat intelligence analysis"),
         ("crateDb", "CrateDB", NodeCategory::Database, "Distributed SQL database"),
