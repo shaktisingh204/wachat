@@ -52,7 +52,7 @@ import type { EntityKey } from '@/lib/lookup-registry';
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export type HrFieldType =
   | 'text'
@@ -215,7 +215,7 @@ function toNode(value: unknown): React.ReactNode {
 export interface HrEntityPageProps<T extends { _id: string }> {
   title: string;
   subtitle: string;
-  icon: React.ElementType;
+  icon?: React.ElementType;
   singular: string;
   columns: HrColumn<T>[];
   fields: HrField[];
@@ -476,7 +476,6 @@ function FieldArray({
 export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   title,
   subtitle,
-  icon,
   singular,
   columns,
   fields,
@@ -586,32 +585,30 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={title}
-        subtitle={subtitle}
-        icon={icon}
-        actions={
-          basePath ? (
-            <ZoruButton asChild>
-              <Link href={`${basePath}/new`}>
-                <Plus className="h-4 w-4" strokeWidth={1.75} />
-                Add {singular}
-              </Link>
-            </ZoruButton>
-          ) : (
-            <ZoruButton
-              onClick={() => {
-                setEditing(null);
-                setDialogOpen(true);
-              }}
-            >
+    <EntityListShell
+      title={title}
+      subtitle={subtitle}
+      primaryAction={
+        basePath ? (
+          <ZoruButton asChild>
+            <Link href={`${basePath}/new`}>
               <Plus className="h-4 w-4" strokeWidth={1.75} />
               Add {singular}
-            </ZoruButton>
-          )
-        }
-      />
+            </Link>
+          </ZoruButton>
+        ) : (
+          <ZoruButton
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            Add {singular}
+          </ZoruButton>
+        )
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-[var(--zoru-radius)] border border-zoru-line">
@@ -767,7 +764,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }
 
