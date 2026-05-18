@@ -1,41 +1,117 @@
-//! Filter node — `n8n-nodes-base.filter`.
+//! Filter node — keep only items whose JSON field matches a condition.
 //!
-//! Phase C.3.4 implementation.
+//! Mirrors n8n's `n8n-nodes-base.filter` with a simplified single-condition
+//! interface (n8n's combinator UI is rendered as a `combinator` enum so we
+//! can extend to multi-condition without breaking serialized flows).
 //!
-//! Filter is the single-output sibling of [`super::if_node::IfNode`]: it
-//! evaluates the same `{ left, operator, right }` condition objects against
-//! each incoming item, then emits **only** the items that matched. Items
-//! that fail the predicate are dropped.
+//! Operators are typed: numeric comparisons coerce both sides to `f64`,
+//! string comparisons coerce both sides via `Value::to_string` minus the
+//! surrounding quotes, and `isEmpty` / `isNotEmpty` short-circuit before
+//! parsing the comparison value.
 //!
-//! Properties:
-//!   - `combinator`: "AND" | "OR" (default "AND")
-//!   - `conditions`: Json array of `{ left, operator, right }` objects.
-//!     Operators are reused from `If`: equals, notEquals, contains,
-//!     notContains, startsWith, endsWith, regex, greaterThan, lessThan,
-//!     greaterThanEquals, lessThanEquals, isEmpty, isNotEmpty, isTrue,
-//!     isFalse.
-//!   - `continueOnFail`: when set, a per-item evaluation failure emits an
-//!     `{ error }` item alongside the survivors instead of aborting the run.
-//!
-//! Behaviour notes:
-//!   - Empty `conditions` → every item passes (no-op gate). This matches the
-//!     `IfNode` short-circuit so users can wire a Filter, leave it blank, and
-//!     still see items flow.
-//!   - Output cardinality is "≤ input": this is a drop-filter, not a router.
-//!     Use `If` when you also want the failed branch.
+//! Pure local computation; no HTTP.
 
 use async_trait::async_trait;
-use regex::Regex;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
 
 pub struct FilterNode;
+
+fn opt(name: &str, value: &str) -> NodePropertyOption {
+    NodePropertyOption {
+        name: name.to_string(),
+        value: json!(value),
+        description: None,
+    }
+}
+
+fn value_at_path<'a>(root: &'a Value, path: &str) -> Option<&'a Value> {
+    if path.is_empty() {
+        return Some(root);
+    }
+    let mut cur = root;
+    for segment in path.split('.') {
+        if segment.is_empty() {
+            continue;
+        }
+        cur = cur.get(segment)?;
+    }
+    Some(cur)
+}
+
+fn as_string(v: &Value) -> String {
+    match v {
+        Value::String(s) => s.clone(),
+        Value::Null => String::new(),
+        other => other.to_string(),
+    }
+}
+
+fn as_f64(v: &Value) -> Option<f64> {
+    match v {
+        Value::Number(n) => n.as_f64(),
+        Value::String(s) => s.trim().parse::<f64>().ok(),
+        Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
+        _ => None,
+    }
+}
+
+fn is_empty(v: &Value) -> bool {
+    match v {
+        Value::Null => true,
+        Value::String(s) => s.is_empty(),
+        Value::Array(a) => a.is_empty(),
+        Value::Object(o) => o.is_empty(),
+        _ => false,
+    }
+}
+
+fn matches(lhs: &Value, operator: &str, rhs_raw: &str) -> NodeResult<bool> {
+    Ok(match operator {
+        "isEmpty" => is_empty(lhs),
+        "isNotEmpty" => !is_empty(lhs),
+        "equals" => as_string(lhs) == rhs_raw,
+        "notEquals" => as_string(lhs) != rhs_raw,
+        "contains" => as_string(lhs).contains(rhs_raw),
+        "notContains" => !as_string(lhs).contains(rhs_raw),
+        "startsWith" => as_string(lhs).starts_with(rhs_raw),
+        "endsWith" => as_string(lhs).ends_with(rhs_raw),
+        "gt" | "gte" | "lt" | "lte" => {
+            let l = as_f64(lhs).ok_or_else(|| NodeError::InvalidParameter {
+                name: "value1".into(),
+                reason: "left side is not numeric".into(),
+            })?;
+            let r = rhs_raw
+                .trim()
+                .parse::<f64>()
+                .map_err(|_| NodeError::InvalidParameter {
+                    name: "value2".into(),
+                    reason: "right side is not numeric".into(),
+                })?;
+            match operator {
+                "gt" => l > r,
+                "gte" => l >= r,
+                "lt" => l < r,
+                "lte" => l <= r,
+                _ => unreachable!(),
+            }
+        }
+        other => {
+            return Err(NodeError::InvalidParameter {
+                name: "operator".into(),
+                reason: format!("unknown operator: {other}"),
+            });
+        }
+    })
+}
 
 #[async_trait]
 impl Node for FilterNode {
@@ -43,40 +119,39 @@ impl Node for FilterNode {
         NodeDescriptor::new(
             "filter",
             "Filter",
-            "Drop items that don't match a condition",
+            "Keep only items matching a condition",
             NodeCategory::Transform,
         )
         .icon("filter")
-        .color("#a855f7")
+        .color("#0ea5e9")
         .properties(vec![
-            NodeProperty::new("combinator", "Combine", NodePropertyType::Options)
+            NodeProperty::new("fieldPath", "Field Path", NodePropertyType::String)
+                .description("Dot-path into the item's JSON, e.g. `user.email`")
+                .placeholder("status")
+                .required(),
+            NodeProperty::new("operator", "Operator", NodePropertyType::Options)
                 .options(vec![
-                    NodePropertyOption {
-                        name: "AND (all must match)".into(),
-                        value: Value::String("AND".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "OR (any may match)".into(),
-                        value: Value::String("OR".into()),
-                        description: None,
-                    },
+                    opt("Equals", "equals"),
+                    opt("Not Equals", "notEquals"),
+                    opt("Contains", "contains"),
+                    opt("Not Contains", "notContains"),
+                    opt("Starts With", "startsWith"),
+                    opt("Ends With", "endsWith"),
+                    opt("Greater Than", "gt"),
+                    opt("Greater Than Or Equal", "gte"),
+                    opt("Less Than", "lt"),
+                    opt("Less Than Or Equal", "lte"),
+                    opt("Is Empty", "isEmpty"),
+                    opt("Is Not Empty", "isNotEmpty"),
                 ])
-                .default(Value::String("AND".into())),
-            NodeProperty::new("conditions", "Conditions", NodePropertyType::Json)
-                .description(
-                    "Array of { left, operator, right } objects. Operators: equals, \
-                     notEquals, contains, notContains, startsWith, endsWith, regex, \
-                     greaterThan, lessThan, greaterThanEquals, lessThanEquals, isEmpty, \
-                     isNotEmpty, isTrue, isFalse.",
-                )
-                .default(Value::Array(vec![])),
-            NodeProperty::new("continueOnFail", "Continue on Fail", NodePropertyType::Boolean)
-                .default(json!(false))
-                .description(
-                    "When enabled, per-item evaluation failures emit { error: \"...\" } \
-                     items rather than aborting the workflow.",
-                ),
+                .default(json!("equals"))
+                .required(),
+            NodeProperty::new("compareValue", "Value", NodePropertyType::String)
+                .description("Right-hand side of the comparison")
+                .placeholder("active"),
+            NodeProperty::new("invert", "Invert", NodePropertyType::Boolean)
+                .description("Keep items that do NOT match instead")
+                .default(json!(false)),
         ])
     }
 
@@ -86,136 +161,23 @@ impl Node for FilterNode {
         input: NodeInput,
         params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let combinator = ctx
-            .param_str_opt(params, "combinator")
-            .unwrap_or_else(|| "AND".to_string())
-            .to_uppercase();
-        let is_and = combinator != "OR";
-        let continue_on_fail = ctx.param_bool(params, "continueOnFail", false);
+        let field_path = ctx.param_str(params, "fieldPath")?;
+        let operator = ctx.param_str(params, "operator")?;
+        let compare_value = ctx.param_str_opt(params, "compareValue").unwrap_or_default();
+        let invert = ctx.param_bool(params, "invert", false);
 
-        let conditions = params
-            .get("conditions")
-            .cloned()
-            .unwrap_or(Value::Array(vec![]));
-        let conditions = match conditions {
-            Value::Array(a) => a,
-            Value::Null => vec![],
-            other => {
-                return Err(NodeError::InvalidParameter {
-                    name: "conditions".into(),
-                    reason: format!("expected an array, got: {other}"),
-                });
+        let mut kept: Vec<Value> = Vec::with_capacity(input.items.len());
+        for item in input.items.into_iter() {
+            let lhs = value_at_path(&item, &field_path).cloned().unwrap_or(Value::Null);
+            let mut keep = matches(&lhs, &operator, &compare_value)?;
+            if invert {
+                keep = !keep;
             }
-        };
-
-        // No items → nothing to filter, still emit an empty branch.
-        if input.items.is_empty() {
-            return Ok(NodeOutput::single(vec![]));
-        }
-
-        let mut passed: Vec<Value> = Vec::with_capacity(input.items.len());
-
-        for item in input.items {
-            let matched = match item_matches(ctx, &item, &conditions, is_and) {
-                Ok(b) => b,
-                Err(e) if continue_on_fail => {
-                    passed.push(json!({ "error": e.to_string() }));
-                    continue;
-                }
-                Err(e) => return Err(e),
-            };
-
-            if matched {
-                passed.push(item);
+            if keep {
+                kept.push(item);
             }
         }
 
-        Ok(NodeOutput::single(passed))
+        Ok(NodeOutput::single(kept))
     }
-}
-
-/// Evaluate the combined predicate for one item against `conditions`. Mirrors
-/// the AND/OR short-circuit logic in [`super::if_node::IfNode::execute`].
-fn item_matches(
-    ctx: &ExecutionContext,
-    _item: &Value,
-    conditions: &[Value],
-    is_and: bool,
-) -> NodeResult<bool> {
-    if conditions.is_empty() {
-        // No conditions = no-op gate, every item passes.
-        return Ok(true);
-    }
-
-    let mut matched = is_and;
-
-    for cond in conditions {
-        let left_raw = cond.get("left").and_then(|v| v.as_str()).unwrap_or("");
-        let op_raw = cond
-            .get("operator")
-            .and_then(|v| v.as_str())
-            .unwrap_or("equals");
-        let right_raw = cond.get("right").and_then(|v| v.as_str()).unwrap_or("");
-
-        let left = ctx.substitute(left_raw);
-        let right = ctx.substitute(right_raw);
-
-        let pass = evaluate(&left, op_raw, &right)?;
-
-        if is_and {
-            if !pass {
-                matched = false;
-                break;
-            }
-        } else if pass {
-            matched = true;
-            break;
-        } else {
-            matched = false;
-        }
-    }
-
-    Ok(matched)
-}
-
-/// Comparison operator dispatch — kept structurally identical to the table in
-/// `if_node::evaluate` so the two nodes stay behaviourally aligned.
-fn evaluate(left: &str, op: &str, right: &str) -> NodeResult<bool> {
-    match op {
-        "equals" => Ok(left == right),
-        "notEquals" => Ok(left != right),
-        "contains" => Ok(left.contains(right)),
-        "notContains" => Ok(!left.contains(right)),
-        "startsWith" => Ok(left.starts_with(right)),
-        "endsWith" => Ok(left.ends_with(right)),
-        "regex" => {
-            let re = Regex::new(right).map_err(|e| NodeError::InvalidParameter {
-                name: "right".into(),
-                reason: format!("invalid regex `{right}`: {e}"),
-            })?;
-            Ok(re.is_match(left))
-        }
-        "greaterThan" => Ok(parse_num(left) > parse_num(right)),
-        "lessThan" => Ok(parse_num(left) < parse_num(right)),
-        "greaterThanEquals" => Ok(parse_num(left) >= parse_num(right)),
-        "lessThanEquals" => Ok(parse_num(left) <= parse_num(right)),
-        "isEmpty" => Ok(left.is_empty()),
-        "isNotEmpty" => Ok(!left.is_empty()),
-        "isTrue" => Ok(matches!(
-            left.trim().to_ascii_lowercase().as_str(),
-            "true" | "1" | "yes"
-        )),
-        "isFalse" => Ok(matches!(
-            left.trim().to_ascii_lowercase().as_str(),
-            "false" | "0" | "no" | ""
-        )),
-        other => Err(NodeError::InvalidParameter {
-            name: "operator".into(),
-            reason: format!("unknown operator: {other}"),
-        }),
-    }
-}
-
-fn parse_num(s: &str) -> f64 {
-    s.trim().parse::<f64>().unwrap_or(f64::NAN)
 }

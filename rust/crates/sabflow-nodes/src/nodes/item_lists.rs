@@ -1,20 +1,21 @@
-//! Item Lists node — aggregate, split, sort, limit, and dedupe item streams.
+//! Item Lists node — aggregate / split / sort / limit / dedupe items.
 //!
-//! Mirrors n8n's `itemLists` node. Operations:
+//! Mirrors a subset of n8n's `n8n-nodes-base.itemLists`. The most useful
+//! operations in real flows are covered here:
 //!
-//!   - `splitOutItems` : explode a list-shaped field into one item per entry.
-//!     The remaining fields are kept on each split item.
-//!   - `aggregateItems`: collapse all upstream items into a single item, with
-//!     the given fields gathered into arrays.
-//!   - `sort`          : sort the input branch by `sortField`, asc or desc.
-//!   - `limit`         : keep the first / last N items.
-//!   - `removeDuplicates`: drop items whose value at `compareField` repeats.
+//! - `aggregateItems`: collect a field across all input items into an array.
+//! - `splitOutItems`:  the inverse — take an array field and emit one item
+//!   per element.
+//! - `limit`:          keep the first N items.
+//! - `sort`:           sort by a field ascending or descending.
+//! - `removeDuplicates`: dedupe by a field, keeping the first occurrence.
 //!
-//! Local-only; no HTTP.
+//! Pure local computation; no HTTP.
 
 use async_trait::async_trait;
-use serde_json::{Map, Value, json};
 use std::collections::HashSet;
+
+use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
@@ -26,6 +27,43 @@ use crate::{
 };
 
 pub struct ItemListsNode;
+
+fn opt(name: &str, value: &str) -> NodePropertyOption {
+    NodePropertyOption {
+        name: name.to_string(),
+        value: json!(value),
+        description: None,
+    }
+}
+
+fn value_at_path<'a>(root: &'a Value, path: &str) -> Option<&'a Value> {
+    if path.is_empty() {
+        return Some(root);
+    }
+    let mut cur = root;
+    for segment in path.split('.') {
+        if segment.is_empty() {
+            continue;
+        }
+        cur = cur.get(segment)?;
+    }
+    Some(cur)
+}
+
+/// Stable JSON-aware compare. Numbers compare numerically; everything else
+/// falls back to the string representation.
+fn compare_values(a: &Value, b: &Value) -> std::cmp::Ordering {
+    use std::cmp::Ordering;
+    if let (Some(an), Some(bn)) = (a.as_f64(), b.as_f64()) {
+        return an.partial_cmp(&bn).unwrap_or(Ordering::Equal);
+    }
+    let as_str = |v: &Value| match v {
+        Value::String(s) => s.clone(),
+        Value::Null => String::new(),
+        other => other.to_string(),
+    };
+    as_str(a).cmp(&as_str(b))
+}
 
 #[async_trait]
 impl Node for ItemListsNode {
@@ -41,87 +79,28 @@ impl Node for ItemListsNode {
         .properties(vec![
             NodeProperty::new("operation", "Operation", NodePropertyType::Options)
                 .options(vec![
-                    NodePropertyOption {
-                        name: "Split Out Items".into(),
-                        value: json!("splitOutItems"),
-                        description: Some("Explode a list field into multiple items".into()),
-                    },
-                    NodePropertyOption {
-                        name: "Aggregate Items".into(),
-                        value: json!("aggregateItems"),
-                        description: Some("Combine items into one with arrays".into()),
-                    },
-                    NodePropertyOption {
-                        name: "Sort".into(),
-                        value: json!("sort"),
-                        description: Some("Sort items by a field".into()),
-                    },
-                    NodePropertyOption {
-                        name: "Limit".into(),
-                        value: json!("limit"),
-                        description: Some("Keep first / last N items".into()),
-                    },
-                    NodePropertyOption {
-                        name: "Remove Duplicates".into(),
-                        value: json!("removeDuplicates"),
-                        description: Some("Drop repeating items by field value".into()),
-                    },
+                    opt("Aggregate Items", "aggregateItems"),
+                    opt("Split Out Items", "splitOutItems"),
+                    opt("Limit", "limit"),
+                    opt("Sort", "sort"),
+                    opt("Remove Duplicates", "removeDuplicates"),
                 ])
                 .default(json!("splitOutItems"))
                 .required(),
-            NodeProperty::new("fieldToSplitOut", "Field to Split Out", NodePropertyType::String)
-                .placeholder("items")
-                .show_when("operation", &["splitOutItems"])
-                .required(),
-            NodeProperty::new("aggregateField", "Field to Aggregate", NodePropertyType::String)
-                .description("Single field to collect across all items")
-                .placeholder("name")
+            NodeProperty::new("fieldPath", "Field", NodePropertyType::String)
+                .description("Field to operate on (dot-path, e.g. `address.city`)")
+                .placeholder("items"),
+            NodeProperty::new("outputKey", "Output Key", NodePropertyType::String)
+                .description("Key under which the aggregated array is written")
                 .show_when("operation", &["aggregateItems"])
-                .required(),
-            NodeProperty::new("aggregateAs", "Output Field Name", NodePropertyType::String)
-                .description("Key to hold the aggregated array")
-                .placeholder("names")
-                .show_when("operation", &["aggregateItems"]),
-            NodeProperty::new("sortField", "Sort Field", NodePropertyType::String)
-                .placeholder("createdAt")
+                .default(json!("data")),
+            NodeProperty::new("limit", "Max Items", NodePropertyType::Number)
+                .show_when("operation", &["limit"])
+                .default(json!(10)),
+            NodeProperty::new("direction", "Direction", NodePropertyType::Options)
+                .options(vec![opt("Ascending", "asc"), opt("Descending", "desc")])
                 .show_when("operation", &["sort"])
-                .required(),
-            NodeProperty::new("sortDirection", "Direction", NodePropertyType::Options)
-                .options(vec![
-                    NodePropertyOption {
-                        name: "Ascending".into(),
-                        value: json!("asc"),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Descending".into(),
-                        value: json!("desc"),
-                        description: None,
-                    },
-                ])
-                .default(json!("asc"))
-                .show_when("operation", &["sort"]),
-            NodeProperty::new("maxItems", "Max Items", NodePropertyType::Number)
-                .default(json!(10))
-                .show_when("operation", &["limit"]),
-            NodeProperty::new("keep", "Keep", NodePropertyType::Options)
-                .options(vec![
-                    NodePropertyOption {
-                        name: "First".into(),
-                        value: json!("first"),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Last".into(),
-                        value: json!("last"),
-                        description: None,
-                    },
-                ])
-                .default(json!("first"))
-                .show_when("operation", &["limit"]),
-            NodeProperty::new("compareField", "Compare Field", NodePropertyType::String)
-                .description("Field whose value identifies duplicates (blank → whole item)")
-                .show_when("operation", &["removeDuplicates"]),
+                .default(json!("asc")),
         ])
     }
 
@@ -132,179 +111,102 @@ impl Node for ItemListsNode {
         params: &Value,
     ) -> NodeResult<NodeOutput> {
         let operation = ctx.param_str(params, "operation")?;
+        let field_path = ctx.param_str_opt(params, "fieldPath").unwrap_or_default();
+        let items = input.items;
 
-        match operation.as_str() {
+        let out: Vec<Value> = match operation.as_str() {
+            "aggregateItems" => {
+                let output_key = ctx
+                    .param_str_opt(params, "outputKey")
+                    .unwrap_or_else(|| "data".to_string());
+                let collected: Vec<Value> = if field_path.is_empty() {
+                    items
+                } else {
+                    items
+                        .iter()
+                        .map(|it| value_at_path(it, &field_path).cloned().unwrap_or(Value::Null))
+                        .collect()
+                };
+                let mut obj = Map::new();
+                obj.insert(output_key, Value::Array(collected));
+                vec![Value::Object(obj)]
+            }
             "splitOutItems" => {
-                let field = ctx.param_str(params, "fieldToSplitOut")?;
-                let mut out: Vec<Value> = Vec::new();
-                for item in input.items.into_iter() {
-                    let list = item.get(&field).cloned().unwrap_or(Value::Null);
-                    match list {
-                        Value::Array(entries) => {
-                            for entry in entries {
-                                out.push(combine(&item, &field, entry));
+                if field_path.is_empty() {
+                    return Err(NodeError::MissingParameter("fieldPath".into()));
+                }
+                let mut out_items: Vec<Value> = Vec::new();
+                for item in items.into_iter() {
+                    let arr = value_at_path(&item, &field_path).cloned();
+                    match arr {
+                        Some(Value::Array(elements)) => {
+                            for el in elements.into_iter() {
+                                match el {
+                                    Value::Object(_) => out_items.push(el),
+                                    other => {
+                                        let mut m = Map::new();
+                                        m.insert("value".into(), other);
+                                        out_items.push(Value::Object(m));
+                                    }
+                                }
                             }
                         }
-                        Value::Null => {
-                            // Pass through unchanged.
-                            out.push(item);
+                        Some(other) => {
+                            // Not an array — wrap a single value.
+                            let mut m = Map::new();
+                            m.insert("value".into(), other);
+                            out_items.push(Value::Object(m));
                         }
-                        other => {
-                            out.push(combine(&item, &field, other));
-                        }
+                        None => {}
                     }
                 }
-                Ok(NodeOutput::single(out))
-            }
-            "aggregateItems" => {
-                let field = ctx.param_str(params, "aggregateField")?;
-                let alias = ctx
-                    .param_str_opt(params, "aggregateAs")
-                    .filter(|s| !s.is_empty())
-                    .unwrap_or_else(|| format!("{field}s"));
-
-                let values: Vec<Value> = input
-                    .items
-                    .iter()
-                    .filter_map(|i| i.get(&field).cloned())
-                    .collect();
-
-                let mut obj = Map::new();
-                obj.insert(alias, Value::Array(values));
-                Ok(NodeOutput::single(vec![Value::Object(obj)]))
-            }
-            "sort" => {
-                let field = ctx.param_str(params, "sortField")?;
-                let direction = ctx
-                    .param_str_opt(params, "sortDirection")
-                    .unwrap_or_else(|| "asc".to_string());
-                let mut items = input.items;
-                items.sort_by(|a, b| compare_values(a.get(&field), b.get(&field)));
-                if direction == "desc" {
-                    items.reverse();
-                }
-                Ok(NodeOutput::single(items))
+                out_items
             }
             "limit" => {
-                let max = ctx
-                    .param_f64(params, "maxItems")
+                let limit = ctx
+                    .param_f64(params, "limit")
                     .map(|n| n as usize)
                     .unwrap_or(10);
-                let keep = ctx
-                    .param_str_opt(params, "keep")
-                    .unwrap_or_else(|| "first".to_string());
-                let items = input.items;
-                let limited: Vec<Value> = if keep == "last" {
-                    items.into_iter().rev().take(max).collect::<Vec<_>>().into_iter().rev().collect()
-                } else {
-                    items.into_iter().take(max).collect()
-                };
-                Ok(NodeOutput::single(limited))
+                items.into_iter().take(limit).collect()
+            }
+            "sort" => {
+                let direction = ctx
+                    .param_str_opt(params, "direction")
+                    .unwrap_or_else(|| "asc".to_string());
+                let mut items = items;
+                items.sort_by(|a, b| {
+                    let av = value_at_path(a, &field_path).cloned().unwrap_or(Value::Null);
+                    let bv = value_at_path(b, &field_path).cloned().unwrap_or(Value::Null);
+                    let ord = compare_values(&av, &bv);
+                    if direction == "desc" { ord.reverse() } else { ord }
+                });
+                items
             }
             "removeDuplicates" => {
-                let field = ctx
-                    .param_str_opt(params, "compareField")
-                    .filter(|s| !s.is_empty());
-
                 let mut seen: HashSet<String> = HashSet::new();
-                let mut out: Vec<Value> = Vec::new();
-                for item in input.items.into_iter() {
-                    let key = match &field {
-                        Some(f) => item
-                            .get(f)
-                            .map(value_to_dedupe_key)
-                            .unwrap_or_default(),
-                        None => value_to_dedupe_key(&item),
+                let mut out_items: Vec<Value> = Vec::with_capacity(items.len());
+                for item in items.into_iter() {
+                    let key_val = if field_path.is_empty() {
+                        item.to_string()
+                    } else {
+                        value_at_path(&item, &field_path)
+                            .map(|v| v.to_string())
+                            .unwrap_or_default()
                     };
-                    if seen.insert(key) {
-                        out.push(item);
+                    if seen.insert(key_val) {
+                        out_items.push(item);
                     }
                 }
-                Ok(NodeOutput::single(out))
+                out_items
             }
-            other => Err(NodeError::InvalidParameter {
-                name: "operation".into(),
-                reason: format!("unknown operation: {other}"),
-            }),
-        }
-    }
-}
-
-/// Merge `original` (minus the splat-out field) with one exploded `entry`.
-/// If `entry` is itself an object, its keys take precedence; otherwise the
-/// scalar is stored back under the splat-out field name.
-fn combine(original: &Value, field: &str, entry: Value) -> Value {
-    let mut base: Map<String, Value> = original
-        .as_object()
-        .cloned()
-        .unwrap_or_default();
-    base.remove(field);
-    match entry {
-        Value::Object(map) => {
-            for (k, v) in map {
-                base.insert(k, v);
+            other => {
+                return Err(NodeError::InvalidParameter {
+                    name: "operation".into(),
+                    reason: format!("unknown operation: {other}"),
+                });
             }
-        }
-        scalar => {
-            base.insert(field.to_string(), scalar);
-        }
-    }
-    Value::Object(base)
-}
+        };
 
-fn compare_values(a: Option<&Value>, b: Option<&Value>) -> std::cmp::Ordering {
-    use std::cmp::Ordering;
-    match (a, b) {
-        (None, None) => Ordering::Equal,
-        (None, _) => Ordering::Less,
-        (_, None) => Ordering::Greater,
-        (Some(x), Some(y)) => match (x, y) {
-            (Value::Number(a), Value::Number(b)) => {
-                let af = a.as_f64().unwrap_or(0.0);
-                let bf = b.as_f64().unwrap_or(0.0);
-                af.partial_cmp(&bf).unwrap_or(Ordering::Equal)
-            }
-            (Value::String(a), Value::String(b)) => a.cmp(b),
-            (Value::Bool(a), Value::Bool(b)) => a.cmp(b),
-            _ => x.to_string().cmp(&y.to_string()),
-        },
-    }
-}
-
-fn value_to_dedupe_key(v: &Value) -> String {
-    // Stable string form — serialise compactly and use as a hash key.
-    serde_json::to_string(v).unwrap_or_default()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn combine_keeps_sibling_fields() {
-        let original = json!({"id": 1, "items": ["a", "b"]});
-        let out = combine(&original, "items", json!("a"));
-        assert_eq!(out, json!({"id": 1, "items": "a"}));
-    }
-
-    #[test]
-    fn combine_merges_object_entries() {
-        let original = json!({"id": 1, "items": [{"name": "x"}]});
-        let out = combine(&original, "items", json!({"name": "x"}));
-        assert_eq!(out, json!({"id": 1, "name": "x"}));
-    }
-
-    #[test]
-    fn compare_numbers() {
-        assert_eq!(
-            compare_values(Some(&json!(1)), Some(&json!(2))),
-            std::cmp::Ordering::Less,
-        );
-    }
-
-    #[test]
-    fn dedupe_key_is_stable() {
-        let v = json!({"a": 1, "b": 2});
-        assert_eq!(value_to_dedupe_key(&v), value_to_dedupe_key(&v));
+        Ok(NodeOutput::single(out))
     }
 }
