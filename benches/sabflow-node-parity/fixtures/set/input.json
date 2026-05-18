@@ -1,0 +1,12 @@
+{
+  "nodeType": "set",
+  "params": {
+    "keepOnlySet": false,
+    "values": [
+      { "name": "added", "value": 1 }
+    ]
+  },
+  "items": [
+    { "name": "a" }
+  ]
+}
