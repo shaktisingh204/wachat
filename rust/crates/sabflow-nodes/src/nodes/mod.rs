@@ -107,10 +107,12 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.3.6: item-manipulation transforms ───────────────────────────────
-pub mod remove_duplicates;
-pub mod sort;
-pub mod limit;
+// ── Phase C.4: storage adapter nodes ────────────────────────────────────────
+pub mod aws_s3;
+pub mod sftp;
+pub mod read_write_file;
+pub mod read_binary_file;
+pub mod move_binary_data;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -211,10 +213,12 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.3.6 — item-manipulation transforms
-    r.register(remove_duplicates::RemoveDuplicatesNode);
-    r.register(sort::SortNode);
-    r.register(limit::LimitNode);
+    // Phase C.4 — storage adapter nodes
+    r.register(aws_s3::AwsS3Node);
+    r.register(sftp::SftpNode);
+    r.register(read_write_file::ReadWriteFileNode);
+    r.register(read_binary_file::ReadBinaryFileNode);
+    r.register(move_binary_data::MoveBinaryDataNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -375,7 +379,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("mocean", "Mocean", NodeCategory::Communication, "SMS messaging"),
         ("mondayCom", "monday.com", NodeCategory::Productivity, "Work OS"),
         ("monicaCrm", "Monica CRM", NodeCategory::Crm, "Personal CRM"),
-        ("moveBinaryData", "Move Binary Data", NodeCategory::Transform, "Convert binary <-> JSON fields"),
         ("msg91", "MSG91", NodeCategory::Communication, "SMS gateway"),
         ("mySql", "MySQL", NodeCategory::Database, "MySQL operations"),
         ("n8n", "n8n API", NodeCategory::Developer, "Manage n8n itself"),
@@ -419,7 +422,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("quickChart", "QuickChart", NodeCategory::Analytics, "Chart image generation"),
         ("rabbitMq", "RabbitMQ", NodeCategory::Developer, "AMQP message broker"),
         ("raindrop", "Raindrop", NodeCategory::Productivity, "Bookmark manager"),
-        ("readBinaryFile", "Read Binary File", NodeCategory::Files, "Read a single file"),
         ("readBinaryFiles", "Read Binary Files", NodeCategory::Files, "Read multiple files"),
         ("readPdf", "Read PDF", NodeCategory::Files, "Extract text from PDF"),
         ("reddit", "Reddit", NodeCategory::Communication, "Reddit API"),
