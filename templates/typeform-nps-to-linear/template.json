@@ -1,0 +1,10 @@
+{
+  "id": "typeform-nps-to-linear",
+  "name": "Typeform NPS to Linear",
+  "description": "Captures every Typeform NPS response and classifies it as promoter (>=9), passive (7-8), or detractor (<=6). Detractors open a Linear issue tagged nps-detractor assigned to the PM rotation plus a Slack ping in #voice-of-customer, while promoters and passives are logged to Airtable for cohort tracking.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["typeform", "nps", "linear", "slack", "airtable", "feedback"],
+  "version": "0.1.0"
+}

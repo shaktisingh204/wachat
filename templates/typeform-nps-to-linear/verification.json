@@ -1,0 +1,76 @@
+{
+  "schemaVersion": 1,
+  "templateId": "typeform-nps-to-linear",
+  "cases": [
+    {
+      "id": "detractor-fanout",
+      "description": "Score 3 → detractor bucket → Linear issue and Slack #voice-of-customer ping fan-out.",
+      "triggerPayload": {
+        "form_response": {
+          "token": "resp_detractor_001",
+          "answers": [
+            { "field": { "ref": "nps" }, "number": 3 },
+            { "field": { "ref": "email" }, "email": "unhappy@example.com" },
+            { "field": { "ref": "comment" }, "text": "The onboarding was confusing and the docs are out of date." }
+          ]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_typeform_trigger",
+          "n_extract",
+          "n_bucket_switch",
+          "n_linear",
+          "n_slack_voc"
+        ]
+      }
+    },
+    {
+      "id": "promoter-airtable",
+      "description": "Score 10 → promoter bucket → Airtable cohort log only.",
+      "triggerPayload": {
+        "form_response": {
+          "token": "resp_promoter_001",
+          "answers": [
+            { "field": { "ref": "nps" }, "number": 10 },
+            { "field": { "ref": "email" }, "email": "happy@example.com" },
+            { "field": { "ref": "comment" }, "text": "Love it, would recommend to friends." }
+          ]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_typeform_trigger",
+          "n_extract",
+          "n_bucket_switch",
+          "n_airtable_p"
+        ]
+      }
+    },
+    {
+      "id": "passive-airtable",
+      "description": "Score 8 → passive bucket → Airtable cohort log only.",
+      "triggerPayload": {
+        "form_response": {
+          "token": "resp_passive_001",
+          "answers": [
+            { "field": { "ref": "nps" }, "number": 8 },
+            { "field": { "ref": "email" }, "email": "okay@example.com" },
+            { "field": { "ref": "comment" }, "text": "It's fine, a few rough edges." }
+          ]
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_typeform_trigger",
+          "n_extract",
+          "n_bucket_switch",
+          "n_airtable_pa"
+        ]
+      }
+    }
+  ]
+}
