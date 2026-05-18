@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_8am",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] } }
+    },
+    {
+      "id": "n_find",
+      "name": "Find Today's Prescriptions",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "prescriptions",
+        "query": "{ \"active\": true, \"dueToday\": true }"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Patient",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_wa",
+      "name": "Send WhatsApp Template",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v19.0/{{ $vars.WA_PHONE_ID }}/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "to", "value": "={{ $json.phone }}" },
+            { "name": "template", "value": "medication_reminder" }
+          ]
+        }
+      },
+      "credentials": { "whatsAppApi": { "id": "wa-cred", "name": "WhatsApp" } }
+    },
+    {
+      "id": "n_stamp",
+      "name": "Stamp lastReminded",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "operation": "update", "collection": "prescriptions", "updateKey": "_id" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Audit Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "operation": "insert", "collection": "reminder_log", "fields": "prescriptionId,sentAt" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_find", "type": "main", "index": 0 }]] },
+    "n_find": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_wa", "type": "main", "index": 0 }]] },
+    "n_wa": { "main": [[{ "node": "n_stamp", "type": "main", "index": 0 }]] },
+    "n_stamp": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_find", "n_split", "n_wa", "n_stamp", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_p", "name": "WA_PHONE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
