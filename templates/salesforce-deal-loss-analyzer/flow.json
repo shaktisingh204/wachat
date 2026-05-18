@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sf_lost",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "salesforce.opportunity.closed_lost",
+    "options": {
+      "path": "/webhooks/salesforce-deal-loss-analyzer",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-SF-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Opportunity Closed Lost",
+      "type": "n8n-nodes-base.salesforceTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "resource": "opportunity", "event": "updated" },
+      "credentials": { "salesforceOAuth2Api": { "id": "sf-cred", "name": "Salesforce" } }
+    },
+    {
+      "id": "n_get_opp",
+      "name": "Get Opportunity",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [240, -120],
+      "parameters": { "resource": "opportunity", "operation": "get", "opportunityId": "={{ $json.Id }}" },
+      "credentials": { "salesforceOAuth2Api": { "id": "sf-cred", "name": "Salesforce" } }
+    },
+    {
+      "id": "n_salesloft",
+      "name": "SalesLoft Activity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 120],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.salesloft.com/v2/activities.json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "salesLoftApi",
+        "sendQuery": true,
+        "queryParameters": { "parameters": [{ "name": "person_id", "value": "={{ $json.OwnerId }}" }] }
+      },
+      "credentials": { "salesLoftApi": { "id": "salesloft-cred", "name": "SalesLoft" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Context",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "mode": "combine", "combinationMode": "multiplex" }
+    },
+    {
+      "id": "n_analyze",
+      "name": "GPT-4o Loss Analysis",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Identify likely loss reasons, missed steps, and coaching points. Return Markdown." },
+            { "role": "user", "content": "={{ JSON.stringify($json) }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_sf_note",
+      "name": "Attach SF Note",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "note",
+        "operation": "create",
+        "parentId": "={{ $node['Opportunity Closed Lost'].json.Id }}",
+        "title": "Loss Analysis",
+        "body": "={{ $json.message.content }}"
+      },
+      "credentials": { "salesforceOAuth2Api": { "id": "sf-cred", "name": "Salesforce" } }
+    },
+    {
+      "id": "n_slack_ae",
+      "name": "DM AE on Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Get Opportunity'].json.Owner.SlackId }}",
+        "text": "=Loss analysis ready for {{ $node['Opportunity Closed Lost'].json.Name }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_slack_leadership",
+      "name": "Post to #sales-leadership",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#sales-leadership",
+        "text": "=Coachable insight from lost deal: {{ $node['Opportunity Closed Lost'].json.Name }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": {
+      "main": [[
+        { "node": "n_get_opp", "type": "main", "index": 0 },
+        { "node": "n_salesloft", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_get_opp": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_salesloft": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] },
+    "n_merge": { "main": [[{ "node": "n_analyze", "type": "main", "index": 0 }]] },
+    "n_analyze": {
+      "main": [[
+        { "node": "n_sf_note", "type": "main", "index": 0 },
+        { "node": "n_slack_ae", "type": "main", "index": 0 },
+        { "node": "n_slack_leadership", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_get_opp", "n_salesloft", "n_merge", "n_analyze", "n_sf_note", "n_slack_ae", "n_slack_leadership"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
