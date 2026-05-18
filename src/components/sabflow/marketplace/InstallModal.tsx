@@ -1,325 +1,300 @@
 'use client';
 
-import { ZoruButton, ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogDescription } from '@/components/zoruui';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState } from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  LuArrowUpRight,
-  LuCheck,
-  LuKey,
-  LuLoader,
-  LuRefreshCw,
-  LuX,
-  LuSparkles,
-  } from 'react-icons/lu';
-
-import {
-  CREDENTIAL_TYPE_LABEL,
-  type CredentialType,
-  } from '@/lib/sabflow/credentials/types';
-
 /**
- * SabFlow Marketplace — install modal.
+ * SabFlow Marketplace — InstallModal
  *
- * Phase C.10 · sub-task #6 — UI for credential prompts.
+ * Phase C.10 · sub-task #6 — one-click install UI.
  *
- * Lifecycle:
- *   1. The card click opens the modal in `idle` state and immediately POSTs
- *      `{ templateSlug }` to `/api/sabflow/marketplace/install`.
- *   2. If the server replies `status: 'ok'`, we navigate to `editorUrl`
- *      (modal stays mounted while the route transition runs).
- *   3. If the server replies `status: 'needs_credentials'`, we render the
- *      checklist of missing credential types. Each row links the user to
- *      `/dashboard/sabflow/connections?new=<type>` in a new tab so they
- *      can add the credential without losing this modal's state.
- *   4. The "Retry install" button re-runs step 1 once the user has added
- *      the missing credentials — when the new check passes, install
- *      proceeds and we navigate.
+ * 3-step lifecycle:
+ *   1. Preview  — Shows template metadata (node count, connection count,
+ *                 description) with a Confirm Install button.
+ *   2. Installing — Calls POST /api/sabflow/marketplace/templates/[id]/install.
+ *   3. Success  — Shows "Open in Editor" deep-link once the flow is cloned.
+ *   Error       — Inline error banner with a Retry button.
  *
- * Reuses the existing `CREDENTIAL_TYPE_LABEL` map so credential prompts
- * render with the same display names users already see in the Connections
- * page.
+ * Props intentionally omit `open` — callers mount/unmount the modal to
+ * control visibility, which keeps local state clean on every re-open.
  */
 
 import * as React from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import Link from 'next/link';
+import {
+  LuArrowUpRight,
+  LuCheck,
+  LuLoader,
+  LuRefreshCw,
+  LuSparkles,
+  LuX,
+  LuWorkflow,
+  LuGitFork,
+} from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
 
 /* ── Types ────────────────────────────────────────────────────────────── */
 
 export interface InstallModalProps {
-  /** Slug of the marketplace template to install. */
-  templateSlug: string;
-  /** Display name for the header. */
+  /** MongoDB ObjectId string of the marketplace template to install. */
+  templateId: string;
+  /** Display name shown in the modal header. */
   templateName: string;
-  /** Whether the modal is currently visible. */
-  open: boolean;
-  /** Close-handler invoked on overlay click / Escape / close button. */
+  /** Short description shown in the preview step. */
+  description?: string;
+  /** Flow node count for the preview — sourced from the template summary card. */
+  nodeCount?: number;
+  /** Flow edge/connection count for the preview. */
+  connectionCount?: number;
+  /** Called when the user clicks the X or Cancel button. */
   onClose: () => void;
   /**
-   * Called after a successful install with the new flow id. The default
-   * behaviour (navigate to `editorUrl`) runs regardless — this is a
-   * notification hook so parent pages can refresh their flow list.
+   * Optional notification hook — called after a successful install with
+   * the new `docId` and `editorUrl`. Navigation happens regardless.
    */
-  onInstalled?: (flowId: string, editorUrl: string) => void;
+  onInstalled?: (docId: string, editorUrl: string) => void;
 }
 
-/* ── Response shapes ──────────────────────────────────────────────────── */
+type Phase = 'preview' | 'installing' | 'success' | 'error';
 
-type ApiResponse =
-  | {
-      status: 'ok';
-      flowId: string;
-      editorUrl: string;
-      installCount: number | null;
-    }
-  | {
-      status: 'needs_credentials';
-      templateSlug: string;
-      required: CredentialType[];
-      missing: CredentialType[];
-    }
-  | { error: string };
-
-type Phase = 'idle' | 'installing' | 'needs_credentials' | 'ok' | 'error';
+interface SuccessPayload {
+  docId: string;
+  editorUrl: string;
+}
 
 /* ── Component ────────────────────────────────────────────────────────── */
 
 export function InstallModal({
-  templateSlug,
+  templateId,
   templateName,
-  open,
+  description,
+  nodeCount,
+  connectionCount,
   onClose,
   onInstalled,
 }: InstallModalProps) {
-  const router = useRouter();
-  const [phase, setPhase] = useState<Phase>('idle');
-  const [missing, setMissing] = useState<CredentialType[]>([]);
-  const [required, setRequired] = useState<CredentialType[]>([]);
+  const [phase, setPhase] = useState<Phase>('preview');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [success, setSuccess] = useState<SuccessPayload | null>(null);
 
-  /** POST to the install endpoint and route on the discriminated response. */
   const runInstall = useCallback(async () => {
     setPhase('installing');
     setErrorMsg(null);
-    try {
-      const res = await fetch('/api/sabflow/marketplace/install', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ templateSlug }),
-      });
 
-      let data: ApiResponse | null = null;
+    try {
+      const res = await fetch(
+        `/api/sabflow/marketplace/templates/${encodeURIComponent(templateId)}/install`,
+        { method: 'POST' },
+      );
+
+      let data: { docId?: string; editorUrl?: string; error?: string } | null = null;
       try {
-        data = (await res.json()) as ApiResponse;
+        data = (await res.json()) as typeof data;
       } catch {
-        /* fall through */
+        /* empty body */
       }
 
       if (!res.ok) {
-        if (data && 'status' in data && data.status === 'needs_credentials') {
-          // 200 with `needs_credentials` is handled in the success branch
-          // below — landing here means the server returned a real error.
-        }
-        const msg = (data && 'error' in data ? data.error : null) ?? `Install failed (HTTP ${res.status})`;
+        const msg =
+          (data && typeof data.error === 'string' ? data.error : null) ??
+          `Install failed (HTTP ${res.status})`;
         setErrorMsg(msg);
         setPhase('error');
         return;
       }
 
-      if (!data) {
-        setErrorMsg('Empty response from server');
+      if (!data?.docId || !data?.editorUrl) {
+        setErrorMsg('Unexpected response from server.');
         setPhase('error');
         return;
       }
 
-      if ('status' in data && data.status === 'needs_credentials') {
-        setMissing(data.missing ?? []);
-        setRequired(data.required ?? []);
-        setPhase('needs_credentials');
-        return;
-      }
-
-      if ('status' in data && data.status === 'ok') {
-        setPhase('ok');
-        onInstalled?.(data.flowId, data.editorUrl);
-        // Modal stays mounted while the route transition runs so the user
-        // sees the "Opening editor…" affordance instead of a flash of empty
-        // background.
-        router.push(data.editorUrl);
-        return;
-      }
-
-      setErrorMsg('Unexpected response from server');
-      setPhase('error');
+      const payload: SuccessPayload = {
+        docId: data.docId,
+        editorUrl: data.editorUrl,
+      };
+      setSuccess(payload);
+      setPhase('success');
+      onInstalled?.(payload.docId, payload.editorUrl);
     } catch (err) {
-      setErrorMsg((err as Error).message);
+      setErrorMsg((err as Error).message ?? 'Network error.');
       setPhase('error');
     }
-  }, [templateSlug, router, onInstalled]);
+  }, [templateId, onInstalled]);
 
-  /* Kick off the install the moment the modal opens. */
-  useEffect(() => {
-    if (open && phase === 'idle') {
-      void runInstall();
-    }
-    if (!open) {
-      // Reset to idle so the next open() re-fires runInstall.
-      setPhase('idle');
-      setMissing([]);
-      setRequired([]);
-      setErrorMsg(null);
-    }
-  }, [open, phase, runInstall]);
+  /* Node / connection display values */
+  const nodeLabel = useMemo(() => {
+    if (nodeCount == null) return null;
+    return `${nodeCount} node${nodeCount === 1 ? '' : 's'}`;
+  }, [nodeCount]);
 
-  const credentialsReady = useMemo(
-    () => required.length > 0 && missing.length === 0,
-    [required.length, missing.length],
-  );
-
-  /* Build a deep link to the new-credential page for a given type. */
-  const credentialDeepLink = (type: CredentialType): string =>
-    `/dashboard/sabflow/connections?new=${encodeURIComponent(type)}`;
+  const connectionLabel = useMemo(() => {
+    if (connectionCount == null) return null;
+    return `${connectionCount} connection${connectionCount === 1 ? '' : 's'}`;
+  }, [connectionCount]);
 
   /* ── Render ─────────────────────────────────────────────────────────── */
   return (
-    <ZoruDialog open={open} onOpenChange={(o) => (o ? null : onClose())}>
-      <ZoruDialogContent className="max-w-lg">
-        <ZoruDialogHeader>
-          <ZoruDialogTitle className="flex items-center gap-2">
-            <LuSparkles className="h-4 w-4 text-amber-400" />
-            Install template
-          </ZoruDialogTitle>
-          <ZoruDialogDescription>
-            <span className="font-medium text-zoru-ink">{templateName}</span>{' '}
-            will be cloned into your workspace as a new draft.
-          </ZoruDialogDescription>
-        </ZoruDialogHeader>
-
-        {phase === 'installing' && (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <LuLoader className="h-6 w-6 animate-spin text-zoru-ink-muted" />
-            <p className="text-sm text-zoru-ink-muted">
-              Checking credentials and cloning the template…
-            </p>
+    /* Backdrop */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Install ${templateName}`}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {/* Panel */}
+      <div className="relative w-full max-w-md rounded-xl border border-zinc-700 bg-zinc-900 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3 border-b border-zinc-800 px-5 py-4">
+          <div className="flex items-center gap-2">
+            <LuSparkles className="h-4 w-4 shrink-0 text-amber-400" />
+            <h2 className="text-sm font-semibold text-zinc-100">
+              Install template
+            </h2>
           </div>
-        )}
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close modal"
+            className="text-zinc-500 transition-colors hover:text-zinc-200"
+          >
+            <LuX className="h-4 w-4" />
+          </button>
+        </div>
 
-        {phase === 'ok' && (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
-              <LuCheck className="h-5 w-5" />
+        {/* Body */}
+        <div className="px-5 py-5">
+          {/* ── Step 1: Preview ──────────────────────────────────────── */}
+          {phase === 'preview' && (
+            <div className="flex flex-col gap-4">
+              {/* Template identity */}
+              <div>
+                <p className="text-base font-semibold text-zinc-100">
+                  {templateName}
+                </p>
+                {description && (
+                  <p className="mt-1 text-sm text-zinc-400">{description}</p>
+                )}
+              </div>
+
+              {/* Flow stats */}
+              {(nodeLabel ?? connectionLabel) && (
+                <div className="flex flex-wrap gap-3">
+                  {nodeLabel && (
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300">
+                      <LuWorkflow className="h-3.5 w-3.5 text-zinc-400" />
+                      {nodeLabel}
+                    </span>
+                  )}
+                  {connectionLabel && (
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-zinc-700 bg-zinc-800 px-2.5 py-1 text-xs text-zinc-300">
+                      <LuGitFork className="h-3.5 w-3.5 text-zinc-400" />
+                      {connectionLabel}
+                    </span>
+                  )}
+                </div>
+              )}
+
+              <p className="text-xs text-zinc-500">
+                This template will be cloned into your workspace as a new draft.
+                You can review and modify it before activating.
+              </p>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-md px-3.5 py-1.5 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void runInstall()}
+                  className={cn(
+                    'inline-flex items-center gap-2 rounded-md bg-amber-500 px-4 py-1.5 text-sm font-medium text-zinc-900',
+                    'transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60',
+                  )}
+                >
+                  <LuSparkles className="h-3.5 w-3.5" />
+                  Confirm install
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-zoru-ink-muted">Opening the editor…</p>
-          </div>
-        )}
+          )}
 
-        {phase === 'error' && (
-          <div className="flex flex-col gap-4 py-2">
-            <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-              {errorMsg ?? 'Install failed'}
+          {/* ── Step 2: Installing ───────────────────────────────────── */}
+          {phase === 'installing' && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <LuLoader className="h-6 w-6 animate-spin text-zinc-400" />
+              <p className="text-sm text-zinc-400">
+                Cloning template into your workspace&hellip;
+              </p>
             </div>
-            <div className="flex justify-end gap-2">
-              <ZoruButton variant="outline" onClick={onClose}>
-                Close
-              </ZoruButton>
-              <ZoruButton onClick={() => void runInstall()}>
-                <LuRefreshCw className="h-4 w-4" />
-                Retry
-              </ZoruButton>
-            </div>
-          </div>
-        )}
+          )}
 
-        {phase === 'needs_credentials' && (
-          <div className="flex flex-col gap-4">
-            <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-              This template needs {missing.length} credential
-              {missing.length === 1 ? '' : 's'} you haven&apos;t set up yet.
-              Add each one below, then click <strong>Retry install</strong>.
-            </div>
-
-            <ul className="flex flex-col gap-2" role="list">
-              {required.map((type) => {
-                const isMissing = missing.includes(type);
-                return (
-                  <li
-                    key={type}
-                    className={cn(
-                      'flex items-center justify-between gap-3 rounded-lg border px-3 py-2 transition-colors',
-                      isMissing
-                        ? 'border-zoru-line bg-zoru-bg'
-                        : 'border-emerald-500/30 bg-emerald-500/5',
-                    )}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <span
-                        className={cn(
-                          'flex h-7 w-7 items-center justify-center rounded-md',
-                          isMissing
-                            ? 'bg-zoru-surface-2 text-zoru-ink-muted'
-                            : 'bg-emerald-500/15 text-emerald-400',
-                        )}
-                      >
-                        {isMissing ? (
-                          <LuKey className="h-3.5 w-3.5" />
-                        ) : (
-                          <LuCheck className="h-3.5 w-3.5" />
-                        )}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-zoru-ink truncate">
-                          {CREDENTIAL_TYPE_LABEL[type] ?? type}
-                        </p>
-                        <p className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
-                          {isMissing ? 'Not connected' : 'Ready'}
-                        </p>
-                      </div>
-                    </div>
-                    {isMissing && (
-                      <a
-                        href={credentialDeepLink(type)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={cn(
-                          'inline-flex shrink-0 items-center gap-1.5 rounded-md border border-zoru-line bg-zoru-bg px-2.5 py-1 text-xs font-medium text-zoru-ink hover:bg-zoru-surface-2 hover:border-zoru-line-strong transition-colors',
-                          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary/40',
-                        )}
-                      >
-                        Add credential
-                        <LuArrowUpRight className="h-3 w-3" />
-                      </a>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="flex items-center justify-between gap-2 pt-1">
-              <button
-                type="button"
+          {/* ── Step 3: Success ──────────────────────────────────────── */}
+          {phase === 'success' && success && (
+            <div className="flex flex-col items-center gap-4 py-6">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+                <LuCheck className="h-5 w-5" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-zinc-100">
+                  Template installed!
+                </p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  Your new flow is ready in draft state.
+                </p>
+              </div>
+              <Link
+                href={success.editorUrl}
+                className={cn(
+                  'inline-flex items-center gap-2 rounded-md bg-amber-500 px-4 py-2 text-sm font-medium text-zinc-900',
+                  'transition-colors hover:bg-amber-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/60',
+                )}
                 onClick={onClose}
-                className="inline-flex items-center gap-1.5 text-xs text-zoru-ink-muted hover:text-zoru-ink transition-colors"
               >
-                <LuX className="h-3 w-3" />
-                Cancel
-              </button>
-              <ZoruButton
-                onClick={() => void runInstall()}
-                disabled={!credentialsReady && missing.length > 0}
-              >
-                <LuRefreshCw className="h-4 w-4" />
-                Retry install
-              </ZoruButton>
+                Open in Editor
+                <LuArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
             </div>
-          </div>
-        )}
-      </ZoruDialogContent>
-    </ZoruDialog>
+          )}
+
+          {/* ── Error state ──────────────────────────────────────────── */}
+          {phase === 'error' && (
+            <div className="flex flex-col gap-4">
+              <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-300">
+                {errorMsg ?? 'Install failed. Please try again.'}
+              </div>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-md px-3.5 py-1.5 text-sm text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-zinc-200"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void runInstall()}
+                  className={cn(
+                    'inline-flex items-center gap-2 rounded-md border border-zinc-700 bg-zinc-800 px-3.5 py-1.5 text-sm font-medium text-zinc-200',
+                    'transition-colors hover:bg-zinc-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/60',
+                  )}
+                >
+                  <LuRefreshCw className="h-3.5 w-3.5" />
+                  Retry
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
