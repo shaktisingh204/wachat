@@ -1,0 +1,184 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_typeform",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "typeform.form_response",
+    "options": {
+      "path": "/webhooks/typeform-affiliate-screening",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Typeform-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Typeform Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "typeform-affiliate-screening",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "typeform-affiliate-screening"
+    },
+    {
+      "id": "n_clearbit",
+      "name": "Clearbit Person Enrichment",
+      "type": "n8n-nodes-base.clearbit",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "person",
+        "operation": "enrich",
+        "email": "={{ $json.form_response.answers[0].email }}"
+      },
+      "credentials": { "clearbitApi": { "id": "clearbit-cred", "name": "Clearbit" } }
+    },
+    {
+      "id": "n_score",
+      "name": "GPT-4o Fit Score",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON: { bucket: 'approve'|'review'|'deny', reason: string }." },
+            { "role": "user", "content": "Applicant: {{ JSON.stringify($json) }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ JSON.parse($json.message.content).bucket }}", "operation": "equal", "value2": "approve" }] }, "outputKey": "approve" },
+            { "conditions": { "string": [{ "value1": "={{ JSON.parse($json.message.content).bucket }}", "operation": "equal", "value2": "review" }] }, "outputKey": "review" }
+          ]
+        },
+        "fallbackOutput": "deny"
+      }
+    },
+    {
+      "id": "n_approve_email",
+      "name": "Approval Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, -200],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "affiliate@example.com",
+        "toEmail": "={{ $node['Typeform Submission'].json.form_response.answers[0].email }}",
+        "subject": "Welcome to the affiliate program",
+        "content": "Congrats — you're in. Here's your link."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_approve_log",
+      "name": "Log Approved",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, -200],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "affiliates_approved" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable Token" } }
+    },
+    {
+      "id": "n_review_email",
+      "name": "Review Holding Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "affiliate@example.com",
+        "toEmail": "={{ $node['Typeform Submission'].json.form_response.answers[0].email }}",
+        "subject": "We're reviewing your application",
+        "content": "Thanks — we'll be in touch within 5 business days."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_review_log",
+      "name": "Log Review",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "affiliates_review" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable Token" } }
+    },
+    {
+      "id": "n_deny_email",
+      "name": "Decline Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 200],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "affiliate@example.com",
+        "toEmail": "={{ $node['Typeform Submission'].json.form_response.answers[0].email }}",
+        "subject": "Update on your application",
+        "content": "Thanks for applying. Not a fit today."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_deny_log",
+      "name": "Log Denied",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 200],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "affiliates_denied" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable Token" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_clearbit", "type": "main", "index": 0 }]] },
+    "n_clearbit": { "main": [[{ "node": "n_score", "type": "main", "index": 0 }]] },
+    "n_score": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "approve": [[{ "node": "n_approve_email", "type": "main", "index": 0 }]],
+      "review": [[{ "node": "n_review_email", "type": "main", "index": 0 }]],
+      "deny": [[{ "node": "n_deny_email", "type": "main", "index": 0 }]]
+    },
+    "n_approve_email": { "main": [[{ "node": "n_approve_log", "type": "main", "index": 0 }]] },
+    "n_review_email": { "main": [[{ "node": "n_review_log", "type": "main", "index": 0 }]] },
+    "n_deny_email": { "main": [[{ "node": "n_deny_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_clearbit", "n_score", "n_route", "n_approve_email", "n_approve_log", "n_review_email", "n_review_log", "n_deny_email", "n_deny_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
