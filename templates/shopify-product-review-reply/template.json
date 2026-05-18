@@ -1,0 +1,10 @@
+{
+  "id": "shopify-product-review-reply",
+  "name": "Shopify Product Review Reply",
+  "description": "Catches new Shopify product reviews and routes them by rating. Negative reviews get a GPT-drafted apology held for human approval in Slack #cx-review; positive reviews are answered automatically with a friendly thank-you posted back to the product page.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "reviews", "openai", "slack", "support", "ecommerce"],
+  "version": "0.1.0"
+}
