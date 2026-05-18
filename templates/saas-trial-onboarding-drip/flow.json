@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_stripe",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.customer.subscription.trial_will_end",
+    "options": {
+      "path": "/webhooks/saas-trial-onboarding-drip",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Stripe Trial Started",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "events": ["customer.subscription.created"] },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe" } }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Customer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.customer_email }}" },
+            { "name": "name", "value": "={{ $json.customer_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_1d",
+      "name": "Wait 1 Day",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "amount": 1, "unit": "days" }
+    },
+    {
+      "id": "n_day1",
+      "name": "Day 1 Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "onboarding@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome — let's set you up",
+        "content": "Here's the 5-minute quick start."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_wait_3d_a",
+      "name": "Wait 3 Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "amount": 3, "unit": "days" }
+    },
+    {
+      "id": "n_day4",
+      "name": "Day 4 Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "onboarding@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Three power features you missed",
+        "content": "Workflows, integrations, and reports."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_wait_3d_b",
+      "name": "Wait 3 More Days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [1440, 0],
+      "parameters": { "amount": 3, "unit": "days" }
+    },
+    {
+      "id": "n_day7",
+      "name": "Day 7 Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1680, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "onboarding@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Trial wrap-up + your offer",
+        "content": "Convert by Sunday for 20% off."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Log Completion",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1920, 0],
+      "parameters": { "operation": "insert", "collection": "trial_drip", "fields": "email,completedAt" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_wait_1d", "type": "main", "index": 0 }]] },
+    "n_wait_1d": { "main": [[{ "node": "n_day1", "type": "main", "index": 0 }]] },
+    "n_day1": { "main": [[{ "node": "n_wait_3d_a", "type": "main", "index": 0 }]] },
+    "n_wait_3d_a": { "main": [[{ "node": "n_day4", "type": "main", "index": 0 }]] },
+    "n_day4": { "main": [[{ "node": "n_wait_3d_b", "type": "main", "index": 0 }]] },
+    "n_wait_3d_b": { "main": [[{ "node": "n_day7", "type": "main", "index": 0 }]] },
+    "n_day7": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_extract", "n_wait_1d", "n_day1", "n_wait_3d_a", "n_day4", "n_wait_3d_b", "n_day7", "n_log"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
