@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "datadog-monitor-snooze",
+  "cases": [
+    {
+      "id": "maintenance-snooze",
+      "description": "Alert fires in maintenance window, monitor is snoozed.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

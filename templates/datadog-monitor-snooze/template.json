@@ -1,0 +1,10 @@
+{
+  "id": "datadog-monitor-snooze",
+  "name": "Datadog Monitor Snooze",
+  "description": "On every Datadog alert webhook, looks up the active maintenance windows in Mongo. If the host is in a window the monitor is auto-snoozed for one hour, otherwise the alert escalates to PagerDuty. Stops the team from being paged for known-noise during planned work.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["datadog", "pagerduty", "mongo", "ops", "alerting", "webhook"],
+  "version": "0.1.0"
+}
