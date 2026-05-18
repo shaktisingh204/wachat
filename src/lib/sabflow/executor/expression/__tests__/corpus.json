@@ -1,0 +1,269 @@
+{
+  "$comment": "Hand-curated n8n-style expression corpus for SabFlow. 40 entries covering literals, member access, arithmetic, comparison, logical, ternary, calls, strings, arrays, builtins, Math/JSON, $now formatting, prototype-pollution guard, and a handful of malformed inputs. Each entry has a name + source + scope plus EITHER expectedValue (any JSON-serialisable) OR expectedError ({ class, messageSubstring }).",
+  "entries": [
+    {
+      "name": "literal/number-integer",
+      "source": "{{ 42 }}",
+      "scope": {},
+      "expectedValue": 42
+    },
+    {
+      "name": "literal/number-decimal",
+      "source": "{{ 3.14 }}",
+      "scope": {},
+      "expectedValue": 3.14
+    },
+    {
+      "name": "literal/string-double",
+      "source": "{{ \"hello\" }}",
+      "scope": {},
+      "expectedValue": "hello"
+    },
+    {
+      "name": "literal/string-single",
+      "source": "{{ 'world' }}",
+      "scope": {},
+      "expectedValue": "world"
+    },
+    {
+      "name": "literal/string-backtick",
+      "source": "{{ `tick` }}",
+      "scope": {},
+      "expectedValue": "tick"
+    },
+    {
+      "name": "literal/boolean-true",
+      "source": "{{ true }}",
+      "scope": {},
+      "expectedValue": true
+    },
+    {
+      "name": "literal/null",
+      "source": "{{ null }}",
+      "scope": {},
+      "expectedValue": null
+    },
+    {
+      "name": "literal/undefined",
+      "source": "{{ undefined }}",
+      "scope": {},
+      "expectedValue": null
+    },
+    {
+      "name": "json/dotted",
+      "source": "{{ $json.foo }}",
+      "scope": { "json": { "foo": "bar" } },
+      "expectedValue": "bar"
+    },
+    {
+      "name": "json/nested",
+      "source": "{{ $json.a.b.c }}",
+      "scope": { "json": { "a": { "b": { "c": 7 } } } },
+      "expectedValue": 7
+    },
+    {
+      "name": "json/indexed-array",
+      "source": "{{ $json.items[2] }}",
+      "scope": { "json": { "items": [10, 20, 30, 40] } },
+      "expectedValue": 30
+    },
+    {
+      "name": "node/bracket-spaced-name",
+      "source": "{{ $node[\"My Node\"].json.value }}",
+      "scope": { "node": { "My Node": { "json": { "value": "spaced" } } } },
+      "expectedValue": "spaced"
+    },
+    {
+      "name": "node/dot-access",
+      "source": "{{ $node.HttpRequest.json.body.token }}",
+      "scope": { "node": { "HttpRequest": { "json": { "body": { "token": "abc" } } } } },
+      "expectedValue": "abc"
+    },
+    {
+      "name": "input/item",
+      "source": "{{ $input.item.json.qty }}",
+      "scope": { "input": { "item": { "json": { "qty": 5 } }, "all": [] } },
+      "expectedValue": 5
+    },
+    {
+      "name": "input/all-index",
+      "source": "{{ $input.all[1].json.id }}",
+      "scope": { "input": { "item": { "json": {} }, "all": [{ "json": { "id": "a" } }, { "json": { "id": "b" } }] } },
+      "expectedValue": "b"
+    },
+    {
+      "name": "vars/bare-identifier",
+      "source": "{{ name }}",
+      "scope": { "vars": { "name": "Alice" } },
+      "expectedValue": "Alice"
+    },
+    {
+      "name": "vars/dollar-prefixed",
+      "source": "{{ $vars.age }}",
+      "scope": { "vars": { "age": 30 } },
+      "expectedValue": 30
+    },
+    {
+      "name": "env/read",
+      "source": "{{ $env.API_KEY }}",
+      "scope": { "env": { "API_KEY": "secret-xyz" } },
+      "expectedValue": "secret-xyz"
+    },
+    {
+      "name": "arithmetic/precedence",
+      "source": "{{ 2 + 3 * 4 }}",
+      "scope": {},
+      "expectedValue": 14
+    },
+    {
+      "name": "arithmetic/parens",
+      "source": "{{ (2 + 3) * 4 }}",
+      "scope": {},
+      "expectedValue": 20
+    },
+    {
+      "name": "arithmetic/modulo",
+      "source": "{{ 17 % 5 }}",
+      "scope": {},
+      "expectedValue": 2
+    },
+    {
+      "name": "arithmetic/unary-minus",
+      "source": "{{ -7 + 10 }}",
+      "scope": {},
+      "expectedValue": 3
+    },
+    {
+      "name": "string/concat-plus",
+      "source": "{{ \"hi-\" + $vars.name }}",
+      "scope": { "vars": { "name": "Bob" } },
+      "expectedValue": "hi-Bob"
+    },
+    {
+      "name": "string/method-trim-upper",
+      "source": "{{ \"  hi  \".trim().toUpperCase() }}",
+      "scope": {},
+      "expectedValue": "HI"
+    },
+    {
+      "name": "string/split-includes",
+      "source": "{{ \"a,b,c\".split(\",\").includes(\"b\") }}",
+      "scope": {},
+      "expectedValue": true
+    },
+    {
+      "name": "string/length-property",
+      "source": "{{ \"abcd\".length }}",
+      "scope": {},
+      "expectedValue": 4
+    },
+    {
+      "name": "array/join",
+      "source": "{{ $vars.tags.join(\"-\") }}",
+      "scope": { "vars": { "tags": ["x", "y", "z"] } },
+      "expectedValue": "x-y-z"
+    },
+    {
+      "name": "array/first-last",
+      "source": "{{ $vars.items.first() }}",
+      "scope": { "vars": { "items": [9, 8, 7] } },
+      "expectedValue": 9
+    },
+    {
+      "name": "comparison/strict-equal",
+      "source": "{{ $vars.x === 1 }}",
+      "scope": { "vars": { "x": 1 } },
+      "expectedValue": true
+    },
+    {
+      "name": "comparison/loose-equal-coercion",
+      "source": "{{ $vars.x == 1 }}",
+      "scope": { "vars": { "x": "1" } },
+      "expectedValue": true
+    },
+    {
+      "name": "logical/and-short-circuit",
+      "source": "{{ $vars.age > 0 && $vars.name }}",
+      "scope": { "vars": { "age": 21, "name": "Cat" } },
+      "expectedValue": "Cat"
+    },
+    {
+      "name": "logical/or-default",
+      "source": "{{ $vars.missing || \"fallback\" }}",
+      "scope": { "vars": {} },
+      "expectedValue": "fallback"
+    },
+    {
+      "name": "logical/not",
+      "source": "{{ !$vars.flag }}",
+      "scope": { "vars": { "flag": false } },
+      "expectedValue": true
+    },
+    {
+      "name": "ternary/conditional",
+      "source": "{{ $vars.age >= 18 ? \"adult\" : \"minor\" }}",
+      "scope": { "vars": { "age": 17 } },
+      "expectedValue": "minor"
+    },
+    {
+      "name": "builtins/json-stringify",
+      "source": "{{ JSON.stringify($json) }}",
+      "scope": { "json": { "k": 1 } },
+      "expectedValue": "{\"k\":1}"
+    },
+    {
+      "name": "builtins/math-floor",
+      "source": "{{ Math.floor(3.9) }}",
+      "scope": {},
+      "expectedValue": 3
+    },
+    {
+      "name": "builtins/math-max",
+      "source": "{{ Math.max(1, 5, 3) }}",
+      "scope": {},
+      "expectedValue": 5
+    },
+    {
+      "name": "now/format",
+      "source": "{{ $now.format(\"YYYY-MM-DD\") }}",
+      "scope": { "now": "2026-04-16T12:34:56.000Z" },
+      "expectedValue": "2026-04-16"
+    },
+    {
+      "name": "security/proto-blocked",
+      "source": "{{ $json.__proto__ }}",
+      "scope": { "json": { "a": 1 } },
+      "expectedValue": null
+    },
+    {
+      "name": "security/constructor-blocked",
+      "source": "{{ $json.constructor }}",
+      "scope": { "json": { "a": 1 } },
+      "expectedValue": null
+    },
+    {
+      "name": "error/unknown-function",
+      "source": "{{ noSuchFunction() }}",
+      "scope": {},
+      "expectedError": { "class": "ExpressionError", "messageSubstring": "noSuchFunction" }
+    },
+    {
+      "name": "error/unterminated-string",
+      "source": "{{ \"oops }}",
+      "scope": {},
+      "expectedError": { "class": "TokenizeError", "messageSubstring": "unterminated" }
+    },
+    {
+      "name": "error/dangling-operator",
+      "source": "{{ 1 + }}",
+      "scope": {},
+      "expectedError": { "class": "ParseError", "messageSubstring": "" }
+    },
+    {
+      "name": "error/missing-rparen",
+      "source": "{{ (1 + 2 }}",
+      "scope": {},
+      "expectedError": { "class": "ParseError", "messageSubstring": "" }
+    }
+  ]
+}
