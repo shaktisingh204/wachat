@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_emr",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "emr.change",
+    "options": {
+      "path": "/webhooks/patient-record-fhir-sync",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-EMR-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "EMR Change",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "patient-record-fhir-sync",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "patient-record-fhir-sync"
+    },
+    {
+      "id": "n_fhir",
+      "name": "Fetch FHIR Resource",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $vars.FHIR_HOST }}/Patient/{{ $json.patientId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "fhir-cred", "name": "FHIR API" } }
+    },
+    {
+      "id": "n_normalize",
+      "name": "Normalize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const p = $input.first().json; return [{ json: { id: p.id, name: p.name?.[0]?.text, dob: p.birthDate } }];"
+      }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Write",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, -200],
+      "parameters": { "operation": "upsert", "collection": "patients", "fields": "id,name,dob" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Mirror",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "operation": "upsert", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "patients_mirror" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_s3",
+      "name": "S3 Archive",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [720, 200],
+      "parameters": { "operation": "upload", "bucketName": "={{ $vars.HIPAA_BUCKET }}" },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS" } }
+    },
+    {
+      "id": "n_audit",
+      "name": "Mongo Audit",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1000, 0],
+      "parameters": { "operation": "insert", "collection": "patient_audit", "fields": "patientId,action,actor,at" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_fhir", "type": "main", "index": 0 }]] },
+    "n_fhir": { "main": [[{ "node": "n_normalize", "type": "main", "index": 0 }]] },
+    "n_normalize": {
+      "main": [[
+        { "node": "n_mongo", "type": "main", "index": 0 },
+        { "node": "n_airtable", "type": "main", "index": 0 },
+        { "node": "n_s3", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_mongo": { "main": [[{ "node": "n_audit", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_audit", "type": "main", "index": 0 }]] },
+    "n_s3": { "main": [[{ "node": "n_audit", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_fhir", "n_normalize", "n_mongo", "n_airtable", "n_s3", "n_audit"]
+    }
+  ],
+  "variables": [
+    { "id": "v_fhir", "name": "FHIR_HOST", "defaultValue": "fhir.example.com" },
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" },
+    { "id": "v_bucket", "name": "HIPAA_BUCKET", "defaultValue": "hipaa-archive" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

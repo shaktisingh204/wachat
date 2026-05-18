@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "patient-record-fhir-sync",
+  "cases": [
+    {
+      "id": "emr",
+      "description": "EMR change triggers FHIR fetch, normalize, and HIPAA-safe fan-out.",
+      "triggerPayload": { "patientId": "P-1" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

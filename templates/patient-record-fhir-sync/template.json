@@ -1,0 +1,10 @@
+{
+  "id": "patient-record-fhir-sync",
+  "name": "Patient Record FHIR Sync",
+  "description": "Reacts to EMR change webhooks, fetches the canonical FHIR resource, normalizes it into a flat shape, and fans it out to Mongo, an Airtable HIPAA-safe mirror, and an S3 archive. A signed audit row is written to Mongo so compliance can prove every touch is accounted for.",
+  "category": "Health",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["fhir", "emr", "mongo", "airtable", "s3", "hipaa"],
+  "version": "0.1.0"
+}
