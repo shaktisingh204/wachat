@@ -1,11 +1,11 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T16:11:23Z",
+  "generatedAt": "2026-05-18T16:30:11Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 336,
-    "implementedCount": 144,
-    "stubCount": 192,
+    "totalNodes": 358,
+    "implementedCount": 203,
+    "stubCount": 155,
     "referenceNode": "n8n-nodes-base.httpRequest",
     "phase": "C.3.9"
   },
@@ -56,9 +56,9 @@
       "name": "affinity",
       "displayName": "Affinity",
       "category": "Crm",
-      "description": "Relationship intelligence CRM",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Affinity relationship-intelligence CRM records, lists and notes",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/affinity.rs"
     },
     {
       "n8nType": "n8n-nodes-base.aggregate",
@@ -74,9 +74,9 @@
       "name": "agileCrm",
       "displayName": "Agile CRM",
       "category": "Crm",
-      "description": "Customer relationship management",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Agile CRM contacts, companies, deals and tasks",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/agile_crm.rs"
     },
     {
       "n8nType": "n8n-nodes-base.aiTransform",
@@ -128,9 +128,9 @@
       "name": "apiTemplateIo",
       "displayName": "APITemplate.io",
       "category": "Developer",
-      "description": "Generate PDFs and images",
-      "isStub": true,
-      "implFile": null
+      "description": "Render PDFs and images from APITemplate.io templates",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/api_template_io.rs"
     },
     {
       "n8nType": "n8n-nodes-base.asana",
@@ -160,6 +160,24 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.awsCloudWatch",
+      "name": "awsCloudWatch",
+      "displayName": "AWS CloudWatch",
+      "category": "Analytics",
+      "description": "Publish CloudWatch metrics and log events",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_cloud_watch.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsComprehend",
+      "name": "awsComprehend",
+      "displayName": "AWS Comprehend",
+      "category": "Ai",
+      "description": "Detect language, sentiment, and entities with Amazon Comprehend",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_comprehend.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.awsDynamoDb",
       "name": "awsDynamoDb",
       "displayName": "AWS DynamoDB",
@@ -167,6 +185,15 @@
       "description": "Read and write items in an Amazon DynamoDB table",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/dynamo_db.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsLambda",
+      "name": "awsLambda",
+      "displayName": "AWS Lambda",
+      "category": "Developer",
+      "description": "Invoke an AWS Lambda function",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_lambda.rs"
     },
     {
       "n8nType": "n8n-nodes-base.awsS3",
@@ -178,22 +205,49 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_s3.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.awsSes",
+      "name": "awsSes",
+      "displayName": "AWS SES",
+      "category": "Communication",
+      "description": "Send email through Amazon SES",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_ses.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsSns",
+      "name": "awsSns",
+      "displayName": "AWS SNS",
+      "category": "Communication",
+      "description": "Publish messages to Amazon SNS topics",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_sns.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.awsSqs",
+      "name": "awsSqs",
+      "displayName": "AWS SQS",
+      "category": "Developer",
+      "description": "Send, receive, and delete messages on Amazon SQS",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/aws_sqs.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.bambooHr",
       "name": "bambooHr",
       "displayName": "BambooHR",
       "category": "Hr",
-      "description": "HR management",
-      "isStub": true,
-      "implFile": null
+      "description": "BambooHR HRIS \u2014 employees, time-off, reports",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bamboo_hr.rs"
     },
     {
       "n8nType": "n8n-nodes-base.bannerbear",
       "name": "bannerbear",
       "displayName": "Bannerbear",
       "category": "Marketing",
-      "description": "Auto-generate marketing creatives",
-      "isStub": true,
-      "implFile": null
+      "description": "Auto-generate marketing creatives from a Bannerbear template",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bannerbear.rs"
     },
     {
       "n8nType": "n8n-nodes-base.baserow",
@@ -218,18 +272,18 @@
       "name": "bitbucket",
       "displayName": "Bitbucket",
       "category": "Developer",
-      "description": "Git hosting and code review",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Bitbucket repositories, pull requests, issues, and pipelines",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bitbucket.rs"
     },
     {
       "n8nType": "n8n-nodes-base.bitly",
       "name": "bitly",
       "displayName": "Bitly",
       "category": "Marketing",
-      "description": "URL shortener",
-      "isStub": true,
-      "implFile": null
+      "description": "Shorten and manage URLs via the Bitly v4 API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bitly.rs"
     },
     {
       "n8nType": "n8n-nodes-base.bitwarden",
@@ -239,6 +293,15 @@
       "description": "Password manager",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.bluesky",
+      "name": "bluesky",
+      "displayName": "Bluesky",
+      "category": "Communication",
+      "description": "Publish posts to Bluesky via the AT Protocol",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/bluesky.rs"
     },
     {
       "n8nType": "n8n-nodes-base.box",
@@ -308,9 +371,9 @@
       "name": "circleCi",
       "displayName": "CircleCI",
       "category": "Developer",
-      "description": "Continuous integration",
-      "isStub": true,
-      "implFile": null
+      "description": "Trigger pipelines and manage workflows on CircleCI",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/circle_ci.rs"
     },
     {
       "n8nType": "n8n-nodes-base.cisco",
@@ -326,9 +389,9 @@
       "name": "clearbit",
       "displayName": "Clearbit",
       "category": "Marketing",
-      "description": "Business intelligence APIs",
-      "isStub": true,
-      "implFile": null
+      "description": "Enrich people and companies via the Clearbit Enrichment API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/clearbit.rs"
     },
     {
       "n8nType": "n8n-nodes-base.clickUp",
@@ -344,18 +407,27 @@
       "name": "clockify",
       "displayName": "Clockify",
       "category": "Productivity",
-      "description": "Time tracking",
-      "isStub": true,
-      "implFile": null
+      "description": "Clockify time tracking",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/clockify.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.closeIo",
+      "name": "closeIo",
+      "displayName": "Close",
+      "category": "Sales",
+      "description": "Manage Close (close.io) leads, contacts, opportunities and tasks",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/close_io.rs"
     },
     {
       "n8nType": "n8n-nodes-base.cloudflare",
       "name": "cloudflare",
       "displayName": "Cloudflare",
       "category": "Developer",
-      "description": "DNS and CDN management",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Cloudflare zones, DNS records, and cache",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/cloudflare.rs"
     },
     {
       "n8nType": "n8n-nodes-base.cockpit",
@@ -371,9 +443,9 @@
       "name": "coda",
       "displayName": "Coda",
       "category": "Productivity",
-      "description": "All-in-one doc",
-      "isStub": true,
-      "implFile": null
+      "description": "Coda Docs API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/coda.rs"
     },
     {
       "n8nType": "n8n-nodes-base.code",
@@ -461,9 +533,9 @@
       "name": "copper",
       "displayName": "Copper",
       "category": "Crm",
-      "description": "CRM built for Google Workspace",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Copper CRM people, leads, opportunities and companies",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/copper.rs"
     },
     {
       "n8nType": "n8n-nodes-base.cortex",
@@ -623,9 +695,9 @@
       "name": "drift",
       "displayName": "Drift",
       "category": "Marketing",
-      "description": "Conversational marketing",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage contacts and conversations via the Drift conversational marketing API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/drift.rs"
     },
     {
       "n8nType": "n8n-nodes-base.dropbox",
@@ -776,9 +848,9 @@
       "name": "eventbrite",
       "displayName": "Eventbrite",
       "category": "Productivity",
-      "description": "Event ticketing",
-      "isStub": true,
-      "implFile": null
+      "description": "Eventbrite event ticketing \u2014 manage events, attendees and orders",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/eventbrite.rs"
     },
     {
       "n8nType": "n8n-nodes-base.executeCommand",
@@ -839,9 +911,9 @@
       "name": "figma",
       "displayName": "Figma",
       "category": "Productivity",
-      "description": "Design files",
-      "isStub": true,
-      "implFile": null
+      "description": "Figma design files",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/figma.rs"
     },
     {
       "n8nType": "n8n-nodes-base.fileMaker",
@@ -920,9 +992,9 @@
       "name": "freshdesk",
       "displayName": "Freshdesk",
       "category": "Communication",
-      "description": "Customer support",
-      "isStub": true,
-      "implFile": null
+      "description": "Freshdesk customer support \u2014 manage tickets and contacts",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/freshdesk.rs"
     },
     {
       "n8nType": "n8n-nodes-base.freshservice",
@@ -938,9 +1010,9 @@
       "name": "freshworksCrm",
       "displayName": "Freshworks CRM",
       "category": "Crm",
-      "description": "Freshworks CRM",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage Freshworks CRM contacts, accounts, leads and deals",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/freshworks_crm.rs"
     },
     {
       "n8nType": "n8n-nodes-base.ftp",
@@ -1051,6 +1123,42 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.googleBigQuery",
+      "name": "googleBigQuery",
+      "displayName": "Google BigQuery",
+      "category": "Analytics",
+      "description": "Run queries and manage datasets in Google BigQuery",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_big_query.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleCloudPubSub",
+      "name": "googleCloudPubSub",
+      "displayName": "Google Cloud Pub/Sub",
+      "category": "Communication",
+      "description": "Publish and consume messages on Google Cloud Pub/Sub",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_cloud_pub_sub.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleCloudStorage",
+      "name": "googleCloudStorage",
+      "displayName": "Google Cloud Storage",
+      "category": "Storage",
+      "description": "Manage buckets and objects in Google Cloud Storage",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_cloud_storage.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleCloudTasks",
+      "name": "googleCloudTasks",
+      "displayName": "Google Cloud Tasks",
+      "category": "Developer",
+      "description": "Enqueue and manage tasks on Google Cloud Tasks",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_cloud_tasks.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.googleSheets",
       "name": "googleSheets",
       "displayName": "Google Sheets",
@@ -1058,6 +1166,24 @@
       "description": "Read and write Google Sheets",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/google_sheets.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleTranslate",
+      "name": "googleTranslate",
+      "displayName": "Google Translate",
+      "category": "Ai",
+      "description": "Translate text and detect language with Google Cloud Translation",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_translate.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.googleVision",
+      "name": "googleVision",
+      "displayName": "Google Cloud Vision",
+      "category": "Ai",
+      "description": "Annotate images with Google Cloud Vision (labels, text, faces, \u2026)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/google_vision.rs"
     },
     {
       "n8nType": "n8n-nodes-base.gotify",
@@ -1136,9 +1262,9 @@
       "name": "helpScout",
       "displayName": "Help Scout",
       "category": "Communication",
-      "description": "Customer support",
-      "isStub": true,
-      "implFile": null
+      "description": "Help Scout customer support \u2014 manage conversations and customers",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/help_scout.rs"
     },
     {
       "n8nType": "n8n-nodes-base.highLevel",
@@ -1208,9 +1334,9 @@
       "name": "hunter",
       "displayName": "Hunter",
       "category": "Marketing",
-      "description": "Email finder and verifier",
-      "isStub": true,
-      "implFile": null
+      "description": "Find, verify, and enrich email addresses via Hunter.io",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/hunter.rs"
     },
     {
       "n8nType": "n8n-nodes-base.iCalendar",
@@ -1235,9 +1361,9 @@
       "name": "intercom",
       "displayName": "Intercom",
       "category": "Communication",
-      "description": "Customer messaging",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage contacts, conversations, and tags via the Intercom API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/intercom.rs"
     },
     {
       "n8nType": "n8n-nodes-base.interval",
@@ -1280,9 +1406,9 @@
       "name": "jenkins",
       "displayName": "Jenkins",
       "category": "Developer",
-      "description": "CI/CD jobs",
-      "isStub": true,
-      "implFile": null
+      "description": "Trigger jobs and inspect builds on a Jenkins server",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/jenkins.rs"
     },
     {
       "n8nType": "n8n-nodes-base.jinaAi",
@@ -1346,6 +1472,15 @@
       "description": "Data collection forms",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.kommo",
+      "name": "kommo",
+      "displayName": "Kommo",
+      "category": "Crm",
+      "description": "Manage Kommo (amoCRM) leads, contacts, companies and tasks",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/kommo.rs"
     },
     {
       "n8nType": "n8n-nodes-base.ldap",
@@ -1510,6 +1645,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.mastodon",
+      "name": "mastodon",
+      "displayName": "Mastodon",
+      "category": "Communication",
+      "description": "Post statuses to a Mastodon (fediverse) instance",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/mastodon.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.matrix",
       "name": "matrix",
       "displayName": "Matrix",
@@ -1532,9 +1676,9 @@
       "name": "mautic",
       "displayName": "Mautic",
       "category": "Marketing",
-      "description": "Marketing automation",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage contacts, segments, and campaigns in a self-hosted Mautic instance",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/mautic.rs"
     },
     {
       "n8nType": "n8n-nodes-base.medium",
@@ -1559,9 +1703,9 @@
       "name": "messageBird",
       "displayName": "MessageBird",
       "category": "Communication",
-      "description": "Omnichannel messaging",
-      "isStub": true,
-      "implFile": null
+      "description": "Send SMS messages via the MessageBird (Bird) Messaging API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/message_bird.rs"
     },
     {
       "n8nType": "n8n-nodes-base.metabase",
@@ -1582,6 +1726,42 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.microsoftExcel365",
+      "name": "microsoftExcel365",
+      "displayName": "Microsoft Excel 365",
+      "category": "Productivity",
+      "description": "Read and write Excel workbook ranges and table rows",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_excel_365.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.microsoftOneDrive",
+      "name": "microsoftOneDrive",
+      "displayName": "Microsoft OneDrive",
+      "category": "Storage",
+      "description": "Upload, download, and manage OneDrive files",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_one_drive.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.microsoftOutlook",
+      "name": "microsoftOutlook",
+      "displayName": "Microsoft Outlook",
+      "category": "Communication",
+      "description": "Send mail and manage events via Microsoft Graph",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_outlook.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.microsoftSharePoint",
+      "name": "microsoftSharePoint",
+      "displayName": "Microsoft SharePoint",
+      "category": "Productivity",
+      "description": "Read and write SharePoint lists and list items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_share_point.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.microsoftSql",
       "name": "microsoftSql",
       "displayName": "Microsoft SQL",
@@ -1589,6 +1769,24 @@
       "description": "Run SQL on Microsoft SQL Server",
       "isStub": false,
       "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_sql.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.microsoftTeams",
+      "name": "microsoftTeams",
+      "displayName": "Microsoft Teams",
+      "category": "Communication",
+      "description": "Post messages and manage channels in Microsoft Teams",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_teams.rs"
+    },
+    {
+      "n8nType": "n8n-nodes-base.microsoftToDo",
+      "name": "microsoftToDo",
+      "displayName": "Microsoft To Do",
+      "category": "Productivity",
+      "description": "Manage Microsoft To Do task lists and tasks",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/microsoft_to_do.rs"
     },
     {
       "n8nType": "n8n-nodes-base.mindee",
@@ -1802,9 +2000,9 @@
       "name": "npm",
       "displayName": "npm",
       "category": "Developer",
-      "description": "npm package operations",
-      "isStub": true,
-      "implFile": null
+      "description": "Query the npm registry and manage dist-tags",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/npm.rs"
     },
     {
       "n8nType": "n8n-nodes-base.odoo",
@@ -2090,18 +2288,18 @@
       "name": "quickBooks",
       "displayName": "QuickBooks",
       "category": "Finance",
-      "description": "Accounting",
-      "isStub": true,
-      "implFile": null
+      "description": "QuickBooks Online accounting \u2014 manage customers, invoices and items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/quick_books.rs"
     },
     {
       "n8nType": "n8n-nodes-base.quickChart",
       "name": "quickChart",
       "displayName": "QuickChart",
       "category": "Analytics",
-      "description": "Chart image generation",
-      "isStub": true,
-      "implFile": null
+      "description": "Render charts as image URLs using QuickChart",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/quick_chart.rs"
     },
     {
       "n8nType": "n8n-nodes-base.rabbitMq",
@@ -2333,9 +2531,9 @@
       "name": "sentryIo",
       "displayName": "Sentry.io",
       "category": "Developer",
-      "description": "Error monitoring",
-      "isStub": true,
-      "implFile": null
+      "description": "Manage issues, events, and releases on Sentry",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/sentry_io.rs"
     },
     {
       "n8nType": "n8n-nodes-base.serviceNow",
@@ -2684,9 +2882,9 @@
       "name": "todoist",
       "displayName": "Todoist",
       "category": "Productivity",
-      "description": "Task manager",
-      "isStub": true,
-      "implFile": null
+      "description": "Todoist task and project manager",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/todoist.rs"
     },
     {
       "n8nType": "n8n-nodes-base.toggl",
@@ -2720,9 +2918,9 @@
       "name": "travisCi",
       "displayName": "Travis CI",
       "category": "Developer",
-      "description": "CI builds",
-      "isStub": true,
-      "implFile": null
+      "description": "Inspect repos and control builds on Travis CI",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/travis_ci.rs"
     },
     {
       "n8nType": "n8n-nodes-base.trello",
@@ -2756,9 +2954,9 @@
       "name": "twist",
       "displayName": "Twist",
       "category": "Communication",
-      "description": "Async team messaging",
-      "isStub": true,
-      "implFile": null
+      "description": "Post threads and comments to Twist channels",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/twist.rs"
     },
     {
       "n8nType": "n8n-nodes-base.twitter",
@@ -2819,9 +3017,9 @@
       "name": "urlScanIo",
       "displayName": "urlscan.io",
       "category": "Developer",
-      "description": "Website scanner",
-      "isStub": true,
-      "implFile": null
+      "description": "Submit URLs for scanning and retrieve scan results",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/url_scan_io.rs"
     },
     {
       "n8nType": "n8n-nodes-base.venafi",
@@ -2846,9 +3044,9 @@
       "name": "vonage",
       "displayName": "Vonage",
       "category": "Communication",
-      "description": "Voice and SMS",
-      "isStub": true,
-      "implFile": null
+      "description": "Send SMS messages via the Vonage (Nexmo) Messaging API",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/vonage.rs"
     },
     {
       "n8nType": "n8n-nodes-base.wait",
@@ -2927,9 +3125,9 @@
       "name": "workable",
       "displayName": "Workable",
       "category": "Hr",
-      "description": "Recruiting software",
-      "isStub": true,
-      "implFile": null
+      "description": "Workable recruiting and ATS",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/workable.rs"
     },
     {
       "n8nType": "n8n-nodes-base.workflow",
@@ -2972,9 +3170,9 @@
       "name": "xero",
       "displayName": "Xero",
       "category": "Finance",
-      "description": "Accounting",
-      "isStub": true,
-      "implFile": null
+      "description": "Xero accounting \u2014 manage contacts, invoices and accounts",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/xero.rs"
     },
     {
       "n8nType": "n8n-nodes-base.xml",
@@ -2991,8 +3189,8 @@
       "displayName": "YOURLS",
       "category": "Marketing",
       "description": "Self-hosted URL shortener",
-      "isStub": true,
-      "implFile": null
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/yourls.rs"
     },
     {
       "n8nType": "n8n-nodes-base.zammad",
@@ -3008,9 +3206,9 @@
       "name": "zendesk",
       "displayName": "Zendesk",
       "category": "Communication",
-      "description": "Customer support",
-      "isStub": true,
-      "implFile": null
+      "description": "Zendesk Support \u2014 manage tickets, users and organizations",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/zendesk.rs"
     },
     {
       "n8nType": "n8n-nodes-base.zoho",
