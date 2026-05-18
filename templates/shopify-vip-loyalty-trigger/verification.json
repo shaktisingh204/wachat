@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "templateId": "shopify-vip-loyalty-trigger",
+  "cases": [
+    {
+      "id": "vip-customer-happy-path",
+      "description": "A Shopify order from a customer whose lifetime spend exceeds VIP_THRESHOLD fans out to Klaviyo + discount creation, merges, then emails and posts to Slack.",
+      "triggerPayload": {
+        "order_number": "2099",
+        "total_price": "320.00",
+        "currency": "USD",
+        "customer": {
+          "id": "cust_88421",
+          "email": "kira@example.com",
+          "first_name": "Kira",
+          "last_name": "Tanaka",
+          "total_spent": "2450.00",
+          "orders_count": 14
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    },
+    {
+      "id": "non-vip-skip",
+      "description": "A customer below VIP_THRESHOLD falls through to the no-op branch without sending any VIP rewards.",
+      "triggerPayload": {
+        "order_number": "2100",
+        "total_price": "40.00",
+        "currency": "USD",
+        "customer": {
+          "id": "cust_88422",
+          "email": "newbie@example.com",
+          "first_name": "Sam",
+          "last_name": "Reed",
+          "total_spent": "40.00",
+          "orders_count": 1
+        }
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
