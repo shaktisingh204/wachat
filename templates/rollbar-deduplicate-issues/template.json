@@ -1,0 +1,10 @@
+{
+  "id": "rollbar-deduplicate-issues",
+  "name": "Rollbar Deduplicate Issues",
+  "description": "On a Rollbar new-item webhook, fetches the stack trace, embeds it with OpenAI, and compares the vector against the last 100 known issues. Highly similar items are resolved as duplicates on Rollbar; novel ones open a new Linear ticket for triage.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["rollbar", "openai", "embeddings", "linear", "dedup", "webhook"],
+  "version": "0.1.0"
+}
