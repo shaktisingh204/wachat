@@ -1,0 +1,10 @@
+{
+  "id": "shopify-ai-alt-text",
+  "name": "Shopify AI Alt Text",
+  "description": "When a new product or product-image is created in Shopify, this flow fetches each image, asks GPT-4o-vision for a descriptive alt-text in the product's locale, and writes the alt text back to the Shopify image record. Closes an accessibility and SEO gap with no manual work.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "openai", "alt-text", "accessibility", "seo", "ecommerce"],
+  "version": "0.1.0"
+}
