@@ -14,6 +14,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -47,7 +48,6 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveLeaveAction } from '@/app/actions/crm/leaves.actions';
 import type {
   CrmLeaveDoc,
-  CrmLeaveStatus,
   CrmLeaveTypeOption,
 } from '@/lib/rust-client/crm-leaves';
 
@@ -83,12 +83,6 @@ function initialApproverId(initial?: CrmLeaveDoc | null): string | null {
   return initial?.approverChain?.[0]?.approverId ?? null;
 }
 
-const STATUS_OPTIONS: { value: CrmLeaveStatus; label: string }[] = [
-  { value: 'pending', label: 'Pending' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'rejected', label: 'Rejected' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
 
 export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
   const router = useRouter();
@@ -231,22 +225,12 @@ export function LeaveForm({ initial, leaveTypes }: LeaveFormProps) {
           <div>
             <ZoruLabel htmlFor="status">Status</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruSelect
+              <EnumFormField
+                enumName="leaveStatus"
                 name="status"
-                defaultValue={initial?.status ?? 'pending'}
+                initialId={initial?.status ?? 'pending'}
                 disabled={!editing}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue placeholder="Pending" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((opt) => (
-                    <ZoruSelectItem key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              />
             </div>
             <p className="mt-1 text-[11.5px] text-zoru-ink-muted">
               Status transitions go through dedicated approve / reject /

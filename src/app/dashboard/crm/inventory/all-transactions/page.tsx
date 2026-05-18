@@ -9,11 +9,6 @@ import {
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -22,6 +17,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { Download, SlidersHorizontal, LoaderCircle, ArrowLeftRight } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";
@@ -115,7 +111,7 @@ export default function AllTransactionsReportPage() {
                             <ZoruPopoverContent className="w-80 space-y-4">
                                 <div className="space-y-2"><ZoruLabel>Start Date</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
                                 <div className="space-y-2"><ZoruLabel>End Date</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
-                                <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><ZoruSelect value={transactionType} onValueChange={setTransactionType}><ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="all">All Types</ZoruSelectItem><ZoruSelectItem value="Sale">Sales</ZoruSelectItem><ZoruSelectItem value="Sales Return">Sales Returns</ZoruSelectItem><ZoruSelectItem value="Stock Adjustment">Stock Adjustments</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><EnumFilterField enumName="inventoryTransactionType" value={transactionType} onChange={setTransactionType} allLabel="All Types" /></div>
                                 <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">Apply</ZoruButton>
                             </ZoruPopoverContent>
                         </ZoruPopover>

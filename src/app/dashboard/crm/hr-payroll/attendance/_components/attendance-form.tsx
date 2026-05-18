@@ -5,14 +5,10 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -44,8 +40,6 @@ import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveAttendanceAction } from '@/app/actions/crm/attendance.actions';
 import type {
   CrmAttendanceDoc,
-  CrmAttendanceSource,
-  CrmAttendanceStatus,
 } from '@/lib/rust-client/crm-attendance';
 
 interface AttendanceFormProps {
@@ -53,21 +47,6 @@ interface AttendanceFormProps {
   initial?: CrmAttendanceDoc | null;
 }
 
-const STATUS_OPTIONS: { value: CrmAttendanceStatus; label: string }[] = [
-  { value: 'present', label: 'Present' },
-  { value: 'absent', label: 'Absent' },
-  { value: 'half_day', label: 'Half day' },
-  { value: 'leave', label: 'Leave' },
-  { value: 'holiday', label: 'Holiday' },
-  { value: 'wfh', label: 'Work from home' },
-];
-
-const SOURCE_OPTIONS: { value: CrmAttendanceSource; label: string }[] = [
-  { value: 'manual', label: 'Manual' },
-  { value: 'biometric', label: 'Biometric' },
-  { value: 'web', label: 'Web' },
-  { value: 'mobile', label: 'Mobile' },
-];
 
 function SubmitButton({ editing }: { editing: boolean }) {
   const { pending } = useFormStatus();
@@ -174,39 +153,23 @@ export function AttendanceForm({ initial }: AttendanceFormProps) {
             <ZoruLabel htmlFor="status">
               Status <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruSelect
-              name="status"
-              defaultValue={initial?.status ?? 'present'}
-            >
-              <ZoruSelectTrigger id="status" className="mt-1.5 w-full">
-                <ZoruSelectValue placeholder="Select status" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <ZoruSelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="attendanceFormStatus"
+                name="status"
+                initialId={initial?.status ?? 'present'}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel htmlFor="source">Source</ZoruLabel>
-            <ZoruSelect
-              name="source"
-              defaultValue={initial?.source ?? 'manual'}
-            >
-              <ZoruSelectTrigger id="source" className="mt-1.5 w-full">
-                <ZoruSelectValue placeholder="Select source" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                {SOURCE_OPTIONS.map((opt) => (
-                  <ZoruSelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </ZoruSelectItem>
-                ))}
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <div className="mt-1.5">
+              <EnumFormField
+                enumName="attendanceSource"
+                name="source"
+                initialId={initial?.source ?? 'manual'}
+              />
+            </div>
           </div>
           <div>
             <ZoruLabel>Approver</ZoruLabel>

@@ -5,13 +5,9 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect,
@@ -53,16 +49,6 @@ interface PayslipFormProps {
     /** Existing payslip — present in Edit mode, omit for Create. */
     initial?: CrmPayslipDoc | null;
 }
-
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmPayslipStatus;
-    label: string;
-}> = [
-    { value: 'draft', label: 'Draft' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const INITIAL_STATE: { message?: string; error?: string; id?: string } = {};
 
@@ -269,26 +255,13 @@ export function PayslipForm({ initial }: PayslipFormProps) {
                     <div>
                         <ZoruLabel htmlFor="statusSelect">Status</ZoruLabel>
                         <div className="mt-1.5">
-                            <ZoruSelect
-                                value={status}
-                                onValueChange={(v) =>
-                                    setStatus(v as CrmPayslipStatus)
+                            <EnumFormField
+                                enumName="payslipStatus"
+                                initialId={status}
+                                onChange={(v) =>
+                                    setStatus((v ?? 'draft') as CrmPayslipStatus)
                                 }
-                            >
-                                <ZoruSelectTrigger id="statusSelect">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem
-                                            key={o.value}
-                                            value={o.value}
-                                        >
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                            />
                         </div>
                     </div>
                 </div>
