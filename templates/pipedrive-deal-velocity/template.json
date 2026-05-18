@@ -1,0 +1,10 @@
+{
+  "id": "pipedrive-deal-velocity",
+  "name": "Pipedrive Deal Velocity Watch",
+  "description": "Weekly cron computes the average number of days deals spend in each Pipedrive stage and flags any stage whose average exceeds a configurable threshold. Breaches go to #sales-leadership in Slack and a row lands in Airtable for the QBR deck.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["pipedrive", "crm", "sales", "slack", "airtable", "metrics"],
+  "version": "0.1.0"
+}

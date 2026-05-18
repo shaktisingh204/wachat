@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "wise-batch-payouts",
+  "cases": [
+    {
+      "id": "weekly-batch",
+      "description": "Weekly cron pulls due payouts and pushes them through Wise with confirmation emails.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "nextcloud-share-audit",
+  "name": "Nextcloud Share Audit",
+  "description": "Weekly cron lists every Nextcloud share whose public link has been live for more than 30 days. The audit summary, including links and owners, is posted to #security so the team can review and revoke anything that is no longer needed.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["nextcloud", "security", "audit", "slack", "ops", "compliance"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "linear-cycle-report",
+  "cases": [
+    {
+      "id": "weekly-report",
+      "description": "Sunday cron fires, Linear issues are rolled up, GPT-4o writes the narrative, the report fans out to Slack and Notion.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

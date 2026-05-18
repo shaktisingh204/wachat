@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_retool",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "retool.form.submit",
+    "options": {
+      "path": "/webhooks/retool-form",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Retool Form Submit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "retool-form",
+        "responseMode": "responseNode"
+      },
+      "webhookId": "retool-form-webhook"
+    },
+    {
+      "id": "n_validate",
+      "name": "Validate Required Fields",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.email }}", "operation": "isNotEmpty" },
+            { "value1": "={{ $json.name }}", "operation": "isNotEmpty" }
+          ],
+          "combinator": "and"
+        }
+      }
+    },
+    {
+      "id": "n_postgres",
+      "name": "Insert Postgres Row",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [480, -100],
+      "parameters": {
+        "operation": "insert",
+        "schema": "public",
+        "table": "intake_submissions",
+        "columns": "email,name,payload"
+      },
+      "credentials": {
+        "postgres": { "id": "pg-cred", "name": "Postgres" }
+      }
+    },
+    {
+      "id": "n_sendgrid_ok",
+      "name": "Confirmation Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Retool Form Submit'].json.email }}",
+        "subject": "We got your submission",
+        "contentType": "text/plain",
+        "content": "Thanks {{ $node['Retool Form Submit'].json.name }}, we'll be in touch."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" }
+      }
+    },
+    {
+      "id": "n_respond_bad",
+      "name": "Respond 400",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={ \"error\": \"missing required fields\" }",
+        "options": { "responseCode": 400 }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_validate", "type": "main", "index": 0 }]] },
+    "n_validate": {
+      "true": [[{ "node": "n_postgres", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_respond_bad", "type": "main", "index": 0 }]]
+    },
+    "n_postgres": { "main": [[{ "node": "n_sendgrid_ok", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_validate", "n_postgres", "n_sendgrid_ok", "n_respond_bad"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "hello@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "salesforce-quote-to-cash",
+  "name": "Salesforce Quote-to-Cash",
+  "description": "Triggered on a Salesforce opportunity moving to Closed Won, the workflow drafts a QuickBooks invoice, queues a DocuSign envelope for signature, and waits for completion. When the customer signs, Salesforce is updated to Closed-Invoiced and revenue ops is notified.",
+  "category": "CRM",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["salesforce", "quickbooks", "docusign", "slack", "revenue", "crm"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "trello-card-overdue",
+  "name": "Trello Overdue Card Nudge",
+  "description": "Every morning at 09:00 the workflow lists Trello cards that are past their due date and DMs the owner in Slack with a link back to the card. The card itself is tagged 'overdue' so the team can filter for at-risk work in standup.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["trello", "slack", "ops", "nudges", "task-management", "daily"],
+  "version": "0.1.0"
+}

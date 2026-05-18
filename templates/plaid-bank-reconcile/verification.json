@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "plaid-bank-reconcile",
+  "cases": [
+    {
+      "id": "daily-reconcile",
+      "description": "Daily cron pulls Plaid + QB transactions and files unmatched exceptions to Airtable.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

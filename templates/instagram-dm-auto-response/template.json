@@ -1,0 +1,10 @@
+{
+  "id": "instagram-dm-auto-response",
+  "name": "Instagram DM Auto-Response",
+  "description": "When a user DMs the brand on Instagram, GPT-4o classifies the message as FAQ, sales, or spam. Each branch replies appropriately — FAQ messages get a templated answer, sales messages route to a rep, and spam is ignored — so the community manager only sees real conversations.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["instagram", "openai", "classification", "social", "marketing", "ai"],
+  "version": "0.1.0"
+}

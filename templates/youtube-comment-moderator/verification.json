@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "youtube-comment-moderator",
+  "cases": [
+    {
+      "id": "flagged-comment",
+      "description": "A flagged comment is hidden via the YouTube API and reported to #community.",
+      "triggerPayload": {
+        "id": "cm-1",
+        "snippet": { "videoId": "vid-abc", "textOriginal": "spammy spam spam" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

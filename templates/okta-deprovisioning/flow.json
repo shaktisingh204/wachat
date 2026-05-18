@@ -1,0 +1,168 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_term",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "bamboohr.employee.terminated",
+    "options": {
+      "path": "/webhooks/bamboo-term",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "BambooHR Termination",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bamboo-term",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "bamboo-term-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Employee",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.employee.workEmail }}" },
+            { "name": "manager", "value": "={{ $json.employee.manager.workEmail }}" },
+            { "name": "userId", "value": "={{ $json.employee.oktaId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_okta_revoke",
+      "name": "Revoke Sessions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, -240],
+      "parameters": {
+        "method": "DELETE",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/users/{{ $json.userId }}/sessions"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_okta_remove_groups",
+      "name": "Remove from Groups",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.OKTA_DOMAIN }}/api/v1/users/{{ $json.userId }}/lifecycle/deactivate"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "okta-cred", "name": "Okta SSWS" }
+      }
+    },
+    {
+      "id": "n_gdrive_archive",
+      "name": "Archive Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "fileFolder",
+        "operation": "share",
+        "fileId": "={{ $vars.ARCHIVE_FOLDER_ID }}",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "user",
+            "emailAddress": "={{ $vars.ARCHIVIST_EMAIL }}"
+          }
+        }
+      },
+      "credentials": {
+        "googleApi": { "id": "gdrive-cred", "name": "Google Drive OAuth2" }
+      }
+    },
+    {
+      "id": "n_gdrive_transfer",
+      "name": "Transfer Drive Ownership",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [480, 120],
+      "parameters": {
+        "resource": "fileFolder",
+        "operation": "share",
+        "fileId": "={{ $vars.ARCHIVE_FOLDER_ID }}",
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "owner",
+            "type": "user",
+            "emailAddress": "={{ $node['Extract Employee'].json.manager }}"
+          }
+        }
+      },
+      "credentials": {
+        "googleApi": { "id": "gdrive-cred", "name": "Google Drive OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_it",
+      "name": "Slack #it-offboarding",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 240],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.OFFBOARDING_CHANNEL }}",
+        "text": ":lock: Off-boarded {{ $node['Extract Employee'].json.email }} — sessions revoked, groups cleared, drive transferred."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_okta_revoke", "type": "main", "index": 0 },
+          { "node": "n_okta_remove_groups", "type": "main", "index": 0 },
+          { "node": "n_gdrive_archive", "type": "main", "index": 0 },
+          { "node": "n_gdrive_transfer", "type": "main", "index": 0 },
+          { "node": "n_slack_it", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract",
+        "n_okta_revoke", "n_okta_remove_groups",
+        "n_gdrive_archive", "n_gdrive_transfer", "n_slack_it"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_okta_domain", "name": "OKTA_DOMAIN", "defaultValue": "example.okta.com" },
+    { "id": "v_archive_folder", "name": "ARCHIVE_FOLDER_ID", "defaultValue": "" },
+    { "id": "v_archivist", "name": "ARCHIVIST_EMAIL", "defaultValue": "archive@example.com" },
+    { "id": "v_offboarding", "name": "OFFBOARDING_CHANNEL", "defaultValue": "#it-offboarding" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "printful-print-on-demand",
+  "name": "Printful POD Order Fulfilment",
+  "description": "When a Shopify order arrives with a print-on-demand product, the workflow forwards the order to Printful for fulfilment. When Printful confirms shipment, the original Shopify order is patched with the carrier and tracking number so the customer sees real-time status.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "printful", "fulfilment", "pod", "ecommerce", "tracking"],
+  "version": "0.1.0"
+}

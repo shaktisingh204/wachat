@@ -1,0 +1,10 @@
+{
+  "id": "tiktok-ugc-clip-archive",
+  "name": "TikTok UGC Clip Archive",
+  "description": "Whenever the brand is mentioned in a TikTok, the clip is downloaded, archived to R2 in the UGC bucket, and a Frame.io review is opened for the content team. A Slack ping to the UGC channel includes the review link so creators get same-day attention.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["tiktok", "ugc", "s3", "r2", "frameio", "slack", "social"],
+  "version": "0.1.0"
+}

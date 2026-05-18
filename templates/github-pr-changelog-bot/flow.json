@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_pr_merged",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.pull_request.closed",
+    "options": {
+      "path": "/webhooks/github-pr-changelog",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_github_trigger",
+      "name": "GitHub PR Closed",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "owner": "={{ $vars.GITHUB_OWNER }}",
+        "repository": "={{ $vars.GITHUB_REPO }}",
+        "events": ["pull_request"]
+      },
+      "credentials": {
+        "githubApi": { "id": "github-cred", "name": "GitHub API" }
+      }
+    },
+    {
+      "id": "n_fetch_diff",
+      "name": "Fetch PR Diff",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.github.com/repos/{{ $vars.GITHUB_OWNER }}/{{ $vars.GITHUB_REPO }}/pulls/{{ $json.pull_request.number }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Accept", "value": "application/vnd.github.v3.diff" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "github-token", "name": "GitHub Token" }
+      }
+    },
+    {
+      "id": "n_openai_summary",
+      "name": "GPT-4o Changelog Line",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return one user-facing changelog line in Keep-A-Changelog style (no markdown headings)." },
+            { "role": "user", "content": "PR title: {{ $node['GitHub PR Closed'].json.pull_request.title }}\n\nDiff:\n{{ $json.data }}" }
+          ]
+        },
+        "options": { "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_format_entry",
+      "name": "Format Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "entry", "value": "=- {{ $json.message.content }} (#{{ $node['GitHub PR Closed'].json.pull_request.number }})" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_github_commit",
+      "name": "Commit CHANGELOG.md",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "file",
+        "operation": "edit",
+        "owner": "={{ $vars.GITHUB_OWNER }}",
+        "repository": "={{ $vars.GITHUB_REPO }}",
+        "filePath": "CHANGELOG.md",
+        "fileContent": "={{ $json.entry }}",
+        "commitMessage": "docs: append PR #{{ $node['GitHub PR Closed'].json.pull_request.number }} to changelog"
+      },
+      "credentials": {
+        "githubApi": { "id": "github-cred", "name": "GitHub API" }
+      }
+    },
+    {
+      "id": "n_slack_releases",
+      "name": "Announce in #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RELEASES_CHANNEL }}",
+        "text": ":rocket: Shipped: {{ $node['Format Entry'].json.entry }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_github_trigger": {
+      "main": [[{ "node": "n_fetch_diff", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_diff": {
+      "main": [[{ "node": "n_openai_summary", "type": "main", "index": 0 }]]
+    },
+    "n_openai_summary": {
+      "main": [[{ "node": "n_format_entry", "type": "main", "index": 0 }]]
+    },
+    "n_format_entry": {
+      "main": [[{ "node": "n_github_commit", "type": "main", "index": 0 }]]
+    },
+    "n_github_commit": {
+      "main": [[{ "node": "n_slack_releases", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_github_trigger",
+        "n_fetch_diff",
+        "n_openai_summary",
+        "n_format_entry",
+        "n_github_commit",
+        "n_slack_releases"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_owner", "name": "GITHUB_OWNER", "defaultValue": "acme" },
+    { "id": "v_repo", "name": "GITHUB_REPO", "defaultValue": "product" },
+    { "id": "v_releases", "name": "RELEASES_CHANNEL", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

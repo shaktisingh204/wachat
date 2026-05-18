@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_close_call",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "close.call.recorded",
+    "options": {
+      "path": "/webhooks/close-call",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Close Call Recorded",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "close-call",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "close-call-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "callId", "value": "={{ $json.call.id }}" },
+            { "name": "leadId", "value": "={{ $json.call.lead_id }}" },
+            { "name": "recordingUrl", "value": "={{ $json.call.recording_url }}" },
+            { "name": "repSlackId", "value": "={{ $json.call.user.slackId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_audio",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.recordingUrl }}",
+        "options": { "response": { "response": { "responseFormat": "file" } } }
+      }
+    },
+    {
+      "id": "n_whisper",
+      "name": "Whisper Transcribe",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "data",
+        "options": { "language": "en", "model": "whisper-1" }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_summary",
+      "name": "GPT-4o Summary",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return a sales-call summary with bullet outcomes and next steps." },
+            { "role": "user", "content": "Transcript:\n{{ $json.text }}" }
+          ]
+        },
+        "options": { "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_close_note",
+      "name": "Close Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.close.com/api/v1/activity/note/",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "lead_id", "value": "={{ $node['Extract Call'].json.leadId }}" },
+            { "name": "note", "value": "={{ $json.message.content }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "close-cred", "name": "Close API" }
+      }
+    },
+    {
+      "id": "n_slack_rep",
+      "name": "Slack DM Rep",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Call'].json.repSlackId }}",
+        "text": ":memo: Call summary attached to lead — {{ $node['Extract Call'].json.callId }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_audio", "type": "main", "index": 0 }]] },
+    "n_audio": { "main": [[{ "node": "n_whisper", "type": "main", "index": 0 }]] },
+    "n_whisper": { "main": [[{ "node": "n_summary", "type": "main", "index": 0 }]] },
+    "n_summary": {
+      "main": [
+        [
+          { "node": "n_close_note", "type": "main", "index": 0 },
+          { "node": "n_slack_rep", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_audio", "n_whisper", "n_summary", "n_close_note", "n_slack_rep"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

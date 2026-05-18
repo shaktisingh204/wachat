@@ -1,0 +1,10 @@
+{
+  "id": "wise-batch-payouts",
+  "name": "Wise Weekly Contractor Payouts",
+  "description": "Every Friday morning the workflow exports contractor payouts due this week from Airtable and pushes them as Wise transfers in a single batch. Each contractor receives a SendGrid confirmation with the amount and expected delivery date, and the finance team gets a Slack summary.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["wise", "payouts", "airtable", "sendgrid", "slack", "finance"],
+  "version": "0.1.0"
+}

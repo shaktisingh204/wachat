@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_asana",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "asana.task.added",
+    "options": {
+      "path": "/webhooks/asana-task",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Asana Task Added",
+      "type": "n8n-nodes-base.asanaTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "resource": "task",
+        "workspace": "={{ $vars.ASANA_WORKSPACE }}"
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Tag",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "taskId", "value": "={{ $json.gid }}" },
+            { "name": "leadTag", "value": "={{ ($json.tags || [])[0]?.name || 'general' }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Tag",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.leadTag }}", "operation": "equal", "value2": "design" }] }, "outputKey": "design" },
+            { "conditions": { "string": [{ "value1": "={{ $json.leadTag }}", "operation": "equal", "value2": "eng" }] }, "outputKey": "eng" }
+          ]
+        },
+        "fallbackOutput": "ops"
+      }
+    },
+    {
+      "id": "n_asana_design",
+      "name": "Move to Design Section",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [720, -180],
+      "parameters": {
+        "resource": "task",
+        "operation": "update",
+        "id": "={{ $json.taskId }}",
+        "updateFields": {
+          "assignee": "={{ $vars.DESIGN_RR_USER }}",
+          "section": "={{ $vars.DESIGN_SECTION }}"
+        }
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    },
+    {
+      "id": "n_asana_eng",
+      "name": "Move to Eng Section",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "task",
+        "operation": "update",
+        "id": "={{ $json.taskId }}",
+        "updateFields": {
+          "assignee": "={{ $vars.ENG_RR_USER }}",
+          "section": "={{ $vars.ENG_SECTION }}"
+        }
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    },
+    {
+      "id": "n_asana_ops",
+      "name": "Move to Ops Section",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [720, 180],
+      "parameters": {
+        "resource": "task",
+        "operation": "update",
+        "id": "={{ $json.taskId }}",
+        "updateFields": {
+          "assignee": "={{ $vars.OPS_RR_USER }}",
+          "section": "={{ $vars.OPS_SECTION }}"
+        }
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "design": [[{ "node": "n_asana_design", "type": "main", "index": 0 }]],
+      "eng": [[{ "node": "n_asana_eng", "type": "main", "index": 0 }]],
+      "ops": [[{ "node": "n_asana_ops", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_route",
+        "n_asana_design", "n_asana_eng", "n_asana_ops"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_ws", "name": "ASANA_WORKSPACE", "defaultValue": "" },
+    { "id": "v_design_user", "name": "DESIGN_RR_USER", "defaultValue": "" },
+    { "id": "v_eng_user", "name": "ENG_RR_USER", "defaultValue": "" },
+    { "id": "v_ops_user", "name": "OPS_RR_USER", "defaultValue": "" },
+    { "id": "v_design_section", "name": "DESIGN_SECTION", "defaultValue": "" },
+    { "id": "v_eng_section", "name": "ENG_SECTION", "defaultValue": "" },
+    { "id": "v_ops_section", "name": "OPS_SECTION", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "salesforce-quote-to-cash",
+  "cases": [
+    {
+      "id": "closed-won",
+      "description": "An opportunity is Closed Won, the workflow invoices, sends DocuSign, then closes the loop.",
+      "triggerPayload": {
+        "opportunity": { "Id": "0061", "AccountId": "A1", "Amount": 12000, "Contact": { "Email": "ap@example.com" } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

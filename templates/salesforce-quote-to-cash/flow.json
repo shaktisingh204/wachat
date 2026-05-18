@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_opp_won",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "salesforce.opportunity.closed_won",
+    "options": {
+      "path": "/webhooks/sf-opp-won",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "SFDC Closed Won",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sf-opp-won",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "sf-opp-won-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Opportunity",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "oppId", "value": "={{ $json.opportunity.Id }}" },
+            { "name": "accountId", "value": "={{ $json.opportunity.AccountId }}" },
+            { "name": "amount", "value": "={{ $json.opportunity.Amount }}" },
+            { "name": "customerEmail", "value": "={{ $json.opportunity.Contact.Email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_qb_invoice",
+      "name": "QuickBooks Invoice",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "invoice",
+        "operation": "create",
+        "customerId": "={{ $json.accountId }}",
+        "lines": "={{ JSON.stringify([{ Amount: Number($json.amount), DetailType: 'SalesItemLineDetail' }]) }}"
+      },
+      "credentials": {
+        "quickBooksOAuth2Api": { "id": "qb-cred", "name": "QuickBooks OAuth2" }
+      }
+    },
+    {
+      "id": "n_docusign",
+      "name": "Send DocuSign Envelope",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.DOCUSIGN_HOST }}/restapi/v2.1/accounts/{{ $vars.DOCUSIGN_ACCOUNT }}/envelopes",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "templateId", "value": "={{ $vars.DOCUSIGN_QUOTE_TEMPLATE }}" },
+            { "name": "status", "value": "sent" },
+            { "name": "templateRoles[0].email", "value": "={{ $node['Extract Opportunity'].json.customerEmail }}" },
+            { "name": "templateRoles[0].roleName", "value": "Customer" }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "docusign-cred", "name": "DocuSign JWT" }
+      }
+    },
+    {
+      "id": "n_wait_signed",
+      "name": "Wait for Signature",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resume": "webhook",
+        "options": { "webhookSuffix": "ds-signed" }
+      }
+    },
+    {
+      "id": "n_sf_update",
+      "name": "Mark Closed-Invoiced",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "opportunity",
+        "operation": "update",
+        "opportunityId": "={{ $node['Extract Opportunity'].json.oppId }}",
+        "updateFields": { "StageName": "Closed Invoiced" }
+      },
+      "credentials": {
+        "salesforceOAuth2Api": { "id": "salesforce-cred", "name": "Salesforce OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #revenue",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.REVENUE_CHANNEL }}",
+        "text": ":moneybag: Q2C closed — opp {{ $node['Extract Opportunity'].json.oppId }} for {{ $node['Extract Opportunity'].json.amount }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_qb_invoice", "type": "main", "index": 0 }]] },
+    "n_qb_invoice": { "main": [[{ "node": "n_docusign", "type": "main", "index": 0 }]] },
+    "n_docusign": { "main": [[{ "node": "n_wait_signed", "type": "main", "index": 0 }]] },
+    "n_wait_signed": { "main": [[{ "node": "n_sf_update", "type": "main", "index": 0 }]] },
+    "n_sf_update": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_qb_invoice", "n_docusign", "n_wait_signed", "n_sf_update", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ds_host", "name": "DOCUSIGN_HOST", "defaultValue": "demo.docusign.net" },
+    { "id": "v_ds_acct", "name": "DOCUSIGN_ACCOUNT", "defaultValue": "" },
+    { "id": "v_ds_tpl", "name": "DOCUSIGN_QUOTE_TEMPLATE", "defaultValue": "" },
+    { "id": "v_rev", "name": "REVENUE_CHANNEL", "defaultValue": "#revenue" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

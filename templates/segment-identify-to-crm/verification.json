@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "segment-identify-to-crm",
+  "cases": [
+    {
+      "id": "new-identify",
+      "description": "Segment identify call upserts contact across HubSpot, Salesforce, and Mongo.",
+      "triggerPayload": {
+        "type": "identify",
+        "userId": "u-123",
+        "traits": { "email": "ada@example.com", "firstName": "Ada", "lastName": "Lovelace", "company": "Analytical Engines" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

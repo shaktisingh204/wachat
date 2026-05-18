@@ -1,0 +1,10 @@
+{
+  "id": "recurly-dunning-retry",
+  "name": "Recurly Dunning Retry",
+  "description": "When a Recurly invoice fails, the workflow retries the charge on an exponential schedule of 1 hour, 6 hours, and 24 hours. If all three retries still fail, finance is paged via Slack and the dunning history is logged to Mongo for the collections team.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["recurly", "billing", "dunning", "slack", "mongodb", "finance"],
+  "version": "0.1.0"
+}

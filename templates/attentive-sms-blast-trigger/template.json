@@ -1,0 +1,10 @@
+{
+  "id": "attentive-sms-blast-trigger",
+  "name": "Attentive SMS Blast by Region",
+  "description": "Listens for Attentive list-subscription webhooks, segments incoming subscribers by region (US, EU, APAC), and composes a locale-aware welcome SMS for each. The blast is fired through the Attentive API so each subscriber gets a message tuned to their market within seconds of opting in.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["attentive", "sms", "marketing", "segmentation", "localization", "lifecycle"],
+  "version": "0.1.0"
+}

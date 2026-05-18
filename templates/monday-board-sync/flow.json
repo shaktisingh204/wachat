@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_monday_change",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "monday.item.changed",
+    "options": {
+      "path": "/webhooks/monday-change",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Monday Item Changed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "monday-change",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "monday-change-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Item Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "itemId", "value": "={{ $json.event.pulseId }}" },
+            { "name": "itemName", "value": "={{ $json.event.pulseName }}" },
+            { "name": "status", "value": "={{ $json.event.value.label.text }}" },
+            { "name": "owner", "value": "={{ $json.event.changedAt.user_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_monday_get",
+      "name": "Fetch Full Item",
+      "type": "n8n-nodes-base.mondayCom",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "boardItem",
+        "operation": "get",
+        "boardId": "={{ $vars.MONDAY_BOARD }}",
+        "itemId": "={{ $json.itemId }}"
+      },
+      "credentials": {
+        "mondayComApi": { "id": "monday-cred", "name": "Monday.com API" }
+      }
+    },
+    {
+      "id": "n_lookup_notion",
+      "name": "Lookup Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "getAll",
+        "databaseId": "={{ $vars.NOTION_DB }}",
+        "filters": {
+          "conditions": [
+            { "key": "Monday ID", "richTextValue": "={{ $node['Extract Item Fields'].json.itemId }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_notion_update",
+      "name": "Update Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "update",
+        "pageId": "={{ $json.id }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Title", "title": "={{ $node['Extract Item Fields'].json.itemName }}" },
+            { "key": "Status", "selectValue": "={{ $node['Extract Item Fields'].json.status }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_audit",
+      "name": "Audit Log Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.AUDIT_CHANNEL }}",
+        "text": ":arrows_counterclockwise: Monday item {{ $node['Extract Item Fields'].json.itemId }} → Notion synced"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_monday_get", "type": "main", "index": 0 }]] },
+    "n_monday_get": { "main": [[{ "node": "n_lookup_notion", "type": "main", "index": 0 }]] },
+    "n_lookup_notion": { "main": [[{ "node": "n_notion_update", "type": "main", "index": 0 }]] },
+    "n_notion_update": { "main": [[{ "node": "n_audit", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_monday_get", "n_lookup_notion", "n_notion_update", "n_audit"]
+    }
+  ],
+  "variables": [
+    { "id": "v_board", "name": "MONDAY_BOARD", "defaultValue": "" },
+    { "id": "v_db", "name": "NOTION_DB", "defaultValue": "" },
+    { "id": "v_audit", "name": "AUDIT_CHANNEL", "defaultValue": "#ops-audit" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

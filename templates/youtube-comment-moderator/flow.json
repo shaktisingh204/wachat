@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_yt_comment",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "youtube.comment.new",
+    "options": {
+      "path": "/webhooks/youtube-comment",
+      "method": "POST",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "YouTube New Comment",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "youtube-comment",
+        "responseMode": "onReceived"
+      },
+      "webhookId": "yt-comment-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Comment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "commentId", "value": "={{ $json.id }}" },
+            { "name": "videoId", "value": "={{ $json.snippet.videoId }}" },
+            { "name": "text", "value": "={{ $json.snippet.textOriginal }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_openai_mod",
+      "name": "OpenAI Moderation + Sentiment",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON { flag: 'flagged'|'positive'|'neutral' }." },
+            { "role": "user", "content": "{{ $json.text }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Flag",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "flag", "value": "={{ JSON.parse($json.message.content).flag }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Switch Flag",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.flag }}", "operation": "equal", "value2": "flagged" }] }, "outputKey": "flagged" },
+            { "conditions": { "string": [{ "value1": "={{ $json.flag }}", "operation": "equal", "value2": "positive" }] }, "outputKey": "positive" }
+          ]
+        },
+        "fallbackOutput": "neutral"
+      }
+    },
+    {
+      "id": "n_hide_comment",
+      "name": "Hide Comment",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [1200, -180],
+      "parameters": {
+        "resource": "comment",
+        "operation": "setModerationStatus",
+        "commentId": "={{ $node['Extract Comment'].json.commentId }}",
+        "moderationStatus": "rejected"
+      },
+      "credentials": {
+        "youTubeOAuth2Api": { "id": "yt-cred", "name": "YouTube OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_community",
+      "name": "Slack #community",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, -180],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.COMMUNITY_CHANNEL }}",
+        "text": ":no_entry: Hid flagged comment {{ $node['Extract Comment'].json.commentId }} on video {{ $node['Extract Comment'].json.videoId }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_tag_video",
+      "name": "Tag Positive Video",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Positive Engagement",
+        "fields": {
+          "Video ID": "={{ $node['Extract Comment'].json.videoId }}",
+          "Comment ID": "={{ $node['Extract Comment'].json.commentId }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_neutral_noop",
+      "name": "Neutral (no-op)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 180],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_openai_mod", "type": "main", "index": 0 }]] },
+    "n_openai_mod": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "flagged": [[{ "node": "n_hide_comment", "type": "main", "index": 0 }]],
+      "positive": [[{ "node": "n_tag_video", "type": "main", "index": 0 }]],
+      "neutral": [[{ "node": "n_neutral_noop", "type": "main", "index": 0 }]]
+    },
+    "n_hide_comment": { "main": [[{ "node": "n_slack_community", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_webhook", "n_extract", "n_openai_mod", "n_parse", "n_route",
+        "n_hide_comment", "n_slack_community", "n_tag_video", "n_neutral_noop"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_community", "name": "COMMUNITY_CHANNEL", "defaultValue": "#community" },
+    { "id": "v_airtable", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

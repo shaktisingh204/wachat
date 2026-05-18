@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "clickup-time-tracking",
+  "cases": [
+    {
+      "id": "weekly-digest",
+      "description": "Monday cron pulls ClickUp time entries and emails per-manager digests.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
