@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_typeform_nps",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "typeform.formResponse",
+    "options": {
+      "path": "/webhooks/typeform-nps-to-linear",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Typeform-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_typeform_trigger",
+      "name": "Typeform NPS Response",
+      "type": "n8n-nodes-base.typeformTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "formId": "={{ $vars.TYPEFORM_FORM_ID }}",
+        "simplifyAnswers": true,
+        "onlyAnswers": false
+      },
+      "credentials": {
+        "typeformApi": { "id": "typeform-cred", "name": "Typeform API" }
+      },
+      "webhookId": "typeform-nps-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract NPS Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.form_response.answers.find(a => a.field.ref === 'email').email }}" },
+            { "name": "comment", "value": "={{ ($json.form_response.answers.find(a => a.field.ref === 'comment') || {}).text || '' }}" },
+            { "name": "responseId", "value": "={{ $json.form_response.token }}" }
+          ],
+          "number": [
+            { "name": "score", "value": "={{ $json.form_response.answers.find(a => a.field.ref === 'nps').number }}" }
+          ],
+          "string2": [
+            { "name": "bucket", "value": "={{ $json.form_response.answers.find(a => a.field.ref === 'nps').number >= 9 ? 'promoter' : ($json.form_response.answers.find(a => a.field.ref === 'nps').number >= 7 ? 'passive' : 'detractor') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_bucket_switch",
+      "name": "Route by NPS Bucket",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "promoter" }] }, "outputKey": "promoter" },
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "passive" }] }, "outputKey": "passive" },
+            { "conditions": { "string": [{ "value1": "={{ $json.bucket }}", "operation": "equal", "value2": "detractor" }] }, "outputKey": "detractor" }
+          ]
+        },
+        "fallbackOutput": "none"
+      }
+    },
+    {
+      "id": "n_airtable_p",
+      "name": "Airtable: Promoter Cohort",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [720, -240],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE_NPS }}",
+        "fields": {
+          "email": "={{ $json.email }}",
+          "score": "={{ $json.score }}",
+          "bucket": "promoter",
+          "comment": "={{ $json.comment }}",
+          "responseId": "={{ $json.responseId }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_airtable_pa",
+      "name": "Airtable: Passive Cohort",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE_NPS }}",
+        "fields": {
+          "email": "={{ $json.email }}",
+          "score": "={{ $json.score }}",
+          "bucket": "passive",
+          "comment": "={{ $json.comment }}",
+          "responseId": "={{ $json.responseId }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear: Open Detractor Issue",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 200],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "NPS detractor {{ $json.score }} from {{ $json.email }}",
+        "description": "Score: {{ $json.score }}\nEmail: {{ $json.email }}\nResponse: {{ $json.responseId }}\n\nComment:\n{{ $json.comment }}",
+        "additionalFields": {
+          "labels": ["nps-detractor"],
+          "assigneeId": "={{ $vars.LINEAR_PM_ROTATION_USER_ID }}",
+          "priority": 2
+        }
+      },
+      "credentials": {
+        "linearApi": { "id": "linear-cred", "name": "Linear API" }
+      }
+    },
+    {
+      "id": "n_slack_voc",
+      "name": "Slack: #voice-of-customer Ping",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 360],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#voice-of-customer",
+        "text": ":rotating_light: NPS detractor *{{ $json.score }}* from `{{ $json.email }}` — Linear issue opened. Comment: {{ $json.comment }}",
+        "otherOptions": {
+          "link_names": true
+        }
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_typeform_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_bucket_switch", "type": "main", "index": 0 }]]
+    },
+    "n_bucket_switch": {
+      "promoter": [[{ "node": "n_airtable_p", "type": "main", "index": 0 }]],
+      "passive": [[{ "node": "n_airtable_pa", "type": "main", "index": 0 }]],
+      "detractor": [[{ "node": "n_linear", "type": "main", "index": 0 }, { "node": "n_slack_voc", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_capture",
+      "title": "Capture",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_typeform_trigger", "n_extract", "n_bucket_switch"]
+    },
+    {
+      "id": "g_cohort_log",
+      "title": "Cohort Log",
+      "graphCoordinates": { "x": 720, "y": -120 },
+      "blockIds": ["n_airtable_p", "n_airtable_pa"]
+    },
+    {
+      "id": "g_detractor_fanout",
+      "title": "Detractor Fan-Out",
+      "graphCoordinates": { "x": 720, "y": 280 },
+      "blockIds": ["n_linear", "n_slack_voc"]
+    }
+  ],
+  "variables": [
+    { "id": "v_typeform_form", "name": "TYPEFORM_FORM_ID", "defaultValue": "" },
+    { "id": "v_airtable_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_airtable_table", "name": "AIRTABLE_TABLE_NPS", "defaultValue": "NPS Responses" },
+    { "id": "v_linear_team", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_linear_pm", "name": "LINEAR_PM_ROTATION_USER_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
