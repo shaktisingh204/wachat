@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Network } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import {
     getCrmAccountGroups,
     getCrmChartOfAccountById,
@@ -20,22 +19,12 @@ export default async function EditChartOfAccountPage(props: {
     if (!account) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                    { label: 'Chart of Accounts', href: '/dashboard/crm/accounting/charts' },
-                    {
-                        label: account.name,
-                        href: `/dashboard/crm/accounting/charts/${accountId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit ${account.name}`}
-                subtitle="Update this ledger account."
-                icon={Network}
-            />
+        <EntityDetailShell
+            eyebrow="CHART OF ACCOUNT"
+            title={`Edit ${account.name}`}
+            back={{ href: `/dashboard/crm/accounting/charts/${accountId}`, label: 'Back to account' }}
+        >
             <CoaForm initial={account} groups={groups} />
-        </div>
+        </EntityDetailShell>
     );
 }

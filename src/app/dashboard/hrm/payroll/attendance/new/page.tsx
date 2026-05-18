@@ -21,8 +21,7 @@ import {
 import {
   useRouter,
   useSearchParams } from 'next/navigation';
-import { ArrowLeft,
-  CheckSquare,
+import {
   LoaderCircle,
   Save } from 'lucide-react';
 
@@ -36,7 +35,7 @@ import { ArrowLeft,
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { markCrmAttendance } from '@/app/actions/crm-hr.actions';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
@@ -164,29 +163,10 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HRM', href: '/dashboard/hrm' },
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    {
-                        label: 'Attendance',
-                        href: '/dashboard/hrm/payroll/attendance',
-                    },
-                    { label: 'Bulk mark' },
-                ]}
-                title="Bulk-mark attendance"
-                subtitle="Pick a date, mark each employee's status, save once."
-                icon={CheckSquare}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href="/dashboard/hrm/payroll/attendance">
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to list
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Bulk-mark attendance"
+            subtitle="Pick a date, mark each employee's status, save once."
+        >
 
             <ZoruCard className="p-4">
                 <div className="flex flex-wrap items-end gap-3">
@@ -317,6 +297,6 @@ export default function BulkMarkAttendancePage(): React.JSX.Element {
                     Save attendance
                 </ZoruButton>
             </div>
-        </div>
+        </EntityListShell>
     );
 }

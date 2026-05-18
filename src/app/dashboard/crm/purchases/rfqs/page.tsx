@@ -11,9 +11,7 @@
  * of the canonical Quotations module.
  */
 
-import { ClipboardList } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listRfqs } from '@/app/actions/crm/rfqs.actions';
 import type { CrmRfqDoc } from '@/lib/rust-client/crm-rfqs';
 
@@ -114,18 +112,10 @@ export default async function RfqsPage({ searchParams }: PageProps) {
   const kpi = computeKpi(rows);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Request for Quotations"
-        subtitle="Issue RFQs to vendors and award the winning bid — draft, open, closed, awarded, cancelled."
-        icon={ClipboardList}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          { label: 'RFQs' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Request for Quotations"
+      subtitle="Issue RFQs to vendors and award the winning bid — draft, open, closed, awarded, cancelled."
+    >
       <RfqListClient
         rfqs={rows}
         page={page}
@@ -136,6 +126,6 @@ export default async function RfqsPage({ searchParams }: PageProps) {
         defaultCurrency="INR"
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

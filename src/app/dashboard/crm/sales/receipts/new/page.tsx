@@ -15,9 +15,7 @@
  * plumbing.
  */
 
-import { FileCheck } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ReceiptForm } from '../_components/receipt-form';
 import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
 import type { CrmInvoiceDoc } from '@/lib/rust-client/crm-invoices';
@@ -64,17 +62,12 @@ export default async function NewPaymentReceiptPage({
             : undefined;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="New payment receipt"
-                subtitle={
-                    initial
-                        ? 'Pre-filled from an invoice — confirm and save.'
-                        : 'Record a payment received from a customer and apply it to open invoices.'
-                }
-                icon={FileCheck}
-            />
+        <EntityDetailShell
+            eyebrow="RECEIPT"
+            title="New payment receipt"
+            back={{ href: '/dashboard/crm/sales/receipts', label: 'Receipts' }}
+        >
             <ReceiptForm initial={initial} />
-        </div>
+        </EntityDetailShell>
     );
 }

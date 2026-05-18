@@ -885,9 +885,3 @@ export async function executeEraseRequest(
     }
 }
 
-/** Exposed for tests / runbook generation. */
-export const __internals = {
-    COLLECTION,
-    CASCADE_MAP,
-    PII_FIELDS,
-};

@@ -30,7 +30,6 @@ import {
   useTransition,
   } from 'react';
 import {
-    BadgeCheck,
   ChevronDown,
   ChevronRight,
   LoaderCircle,
@@ -39,7 +38,7 @@ import {
   Trash2,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getDesignationTree,
     getDesignationsExt,
@@ -261,18 +260,16 @@ export default function DesignationsHierarchyPage() {
     }, [editing]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Designations — Hierarchy"
-                subtitle="Nested job-title structure. Set a parent designation to model reporting chains."
-                icon={BadgeCheck}
-                actions={
-                    <ZoruButton onClick={handleAdd}>
-                        <Plus className="h-4 w-4" />
-                        Add Designation
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Designations — Hierarchy"
+            subtitle="Nested job-title structure. Set a parent designation to model reporting chains."
+            primaryAction={
+                <ZoruButton onClick={handleAdd}>
+                    <Plus className="h-4 w-4" />
+                    Add Designation
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard className="p-6">
                 {isLoading && tree.length === 0 ? (
@@ -389,6 +386,6 @@ export default function DesignationsHierarchyPage() {
                     </form>
                 </ZoruDialogContent>
             </ZoruDialog>
-        </div>
+        </EntityListShell>
     );
 }

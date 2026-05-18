@@ -7,7 +7,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getLoyaltyProgramById } from '@/app/actions/crm-loyalty.actions';
 import { EditLoyaltyForm } from './edit-form';
 
@@ -24,12 +24,12 @@ export default async function EditLoyaltyProgramPage({
     const program: Record<string, any> = result!;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit ${program.name ?? 'loyalty program'}`}
-                subtitle="Update earn/redemption rules and lifecycle settings."
-            />
+        <EntityDetailShell
+            eyebrow="LOYALTY PROGRAM"
+            title={`Edit ${program.name ?? 'loyalty program'}`}
+            back={{ href: '/dashboard/crm/sales/loyalty', label: 'Loyalty' }}
+        >
             <EditLoyaltyForm loyaltyId={id} initial={program} />
-        </div>
+        </EntityDetailShell>
     );
 }

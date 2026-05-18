@@ -12,9 +12,7 @@
  * only).
  */
 
-import { Gavel } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listVendorBids } from '@/app/actions/crm/vendor-bids.actions';
 import type { CrmVendorBidDoc } from '@/lib/rust-client/crm-vendor-bids';
 
@@ -107,18 +105,10 @@ export default async function VendorBidsPage({ searchParams }: PageProps) {
   const kpi = computeKpi(rows);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Vendor Bids"
-        subtitle="Vendor responses to your RFQs — submitted, shortlisted, awarded, rejected."
-        icon={Gavel}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          { label: 'Vendor Bids' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Vendor Bids"
+      subtitle="Vendor responses to your RFQs — submitted, shortlisted, awarded, rejected."
+    >
       <VendorBidListClient
         bids={rows}
         page={page}
@@ -129,6 +119,6 @@ export default async function VendorBidsPage({ searchParams }: PageProps) {
         defaultCurrency="INR"
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

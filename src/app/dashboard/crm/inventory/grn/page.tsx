@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { PackageCheck, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM GRN list — `/dashboard/crm/inventory/grn`.
@@ -12,7 +12,7 @@ import { PackageCheck, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getGrnKpis, listGrns } from '@/app/actions/crm/grns.actions';
 import { GrnListClient } from './_components/grn-list-client';
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';
@@ -101,21 +101,18 @@ export default async function GrnPage({
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Goods Receipt (GRN)"
-                subtitle="Record incoming stock against purchase orders and reconcile quantities."
-                icon={PackageCheck}
-                actions={
-                    <ZoruButton asChild>
-                        <Link href="/dashboard/crm/inventory/grn/new">
-                            <Plus className="h-4 w-4" />
-                            New GRN
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityListShell
+            title="Goods Receipt (GRN)"
+            subtitle="Record incoming stock against purchase orders and reconcile quantities."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href="/dashboard/crm/inventory/grn/new">
+                        <Plus className="h-4 w-4" />
+                        New GRN
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <GrnListClient
                 grns={filtered}
                 page={page}
@@ -131,6 +128,6 @@ export default async function GrnPage({
                 kpis={kpis}
                 error={error}
             />
-        </div>
+        </EntityListShell>
     );
 }

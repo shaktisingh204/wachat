@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { Receipt } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getVoucherBookById } from '@/app/actions/crm-vouchers.actions';
 
 import { VoucherBookForm } from '../../_components/voucher-book-form';
@@ -14,22 +13,12 @@ export default async function EditVoucherBookPage(props: {
     if (!book) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                    { label: 'Voucher Books', href: '/dashboard/crm/accounting/vouchers' },
-                    {
-                        label: book.name,
-                        href: `/dashboard/crm/accounting/vouchers/${voucherBookId}`,
-                    },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit ${book.name}`}
-                subtitle="Update the voucher book metadata."
-                icon={Receipt}
-            />
+        <EntityDetailShell
+            eyebrow="VOUCHER BOOK"
+            title={`Edit ${book.name}`}
+            back={{ href: `/dashboard/crm/accounting/vouchers/${voucherBookId}`, label: 'Back to voucher book' }}
+        >
             <VoucherBookForm initial={book} />
-        </div>
+        </EntityDetailShell>
     );
 }

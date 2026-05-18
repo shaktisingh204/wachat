@@ -2,24 +2,22 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { Plus, Columns3 } from 'lucide-react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function PipelinesPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Pipelines"
-        subtitle="Create and manage multiple sales pipelines to track your deals."
-        icon={Columns3}
-        actions={
-          <Link href="/dashboard/crm/sales-crm/pipelines/new">
-            <ZoruButton>
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              New Pipeline
-            </ZoruButton>
-          </Link>
-        }
-      />
+    <EntityListShell
+      title="Pipelines"
+      subtitle="Create and manage multiple sales pipelines to track your deals."
+      primaryAction={
+        <Link href="/dashboard/crm/sales-crm/pipelines/new">
+          <ZoruButton>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            New Pipeline
+          </ZoruButton>
+        </Link>
+      }
+    >
 
       <ZoruCard className="p-6 border-dashed">
         <div className="flex flex-col items-center gap-3 py-16 text-center">
@@ -39,6 +37,6 @@ export default function PipelinesPage() {
           </Link>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

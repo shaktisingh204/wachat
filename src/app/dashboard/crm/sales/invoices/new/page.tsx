@@ -19,10 +19,7 @@
  * & Send · Save & New · Cancel.
  */
 
-import Link from 'next/link';
-import { ArrowLeft, Receipt } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { InvoiceForm } from '../_components/invoice-form';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -33,30 +30,12 @@ export default async function NewInvoicePage() {
   const customFields = (await getCustomFieldsFor('invoice')) as WsCustomField[];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href="/dashboard/crm/sales/invoices"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Invoices
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title="New invoice"
-        subtitle="Bill a customer with itemised line items, tax breakdown, and payment terms."
-        icon={Receipt}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Invoices', href: '/dashboard/crm/sales/invoices' },
-          { label: 'New' },
-        ]}
-      />
-
+    <EntityDetailShell
+      eyebrow="INVOICE"
+      title="New invoice"
+      back={{ href: '/dashboard/crm/sales/invoices', label: 'Invoices' }}
+    >
       <InvoiceForm customFields={customFields} />
-    </div>
+    </EntityDetailShell>
   );
 }

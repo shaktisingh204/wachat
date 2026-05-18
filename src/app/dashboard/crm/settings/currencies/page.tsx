@@ -37,7 +37,6 @@ import { useActionState } from 'react';
 import Papa from 'papaparse';
 import { AlertTriangle,
   Check,
-  CircleDollarSign,
   Edit,
   LoaderCircle,
   Plus,
@@ -58,7 +57,6 @@ import { AlertTriangle,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -412,16 +410,10 @@ export default function CurrenciesPage() {
                 hasExistingBase={hasExistingBase}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Settings', href: '/dashboard/crm/settings' },
-                        { label: 'Currencies' },
-                    ]}
+            <EntityListShell
                     title="Currencies"
                     subtitle="Manage ISO 4217 currencies, symbols, exchange rates, and display formatting."
-                    icon={CircleDollarSign}
-                    actions={
+                    primaryAction={
                         <>
                             <ZoruButton variant="outline" onClick={handleExport}>
                                 Export CSV
@@ -431,10 +423,6 @@ export default function CurrenciesPage() {
                             </ZoruButton>
                         </>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -556,7 +544,6 @@ export default function CurrenciesPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

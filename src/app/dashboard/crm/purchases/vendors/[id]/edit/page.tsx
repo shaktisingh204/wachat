@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 
 import { getCrmVendorById } from '@/app/actions/crm-vendors.actions';
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { VendorEditForm } from './edit-form';
 
 interface PageProps {
@@ -14,9 +14,8 @@ export default async function VendorEditPage({ params }: PageProps) {
     if (!vendor) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit ${(vendor as any).name || 'vendor'}`} />
+        <EntityListShell title={`Edit ${(vendor as any).name || 'vendor'}`}>
             <VendorEditForm vendor={vendor as any} />
-        </div>
+        </EntityListShell>
     );
 }

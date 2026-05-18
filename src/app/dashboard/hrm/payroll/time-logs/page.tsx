@@ -31,12 +31,11 @@ import {
   Check,
   X,
   Timer,
-  Clock,
   Plus,
   Filter,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getTimeLogs,
   startTimer,
@@ -259,23 +258,19 @@ export default function TimeLogsPage() {
 
   /* ── Render ── */
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Time Logs"
-        subtitle="Track, start, stop, and approve employee time entries."
-        icon={Clock}
-        actions={
-          <>
-            <ZoruButton
-              variant="outline"
-              onClick={() => setManualOpen(true)}
-            >
-              <Plus className="h-4 w-4" strokeWidth={1.75} />
-              Add Manual Entry
-            </ZoruButton>
-          </>
-        }
-      />
+    <EntityListShell
+      title="Time Logs"
+      subtitle="Track, start, stop, and approve employee time entries."
+      primaryAction={
+        <ZoruButton
+          variant="outline"
+          onClick={() => setManualOpen(true)}
+        >
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          Add Manual Entry
+        </ZoruButton>
+      }
+    >
 
       {/* ── Active Timer Banner ── */}
       {runningLog && (
@@ -566,6 +561,6 @@ export default function TimeLogsPage() {
           </ZoruDialogFooter>
         </ZoruDialogContent>
       </ZoruDialog>
-    </div>
+    </EntityListShell>
   );
 }

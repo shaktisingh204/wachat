@@ -12,9 +12,7 @@
  * `WsCustomFieldBelongsTo`.
  */
 
-import { FileMinus } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { DebitNoteForm } from '../_components/debit-note-form';
 import { getCrmEntityForPrefill } from '@/lib/crm/convert-with-prefill';
 import type { CrmBillDoc } from '@/lib/rust-client/crm-bills';
@@ -65,17 +63,15 @@ export default async function NewDebitNotePage({
       : undefined;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New debit note"
-        subtitle={
-          initial
-            ? 'Pre-filled from a vendor bill — confirm and save.'
-            : 'Adjust a vendor bill downward for a return, discount, or short-shipment.'
-        }
-        icon={FileMinus}
-      />
+    <EntityListShell
+      title="New debit note"
+      subtitle={
+        initial
+          ? 'Pre-filled from a vendor bill — confirm and save.'
+          : 'Adjust a vendor bill downward for a return, discount, or short-shipment.'
+      }
+    >
       <DebitNoteForm initial={initial} />
-    </div>
+    </EntityListShell>
   );
 }

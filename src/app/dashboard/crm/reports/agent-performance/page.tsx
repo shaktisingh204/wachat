@@ -1,10 +1,7 @@
 import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import {
-  UserCog } from 'lucide-react';
-
 export const dynamic = 'force-dynamic';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   ReportToolbar,
   StatCard,
@@ -28,13 +25,11 @@ export default async function AgentPerformancePage(props: {
     : 0;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Agent Performance"
-        subtitle="Per-agent tickets closed and average resolution."
-        icon={UserCog}
-        actions={<ReportToolbar from={sp.from} to={sp.to} />}
-      />
+    <EntityListShell
+      title="Agent Performance"
+      subtitle="Per-agent tickets closed and average resolution."
+      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Tickets" value={String(totalTickets)} />
@@ -104,6 +99,6 @@ export default async function AgentPerformancePage(props: {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

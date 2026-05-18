@@ -18,14 +18,14 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import { Download, SlidersHorizontal, LoaderCircle, ArrowLeftRight } from "lucide-react";
+import { Download, SlidersHorizontal, LoaderCircle } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";
 
 import Papa from "papaparse";
 import { format } from "date-fns";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type Transaction = {
     date: Date;
@@ -95,32 +95,30 @@ export default function AllTransactionsReportPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="All Inventory Transactions"
-                subtitle="A complete log of all stock movements."
-                icon={ArrowLeftRight}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruPopover>
-                            <ZoruPopoverTrigger asChild>
-                                <ZoruButton variant="outline">
-                                    Filters
-                                </ZoruButton>
-                            </ZoruPopoverTrigger>
-                            <ZoruPopoverContent className="w-80 space-y-4">
-                                <div className="space-y-2"><ZoruLabel>Start Date</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
-                                <div className="space-y-2"><ZoruLabel>End Date</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
-                                <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><EnumFilterField enumName="inventoryTransactionType" value={transactionType} onChange={setTransactionType} allLabel="All Types" /></div>
-                                <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">Apply</ZoruButton>
-                            </ZoruPopoverContent>
-                        </ZoruPopover>
-                        <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                            Download CSV
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title="All Inventory Transactions"
+            subtitle="A complete log of all stock movements."
+            primaryAction={
+                <div className="flex items-center gap-2">
+                    <ZoruPopover>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton variant="outline">
+                                Filters
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
+                        <ZoruPopoverContent className="w-80 space-y-4">
+                            <div className="space-y-2"><ZoruLabel>Start Date</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
+                            <div className="space-y-2"><ZoruLabel>End Date</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
+                            <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><EnumFilterField enumName="inventoryTransactionType" value={transactionType} onChange={setTransactionType} allLabel="All Types" /></div>
+                            <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">Apply</ZoruButton>
+                        </ZoruPopoverContent>
+                    </ZoruPopover>
+                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
+                        Download CSV
+                    </ZoruButton>
+                </div>
+            }
+        >
 
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Transaction Log</h2>
@@ -159,6 +157,6 @@ export default function AllTransactionsReportPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

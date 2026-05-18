@@ -23,7 +23,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, ChevronDown, AlertCircle, TrendingUp } from 'lucide-react';
+import { Download, ChevronDown, AlertCircle } from 'lucide-react';
 
 import { useState, useEffect, useTransition, Fragment } from 'react';
 import { generateIncomeStatementData } from "@/app/actions/crm-accounting.actions";
@@ -34,7 +34,7 @@ import { getSession } from "@/app/actions";
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type AccountData = {
     accountName: string;
@@ -162,36 +162,34 @@ export default function IncomeStatementPage() {
     const businessProfile = user.businessProfile;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Income Statement"
-                subtitle="Profitability snapshot from income & expense accounts."
-                icon={TrendingUp}
-                actions={
-                    <div className="flex items-center gap-2">
-                        {/* TODO §1E: fiscal year picker — static year list, no matching enum; needs fiscalYearRange enum or date-range input */}
-                        <ZoruSelect defaultValue="fy2526">
-                            <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
-                                <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruDropdownMenu>
-                            <ZoruDropdownMenuTrigger asChild>
-                                <ZoruButton variant="outline">
-                                    Download As
-                                </ZoruButton>
-                            </ZoruDropdownMenuTrigger>
-                            <ZoruDropdownMenuContent>
-                                <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
-                                <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
-                            </ZoruDropdownMenuContent>
-                        </ZoruDropdownMenu>
-                    </div>
-                }
-            />
+        <EntityListShell
+            title="Income Statement"
+            subtitle="Profitability snapshot from income & expense accounts."
+            primaryAction={
+                <div className="flex items-center gap-2">
+                    {/* TODO §1E: fiscal year picker — static year list, no matching enum; needs fiscalYearRange enum or date-range input */}
+                    <ZoruSelect defaultValue="fy2526">
+                        <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
+                            <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                    <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="outline">
+                                Download As
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent>
+                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
+                </div>
+            }
+        >
 
             <ZoruCard>
                 <div className="flex items-center gap-4">
@@ -227,6 +225,6 @@ export default function IncomeStatementPage() {
                 </div>
                 <p className="mt-4 text-[11.5px] text-muted-foreground">* Reports are in your business currency INR</p>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

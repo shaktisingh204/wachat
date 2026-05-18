@@ -7,22 +7,15 @@
  * extra pre-fetching.
  */
 
-import { ClipboardList } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { RfqForm } from '../_components/rfq-form';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewRfqPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New RFQ"
-        subtitle="Invite vendors to bid on a list of items."
-        icon={ClipboardList}
-      />
+    <EntityListShell title="New RFQ" subtitle="Invite vendors to bid on a list of items.">
       <RfqForm />
-    </div>
+    </EntityListShell>
   );
 }

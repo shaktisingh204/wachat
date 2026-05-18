@@ -6,22 +6,19 @@
  * — the form is rendered directly.
  */
 
-import { Repeat } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { SubscriptionForm } from '../_components/subscription-form';
 
 export const dynamic = 'force-dynamic';
 
 export default function NewSubscriptionPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New subscription"
-        subtitle="Set up a new recurring billing agreement."
-        icon={Repeat}
-      />
+    <EntityDetailShell
+      eyebrow="SUBSCRIPTION"
+      title="New subscription"
+      back={{ href: '/dashboard/crm/sales/subscriptions', label: 'Subscriptions' }}
+    >
       <SubscriptionForm />
-    </div>
+    </EntityDetailShell>
   );
 }

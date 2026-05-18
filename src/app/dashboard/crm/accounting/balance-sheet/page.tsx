@@ -15,7 +15,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, ChevronDown, BarChart3 } from 'lucide-react';
+import { Download, ChevronDown } from 'lucide-react';
 
 import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
 
@@ -23,7 +23,7 @@ import { useEffect, useState, useTransition, useCallback } from "react";
 import Papa from "papaparse";
 import { LoaderCircle } from "lucide-react";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const StatCard = ({ title, value }: { title: string; value: string }) => (
     <div className="bg-secondary border border-border p-4 rounded-lg">
@@ -59,12 +59,10 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Balance Sheet"
-                subtitle="A snapshot of your company's financial health."
-                icon={BarChart3}
-            />
+        <EntityListShell
+            title="Balance Sheet"
+            subtitle="A snapshot of your company's financial health."
+        >
 
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
@@ -117,7 +115,7 @@ const BalanceSheetClient = ({ data }: { data: any }) => {
                     <p>* Reports are in your business currency INR</p>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }
 

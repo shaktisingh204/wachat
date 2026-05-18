@@ -5,11 +5,10 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
+import {
   Save,
   LoaderCircle,
-  Factory } from 'lucide-react';
-import Link from 'next/link';
+  } from 'lucide-react';
 import { useParams,
   useRouter } from 'next/navigation';
 
@@ -21,7 +20,7 @@ import { useParams,
  */
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { updateProductionOrderYield } from '@/app/actions/crm-production-orders.actions';
 
 export const dynamic = 'force-dynamic';
@@ -59,21 +58,11 @@ export default function UpdateYieldPage() {
   }, [state, toast, router, orderId]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Update yield"
-        subtitle="Record actual output, scrap and completion status for this order."
-        icon={Factory}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href={`/dashboard/crm/inventory/production-orders/${orderId}`}>
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityDetailShell
+      eyebrow="PRODUCTION ORDER"
+      title="Update yield"
+      back={{ href: `/dashboard/crm/inventory/production-orders/${orderId}`, label: 'Back to order' }}
+    >
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
           <input type="hidden" name="orderId" value={orderId} />
@@ -129,6 +118,6 @@ export default function UpdateYieldPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

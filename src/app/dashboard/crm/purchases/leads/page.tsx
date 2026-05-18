@@ -11,8 +11,7 @@ import {
   ZoruDialogTitle,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  Target } from 'lucide-react';
+import { Target } from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -20,7 +19,7 @@ import Papa from 'papaparse';
 
 import { SabFileToFileButton } from '@/components/sabfiles';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { addCrmLead } from '@/app/actions/crm-leads.actions';
 
 type RowResult = { row: number; ok: boolean; error?: string };
@@ -72,13 +71,10 @@ export default function VendorLeadsPage() {
     }, [toast]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Vendor Leads"
-                subtitle="Manage potential vendors and suppliers. Track leads, assign to team members, and convert them to vendors."
-                icon={Target}
-            />
-
+        <EntityListShell
+            title="Vendor Leads"
+            subtitle="Manage potential vendors and suppliers. Track leads, assign to team members, and convert them to vendors."
+        >
             <ZoruCard variant="outline" className="border-dashed">
                 <div className="flex flex-col items-center gap-4 py-12 text-center">
                     <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
@@ -148,6 +144,6 @@ export default function VendorLeadsPage() {
                     </ZoruDialogFooter>
                 </ZoruDialogContent>
             </ZoruDialog>
-        </div>
+        </EntityListShell>
     );
 }

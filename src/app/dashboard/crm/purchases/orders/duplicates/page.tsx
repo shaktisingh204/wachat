@@ -1,5 +1,5 @@
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
-import { ArrowLeft, Copy } from 'lucide-react';
+import { Copy } from 'lucide-react';
 
 /**
  * Purchase order duplicates — `/dashboard/crm/purchases/orders/duplicates`.
@@ -13,7 +13,7 @@ import { ArrowLeft, Copy } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { findPurchaseOrderDuplicates } from '@/app/actions/crm/purchase-orders.actions';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 
@@ -41,27 +41,10 @@ export default async function PurchaseOrderDuplicatesPage() {
   const groups = await findPurchaseOrderDuplicates();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <Link
-        href="/dashboard/crm/purchases/orders"
-        className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to Purchase Orders
-      </Link>
-      <CrmPageHeader
-        title="Find duplicates"
-        subtitle="Suspected duplicate purchase orders — same vendor, same PO number or similar amount within ±7 days."
-        icon={Copy}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          {
-            label: 'Purchase Orders',
-            href: '/dashboard/crm/purchases/orders',
-          },
-          { label: 'Duplicates' },
-        ]}
-      />
+    <EntityListShell
+      title="Find duplicates"
+      subtitle="Suspected duplicate purchase orders — same vendor, same PO number or similar amount within ±7 days."
+    >
 
       {groups.length === 0 ? (
         <ZoruCard className="p-6">
@@ -139,6 +122,6 @@ export default async function PurchaseOrderDuplicatesPage() {
           ))}
         </div>
       )}
-    </div>
+    </EntityListShell>
   );
 }

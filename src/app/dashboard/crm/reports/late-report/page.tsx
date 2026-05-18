@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Timer } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ReportToolbar, StatCard, BarRow } from '../_components/report-toolbar';
 import { getLateArrivals } from '@/app/actions/worksuite/reports.actions';
 

@@ -10,7 +10,7 @@ import { notFound } from 'next/navigation';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getReportDefinitionById,
     getReportRunsForDefinition,
@@ -49,11 +49,10 @@ export default async function ReportRunsListPage({ params }: PageProps) {
     const runs = await getReportRunsForDefinition(id, 100);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Runs · ${def.name}`}
-                subtitle={`Kind: ${def.kind} · Latest 100 runs`}
-            />
+        <EntityListShell
+            title={`Runs · ${def.name}`}
+            subtitle={`Kind: ${def.kind} · Latest 100 runs`}
+        >
 
             <ZoruCard>
                 <div className="overflow-x-auto">
@@ -121,6 +120,6 @@ export default async function ReportRunsListPage({ params }: PageProps) {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

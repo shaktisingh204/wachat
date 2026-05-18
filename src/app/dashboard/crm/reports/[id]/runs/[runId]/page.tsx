@@ -12,7 +12,7 @@ import { notFound } from 'next/navigation';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getReportDefinitionById,
     getReportRun,
@@ -51,11 +51,10 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
               : 'amber';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Run · ${def.name}`}
-                subtitle={`${def.kind} · started ${new Date(run.startedAt).toISOString()}`}
-            />
+        <EntityListShell
+            title={`Run · ${def.name}`}
+            subtitle={`${def.kind} · started ${new Date(run.startedAt).toISOString()}`}
+        >
 
             <div className="flex items-center gap-3">
                 <ZoruBadge tone={tone}>{run.status}</ZoruBadge>
@@ -138,6 +137,6 @@ export default async function ReportRunViewerPage({ params }: PageProps) {
                     </table>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

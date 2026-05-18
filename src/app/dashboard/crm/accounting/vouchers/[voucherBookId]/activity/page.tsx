@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { History } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getVoucherBookById } from '@/app/actions/crm-vouchers.actions';
 
@@ -13,22 +12,12 @@ export default async function VoucherBookActivityPage(props: {
     if (!book) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                    { label: 'Voucher Books', href: '/dashboard/crm/accounting/vouchers' },
-                    {
-                        label: book.name,
-                        href: `/dashboard/crm/accounting/vouchers/${voucherBookId}`,
-                    },
-                    { label: 'Activity' },
-                ]}
-                title="Activity"
-                subtitle={`Audit timeline for ${book.name}.`}
-                icon={History}
-            />
+        <EntityDetailShell
+            eyebrow="VOUCHER BOOK"
+            title={book.name}
+            back={{ href: `/dashboard/crm/accounting/vouchers/${voucherBookId}`, label: 'Back to voucher book' }}
+        >
             <EntityAuditTimeline entityKind="voucher_book" entityId={voucherBookId} />
-        </div>
+        </EntityDetailShell>
     );
 }

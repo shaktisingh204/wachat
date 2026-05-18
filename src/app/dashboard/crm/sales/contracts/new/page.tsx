@@ -13,14 +13,12 @@ import {
   useEffect,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
+import { Save,
   LoaderCircle,
-  FileSignature } from 'lucide-react';
-import Link from 'next/link';
+  } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveContract } from '@/app/actions/crm-contracts.actions';
@@ -63,20 +61,11 @@ export default function NewContractPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Contract"
-        subtitle="Draft a legal agreement with a counter-party."
-        icon={FileSignature}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/crm/sales/contracts">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="CONTRACT"
+      title="New Contract"
+      back={{ href: '/dashboard/crm/sales/contracts', label: 'Contracts' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -206,6 +195,6 @@ export default function NewContractPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

@@ -7,10 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Activity } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getPurchaseOrder } from '@/app/actions/crm/purchase-orders.actions';
 
@@ -28,31 +26,13 @@ export default async function PurchaseOrderActivityPage({ params }: PageProps) {
   const title = order.poNo || `Purchase order ${id.slice(-6)}`;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <Link
-        href={`/dashboard/crm/purchases/orders/${id}`}
-        className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-      >
-        <ArrowLeft className="h-3.5 w-3.5" /> Back to purchase order
-      </Link>
-
-      <CrmPageHeader
-        title={`${title} — Activity`}
-        subtitle="Audit trail of every change made to this purchase order."
-        icon={Activity}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          {
-            label: 'Purchase Orders',
-            href: '/dashboard/crm/purchases/orders',
-          },
-          { label: title, href: `/dashboard/crm/purchases/orders/${id}` },
-          { label: 'Activity' },
-        ]}
-      />
-
+    <EntityDetailShell
+      eyebrow="PURCHASE ORDER"
+      title={`${title} — Activity`}
+      subtitle="Audit trail of every change made to this purchase order."
+      back={{ href: `/dashboard/crm/purchases/orders/${id}`, label: 'Purchase order' }}
+    >
       <EntityAuditTimeline entityKind="purchaseOrder" entityId={id} />
-    </div>
+    </EntityDetailShell>
   );
 }

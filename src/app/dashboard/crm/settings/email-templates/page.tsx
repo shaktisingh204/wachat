@@ -22,7 +22,6 @@ import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Edit,
   LoaderCircle,
-  Mail,
   Plus,
   Trash2 } from 'lucide-react';
 
@@ -37,7 +36,6 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -121,27 +119,16 @@ export default function EmailTemplatesListPage() {
 
     return (
         <>
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'CRM', href: '/dashboard/crm' },
-                        { label: 'Settings', href: '/dashboard/crm/settings' },
-                        { label: 'Email Templates' },
-                    ]}
+            <EntityListShell
                     title="Email Templates"
                     subtitle="Reusable subject + body templates for transactional and marketing email."
-                    icon={Mail}
-                    actions={
+                    primaryAction={
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
                                 <Plus className="mr-1.5 h-3.5 w-3.5" /> New template
                             </Link>
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -254,7 +241,6 @@ export default function EmailTemplatesListPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

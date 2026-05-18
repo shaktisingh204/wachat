@@ -38,9 +38,7 @@ import {
 import Link from 'next/link';
 import { useFormStatus } from 'react-dom';
 import {
-    ArrowLeft,
   Edit,
-  Landmark,
   LoaderCircle,
   Plus,
   Save,
@@ -64,7 +62,7 @@ import {
 import type { CrmProfessionalTaxSlab, WithId } from '@/lib/definitions';
 import { indianStates } from '@/lib/states';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const BASE = '/dashboard/hrm/payroll/professional-tax';
 
@@ -317,25 +315,10 @@ export default function ProfessionalTaxSlabsPage() {
     const statesCount = [...new Set(slabs.map((s) => s.state))].length;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Professional Tax', href: BASE },
-                    { label: 'Slabs' },
-                ]}
-                title="PT Slabs"
-                subtitle="Manage state-wise PT slabs and view calculated tax for employees."
-                icon={Landmark}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" />
-                            Back to records
-                        </Link>
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="PT Slabs"
+            subtitle="Manage state-wise PT slabs and view calculated tax for employees."
+        >
 
             <div className="grid gap-4 md:grid-cols-3">
                 <ZoruCard className="p-6">
@@ -554,6 +537,6 @@ export default function ProfessionalTaxSlabsPage() {
                     </ZoruCard>
                 </div>
             </div>
-        </div>
+        </EntityListShell>
     );
 }

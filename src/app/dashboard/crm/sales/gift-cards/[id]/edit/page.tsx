@@ -9,7 +9,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getGiftCardById } from '@/app/actions/crm-gift-cards.actions';
 import { EditGiftCardForm } from './edit-form';
 
@@ -26,12 +26,12 @@ export default async function EditGiftCardPage({
     const card: Record<string, any> = result!;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit ${card.code ?? 'gift card'}`}
-                subtitle="Update recipient, expiry, and status."
-            />
+        <EntityDetailShell
+            eyebrow="GIFT CARD"
+            title={`Edit ${card.code ?? 'gift card'}`}
+            back={{ href: '/dashboard/crm/sales/gift-cards', label: 'Gift Cards' }}
+        >
             <EditGiftCardForm giftCardId={id} initial={card} />
-        </div>
+        </EntityDetailShell>
     );
 }

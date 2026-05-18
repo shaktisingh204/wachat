@@ -1,9 +1,7 @@
 import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { Clock4 } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard, fmtMoney, BarRow } from '../_components/report-toolbar';
 import { getInvoiceAging } from '@/app/actions/worksuite/reports.actions';
 
@@ -22,12 +20,10 @@ export default async function InvoiceAgingPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Invoice Aging"
-        subtitle="Outstanding invoices grouped by days past due."
-        icon={Clock4}
-      />
+    <EntityListShell
+      title="Invoice Aging"
+      subtitle="Outstanding invoices grouped by days past due."
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard
@@ -85,6 +81,6 @@ export default async function InvoiceAgingPage() {
           </div>
         </ZoruCard>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

@@ -12,9 +12,7 @@
  * pre-fetching beyond the seed.
  */
 
-import { PackageCheck } from 'lucide-react';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { GrnForm, type GrnFormSeed } from '../_components/grn-form';
 import { getGrnSeedFromPo } from '@/app/actions/crm/grns.actions';
 
@@ -49,17 +47,12 @@ export default async function NewGrnPage({
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="New GRN"
-                subtitle={
-                    seed?.poId
-                        ? 'Pre-filled from a purchase order — confirm and save.'
-                        : 'Record goods received from a vendor against a purchase order.'
-                }
-                icon={PackageCheck}
-            />
+        <EntityDetailShell
+            eyebrow="GRN"
+            title="New GRN"
+            back={{ href: '/dashboard/crm/inventory/grn', label: 'GRNs' }}
+        >
             <GrnForm seed={seed} />
-        </div>
+        </EntityDetailShell>
     );
 }

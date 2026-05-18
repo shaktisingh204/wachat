@@ -2,7 +2,6 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import {
-  Activity,
   FileBarChart,
   Wallet,
   Receipt,
@@ -26,7 +25,7 @@ import {
   UserCog,
 } from 'lucide-react';
 
-import { CrmPageHeader } from '../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 interface SectionLink {
   href: string;
@@ -224,18 +223,16 @@ function Section({
 
 export default function ReportsOverviewPage() {
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Reports"
-        subtitle="Financial, sales, HR, support and compliance reports in one place."
-        icon={Activity}
-      />
+    <EntityListShell
+      title="Reports"
+      subtitle="Financial, sales, HR, support and compliance reports in one place."
+    >
       <Section title="Finance" items={finance} />
       <Section title="Sales" items={sales} />
       <Section title="Projects & Tasks" items={projects} />
       <Section title="HR" items={hr} />
       <Section title="Support" items={support} />
       <Section title="Compliance" items={compliance} />
-    </div>
+    </EntityListShell>
   );
 }

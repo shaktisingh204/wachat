@@ -6,9 +6,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { BadgeCheck } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { DesignationForm } from '@/app/dashboard/crm/hr-payroll/designations/_components/designation-form';
 import { getDesignation } from '@/app/actions/crm/departments.actions';
 
@@ -24,13 +23,12 @@ export default async function EditDesignationPage({
   if (!item) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${item.name}`}
-        subtitle="Update designation."
-        icon={BadgeCheck}
-      />
+    <EntityDetailShell
+      title={`Edit ${item.name}`}
+      eyebrow="DESIGNATION"
+      back={{ href: '/dashboard/crm/hr-payroll/designations', label: 'Designations' }}
+    >
       <DesignationForm initial={item} />
-    </div>
+    </EntityDetailShell>
   );
 }

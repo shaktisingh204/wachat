@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic';
 import { Cake, Gift } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard } from '../_components/report-toolbar';
 import { getUpcomingBirthdays } from '@/app/actions/worksuite/reports.actions';
 
@@ -19,12 +19,10 @@ export default async function BirthdayAnniversaryPage(props: {
   const anniversaries = rows.filter((r) => r.kind === 'anniversary');
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Birthdays & Anniversaries"
-        subtitle={`Upcoming in the next ${days} days.`}
-        icon={Cake}
-      />
+    <EntityListShell
+      title="Birthdays & Anniversaries"
+      subtitle={`Upcoming in the next ${days} days.`}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard label="Birthdays" value={String(birthdays.length)} tone="blue" />
@@ -102,6 +100,6 @@ export default async function BirthdayAnniversaryPage(props: {
           )}
         </ZoruCard>
       </div>
-    </div>
+    </EntityListShell>
   );
 }

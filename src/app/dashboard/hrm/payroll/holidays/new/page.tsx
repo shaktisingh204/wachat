@@ -1,11 +1,10 @@
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { HolidayForm } from './holiday-form';
 
 export default function NewHolidayPage() {
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title="New holiday" />
+        <EntityListShell title="New holiday">
             <HolidayForm />
-        </div>
+        </EntityListShell>
     );
 }

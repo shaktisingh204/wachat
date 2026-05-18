@@ -11,8 +11,7 @@
 
 import { ObjectId } from 'mongodb';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import { ShoppingBag } from 'lucide-react';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { listPurchaseOrders } from '@/app/actions/crm/purchase-orders.actions';
 import { computePurchaseOrderKpis } from '@/app/actions/crm/purchase-orders.kpis';
@@ -139,18 +138,10 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
   const kpi = computePurchaseOrderKpis(kpiSource);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Purchase Orders"
-        subtitle="Manage procurement orders, approvals, and vendor deliveries across your purchases pipeline."
-        icon={ShoppingBag}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          { label: 'Purchase Orders' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Purchase Orders"
+      subtitle="Manage procurement orders, approvals, and vendor deliveries across your purchases pipeline."
+    >
       <PurchaseOrdersListClient
         orders={rows}
         page={page}
@@ -161,6 +152,6 @@ export default async function PurchaseOrdersPage({ searchParams }: PageProps) {
         currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

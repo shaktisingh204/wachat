@@ -32,7 +32,6 @@ import {
 } from '@/components/zoruui';
 import {
   Edit,
-  Layers,
   LoaderCircle,
   Plus,
   Trash2 } from 'lucide-react';
@@ -52,7 +51,6 @@ import { useFormStatus } from 'react-dom';
 import { useActionState } from 'react';
 import type { WithId } from 'mongodb';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -320,16 +318,10 @@ export default function AccountGroupsPage() {
                 onSave={refresh}
                 initialData={editing}
             />
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                        { label: 'Account Groups' },
-                    ]}
+            <EntityListShell
                     title="Account Groups"
                     subtitle="Group your chart-of-accounts by nature and sub-nature."
-                    icon={Layers}
-                    actions={
+                    primaryAction={
                         <>
                             <ZoruButton variant="outline" onClick={handleExport}>
                                 Export CSV
@@ -339,10 +331,6 @@ export default function AccountGroupsPage() {
                             </ZoruButton>
                         </>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{ value: search, onChange: setSearch, placeholder: 'Search groups…' }}
                     filters={
                         <ZoruSelect
@@ -418,7 +406,6 @@ export default function AccountGroupsPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

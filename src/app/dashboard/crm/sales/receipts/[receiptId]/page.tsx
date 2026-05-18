@@ -2,9 +2,7 @@ import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound } from 'next/navigation';
 import {
-    FileCheck,
   Pencil,
-  ArrowLeft,
   Activity,
   Printer,
   Mail,
@@ -21,7 +19,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 // `<StatusPill>` lives inside `<ReceiptInlineStatus>` now.
 import { LineageRail } from '@/components/crm/lineage-rail';
@@ -113,41 +111,35 @@ export default async function PaymentReceiptDetailPage({
     const advance = Math.max(0, (Number(receipt.amount) || 0) - totalSettled);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={title}
-                subtitle="Payment receipt"
-                icon={FileCheck}
-                actions={
-                    <>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href="/dashboard/crm/sales/receipts">
-                                <ArrowLeft className="h-4 w-4" /> Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={`/dashboard/crm/sales/receipts/${receiptId}/activity`}>
-                                <Activity className="h-4 w-4" /> Activity
-                            </Link>
-                        </ZoruButton>
-                        <ReceiptDetailActions
-                            id={receiptId}
-                            currentStatus={status}
-                        />
-                        <ZoruButton variant="outline" disabled title="Coming soon">
-                            <Printer className="h-4 w-4" /> Print
-                        </ZoruButton>
-                        <ZoruButton variant="outline" disabled title="Coming soon">
-                            <Mail className="h-4 w-4" /> Email
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`/dashboard/crm/sales/receipts/${receiptId}/edit`}>
-                                <Pencil className="h-4 w-4" /> Edit
-                            </Link>
-                        </ZoruButton>
-                    </>
-                }
-            />
+        <EntityDetailShell
+            eyebrow="RECEIPT"
+            title={title}
+            back={{ href: '/dashboard/crm/sales/receipts', label: 'Receipts' }}
+            actions={
+                <>
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={`/dashboard/crm/sales/receipts/${receiptId}/activity`}>
+                            <Activity className="h-4 w-4" /> Activity
+                        </Link>
+                    </ZoruButton>
+                    <ReceiptDetailActions
+                        id={receiptId}
+                        currentStatus={status}
+                    />
+                    <ZoruButton variant="outline" disabled title="Coming soon">
+                        <Printer className="h-4 w-4" /> Print
+                    </ZoruButton>
+                    <ZoruButton variant="outline" disabled title="Coming soon">
+                        <Mail className="h-4 w-4" /> Email
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`/dashboard/crm/sales/receipts/${receiptId}/edit`}>
+                            <Pencil className="h-4 w-4" /> Edit
+                        </Link>
+                    </ZoruButton>
+                </>
+            }
+        >
 
             <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
                 <div className="flex flex-col gap-6">
@@ -302,6 +294,6 @@ export default async function PaymentReceiptDetailPage({
             </div>
 
             <EntityAuditTimeline entityKind="paymentReceipt" entityId={receiptId} />
-        </div>
+        </EntityDetailShell>
     );
 }

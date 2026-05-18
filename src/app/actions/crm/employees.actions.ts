@@ -402,8 +402,6 @@ export async function getCrmEmployeeRelatedCounts(employeeId: string): Promise<{
   }
 }
 
-/* ─── Aliases for §1D parity ─── */
-export const getEmployeeRelatedCounts = getCrmEmployeeRelatedCounts;
 
 /* ─── KPI snapshot ───────────────────────────────────────────────
  * Aggregates a window of employees (capped at 500 — the Rust endpoint

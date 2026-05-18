@@ -9,11 +9,10 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Package } from 'lucide-react';
 
 import { getCrmProductById } from '@/app/actions/crm-products.actions';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { ItemForm } from '../../_components/item-form';
 
 export const dynamic = 'force-dynamic';
@@ -28,23 +27,12 @@ export default async function EditItemPage({ params }: PageProps) {
   if (!product) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${product.name}`}
-        subtitle="Update item details, pricing and inventory."
-        icon={Package}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Inventory', href: '/dashboard/crm/inventory' },
-          { label: 'Items', href: '/dashboard/crm/inventory/items' },
-          {
-            label: product.name,
-            href: `/dashboard/crm/inventory/items/${productId}`,
-          },
-          { label: 'Edit' },
-        ]}
-      />
+    <EntityDetailShell
+      eyebrow="INVENTORY ITEM"
+      title={`Edit ${product.name}`}
+      back={{ href: `/dashboard/crm/inventory/items/${productId}`, label: 'Back to item' }}
+    >
       <ItemForm initial={product} />
-    </div>
+    </EntityDetailShell>
   );
 }

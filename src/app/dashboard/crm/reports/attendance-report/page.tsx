@@ -1,9 +1,8 @@
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
-import { CalendarDays } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard } from '../_components/report-toolbar';
 import { getAttendanceMatrix } from '@/app/actions/worksuite/reports.actions';
 
@@ -80,13 +79,11 @@ export default async function AttendanceReportPage(props: {
   const totalLeave = matrix.reduce((s, m) => s + m.summary.leave, 0);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Attendance Report"
-        subtitle="Employee × day attendance matrix for the selected month."
-        icon={CalendarDays}
-        actions={<AttendanceFilter month={month} year={year} />}
-      />
+    <EntityListShell
+      title="Attendance Report"
+      subtitle="Employee × day attendance matrix for the selected month."
+      primaryAction={<AttendanceFilter month={month} year={year} />}
+    >
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
         <StatCard label="Employees" value={String(matrix.length)} />
@@ -177,6 +174,6 @@ export default async function AttendanceReportPage(props: {
           </table>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSubscriptionById } from '@/app/actions/crm-subscriptions.actions';
@@ -26,21 +25,15 @@ export default async function SubscriptionActivityPage({ params }: PageProps) {
         `Subscription ${id.slice(-6)}`;
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${title} — Activity`}
-                subtitle="Audit trail of changes made to this subscription."
-            />
-            <EntityDetailShell
-                title={title}
-                eyebrow="SUBSCRIPTION ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales/subscriptions/${id}`,
-                    label: 'Back to subscription',
-                }}
-            >
-                <EntityAuditTimeline entityKind="subscription" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={title}
+            eyebrow="SUBSCRIPTION ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales/subscriptions/${id}`,
+                label: 'Back to subscription',
+            }}
+        >
+            <EntityAuditTimeline entityKind="subscription" entityId={id} />
+        </EntityDetailShell>
     );
 }

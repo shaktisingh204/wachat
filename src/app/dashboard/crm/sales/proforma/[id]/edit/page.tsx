@@ -9,7 +9,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getProformaInvoiceById } from '@/app/actions/crm-proforma-invoices.actions';
 import { EditProformaForm } from './edit-form';
 
@@ -25,12 +25,12 @@ export default async function EditProformaPage({
     if (!proforma) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit ${(proforma as any).proformaNumber ?? 'proforma'}`}
-                subtitle="Update header fields, validity, status, and notes."
-            />
+        <EntityDetailShell
+            eyebrow="PROFORMA INVOICE"
+            title={`Edit ${(proforma as any).proformaNumber ?? 'proforma'}`}
+            back={{ href: `/dashboard/crm/sales/proforma/${id}`, label: 'Proforma Invoice' }}
+        >
             <EditProformaForm proformaId={id} initial={proforma as any} />
-        </div>
+        </EntityDetailShell>
     );
 }

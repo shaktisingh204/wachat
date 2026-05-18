@@ -24,12 +24,12 @@ import {
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { Plus, LoaderCircle, Trash2, Truck } from "lucide-react";
+import { Plus, LoaderCircle, Trash2 } from "lucide-react";
 import Link from 'next/link';
 import { getCrmVendors, deleteCrmVendor } from '@/app/actions/crm-vendors.actions';
 import type { WithId, CrmVendor } from '@/lib/definitions';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function VendorsPage() {
     const [vendors, setVendors] = useState<WithId<CrmVendor>[]>([]);
@@ -69,19 +69,17 @@ export default function VendorsPage() {
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Vendors"
-                subtitle="A list of your suppliers."
-                icon={Truck}
-                actions={
-                    <Link href="/dashboard/crm/purchases/vendors/new">
-                        <ZoruButton>
-                            New Vendor
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityListShell
+            title="Vendors"
+            subtitle="A list of your suppliers."
+            primaryAction={
+                <Link href="/dashboard/crm/purchases/vendors/new">
+                    <ZoruButton>
+                        New Vendor
+                    </ZoruButton>
+                </Link>
+            }
+        >
 
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">All Vendors</h2>
@@ -134,6 +132,6 @@ export default function VendorsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     )
 }

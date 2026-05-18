@@ -12,9 +12,7 @@ import {
   ZoruButton,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  Plus,
-  Receipt } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * <VoucherBooksListClient> — orchestrates the Voucher Books list (§1D.1 bar):

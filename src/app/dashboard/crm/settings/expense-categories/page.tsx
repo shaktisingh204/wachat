@@ -38,7 +38,6 @@ import { useFormStatus } from 'react-dom';
 import { Edit,
   LoaderCircle,
   Plus,
-  Tags,
   Trash2 } from 'lucide-react';
 
 /**
@@ -56,7 +55,6 @@ import { Edit,
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill } from '@/components/crm/status-pill';
 
@@ -511,24 +509,14 @@ export default function ExpenseCategoriesPage() {
                 accounts={accounts}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Settings', href: '/dashboard/crm/settings' },
-                        { label: 'Expense Categories' },
-                    ]}
+            <EntityListShell
                     title="Expense Categories"
                     subtitle="Classify expenses for accounting, billing, and reimbursement."
-                    icon={Tags}
-                    actions={
+                    primaryAction={
                         <ZoruButton onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -690,7 +678,6 @@ export default function ExpenseCategoriesPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

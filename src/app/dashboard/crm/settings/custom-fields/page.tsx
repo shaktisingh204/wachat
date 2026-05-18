@@ -40,7 +40,6 @@ import {
   Edit,
   LoaderCircle,
   Plus,
-  Settings2,
   Trash2,
   X,
   } from 'lucide-react';
@@ -61,7 +60,6 @@ import {
 
 import * as React from 'react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill } from '@/components/crm/status-pill';
 
@@ -682,23 +680,7 @@ export default function CustomFieldsPage() {
                 defaultEntityKind={activeEntity}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Settings', href: '/dashboard/crm/settings' },
-                        { label: 'Custom Fields' },
-                    ]}
-                    title="Custom Fields"
-                    subtitle="Extend any CRM entity with user-defined fields, grouped by entity kind."
-                    icon={Settings2}
-                    actions={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
-                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
-                        </ZoruButton>
-                    }
-                />
-
-                {/* Entity-kind pill row — acts as the tab switcher. */}
+            {/* Entity-kind pill row — acts as the tab switcher. */}
                 <div className="flex flex-wrap items-center gap-2">
                     {ENTITY_KINDS.map((e) => (
                         <ZoruButton
@@ -716,7 +698,13 @@ export default function CustomFieldsPage() {
                 </div>
 
                 <EntityListShell
-                    title=""
+                    title="Custom Fields"
+                    subtitle="Extend any CRM entity with user-defined fields, grouped by entity kind."
+                    primaryAction={
+                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
+                        </ZoruButton>
+                    }
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -874,7 +862,6 @@ export default function CustomFieldsPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

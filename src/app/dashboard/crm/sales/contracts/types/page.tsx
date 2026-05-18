@@ -29,7 +29,6 @@ import {
 } from '@/components/zoruui';
 import {
   Edit,
-  FileType2,
   LoaderCircle,
   Plus,
   Trash2,
@@ -52,7 +51,6 @@ import * as React from 'react';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
@@ -329,28 +327,14 @@ export default function ContractTypesPage() {
                 initialData={editing}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    breadcrumbs={[
-                        { label: 'Sales', href: '/dashboard/crm/sales' },
-                        {
-                            label: 'Contracts',
-                            href: '/dashboard/crm/sales/contracts',
-                        },
-                        { label: 'Types' },
-                    ]}
+            <EntityListShell
                     title="Contract types"
                     subtitle="Categorise contracts (Service, MSA, NDA…) with default term length and template."
-                    icon={FileType2}
-                    actions={
+                    primaryAction={
                         <ZoruButton onClick={() => handleOpenDialog(null)}>
                             <Plus className="mr-1.5 h-3.5 w-3.5" /> New type
                         </ZoruButton>
                     }
-                />
-
-                <EntityListShell
-                    title=""
                     search={{
                         value: search,
                         onChange: setSearch,
@@ -475,7 +459,6 @@ export default function ContractTypesPage() {
                         </ZoruTable>
                     </div>
                 </EntityListShell>
-            </div>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

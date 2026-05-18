@@ -8,7 +8,7 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCouponById } from '@/app/actions/crm-coupons.actions';
 import { EditCouponForm } from './edit-form';
 
@@ -25,12 +25,12 @@ export default async function EditCouponPage({
     const coupon: Record<string, any> = result!;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Edit ${coupon.code ?? 'coupon'}`}
-                subtitle="Update coupon details, limits, and validity window."
-            />
+        <EntityDetailShell
+            eyebrow="COUPON"
+            title={`Edit ${coupon.code ?? 'coupon'}`}
+            back={{ href: '/dashboard/crm/sales/coupons', label: 'Coupons' }}
+        >
             <EditCouponForm couponId={id} initial={coupon} />
-        </div>
+        </EntityDetailShell>
     );
 }

@@ -13,14 +13,13 @@ import {
   useEffect,
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
+import { Save,
   LoaderCircle,
-  TicketPercent } from 'lucide-react';
+  } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { saveCoupon } from '@/app/actions/crm-coupons.actions';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
@@ -78,19 +77,11 @@ export default function NewCouponPage() {
   const showValueField = valueLabel !== null;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Coupon"
-        subtitle="Create a promo code, BOGO offer or free-shipping voucher."
-        icon={TicketPercent}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/sales/coupons">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityDetailShell
+      eyebrow="COUPON"
+      title="New Coupon"
+      back={{ href: '/dashboard/crm/sales/coupons', label: 'Coupons' }}
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -233,6 +224,6 @@ export default function NewCouponPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityDetailShell>
   );
 }

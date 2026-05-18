@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getProformaInvoiceById } from '@/app/actions/crm-proforma-invoices.actions';
@@ -24,21 +23,15 @@ export default async function ProformaActivityPage({ params }: PageProps) {
     const title = (proforma as any).proformaNumber || `Proforma ${id.slice(-6)}`;
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${title} — Activity`}
-                subtitle="Audit trail of changes made to this proforma invoice."
-            />
-            <EntityDetailShell
-                title={title}
-                eyebrow="PROFORMA ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales/proforma/${id}`,
-                    label: 'Back to proforma',
-                }}
-            >
-                <EntityAuditTimeline entityKind="proforma" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={title}
+            eyebrow="PROFORMA ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales/proforma/${id}`,
+                label: 'Back to proforma',
+            }}
+        >
+            <EntityAuditTimeline entityKind="proforma" entityId={id} />
+        </EntityDetailShell>
     );
 }

@@ -5,14 +5,11 @@ import {
   useActionState,
   useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft,
-  Save,
-  LoaderCircle,
-  Handshake } from 'lucide-react';
+import { Save, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { savePurchaseLead } from '@/app/actions/crm-hire.actions';
 
 export const dynamic = 'force-dynamic';
@@ -49,20 +46,10 @@ export default function NewHireRequestPage() {
   }, [state, toast, router]);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="New Hire Request"
-        subtitle="Create a vendor sourcing or service hiring request."
-        icon={Handshake}
-        actions={
-          <ZoruButton variant="ghost" asChild className="text-zoru-ink-muted hover:text-zoru-ink">
-            <Link href="/dashboard/crm/purchases/hire">
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Back
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="New Hire Request"
+      subtitle="Create a vendor sourcing or service hiring request."
+    >
 
       <ZoruCard className="p-6">
         <form action={formAction} className="flex flex-col gap-6">
@@ -151,6 +138,6 @@ export default function NewHireRequestPage() {
           </div>
         </form>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

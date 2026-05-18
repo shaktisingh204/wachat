@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Handshake } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmHireById } from '@/app/actions/crm-hire.actions';
 import { HireEditForm } from './hire-edit-form';
 
@@ -32,12 +31,10 @@ export default async function EditHireRequestPage({ params }: PageProps) {
   if (!hire) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${hire.title || 'hire request'}`}
-        subtitle="Update vendor sourcing or service hiring request details."
-        icon={Handshake}
-      />
+    <EntityListShell
+      title={`Edit ${hire.title || 'hire request'}`}
+      subtitle="Update vendor sourcing or service hiring request details."
+    >
       <HireEditForm
         hireId={String(hire._id)}
         initial={{
@@ -57,6 +54,6 @@ export default async function EditHireRequestPage({ params }: PageProps) {
           status: hire.status ?? 'open',
         }}
       />
-    </div>
+    </EntityListShell>
   );
 }

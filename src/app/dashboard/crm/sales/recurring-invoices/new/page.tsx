@@ -12,18 +12,15 @@ import {
   useActionState,
   useEffect,
   useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Plus,
-  Repeat,
   Trash2,
-  ArrowLeft,
   Save,
   LoaderCircle,
   } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityPicker } from '@/components/crm/entity-picker';
@@ -115,7 +112,22 @@ export default function NewRecurringInvoicePage() {
   );
 
   return (
-    <form action={formAction} className="flex w-full flex-col gap-6">
+    <EntityDetailShell
+      eyebrow="RECURRING INVOICE"
+      title="New Recurring Invoice"
+      back={{ href: '/dashboard/crm/sales/recurring-invoices', label: 'Recurring Invoices' }}
+      actions={
+        <ZoruButton type="submit" form="new-recurring-invoice-form" disabled={isPending}>
+          {isPending ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
+          Save
+        </ZoruButton>
+      }
+    >
+    <form id="new-recurring-invoice-form" action={formAction} className="flex w-full flex-col gap-6">
       <input type="hidden" name="frequency" value={frequency} />
       <input type="hidden" name="frequency_count" value={String(frequencyCount)} />
       <input type="hidden" name="recurring_start_date" value={startDate} />
@@ -126,30 +138,6 @@ export default function NewRecurringInvoicePage() {
       <input type="hidden" name="notes" value={notes} />
       <input type="hidden" name="discount" value={String(discount)} />
       <input type="hidden" name="status" value="active" />
-
-      <CrmPageHeader
-        title="New Recurring Invoice"
-        subtitle="Create a template that bills on a schedule."
-        icon={Repeat}
-        actions={
-          <>
-            <Link href="/dashboard/crm/sales/recurring-invoices">
-              <ZoruButton variant="outline">
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </ZoruButton>
-            </Link>
-            <ZoruButton type="submit" disabled={isPending}>
-              {isPending ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Save className="h-4 w-4" />
-              )}
-              Save
-            </ZoruButton>
-          </>
-        }
-      />
 
       <ZoruCard className="p-6">
         <div className="grid gap-4 md:grid-cols-3">
@@ -384,5 +372,6 @@ export default function NewRecurringInvoicePage() {
         />
       </ZoruCard>
     </form>
+    </EntityDetailShell>
   );
 }

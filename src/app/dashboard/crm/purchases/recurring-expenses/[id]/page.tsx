@@ -9,11 +9,9 @@ import { use,
   useState,
   useTransition } from 'react';
 import {
-  ArrowLeft,
   Pause,
   Pencil,
   Play,
-  Repeat,
   StopCircle,
   Trash2,
   Zap,
@@ -32,8 +30,8 @@ import Link from 'next/link';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   deleteRecurringExpense,
   getRecurringExpenseById,
@@ -131,18 +129,11 @@ export default function RecurringExpenseDetailPage(props: {
 
   if (!doc) {
     return (
-      <div className="flex w-full flex-col gap-6">
-        <CrmPageHeader
-          title="Not found"
-          subtitle="The recurring expense does not exist."
-          icon={Repeat}
-        />
+      <EntityListShell title="Not found" subtitle="The recurring expense does not exist.">
         <ZoruButton variant="outline" asChild>
-          <Link href="/dashboard/crm/purchases/recurring-expenses">
-            <ArrowLeft className="h-4 w-4" /> Back
-          </Link>
+          <Link href="/dashboard/crm/purchases/recurring-expenses">Back</Link>
         </ZoruButton>
-      </div>
+      </EntityListShell>
     );
   }
 
@@ -151,28 +142,12 @@ export default function RecurringExpenseDetailPage(props: {
     : [];
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div className="flex flex-col gap-3">
-        <Link
-          href="/dashboard/crm/purchases/recurring-expenses"
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to Recurring Expenses
-        </Link>
-        <CrmPageHeader
-          title={doc.name || 'Recurring expense'}
-          subtitle={`Every ${doc.frequency_count} ${doc.frequency} · next on ${fmtDate(doc.next_run_date)}`}
-          icon={Repeat}
-          breadcrumbs={[
-            { label: 'CRM', href: '/dashboard/crm' },
-            { label: 'Purchases', href: '/dashboard/crm/purchases' },
-            {
-              label: 'Recurring Expenses',
-              href: '/dashboard/crm/purchases/recurring-expenses',
-            },
-            { label: doc.name || 'Schedule' },
-          ]}
-        />
+    <EntityDetailShell
+      eyebrow="RECURRING EXPENSE"
+      title={doc.name || 'Recurring expense'}
+      subtitle={`Every ${doc.frequency_count} ${doc.frequency} · next on ${fmtDate(doc.next_run_date)}`}
+      back={{ href: '/dashboard/crm/purchases/recurring-expenses', label: 'Recurring Expenses' }}
+      actions={
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill label={doc.status} tone={statusToTone(doc.status)} />
           <ZoruButton size="sm" variant="outline" asChild>
@@ -227,8 +202,8 @@ export default function RecurringExpenseDetailPage(props: {
             <Trash2 className="h-3.5 w-3.5" /> Delete
           </ZoruButton>
         </div>
-      </div>
-
+      }
+    >
       <div className="grid gap-6 md:grid-cols-4">
         <ZoruCard className="p-4">
           <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
@@ -322,7 +297,7 @@ export default function RecurringExpenseDetailPage(props: {
         confirmLabel="Delete"
         onConfirm={async () => handleDelete()}
       />
-    </div>
+    </EntityDetailShell>
   );
 }
 

@@ -14,7 +14,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { Download, Users, LoaderCircle } from "lucide-react";
+import { Download, LoaderCircle } from "lucide-react";
 import { useState, useEffect, useTransition } from 'react';
 import { generatePartyTransactionReport } from '@/app/actions/crm-reports.actions';
 
@@ -23,7 +23,7 @@ import Papa from "papaparse";
 import { format } from 'date-fns';
 import { EntityPicker } from '@/components/crm/entity-picker';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 type PartyTransaction = {
     date: Date;
@@ -89,17 +89,15 @@ export default function PartyTransactionsReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Party Transactions Report"
-                subtitle="View all inventory transactions for a specific customer or vendor."
-                icon={Users}
-                actions={
-                    <ZoruButton variant="outline" onClick={handleDownload} disabled={reportData.length === 0}>
-                        Download CSV
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Party Transactions Report"
+            subtitle="View all inventory transactions for a specific customer or vendor."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload} disabled={reportData.length === 0}>
+                    Download CSV
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard>
                 <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
@@ -172,6 +170,6 @@ export default function PartyTransactionsReportPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

@@ -1,17 +1,12 @@
-import { ZoruButton } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  CalendarClock } from 'lucide-react';
 
 /**
  * Edit batch — server wrapper that loads + passes to <BatchExpiryForm />.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getCrmItemBatchById } from '@/app/actions/crm-item-batches.actions';
@@ -35,28 +30,12 @@ export default async function EditBatchPage({
     if (!batch) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'CRM', href: '/dashboard/crm' },
-                    { label: 'Inventory', href: '/dashboard/crm/inventory' },
-                    { label: 'Batch & expiry', href: BASE },
-                    { label: batch.batchNumber, href: `${BASE}/${id}` },
-                    { label: 'Edit' },
-                ]}
-                title={`Edit · ${batch.batchNumber}`}
-                subtitle="Update batch attributes. Changes are revalidated immediately."
-                icon={CalendarClock}
-                actions={
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={`${BASE}/${id}`}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Back to detail
-                        </Link>
-                    </ZoruButton>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="BATCH"
+            title={`Edit · ${batch.batchNumber}`}
+            back={{ href: `${BASE}/${id}`, label: 'Back to detail' }}
+        >
             <BatchExpiryForm initialData={batch} />
-        </div>
+        </EntityDetailShell>
     );
 }

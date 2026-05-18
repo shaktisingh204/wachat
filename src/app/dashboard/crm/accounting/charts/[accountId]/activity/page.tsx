@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
-import { History } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCrmChartOfAccountById } from '@/app/actions/crm-accounting.actions';
 
@@ -13,22 +12,12 @@ export default async function ChartOfAccountActivityPage(props: {
     if (!account) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Accounting', href: '/dashboard/crm/accounting' },
-                    { label: 'Chart of Accounts', href: '/dashboard/crm/accounting/charts' },
-                    {
-                        label: account.name,
-                        href: `/dashboard/crm/accounting/charts/${accountId}`,
-                    },
-                    { label: 'Activity' },
-                ]}
-                title="Activity"
-                subtitle={`Audit timeline for ${account.name}.`}
-                icon={History}
-            />
+        <EntityDetailShell
+            eyebrow="CHART OF ACCOUNT"
+            title={account.name}
+            back={{ href: `/dashboard/crm/accounting/charts/${accountId}`, label: 'Back to account' }}
+        >
             <EntityAuditTimeline entityKind="chart_of_account" entityId={accountId} />
-        </div>
+        </EntityDetailShell>
     );
 }

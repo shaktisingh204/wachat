@@ -10,11 +10,9 @@
  * Mirrors `accounts/[accountId]/edit/page.tsx`.
  */
 
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Receipt } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { InvoiceForm } from '../../_components/invoice-form';
 import { getInvoice, getInvoiceById } from '@/app/actions/crm/invoices.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
@@ -39,38 +37,16 @@ export default async function EditInvoicePage({
   if (!fallback) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <div>
-        <Link
-          href={`/dashboard/crm/sales/invoices/${id}`}
-          className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to invoice
-        </Link>
-      </div>
-
-      <CrmPageHeader
-        title={`Edit ${fallback.invoiceNo || 'invoice'}`}
-        subtitle="Update invoice details and line items."
-        icon={Receipt}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales', href: '/dashboard/crm/sales' },
-          { label: 'Invoices', href: '/dashboard/crm/sales/invoices' },
-          {
-            label: fallback.invoiceNo || 'Invoice',
-            href: `/dashboard/crm/sales/invoices/${id}`,
-          },
-          { label: 'Edit' },
-        ]}
-      />
-
+    <EntityDetailShell
+      eyebrow="INVOICE"
+      title={`Edit ${fallback.invoiceNo || 'invoice'}`}
+      back={{ href: `/dashboard/crm/sales/invoices/${id}`, label: 'Invoice' }}
+    >
       <InvoiceForm
         initial={fallback}
         customFields={customFields}
         redirectTo={`/dashboard/crm/sales/invoices/${id}`}
       />
-    </div>
+    </EntityDetailShell>
   );
 }

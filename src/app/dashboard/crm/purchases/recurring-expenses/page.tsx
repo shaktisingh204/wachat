@@ -9,9 +9,7 @@
  * activity sub-routes deferred to a follow-up pass).
  */
 
-import { Repeat } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getRecurringExpenses } from '@/app/actions/worksuite/billing.actions';
 import type { WsRecurringExpense } from '@/lib/worksuite/billing-types';
 
@@ -109,23 +107,15 @@ export default async function RecurringExpensesPage() {
   const kpi = computeKpis(rows);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Recurring Expenses"
-        subtitle="Templates that auto-generate expense entries on a schedule."
-        icon={Repeat}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Purchases', href: '/dashboard/crm/purchases' },
-          { label: 'Recurring Expenses' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Recurring Expenses"
+      subtitle="Templates that auto-generate expense entries on a schedule."
+    >
       <RecurringExpensesListClient
         rows={rows}
         kpi={kpi}
         defaultCurrency="INR"
       />
-    </div>
+    </EntityListShell>
   );
 }

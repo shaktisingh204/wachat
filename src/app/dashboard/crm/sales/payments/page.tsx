@@ -1,5 +1,5 @@
 import { ZoruButton } from '@/components/zoruui';
-import { CreditCard, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 
 /**
  * CRM Payment Receipts list — `/dashboard/crm/sales/payments`.
@@ -15,7 +15,7 @@ import { CreditCard, Plus } from 'lucide-react';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listPaymentReceipts } from '@/app/actions/crm/payment-receipts.actions';
 import { PaymentReceiptListClient } from './_components/payment-receipt-list-client';
 
@@ -44,21 +44,18 @@ export default async function PaymentReceiptsPage({
   });
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Payment Receipts"
-        subtitle="Record incoming customer payments and reconcile them against invoices."
-        icon={CreditCard}
-        actions={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/sales/payments/new">
-              <Plus className="h-4 w-4" />
-              New receipt
-            </Link>
-          </ZoruButton>
-        }
-      />
-
+    <EntityListShell
+      title="Payment Receipts"
+      subtitle="Record incoming customer payments and reconcile them against invoices."
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/sales/payments/new">
+            <Plus className="h-4 w-4" />
+            New receipt
+          </Link>
+        </ZoruButton>
+      }
+    >
       <PaymentReceiptListClient
         receipts={receipts}
         page={page}
@@ -67,6 +64,6 @@ export default async function PaymentReceiptsPage({
         initialQuery={q}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

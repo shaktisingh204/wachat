@@ -24,7 +24,6 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  LayoutDashboard,
   Plus,
   Eye,
   EyeOff,
@@ -36,7 +35,7 @@ import {
 import * as React from 'react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getMyDashboardWidgets,
   saveDashboardWidget,
@@ -187,18 +186,16 @@ export default function DashboardWidgetsPage() {
   );
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Dashboard Widgets"
-        subtitle="Compose your personal CRM dashboard. Add widgets, reorder, and control visibility."
-        icon={LayoutDashboard}
-        actions={
-          <ZoruButton onClick={() => setDialogOpen(true)}>
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            Add Widget
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Dashboard Widgets"
+      subtitle="Compose your personal CRM dashboard. Add widgets, reorder, and control visibility."
+      primaryAction={
+        <ZoruButton onClick={() => setDialogOpen(true)}>
+          <Plus className="h-4 w-4" strokeWidth={1.75} />
+          Add Widget
+        </ZoruButton>
+      }
+    >
 
       {isLoading ? (
         <ZoruCard className="p-6">
@@ -400,6 +397,6 @@ export default function DashboardWidgetsPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </div>
+    </EntityListShell>
   );
 }

@@ -17,7 +17,7 @@ import {
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-import { LoaderCircle, Save, ArrowLeft, User, Truck, Upload, X } from 'lucide-react';
+import { LoaderCircle, Save, Truck, Upload, X } from 'lucide-react';
 
 import { saveCrmVendor, getCrmVendorById } from '@/app/actions/crm-vendors.actions';
 import { SabFilePickerButton } from '@/components/sabfiles';
@@ -30,7 +30,7 @@ import type { BankAccountDetails, CrmVendor, WithId } from '@/lib/definitions';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 const initialState = { message: '', error: '' };
 
@@ -108,27 +108,18 @@ export default function NewVendorPage() {
     }, [state, toast, router]);
 
     return (
-        <div className="max-w-4xl flex w-full flex-col gap-6">
+        <EntityListShell
+            title={isEdit ? 'Edit Vendor' : 'New Vendor'}
+            subtitle={
+                isEdit
+                    ? `Update details for ${vendor?.name ?? 'this vendor'}.`
+                    : 'Enter the details for the new vendor or supplier.'
+            }
+        >
             <CrmAddBankAccountDialog
                 isOpen={isBankDialogOpen}
                 onOpenChange={setIsBankDialogOpen}
                 onSave={(details) => setBankDetails(details)}
-            />
-            <div>
-                <Link href="/dashboard/crm/purchases/vendors" className="inline-flex items-center gap-2 text-[13px] text-muted-foreground hover:text-foreground">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Vendors
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title={isEdit ? 'Edit Vendor' : 'New Vendor'}
-                subtitle={
-                    isEdit
-                        ? `Update details for ${vendor?.name ?? 'this vendor'}.`
-                        : 'Enter the details for the new vendor or supplier.'
-                }
-                icon={Truck}
             />
 
             <form action={formAction} ref={formRef} key={vendor?._id?.toString() ?? 'new'}>
@@ -431,6 +422,6 @@ export default function NewVendorPage() {
                     </div>
                 </ZoruCard>
             </form>
-        </div>
+        </EntityListShell>
     )
 }
