@@ -3,14 +3,10 @@
 import {
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   useActionState,
   useEffect } from 'react';
@@ -99,21 +95,14 @@ export function AwardsForm({ mode, award }: AwardsFormProps): React.JSX.Element 
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="frequency">Frequency *</ZoruLabel>
-                                <ZoruSelect
-                                    name="frequency"
-                                    defaultValue={award?.frequency ?? 'one-time'}
-                                >
-                                    <ZoruSelectTrigger id="frequency" className="mt-1.5 h-10">
-                                        <ZoruSelectValue />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="one-time">One-time</ZoruSelectItem>
-                                        <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
-                                        <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
-                                        <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
+                                <ZoruLabel>Frequency *</ZoruLabel>
+                                <div className="mt-1.5">
+                                    <EnumFormField
+                                        enumName="awardFrequency"
+                                        name="frequency"
+                                        initialId={award?.frequency ?? 'one-time'}
+                                    />
+                                </div>
                             </div>
                         </div>
                     ),

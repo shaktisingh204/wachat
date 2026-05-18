@@ -1,3 +1,5 @@
+'use client';
+
 import { ZoruSkeleton } from '@/components/zoruui';
 import {
   EmbeddedForm } from '@/components/wabasimplify/embedded-form';
@@ -10,8 +12,6 @@ import type { WithId,
 
 // This file is deprecated and no longer used for embedding.
 // It is kept for historical purposes or if a direct link to the form is needed in the future.
-
-'use client';
 
 export default function EmbeddedFormPage(props: { params: Promise<{ formId: string }> }) {
     const params = use(props.params);

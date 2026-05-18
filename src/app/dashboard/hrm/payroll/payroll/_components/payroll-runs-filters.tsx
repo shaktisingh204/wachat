@@ -1,6 +1,7 @@
 'use client';
 
 import { ZoruButton, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   RefreshCw,
   XCircle } from 'lucide-react';
@@ -71,22 +72,12 @@ export function PayrollRunsFiltersRow({
   return (
     <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <ZoruSelect
+        <EnumFilterField
+          enumName="payrollRunFilterStatus"
           value={statusFilter}
-          onValueChange={(v) => onStatusChange(v as PayrollStatusFilter)}
-        >
-          <ZoruSelectTrigger className="h-9 w-[150px]" aria-label="Status">
-            <ZoruSelectValue placeholder="All statuses" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-            <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
-            <ZoruSelectItem value="processing">Processing</ZoruSelectItem>
-            <ZoruSelectItem value="approved">Approved</ZoruSelectItem>
-            <ZoruSelectItem value="disbursed">Disbursed</ZoruSelectItem>
-            <ZoruSelectItem value="closed">Closed</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          onChange={(v) => onStatusChange(v as PayrollStatusFilter)}
+          placeholder="All statuses"
+        />
 
         <ZoruSelect value={monthFilter} onValueChange={onMonthChange}>
           <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Month">

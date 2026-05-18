@@ -25,6 +25,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -72,19 +73,6 @@ const STATUS_TONE: Record<CrmBankTransactionStatus, StatusTone> = {
     archived: 'neutral',
 };
 
-const STATUS_OPTIONS: Array<{ value: CrmBankTransactionStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'cleared', label: 'Cleared' },
-    { value: 'reconciled', label: 'Reconciled' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const TYPE_OPTIONS: Array<{ value: CrmBankTransactionType | 'all'; label: string }> = [
-    { value: 'all', label: 'All types' },
-    { value: 'debit', label: 'Debit' },
-    { value: 'credit', label: 'Credit' },
-];
 
 function fmtMoney(value: number, currency = 'INR'): string {
     try {
@@ -267,40 +255,22 @@ export function BankTransactionsListClient(): React.JSX.Element {
                                 ))}
                             </ZoruSelectContent>
                         </ZoruSelect>
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="bankTransactionStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmBankTransactionStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[160px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                        <ZoruSelect
+                            allLabel="All statuses"
+                        />
+                        <EnumFilterField
+                            enumName="bankTransactionDirection"
                             value={typeFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setTypeFilter(v as CrmBankTransactionType | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[140px]">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {TYPE_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            allLabel="All types"
+                        />
                         <ZoruInput
                             type="date"
                             value={from}

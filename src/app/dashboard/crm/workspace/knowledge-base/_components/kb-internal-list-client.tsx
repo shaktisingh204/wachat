@@ -13,6 +13,7 @@ import {
   ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -256,22 +257,12 @@ export function KbInternalListClient(): React.JSX.Element {
                                 <ZoruSelectItem value="todo">To-do</ZoruSelectItem>
                             </ZoruSelectContent>
                         </ZoruSelect>
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="kbArticleType"
                             value={filters.typeFilter}
-                            onValueChange={(v) => updateFilter('typeFilter', v as KbInternalTypeFilter)}
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[140px]">
-                                <ZoruSelectValue placeholder="Type" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="all">Any type</ZoruSelectItem>
-                                <ZoruSelectItem value="article">Article</ZoruSelectItem>
-                                <ZoruSelectItem value="video">Video</ZoruSelectItem>
-                                <ZoruSelectItem value="audio">Audio</ZoruSelectItem>
-                                <ZoruSelectItem value="image">Image</ZoruSelectItem>
-                                <ZoruSelectItem value="document">Document</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            onChange={(v) => updateFilter('typeFilter', v as KbInternalTypeFilter)}
+                            allLabel="Any type"
+                        />
                         <ZoruSelect
                             value={filters.category || 'any'}
                             onValueChange={(v) => updateFilter('category', v === 'any' ? '' : v)}

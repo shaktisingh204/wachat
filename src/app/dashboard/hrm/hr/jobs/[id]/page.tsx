@@ -3,8 +3,6 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
-  Briefcase,
   ExternalLink,
   Pencil,
   } from 'lucide-react';
@@ -18,8 +16,8 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import type { EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { getJobById } from '@/app/actions/crm-jobs.actions';
 import type { CrmJobStatus } from '@/lib/rust-client/crm-jobs';
@@ -28,7 +26,7 @@ export const dynamic = 'force-dynamic';
 
 const BASE = '/dashboard/hrm/hr/jobs';
 
-const STATUS_TONE: Record<CrmJobStatus, StatusTone> = {
+const STATUS_TONE: Record<CrmJobStatus, EntityStatusTone> = {
     draft: 'amber',
     open: 'green',
     on_hold: 'amber',
@@ -80,41 +78,26 @@ export default async function JobDetailPage({
     const tags = Array.isArray(job.tags) ? job.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/hrm/hr' },
-                    { label: 'Jobs', href: BASE },
-                    { label: job.title },
-                ]}
-                title={job.title}
-                subtitle={job.departmentName || 'Job detail'}
-                icon={Briefcase}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${jobId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="JOB"
+            title={job.title}
+            status={{ label: pretty(status), tone }}
+            back={{ href: BASE, label: 'Jobs' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${jobId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
             {/* Summary card */}
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
-                    <StatusPill label={pretty(status)} tone={tone} />
                     {tags.map((t) => (
                         <ZoruBadge key={t} variant="ghost">
                             {t}
@@ -237,6 +220,6 @@ export default async function JobDetailPage({
                     </pre>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

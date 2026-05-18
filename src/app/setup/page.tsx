@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ZoruCard,
   ZoruCardContent,
@@ -21,8 +23,6 @@ import {
 import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
 
 import { AlertCircle } from 'lucide-react';
-
-'use client';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;

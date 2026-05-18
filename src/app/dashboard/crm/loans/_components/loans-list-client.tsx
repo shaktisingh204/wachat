@@ -17,6 +17,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   ListChecks,
   Pencil,
@@ -280,21 +281,12 @@ export function LoansListClient({ loans }: LoansListClientProps) {
             ))}
           </ZoruSelectContent>
         </ZoruSelect>
-        {/* TODO §1E: borrowerType needs enumName="borrowerType" once that enum is registered in CRM_ENUMS */}
-        <ZoruSelect
+        <EnumFilterField
+          enumName="borrowerType"
           value={borrowerTypeFilter}
-          onValueChange={setBorrowerTypeFilter}
-        >
-          <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-            <ZoruSelectValue placeholder="Borrower" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All borrowers</ZoruSelectItem>
-            <ZoruSelectItem value="employee">Employee</ZoruSelectItem>
-            <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-            <ZoruSelectItem value="vendor">Vendor</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          onChange={setBorrowerTypeFilter}
+          allLabel="All borrowers"
+        />
         <ZoruInput
           type="date"
           value={dateFromFilter}

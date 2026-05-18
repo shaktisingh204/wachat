@@ -1,10 +1,8 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Pencil,
-  Wallet } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Salary structure detail page (server component).
@@ -15,8 +13,9 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import type { StatusTone } from '@/components/crm/status-pill';
+import { ZoruButton } from '@/components/zoruui';
 
 import { getSession } from '@/app/actions/user.actions';
 import { getSalaryStructureDoc } from '@/app/actions/crm-salary-structures.actions';
@@ -70,44 +69,25 @@ export default async function SalaryStructureDetailPage({
     const net = doc.net ?? gross - computedDeductions;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Salary structures', href: BASE },
-                    { label: doc.employeeName ?? doc.employeeId ?? id },
-                ]}
-                title={`Structure · ${doc.employeeName ?? doc.employeeId}`}
-                subtitle={
-                    doc.effectiveFrom
-                        ? `Effective from ${fmtDate(doc.effectiveFrom)}`
-                        : 'Active salary breakdown'
-                }
-                icon={Wallet}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${id}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
-
+        <EntityDetailShell
+            eyebrow="SALARY STRUCTURE"
+            title={`Structure · ${doc.employeeName ?? doc.employeeId}`}
+            status={{ label: status, tone: tone as 'green' | 'neutral' }}
+            back={{ href: BASE, label: 'Salary structures' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${id}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
             <ZoruCard className="p-6">
                 <div className="mb-4 flex flex-wrap items-center gap-2">
                     <div className="text-[14px] font-medium text-zoru-ink">
                         Overview
                     </div>
-                    <StatusPill label={status} tone={tone} />
                 </div>
 
                 <div className="grid grid-cols-1 gap-x-6 gap-y-4 text-[13px] sm:grid-cols-2">
@@ -223,6 +203,6 @@ export default async function SalaryStructureDetailPage({
                     </div>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

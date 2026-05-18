@@ -53,7 +53,7 @@ export const metadata = {
 
 /** Resolve a path relative to the repo root regardless of cwd. */
 function repoFile(rel: string): string {
-    return path.join(process.cwd(), rel);
+    return path.join(/*turbopackIgnore: true*/ process.cwd(), rel);
 }
 
 /**

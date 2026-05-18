@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -29,8 +31,6 @@ import { MessageSquare,
  * Heavy children live in `./_components/*`; this file is the layout
  * spine + state coordinator only.
  */
-
-'use client';
 
 import * as React from 'react';
 

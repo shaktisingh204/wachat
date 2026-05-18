@@ -3,7 +3,8 @@
 import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import * as React from 'react';
 
-import { VOUCHER_TYPES, type VoucherBookType } from './types';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import type { VoucherBookType } from './types';
 
 export interface VoucherBookFilterState {
     type: 'all' | VoucherBookType;
@@ -27,22 +28,12 @@ interface VoucherBooksFiltersProps {
 export function VoucherBooksFilters({ value, onChange }: VoucherBooksFiltersProps) {
     return (
         <div className="flex flex-wrap items-center gap-2">
-            <ZoruSelect
+            <EnumFilterField
+                enumName="voucherType"
                 value={value.type}
-                onValueChange={(v) => onChange({ ...value, type: v as VoucherBookFilterState['type'] })}
-            >
-                <ZoruSelectTrigger className="h-9 w-[180px]">
-                    <ZoruSelectValue placeholder="Type" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All types</ZoruSelectItem>
-                    {VOUCHER_TYPES.map((t) => (
-                        <ZoruSelectItem key={t} value={t}>
-                            {t}
-                        </ZoruSelectItem>
-                    ))}
-                </ZoruSelectContent>
-            </ZoruSelect>
+                onChange={(v) => onChange({ ...value, type: v as VoucherBookFilterState['type'] })}
+                allLabel="All types"
+            />
             <ZoruSelect
                 value={value.status}
                 onValueChange={(v) => onChange({ ...value, status: v as VoucherBookFilterState['status'] })}

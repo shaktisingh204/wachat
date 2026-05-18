@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -23,6 +18,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Edit,
   LoaderCircle,
@@ -55,26 +51,6 @@ import type {
 } from '@/lib/rust-client/crm-email-templates';
 
 const BASE = '/dashboard/crm/settings/email-templates';
-
-const STATUS_OPTIONS: Array<{
-    value: CrmEmailTemplateStatus | 'all';
-    label: string;
-}> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'archived', label: 'Archived' },
-];
-
-const CATEGORY_OPTIONS: Array<{ value: string; label: string }> = [
-    { value: 'all', label: 'All categories' },
-    { value: 'general', label: 'General' },
-    { value: 'transactional', label: 'Transactional' },
-    { value: 'marketing', label: 'Marketing' },
-    { value: 'onboarding', label: 'Onboarding' },
-    { value: 'support', label: 'Support' },
-    { value: 'sales', label: 'Sales' },
-    { value: 'other', label: 'Other' },
-];
 
 const STATUS_TONE: Record<CrmEmailTemplateStatus, StatusTone> = {
     active: 'green',
@@ -173,38 +149,20 @@ export default function EmailTemplatesListPage() {
                     }}
                     filters={
                         <>
-                            <ZoruSelect
+                            <EnumFilterField
+                                enumName="emailTemplateStatus"
                                 value={statusFilter}
-                                onValueChange={(v) =>
+                                onChange={(v) =>
                                     setStatusFilter(v as CrmEmailTemplateStatus | 'all')
                                 }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
+                                allLabel="All statuses"
+                            />
+                            <EnumFilterField
+                                enumName="emailTemplateCategory"
                                 value={categoryFilter}
-                                onValueChange={setCategoryFilter}
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[200px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
+                                onChange={setCategoryFilter}
+                                allLabel="All categories"
+                            />
                         </>
                     }
                     loading={isLoading && templates.length === 0}

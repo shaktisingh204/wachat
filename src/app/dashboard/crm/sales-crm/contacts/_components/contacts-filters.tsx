@@ -6,12 +6,9 @@ import {
   ZoruCard,
   ZoruCardContent,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import {
   Archive,
   X } from 'lucide-react';
@@ -76,50 +73,24 @@ export function ContactsFiltersRow(props: ContactsFiltersRowProps) {
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Status
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="contactStatus"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as ContactStatusFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All</ZoruSelectItem>
-                            <ZoruSelectItem value="new_lead">New lead</ZoruSelectItem>
-                            <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
-                            <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
-                            <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
-                            <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                            <ZoruSelectItem value="imported">Imported</ZoruSelectItem>
-                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as ContactStatusFilter)}
+                        allLabel="All"
+                    />
                 </div>
 
                 <div className="space-y-1">
                     <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
                         Lifecycle
                     </ZoruLabel>
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="lifecycleStage"
                         value={props.lifecycleFilter}
-                        onValueChange={(v) =>
-                            props.onLifecycleChange(v as ContactLifecycleFilter)
-                        }
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All stages</ZoruSelectItem>
-                            <ZoruSelectItem value="subscriber">Subscriber</ZoruSelectItem>
-                            <ZoruSelectItem value="lead">Lead</ZoruSelectItem>
-                            <ZoruSelectItem value="mql">MQL</ZoruSelectItem>
-                            <ZoruSelectItem value="sql">SQL</ZoruSelectItem>
-                            <ZoruSelectItem value="opportunity">Opportunity</ZoruSelectItem>
-                            <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                            <ZoruSelectItem value="evangelist">Evangelist</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onLifecycleChange(v as ContactLifecycleFilter)}
+                        allLabel="All stages"
+                    />
                 </div>
 
                 <div className="space-y-1">
@@ -207,18 +178,11 @@ export function ContactsBulkBar({
     return (
         <div className="flex flex-wrap items-center gap-2">
             <ZoruBadge variant="info">{count} selected</ZoruBadge>
-            <ZoruSelect onValueChange={onStatusChange}>
-                <ZoruSelectTrigger className="h-8 w-[160px]">
-                    <ZoruSelectValue placeholder="Set status…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="new_lead">New lead</ZoruSelectItem>
-                    <ZoruSelectItem value="contacted">Contacted</ZoruSelectItem>
-                    <ZoruSelectItem value="qualified">Qualified</ZoruSelectItem>
-                    <ZoruSelectItem value="unqualified">Unqualified</ZoruSelectItem>
-                    <ZoruSelectItem value="customer">Customer</ZoruSelectItem>
-                </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFormField
+                enumName="contactStatus"
+                onChange={(v) => v && onStatusChange(v)}
+                placeholder="Set status…"
+            />
             <ZoruButton size="sm" variant="outline" onClick={onArchive}>
                 <Archive className="h-3.5 w-3.5" /> Archive
             </ZoruButton>

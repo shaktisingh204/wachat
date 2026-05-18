@@ -4,11 +4,6 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruDateRangePicker,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
 import {
   X } from 'lucide-react';
@@ -27,28 +22,11 @@ import type { DateRange } from 'react-day-picker';
 import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import type { PayoutKpiFilter } from './payout-kpi-strip';
 
 export type PayoutListPreset = 'all' | 'this_month' | 'failed' | 'pending_clearance';
-
-const STATUSES: Array<{ value: PayoutKpiFilter; label: string }> = [
-    { value: 'all', label: 'All' },
-    { value: 'cleared', label: 'Cleared' },
-    { value: 'failed', label: 'Failed' },
-    { value: 'pending', label: 'Pending' },
-];
-
-const MODES: Array<{ value: string; label: string }> = [
-    { value: 'cash', label: 'Cash' },
-    { value: 'cheque', label: 'Cheque' },
-    { value: 'upi', label: 'UPI' },
-    { value: 'neft', label: 'NEFT' },
-    { value: 'rtgs', label: 'RTGS' },
-    { value: 'imps', label: 'IMPS' },
-    { value: 'card', label: 'Card' },
-    { value: 'wallet', label: 'Wallet' },
-];
 
 const PRESETS: Array<{ value: PayoutListPreset; label: string }> = [
     { value: 'all', label: 'All' },
@@ -105,21 +83,12 @@ export function PayoutFiltersRow(props: PayoutFiltersRowProps) {
             {/* Filter row */}
             <div className="flex flex-wrap items-center gap-2">
                 <div className="w-36">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="payoutStatus"
                         value={props.statusFilter}
-                        onValueChange={(v) => props.onStatusChange(v as PayoutKpiFilter)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Status" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            {STATUSES.map((s) => (
-                                <ZoruSelectItem key={s.value} value={s.value}>
-                                    {s.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onStatusChange(v as PayoutKpiFilter)}
+                        placeholder="All statuses"
+                    />
                 </div>
                 <div className="w-56">
                     <EntityFormField
@@ -131,22 +100,12 @@ export function PayoutFiltersRow(props: PayoutFiltersRowProps) {
                     />
                 </div>
                 <div className="w-36">
-                    <ZoruSelect
+                    <EnumFilterField
+                        enumName="paymentMode"
                         value={props.modeFilter || 'all'}
-                        onValueChange={(v) => props.onModeChange(v === 'all' ? '' : v)}
-                    >
-                        <ZoruSelectTrigger>
-                            <ZoruSelectValue placeholder="Mode" />
-                        </ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="all">All modes</ZoruSelectItem>
-                            {MODES.map((m) => (
-                                <ZoruSelectItem key={m.value} value={m.value}>
-                                    {m.label}
-                                </ZoruSelectItem>
-                            ))}
-                        </ZoruSelectContent>
-                    </ZoruSelect>
+                        onChange={(v) => props.onModeChange(v === 'all' ? '' : v)}
+                        placeholder="All modes"
+                    />
                 </div>
                 <div className="w-56">
                     <EntityFormField

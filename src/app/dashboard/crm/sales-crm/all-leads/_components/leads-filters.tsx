@@ -11,11 +11,6 @@ import {
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruDropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
@@ -50,6 +45,7 @@ import type { DateRange } from 'react-day-picker';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 export type LeadsStatusFilter =
     | 'all'
@@ -208,18 +204,11 @@ export function LeadsBulkBar({
         <div className="flex flex-wrap items-center gap-2">
             <ZoruBadge variant="info">{count} selected</ZoruBadge>
 
-            <ZoruSelect onValueChange={onStatusChange}>
-                <ZoruSelectTrigger className="h-8 w-[160px]">
-                    <ZoruSelectValue placeholder="Set status…" />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                    <ZoruSelectItem value="New">New</ZoruSelectItem>
-                    <ZoruSelectItem value="Contacted">Contacted</ZoruSelectItem>
-                    <ZoruSelectItem value="Qualified">Qualified</ZoruSelectItem>
-                    <ZoruSelectItem value="Unqualified">Unqualified</ZoruSelectItem>
-                    <ZoruSelectItem value="Converted">Converted</ZoruSelectItem>
-                </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFormField
+                enumName="leadStatus"
+                onChange={(v) => v && onStatusChange(v)}
+                placeholder="Set status…"
+            />
 
             {/* Bulk assign owner */}
             <ZoruPopover open={assignOpen} onOpenChange={setAssignOpen}>

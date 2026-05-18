@@ -5,11 +5,6 @@ import {
   ZoruInput,
   ZoruLabel,
   ZoruCheckbox,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
 } from '@/components/zoruui';
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
@@ -17,6 +12,7 @@ import { ClayCard } from '@/components/clay';
 
 // TODO 1E.sweep: shift-type dropdowns -> <EnumFormField enumName="shiftType">; department/employees -> <EntityFormField>/<EntityMultiFormField>. See plan §1E.
 
+import { EnumFormField } from '@/components/crm/enum-form-field';
 import { saveEmployeeShift } from '@/app/actions/worksuite/shifts.actions';
 import type { WsEmployeeShift, WsWeekDay, WsDayOff } from '@/lib/worksuite/shifts-types';
 
@@ -181,18 +177,12 @@ export function ShiftForm({ initial }: { initial?: WsEmployeeShift }) {
             />
           </Field>
           <Field label="Days Off Type">
-            <ZoruSelect
-              value={form.days_off_type}
-              onValueChange={(v) => set('days_off_type', v as WsDayOff)}
-            >
-              <ZoruSelectTrigger>
-                <ZoruSelectValue placeholder="ZoruSelect" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="week-off">Week Off</ZoruSelectItem>
-                <ZoruSelectItem value="consecutive">Consecutive</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFormField
+              enumName="daysOffType"
+              name="__days_off_picker"
+              initialId={form.days_off_type}
+              onChange={(v) => set('days_off_type', (v ?? 'week-off') as WsDayOff)}
+            />
           </Field>
         </div>
       </ClayCard>

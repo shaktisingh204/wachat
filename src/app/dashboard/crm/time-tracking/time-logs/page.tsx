@@ -5,13 +5,9 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruStatCard,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
@@ -328,16 +324,12 @@ export default function TimeLogsPage() {
               onChange={(e) => setToDate(e.target.value)}
               className="h-9 w-[140px] text-[13px]"
             />
-            <ZoruSelect value={billableFilter} onValueChange={setBillableFilter}>
-              <ZoruSelectTrigger className="h-9 w-[140px] text-[13px]">
-                <ZoruSelectValue placeholder="Billable" />
-              </ZoruSelectTrigger>
-              <ZoruSelectContent>
-                <ZoruSelectItem value="all">All</ZoruSelectItem>
-                <ZoruSelectItem value="billable">Billable</ZoruSelectItem>
-                <ZoruSelectItem value="non-billable">Non-billable</ZoruSelectItem>
-              </ZoruSelectContent>
-            </ZoruSelect>
+            <EnumFilterField
+              enumName="timeBillableFilter"
+              value={billableFilter}
+              onChange={setBillableFilter}
+              allLabel="All"
+            />
             <ZoruButton variant="outline" size="sm" onClick={refresh}>
               <Filter className="h-4 w-4" /> Apply
             </ZoruButton>

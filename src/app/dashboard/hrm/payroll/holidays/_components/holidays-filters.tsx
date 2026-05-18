@@ -10,6 +10,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   XCircle } from 'lucide-react';
 
@@ -68,22 +69,12 @@ export function HolidaysFiltersRow({
   return (
     <div className="flex flex-col gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <ZoruSelect
+        <EnumFilterField
+          enumName="holidayType"
           value={typeFilter}
-          onValueChange={(v) => onTypeChange(v as HolidayTypeFilter)}
-        >
-          <ZoruSelectTrigger className="h-9 w-[160px]" aria-label="Type">
-            <ZoruSelectValue placeholder="All types" />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All types</ZoruSelectItem>
-            <ZoruSelectItem value="national">National</ZoruSelectItem>
-            <ZoruSelectItem value="regional">Regional</ZoruSelectItem>
-            <ZoruSelectItem value="religious">Religious</ZoruSelectItem>
-            <ZoruSelectItem value="optional">Optional</ZoruSelectItem>
-            <ZoruSelectItem value="restricted">Restricted</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          onChange={(v) => onTypeChange(v as HolidayTypeFilter)}
+          placeholder="All types"
+        />
 
         <ZoruSelect value={yearFilter} onValueChange={onYearChange}>
           <ZoruSelectTrigger className="h-9 w-[120px]" aria-label="Year">
@@ -99,19 +90,13 @@ export function HolidaysFiltersRow({
           </ZoruSelectContent>
         </ZoruSelect>
 
-        <ZoruSelect
+        <EnumFilterField
+          enumName="yesNo"
           value={recurringFilter}
-          onValueChange={(v) => onRecurringChange(v as RecurringFilter)}
-        >
-          <ZoruSelectTrigger className="h-9 w-[140px]" aria-label="Recurring">
-            <ZoruSelectValue />
-          </ZoruSelectTrigger>
-          <ZoruSelectContent>
-            <ZoruSelectItem value="all">All recurrence</ZoruSelectItem>
-            <ZoruSelectItem value="yes">Recurring only</ZoruSelectItem>
-            <ZoruSelectItem value="no">One-time only</ZoruSelectItem>
-          </ZoruSelectContent>
-        </ZoruSelect>
+          onChange={(v) => onRecurringChange(v as RecurringFilter)}
+          allLabel="All recurrence"
+          placeholder="All recurrence"
+        />
 
         {hasActiveFilters ? (
           <ZoruButton

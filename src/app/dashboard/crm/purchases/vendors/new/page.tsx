@@ -12,11 +12,6 @@ import {
   ZoruLabel,
   ZoruRadioGroup,
   ZoruRadioGroupItem,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -33,6 +28,7 @@ import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-
 import type { BankAccountDetails, CrmVendor, WithId } from '@/lib/definitions';
 
 import { EntityPicker } from '@/components/crm/entity-picker';
+import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 
@@ -183,7 +179,11 @@ export default function NewVendorPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <ZoruLabel htmlFor="clientIndustry">Vendor Industry</ZoruLabel>
-                                    <ZoruSelect name="clientIndustry"><ZoruSelectTrigger><ZoruSelectValue placeholder="-Select an Industry-" /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="tech">Technology</ZoruSelectItem><ZoruSelectItem value="retail">Retail</ZoruSelectItem></ZoruSelectContent></ZoruSelect>
+                                    <EnumFormField
+                                        enumName="vendorIndustry"
+                                        name="clientIndustry"
+                                        placeholder="-Select an Industry-"
+                                    />
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-2">
@@ -229,7 +229,7 @@ export default function NewVendorPage() {
                                 <div className="space-y-2"><ZoruLabel>Name as Per PAN</ZoruLabel><ZoruInput name="panName" maxLength={100} className="h-10 rounded-lg border-border bg-card text-[13px]" /></div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2"><ZoruLabel>Vendor Type</ZoruLabel><ZoruRadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="individual" id="type-individual" /><ZoruLabel htmlFor="type-individual" className="font-normal">Individual</ZoruLabel></div><div className="flex items-center space-x-2"><ZoruRadioGroupItem value="company" id="type-company" /><ZoruLabel htmlFor="type-company" className="font-normal">Company</ZoruLabel></div></ZoruRadioGroup></div>
-                                    <div className="space-y-2"><ZoruLabel>Tax Treatment</ZoruLabel><ZoruSelect name="taxTreatment"><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="registered">Registered</ZoruSelectItem><ZoruSelectItem value="unregistered">Unregistered</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
+                                    <div className="space-y-2"><ZoruLabel>Tax Treatment</ZoruLabel><EnumFormField enumName="taxTreatment" name="taxTreatment" placeholder="Select..." /></div>
                                 </div>
                             </ZoruAccordionContent>
                         </ZoruAccordionItem>
@@ -312,20 +312,13 @@ export default function NewVendorPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <ZoruLabel htmlFor="msmeCategory">MSME Category</ZoruLabel>
-                                        <ZoruSelect
+                                        <EnumFormField
+                                            enumName="msmeCategory"
                                             name="msmeCategory"
-                                            defaultValue={(vendor as any)?.msmeCategory ?? ''}
+                                            initialId={(vendor as any)?.msmeCategory ?? ''}
+                                            placeholder="Select category"
                                             disabled={!isMsme}
-                                        >
-                                            <ZoruSelectTrigger>
-                                                <ZoruSelectValue placeholder="Select category" />
-                                            </ZoruSelectTrigger>
-                                            <ZoruSelectContent>
-                                                <ZoruSelectItem value="Micro">Micro</ZoruSelectItem>
-                                                <ZoruSelectItem value="Small">Small</ZoruSelectItem>
-                                                <ZoruSelectItem value="Medium">Medium</ZoruSelectItem>
-                                            </ZoruSelectContent>
-                                        </ZoruSelect>
+                                        />
                                     </div>
                                 </div>
                                 <div className="space-y-2">

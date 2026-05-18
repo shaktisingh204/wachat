@@ -2,13 +2,11 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
 import {
-    Gavel,
   PlusCircle,
   CheckCircle2,
   AlertTriangle,
   Scale,
   } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
 
 /**
  * Disciplinary case detail page.
@@ -19,9 +17,8 @@ import { ArrowLeft } from 'lucide-react';
  * when the case is not found.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import type { EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
@@ -55,6 +52,14 @@ const STATUS_VARIANT: Record<string, StatusVariant> = {
     resolved: 'success',
     dismissed: 'ghost',
     appealed: 'warning',
+};
+
+const STATUS_TONE: Record<string, EntityStatusTone> = {
+    open: 'amber',
+    under_review: 'neutral',
+    resolved: 'green',
+    dismissed: 'neutral',
+    appealed: 'amber',
 };
 
 export default async function DisciplinaryCaseDetailPage({
@@ -101,24 +106,18 @@ export default async function DisciplinaryCaseDetailPage({
     const statusVariant: StatusVariant = STATUS_VARIANT[status.toLowerCase()] ?? 'ghost';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Case #${shortId}`}
-                subtitle="Disciplinary case detail"
-                icon={Gavel}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Link href="/dashboard/hrm/hr/disciplinary">
-                            <ZoruButton variant="outline">
-                                <ArrowLeft className="h-4 w-4" />
-                                Back
-                            </ZoruButton>
-                        </Link>
-                        <ZoruButton variant="outline" disabled>
-                            <PlusCircle className="h-4 w-4" />
-                            Add Hearing
-                        </ZoruButton>
-                        <HrActionButtons
+        <EntityDetailShell
+            eyebrow="DISCIPLINARY CASE"
+            title={`Case #${shortId}`}
+            status={status ? { label: status.replace('_', ' '), tone: STATUS_TONE[status.toLowerCase()] ?? 'neutral' } : undefined}
+            back={{ href: '/dashboard/hrm/hr/disciplinary', label: 'Disciplinary cases' }}
+            actions={
+                <>
+                    <ZoruButton variant="outline" disabled>
+                        <PlusCircle className="h-4 w-4" />
+                        Add Hearing
+                    </ZoruButton>
+                    <HrActionButtons
                             actions={[
                                 {
                                     key: 'close',
@@ -170,9 +169,9 @@ export default async function DisciplinaryCaseDetailPage({
                                 },
                             ]}
                         />
-                    </div>
-                }
-            />
+                </>
+            }
+        >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">Case Details</div>
@@ -349,6 +348,6 @@ export default async function DisciplinaryCaseDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

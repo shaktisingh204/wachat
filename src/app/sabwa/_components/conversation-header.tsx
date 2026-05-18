@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -29,8 +31,6 @@ import {
  *
  * On mobile, exposes an optional back button to return to the chat list.
  */
-
-'use client';
 
 import * as React from 'react';
 

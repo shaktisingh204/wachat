@@ -10,11 +10,6 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -40,6 +35,7 @@ import Link from 'next/link';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
     deletePayout,
@@ -51,13 +47,6 @@ import type {
 } from '@/lib/rust-client/crm-payouts';
 
 const BASE = '/dashboard/crm/purchases/payouts';
-
-const STATUS_OPTIONS: Array<{ value: CrmPayoutStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'sent', label: 'Sent' },
-    { value: 'cleared', label: 'Cleared' },
-    { value: 'failed', label: 'Failed' },
-];
 
 const STATUS_TONE: Record<CrmPayoutStatus, StatusTone> = {
     sent: 'blue',
@@ -160,23 +149,14 @@ export function PayoutsListPage() {
                         placeholder: 'Search payouts…',
                     }}
                     filters={
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="payoutStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmPayoutStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="All statuses"
+                        />
                     }
                     loading={isLoading && payouts.length === 0}
                 >

@@ -3,11 +3,6 @@
 import {
   ZoruButton,
   ZoruInput,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -17,8 +12,7 @@ import {
 } from '@/components/zoruui';
 import {
   Eye,
-  LoaderCircle,
-  Receipt } from 'lucide-react';
+  LoaderCircle } from 'lucide-react';
 
 /**
  * Payslips — list page (Rust-backed).
@@ -29,9 +23,9 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import { getPayslipsList } from '@/app/actions/crm-payslips.actions';
 import type {
@@ -40,17 +34,6 @@ import type {
 } from '@/lib/rust-client/crm-payslips';
 
 const BASE = '/dashboard/hrm/payroll/payslips';
-
-const STATUS_OPTIONS: ReadonlyArray<{
-    value: CrmPayslipStatus | 'all';
-    label: string;
-}> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'issued', label: 'Issued' },
-    { value: 'paid', label: 'Paid' },
-    { value: 'archived', label: 'Archived' },
-];
 
 const STATUS_TONE: Record<CrmPayslipStatus, StatusTone> = {
     draft: 'amber',
@@ -114,19 +97,9 @@ export default function PayslipsListPage() {
     }, [refresh]);
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Payroll', href: '/dashboard/hrm/payroll' },
-                    { label: 'Payslips' },
-                ]}
+        <EntityListShell
                 title="Payslips"
                 subtitle="Issued payslips by employee and pay period."
-                icon={Receipt}
-            />
-
-            <EntityListShell
-                title=""
                 search={{
                     value: search,
                     onChange: setSearch,
@@ -134,23 +107,14 @@ export default function PayslipsListPage() {
                 }}
                 filters={
                     <>
-                        <ZoruSelect
+                        <EnumFilterField
+                            enumName="payslipStatus"
                             value={statusFilter}
-                            onValueChange={(v) =>
+                            onChange={(v) =>
                                 setStatusFilter(v as CrmPayslipStatus | 'all')
                             }
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
+                            placeholder="All statuses"
+                        />
                         <ZoruInput
                             type="month"
                             className="h-9 w-[160px]"
@@ -228,7 +192,6 @@ export default function PayslipsListPage() {
                         </ZoruTableBody>
                     </ZoruTable>
                 </div>
-            </EntityListShell>
-        </div>
+        </EntityListShell>
     );
 }

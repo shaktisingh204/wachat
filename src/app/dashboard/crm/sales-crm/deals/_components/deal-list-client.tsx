@@ -4,13 +4,9 @@ import {
   ZoruCard,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
 /**
  * <DealListClient> — canonical Deals list view per CRM_REBUILD_PLAN §1D.
  *
@@ -58,13 +54,6 @@ interface DealListClientProps {
   currentUserId?: string | null;
   error?: string;
 }
-
-const STATUS_OPTIONS = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'open', label: 'Open' },
-  { value: 'won', label: 'Won' },
-  { value: 'lost', label: 'Lost' },
-];
 
 const DENSITY_KEY = 'crm.deals.density';
 
@@ -440,18 +429,12 @@ export function DealListClient({
             </div>
             <div className="space-y-1">
               <ZoruLabel>Status</ZoruLabel>
-              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {STATUS_OPTIONS.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
+              <EnumFilterField
+                enumName="dealStatus"
+                value={statusFilter}
+                onChange={setStatusFilter}
+                allLabel="All statuses"
+              />
             </div>
             <div className="space-y-1">
               <ZoruLabel>Expected close — from</ZoruLabel>

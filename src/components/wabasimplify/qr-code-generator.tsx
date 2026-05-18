@@ -1,3 +1,5 @@
+'use client';
+
 import {
   ZoruCard,
   ZoruCardContent,
@@ -51,8 +53,6 @@ import type { User,
   Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox'; // Assuming this exists from previous file
 import { cn } from '@/lib/utils';
-
-'use client';
 
 import { downloadQrCode, filterPhoneLikeInput, normalizeQrWebsiteUrl, QR_FIELD_LIMITS } from '@/lib/qr-utils';
 

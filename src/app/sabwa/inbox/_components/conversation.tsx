@@ -1,3 +1,5 @@
+'use client';
+
 import { ZoruButton } from '@/components/zoruui';
 import {
   ChevronDown,
@@ -17,8 +19,6 @@ import { v4 as uuidv4 } from 'uuid';
  *   - optimistic-send wiring with temp ids
  *   - reply context + per-message context-menu actions
  */
-
-'use client';
 
 import * as React from 'react';
 
