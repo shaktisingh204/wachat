@@ -1,0 +1,43 @@
+# Composite action: shared setup for the SabFlow Rust node CI matrix
+# (C.2.9 — Rust node CI matrix + n8n parity gate).
+#
+# Centralises:
+#   - Rust toolchain install (stable, with optional components)
+#   - Deterministic cargo registry / git / target cache keyed off `rust/Cargo.lock`
+#
+# Reused by every job in `.github/workflows/sabflow-rust.yml` so the lint,
+# unit, and parity jobs stay in lockstep and the cache key is computed
+# from a single source of truth.
+
+name: "SabFlow Rust Setup"
+description: "Install the stable Rust toolchain and restore cargo + target caches for the sabflow-nodes / sabflow-node-derive crates."
+
+inputs:
+  components:
+    description: "Comma-separated rustup components to install (e.g. 'rustfmt,clippy'). Empty by default."
+    required: false
+    default: ""
+  cache-key-suffix:
+    description: "Optional suffix appended to the cache key — lets each job (lint/unit/parity) own its own slice without colliding."
+    required: false
+    default: "shared"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install Rust toolchain (stable)
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: ${{ inputs.components }}
+
+    - name: Restore cargo + target cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          rust/target
+        key: sabflow-rust-${{ runner.os }}-${{ inputs.cache-key-suffix }}-${{ hashFiles('rust/Cargo.lock') }}
+        restore-keys: |
+          sabflow-rust-${{ runner.os }}-${{ inputs.cache-key-suffix }}-
+          sabflow-rust-${{ runner.os }}-

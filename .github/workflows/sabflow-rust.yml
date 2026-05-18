@@ -1,0 +1,199 @@
+# sabflow-rust — Rust node CI matrix + n8n parity gate
+#
+# Phase C.2 sub-task #9 of PLAN-sabflow-coverage.md.
+#
+# Gates every PR that touches the SabFlow Rust node implementations or the
+# n8n parity bench. Three jobs run in parallel after the shared setup:
+#
+#   1. lint    — `cargo fmt --check` + `cargo clippy -D warnings` over
+#                `sabflow-nodes` and `sabflow-node-derive`.
+#   2. unit    — `cargo test -p sabflow-nodes -p sabflow-node-derive`.
+#   3. parity  — boots the n8n service from
+#                `benches/sabflow-node-parity/docker-compose.yml` and runs
+#                `node runner.mjs --all`. Fails if ANY fixture diff is
+#                non-empty.
+#
+# REQUIRED FOR MERGE: the `parity` job is the source-of-truth parity gate
+# against upstream n8n behaviour. Repo admins MUST mark
+# `sabflow-rust / parity` as a required status check in the
+# `main` branch-protection rule. Lint + unit are also required.
+#
+# Path filters keep this workflow scoped to the SabFlow Rust surface so
+# unrelated PRs don't pay the CI cost. The sister workflow
+# `sabflow-inventory.yml` (sibling C.1.9) is intentionally NOT modified
+# here — it owns the inventory side of the gate.
+
+name: sabflow-rust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "rust/crates/sabflow-nodes/**"
+      - "rust/crates/sabflow-node-derive/**"
+      - "benches/sabflow-node-parity/**"
+      - "rust/Cargo.toml"
+      - "rust/Cargo.lock"
+      - ".github/workflows/sabflow-rust.yml"
+      - ".github/actions/sabflow-rust-setup/**"
+  pull_request:
+    paths:
+      - "rust/crates/sabflow-nodes/**"
+      - "rust/crates/sabflow-node-derive/**"
+      - "benches/sabflow-node-parity/**"
+      - "rust/Cargo.toml"
+      - "rust/Cargo.lock"
+      - ".github/workflows/sabflow-rust.yml"
+      - ".github/actions/sabflow-rust-setup/**"
+
+# Cancel superseded runs on the same ref so PR pushes don't pile up.
+concurrency:
+  group: sabflow-rust-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: "-D warnings"
+
+jobs:
+  lint:
+    name: fmt + clippy (sabflow-nodes / sabflow-node-derive)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust + cache
+        uses: ./.github/actions/sabflow-rust-setup
+        with:
+          components: rustfmt,clippy
+          cache-key-suffix: lint
+
+      - name: cargo fmt --check (sabflow-nodes)
+        working-directory: rust
+        run: cargo fmt -p sabflow-nodes -p sabflow-node-derive --check
+
+      - name: cargo clippy (sabflow-nodes)
+        working-directory: rust
+        run: |
+          cargo clippy \
+            -p sabflow-nodes \
+            -p sabflow-node-derive \
+            --all-targets \
+            -- -D warnings
+
+  unit:
+    name: cargo test (sabflow-nodes / sabflow-node-derive)
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust + cache
+        uses: ./.github/actions/sabflow-rust-setup
+        with:
+          cache-key-suffix: unit
+
+      - name: cargo test
+        working-directory: rust
+        run: |
+          cargo test \
+            -p sabflow-nodes \
+            -p sabflow-node-derive \
+            --no-fail-fast
+
+  parity:
+    # REQUIRED FOR MERGE — repo admin must mark this check required in
+    # branch protection. Compares every Rust node descriptor + execution
+    # output against the upstream n8n reference for the fixture set in
+    # `benches/sabflow-node-parity/fixtures/`.
+    name: n8n parity gate (REQUIRED)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust + cache
+        uses: ./.github/actions/sabflow-rust-setup
+        with:
+          cache-key-suffix: parity
+
+      - name: Setup Node.js (for parity runner)
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Boot n8n service (docker compose)
+        working-directory: benches/sabflow-node-parity
+        run: |
+          docker compose -f docker-compose.yml up -d
+          # Give n8n a beat to come up. The runner additionally polls /healthz
+          # before issuing its first request, so this is a coarse warm-up only.
+          for i in $(seq 1 60); do
+            if curl -fsS http://localhost:5678/healthz >/dev/null 2>&1; then
+              echo "n8n is up after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::n8n service failed to become healthy within 60s"
+          docker compose -f docker-compose.yml logs
+          exit 1
+
+      - name: Install parity-runner deps
+        working-directory: benches/sabflow-node-parity
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build sabflow-nodes (release, used by runner)
+        working-directory: rust
+        run: cargo build -p sabflow-nodes --release
+
+      - name: Run parity runner (all fixtures)
+        id: parity
+        working-directory: benches/sabflow-node-parity
+        run: |
+          set -o pipefail
+          node runner.mjs --all --diff-format=unified --unified=3 \
+            2>&1 | tee parity-output.log
+
+      - name: Show actionable diff on failure
+        if: failure() && steps.parity.outcome == 'failure'
+        working-directory: benches/sabflow-node-parity
+        run: |
+          echo "::group::Parity diff (unified=3)"
+          # The runner writes per-fixture diffs to ./diffs/*.diff when any
+          # fixture deviates. Surface them as a single unified blob so the
+          # PR comment is immediately actionable.
+          if [ -d diffs ] && [ -n "$(ls -A diffs 2>/dev/null)" ]; then
+            for f in diffs/*.diff; do
+              echo "::error file=${f}::Parity drift detected in $(basename "$f" .diff)"
+              echo "--- ${f} ---"
+              cat "$f"
+              echo
+            done
+          else
+            echo "(no per-fixture diff files emitted; see parity-output.log)"
+            tail -n 200 parity-output.log || true
+          fi
+          echo "::endgroup::"
+
+      - name: Upload parity artefacts on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sabflow-parity-diffs-${{ github.run_id }}
+          path: |
+            benches/sabflow-node-parity/diffs/
+            benches/sabflow-node-parity/parity-output.log
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Tear down n8n service
+        if: always()
+        working-directory: benches/sabflow-node-parity
+        run: docker compose -f docker-compose.yml down -v
