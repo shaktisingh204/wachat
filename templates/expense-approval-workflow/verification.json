@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "expense-approval-workflow",
+  "cases": [
+    {
+      "id": "small-expense",
+      "description": "Small expense triggers auto-approval branch.",
+      "triggerPayload": { "amount": 42, "submitterSlackId": "U001", "managerEmail": "mgr@example.com" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

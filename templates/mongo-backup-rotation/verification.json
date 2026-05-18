@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mongo-backup-rotation",
+  "cases": [
+    {
+      "id": "nightly",
+      "description": "Nightly cron runs dump + upload + rotate + slack notify.",
+      "triggerPayload": { "tick": "2026-05-19T03:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

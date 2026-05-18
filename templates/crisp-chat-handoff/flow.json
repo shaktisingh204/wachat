@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_crisp",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "crisp.bot.failed",
+    "options": {
+      "path": "/webhooks/crisp-chat-handoff",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Crisp-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Crisp Bot Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crisp-chat-handoff",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "crisp-chat-handoff"
+    },
+    {
+      "id": "n_count",
+      "name": "Count Recent Failures",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "aggregate",
+        "collection": "crisp_failures",
+        "query": "[{\"$match\": {\"sessionId\": \"={{ $json.sessionId }}\"}}, {\"$count\": \"total\"}]"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_check",
+      "name": "Three or More?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.total }}", "operation": "largerEqual", "value2": 3 }]
+        }
+      }
+    },
+    {
+      "id": "n_assign",
+      "name": "Assign to Live Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -180],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.crisp.chat/v1/website/{{ $vars.CRISP_WEBSITE_ID }}/conversation/{{ $node['Crisp Bot Failed'].json.sessionId }}/routing",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "crispApi",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "operator", "value": "{{ $vars.DEFAULT_OPERATOR }}" }] }
+      },
+      "credentials": { "crispApi": { "id": "crisp-cred", "name": "Crisp" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #live-support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -60],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#live-support",
+        "text": "=Handoff: visitor {{ $node['Crisp Bot Failed'].json.email }} hit 3 bot failures."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "Tag in HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [720, 60],
+      "parameters": {
+        "resource": "contact",
+        "operation": "update",
+        "email": "={{ $node['Crisp Bot Failed'].json.email }}",
+        "additionalFields": { "lifecyclestage": "needs_human" }
+      },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot" } }
+    },
+    {
+      "id": "n_eta_email",
+      "name": "ETA Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 180],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "support@example.com",
+        "toEmail": "={{ $node['Crisp Bot Failed'].json.email }}",
+        "subject": "A human is on the way",
+        "content": "Sorry our bot kept missing — an agent will reply within 5 minutes."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Below Threshold",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 320],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_count", "type": "main", "index": 0 }]] },
+    "n_count": { "main": [[{ "node": "n_check", "type": "main", "index": 0 }]] },
+    "n_check": {
+      "true": [[
+        { "node": "n_assign", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_hubspot", "type": "main", "index": 0 },
+        { "node": "n_eta_email", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_count", "n_check", "n_assign", "n_slack", "n_hubspot", "n_eta_email", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_site", "name": "CRISP_WEBSITE_ID", "defaultValue": "" },
+    { "id": "v_op", "name": "DEFAULT_OPERATOR", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

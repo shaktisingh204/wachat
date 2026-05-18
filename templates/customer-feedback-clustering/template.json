@@ -1,0 +1,10 @@
+{
+  "id": "customer-feedback-clustering",
+  "name": "Customer Feedback Clustering",
+  "description": "Weekly job that pulls the last 7 days of customer feedback from Mongo, embeds each entry via OpenAI, and clusters them into five themes. Each theme is written as a row to Airtable for product, and a one-paragraph digest is posted to Slack #voc so leadership sees themes without reading raw quotes.",
+  "category": "Support",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["feedback", "embeddings", "openai", "airtable", "slack", "voc"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "salesforce-deal-loss-analyzer",
+  "cases": [
+    {
+      "id": "lost-deal",
+      "description": "Closed Lost opportunity triggers analysis fan-out.",
+      "triggerPayload": { "Id": "0061x000003ABcD", "Name": "Acme Q3 Expansion", "OwnerId": "0051x000001AAA", "StageName": "Closed Lost" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

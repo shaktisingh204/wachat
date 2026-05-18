@@ -1,0 +1,10 @@
+{
+  "id": "recurly-revenue-recognition",
+  "name": "Recurly Revenue Recognition",
+  "description": "Runs on the first of each month, pulls the prior month's Recurly invoices, applies ASC 606 revenue recognition math, and writes the journal entries into QuickBooks. The same numbers are mirrored to Airtable and a PDF report is emailed to the CFO so accounting always has a paper trail.",
+  "category": "Finance",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["recurly", "quickbooks", "airtable", "sendgrid", "finance", "revrec"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "linkedin-lead-scraper",
+  "name": "LinkedIn Lead Scraper",
+  "description": "Catches LinkedIn profiles posted by a browser extension, enriches each one through Clearbit, and only routes ICP-match leads into the sales stack. Strong fits fan out to HubSpot, Salesforce, and #sdr; non-matches drop into an Airtable cold list for later nurturing.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["linkedin", "clearbit", "hubspot", "salesforce", "slack", "airtable"],
+  "version": "0.1.0"
+}

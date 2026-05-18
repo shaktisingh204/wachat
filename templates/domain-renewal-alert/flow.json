@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] } }
+    },
+    {
+      "id": "n_list",
+      "name": "List Domains",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.REGISTRAR_API_URL }}/domains",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "registrar-cred", "name": "Registrar API" } }
+    },
+    {
+      "id": "n_filter",
+      "name": "Filter < 30 Days",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const cutoff = Date.now() + 30 * 86400000; return items.filter(i => new Date(i.json.expiresAt).getTime() < cutoff);"
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #domains",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#domains",
+        "text": "=Domains expiring soon: {{ $json.name }} ({{ $json.expiresAt }})"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Mirror to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "operation": "upsert", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "domains_expiring" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list", "n_filter", "n_slack", "n_airtable"]
+    }
+  ],
+  "variables": [
+    { "id": "v_api", "name": "REGISTRAR_API_URL", "defaultValue": "https://api.registrar.example.com" },
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

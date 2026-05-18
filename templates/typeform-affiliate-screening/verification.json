@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "typeform-affiliate-screening",
+  "cases": [
+    {
+      "id": "applicant",
+      "description": "Affiliate applicant is enriched, scored, and routed via switch buckets.",
+      "triggerPayload": {
+        "form_response": {
+          "answers": [{ "email": "applicant@example.com", "type": "email" }]
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

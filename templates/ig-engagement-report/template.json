@@ -1,0 +1,10 @@
+{
+  "id": "ig-engagement-report",
+  "name": "Instagram Engagement Report",
+  "description": "Weekly job that pulls reach, engagement, and saves from the Instagram Graph API, rolls them up into a weekly summary, and posts a short digest to Slack #social. A polished PDF report is emailed to the CMO via SendGrid for the weekly marketing review.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["instagram", "graph-api", "slack", "sendgrid", "ads", "report"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "github-security-alert-triage",
+  "name": "GitHub Security Alert Triage",
+  "description": "Listens for GitHub secret-scanning alerts, fetches the full alert payload, and routes by severity. High severity pages on-call via PagerDuty and pings Slack #security; medium severity just lights up #security; low severity goes straight to the Linear backlog.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["github", "security", "pagerduty", "slack", "linear", "triage"],
+  "version": "0.1.0"
+}

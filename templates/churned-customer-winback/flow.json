@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 10 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 10:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 10 * * *" }] } }
+    },
+    {
+      "id": "n_stripe_search",
+      "name": "Search Cancelled Subs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.stripe.com/v1/subscriptions",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "status", "value": "canceled" },
+            { "name": "created[gte]", "value": "={{ Math.floor(Date.now()/1000) - 30*86400 }}" }
+          ]
+        }
+      },
+      "credentials": { "stripeApi": { "id": "stripe-cred", "name": "Stripe" } }
+    },
+    {
+      "id": "n_klaviyo_campaign",
+      "name": "Create Klaviyo Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://a.klaviyo.com/api/campaigns",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "klaviyoApi",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "name", "value": "=Winback {{ $now.format('yyyy-MM-dd') }}" }] }
+      },
+      "credentials": { "klaviyoApi": { "id": "klaviyo-cred", "name": "Klaviyo" } }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Customer",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_send_email",
+      "name": "Winback Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "love@example.com",
+        "toEmail": "={{ $json.customer.email }}",
+        "subject": "We miss you — 30% off if you come back",
+        "content": "Here's WELCOMEBACK30 — valid for 14 days."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Log Sent",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "operation": "insert", "collection": "winback_log", "fields": "customerId,sentAt" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_summary",
+      "name": "Slack Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#marketing-ops",
+        "text": "Daily winback campaign sent."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_stripe_search", "type": "main", "index": 0 }]] },
+    "n_stripe_search": { "main": [[{ "node": "n_klaviyo_campaign", "type": "main", "index": 0 }]] },
+    "n_klaviyo_campaign": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_send_email", "type": "main", "index": 0 }]] },
+    "n_send_email": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] },
+    "n_log": { "main": [[{ "node": "n_summary", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_stripe_search", "n_klaviyo_campaign", "n_split", "n_send_email", "n_log", "n_summary"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

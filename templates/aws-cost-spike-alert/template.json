@@ -1,0 +1,10 @@
+{
+  "id": "aws-cost-spike-alert",
+  "name": "AWS Cost Spike Alert",
+  "description": "Daily check that pulls yesterday's AWS Cost Explorer numbers, compares them with the trailing 7-day average, and raises an alert if spend jumped more than 1.5x. The flow pings Slack #aws-spend and emails the CFO so unexpected bills don't sneak through.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["aws", "cost-explorer", "slack", "sendgrid", "finops", "alert"],
+  "version": "0.1.0"
+}

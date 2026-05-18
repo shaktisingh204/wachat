@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_first_of_month",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 1 * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "1st @ 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 1 * *" }] } }
+    },
+    {
+      "id": "n_tb",
+      "name": "Fetch Trial Balance",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "report", "operation": "trialBalance" },
+      "credentials": { "quickBooksOAuth2Api": { "id": "qb-cred", "name": "QuickBooks" } }
+    },
+    {
+      "id": "n_variance",
+      "name": "Variance Check",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const rows = $input.first().json.Rows?.Row || []; const variance = rows.some(r => Math.abs(Number(r.ColData?.[1]?.value ?? 0) - Number(r.ColData?.[2]?.value ?? 0)) > 1000); return [{ json: { variance } }];"
+      }
+    },
+    {
+      "id": "n_if",
+      "name": "Variance > threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": { "boolean": [{ "value1": "={{ $json.variance }}", "value2": true }] }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack #finance-close (alert)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#finance-close",
+        "text": "Variance detected in trial balance."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_email",
+      "name": "Email Controller",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "finance@example.com",
+        "toEmail": "controller@example.com",
+        "subject": "Variance in monthly close",
+        "content": "Please review."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_slack_ok",
+      "name": "Slack #finance-close (ok)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 200],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#finance-close",
+        "text": "Monthly close looks clean."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_tb", "type": "main", "index": 0 }]] },
+    "n_tb": { "main": [[{ "node": "n_variance", "type": "main", "index": 0 }]] },
+    "n_variance": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[
+        { "node": "n_slack_alert", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_slack_ok", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_tb", "n_variance", "n_if", "n_slack_alert", "n_email", "n_slack_ok"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "zendesk-knowledge-base-suggester",
+  "cases": [
+    {
+      "id": "solved",
+      "description": "Solved ticket triggers KB lookup and conditional gap report.",
+      "triggerPayload": { "ticket": { "id": 101 } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

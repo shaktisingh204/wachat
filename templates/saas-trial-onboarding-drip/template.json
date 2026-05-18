@@ -1,0 +1,10 @@
+{
+  "id": "saas-trial-onboarding-drip",
+  "name": "SaaS Trial Onboarding Drip",
+  "description": "Fires whenever Stripe signals a new trial subscription, extracts the customer details, and runs a paced day-1, day-4, day-7 email drip with onboarding tips and feature highlights. Each send is logged in Mongo so reps can see exactly where each trialer is in the journey.",
+  "category": "Onboarding",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "trial", "onboarding", "drip", "sendgrid", "mongo"],
+  "version": "0.1.0"
+}

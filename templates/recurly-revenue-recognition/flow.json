@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_first_of_month",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 2 1 * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "1st @ 02:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 2 1 * *" }] } }
+    },
+    {
+      "id": "n_recurly",
+      "name": "Pull Recurly Invoices",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "https://v3.recurly.com/invoices",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "recurlyApi"
+      },
+      "credentials": { "recurlyApi": { "id": "recurly-cred", "name": "Recurly" } }
+    },
+    {
+      "id": "n_revrec",
+      "name": "Rev-Rec Calc",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const invs = $input.first().json.data || []; const journals = invs.map(inv => ({ id: inv.id, amount: inv.total, recognizedThisMonth: inv.total / (inv.term_months || 1) })); return [{ json: { journals } }];"
+      }
+    },
+    {
+      "id": "n_qb",
+      "name": "QuickBooks Journal Entry",
+      "type": "n8n-nodes-base.quickBooks",
+      "typeVersion": 1,
+      "position": [720, -200],
+      "parameters": { "resource": "journalEntry", "operation": "create" },
+      "credentials": { "quickBooksOAuth2Api": { "id": "qb-cred", "name": "QuickBooks" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Mirror to Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "revrec_monthly" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_pdf",
+      "name": "Render PDF Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 200],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PDF_RENDER_URL }}",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "html", "value": "<h1>Rev rec</h1>" }] }
+      }
+    },
+    {
+      "id": "n_email_cfo",
+      "name": "Email CFO",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 200],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "finance@example.com",
+        "toEmail": "cfo@example.com",
+        "subject": "Monthly Rev-Rec Report",
+        "content": "Attached."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_recurly", "type": "main", "index": 0 }]] },
+    "n_recurly": { "main": [[{ "node": "n_revrec", "type": "main", "index": 0 }]] },
+    "n_revrec": {
+      "main": [[
+        { "node": "n_qb", "type": "main", "index": 0 },
+        { "node": "n_airtable", "type": "main", "index": 0 },
+        { "node": "n_pdf", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_pdf": { "main": [[{ "node": "n_email_cfo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_recurly", "n_revrec", "n_qb", "n_airtable", "n_pdf", "n_email_cfo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" },
+    { "id": "v_pdf", "name": "PDF_RENDER_URL", "defaultValue": "https://pdf.example.com/render" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

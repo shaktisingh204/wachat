@@ -1,0 +1,10 @@
+{
+  "id": "clinic-no-show-followup",
+  "name": "Clinic No-Show Follow-Up",
+  "description": "Fires when the EMR marks an appointment as no-show, waits two hours, then sends the patient both a Twilio SMS and a SendGrid email with a reschedule link. If the patient hasn't replied after three days the flow flags the record in Mongo for staff outreach so nobody slips through the cracks.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["emr", "twilio", "sendgrid", "mongo", "no-show", "reschedule"],
+  "version": "0.1.0"
+}

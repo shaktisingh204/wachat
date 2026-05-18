@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mailchimp-vip-segmentation",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Daily cron walks contacts and tags VIPs.",
+      "triggerPayload": { "tick": "2026-05-19T04:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

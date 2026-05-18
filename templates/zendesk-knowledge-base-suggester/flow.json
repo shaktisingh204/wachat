@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_zd",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "zendesk.ticket.solved",
+    "options": {
+      "path": "/webhooks/zendesk-knowledge-base-suggester",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Zendesk-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Zendesk Solved",
+      "type": "n8n-nodes-base.zendeskTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "events": ["ticket.solved"] },
+      "credentials": { "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk" } }
+    },
+    {
+      "id": "n_embed",
+      "name": "Embed Resolution",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": { "resource": "embedding", "operation": "create", "model": "text-embedding-3-small" },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_pinecone",
+      "name": "Pinecone Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.PINECONE_URL }}/query",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "pineconeApi"
+      },
+      "credentials": { "pineconeApi": { "id": "pinecone-cred", "name": "Pinecone" } }
+    },
+    {
+      "id": "n_if",
+      "name": "No Similar Article?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.matches?.[0]?.score ?? 0 }}", "operation": "smaller", "value2": "={{ $vars.SIMILARITY_THRESHOLD }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear Backlog Ticket",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.linear.app/graphql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "linearApi"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #cx-ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#cx-ops",
+        "text": "New KB gap detected from solved ticket."
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "KB Exists",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 260],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_embed", "type": "main", "index": 0 }]] },
+    "n_embed": { "main": [[{ "node": "n_pinecone", "type": "main", "index": 0 }]] },
+    "n_pinecone": { "main": [[{ "node": "n_if", "type": "main", "index": 0 }]] },
+    "n_if": {
+      "true": [[
+        { "node": "n_linear", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_embed", "n_pinecone", "n_if", "n_linear", "n_slack", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pc", "name": "PINECONE_URL", "defaultValue": "https://example.svc.pinecone.io" },
+    { "id": "v_t", "name": "SIMILARITY_THRESHOLD", "defaultValue": "0.8" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "quickbooks-monthly-close",
+  "cases": [
+    {
+      "id": "monthly",
+      "description": "Monthly cron checks variance and routes accordingly.",
+      "triggerPayload": { "tick": "2026-06-01T06:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekday_9am",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": {
+      "schedule": "0 9 * * 1-5",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Weekdays 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * 1-5" }] }
+      }
+    },
+    {
+      "id": "n_load_roster",
+      "name": "Load Team Roster",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "standup_roster",
+        "query": "{ \"active\": true }"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Mongo Standup" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per Member",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_dm_prompt",
+      "name": "DM Standup Prompt",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $json.slackUserId }}",
+        "text": "Good morning! Reply with: 1) yesterday, 2) today, 3) blockers. We'll roll up at 09:30."
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack Bot" }
+      }
+    },
+    {
+      "id": "n_wait_30m",
+      "name": "Wait 30 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "amount": 30, "unit": "minutes" }
+    },
+    {
+      "id": "n_pull_history",
+      "name": "Pull DM History",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "channel",
+        "operation": "history",
+        "channelId": "={{ $node['DM Standup Prompt'].json.channel }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack Bot" }
+      }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Replies",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const replies = items.map(i => ({ user: i.json.user, text: i.json.text })); return [{ json: { digest: replies.map(r => `*${r.user}*\\n${r.text}`).join('\\n\\n') } }];"
+      }
+    },
+    {
+      "id": "n_post_digest",
+      "name": "Post Digest to #team-standup",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1680, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#team-standup",
+        "text": "*Daily Standup Digest*\n\n={{ $json.digest }}"
+      },
+      "credentials": {
+        "slackApi": { "id": "slack-cred", "name": "Slack Bot" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_load_roster", "type": "main", "index": 0 }]] },
+    "n_load_roster": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_dm_prompt", "type": "main", "index": 0 }]] },
+    "n_dm_prompt": { "main": [[{ "node": "n_wait_30m", "type": "main", "index": 0 }]] },
+    "n_wait_30m": { "main": [[{ "node": "n_pull_history", "type": "main", "index": 0 }]] },
+    "n_pull_history": { "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]] },
+    "n_aggregate": { "main": [[{ "node": "n_post_digest", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_load_roster", "n_split", "n_dm_prompt", "n_wait_30m", "n_pull_history", "n_aggregate", "n_post_digest"]
+    }
+  ],
+  "variables": [
+    { "id": "v_channel", "name": "STANDUP_CHANNEL", "defaultValue": "#team-standup" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

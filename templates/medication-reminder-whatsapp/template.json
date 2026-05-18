@@ -1,0 +1,10 @@
+{
+  "id": "medication-reminder-whatsapp",
+  "name": "Medication Reminder WhatsApp",
+  "description": "Runs every morning at 08:00, finds the patients with active prescriptions due today in Mongo, and pings each one via a WhatsApp template message. After each send the prescription doc is stamped with lastReminded so adherence reports show who got their nudge and when.",
+  "category": "WhatsApp",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["whatsapp", "mongo", "health", "reminder", "adherence", "schedule"],
+  "version": "0.1.0"
+}

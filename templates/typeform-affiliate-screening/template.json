@@ -1,0 +1,10 @@
+{
+  "id": "typeform-affiliate-screening",
+  "name": "Typeform Affiliate Screening",
+  "description": "Catches Typeform affiliate applications, enriches each applicant via Clearbit, then asks GPT-4o to score program fit. The switch node routes high-fit candidates to an instant approval email, mid-fit to a manual review queue, and poor-fit to a polite decline — logging the outcome in Airtable for each bucket.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["typeform", "affiliate", "clearbit", "openai", "airtable", "sendgrid"],
+  "version": "0.1.0"
+}

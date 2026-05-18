@@ -1,0 +1,10 @@
+{
+  "id": "cloudflare-traffic-anomaly",
+  "name": "Cloudflare Traffic Anomaly",
+  "description": "Reacts to a Cloudflare traffic-spike webhook by pulling the last hour of analytics, running an anomaly check, and paging on-call only when the spike exceeds baseline. Sends a digest to Slack #infra so engineers can see what's happening even when the alert is below the page threshold.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["cloudflare", "anomaly", "slack", "pagerduty", "ops", "monitoring"],
+  "version": "0.1.0"
+}

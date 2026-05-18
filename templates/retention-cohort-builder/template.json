@@ -1,0 +1,10 @@
+{
+  "id": "retention-cohort-builder",
+  "name": "Retention Cohort Builder",
+  "description": "Weekly job that exports a fresh active-user cohort from Mixpanel, normalizes the export into Mailchimp's required fields, and replaces the audience in place so retention campaigns always target today's actives. Posts a one-line summary to Slack #marketing-ops with cohort size and delta vs last week.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mixpanel", "mailchimp", "cohort", "retention", "slack", "analytics"],
+  "version": "0.1.0"
+}

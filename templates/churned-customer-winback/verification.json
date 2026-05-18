@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "churned-customer-winback",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Daily cron drives winback campaign creation and send.",
+      "triggerPayload": { "tick": "2026-05-19T10:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

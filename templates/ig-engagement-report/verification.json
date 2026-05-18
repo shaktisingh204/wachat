@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ig-engagement-report",
+  "cases": [
+    {
+      "id": "weekly",
+      "description": "Weekly cron pulls metrics and emails the CMO.",
+      "triggerPayload": { "tick": "2026-05-18T08:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

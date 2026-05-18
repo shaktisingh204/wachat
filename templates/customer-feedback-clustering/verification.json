@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "customer-feedback-clustering",
+  "cases": [
+    {
+      "id": "weekly",
+      "description": "Weekly cron pulls, embeds, clusters, and reports.",
+      "triggerPayload": { "tick": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
