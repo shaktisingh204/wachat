@@ -27,6 +27,11 @@ pub struct ExecuteFlowInput {
     #[serde(default)]
     pub credentials: HashMap<String, Credential>,
     pub execution_id: String,
+    /// Chain of workflow ids currently executing — used by the
+    /// `ExecuteWorkflow` node for cycle detection.  The outer caller appends
+    /// the workflow it's about to run; the engine forwards it untouched.
+    #[serde(default)]
+    pub caller_stack: Vec<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -71,7 +76,8 @@ impl FlowEngine {
     /// follows in a later phase.
     pub async fn execute(&self, input: ExecuteFlowInput) -> ExecuteFlowOutput {
         let mut ctx = ExecutionContext::new(input.execution_id.clone(), self.http.clone())
-            .with_credentials(input.credentials);
+            .with_credentials(input.credentials)
+            .with_caller_stack(input.caller_stack.clone());
         if let Some(td) = input.trigger_data.clone() {
             ctx = ctx.with_trigger_data(td);
         }
