@@ -107,13 +107,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.3: NoSQL / cache nodes ────────────────────────────────────────
-pub mod elasticsearch;
-pub mod couchbase;
-pub mod dynamo_db;
-pub mod rethink_db;
-pub mod ldap_api;
-pub mod surreal;
+// ── Phase C.4 — data-shaping nodes ─────────────────────────────────────────
+pub mod csv_node;
+pub mod i_calendar;
+pub mod markdown;
+pub mod compare_datasets;
+pub mod rename_keys;
+pub mod item_lists;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -214,13 +214,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.3 — NoSQL / cache (6 nodes)
-    r.register(elasticsearch::ElasticsearchNode);
-    r.register(couchbase::CouchbaseNode);
-    r.register(dynamo_db::DynamoDbNode);
-    r.register(rethink_db::RethinkDbNode);
-    r.register(ldap_api::LdapApiNode);
-    r.register(surreal::SurrealNode);
+    // Phase C.4 — data-shaping nodes
+    r.register(csv_node::CsvNode);
+    r.register(i_calendar::ICalendarNode);
+    r.register(markdown::MarkdownNode);
+    r.register(compare_datasets::CompareDatasetsNode);
+    r.register(rename_keys::RenameKeysNode);
+    r.register(item_lists::ItemListsNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
