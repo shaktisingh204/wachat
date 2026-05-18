@@ -21,6 +21,8 @@ pub use retry::{
 
 pub mod shutdown;
 
+pub mod metrics;
+
 pub fn placeholder() -> &'static str {
     "sabflow-executor-queue: phase 2"
 }
