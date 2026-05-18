@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "hubspot-meeting-no-show",
+  "cases": [
+    {
+      "id": "no-show",
+      "description": "HubSpot reports a no-show, the workflow fans out to reschedule email, Slack, and Airtable.",
+      "triggerPayload": {
+        "meeting": { "id": "m-1", "noShow": true },
+        "contact": { "email": "lead@example.com" },
+        "ae": { "slackId": "U123" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
