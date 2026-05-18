@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function MetaTagGeneratorPage() {
@@ -34,20 +34,20 @@ export default function MetaTagGeneratorPage() {
   return (
     <ToolShell title="Meta Tag Generator" description="Generate meta title, description and Open Graph tags.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>Title</Label><Input value={fields.title} onChange={(e) => update('title', e.target.value)} /></div>
-        <div className="space-y-1"><Label>Author</Label><Input value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
-        <div className="space-y-1 md:col-span-2"><Label>Description</Label><Textarea value={fields.description} onChange={(e) => update('description', e.target.value)} /></div>
-        <div className="space-y-1"><Label>Keywords</Label><Input value={fields.keywords} onChange={(e) => update('keywords', e.target.value)} /></div>
-        <div className="space-y-1"><Label>Robots</Label><Input value={fields.robots} onChange={(e) => update('robots', e.target.value)} /></div>
-        <div className="space-y-1"><Label>OG Title</Label><Input value={fields.ogTitle} onChange={(e) => update('ogTitle', e.target.value)} /></div>
-        <div className="space-y-1"><Label>OG Description</Label><Input value={fields.ogDescription} onChange={(e) => update('ogDescription', e.target.value)} /></div>
-        <div className="space-y-1"><Label>OG Image URL</Label><Input value={fields.ogImage} onChange={(e) => update('ogImage', e.target.value)} /></div>
-        <div className="space-y-1"><Label>OG URL</Label><Input value={fields.ogUrl} onChange={(e) => update('ogUrl', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Title</ZoruLabel><ZoruInput value={fields.title} onChange={(e) => update('title', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Author</ZoruLabel><ZoruInput value={fields.author} onChange={(e) => update('author', e.target.value)} /></div>
+        <div className="space-y-1 md:col-span-2"><ZoruLabel>Description</ZoruLabel><ZoruTextarea value={fields.description} onChange={(e) => update('description', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Keywords</ZoruLabel><ZoruInput value={fields.keywords} onChange={(e) => update('keywords', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Robots</ZoruLabel><ZoruInput value={fields.robots} onChange={(e) => update('robots', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>OG Title</ZoruLabel><ZoruInput value={fields.ogTitle} onChange={(e) => update('ogTitle', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>OG Description</ZoruLabel><ZoruInput value={fields.ogDescription} onChange={(e) => update('ogDescription', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>OG Image URL</ZoruLabel><ZoruInput value={fields.ogImage} onChange={(e) => update('ogImage', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>OG URL</ZoruLabel><ZoruInput value={fields.ogUrl} onChange={(e) => update('ogUrl', e.target.value)} /></div>
       </div>
       <div className="flex items-center gap-2">
-        <Button onClick={() => navigator.clipboard.writeText(output)}>Copy</Button>
+        <ZoruButton onClick={() => navigator.clipboard.writeText(output)}>Copy</ZoruButton>
       </div>
-      <Textarea readOnly value={output} className="min-h-[240px] font-mono text-xs" />
+      <ZoruTextarea readOnly value={output} className="min-h-[240px] font-mono text-xs" />
     </ToolShell>
   );
 }

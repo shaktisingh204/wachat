@@ -166,7 +166,7 @@ function TagsSelector({
                   .map((id) => userTags.find((t) => t._id === id)?.name)
                   .filter(Boolean)
                   .join(', ')
-              : placeholder || 'Select tags...'}
+              : placeholder || 'ZoruSelect tags...'}
           </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-zoru-ink-muted" />
         </button>
@@ -719,7 +719,7 @@ export default function UrlShortenerPage() {
                       type="checkbox"
                       checked={allPageSelected}
                       onChange={toggleSelectPage}
-                      aria-label="Select all on page"
+                      aria-label="ZoruSelect all on page"
                       className="h-3.5 w-3.5 rounded border-zoru-line"
                     />
                   </th>
@@ -756,7 +756,7 @@ export default function UrlShortenerPage() {
                             type="checkbox"
                             checked={selected}
                             onChange={() => toggleSelect(id)}
-                            aria-label="Select link"
+                            aria-label="ZoruSelect link"
                             className="h-3.5 w-3.5 rounded border-zoru-line"
                           />
                         </td>

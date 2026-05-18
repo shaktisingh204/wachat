@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import Link from 'next/link';
 
@@ -18,17 +18,17 @@ export default function EmbeddedSignup({ appId, configId, includeCatalog, state,
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
 
   if (!appUrl) {
-    return <Button disabled size="lg">App URL not configured</Button>;
+    return <ZoruButton disabled size="lg">App URL not configured</ZoruButton>;
   }
 
   const authUrl = `/api/auth/facebook/login?includeCatalog=${includeCatalog}&state=${state}${reauthorize ? '&reauthorize=true' : ''}`;
 
   return (
-    <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+    <ZoruButton asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
       <Link href={authUrl}>
         <WhatsAppIcon className="mr-2 h-5 w-5" />
         {reauthorize ? 'Re-authorize with Facebook' : 'Connect with Facebook'}
       </Link>
-    </Button>
+    </ZoruButton>
   );
 }

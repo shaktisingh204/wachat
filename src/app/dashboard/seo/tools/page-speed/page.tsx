@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function hash(s: string): number { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) | 0; return Math.abs(h); }
@@ -29,20 +29,20 @@ export default function PageSpeedPage() {
 
   return (
     <ToolShell title="Page Speed Insights" description="Core Web Vitals placeholder (plug in Google PSI API for real data).">
-      <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
-        <CardContent className="p-3 text-xs">Production speed data requires the Google PageSpeed Insights API key. Values shown are deterministic placeholders.</CardContent>
-      </Card>
+      <ZoruCard className="border-amber-300 bg-amber-50 dark:bg-amber-950/30">
+        <ZoruCardContent className="p-3 text-xs">Production speed data requires the Google PageSpeed Insights API key. Values shown are deterministic placeholders.</ZoruCardContent>
+      </ZoruCard>
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <Button onClick={run}>Measure</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <ZoruButton onClick={run}>Measure</ZoruButton>
       </div>
       {data && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card><CardContent className="p-4"><div className="text-3xl font-bold">{data.performance}</div><div className="text-xs text-muted-foreground">Performance</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{data.lcp}s</div><div className="text-xs text-muted-foreground">LCP</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{data.fid}ms</div><div className="text-xs text-muted-foreground">FID</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{data.cls}</div><div className="text-xs text-muted-foreground">CLS</div></CardContent></Card>
-          <Card><CardContent className="p-4"><div className="text-2xl font-bold">{data.ttfb}ms</div><div className="text-xs text-muted-foreground">TTFB</div></CardContent></Card>
+          <ZoruCard><ZoruCardContent className="p-4"><div className="text-3xl font-bold">{data.performance}</div><div className="text-xs text-muted-foreground">Performance</div></ZoruCardContent></ZoruCard>
+          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.lcp}s</div><div className="text-xs text-muted-foreground">LCP</div></ZoruCardContent></ZoruCard>
+          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.fid}ms</div><div className="text-xs text-muted-foreground">FID</div></ZoruCardContent></ZoruCard>
+          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.cls}</div><div className="text-xs text-muted-foreground">CLS</div></ZoruCardContent></ZoruCard>
+          <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{data.ttfb}ms</div><div className="text-xs text-muted-foreground">TTFB</div></ZoruCardContent></ZoruCard>
         </div>
       )}
     </ToolShell>

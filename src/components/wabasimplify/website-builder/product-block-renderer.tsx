@@ -3,7 +3,7 @@
 
 import React from 'react';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import type { WithId, EcommProduct } from '@/lib/definitions';
 import { AddToCartButton } from './add-to-cart-button';
@@ -79,7 +79,7 @@ export const ProductAddToCartRenderer: React.FC<ProductBlockProps> = ({ product,
     if (!product) return (
          <div className="flex items-center gap-4">
             <div className="w-24 h-10 border rounded-md"></div>
-            <Button size="lg" className="flex-1">Add to Cart</Button>
+            <ZoruButton size="lg" className="flex-1">Add to Cart</ZoruButton>
         </div>
     );
     return <AddToCartButton product={product} />;

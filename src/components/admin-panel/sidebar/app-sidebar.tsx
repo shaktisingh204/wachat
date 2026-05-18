@@ -4,10 +4,10 @@ import * as React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruCollapsible, ZoruCollapsibleContent, ZoruCollapsibleTrigger } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
+import { ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger } from '@/components/zoruui';
 import {
     ChevronRight,
     Check,
@@ -110,18 +110,18 @@ const NavItem = ({ item, depth = 0 }: { item: MenuItem; depth?: number }) => {
             <span className="flex-1 truncate">{item.label}</span>
 
             {item.new && (
-                <Badge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-foreground text-background border-0">
+                <ZoruBadge className="ml-auto text-[10px] h-4 px-1.5 font-semibold bg-foreground text-background border-0">
                     New
-                </Badge>
+                </ZoruBadge>
             )}
             {item.beta && (
-                <Badge variant="secondary" className="ml-auto text-[10px] h-4 px-1.5">Beta</Badge>
+                <ZoruBadge variant="secondary" className="ml-auto text-[10px] h-4 px-1.5">Beta</ZoruBadge>
             )}
         </Link>
     );
 };
 
-/* ─── Collapsible group item ─────────────────────────────────────────────────── */
+/* ─── ZoruCollapsible group item ─────────────────────────────────────────────────── */
 
 const NavCollapsible = ({ item }: { item: MenuItem }) => {
     const pathname = usePathname();
@@ -130,8 +130,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
     const Icon = item.icon;
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen} className="w-full">
-            <CollapsibleTrigger asChild>
+        <ZoruCollapsible open={open} onOpenChange={setOpen} className="w-full">
+            <ZoruCollapsibleTrigger asChild>
                 <button
                     className={cn(
                         'group flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-sm font-medium transition-colors relative',
@@ -145,8 +145,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                     <span className="flex-1 text-left truncate">{item.label}</span>
                     <ChevronRight className={cn('h-3.5 w-3.5 transition-transform duration-200', open && 'rotate-90')} />
                 </button>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
+            </ZoruCollapsibleTrigger>
+            <ZoruCollapsibleContent>
                 <div className="mt-0.5 ml-3 pl-3 flex flex-col gap-0.5 border-l border-border">
                     {(item.subItems || item.subSubItems || []).map((sub: any, i: number) =>
                         sub.subItems ? (
@@ -156,8 +156,8 @@ const NavCollapsible = ({ item }: { item: MenuItem }) => {
                         )
                     )}
                 </div>
-            </CollapsibleContent>
-        </Collapsible>
+            </ZoruCollapsibleContent>
+        </ZoruCollapsible>
     );
 };
 
@@ -190,26 +190,26 @@ function InlineProjectSwitcher() {
 
     return (
         <div className="px-2 py-2">
-            <DropdownMenu>
-                <DropdownMenuTrigger asChild>
+            <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
                     <button className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors hover:bg-secondary group border border-border bg-card">
                         <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 bg-foreground text-background text-[10px] font-bold">
                             {(activeProject?.name?.[0] || 'P').toUpperCase()}
                         </div>
                         <span className="flex-1 text-left truncate text-foreground">
-                            {activeProject?.name || 'Select project'}
+                            {activeProject?.name || 'ZoruSelect project'}
                         </span>
                         <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent align="start" className="w-56 rounded-lg p-1.5">
                     <div className="px-2 py-1 text-xs uppercase tracking-wider font-semibold text-muted-foreground/70 mb-1">
                         Projects
                     </div>
                     {projects.map((p: any) => {
                         const isSelected = p._id.toString() === activeProject?._id?.toString();
                         return (
-                            <DropdownMenuItem
+                            <ZoruDropdownMenuItem
                                 key={p._id.toString()}
                                 className="flex items-center gap-2.5 px-2 py-2 rounded-md cursor-pointer text-sm"
                                 onClick={() => handleSelect(p._id.toString(), p.name)}
@@ -222,17 +222,17 @@ function InlineProjectSwitcher() {
                                 </div>
                                 <span className="flex-1 truncate font-medium">{p.name}</span>
                                 {isSelected && <Check className="h-3.5 w-3.5 shrink-0 text-foreground" />}
-                            </DropdownMenuItem>
+                            </ZoruDropdownMenuItem>
                         );
                     })}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
+                    <ZoruDropdownMenuSeparator />
+                    <ZoruDropdownMenuItem asChild>
                         <Link href="/dashboard/setup" className="flex items-center gap-2 px-2 py-2 text-xs text-muted-foreground rounded-md">
                             + Add project
                         </Link>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-            </DropdownMenu>
+                    </ZoruDropdownMenuItem>
+                </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
         </div>
     );
 }
@@ -381,11 +381,11 @@ export function AppSidebar({ activeApp, currentUserRole }: AppSidebarProps) {
             {showProjectSwitcher && <InlineProjectSwitcher />}
 
             {/* Menu items */}
-            <ScrollArea className="flex-1">
+            <ZoruScrollArea className="flex-1">
                 <div className="px-2 pb-4 flex flex-col gap-0.5">
                     {renderMenu()}
                 </div>
-            </ScrollArea>
+            </ZoruScrollArea>
         </div>
     );
 }

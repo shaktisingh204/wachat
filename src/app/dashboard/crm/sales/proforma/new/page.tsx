@@ -186,7 +186,7 @@ export default function NewProformaInvoicePage() {
                                         entity="client"
                                         value={selectedClientId || null}
                                         allowCreate
-                                        placeholder="Select client…"
+                                        placeholder="ZoruSelect client…"
                                         onCreateClick={() => {
                                             const ret = encodeURIComponent(pathname);
                                             router.push(`/dashboard/crm/sales/clients/new?return=${ret}`);

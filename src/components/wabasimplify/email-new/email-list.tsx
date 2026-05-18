@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import { ZoruInput } from '@/components/zoruui';
 import { Search, Star, Paperclip } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { mockConversations } from './email-data';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow, isToday, format } from 'date-fns';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Badge } from '@/components/ui/badge';
+import { ZoruBadge } from '@/components/zoruui';
 
 export function EmailList({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();
@@ -69,14 +69,14 @@ export function EmailList({ initialAccountId }: { initialAccountId?: string }) {
             <div className="p-4 border-b">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
+                    <ZoruInput
                         placeholder="Search mail"
                         className="pl-9 bg-muted/50 border-none focus-visible:ring-1 focus-visible:ring-primary focus-visible:bg-muted transition-all"
                     />
                 </div>
             </div>
 
-            <ScrollArea className="flex-1">
+            <ZoruScrollArea className="flex-1">
                 <div className="flex flex-col gap-1 p-2">
                     {filteredConversations.length === 0 ? (
                         <div className="p-8 text-center text-muted-foreground text-sm">
@@ -121,16 +121,16 @@ export function EmailList({ initialAccountId }: { initialAccountId?: string }) {
                             {item.labels && item.labels.length > 0 && (
                                 <div className="flex items-center gap-2 w-full overflow-hidden mt-1">
                                     {item.labels.map((label: string) => (
-                                        <Badge key={label} variant="secondary" className="px-1 py-0 text-[10px] rounded-sm font-medium h-5">
+                                        <ZoruBadge key={label} variant="secondary" className="px-1 py-0 text-[10px] rounded-sm font-medium h-5">
                                             {label}
-                                        </Badge>
+                                        </ZoruBadge>
                                     ))}
                                 </div>
                             )}
                         </button>
                     ))}
                 </div>
-            </ScrollArea>
+            </ZoruScrollArea>
         </div>
     );
 }

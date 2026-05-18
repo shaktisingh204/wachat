@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, type CardProps } from '@/components/ui/card';
+import { ZoruCard, type CardProps } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Variant = 'default' | 'soft' | 'floating' | 'outline';
@@ -10,16 +10,16 @@ export interface ClayCardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 /**
- * ClayCard — delegates to the shadcn `Card` primitive.
+ * ClayCard — delegates to the shadcn `ZoruCard` primitive.
  *
- * The shadcn Card is **borderless** by design (shadow-only depth), so the
+ * The shadcn ZoruCard is **borderless** by design (shadow-only depth), so the
  * mapping here intentionally adds NO border classes; instead each variant
  * tunes the shadow level / fill via the existing shadcn cva variants.
  *
- *   default  → Card variant `default`     (cream surface, soft shadow on hover)
- *   soft     → Card variant `default` + secondary fill for nested rows
- *   floating → Card variant `elevated`    (lifted shadow)
- *   outline  → Card variant `default`     (no border, no extra shadow)
+ *   default  → ZoruCard variant `default`     (cream surface, soft shadow on hover)
+ *   soft     → ZoruCard variant `default` + secondary fill for nested rows
+ *   floating → ZoruCard variant `elevated`    (lifted shadow)
+ *   outline  → ZoruCard variant `default`     (no border, no extra shadow)
  */
 const variantToCard: Record<Variant, CardProps['variant']> = {
   default: 'default',
@@ -37,14 +37,14 @@ const variantExtra: Record<Variant, string> = {
 
 export const ClayCard = React.forwardRef<HTMLDivElement, ClayCardProps>(
   ({ className, variant = 'default', padded = true, children, ...props }, ref) => (
-    <Card
+    <ZoruCard
       ref={ref}
       variant={variantToCard[variant]}
       className={cn(variantExtra[variant], padded && 'p-5', className)}
       {...props}
     >
       {children}
-    </Card>
+    </ZoruCard>
   ),
 );
 ClayCard.displayName = 'ClayCard';

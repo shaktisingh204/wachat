@@ -1,16 +1,16 @@
 'use client';
 
 import { useState, useRef, useEffect, useTransition } from 'react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
 import { LoaderCircle, QrCode, Link as LinkIcon, Type, Mail, Phone, Wifi, MessageSquare, Download, Save, RefreshCw, Wand2, Upload } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +20,7 @@ import { SketchPicker } from 'react-color';
 import type { User, Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox'; // Assuming this exists from previous file
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator } from '@/components/zoruui';
 import { downloadQrCode, filterPhoneLikeInput, normalizeQrWebsiteUrl, QR_FIELD_LIMITS } from '@/lib/qr-utils';
 
 const DATA_TYPES = [
@@ -148,25 +148,25 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* LEFT COLUMN: Configuration */}
             <div className="lg:col-span-7 space-y-6">
-                <Card className="border-0 shadow-lg ring-1 ring-slate-900/5">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
+                <ZoruCard className="border-0 shadow-lg ring-1 ring-slate-900/5">
+                    <ZoruCardHeader>
+                        <ZoruCardTitle className="flex items-center gap-2">
                             <Wand2 className="h-5 w-5 text-purple-600" />
                             Builder Configuration
-                        </CardTitle>
-                        <CardDescription>Customize the content and look of your QR code.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
+                        </ZoruCardTitle>
+                        <ZoruCardDescription>Customize the content and look of your QR code.</ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="space-y-6">
 
                         {/* 1. Basic Info */}
                         <div className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2 col-span-2 md:col-span-1">
-                                    <Label>QR Code Name <span className="text-red-500">*</span></Label>
-                                    <Input value={name} onChange={e => setName(e.target.value.slice(0, QR_FIELD_LIMITS.name))} maxLength={QR_FIELD_LIMITS.name} placeholder="e.g. Summer Campaign 2024" />
+                                    <ZoruLabel>QR Code Name <span className="text-red-500">*</span></ZoruLabel>
+                                    <ZoruInput value={name} onChange={e => setName(e.target.value.slice(0, QR_FIELD_LIMITS.name))} maxLength={QR_FIELD_LIMITS.name} placeholder="e.g. Summer Campaign 2024" />
                                 </div>
                                 <div className="space-y-2 col-span-2 md:col-span-1">
-                                    <Label>Tags</Label>
+                                    <ZoruLabel>Tags</ZoruLabel>
                                     <MultiSelectCombobox
                                         options={tagOptions}
                                         selected={tagIds}
@@ -177,19 +177,19 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                             </div>
 
                             <div className="flex items-center space-x-2 border rounded-lg p-3 bg-slate-50">
-                                <Switch id="dynamic-mode" checked={isDynamic} onCheckedChange={setIsDynamic} disabled={dataType !== 'url'} />
-                                <Label htmlFor="dynamic-mode" className="flex-1 cursor-pointer">
+                                <ZoruSwitch id="dynamic-mode" checked={isDynamic} onCheckedChange={setIsDynamic} disabled={dataType !== 'url'} />
+                                <ZoruLabel htmlFor="dynamic-mode" className="flex-1 cursor-pointer">
                                     <span className="font-semibold block">Dynamic QR Code</span>
                                     <span className="text-xs text-muted-foreground font-normal">Track scans and update URL later without reprinting. (URL only)</span>
-                                </Label>
+                                </ZoruLabel>
                             </div>
                         </div>
 
-                        <Separator />
+                        <ZoruSeparator />
 
                         {/* 2. Data Type Selector */}
                         <div className="space-y-3">
-                            <Label>Content Type</Label>
+                            <ZoruLabel>Content Type</ZoruLabel>
                             <div className="flex flex-wrap gap-2">
                                 {DATA_TYPES.map(type => (
                                     <button
@@ -213,50 +213,50 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                         <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
                             {dataType === 'url' && (
                                 <div className="space-y-2">
-                                    <Label>Website URL</Label>
-                                    <Input value={url} onChange={e => setUrl(e.target.value.slice(0, QR_FIELD_LIMITS.url))} maxLength={QR_FIELD_LIMITS.url} placeholder="https://yourwebsite.com" />
+                                    <ZoruLabel>Website URL</ZoruLabel>
+                                    <ZoruInput value={url} onChange={e => setUrl(e.target.value.slice(0, QR_FIELD_LIMITS.url))} maxLength={QR_FIELD_LIMITS.url} placeholder="https://yourwebsite.com" />
                                 </div>
                             )}
                             {dataType === 'text' && (
                                 <div className="space-y-2">
-                                    <Label>Plain Text</Label>
-                                    <Textarea value={text} onChange={e => setText(e.target.value.slice(0, QR_FIELD_LIMITS.text))} maxLength={QR_FIELD_LIMITS.text} placeholder="Enter your text here..." />
+                                    <ZoruLabel>Plain Text</ZoruLabel>
+                                    <ZoruTextarea value={text} onChange={e => setText(e.target.value.slice(0, QR_FIELD_LIMITS.text))} maxLength={QR_FIELD_LIMITS.text} placeholder="Enter your text here..." />
                                 </div>
                             )}
                             {dataType === 'email' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Email Address</Label><Input type="email" value={email} onChange={e => setEmail(e.target.value.slice(0, QR_FIELD_LIMITS.email))} maxLength={QR_FIELD_LIMITS.email} placeholder="contact@example.com" /></div>
-                                    <div className="space-y-2"><Label>Subject</Label><Input value={emailSubject} onChange={e => setEmailSubject(e.target.value.slice(0, QR_FIELD_LIMITS.emailSubject))} maxLength={QR_FIELD_LIMITS.emailSubject} placeholder="Inquiry" /></div>
-                                    <div className="space-y-2"><Label>Body</Label><Textarea value={emailBody} onChange={e => setEmailBody(e.target.value.slice(0, QR_FIELD_LIMITS.emailBody))} maxLength={QR_FIELD_LIMITS.emailBody} placeholder="Hello..." /></div>
+                                    <div className="space-y-2"><ZoruLabel>Email Address</ZoruLabel><ZoruInput type="email" value={email} onChange={e => setEmail(e.target.value.slice(0, QR_FIELD_LIMITS.email))} maxLength={QR_FIELD_LIMITS.email} placeholder="contact@example.com" /></div>
+                                    <div className="space-y-2"><ZoruLabel>Subject</ZoruLabel><ZoruInput value={emailSubject} onChange={e => setEmailSubject(e.target.value.slice(0, QR_FIELD_LIMITS.emailSubject))} maxLength={QR_FIELD_LIMITS.emailSubject} placeholder="Inquiry" /></div>
+                                    <div className="space-y-2"><ZoruLabel>Body</ZoruLabel><ZoruTextarea value={emailBody} onChange={e => setEmailBody(e.target.value.slice(0, QR_FIELD_LIMITS.emailBody))} maxLength={QR_FIELD_LIMITS.emailBody} placeholder="Hello..." /></div>
                                 </div>
                             )}
                             {dataType === 'phone' && (
                                 <div className="space-y-2">
-                                    <Label>Phone Number</Label>
-                                    <Input type="tel" inputMode="tel" value={phone} onChange={e => setPhone(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" />
+                                    <ZoruLabel>Phone Number</ZoruLabel>
+                                    <ZoruInput type="tel" inputMode="tel" value={phone} onChange={e => setPhone(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" />
                                 </div>
                             )}
                             {dataType === 'sms' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Phone Number</Label><Input type="tel" inputMode="tel" value={sms} onChange={e => setSms(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" /></div>
-                                    <div className="space-y-2"><Label>Message</Label><Textarea value={smsMessage} onChange={e => setSmsMessage(e.target.value.slice(0, QR_FIELD_LIMITS.smsMessage))} maxLength={QR_FIELD_LIMITS.smsMessage} placeholder="I'm interested in..." /></div>
+                                    <div className="space-y-2"><ZoruLabel>Phone Number</ZoruLabel><ZoruInput type="tel" inputMode="tel" value={sms} onChange={e => setSms(filterPhoneLikeInput(e.target.value))} maxLength={QR_FIELD_LIMITS.phone} placeholder="+1 234 567 8900" /></div>
+                                    <div className="space-y-2"><ZoruLabel>Message</ZoruLabel><ZoruTextarea value={smsMessage} onChange={e => setSmsMessage(e.target.value.slice(0, QR_FIELD_LIMITS.smsMessage))} maxLength={QR_FIELD_LIMITS.smsMessage} placeholder="I'm interested in..." /></div>
                                 </div>
                             )}
                             {dataType === 'wifi' && (
                                 <div className="space-y-3">
-                                    <div className="space-y-2"><Label>Network Name (SSID)</Label><Input value={wifiSsid} onChange={e => setWifiSsid(e.target.value.slice(0, QR_FIELD_LIMITS.wifiSsid))} maxLength={QR_FIELD_LIMITS.wifiSsid} /></div>
-                                    <div className="space-y-2"><Label>Password</Label><Input value={wifiPassword} onChange={e => setWifiPassword(e.target.value.slice(0, QR_FIELD_LIMITS.wifiPassword))} maxLength={QR_FIELD_LIMITS.wifiPassword} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Network Name (SSID)</ZoruLabel><ZoruInput value={wifiSsid} onChange={e => setWifiSsid(e.target.value.slice(0, QR_FIELD_LIMITS.wifiSsid))} maxLength={QR_FIELD_LIMITS.wifiSsid} /></div>
+                                    <div className="space-y-2"><ZoruLabel>Password</ZoruLabel><ZoruInput value={wifiPassword} onChange={e => setWifiPassword(e.target.value.slice(0, QR_FIELD_LIMITS.wifiPassword))} maxLength={QR_FIELD_LIMITS.wifiPassword} /></div>
                                     <div className="flex gap-4">
                                         <div className="space-y-2 flex-1">
-                                            <Label>Encryption</Label>
-                                            <Select value={wifiEncryption} onValueChange={setWifiEncryption}>
-                                                <SelectTrigger><SelectValue /></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="WPA">WPA/WPA2</SelectItem>
-                                                    <SelectItem value="WEP">WEP</SelectItem>
-                                                    <SelectItem value="nopass">None</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <ZoruLabel>Encryption</ZoruLabel>
+                                            <ZoruSelect value={wifiEncryption} onValueChange={setWifiEncryption}>
+                                                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                                <ZoruSelectContent>
+                                                    <ZoruSelectItem value="WPA">WPA/WPA2</ZoruSelectItem>
+                                                    <ZoruSelectItem value="WEP">WEP</ZoruSelectItem>
+                                                    <ZoruSelectItem value="nopass">None</ZoruSelectItem>
+                                                </ZoruSelectContent>
+                                            </ZoruSelect>
                                         </div>
                                     </div>
                                 </div>
@@ -265,7 +265,7 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
 
                         {/* 4. Visual Customization */}
                         <div className="space-y-4">
-                            <Label className="text-base">Design Customization</Label>
+                            <ZoruLabel className="text-base">Design Customization</ZoruLabel>
 
                             <Tabs defaultValue="colors" className="w-full">
                                 <TabsList className="w-full justify-start">
@@ -275,47 +275,47 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                                 <TabsContent value="colors" className="space-y-4 mt-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <Label>Foreground Color</Label>
+                                            <ZoruLabel>Foreground Color</ZoruLabel>
                                             <div className="flex gap-2 items-center">
-                                                <Popover>
-                                                    <PopoverTrigger asChild>
+                                                <ZoruPopover>
+                                                    <ZoruPopoverTrigger asChild>
                                                         <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-slate-400" style={{ backgroundColor: dotColor }} />
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-auto p-3"><SketchPicker color={dotColor} onChange={c => setDotColor(c.hex)} disableAlpha /></PopoverContent>
-                                                </Popover>
-                                                <Input value={dotColor} onChange={e => setDotColor(e.target.value)} className="w-[120px] font-mono" />
+                                                    </ZoruPopoverTrigger>
+                                                    <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={dotColor} onChange={c => setDotColor(c.hex)} disableAlpha /></ZoruPopoverContent>
+                                                </ZoruPopover>
+                                                <ZoruInput value={dotColor} onChange={e => setDotColor(e.target.value)} className="w-[120px] font-mono" />
                                             </div>
                                         </div>
                                         <div className="space-y-2">
-                                            <Label>Background Color</Label>
+                                            <ZoruLabel>Background Color</ZoruLabel>
                                             <div className="flex gap-2 items-center">
-                                                <Popover>
-                                                    <PopoverTrigger asChild>
+                                                <ZoruPopover>
+                                                    <ZoruPopoverTrigger asChild>
                                                         <div className="w-10 h-10 rounded border cursor-pointer ring-offset-2 hover:ring-2 ring-slate-400" style={{ backgroundColor: bgColor }} />
-                                                    </PopoverTrigger>
-                                                    <PopoverContent className="w-auto p-3"><SketchPicker color={bgColor} onChange={c => setBgColor(c.hex)} disableAlpha /></PopoverContent>
-                                                </Popover>
-                                                <Input value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-[120px] font-mono" />
+                                                    </ZoruPopoverTrigger>
+                                                    <ZoruPopoverContent className="w-auto p-3"><SketchPicker color={bgColor} onChange={c => setBgColor(c.hex)} disableAlpha /></ZoruPopoverContent>
+                                                </ZoruPopover>
+                                                <ZoruInput value={bgColor} onChange={e => setBgColor(e.target.value)} className="w-[120px] font-mono" />
                                             </div>
                                         </div>
                                     </div>
                                     <div className="space-y-2 max-w-xs">
-                                        <Label>Error Correction Level</Label>
-                                        <Select value={eccLevel} onValueChange={setEccLevel}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="L">Low (7%) - Best for clean look</SelectItem>
-                                                <SelectItem value="M">Medium (15%)</SelectItem>
-                                                <SelectItem value="Q">Quartile (25%)</SelectItem>
-                                                <SelectItem value="H">High (30%) - Best if adding logo</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                        <ZoruLabel>Error Correction Level</ZoruLabel>
+                                        <ZoruSelect value={eccLevel} onValueChange={setEccLevel}>
+                                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                                            <ZoruSelectContent>
+                                                <ZoruSelectItem value="L">Low (7%) - Best for clean look</ZoruSelectItem>
+                                                <ZoruSelectItem value="M">Medium (15%)</ZoruSelectItem>
+                                                <ZoruSelectItem value="Q">Quartile (25%)</ZoruSelectItem>
+                                                <ZoruSelectItem value="H">High (30%) - Best if adding logo</ZoruSelectItem>
+                                            </ZoruSelectContent>
+                                        </ZoruSelect>
                                         <p className="text-xs text-muted-foreground">Higher correction allowed more damage/logo obstruction.</p>
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="branding" className="space-y-4 mt-4">
                                     <div className="space-y-2">
-                                        <Label>Upload Logo (Center Image)</Label>
+                                        <ZoruLabel>Upload Logo (Center Image)</ZoruLabel>
                                         <div className="flex items-center gap-4">
                                             {logoDataUri ? (
                                                 <div className="relative group w-20 h-20 border rounded-lg overflow-hidden flex items-center justify-center bg-slate-50">
@@ -342,17 +342,17 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                             </Tabs>
                         </div>
 
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             </div>
 
             {/* RIGHT COLUMN: Preview */}
             <div className="lg:col-span-5 sticky top-6 space-y-6">
-                <Card className="border-0 shadow-lg ring-1 ring-slate-900/5 overflow-hidden">
-                    <CardHeader className="bg-slate-50/50 pb-4">
-                        <CardTitle className="text-center">Live Preview</CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-slate-100/50 relative">
+                <ZoruCard className="border-0 shadow-lg ring-1 ring-slate-900/5 overflow-hidden">
+                    <ZoruCardHeader className="bg-slate-50/50 pb-4">
+                        <ZoruCardTitle className="text-center">Live Preview</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="flex flex-col items-center justify-center py-8 min-h-[350px] bg-slate-100/50 relative">
                         {/* Mobile Phone Frame Effect */}
                         <div className="relative bg-white p-6 rounded-[2rem] shadow-xl border-4 border-slate-900 ring-4 ring-slate-100" ref={qrWrapperRef}>
                             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-slate-900 rounded-b-xl z-10" />
@@ -368,30 +368,30 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                         <p className="text-sm text-muted-foreground mt-6 text-center max-w-[250px] truncate">
                             {qrValue || "Enter data to generate"}
                         </p>
-                    </CardContent>
-                    <CardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
-                        <Button
+                    </ZoruCardContent>
+                    <ZoruCardFooter className="flex flex-col gap-3 pt-6 bg-white border-t">
+                        <ZoruButton
                             className="w-full h-12 text-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-200 transition-all hover:scale-[1.02]"
                             onClick={handleSave}
                             disabled={isPending}
                         >
                             {isPending ? <LoaderCircle className="mr-2 h-5 w-5 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
                             Save to Dashboard
-                        </Button>
+                        </ZoruButton>
                         <div className="grid grid-cols-2 w-full gap-3">
-                            <Button variant="outline" onClick={() => handleDownload('png')}>
+                            <ZoruButton variant="outline" onClick={() => handleDownload('png')}>
                                 <Download className="mr-2 h-4 w-4" /> PNG
-                            </Button>
-                            <Button variant="outline" onClick={() => handleDownload('svg')}>
+                            </ZoruButton>
+                            <ZoruButton variant="outline" onClick={() => handleDownload('svg')}>
                                 <Download className="mr-2 h-4 w-4" /> SVG
-                            </Button>
+                            </ZoruButton>
                         </div>
-                    </CardFooter>
-                </Card>
+                    </ZoruCardFooter>
+                </ZoruCard>
 
-                {/* Tips Card */}
-                <Card className="bg-blue-50 border-blue-100">
-                    <CardContent className="pt-6">
+                {/* Tips ZoruCard */}
+                <ZoruCard className="bg-blue-50 border-blue-100">
+                    <ZoruCardContent className="pt-6">
                         <div className="flex gap-3">
                             <div className="mt-1 bg-blue-100 p-2 rounded-full h-fit"><RefreshCw className="h-4 w-4 text-blue-600" /></div>
                             <div>
@@ -401,8 +401,8 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                                 </p>
                             </div>
                         </div>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             </div>
         </div>
     );

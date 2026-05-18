@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
@@ -28,15 +28,15 @@ export default function CanonicalTagPage() {
   return (
     <ToolShell title="Canonical Tag Checker" description="Check the canonical URL of a web page.">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Check'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {canonical !== null && (
-        <Card><CardContent className="p-4">
+        <ZoruCard><ZoruCardContent className="p-4">
           <div className="text-xs font-semibold text-muted-foreground mb-1">Canonical URL</div>
           <div className="font-mono text-sm break-all">{canonical}</div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

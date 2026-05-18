@@ -2,20 +2,20 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruButton } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { Phone, Calendar, BarChart2, Webhook, MoreVertical, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 import { FacebookIcon } from './custom-sidebar-components';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
 interface ProjectCardProps {
@@ -94,7 +94,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <Card
+        <ZoruCard
             className={cn(
                 "group relative flex flex-col transition-all duration-300",
                 "border-border/50 bg-background/50 backdrop-blur-sm",
@@ -109,7 +109,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                 isWhatsAppProject ? "from-green-500 to-emerald-600" : "from-blue-500 to-indigo-600"
             )} />
 
-            <CardHeader className="pb-2 pt-5">
+            <ZoruCardHeader className="pb-2 pt-5">
                 <div className="flex justify-between items-start gap-2">
                     <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -136,25 +136,25 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                     <div className="flex items-center gap-1 -mr-2">
                         {/* Status Badges */}
                         {project.banState === 'RESTRICTED' && (
-                            <Badge variant="destructive" className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
+                            <ZoruBadge variant="destructive" className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
                                 Disabled
-                            </Badge>
+                            </ZoruBadge>
                         )}
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
+                            <ZoruBadge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-[10px] h-5 px-1.5 flex-shrink-0">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                            </Badge>
+                            </ZoruBadge>
                         )}
 
                         {/* Actions Menu */}
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                     <MoreVertical className="h-4 w-4" />
                                     <span className="sr-only">Open menu</span>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
                                 {/* We wrap the delete button logic here or just render the component slightly differently if it accepts custom trigger */}
                                 {/* For now, keeping the DeleteProjectButton but we might need to adjust it to fit in a menu item, 
                                     OR we just put the delete button triggering logic here. 
@@ -163,25 +163,25 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                                     OR we can try to compose it. 
                                     
                                     Let's keep it simple: Reset the DeleteProjectButton to be a menu item trigger if possible, 
-                                    BUT DeleteProjectButton likely renders a default Button trigger.
+                                    BUT DeleteProjectButton likely renders a default ZoruButton trigger.
                                     
                                     New Plan for Actions: Just show the DeleteProjectButton as a discrete action 
                                     OR keep it simple and just show the menu if we had more actions. 
                                     Since we only have Delete, let's just show a trash icon button that triggers the dialog.
                                     
-                                    Wait, DeleteProjectButton encapsulates the Dialog logic.
+                                    Wait, DeleteProjectButton encapsulates the ZoruDialog logic.
                                     Let's just position the DeleteProjectButton nicely.
                                 */}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                         <div className="flex items-center">
                             <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
                         </div>
                     </div>
                 </div>
-            </CardHeader>
+            </ZoruCardHeader>
 
-            <CardContent className="space-y-4 pb-4">
+            <ZoruCardContent className="space-y-4 pb-4">
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="flex flex-col gap-1 p-2 rounded-md bg-muted/40 group-hover:bg-muted/60 transition-colors">
@@ -197,9 +197,9 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         </span>
                         <span>
                             {throughputLevel ? (
-                                <Badge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
+                                <ZoruBadge variant={getThroughputVariant(throughputLevel)} className="h-5 px-1.5 text-[10px]">
                                     {formatThroughput(throughputLevel)}
-                                </Badge>
+                                </ZoruBadge>
                             ) : (<span className="text-muted-foreground">-</span>)}
                         </span>
                     </div>
@@ -236,7 +236,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         </>
                     )}
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 });

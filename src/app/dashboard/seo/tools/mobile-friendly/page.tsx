@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { Check, X } from 'lucide-react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
@@ -39,12 +39,12 @@ export default function MobileFriendlyPage() {
   return (
     <ToolShell title="Mobile-Friendly Test" description="Basic mobile-readiness checks on any page.">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Testing…' : 'Test'}</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Testing…' : 'Test'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {checks.length > 0 && (
-        <Card><CardContent className="p-4 space-y-2">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
           <div className="text-sm font-semibold">Passed: {passed} / {checks.length}</div>
           {checks.map((c, i) => (
             <div key={i} className="flex items-center gap-2 text-sm border-b last:border-0 py-1.5">
@@ -52,7 +52,7 @@ export default function MobileFriendlyPage() {
               <span>{c.label}</span>
             </div>
           ))}
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

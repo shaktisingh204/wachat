@@ -5,20 +5,20 @@ import { AlertCircle, LoaderCircle } from 'lucide-react';
 
 import { Check } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import { saveOnboardingBusiness } from '@/app/actions/onboarding-flow.actions';
@@ -152,77 +152,77 @@ export function BusinessStep({
     return (
         <form onSubmit={submit} className="space-y-6" noValidate>
             {error && (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Tell us a bit more</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>Tell us a bit more</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             <div className="grid gap-5 sm:grid-cols-3">
                 <div className="space-y-2">
-                    <Label htmlFor="industry">Industry *</Label>
-                    <Select
+                    <ZoruLabel htmlFor="industry">Industry *</ZoruLabel>
+                    <ZoruSelect
                         value={industry}
                         onValueChange={setIndustry}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="industry">
-                            <SelectValue placeholder="Pick one" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="industry">
+                            <ZoruSelectValue placeholder="Pick one" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {INDUSTRIES.map((i) => (
-                                <SelectItem key={i} value={i}>
+                                <ZoruSelectItem key={i} value={i}>
                                     {i}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="teamSize">Team size *</Label>
-                    <Select
+                    <ZoruLabel htmlFor="teamSize">Team size *</ZoruLabel>
+                    <ZoruSelect
                         value={teamSize}
                         onValueChange={setTeamSize}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="teamSize">
-                            <SelectValue placeholder="People on your team" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="teamSize">
+                            <ZoruSelectValue placeholder="People on your team" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {TEAM_SIZES.map((t) => (
-                                <SelectItem key={t} value={t}>
+                                <ZoruSelectItem key={t} value={t}>
                                     {t}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="volume">Monthly volume *</Label>
-                    <Select
+                    <ZoruLabel htmlFor="volume">Monthly volume *</ZoruLabel>
+                    <ZoruSelect
                         value={volume}
                         onValueChange={setVolume}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="volume">
-                            <SelectValue placeholder="Messages / month" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="volume">
+                            <ZoruSelectValue placeholder="Messages / month" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {VOLUMES.map((v) => (
-                                <SelectItem key={v.value} value={v.value}>
+                                <ZoruSelectItem key={v.value} value={v.value}>
                                     {v.label}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
             </div>
 
             <div className="space-y-3">
-                <Label>How will you use SabNode? (pick all that apply)</Label>
+                <ZoruLabel>How will you use SabNode? (pick all that apply)</ZoruLabel>
                 <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {USE_CASES.map((uc) => {
                         const active = useCases.includes(uc.id);
@@ -268,15 +268,15 @@ export function BusinessStep({
             </div>
 
             <div className="flex justify-between pt-2">
-                <Button
+                <ZoruButton
                     type="button"
                     variant="ghost"
                     onClick={onBack}
                     disabled={isPending}
                 >
                     Back
-                </Button>
-                <Button
+                </ZoruButton>
+                <ZoruButton
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -285,7 +285,7 @@ export function BusinessStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </Button>
+                </ZoruButton>
             </div>
         </form>
     );

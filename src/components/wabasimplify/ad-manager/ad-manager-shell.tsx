@@ -24,16 +24,16 @@ import { format } from 'date-fns';
 import type { DateRange } from 'react-day-picker';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
 import { Calendar } from '@/components/ui/calendar';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import {
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-    DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { ScrollArea } from '@/components/ui/scroll-area';
+    ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
+    ZoruDropdownMenuLabel, ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { useAdManager } from '@/context/ad-manager-context';
 import { DATE_PRESETS } from './constants';
 
@@ -41,19 +41,19 @@ function AccountSwitcher() {
     const { activeAccount } = useAdManager();
     return (
         <Link href="/dashboard/ad-manager/ad-accounts" className="shrink-0 hidden sm:block">
-            <Button
+            <ZoruButton
                 variant="outline"
                 className="h-10 justify-between gap-3 rounded-lg px-3 text-left text-sm font-medium w-[200px] lg:w-[240px] xl:w-[260px]"
             >
                 <div className="flex items-center gap-2 truncate">
-                    <Avatar className="h-6 w-6 border">
-                        <AvatarFallback className="text-[10px] bg-[#1877F2] text-white">
+                    <ZoruAvatar className="h-6 w-6 border">
+                        <ZoruAvatarFallback className="text-[10px] bg-[#1877F2] text-white">
                             {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                    </Avatar>
+                        </ZoruAvatarFallback>
+                    </ZoruAvatar>
                     <div className="truncate">
                         <div className="truncate leading-tight">
-                            {activeAccount?.name || 'Select ad account'}
+                            {activeAccount?.name || 'ZoruSelect ad account'}
                         </div>
                         {activeAccount?.account_id && (
                             <div className="text-[10px] font-mono text-muted-foreground">
@@ -63,7 +63,7 @@ function AccountSwitcher() {
                     </div>
                 </div>
                 <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Button>
+            </ZoruButton>
         </Link>
     );
 }
@@ -80,19 +80,19 @@ function DateRangeBar({
     setPreset: (p: string) => void;
 }) {
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10 rounded-lg">
+        <ZoruPopover>
+            <ZoruPopoverTrigger asChild>
+                <ZoruButton variant="outline" size="sm" className="h-10 rounded-lg">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {DATE_PRESETS.find((p) => p.id === preset)?.label ||
                         (date?.from
                             ? `${format(date.from, 'LLL dd')} – ${date.to ? format(date.to, 'LLL dd') : ''}`
                             : 'Last 7 days')}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="p-0 w-auto" align="end">
+                </ZoruButton>
+            </ZoruPopoverTrigger>
+            <ZoruPopoverContent className="p-0 w-auto" align="end">
                 <div className="flex">
-                    <ScrollArea className="h-[340px] border-r w-40">
+                    <ZoruScrollArea className="h-[340px] border-r w-40">
                         <div className="p-2 flex flex-col">
                             {DATE_PRESETS.map((p) => (
                                 <button
@@ -108,7 +108,7 @@ function DateRangeBar({
                                 </button>
                             ))}
                         </div>
-                    </ScrollArea>
+                    </ZoruScrollArea>
                     <Calendar
                         mode="range"
                         selected={date}
@@ -120,8 +120,8 @@ function DateRangeBar({
                         initialFocus
                     />
                 </div>
-            </PopoverContent>
-        </Popover>
+            </ZoruPopoverContent>
+        </ZoruPopover>
     );
 }
 
@@ -171,7 +171,7 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
 
                         <div className="relative flex-1 min-w-0 max-w-xl">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                            <ZoruInput
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Search by name, ID or metric"
@@ -182,37 +182,37 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                         {/* Desktop-only controls (inline on md+) */}
                         <div className="hidden md:flex items-center gap-1.5 shrink-0">
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
-                            <Button
+                            <ZoruButton
                                 size="sm"
                                 className="h-10 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white rounded-lg"
                                 onClick={() => router.push('/dashboard/ad-manager/create')}
                             >
                                 <Plus className="h-4 w-4 mr-1" /> Create
-                            </Button>
-                            <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                            </ZoruButton>
+                            <ZoruButton variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                                 <Bell className="h-4 w-4" />
-                            </Button>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                            </ZoruButton>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                                         <HelpCircle className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent align="end">
+                                    <ZoruDropdownMenuLabel>Help & resources</ZoruDropdownMenuLabel>
+                                    <ZoruDropdownMenuSeparator />
+                                    <ZoruDropdownMenuItem asChild>
                                         <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
                                             Meta Business Help Center
                                         </a>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
+                                    </ZoruDropdownMenuItem>
+                                    <ZoruDropdownMenuItem asChild>
                                         <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
                                             Marketing API docs
                                         </a>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
                         </div>
                     </div>
 
@@ -221,37 +221,37 @@ export function AdManagerShell({ children }: { children: React.ReactNode }) {
                         <div className="flex-1">
                             <DateRangeBar date={date} setDate={setDate} preset={preset} setPreset={setPreset} />
                         </div>
-                        <Button
+                        <ZoruButton
                             size="sm"
                             className="h-10 bg-[#1877F2] hover:bg-[#1877F2]/90 text-white rounded-lg"
                             onClick={() => router.push('/dashboard/ad-manager/create')}
                         >
                             <Plus className="h-4 w-4 mr-1" /> Create
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                        </ZoruButton>
+                        <ZoruButton variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                             <Bell className="h-4 w-4" />
-                        </Button>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
+                        </ZoruButton>
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="ghost" size="icon" className="h-10 w-10 rounded-lg">
                                     <HelpCircle className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                                <DropdownMenuLabel>Help & resources</DropdownMenuLabel>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
+                                <ZoruDropdownMenuLabel>Help & resources</ZoruDropdownMenuLabel>
+                                <ZoruDropdownMenuSeparator />
+                                <ZoruDropdownMenuItem asChild>
                                     <a href="https://www.facebook.com/business/help" target="_blank" rel="noreferrer">
                                         Meta Business Help Center
                                     </a>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem asChild>
                                     <a href="https://developers.facebook.com/docs/marketing-apis" target="_blank" rel="noreferrer">
                                         Marketing API docs
                                     </a>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                                </ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
                     </div>
                 </div>
 

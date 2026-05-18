@@ -6,9 +6,9 @@ import { useFormStatus } from 'react-dom';
 import type { WithId, Project, UserAttribute } from '@/lib/definitions';
 import { handleSaveUserAttributes } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -17,10 +17,10 @@ const saveAttributesInitialState: any = { message: null, error: null };
 function SaveAttributesButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
       Save Attributes
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -65,35 +65,35 @@ export function UserAttributesSettingsTab({ project }: UserAttributesSettingsTab
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="attributes" value={JSON.stringify(attributes)} />
 
-            <Card className="card-gradient card-gradient-purple">
-                <CardHeader>
-                    <CardTitle>Custom User Attributes</CardTitle>
-                    <CardDescription>Define custom data fields to store information about your contacts.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard className="card-gradient card-gradient-purple">
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Custom User Attributes</ZoruCardTitle>
+                    <ZoruCardDescription>Define custom data fields to store information about your contacts.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-3">
                         {attributes.map((attr, index) => (
                             <div key={attr.id} className="flex items-center gap-2">
-                                <Input
+                                <ZoruInput
                                     value={attr.name}
                                     onChange={(e) => handleAttributeChange(index, e.target.value)}
                                     placeholder="e.g., membership_level, last_purchase_date"
                                 />
-                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveAttribute(index)}>
+                                <ZoruButton type="button" variant="ghost" size="icon" onClick={() => handleRemoveAttribute(index)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
+                                </ZoruButton>
                             </div>
                         ))}
                     </div>
-                    <Button type="button" variant="outline" onClick={handleAddAttribute}>
+                    <ZoruButton type="button" variant="outline" onClick={handleAddAttribute}>
                         <Plus className="mr-2 h-4 w-4" />
                         Add Attribute
-                    </Button>
-                </CardContent>
-                <CardFooter>
+                    </ZoruButton>
+                </ZoruCardContent>
+                <ZoruCardFooter>
                     <SaveAttributesButton />
-                </CardFooter>
-            </Card>
+                </ZoruCardFooter>
+            </ZoruCard>
         </form>
     );
 }

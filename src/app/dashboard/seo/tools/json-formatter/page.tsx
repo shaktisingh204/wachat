@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function JsonFormatterPage() {
@@ -24,12 +24,12 @@ export default function JsonFormatterPage() {
 
   return (
     <ToolShell title="JSON Formatter" description="Format or minify JSON with validation.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[260px] font-mono text-xs" placeholder='{"hello": "world"}' />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[260px] font-mono text-xs" placeholder='{"hello": "world"}' />
       <div className="flex gap-2">
-        <Button onClick={format}>Format</Button>
-        <Button variant="outline" onClick={minify}>Minify</Button>
+        <ZoruButton onClick={format}>Format</ZoruButton>
+        <ZoruButton variant="outline" onClick={minify}>Minify</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
     </ToolShell>
   );
 }

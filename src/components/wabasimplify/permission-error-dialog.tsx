@@ -2,17 +2,17 @@
 'use client';
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, Facebook } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 import { FacebookIcon } from './custom-sidebar-components';
-import { Button } from '../ui/button';
+import { ZoruButton } from '../ui/button';
 
 interface PermissionErrorDialogProps {
   isOpen: boolean;
@@ -29,37 +29,37 @@ export function PermissionErrorDialog({ isOpen, onOpenChange, error, project, on
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent>
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="flex items-center gap-2">
             <AlertCircle className="text-destructive h-6 w-6" />
             Permissions Required
-          </DialogTitle>
-          <DialogDescription>
+          </ZoruDialogTitle>
+          <ZoruDialogDescription>
             SabNode needs additional permissions to access this feature.
-          </DialogDescription>
-        </DialogHeader>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
         <div className="py-4 space-y-4">
-          <Alert variant="destructive">
-            <AlertTitle>Error Details</AlertTitle>
-            <AlertDescription>
+          <ZoruAlert variant="destructive">
+            <ZoruAlertTitle>Error Details</ZoruAlertTitle>
+            <ZoruAlertDescription>
               {error}
-            </AlertDescription>
-          </Alert>
+            </ZoruAlertDescription>
+          </ZoruAlert>
           <p className="text-sm text-muted-foreground">
             To fix this, please reconnect your Facebook account and ensure you grant all requested permissions. Your existing settings will be preserved.
           </p>
           <div className="flex justify-center">
-             <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+             <ZoruButton asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
                 <a href={`/api/auth/meta-suite/login?reauthorize=true&state=facebook_reauth`}>
                     <FacebookIcon className="mr-2 h-5 w-5" />
                     Re-authorize with Facebook
                 </a>
-            </Button>
+            </ZoruButton>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

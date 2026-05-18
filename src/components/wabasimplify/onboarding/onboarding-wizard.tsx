@@ -10,7 +10,7 @@ import type {
 } from '@/app/actions/onboarding-flow.actions';
 import { skipOnboarding } from '@/app/actions/onboarding-flow.actions';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 
 import { AccountStep } from './steps/account-step';
 import { ProfileStep } from './steps/profile-step';
@@ -158,7 +158,7 @@ export function OnboardingWizard({
                             Step {currentIndex + 1} of {STEP_ORDER.length}
                         </p>
                         {signedInUser && step !== 'account' && step !== 'complete' && (
-                            <Button
+                            <ZoruButton
                                 variant="ghost"
                                 size="sm"
                                 className="text-muted-foreground"
@@ -171,7 +171,7 @@ export function OnboardingWizard({
                                     <SkipForward className="mr-1.5 h-3.5 w-3.5" />
                                 )}
                                 Skip for now
-                            </Button>
+                            </ZoruButton>
                         )}
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight">

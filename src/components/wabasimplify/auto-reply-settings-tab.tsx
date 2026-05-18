@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import type { WithId, Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
-import { Separator } from '../ui/separator';
+import { ZoruSeparator } from '../ui/separator';
 import { AutoReplyForm } from './auto-reply-form';
 import { OptInOutForm } from './opt-in-out-form';
 
@@ -35,26 +35,26 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
     
     return (
         <div className="space-y-6">
-            <Card>
-                 <CardHeader>
+            <ZoruCard>
+                 <ZoruCardHeader>
                     <div className="flex items-center justify-between">
                         <div className="space-y-1.5">
-                            <CardTitle>Master Auto-Reply Switch</CardTitle>
-                            <CardDescription>Enable or disable all auto-reply functionality for this project.</CardDescription>
+                            <ZoruCardTitle>Master Auto-Reply ZoruSwitch</ZoruCardTitle>
+                            <ZoruCardDescription>Enable or disable all auto-reply functionality for this project.</ZoruCardDescription>
                         </div>
                          <div className="flex items-center gap-2">
                              {isSwitchPending && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
-                             <Switch 
+                             <ZoruSwitch 
                                 defaultChecked={project.autoReplySettings?.masterEnabled !== false}
                                 onCheckedChange={onMasterSwitchChange}
                                 disabled={isSwitchPending}
                             />
                         </div>
                     </div>
-                </CardHeader>
-            </Card>
+                </ZoruCardHeader>
+            </ZoruCard>
 
-            <Separator />
+            <ZoruSeparator />
             
             <div className="grid md:grid-cols-2 gap-6">
                 <AutoReplyForm type="welcomeMessage" project={project} />
@@ -63,7 +63,7 @@ export function AutoReplySettingsTab({ project }: AutoReplySettingsTabProps) {
                 <AutoReplyForm type="aiAssistant" project={project} />
             </div>
 
-            <Separator />
+            <ZoruSeparator />
             
             <OptInOutForm project={project} />
 

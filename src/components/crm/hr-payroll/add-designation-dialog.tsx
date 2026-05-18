@@ -3,34 +3,33 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmDesignation } from '@/app/actions/crm-employees.actions';
-import { ClayButton } from '@/components/clay';
 
 const initialState: { message?: string; error?: string; newDesignation?: any } = { message: undefined, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
+        <ZoruButton
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Designation
-        </ClayButton>
+        </ZoruButton>
     );
 }
 
@@ -62,29 +61,29 @@ export function AddDesignationDialog({ open, onOpenChange, onDesignationAdded, d
     }, [state, toast, onOpenChange, onDesignationAdded]);
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle className="text-foreground">Add New Designation</DialogTitle>
-                    <DialogDescription className="text-muted-foreground">
+        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle className="text-foreground">Add New Designation</ZoruDialogTitle>
+                    <ZoruDialogDescription className="text-muted-foreground">
                         Create a new designation for your organization.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <form ref={formRef} action={formAction} className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="name" className="text-foreground">Designation Name</Label>
-                        <Input id="name" name="name" defaultValue={defaultName} required />
+                        <ZoruLabel htmlFor="name" className="text-foreground">Designation Name</ZoruLabel>
+                        <ZoruInput id="name" name="name" defaultValue={defaultName} required />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="description" className="text-foreground">Description</Label>
-                        <Input id="description" name="description" />
+                        <ZoruLabel htmlFor="description" className="text-foreground">Description</ZoruLabel>
+                        <ZoruInput id="description" name="description" />
                     </div>
-                    <DialogFooter>
-                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+                    <ZoruDialogFooter>
+                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton />
-                    </DialogFooter>
+                    </ZoruDialogFooter>
                 </form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

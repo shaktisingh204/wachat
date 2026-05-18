@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { keywordDensity, countWords } from '@/lib/seo-tools/text-utils';
 
@@ -16,15 +16,15 @@ export default function KeywordDensityPage() {
 
   return (
     <ToolShell title="Keyword Density Checker" description="Analyze keyword frequency and density in your content.">
-      <Textarea
+      <ZoruTextarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
         className="min-h-[240px]"
       />
       <div className="text-sm text-muted-foreground">Total words: {total}</div>
-      <Card>
-        <CardContent className="p-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs text-muted-foreground">
@@ -52,8 +52,8 @@ export default function KeywordDensityPage() {
               )}
             </tbody>
           </table>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

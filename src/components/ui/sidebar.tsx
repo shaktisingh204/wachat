@@ -3,12 +3,12 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Button, type ButtonProps } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { ZoruButton, type ZoruButtonProps } from '@/components/zoruui';
+import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
-import { ScrollArea } from './scroll-area';
+import { ZoruDrawer, ZoruDrawerContent, ZoruDrawerTrigger } from '@/components/zoruui';
+import { ZoruScrollArea } from './scroll-area';
 import { PanelLeft, Calendar } from 'lucide-react';
 
 type SidebarContextProps = {
@@ -53,11 +53,11 @@ export function Sidebar({ className, children }: { className?: string; children:
 
   if (isMobile) {
     return (
-      <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-        <DrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
+      <ZoruDrawer open={isOpen} onOpenChange={setIsOpen} direction="left">
+        <ZoruDrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
           {sidebarContent}
-        </DrawerContent>
-      </Drawer>
+        </ZoruDrawerContent>
+      </ZoruDrawer>
     );
   }
 
@@ -76,9 +76,9 @@ SidebarHeader.displayName = 'SidebarHeader';
 export function SidebarContent({ className, children }: React.HTMLAttributes<HTMLDivElement>) {
   const { isOpen } = useSidebar();
   return (
-    <ScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
+    <ZoruScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
       {children}
-    </ScrollArea>
+    </ZoruScrollArea>
   );
 }
 
@@ -95,19 +95,19 @@ export const SidebarMenuItem = React.forwardRef<HTMLLIElement, React.HTMLAttribu
 ));
 SidebarMenuItem.displayName = 'SidebarMenuItem';
 
-type SidebarMenuButtonProps = ButtonProps & {
+type SidebarMenuZoruButtonProps = ZoruButtonProps & {
   isActive?: boolean;
   tooltip?: string;
   asChild?: boolean;
   showTooltip?: boolean;
 };
 
-export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
+export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuZoruButtonProps>(
   ({ isActive, tooltip, asChild, showTooltip, ...props }, ref) => {
     const { isOpen } = useSidebar();
 
     const buttonContent = (
-      <Button
+      <ZoruButton
         ref={ref}
         variant={isActive ? 'sidebar-active' : 'ghost'}
         className={cn('w-full transition-all duration-300', isOpen ? 'justify-start px-4' : 'h-12 w-full justify-center px-2 group-hover:justify-start group-hover:px-4')}
@@ -119,12 +119,12 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     if (isOpen && !showTooltip) return buttonContent;
 
     return (
-      <Tooltip>
-        <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
-        <TooltipContent side="right" sideOffset={10}>
+      <ZoruTooltip>
+        <ZoruTooltipTrigger asChild>{buttonContent}</ZoruTooltipTrigger>
+        <ZoruTooltipContent side="right" sideOffset={10}>
           <p>{tooltip}</p>
-        </TooltipContent>
-      </Tooltip>
+        </ZoruTooltipContent>
+      </ZoruTooltip>
     );
   }
 );
@@ -139,17 +139,17 @@ export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => 
   const { isMobile, isOpen, setIsOpen } = useSidebar();
   if (isMobile) {
     return (
-      <DrawerTrigger asChild>
+      <ZoruDrawerTrigger asChild>
         {children}
-      </DrawerTrigger>
+      </ZoruDrawerTrigger>
     )
   }
 
   if (!children) {
     return (
-      <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+      <ZoruButton variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
         <PanelLeft />
-      </Button>
+      </ZoruButton>
     );
   }
 

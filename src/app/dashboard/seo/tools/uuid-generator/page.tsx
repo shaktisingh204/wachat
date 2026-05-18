@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function uuid() {
@@ -24,13 +24,13 @@ export default function UuidGeneratorPage() {
   return (
     <ToolShell title="UUID Generator" description="Generate cryptographically random UUID v4 identifiers.">
       <div className="flex gap-2">
-        <Button onClick={generate}>Generate UUID</Button>
-        {list[0] && <Button variant="outline" onClick={() => navigator.clipboard.writeText(list[0])}>Copy latest</Button>}
+        <ZoruButton onClick={generate}>Generate UUID</ZoruButton>
+        {list[0] && <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(list[0])}>Copy latest</ZoruButton>}
       </div>
-      <Card><CardContent className="p-4 space-y-1">
+      <ZoruCard><ZoruCardContent className="p-4 space-y-1">
         {list.length === 0 && <div className="text-sm text-muted-foreground">Click to generate.</div>}
         {list.map((u, i) => <div key={i} className="font-mono text-xs border-t last:border-0 first:border-t-0 py-1">{u}</div>)}
-      </CardContent></Card>
+      </ZoruCardContent></ZoruCard>
     </ToolShell>
   );
 }

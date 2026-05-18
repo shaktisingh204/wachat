@@ -1,12 +1,10 @@
 'use client';
 
 /**
- * AddContactDialog — Clay-styled contact creation modal.
+ * AddContactDialog — ZoruUI-styled contact creation modal.
  *
- * Uses the shadcn Dialog primitive (which inherits Clay tokens via
- * the global shadcn remap) and shadcn Select/Input components. The
- * trigger is a ClayButton so it matches the rest of the Wachat
- * contacts toolbar.
+ * Uses ZoruDialog, ZoruInput, ZoruSelect, and a ZoruButton trigger so it
+ * matches the rest of the Wachat contacts toolbar.
  */
 
 import * as React from 'react';
@@ -22,26 +20,25 @@ import { countryCodes } from '@/lib/country-codes';
 
 import { MultiSelectCombobox } from './multi-select-combobox';
 
-import { ClayButton } from '@/components/clay';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { ScrollArea } from '@/components/ui/scroll-area';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 const initialState = {
@@ -53,7 +50,7 @@ const initialState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <ClayButton
+    <ZoruButton
       type="submit"
       variant="rose"
       size="md"
@@ -65,7 +62,7 @@ function SubmitButton() {
       }
     >
       {pending ? 'Adding…' : 'Add contact'}
-    </ClayButton>
+    </ZoruButton>
   );
 }
 
@@ -129,18 +126,18 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
   }));
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <ClayButton
+    <ZoruDialog open={open} onOpenChange={handleOpenChange}>
+      <ZoruDialogTrigger asChild>
+        <ZoruButton
           variant="rose"
           size="md"
           leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
         >
           Add contact
-        </ClayButton>
-      </DialogTrigger>
+        </ZoruButton>
+      </ZoruDialogTrigger>
 
-      <DialogContent
+      <ZoruDialogContent
         className={cn(
           'max-w-[520px] rounded-[18px] border border-border bg-card p-0 shadow-lg',
         )}
@@ -155,44 +152,44 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
           />
           <input type="hidden" name="countryCode" value={countryCode} />
 
-          <DialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
+          <ZoruDialogHeader className="flex flex-row items-start gap-3 border-b border-border px-6 py-5">
             <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px] bg-accent text-accent-foreground">
               <LuUserPlus className="h-5 w-5" strokeWidth={2} />
             </span>
             <div className="min-w-0 flex-1">
-              <DialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
+              <ZoruDialogTitle className="text-[16px] font-semibold text-foreground leading-tight">
                 Add new contact
-              </DialogTitle>
-              <DialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
+              </ZoruDialogTitle>
+              <ZoruDialogDescription className="mt-0.5 text-[12px] text-muted-foreground leading-snug">
                 Manually add a contact to your project. They&apos;ll become
                 available for chat and broadcasts right away.
-              </DialogDescription>
+              </ZoruDialogDescription>
             </div>
-          </DialogHeader>
+          </ZoruDialogHeader>
 
           <div className="flex flex-col gap-5 px-6 py-5">
             {/* WhatsApp number */}
             <Field label="WhatsApp number" htmlFor="phoneNumberId-dialog">
-              <Select
+              <ZoruSelect
                 value={selectedPhoneNumberId}
                 onValueChange={setSelectedPhoneNumberId}
               >
-                <SelectTrigger id="phoneNumberId-dialog">
-                  <SelectValue placeholder="Choose a number…" />
-                </SelectTrigger>
-                <SelectContent>
+                <ZoruSelectTrigger id="phoneNumberId-dialog">
+                  <ZoruSelectValue placeholder="Choose a number…" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {(project?.phoneNumbers || []).map((phone) => (
-                    <SelectItem key={phone.id} value={phone.id}>
+                    <ZoruSelectItem key={phone.id} value={phone.id}>
                       {phone.display_phone_number} ({phone.verified_name})
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </Field>
 
             {/* Full name */}
             <Field label="Full name" required htmlFor="name">
-              <Input
+              <ZoruInput
                 id="name"
                 name="name"
                 required
@@ -203,23 +200,23 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             {/* Country + phone number */}
             <div className="grid grid-cols-[120px_1fr] items-end gap-3">
               <Field label="Country">
-                <Select value={countryCode} onValueChange={setCountryCode}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Code" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <ScrollArea className="h-64">
+                <ZoruSelect value={countryCode} onValueChange={setCountryCode}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="Code" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruScrollArea className="h-64">
                       {countryCodes.map((c) => (
-                        <SelectItem key={c.name} value={c.code}>
+                        <ZoruSelectItem key={c.name} value={c.code}>
                           +{c.code} ({c.name})
-                        </SelectItem>
+                        </ZoruSelectItem>
                       ))}
-                    </ScrollArea>
-                  </SelectContent>
-                </Select>
+                    </ZoruScrollArea>
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </Field>
               <Field label="Phone number" required htmlFor="phone">
-                <Input
+                <ZoruInput
                   id="phone"
                   name="phone"
                   placeholder="9876543210"
@@ -231,9 +228,9 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
 
             {/* Tags */}
             <div className="flex flex-col gap-1.5">
-              <Label className="text-[11.5px] font-semibold text-muted-foreground">
+              <ZoruLabel className="text-[11.5px] font-semibold text-muted-foreground">
                 Tags
-              </Label>
+              </ZoruLabel>
               <MultiSelectCombobox
                 options={tagOptions}
                 selected={selectedTagIds}
@@ -243,20 +240,20 @@ export function AddContactDialog({ project, onAdded }: AddContactDialogProps) {
             </div>
           </div>
 
-          <DialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
-            <ClayButton
+          <ZoruDialogFooter className="border-t border-border px-6 py-4 sm:justify-end gap-2">
+            <ZoruButton
               type="button"
               variant="pill"
               size="md"
               onClick={() => handleOpenChange(false)}
             >
               Cancel
-            </ClayButton>
+            </ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -275,13 +272,13 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <Label
+      <ZoruLabel
         htmlFor={htmlFor}
         className="text-[11.5px] font-semibold text-muted-foreground"
       >
         {label}
         {required ? <span className="ml-1 text-destructive">*</span> : null}
-      </Label>
+      </ZoruLabel>
       {children}
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { LogIn } from 'lucide-react';
 import { impersonateUser } from '@/app/actions/admin.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -47,7 +47,7 @@ export function ImpersonateUserButton({ userId, userName }: ImpersonateUserButto
     };
 
     return (
-        <Button
+        <ZoruButton
             variant="ghost"
             size="icon"
             onClick={handleImpersonate}
@@ -55,6 +55,6 @@ export function ImpersonateUserButton({ userId, userName }: ImpersonateUserButto
             title={`Login as ${userName}`}
         >
             <LogIn className="h-4 w-4" />
-        </Button>
+        </ZoruButton>
     );
 }

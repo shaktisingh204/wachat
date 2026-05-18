@@ -4,17 +4,17 @@
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Trash2, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,8 +27,8 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <AlertDialogAction asChild>
-      <Button type="submit" variant="destructive" disabled={pending}>
+    <ZoruAlertDialogAction asChild>
+      <ZoruButton type="submit" variant="destructive" disabled={pending}>
         {pending ? (
           <>
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -40,8 +40,8 @@ function SubmitButton() {
             Yes, clean the database
           </>
         )}
-      </Button>
-    </AlertDialogAction>
+      </ZoruButton>
+    </ZoruAlertDialogAction>
   );
 }
 
@@ -69,27 +69,27 @@ export function CleanDatabaseButton() {
   }, [state, toast]);
   
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <ZoruButton variant="destructive">
             <Trash2 className="mr-2 h-4 w-4" />
             Clean Database
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
         <form action={formAction}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Are you absolutely sure?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
               This action cannot be undone. This will permanently delete all projects, templates, broadcasts, notifications, and other data from the database.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter className="mt-4">
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
             <SubmitButton />
-          </AlertDialogFooter>
+          </ZoruAlertDialogFooter>
         </form>
-      </AlertDialogContent>
-    </AlertDialog>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }

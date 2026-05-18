@@ -3,22 +3,22 @@
 'use client';
 
 import { Check, X, History, Lock, IndianRupee, CheckCircle2, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { getPlans } from '@/app/actions/plan.actions';
 import { planFeatureMap } from '@/lib/plans';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator } from '@/components/zoruui';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import { useEffect, useState, useMemo } from 'react';
 import { useSearchParams } from 'next/navigation';
 import type { Plan, WithId, User } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from "@/components/ui/accordion"
 import { WalletCard } from '@/components/wabasimplify/wallet-card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
@@ -30,16 +30,16 @@ const PlanFeature = ({ children, included }: { children: React.ReactNode, includ
 
 const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, currentPlanId?: string, projectId?: string | null }) => {
     return (
-        <Card key={plan._id.toString()} className={cn("flex flex-col w-80", currentPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
-            <CardHeader className="flex-grow">
-                <CardTitle>{plan.name}</CardTitle>
+        <ZoruCard key={plan._id.toString()} className={cn("flex flex-col w-80", currentPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
+            <ZoruCardHeader className="flex-grow">
+                <ZoruCardTitle>{plan.name}</ZoruCardTitle>
                 <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
-                <CardDescription>
+                <ZoruCardDescription>
                     + Mkt: INR {plan.messageCosts?.marketing ?? 'N/A'} | Util: INR {plan.messageCosts?.utility ?? 'N/A'} | Auth: INR {plan.messageCosts?.authentication ?? 'N/A'}
-                </CardDescription>
-            </CardHeader>
-            <Separator />
-            <CardContent className="pt-6 space-y-4">
+                </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruSeparator />
+            <ZoruCardContent className="pt-6 space-y-4">
                 <ul className="space-y-3">
                     <PlanFeature included={true}>{plan.projectLimit > 0 ? `${plan.projectLimit} Project(s)` : 'Unlimited Projects'}</PlanFeature>
                     <PlanFeature included={true}>{plan.agentLimit > 0 ? `${plan.agentLimit} Agent(s) per Project` : 'Unlimited Agents'}</PlanFeature>
@@ -47,11 +47,11 @@ const PlanCard = ({ plan, currentPlanId, projectId }: { plan: WithId<Plan>, curr
                     <PlanFeature included={true}>{plan.flowLimit > 0 ? `${plan.flowLimit} Flows` : 'Unlimited Flows'}</PlanFeature>
                     <PlanFeature included={plan.features.apiAccess}>API Access</PlanFeature>
                 </ul>
-            </CardContent>
-            <CardFooter className="mt-auto">
+            </ZoruCardContent>
+            <ZoruCardFooter className="mt-auto">
                <PlanPurchaseButton plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
-            </CardFooter>
-        </Card>
+            </ZoruCardFooter>
+        </ZoruCard>
     );
 };
 
@@ -60,15 +60,15 @@ const PlanCategorySection = ({ title, plans, currentPlanId, projectId }: { title
     return (
         <div className="space-y-4">
             <h2 className="text-2xl font-bold font-headline">{title}</h2>
-            <ScrollArea className="w-full whitespace-nowrap">
+            <ZoruScrollArea className="w-full whitespace-nowrap">
                 <div className="flex w-max space-x-6 pb-4">
                     {plans.map((plan: WithId<Plan>) => (
                        <PlanCard key={plan._id.toString()} plan={plan} currentPlanId={currentPlanId} projectId={projectId} />
                     ))}
                 </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-            <Separator />
+                <ZoruScrollBar orientation="horizontal" />
+            </ZoruScrollArea>
+            <ZoruSeparator />
         </div>
     );
 }
@@ -127,16 +127,16 @@ export default function BillingPage() {
     }
 
     const PlanFeaturesGrid = () => (
-        <Card>
-            <Accordion type="single" collapsible>
-                <AccordionItem value="item-1" className="border-b-0">
-                    <AccordionTrigger className="p-6">
+        <ZoruCard>
+            <ZoruAccordion type="single" collapsible>
+                <ZoruAccordionItem value="item-1" className="border-b-0">
+                    <ZoruAccordionTrigger className="p-6">
                         <div className="text-left">
-                            <CardTitle>Features Included in Your Plan</CardTitle>
-                            <CardDescription className="mt-2">An overview of features available on your current <span className="font-semibold text-primary">{sessionUser?.plan?.name || 'plan'}</span>.</CardDescription>
+                            <ZoruCardTitle>Features Included in Your Plan</ZoruCardTitle>
+                            <ZoruCardDescription className="mt-2">An overview of features available on your current <span className="font-semibold text-primary">{sessionUser?.plan?.name || 'plan'}</span>.</ZoruCardDescription>
                         </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="p-6 pt-0">
+                    </ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="p-6 pt-0">
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                             {planFeatureMap.map(feature => {
                                 const isAllowed = sessionUser?.plan?.features?.[feature.id as keyof typeof sessionUser.plan.features] ?? true;
@@ -149,32 +149,32 @@ export default function BillingPage() {
                                 )
                             })}
                         </div>
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
-        </Card>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+            </ZoruAccordion>
+        </ZoruCard>
     );
 
     return (
         <div className="flex flex-col gap-8">
             {/* Payment result banners */}
             {paymentStatus === 'success' && (
-                <Alert>
+                <ZoruAlert>
                     <CheckCircle2 className="h-4 w-4" />
-                    <AlertTitle>Payment successful</AlertTitle>
-                    <AlertDescription>
+                    <ZoruAlertTitle>Payment successful</ZoruAlertTitle>
+                    <ZoruAlertDescription>
                         Your plan has been activated. Transaction: {paymentTxn}
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
             )}
             {paymentStatus === 'failed' && (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Payment failed</AlertTitle>
-                    <AlertDescription>
+                    <ZoruAlertTitle>Payment failed</ZoruAlertTitle>
+                    <ZoruAlertDescription>
                         Your payment could not be processed. No money was deducted. Please try again.
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -182,12 +182,12 @@ export default function BillingPage() {
                     <h1 className="text-3xl font-bold font-headline">Billing & Plans</h1>
                     <p className="text-muted-foreground">Manage your subscription, purchase credits, and view your history.</p>
                 </div>
-                <Button asChild variant="outline">
+                <ZoruButton asChild variant="outline">
                     <Link href="/dashboard/user/billing/history">
                         <History className="mr-2 h-4 w-4" />
                         View Billing History
                     </Link>
-                </Button>
+                </ZoruButton>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
@@ -199,7 +199,7 @@ export default function BillingPage() {
                 </div>
             </div>
 
-            <Separator />
+            <ZoruSeparator />
             
             <div id="upgrade" className="space-y-8">
                 <PlanCategorySection title="All-In-One Plans" plans={categorizedPlans['All-In-One']} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />

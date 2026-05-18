@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiFetchUrl } from '@/lib/seo-tools/api-client';
 
@@ -33,19 +33,19 @@ export default function SitemapValidatorPage() {
   return (
     <ToolShell title="Sitemap Validator" description="Validate a sitemap.xml and list its URLs.">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/sitemap.xml" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Validating…' : 'Validate'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {result && (
-        <Card><CardContent className="p-4 space-y-1 text-sm">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-1 text-sm">
           <div>XML header: {result.isXml ? '✅' : '❌'}</div>
           <div>Urlset: {result.hasUrlset ? '✅' : '❌'}</div>
           <div>Sitemap index: {result.isIndex ? '✅' : '—'}</div>
           <div>URLs: {result.count}</div>
           <div className="mt-3 text-xs font-semibold">First {result.samples.length}:</div>
           {result.samples.map((u: string, i: number) => <div key={i} className="text-xs font-mono border-t py-0.5 truncate">{u}</div>)}
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

@@ -4,32 +4,32 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Settings } from 'lucide-react';
 import { updateEcommShopSettings as saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, Project } from '@/lib/definitions';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
 
 const initialState = { message: null, error: undefined };
 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Save & Continue
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -57,43 +57,43 @@ export function EcommQuickSetupDialog({ project, onSuccess, children }: EcommQui
   }, [state, toast, onSuccess]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <ZoruDialog open={open} onOpenChange={setOpen}>
+      <ZoruDialogTrigger asChild>
         {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      </ZoruDialogTrigger>
+      <ZoruDialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
-          <DialogHeader>
-            <DialogTitle>Configure Your Shop</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Configure Your Shop</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Set a name and currency for your shop to get started. You can add more details later in settings.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="shopName">Shop Name</Label>
-              <Input id="shopName" name="shopName" placeholder="My Awesome Store" required />
+              <ZoruLabel htmlFor="shopName">Shop Name</ZoruLabel>
+              <ZoruInput id="shopName" name="shopName" placeholder="My Awesome Store" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Select name="currency" defaultValue="USD" required>
-                  <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="USD">USD - US Dollar</SelectItem>
-                      <SelectItem value="EUR">EUR - Euro</SelectItem>
-                      <SelectItem value="INR">INR - Indian Rupee</SelectItem>
-                      <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                  </SelectContent>
-              </Select>
+              <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+              <ZoruSelect name="currency" defaultValue="USD" required>
+                  <ZoruSelectTrigger id="currency"><ZoruSelectValue /></ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                      <ZoruSelectItem value="USD">USD - US Dollar</ZoruSelectItem>
+                      <ZoruSelectItem value="EUR">EUR - Euro</ZoruSelectItem>
+                      <ZoruSelectItem value="INR">INR - Indian Rupee</ZoruSelectItem>
+                      <ZoruSelectItem value="GBP">GBP - British Pound</ZoruSelectItem>
+                  </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+          <ZoruDialogFooter>
+            <ZoruButton type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
             <SubmitButton />
-          </DialogFooter>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

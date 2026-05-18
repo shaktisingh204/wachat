@@ -22,17 +22,17 @@
  */
 
 import * as React from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruCheckbox } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { EntityPicker, EntityPickerChip } from '@/components/crm/entity-picker';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
@@ -84,7 +84,7 @@ function entityRefValue(
 }
 
 /* ------------------------------------------------------------------ */
-/* Input                                                               */
+/* ZoruInput                                                               */
 /* ------------------------------------------------------------------ */
 
 export function CustomFieldInput({
@@ -101,13 +101,13 @@ export function CustomFieldInput({
 
   // The picker accepts `null`, `string`, or `string[]`. Other inputs
   // are happy with primitives. Branch on `field.type` and only emit
-  // the labelled wrapper once — no duplicate `<Label>` per case.
+  // the labelled wrapper once — no duplicate `<ZoruLabel>` per case.
   let control: React.ReactNode;
 
   switch (field.type) {
     case 'textarea': {
       control = (
-        <Textarea
+        <ZoruTextarea
           id={slug}
           name={slug}
           required={required}
@@ -123,27 +123,27 @@ export function CustomFieldInput({
     case 'select':
     case 'radio': {
       // `radio` shares the same shape on disk (single string). For now
-      // we render both as a Select — the visual difference can be
+      // we render both as a ZoruSelect — the visual difference can be
       // upgraded later without changing storage.
       const options = field.values ?? [];
       control = (
-        <Select
+        <ZoruSelect
           name={slug}
           value={asString(value)}
           onValueChange={(v) => onChange(v)}
           disabled={disabled}
         >
-          <SelectTrigger id={slug}>
-            <SelectValue placeholder={`Select ${label}…`} />
-          </SelectTrigger>
-          <SelectContent>
+          <ZoruSelectTrigger id={slug}>
+            <ZoruSelectValue placeholder={`ZoruSelect ${label}…`} />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
             {options.map((opt) => (
-              <SelectItem key={opt} value={opt}>
+              <ZoruSelectItem key={opt} value={opt}>
                 {opt}
-              </SelectItem>
+              </ZoruSelectItem>
             ))}
-          </SelectContent>
-        </Select>
+          </ZoruSelectContent>
+        </ZoruSelect>
       );
       break;
     }
@@ -154,7 +154,7 @@ export function CustomFieldInput({
       // permits arrays, but the UI for that would land alongside.)
       control = (
         <div className="flex items-center gap-2">
-          <Checkbox
+          <ZoruCheckbox
             id={slug}
             name={slug}
             checked={Boolean(value)}
@@ -162,14 +162,14 @@ export function CustomFieldInput({
             onCheckedChange={(v) => onChange(Boolean(v))}
           />
           {showLabel ? (
-            <Label htmlFor={slug} className="text-[13px]">
+            <ZoruLabel htmlFor={slug} className="text-[13px]">
               {label}
               {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-            </Label>
+            </ZoruLabel>
           ) : null}
         </div>
       );
-      // Checkbox renders its own inline label, so skip the outer one.
+      // ZoruCheckbox renders its own inline label, so skip the outer one.
       return (
         <div className={cn('flex flex-col gap-1', className)}>{control}</div>
       );
@@ -177,7 +177,7 @@ export function CustomFieldInput({
 
     case 'number': {
       control = (
-        <Input
+        <ZoruInput
           id={slug}
           name={slug}
           type="number"
@@ -197,7 +197,7 @@ export function CustomFieldInput({
 
     case 'date': {
       control = (
-        <Input
+        <ZoruInput
           id={slug}
           name={slug}
           type="date"
@@ -212,7 +212,7 @@ export function CustomFieldInput({
 
     case 'email': {
       control = (
-        <Input
+        <ZoruInput
           id={slug}
           name={slug}
           type="email"
@@ -227,7 +227,7 @@ export function CustomFieldInput({
 
     case 'url': {
       control = (
-        <Input
+        <ZoruInput
           id={slug}
           name={slug}
           type="url"
@@ -269,7 +269,7 @@ export function CustomFieldInput({
     case 'text':
     default: {
       control = (
-        <Input
+        <ZoruInput
           id={slug}
           name={slug}
           required={required}
@@ -285,10 +285,10 @@ export function CustomFieldInput({
   return (
     <div className={cn('flex flex-col gap-1', className)}>
       {showLabel ? (
-        <Label htmlFor={slug} className="text-[13px]">
+        <ZoruLabel htmlFor={slug} className="text-[13px]">
           {label}
           {required ? <span className="ml-0.5 text-destructive">*</span> : null}
-        </Label>
+        </ZoruLabel>
       ) : null}
       {control}
     </div>

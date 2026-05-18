@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight, CheckCircle2, Sparkles } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { AVAILABLE_MODULES } from './requirements-step';
 
@@ -95,12 +95,12 @@ export function CompleteStep({
             </div>
 
             <div className="flex justify-end pt-2">
-                <Button asChild className="h-11 px-6 text-base">
+                <ZoruButton asChild className="h-11 px-6 text-base">
                     <Link href="/wachat">
                         Go to dashboard
                         <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
-                </Button>
+                </ZoruButton>
             </div>
         </div>
     );

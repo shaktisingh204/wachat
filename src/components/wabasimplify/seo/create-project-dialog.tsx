@@ -4,14 +4,14 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-    Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
+    ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger,
+} from '@/components/zoruui';
 import {
     Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage,
 } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import { ZoruInput } from '@/components/zoruui';
 import { Plus } from 'lucide-react';
 import { createSeoProject } from '@/app/actions/seo.actions';
 import { toast } from '@/hooks/use-toast';
@@ -48,19 +48,19 @@ export function CreateSeoProjectDialog() {
     }
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button className="gap-2">
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton className="gap-2">
                     <Plus className="h-4 w-4" /> Add Project
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>Add SEO Project</DialogTitle>
-                    <DialogDescription>
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-[425px]">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Add SEO Project</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Start tracking a website's SEO performance.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         <FormField
@@ -70,7 +70,7 @@ export function CreateSeoProjectDialog() {
                                 <FormItem>
                                     <FormLabel>Domain</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="example.com" {...field} />
+                                        <ZoruInput placeholder="example.com" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Enter the root domain (without https://)
@@ -86,7 +86,7 @@ export function CreateSeoProjectDialog() {
                                 <FormItem>
                                     <FormLabel>Competitors (Optional)</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="comp1.com, comp2.com" {...field} />
+                                        <ZoruInput placeholder="comp1.com, comp2.com" {...field} />
                                     </FormControl>
                                     <FormDescription>
                                         Comma-separated list of competitor domains.
@@ -95,12 +95,12 @@ export function CreateSeoProjectDialog() {
                                 </FormItem>
                             )}
                         />
-                        <DialogFooter>
-                            <Button type="submit">Create Project</Button>
-                        </DialogFooter>
+                        <ZoruDialogFooter>
+                            <ZoruButton type="submit">Create Project</ZoruButton>
+                        </ZoruDialogFooter>
                     </form>
                 </Form>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

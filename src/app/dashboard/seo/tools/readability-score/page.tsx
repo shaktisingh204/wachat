@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { fleschKincaidGrade, fleschReadingEase } from '@/lib/seo-tools/text-utils';
 
@@ -26,21 +26,21 @@ export default function ReadabilityScorePage() {
 
   return (
     <ToolShell title="Readability Score" description="Flesch Reading Ease and Flesch–Kincaid grade level.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[260px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[260px]" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <div className="text-2xl font-bold">{ease.toFixed(1)}</div>
             <div className="text-xs text-muted-foreground">Flesch Reading Ease</div>
             <div className="text-xs mt-2">{easeLabel(ease)}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
+          </ZoruCardContent>
+        </ZoruCard>
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <div className="text-2xl font-bold">{grade.toFixed(1)}</div>
             <div className="text-xs text-muted-foreground">Flesch–Kincaid Grade Level</div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       </div>
     </ToolShell>
   );

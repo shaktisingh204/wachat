@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function hexToRgb(hex: string) {
@@ -46,12 +46,12 @@ export default function ColorPickerPage() {
       <div className="flex items-center gap-4">
         <input type="color" value={hex} onChange={(e) => setHex(e.target.value)} className="h-20 w-20 border rounded" />
         <div className="flex-1 space-y-2">
-          <div className="flex items-center gap-2"><span className="font-mono text-sm w-20">{hex}</span><Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(hex)}>Copy</Button></div>
-          <div className="flex items-center gap-2"><span className="font-mono text-sm w-48">{rgbStr}</span><Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(rgbStr)}>Copy</Button></div>
-          <div className="flex items-center gap-2"><span className="font-mono text-sm w-48">{hslStr}</span><Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(hslStr)}>Copy</Button></div>
+          <div className="flex items-center gap-2"><span className="font-mono text-sm w-20">{hex}</span><ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(hex)}>Copy</ZoruButton></div>
+          <div className="flex items-center gap-2"><span className="font-mono text-sm w-48">{rgbStr}</span><ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(rgbStr)}>Copy</ZoruButton></div>
+          <div className="flex items-center gap-2"><span className="font-mono text-sm w-48">{hslStr}</span><ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(hslStr)}>Copy</ZoruButton></div>
         </div>
       </div>
-      <Card><CardContent className="p-0"><div className="h-32 rounded" style={{ backgroundColor: hex }} /></CardContent></Card>
+      <ZoruCard><ZoruCardContent className="p-0"><div className="h-32 rounded" style={{ backgroundColor: hex }} /></ZoruCardContent></ZoruCard>
     </ToolShell>
   );
 }

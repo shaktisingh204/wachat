@@ -2,9 +2,9 @@
 'use client';
 
 import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';
@@ -27,19 +27,19 @@ export default function OrderDetailsPage() {
 
     return (
         <div className="space-y-4">
-             <Button asChild variant="ghost" className="-ml-4">
+             <ZoruButton asChild variant="ghost" className="-ml-4">
                  <Link href={`/shop/${params.slug}/account/orders`}>
                     &larr; Back to Order History
                 </Link>
-            </Button>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-2xl">Order Details</CardTitle>
-                    <CardDescription>
+            </ZoruButton>
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="text-2xl">Order Details</ZoruCardTitle>
+                    <ZoruCardDescription>
                         Order #{order._id.toString()} - Placed on {new Date(order.createdAt).toLocaleDateString()}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
+                    </ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                              <h3 className="font-semibold">Shipping Address</h3>
@@ -59,7 +59,7 @@ export default function OrderDetailsPage() {
                             </p>
                         </div>
                     </div>
-                     <Separator />
+                     <ZoruSeparator />
                     <div>
                         <h3 className="font-semibold text-lg mb-2">Order Items</h3>
                         <ul className="space-y-3">
@@ -71,14 +71,14 @@ export default function OrderDetailsPage() {
                             ))}
                         </ul>
                     </div>
-                     <Separator />
+                     <ZoruSeparator />
                      <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
                         <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
                     </div>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </div>
     );
 }

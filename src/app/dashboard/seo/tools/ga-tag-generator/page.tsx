@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function GaTagGeneratorPage() {
@@ -43,26 +43,26 @@ export default function GaTagGeneratorPage() {
       title="GA4 Tag Generator"
       description="Generate the Google Analytics 4 gtag.js snippet for your website."
     >
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <Label htmlFor="ga-id">GA4 Measurement ID</Label>
-          <Input
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-3">
+          <ZoruLabel htmlFor="ga-id">GA4 Measurement ID</ZoruLabel>
+          <ZoruInput
             id="ga-id"
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder="G-XXXXXXXXXX"
           />
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label>Generated snippet</Label>
-          <Button size="sm" variant="outline" onClick={handleCopy}>
+          <ZoruLabel>Generated snippet</ZoruLabel>
+          <ZoruButton size="sm" variant="outline" onClick={handleCopy}>
             {copied ? 'Copied!' : 'Copy'}
-          </Button>
+          </ZoruButton>
         </div>
-        <Textarea readOnly value={snippet} className="min-h-[220px] font-mono text-xs" />
+        <ZoruTextarea readOnly value={snippet} className="min-h-[220px] font-mono text-xs" />
         <p className="text-xs text-muted-foreground">
           Paste this snippet just before the closing &lt;/head&gt; tag on every page you want to track.
         </p>

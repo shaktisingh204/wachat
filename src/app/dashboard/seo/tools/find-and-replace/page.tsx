@@ -4,10 +4,10 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function FindAndReplacePage() {
@@ -31,24 +31,24 @@ export default function FindAndReplacePage() {
 
   return (
     <ToolShell title="Find and Replace" description="Find and replace text in bulk with optional regex.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text…" className="min-h-[220px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text…" className="min-h-[220px]" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
-          <Label>Find</Label>
-          <Input value={find} onChange={(e) => setFind(e.target.value)} />
+          <ZoruLabel>Find</ZoruLabel>
+          <ZoruInput value={find} onChange={(e) => setFind(e.target.value)} />
         </div>
         <div className="space-y-1">
-          <Label>Replace with</Label>
-          <Input value={replace} onChange={(e) => setReplace(e.target.value)} />
+          <ZoruLabel>Replace with</ZoruLabel>
+          <ZoruInput value={replace} onChange={(e) => setReplace(e.target.value)} />
         </div>
       </div>
       <div className="flex items-center gap-6">
-        <div className="flex items-center gap-2"><Switch checked={regex} onCheckedChange={setRegex} /><Label>Regex</Label></div>
-        <div className="flex items-center gap-2"><Switch checked={caseSensitive} onCheckedChange={setCaseSensitive} /><Label>Case sensitive</Label></div>
+        <div className="flex items-center gap-2"><ZoruSwitch checked={regex} onCheckedChange={setRegex} /><ZoruLabel>Regex</ZoruLabel></div>
+        <div className="flex items-center gap-2"><ZoruSwitch checked={caseSensitive} onCheckedChange={setCaseSensitive} /><ZoruLabel>Case sensitive</ZoruLabel></div>
         <div className="text-sm text-muted-foreground">{count} match(es)</div>
       </div>
       <div className="text-sm font-semibold">Output</div>
-      <Textarea readOnly value={output} className="min-h-[220px]" />
+      <ZoruTextarea readOnly value={output} className="min-h-[220px]" />
     </ToolShell>
   );
 }

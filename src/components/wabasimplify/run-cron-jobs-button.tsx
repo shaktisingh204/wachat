@@ -3,7 +3,7 @@
 
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { Play, LoaderCircle } from 'lucide-react';
 
 async function triggerAllCrons() {
@@ -53,7 +53,7 @@ export function RunCronJobsButton() {
   };
 
   return (
-    <Button onClick={onRun} variant="outline" disabled={isPending}>
+    <ZoruButton onClick={onRun} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -65,6 +65,6 @@ export function RunCronJobsButton() {
           Run All Cron Jobs
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }

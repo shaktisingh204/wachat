@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LuArrowUpRight } from 'react-icons/lu';
-import { Card } from '@/components/ui/card';
+import { ZoruCard } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 export interface ClayNotificationCardProps {
@@ -15,8 +15,8 @@ export interface ClayNotificationCardProps {
 
 /**
  * ClayNotificationCard — small stacked notification pills. Renders a
- * shadcn `Card` shaped as a button via the `asChild`-friendly
- * pattern: we wrap a real <button> around the Card so the whole row
+ * shadcn `ZoruCard` shaped as a button via the `asChild`-friendly
+ * pattern: we wrap a real <button> around the ZoruCard so the whole row
  * is keyboard- and click-accessible.
  */
 export function ClayNotificationCard({
@@ -33,7 +33,7 @@ export function ClayNotificationCard({
       onClick={onClick}
       className={cn('group block w-full text-left', className)}
     >
-      <Card
+      <ZoruCard
         variant="default"
         className={cn(
           'flex w-full items-center gap-2.5 rounded-[12px] px-3 py-2.5 transition-colors',
@@ -64,7 +64,7 @@ export function ClayNotificationCard({
           )}
           strokeWidth={2}
         />
-      </Card>
+      </ZoruCard>
     </button>
   );
 }

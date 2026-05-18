@@ -5,11 +5,11 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useCart } from '@/context/cart-context';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { createEcommOrder } from '@/app/actions/custom-ecommerce.actions';
@@ -84,7 +84,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Full Name</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <ZoruInput {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -93,7 +93,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Email</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <ZoruInput {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -102,7 +102,7 @@ export function CheckoutForm() {
                             <FormItem>
                                 <FormLabel>Phone (Optional)</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <ZoruInput {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -111,7 +111,7 @@ export function CheckoutForm() {
                              <FormItem>
                                 <FormLabel>Street Address</FormLabel>
                                 <FormControl>
-                                    <Input {...field} />
+                                    <ZoruInput {...field} />
                                 </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -121,7 +121,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>City</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <ZoruInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -130,7 +130,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>State</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <ZoruInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -141,7 +141,7 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>ZIP Code</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <ZoruInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
@@ -150,36 +150,36 @@ export function CheckoutForm() {
                                 <FormItem>
                                     <FormLabel>Country</FormLabel>
                                     <FormControl>
-                                        <Input {...field} />
+                                        <ZoruInput {...field} />
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )} />
                         </div>
-                        <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
+                        <ZoruButton type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
                             {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                             Place Order & Proceed to Payment
-                        </Button>
+                        </ZoruButton>
                     </form>
                 </Form>
             </div>
             <div>
-                <Card>
-                    <CardHeader><CardTitle>Your Order</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
+                <ZoruCard>
+                    <ZoruCardHeader><ZoruCardTitle>Your Order</ZoruCardTitle></ZoruCardHeader>
+                    <ZoruCardContent className="space-y-4">
                         {cart.map(item => (
                              <div key={item.productId} className="flex justify-between items-center text-sm">
                                 <span>{item.name} x {item.quantity}</span>
                                 <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
                              </div>
                         ))}
-                        <Separator />
+                        <ZoruSeparator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
-                    </CardContent>
-                </Card>
+                    </ZoruCardContent>
+                </ZoruCard>
             </div>
         </div>
     );

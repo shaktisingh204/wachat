@@ -3,16 +3,16 @@ import { TemplateInputRenderer } from './template-input-renderer';
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Send, UploadCloud, Link as LinkIcon } from 'lucide-react';
 import { handleSendTemplateMessage } from '@/app/actions/send-template.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -29,10 +29,10 @@ function SubmitButton() {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <ZoruButton type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
       Send Template
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -123,29 +123,29 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
+    <ZoruDialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="sm:max-w-md max-h-[85vh] flex flex-col overflow-hidden p-0">
         <form ref={formRef} onSubmit={handleSubmit} className="flex h-full flex-col overflow-hidden">
-          <DialogHeader className="px-6 pt-6 pb-2">
-            <DialogTitle>Send Template: {template.name}</DialogTitle>
-            <DialogDescription>
+          <ZoruDialogHeader className="px-6 pt-6 pb-2">
+            <ZoruDialogTitle>Send Template: {template.name}</ZoruDialogTitle>
+            <ZoruDialogDescription>
               Fill in the required information to send this template to {contact.name}.
-            </DialogDescription>
-          </DialogHeader>
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
 
           <div className="flex-1 overflow-y-auto px-6 py-2">
             <TemplateInputRenderer template={template} variableOptions={variableOptions} />
           </div>
 
-          <DialogFooter className="px-6 pb-6 pt-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
-            <Button type="submit" disabled={isPending}>
+          <ZoruDialogFooter className="px-6 pb-6 pt-2">
+            <ZoruButton type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
+            <ZoruButton type="submit" disabled={isPending}>
               {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
               Send Template
-            </Button>
-          </DialogFooter>
+            </ZoruButton>
+          </ZoruDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }

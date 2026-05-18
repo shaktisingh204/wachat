@@ -14,7 +14,7 @@ import {
 
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LoginForm } from '@/components/wabasimplify/login-form';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 
 const HIGHLIGHTS: { title: string; description: string; icon: React.ElementType }[] = [
     {
@@ -58,12 +58,12 @@ const HIGHLIGHTS: { title: string; description: string; icon: React.ElementType 
 function LoginFormSkeleton() {
     return (
         <div className="w-full max-w-md space-y-6 rounded-2xl border bg-card p-8 shadow-2xl">
-            <Skeleton className="h-7 w-1/2" />
-            <Skeleton className="h-4 w-3/4" />
+            <ZoruSkeleton className="h-7 w-1/2" />
+            <ZoruSkeleton className="h-4 w-3/4" />
             <div className="space-y-4 pt-4">
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
-                <Skeleton className="h-10 w-full" />
+                <ZoruSkeleton className="h-10 w-full" />
+                <ZoruSkeleton className="h-10 w-full" />
+                <ZoruSkeleton className="h-10 w-full" />
             </div>
         </div>
     );

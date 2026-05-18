@@ -1,13 +1,13 @@
 
 
 import Link from 'next/link';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { ArrowLeft, BookOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 
 const crmApiDocs = [
     {
@@ -132,12 +132,12 @@ export default function ApiDocsPage() {
     return (
         <div className="space-y-8">
              <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
+                <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
                     <Link href="/dashboard/api">
                         <ArrowLeft className="mr-2 h-4 w-4" />
                         Back to API Keys
                     </Link>
-                </Button>
+                </ZoruButton>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     <BookOpen className="h-8 w-8" />
                     API Documentation
@@ -147,18 +147,18 @@ export default function ApiDocsPage() {
                 </p>
             </div>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle>Authentication</CardTitle>
-                    <CardDescription>
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Authentication</ZoruCardTitle>
+                    <ZoruCardDescription>
                         Authenticate your API requests by including your API key in the `Authorization` header.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
+                    </ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <CodeBlock code={'Authorization: Bearer YOUR_API_KEY'} language="bash" />
                     <p className="text-sm text-muted-foreground mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-primary hover:underline">API settings page</Link>.</p>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
 
             <div className="space-y-4">
                  <h2 className="text-2xl font-bold font-headline">CRM Suite APIs</h2>
@@ -166,37 +166,37 @@ export default function ApiDocsPage() {
                     {crmApiDocs.map((endpoint, i) => {
                         const [method, path] = endpoint.endpoint.split(' ');
                         return (
-                            <Card key={i} className="card-gradient card-gradient-green">
-                                <CardHeader>
+                            <ZoruCard key={i} className="card-gradient card-gradient-green">
+                                <ZoruCardHeader>
                                     <div className="flex items-center gap-4">
-                                        <Badge className={method === 'GET' ? 'bg-blue-600' : (method === 'POST' ? 'bg-green-600' : (method === 'PUT' ? 'bg-yellow-500' : 'bg-red-600'))}>{method}</Badge>
-                                        <CardTitle className="font-mono text-lg">{path}</CardTitle>
+                                        <ZoruBadge className={method === 'GET' ? 'bg-blue-600' : (method === 'POST' ? 'bg-green-600' : (method === 'PUT' ? 'bg-yellow-500' : 'bg-red-600'))}>{method}</ZoruBadge>
+                                        <ZoruCardTitle className="font-mono text-lg">{path}</ZoruCardTitle>
                                     </div>
-                                    <CardDescription>{endpoint.description}</CardDescription>
-                                </CardHeader>
-                                <CardContent className="space-y-6">
+                                    <ZoruCardDescription>{endpoint.description}</ZoruCardDescription>
+                                </ZoruCardHeader>
+                                <ZoruCardContent className="space-y-6">
                                     {endpoint.queryParams && endpoint.queryParams.length > 0 && (
                                         <>
                                             <h4 className="font-semibold">Query Parameters</h4>
                                             <div className="border rounded-md overflow-hidden">
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow>
-                                                            <TableHead>Parameter</TableHead>
-                                                            <TableHead>Type</TableHead>
-                                                            <TableHead>Description</TableHead>
-                                                        </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody>
+                                                <ZoruTable>
+                                                    <ZoruTableHeader>
+                                                        <ZoruTableRow>
+                                                            <ZoruTableHead>Parameter</ZoruTableHead>
+                                                            <ZoruTableHead>Type</ZoruTableHead>
+                                                            <ZoruTableHead>Description</ZoruTableHead>
+                                                        </ZoruTableRow>
+                                                    </ZoruTableHeader>
+                                                    <ZoruTableBody>
                                                         {endpoint.queryParams.map(param => (
-                                                            <TableRow key={param.name}>
-                                                                <TableCell className="font-mono">{param.name}</TableCell>
-                                                                <TableCell className="font-mono text-xs">{param.type}</TableCell>
-                                                                <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
-                                                            </TableRow>
+                                                            <ZoruTableRow key={param.name}>
+                                                                <ZoruTableCell className="font-mono">{param.name}</ZoruTableCell>
+                                                                <ZoruTableCell className="font-mono text-xs">{param.type}</ZoruTableCell>
+                                                                <ZoruTableCell className="text-muted-foreground text-xs">{param.desc}</ZoruTableCell>
+                                                            </ZoruTableRow>
                                                         ))}
-                                                    </TableBody>
-                                                </Table>
+                                                    </ZoruTableBody>
+                                                </ZoruTable>
                                             </div>
                                         </>
                                     )}
@@ -204,24 +204,24 @@ export default function ApiDocsPage() {
                                         <>
                                             <h4 className="font-semibold">Request Body Parameters</h4>
                                             <div className="border rounded-md overflow-hidden">
-                                                <Table>
-                                                    <TableHeader>
-                                                        <TableRow>
-                                                            <TableHead>Parameter</TableHead>
-                                                            <TableHead>Type</TableHead>
-                                                            <TableHead>Description</TableHead>
-                                                        </TableRow>
-                                                    </TableHeader>
-                                                    <TableBody>
+                                                <ZoruTable>
+                                                    <ZoruTableHeader>
+                                                        <ZoruTableRow>
+                                                            <ZoruTableHead>Parameter</ZoruTableHead>
+                                                            <ZoruTableHead>Type</ZoruTableHead>
+                                                            <ZoruTableHead>Description</ZoruTableHead>
+                                                        </ZoruTableRow>
+                                                    </ZoruTableHeader>
+                                                    <ZoruTableBody>
                                                         {endpoint.bodyParams.map(param => (
-                                                            <TableRow key={param.name}>
-                                                                <TableCell className="font-mono">{param.name}</TableCell>
-                                                                <TableCell className="font-mono text-xs">{param.type}</TableCell>
-                                                                <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
-                                                            </TableRow>
+                                                            <ZoruTableRow key={param.name}>
+                                                                <ZoruTableCell className="font-mono">{param.name}</ZoruTableCell>
+                                                                <ZoruTableCell className="font-mono text-xs">{param.type}</ZoruTableCell>
+                                                                <ZoruTableCell className="text-muted-foreground text-xs">{param.desc}</ZoruTableCell>
+                                                            </ZoruTableRow>
                                                         ))}
-                                                    </TableBody>
-                                                </Table>
+                                                    </ZoruTableBody>
+                                                </ZoruTable>
                                             </div>
                                         </>
                                     )}
@@ -233,8 +233,8 @@ export default function ApiDocsPage() {
                                         <h4 className="font-semibold mb-2">Example Response</h4>
                                         <CodeBlock code={endpoint.response} language="json" />
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </ZoruCardContent>
+                            </ZoruCard>
                         )
                     })}
                  </div>

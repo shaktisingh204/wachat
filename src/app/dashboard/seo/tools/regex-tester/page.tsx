@@ -4,9 +4,9 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function RegexTesterPage() {
@@ -34,15 +34,15 @@ export default function RegexTesterPage() {
   return (
     <ToolShell title="Regex Tester" description="Test regular expressions against sample text.">
       <div className="flex gap-2">
-        <Input value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="pattern" className="font-mono" />
-        <Input value={flags} onChange={(e) => setFlags(e.target.value)} placeholder="flags" className="w-24 font-mono" />
+        <ZoruInput value={pattern} onChange={(e) => setPattern(e.target.value)} placeholder="pattern" className="font-mono" />
+        <ZoruInput value={flags} onChange={(e) => setFlags(e.target.value)} placeholder="flags" className="w-24 font-mono" />
       </div>
-      <Textarea value={test} onChange={(e) => setTest(e.target.value)} placeholder="Test string…" className="min-h-[180px] font-mono text-xs" />
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      <ZoruTextarea value={test} onChange={(e) => setTest(e.target.value)} placeholder="Test string…" className="min-h-[180px] font-mono text-xs" />
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       <div className="text-sm text-muted-foreground">{matches.length} match(es)</div>
-      <Card><CardContent className="p-4">
+      <ZoruCard><ZoruCardContent className="p-4">
         <div className="font-mono text-xs whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: highlighted }} />
-      </CardContent></Card>
+      </ZoruCardContent></ZoruCard>
     </ToolShell>
   );
 }

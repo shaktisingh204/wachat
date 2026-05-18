@@ -1,8 +1,8 @@
 
 'use client';
 
-import { CardHeader, CardTitle } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruScrollArea } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { FacebookKanbanCard } from './facebook-kanban-card';
 import type { WithId, FacebookSubscriber } from '@/lib/definitions';
@@ -21,19 +21,19 @@ export function FacebookKanbanColumn({ title, conversations }: FacebookKanbanCol
             ref={setNodeRef}
             className={cn("w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50 transition-colors", isOver && 'bg-primary/10')}
         >
-            <CardHeader className="flex-shrink-0">
-                <CardTitle className="flex items-center gap-2 capitalize">
+            <ZoruCardHeader className="flex-shrink-0">
+                <ZoruCardTitle className="flex items-center gap-2 capitalize">
                     <span>{title.replace(/_/g, ' ')}</span>
                     <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{conversations.length}</span>
-                </CardTitle>
-            </CardHeader>
-            <ScrollArea className="flex-1 p-2">
+                </ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
                     {conversations.map((convo, index) => (
                         <FacebookKanbanCard key={convo._id.toString()} conversation={convo} index={index} />
                     ))}
                 </div>
-            </ScrollArea>
+            </ZoruScrollArea>
         </div>
     );
 }

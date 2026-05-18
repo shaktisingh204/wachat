@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -75,9 +75,9 @@ export function HeroBlock({ settings }: { settings: any }) {
                 <h1 className="text-4xl md:text-6xl font-extrabold" style={{ color: textColor }}>{title}</h1>
                 <p className="text-lg md:text-xl" style={{ color: textColor }}>{subtitle}</p>
                 {buttonText && (
-                    <Button asChild size="lg" className="mt-6" style={{ backgroundColor: buttonColor, color: buttonTextColor }}>
+                    <ZoruButton asChild size="lg" className="mt-6" style={{ backgroundColor: buttonColor, color: buttonTextColor }}>
                         <Link href={buttonLink || '#'}>{buttonText}</Link>
-                    </Button>
+                    </ZoruButton>
                 )}
             </div>
         </div>
@@ -92,7 +92,7 @@ export function HeroBlock({ settings }: { settings: any }) {
                     <div className={cn("max-w-md bg-background/80 backdrop-blur-sm p-8 rounded-lg", animationClasses)}>
                         <h1 className="text-4xl md:text-5xl font-extrabold" style={{color: textColor || '#11182c'}}>{title}</h1>
                         <p className="mt-4 text-lg md:text-xl" style={{color: textColor || '#11182c'}}>{subtitle}</p>
-                        {buttonText && <Button asChild size="lg" className="mt-6" style={{backgroundColor: buttonColor, color: buttonTextColor}}><Link href={buttonLink || '#'}>{buttonText}</Link></Button>}
+                        {buttonText && <ZoruButton asChild size="lg" className="mt-6" style={{backgroundColor: buttonColor, color: buttonTextColor}}><Link href={buttonLink || '#'}>{buttonText}</Link></ZoruButton>}
                     </div>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
@@ -5,17 +6,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useActionState, useEffect, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
-import { ClayCard, ClayButton } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { ClayCard } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import {
   getCustomFieldGroups,
@@ -145,32 +146,32 @@ export function NewCustomFieldForm() {
         ) : null}
 
         <div>
-          <Label htmlFor="group_id" className="text-foreground">
+          <ZoruLabel htmlFor="group_id" className="text-foreground">
             Group <span className="text-destructive">*</span>
-          </Label>
-          <Select name="group_id" defaultValue={defaultGroup} required>
-            <SelectTrigger
+          </ZoruLabel>
+          <ZoruSelect name="group_id" defaultValue={defaultGroup} required>
+            <ZoruSelectTrigger
               id="group_id"
               className="h-10 rounded-lg border-border bg-card text-[13px]"
             >
-              <SelectValue placeholder="Select a group" />
-            </SelectTrigger>
-            <SelectContent>
+              <ZoruSelectValue placeholder="ZoruSelect a group" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
               {groups.map((g) => (
-                <SelectItem key={g._id} value={g._id}>
+                <ZoruSelectItem key={g._id} value={g._id}>
                   {g.name} ({g.belongs_to})
-                </SelectItem>
+                </ZoruSelectItem>
               ))}
-            </SelectContent>
-          </Select>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="label" className="text-foreground">
-              Label <span className="text-destructive">*</span>
-            </Label>
-            <Input
+            <ZoruLabel htmlFor="label" className="text-foreground">
+              ZoruLabel <span className="text-destructive">*</span>
+            </ZoruLabel>
+            <ZoruInput
               id="label"
               name="label"
               required
@@ -179,10 +180,10 @@ export function NewCustomFieldForm() {
             />
           </div>
           <div>
-            <Label htmlFor="name" className="text-foreground">
+            <ZoruLabel htmlFor="name" className="text-foreground">
               Slug (optional)
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="name"
               name="name"
               defaultValue={existing?.name || ''}
@@ -194,35 +195,35 @@ export function NewCustomFieldForm() {
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="type" className="text-foreground">
+            <ZoruLabel htmlFor="type" className="text-foreground">
               Type
-            </Label>
-            <Select name="type" value={type} onValueChange={setType}>
-              <SelectTrigger
+            </ZoruLabel>
+            <ZoruSelect name="type" value={type} onValueChange={setType}>
+              <ZoruSelectTrigger
                 id="type"
                 className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="text">Text</SelectItem>
-                <SelectItem value="textarea">Textarea</SelectItem>
-                <SelectItem value="select">Select</SelectItem>
-                <SelectItem value="radio">Radio</SelectItem>
-                <SelectItem value="checkbox">Checkbox</SelectItem>
-                <SelectItem value="number">Number</SelectItem>
-                <SelectItem value="date">Date</SelectItem>
-                <SelectItem value="email">Email</SelectItem>
-                <SelectItem value="url">URL</SelectItem>
-                <SelectItem value="entity_ref">Linked record</SelectItem>
-              </SelectContent>
-            </Select>
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="text">Text</ZoruSelectItem>
+                <ZoruSelectItem value="textarea">ZoruTextarea</ZoruSelectItem>
+                <ZoruSelectItem value="select">ZoruSelect</ZoruSelectItem>
+                <ZoruSelectItem value="radio">Radio</ZoruSelectItem>
+                <ZoruSelectItem value="checkbox">ZoruCheckbox</ZoruSelectItem>
+                <ZoruSelectItem value="number">Number</ZoruSelectItem>
+                <ZoruSelectItem value="date">Date</ZoruSelectItem>
+                <ZoruSelectItem value="email">Email</ZoruSelectItem>
+                <ZoruSelectItem value="url">URL</ZoruSelectItem>
+                <ZoruSelectItem value="entity_ref">Linked record</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div>
-            <Label htmlFor="position" className="text-foreground">
+            <ZoruLabel htmlFor="position" className="text-foreground">
               Position
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="position"
               name="position"
               type="number"
@@ -233,10 +234,10 @@ export function NewCustomFieldForm() {
         </div>
 
         <div>
-          <Label htmlFor="values" className="text-foreground">
+          <ZoruLabel htmlFor="values" className="text-foreground">
             Options (comma or newline separated)
-          </Label>
-          <Textarea
+          </ZoruLabel>
+          <ZoruTextarea
             id="values"
             name="values"
             rows={3}
@@ -249,102 +250,102 @@ export function NewCustomFieldForm() {
         {type === 'entity_ref' ? (
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label htmlFor="targetEntity" className="text-foreground">
+              <ZoruLabel htmlFor="targetEntity" className="text-foreground">
                 Linked entity <span className="text-destructive">*</span>
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 name="targetEntity"
                 value={targetEntity}
                 onValueChange={setTargetEntity}
                 required
               >
-                <SelectTrigger
+                <ZoruSelectTrigger
                   id="targetEntity"
                   className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
-                  <SelectValue placeholder="Pick an entity to link" />
-                </SelectTrigger>
-                <SelectContent>
+                  <ZoruSelectValue placeholder="Pick an entity to link" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
                   {ENTITY_KEYS.map((k) => (
-                    <SelectItem key={k} value={k}>
+                    <ZoruSelectItem key={k} value={k}>
                       {ENTITY_LABELS[k]}
-                    </SelectItem>
+                    </ZoruSelectItem>
                   ))}
-                </SelectContent>
-              </Select>
+                </ZoruSelectContent>
+              </ZoruSelect>
               <p className="mt-1 text-[11px] text-muted-foreground">
                 Renders as a searchable picker for the chosen entity.
               </p>
             </div>
             <div>
-              <Label htmlFor="multi" className="text-foreground">
+              <ZoruLabel htmlFor="multi" className="text-foreground">
                 Multiple values
-              </Label>
-              <Select
+              </ZoruLabel>
+              <ZoruSelect
                 name="multi"
                 value={multi ? 'true' : 'false'}
                 onValueChange={(v) => setMulti(v === 'true')}
               >
-                <SelectTrigger
+                <ZoruSelectTrigger
                   id="multi"
                   className="h-10 rounded-lg border-border bg-card text-[13px]"
                 >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="false">Single</SelectItem>
-                  <SelectItem value="true">Multiple</SelectItem>
-                </SelectContent>
-              </Select>
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="false">Single</ZoruSelectItem>
+                  <ZoruSelectItem value="true">Multiple</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
             </div>
           </div>
         ) : null}
 
         <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <Label htmlFor="is_required" className="text-foreground">
+            <ZoruLabel htmlFor="is_required" className="text-foreground">
               Required
-            </Label>
-            <Select
+            </ZoruLabel>
+            <ZoruSelect
               name="is_required"
               defaultValue={existing?.is_required ? 'true' : 'false'}
             >
-              <SelectTrigger
+              <ZoruSelectTrigger
                 id="is_required"
                 className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="false">No</SelectItem>
-                <SelectItem value="true">Yes</SelectItem>
-              </SelectContent>
-            </Select>
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="false">No</ZoruSelectItem>
+                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
           <div>
-            <Label htmlFor="display_in_table" className="text-foreground">
+            <ZoruLabel htmlFor="display_in_table" className="text-foreground">
               Show in tables
-            </Label>
-            <Select
+            </ZoruLabel>
+            <ZoruSelect
               name="display_in_table"
               defaultValue={existing?.display_in_table ? 'true' : 'false'}
             >
-              <SelectTrigger
+              <ZoruSelectTrigger
                 id="display_in_table"
                 className="h-10 rounded-lg border-border bg-card text-[13px]"
               >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="false">No</SelectItem>
-                <SelectItem value="true">Yes</SelectItem>
-              </SelectContent>
-            </Select>
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="false">No</ZoruSelectItem>
+                <ZoruSelectItem value="true">Yes</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-2">
-          <ClayButton
+          <ZoruButton
             type="button"
             variant="pill"
             onClick={() =>
@@ -352,8 +353,8 @@ export function NewCustomFieldForm() {
             }
           >
             Cancel
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             type="submit"
             variant="obsidian"
             disabled={isPending}
@@ -367,7 +368,7 @@ export function NewCustomFieldForm() {
             }
           >
             Save
-          </ClayButton>
+          </ZoruButton>
         </div>
       </form>
     </ClayCard>

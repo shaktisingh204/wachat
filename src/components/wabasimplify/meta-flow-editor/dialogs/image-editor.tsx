@@ -1,13 +1,13 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { FileUp } from 'lucide-react';
 
@@ -44,8 +44,8 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
   return (
     <div className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="src">Image Source (Base64 or URL)</Label>
-        <Textarea
+        <ZoruLabel htmlFor="src">Image Source (Base64 or URL)</ZoruLabel>
+        <ZoruTextarea
           id="src"
           value={component.src || ''}
           onChange={e => updateField('src', e.target.value)}
@@ -57,19 +57,19 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
           <span className="flex-shrink mx-2 text-xs text-muted-foreground">OR</span>
           <div className="flex-grow border-t border-muted"></div>
         </div>
-        <Button asChild variant="outline" size="sm" className="w-full">
-          <Label className="cursor-pointer">
+        <ZoruButton asChild variant="outline" size="sm" className="w-full">
+          <ZoruLabel className="cursor-pointer">
             <FileUp className="mr-2 h-4 w-4" />
             Upload Image (converts to Base64, max 100KB)
-            <Input type="file" accept="image/png, image/jpeg" className="sr-only" onChange={handleFileUpload} />
-          </Label>
-        </Button>
+            <ZoruInput type="file" accept="image/png, image/jpeg" className="sr-only" onChange={handleFileUpload} />
+          </ZoruLabel>
+        </ZoruButton>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="height">Height (pixels)</Label>
-          <Input
+          <ZoruLabel htmlFor="height">Height (pixels)</ZoruLabel>
+          <ZoruInput
             id="height"
             type="number"
             value={component.height || ''}
@@ -78,20 +78,20 @@ export function ImageEditor({ component, updateField, updateAction }: ImageEdito
           />
         </div>
         <div className="space-y-2">
-          <Label>Scale Type</Label>
-          <Select value={component['scale-type'] || 'cover'} onValueChange={(val) => updateField('scale-type', val)}>
-            <SelectTrigger><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="cover">Cover (Crop)</SelectItem>
-              <SelectItem value="contain">Contain (Fit)</SelectItem>
-            </SelectContent>
-          </Select>
+          <ZoruLabel>Scale Type</ZoruLabel>
+          <ZoruSelect value={component['scale-type'] || 'cover'} onValueChange={(val) => updateField('scale-type', val)}>
+            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="cover">Cover (Crop)</ZoruSelectItem>
+              <ZoruSelectItem value="contain">Contain (Fit)</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="alt-text">Alt Text (Accessibility)</Label>
-        <Input id="alt-text" value={component['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
+        <ZoruLabel htmlFor="alt-text">Alt Text (Accessibility)</ZoruLabel>
+        <ZoruInput id="alt-text" value={component['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
       </div>
 
       <ActionEditor

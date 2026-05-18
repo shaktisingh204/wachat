@@ -1,3 +1,4 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from "react";
@@ -15,7 +16,6 @@ import { Label } from "@/components/ui/label";
 import { saveCrmUnit } from "@/app/actions/crm-inventory-settings.actions";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { ClayButton } from "@/components/clay";
 
 interface AddUnitDialogProps {
     open: boolean;
@@ -109,17 +109,17 @@ export function AddUnitDialog({
                         </div>
                     </div>
                     <DialogFooter>
-                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>
+                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>
                             Cancel
-                        </ClayButton>
-                        <ClayButton
+                        </ZoruButton>
+                        <ZoruButton
                             type="submit"
                             variant="obsidian"
                             disabled={isSubmitting}
                             leading={isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : undefined}
                         >
                             Save
-                        </ClayButton>
+                        </ZoruButton>
                     </DialogFooter>
                 </form>
             </DialogContent>

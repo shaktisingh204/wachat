@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 
 export default function UrlDecoderPage() {
   const [input, setInput] = useState('');
@@ -40,36 +40,36 @@ export default function UrlDecoderPage() {
   return (
     <ToolShell title="URL Decoder" description="Decode percent-encoded URLs back to plain text.">
       <div className="flex flex-col gap-3">
-        <Label>Encoded input</Label>
-        <Textarea
+        <ZoruLabel>Encoded input</ZoruLabel>
+        <ZoruTextarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Paste an encoded URL…"
           className="min-h-[140px] font-mono text-sm"
         />
         <div>
-          <Button onClick={run} disabled={!input}>
+          <ZoruButton onClick={run} disabled={!input}>
             Decode
-          </Button>
+          </ZoruButton>
         </div>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {output && !error && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <Label>Decoded output</Label>
-            <Textarea readOnly value={output} className="min-h-[140px]" />
-            <Button variant="outline" onClick={copy}>
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
+            <ZoruLabel>Decoded output</ZoruLabel>
+            <ZoruTextarea readOnly value={output} className="min-h-[140px]" />
+            <ZoruButton variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </Button>
-          </CardContent>
-        </Card>
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

@@ -10,12 +10,12 @@ import {
 } from 'lucide-react';
 
 import type { Plan } from '@/lib/definitions';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { createPayuPlanCheckout } from '@/app/actions/payu.actions';
 import {
@@ -218,7 +218,7 @@ export function PlanStep({
 
     const submit = () => {
         if (!chosen) {
-            setError('Select a plan to continue.');
+            setError('ZoruSelect a plan to continue.');
             return;
         }
         const plan = plans.find((p) => p._id === chosen);
@@ -258,24 +258,24 @@ export function PlanStep({
     if (plans.length === 0) {
         return (
             <div className="space-y-6">
-                <Alert>
+                <ZoruAlert>
                     <Sparkles className="h-4 w-4" />
-                    <AlertTitle>No plans configured yet</AlertTitle>
-                    <AlertDescription>
+                    <ZoruAlertTitle>No plans configured yet</ZoruAlertTitle>
+                    <ZoruAlertDescription>
                         Your workspace will start on the default account tier.
                         You can upgrade anytime from Settings → Billing.
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
                 <div className="flex justify-between">
-                    <Button variant="ghost" onClick={onBack}>
+                    <ZoruButton variant="ghost" onClick={onBack}>
                         Back
-                    </Button>
-                    <Button onClick={skip} disabled={isPending}>
+                    </ZoruButton>
+                    <ZoruButton onClick={skip} disabled={isPending}>
                         {isPending ? (
                             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                         ) : null}
                         Continue to dashboard
-                    </Button>
+                    </ZoruButton>
                 </div>
             </div>
         );
@@ -285,21 +285,21 @@ export function PlanStep({
         <>
             <div className="space-y-6">
                 {paymentStatus === 'success' && !error && (
-                    <Alert>
+                    <ZoruAlert>
                         <ShieldCheck className="h-4 w-4" />
-                        <AlertTitle>Payment received</AlertTitle>
-                        <AlertDescription>
+                        <ZoruAlertTitle>Payment received</ZoruAlertTitle>
+                        <ZoruAlertDescription>
                             Thanks — we verified your PayU payment. Finalizing
                             your workspace now.
-                        </AlertDescription>
-                    </Alert>
+                        </ZoruAlertDescription>
+                    </ZoruAlert>
                 )}
                 {error && (
-                    <Alert variant="destructive">
+                    <ZoruAlert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Payment issue</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                    </Alert>
+                        <ZoruAlertTitle>Payment issue</ZoruAlertTitle>
+                        <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                    </ZoruAlert>
                 )}
 
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -411,24 +411,24 @@ export function PlanStep({
                 </div>
 
                 <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                    <Button
+                    <ZoruButton
                         type="button"
                         variant="ghost"
                         onClick={onBack}
                         disabled={isPending}
                     >
                         Back
-                    </Button>
+                    </ZoruButton>
                     <div className="flex gap-2">
-                        <Button
+                        <ZoruButton
                             type="button"
                             variant="outline"
                             onClick={skip}
                             disabled={isPending}
                         >
                             Skip for now
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                             type="button"
                             onClick={submit}
                             disabled={isPending || !chosen}
@@ -438,7 +438,7 @@ export function PlanStep({
                                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
                             Activate plan
-                        </Button>
+                        </ZoruButton>
                     </div>
                 </div>
             </div>

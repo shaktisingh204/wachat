@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { LuArrowUpRight } from 'react-icons/lu';
-import { Card } from '@/components/ui/card';
+import { ZoruCard } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 export interface ClayModuleTileProps {
@@ -57,7 +57,7 @@ const statusClasses = {
 
 /**
  * ClayModuleTile — compact, clickable tile surfacing one module's
- * primary metric. Wraps the shadcn `Card` primitive in a `next/link`
+ * primary metric. Wraps the shadcn `ZoruCard` primitive in a `next/link`
  * so the whole tile is navigable.
  */
 export function ClayModuleTile({
@@ -72,7 +72,7 @@ export function ClayModuleTile({
 }: ClayModuleTileProps) {
   return (
     <Link href={href} className={cn('group block', className)}>
-      <Card
+      <ZoruCard
         variant="default"
         className={cn(
           'flex flex-col p-4 transition-transform duration-200 group-hover:-translate-y-0.5 group-hover:shadow-md',
@@ -118,7 +118,7 @@ export function ClayModuleTile({
             {secondary}
           </div>
         ) : null}
-      </Card>
+      </ZoruCard>
     </Link>
   );
 }

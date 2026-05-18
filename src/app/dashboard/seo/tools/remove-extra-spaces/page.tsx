@@ -1,11 +1,11 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { removeExtraSpaces } from '@/lib/seo-tools/text-utils';
 
@@ -14,10 +14,10 @@ export default function RemoveExtraSpacesPage() {
 
   return (
     <ToolShell title="Remove Extra Spaces" description="Collapse multiple spaces and blank lines.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with extra spaces…" className="min-h-[220px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste text with extra spaces…" className="min-h-[220px]" />
       <div className="flex gap-2">
-        <Button onClick={() => setText(removeExtraSpaces(text))}>Remove</Button>
-        <Button variant="ghost" onClick={() => setText('')}>Clear</Button>
+        <ZoruButton onClick={() => setText(removeExtraSpaces(text))}>Remove</ZoruButton>
+        <ZoruButton variant="ghost" onClick={() => setText('')}>Clear</ZoruButton>
       </div>
     </ToolShell>
   );

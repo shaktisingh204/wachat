@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function HreflangGeneratorPage() {
@@ -25,15 +25,15 @@ export default function HreflangGeneratorPage() {
       <div className="space-y-2">
         {rows.map((r, i) => (
           <div key={i} className="flex gap-2">
-            <Input className="w-28" value={r.lang} onChange={(e) => update(i, 'lang', e.target.value)} placeholder="en-us" />
-            <Input value={r.url} onChange={(e) => update(i, 'url', e.target.value)} placeholder="https://example.com/en" />
-            <Button variant="ghost" onClick={() => remove(i)}>×</Button>
+            <ZoruInput className="w-28" value={r.lang} onChange={(e) => update(i, 'lang', e.target.value)} placeholder="en-us" />
+            <ZoruInput value={r.url} onChange={(e) => update(i, 'url', e.target.value)} placeholder="https://example.com/en" />
+            <ZoruButton variant="ghost" onClick={() => remove(i)}>×</ZoruButton>
           </div>
         ))}
-        <Button variant="outline" onClick={add}>+ Add language</Button>
+        <ZoruButton variant="outline" onClick={add}>+ Add language</ZoruButton>
       </div>
-      <Textarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
-      <Button onClick={() => navigator.clipboard.writeText(out)}>Copy</Button>
+      <ZoruTextarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
+      <ZoruButton onClick={() => navigator.clipboard.writeText(out)}>Copy</ZoruButton>
     </ToolShell>
   );
 }

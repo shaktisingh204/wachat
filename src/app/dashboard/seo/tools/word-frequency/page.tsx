@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { wordFrequency } from '@/lib/seo-tools/text-utils';
 
@@ -16,9 +16,9 @@ export default function WordFrequencyPage() {
 
   return (
     <ToolShell title="Word Frequency Counter" description="Rank the most used words in your content.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
-      <Card>
-        <CardContent className="p-4 space-y-2">
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste content…" className="min-h-[220px]" />
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-2">
           {freq.map((row) => (
             <div key={row.word} className="space-y-0.5">
               <div className="flex justify-between text-xs">
@@ -31,8 +31,8 @@ export default function WordFrequencyPage() {
             </div>
           ))}
           {freq.length === 0 && <div className="text-center text-muted-foreground py-6">Start typing to see word frequency.</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

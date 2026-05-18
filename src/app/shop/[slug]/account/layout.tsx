@@ -18,7 +18,7 @@ import {
   Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 
 const navItems = [
   { href: '', label: 'Dashboard', icon: LayoutDashboard },
@@ -55,7 +55,7 @@ export default function AccountLayout(
               const fullPath = `${basePath}${item.href}`;
               const isActive = item.href === '' ? pathname === fullPath : pathname.startsWith(fullPath);
               return (
-                <Button
+                <ZoruButton
                   key={item.href}
                   asChild
                   variant={isActive ? 'default' : 'ghost'}
@@ -65,10 +65,10 @@ export default function AccountLayout(
                     <item.icon className="mr-2 h-4 w-4" />
                     {item.label}
                   </Link>
-                </Button>
+                </ZoruButton>
               );
             })}
-             <Button
+             <ZoruButton
               asChild
               variant="ghost"
               className="justify-start"
@@ -77,14 +77,14 @@ export default function AccountLayout(
                     <Key className="mr-2 h-4 w-4" />
                     Login / Register
                 </Link>
-            </Button>
-             <Button
+            </ZoruButton>
+             <ZoruButton
               variant="ghost"
               className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
             >
                 <LogOut className="mr-2 h-4 w-4" />
                 Logout
-            </Button>
+            </ZoruButton>
           </nav>
         </aside>
         <main className="md:col-span-9">{children}</main>

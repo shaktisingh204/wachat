@@ -9,14 +9,14 @@ import type { WithId } from 'mongodb';
 import type { Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
-import { Card } from '../ui/card';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '../ui/button';
+import { ZoruCard } from '../ui/card';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogFooter, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import { ZoruButton } from '../ui/button';
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -147,38 +147,38 @@ export function FacebookChatClient() {
     }
 
     if (isLoading && !project) {
-        return <Skeleton className="h-full w-full rounded-xl" />
+        return <ZoruSkeleton className="h-full w-full rounded-xl" />
     }
 
     if (!projectId) {
         return (
             <div className="h-full flex items-center justify-center p-4">
-                <Alert variant="destructive" className="max-w-md">
+                <ZoruAlert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
+                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>
                         Please select a project from the main dashboard to use the Facebook inbox.
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
 
     return (
         <>
-            <Dialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Start a Conversation</DialogTitle>
-                        <DialogDescription>
+            <ZoruDialog open={showInfoDialog} onOpenChange={setShowInfoDialog}>
+                <ZoruDialogContent>
+                    <ZoruDialogHeader>
+                        <ZoruDialogTitle>Start a Conversation</ZoruDialogTitle>
+                        <ZoruDialogDescription>
                             On Facebook Messenger, you can only reply to users who have messaged your page first. Please use the search bar to find an existing conversation.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button onClick={() => setShowInfoDialog(false)}>OK</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                        </ZoruDialogDescription>
+                    </ZoruDialogHeader>
+                    <ZoruDialogFooter>
+                        <ZoruButton onClick={() => setShowInfoDialog(false)}>OK</ZoruButton>
+                    </ZoruDialogFooter>
+                </ZoruDialogContent>
+            </ZoruDialog>
 
             <PermissionErrorDialog
                 isOpen={!!permissionError}
@@ -187,7 +187,7 @@ export function FacebookChatClient() {
                 project={project}
                 onSuccess={onSuccessfulReconnect}
             />
-            <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
+            <ZoruCard className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
                 <div className="flex flex-1 overflow-hidden">
                     <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
                         <FacebookConversationList
@@ -213,13 +213,13 @@ export function FacebookChatClient() {
                         ) : (
                             <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
-                                <h2 className="text-xl font-semibold">Select a conversation</h2>
+                                <h2 className="text-xl font-semibold">ZoruSelect a conversation</h2>
                                 <p>Choose a conversation from the list to start messaging.</p>
                             </div>
                         )}
                     </div>
                 </div>
-            </Card>
+            </ZoruCard>
         </>
     );
 }

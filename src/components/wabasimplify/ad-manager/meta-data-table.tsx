@@ -13,17 +13,17 @@ import {
 } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCheckbox } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import {
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-    DropdownMenuSeparator, DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+    ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
+    ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 import {
-    Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from '@/components/ui/table';
+    ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow,
+} from '@/components/zoruui';
 import { formatMoney, formatNumber, formatPercent } from './constants';
 
 export type MetaRow = {
@@ -127,17 +127,17 @@ export function MetaDataTable({
     return (
         <div className="relative border rounded-lg bg-background overflow-hidden">
             <div className="overflow-x-auto">
-                <Table>
-                    <TableHeader className="bg-muted/60 sticky top-0 z-[1]">
-                        <TableRow className="h-10">
-                            <TableHead className="w-10">
-                                <Checkbox
+                <ZoruTable>
+                    <ZoruTableHeader className="bg-muted/60 sticky top-0 z-[1]">
+                        <ZoruTableRow className="h-10">
+                            <ZoruTableHead className="w-10">
+                                <ZoruCheckbox
                                     checked={allSelected ? true : indeterminate ? 'indeterminate' : false}
                                     onCheckedChange={toggleAll}
                                 />
-                            </TableHead>
+                            </ZoruTableHead>
                             {BASE_COLS.map((col) => (
-                                <TableHead
+                                <ZoruTableHead
                                     key={String(col.id)}
                                     className={cn(
                                         'text-[11px] uppercase tracking-wider font-semibold text-muted-foreground whitespace-nowrap',
@@ -154,43 +154,43 @@ export function MetaDataTable({
                                         {col.label}
                                         {col.label && <ArrowUpDown className="h-3 w-3 opacity-50" />}
                                     </div>
-                                </TableHead>
+                                </ZoruTableHead>
                             ))}
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
+                        </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
                         {rows.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={BASE_COLS.length + 1} className="h-40 text-center text-muted-foreground">
+                            <ZoruTableRow>
+                                <ZoruTableCell colSpan={BASE_COLS.length + 1} className="h-40 text-center text-muted-foreground">
                                     No {level === 'campaign' ? 'campaigns' : level === 'adset' ? 'ad sets' : 'ads'} to show.
-                                </TableCell>
-                            </TableRow>
+                                </ZoruTableCell>
+                            </ZoruTableRow>
                         ) : (
                             rows.map((row) => {
                                 const selected = selectedIds.has(row.id);
                                 const delivery = deliveryLabel(row);
                                 const active = row.status === 'ACTIVE';
                                 return (
-                                    <TableRow
+                                    <ZoruTableRow
                                         key={row.id}
                                         className={cn(
                                             'cursor-pointer group',
                                             selected && 'bg-[#E7F0FE]/40 dark:bg-[#1877F2]/10',
                                         )}
                                     >
-                                        <TableCell onClick={(e) => e.stopPropagation()}>
-                                            <Checkbox checked={selected} onCheckedChange={() => toggleOne(row.id)} />
-                                        </TableCell>
-                                        <TableCell onClick={(e) => e.stopPropagation()} className="py-2">
+                                        <ZoruTableCell onClick={(e) => e.stopPropagation()}>
+                                            <ZoruCheckbox checked={selected} onCheckedChange={() => toggleOne(row.id)} />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell onClick={(e) => e.stopPropagation()} className="py-2">
                                             <div className="flex items-center gap-2">
-                                                <Switch
+                                                <ZoruSwitch
                                                     checked={active}
                                                     onCheckedChange={(val) => onToggle(row.id, val)}
                                                     className="data-[state=checked]:bg-[#1877F2]"
                                                 />
                                             </div>
-                                        </TableCell>
-                                        <TableCell onClick={() => onRowClick?.(row)} className="py-2 max-w-[320px]">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell onClick={() => onRowClick?.(row)} className="py-2 max-w-[320px]">
                                             <div className="flex items-center gap-3">
                                                 {row.thumbnail && (
                                                     <img
@@ -221,85 +221,85 @@ export function MetaDataTable({
                                                     </div>
                                                 </div>
                                             </div>
-                                        </TableCell>
-                                        <TableCell>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
                                             <div className={cn('flex items-center gap-1.5 text-xs font-medium', delivery.color)}>
                                                 <Circle className="h-2 w-2 fill-current" />
                                                 {delivery.label}
                                             </div>
-                                        </TableCell>
-                                        <TableCell className="text-xs text-muted-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-xs text-muted-foreground">
                                             {row.bid_strategy || '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm">
                                             {row.budget ? (
                                                 <div>
                                                     <div>{formatMoney(row.budget)}</div>
                                                     <div className="text-[10px] text-muted-foreground">Daily</div>
                                                 </div>
                                             ) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.results != null ? formatNumber(row.results) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.reach != null ? formatNumber(row.reach) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.impressions != null ? formatNumber(row.impressions) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.cost_per_result != null ? formatMoney(row.cost_per_result) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.spend != null ? formatMoney(row.spend) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.ctr != null ? formatPercent(row.ctr) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.cpc != null ? formatMoney(row.cpc) : '—'}
-                                        </TableCell>
-                                        <TableCell className="text-right text-sm tabular-nums">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right text-sm tabular-nums">
                                             {row.frequency != null ? Number(row.frequency).toFixed(2) : '—'}
-                                        </TableCell>
-                                        <TableCell onClick={(e) => e.stopPropagation()}>
-                                            <DropdownMenu>
-                                                <DropdownMenuTrigger asChild>
-                                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-60 hover:opacity-100">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell onClick={(e) => e.stopPropagation()}>
+                                            <ZoruDropdownMenu>
+                                                <ZoruDropdownMenuTrigger asChild>
+                                                    <ZoruButton variant="ghost" size="icon" className="h-7 w-7 opacity-60 hover:opacity-100">
                                                         <MoreHorizontal className="h-4 w-4" />
-                                                    </Button>
-                                                </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end">
-                                                    <DropdownMenuItem onClick={() => onEdit?.(row.id)}>
+                                                    </ZoruButton>
+                                                </ZoruDropdownMenuTrigger>
+                                                <ZoruDropdownMenuContent align="end">
+                                                    <ZoruDropdownMenuItem onClick={() => onEdit?.(row.id)}>
                                                         <Edit className="mr-2 h-4 w-4" /> Edit
-                                                    </DropdownMenuItem>
-                                                    <DropdownMenuItem onClick={() => onDuplicate?.(row.id)}>
+                                                    </ZoruDropdownMenuItem>
+                                                    <ZoruDropdownMenuItem onClick={() => onDuplicate?.(row.id)}>
                                                         <Copy className="mr-2 h-4 w-4" /> Duplicate
-                                                    </DropdownMenuItem>
+                                                    </ZoruDropdownMenuItem>
                                                     {row.link && (
-                                                        <DropdownMenuItem asChild>
+                                                        <ZoruDropdownMenuItem asChild>
                                                             <a href={row.link} target="_blank" rel="noreferrer">
                                                                 <Eye className="mr-2 h-4 w-4" /> View preview
                                                             </a>
-                                                        </DropdownMenuItem>
+                                                        </ZoruDropdownMenuItem>
                                                     )}
-                                                    <DropdownMenuSeparator />
-                                                    <DropdownMenuItem
+                                                    <ZoruDropdownMenuSeparator />
+                                                    <ZoruDropdownMenuItem
                                                         className="text-destructive"
                                                         onClick={() => onDelete?.(row.id)}
                                                     >
                                                         <Trash2 className="mr-2 h-4 w-4" /> Delete
-                                                    </DropdownMenuItem>
-                                                </DropdownMenuContent>
-                                            </DropdownMenu>
-                                        </TableCell>
-                                    </TableRow>
+                                                    </ZoruDropdownMenuItem>
+                                                </ZoruDropdownMenuContent>
+                                            </ZoruDropdownMenu>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 );
                             })
                         )}
-                    </TableBody>
-                </Table>
+                    </ZoruTableBody>
+                </ZoruTable>
             </div>
         </div>
     );

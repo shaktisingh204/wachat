@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function TwitterCardGeneratorPage() {
@@ -22,9 +22,9 @@ export default function TwitterCardGeneratorPage() {
   ].filter(Boolean).join('\n'), [f]);
 
   return (
-    <ToolShell title="Twitter Card Generator" description="Generate Twitter/X Card meta tags.">
+    <ToolShell title="Twitter ZoruCard Generator" description="Generate Twitter/X ZoruCard meta tags.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>Card</Label>
+        <div className="space-y-1"><ZoruLabel>ZoruCard</ZoruLabel>
           <select className="border rounded h-9 px-2 w-full bg-background" value={f.card} onChange={(e) => update('card', e.target.value)}>
             <option value="summary">summary</option>
             <option value="summary_large_image">summary_large_image</option>
@@ -32,13 +32,13 @@ export default function TwitterCardGeneratorPage() {
             <option value="app">app</option>
           </select>
         </div>
-        <div className="space-y-1"><Label>Site (@handle)</Label><Input value={f.site} onChange={(e) => update('site', e.target.value)} placeholder="@yourhandle" /></div>
-        <div className="space-y-1"><Label>Title</Label><Input value={f.title} onChange={(e) => update('title', e.target.value)} /></div>
-        <div className="space-y-1"><Label>Image URL</Label><Input value={f.image} onChange={(e) => update('image', e.target.value)} /></div>
-        <div className="space-y-1 md:col-span-2"><Label>Description</Label><Textarea value={f.description} onChange={(e) => update('description', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Site (@handle)</ZoruLabel><ZoruInput value={f.site} onChange={(e) => update('site', e.target.value)} placeholder="@yourhandle" /></div>
+        <div className="space-y-1"><ZoruLabel>Title</ZoruLabel><ZoruInput value={f.title} onChange={(e) => update('title', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>Image URL</ZoruLabel><ZoruInput value={f.image} onChange={(e) => update('image', e.target.value)} /></div>
+        <div className="space-y-1 md:col-span-2"><ZoruLabel>Description</ZoruLabel><ZoruTextarea value={f.description} onChange={(e) => update('description', e.target.value)} /></div>
       </div>
-      <Button onClick={() => navigator.clipboard.writeText(out)}>Copy</Button>
-      <Textarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
+      <ZoruButton onClick={() => navigator.clipboard.writeText(out)}>Copy</ZoruButton>
+      <ZoruTextarea readOnly value={out} className="min-h-[200px] font-mono text-xs" />
     </ToolShell>
   );
 }

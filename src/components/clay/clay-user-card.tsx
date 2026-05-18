@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { LuEllipsis } from 'react-icons/lu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 export interface ClayUserCardProps {
@@ -14,8 +14,8 @@ export interface ClayUserCardProps {
 }
 
 /**
- * ClayUserCard — bottom-of-sidebar user row. Avatar + name/email +
- * overflow icon. Built on the shadcn `Avatar` primitive.
+ * ClayUserCard — bottom-of-sidebar user row. ZoruAvatar + name/email +
+ * overflow icon. Built on the shadcn `ZoruAvatar` primitive.
  */
 export function ClayUserCard({
   name,
@@ -38,12 +38,12 @@ export function ClayUserCard({
         className,
       )}
     >
-      <Avatar className="h-10 w-10 shrink-0 ring-2 ring-background">
-        {avatarSrc ? <AvatarImage src={avatarSrc} alt={name} /> : null}
-        <AvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-muted-foreground">
+      <ZoruAvatar className="h-10 w-10 shrink-0 ring-2 ring-background">
+        {avatarSrc ? <ZoruAvatarImage src={avatarSrc} alt={name} /> : null}
+        <ZoruAvatarFallback className="bg-gradient-to-br from-muted to-border text-[12px] font-semibold text-muted-foreground">
           {initials}
-        </AvatarFallback>
-      </Avatar>
+        </ZoruAvatarFallback>
+      </ZoruAvatar>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[13px] font-semibold text-foreground leading-[1.2]">
           {name}

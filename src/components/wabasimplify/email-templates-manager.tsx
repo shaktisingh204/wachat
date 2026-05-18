@@ -4,22 +4,22 @@
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 
 export function EmailTemplatesManager() {
@@ -68,23 +68,23 @@ export function EmailTemplatesManager() {
                 template={editingTemplate}
                 onSuccess={fetchData}
             />
-            <Card>
-                <CardHeader>
+            <ZoruCard>
+                <ZoruCardHeader>
                     <div className="flex justify-between items-center">
                         <div>
-                            <CardTitle>Email Templates</CardTitle>
-                            <CardDescription>Create and manage reusable email templates for your CRM.</CardDescription>
+                            <ZoruCardTitle>Email Templates</ZoruCardTitle>
+                            <ZoruCardDescription>Create and manage reusable email templates for your CRM.</ZoruCardDescription>
                         </div>
-                        <Button onClick={handleCreateNew}>
+                        <ZoruButton onClick={handleCreateNew}>
                             <Plus className="mr-2 h-4 w-4" /> New Template
-                        </Button>
+                        </ZoruButton>
                     </div>
-                </CardHeader>
-                <CardContent>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                      {isLoading ? (
                          <div className="space-y-2">
-                            <Skeleton className="h-10 w-full" />
-                            <Skeleton className="h-10 w-full" />
+                            <ZoruSkeleton className="h-10 w-full" />
+                            <ZoruSkeleton className="h-10 w-full" />
                          </div>
                     ) : templates.length > 0 ? (
                         <div className="border rounded-md">
@@ -95,22 +95,22 @@ export function EmailTemplatesManager() {
                                         <p className="text-sm text-muted-foreground">{template.subject}</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Button variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></Button>
-                                         <AlertDialog>
-                                            <AlertDialogTrigger asChild>
-                                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                            </AlertDialogTrigger>
-                                            <AlertDialogContent>
-                                                <AlertDialogHeader>
-                                                    <AlertDialogTitle>Delete Template?</AlertDialogTitle>
-                                                    <AlertDialogDescription>This will permanently delete the "{template.name}" template.</AlertDialogDescription>
-                                                </AlertDialogHeader>
-                                                <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                    <AlertDialogAction onClick={() => handleDelete(template._id.toString())}>Delete</AlertDialogAction>
-                                                </AlertDialogFooter>
-                                            </AlertDialogContent>
-                                        </AlertDialog>
+                                        <ZoruButton variant="ghost" size="icon" onClick={() => handleEdit(template)}><Edit className="h-4 w-4"/></ZoruButton>
+                                         <ZoruAlertDialog>
+                                            <ZoruAlertDialogTrigger asChild>
+                                                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+                                            </ZoruAlertDialogTrigger>
+                                            <ZoruAlertDialogContent>
+                                                <ZoruAlertDialogHeader>
+                                                    <ZoruAlertDialogTitle>Delete Template?</ZoruAlertDialogTitle>
+                                                    <ZoruAlertDialogDescription>This will permanently delete the "{template.name}" template.</ZoruAlertDialogDescription>
+                                                </ZoruAlertDialogHeader>
+                                                <ZoruAlertDialogFooter>
+                                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                                    <ZoruAlertDialogAction onClick={() => handleDelete(template._id.toString())}>Delete</ZoruAlertDialogAction>
+                                                </ZoruAlertDialogFooter>
+                                            </ZoruAlertDialogContent>
+                                        </ZoruAlertDialog>
                                     </div>
                                 </div>
                             ))}
@@ -120,8 +120,8 @@ export function EmailTemplatesManager() {
                             <p>No email templates created yet.</p>
                         </div>
                     )}
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         </>
     );
 }

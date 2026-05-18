@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function md2html(md: string): string {
@@ -34,8 +34,8 @@ export default function MarkdownToHtmlPage() {
 
   return (
     <ToolShell title="Markdown to HTML" description="Convert Markdown to HTML (basic subset: headings, bold, italic, links, lists, code).">
-      <Textarea value={md} onChange={(e) => setMd(e.target.value)} className="min-h-[220px] font-mono text-xs" />
-      <Textarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
+      <ZoruTextarea value={md} onChange={(e) => setMd(e.target.value)} className="min-h-[220px] font-mono text-xs" />
+      <ZoruTextarea readOnly value={html} className="min-h-[220px] font-mono text-xs" />
     </ToolShell>
   );
 }

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 export interface ClayAvatarStackItem {
@@ -40,7 +40,7 @@ const overflowClass: Record<
 
 /**
  * ClayAvatarStack — overlapped avatars with a trailing "+N" chip.
- * Now delegates to shadcn Avatar primitives wrapped in a flex container.
+ * Now delegates to shadcn ZoruAvatar primitives wrapped in a flex container.
  */
 export function ClayAvatarStack({
   items,
@@ -62,7 +62,7 @@ export function ClayAvatarStack({
         const fallbackText =
           item.fallback ?? item.alt?.[0]?.toUpperCase() ?? '?';
         return (
-          <Avatar
+          <ZoruAvatar
             key={i}
             title={item.alt}
             className={cn(
@@ -79,9 +79,9 @@ export function ClayAvatarStack({
             }
           >
             {item.src ? (
-              <AvatarImage src={item.src} alt={item.alt || ''} />
+              <ZoruAvatarImage src={item.src} alt={item.alt || ''} />
             ) : null}
-            <AvatarFallback
+            <ZoruAvatarFallback
               className="bg-transparent text-inherit"
               style={
                 item.hue !== undefined
@@ -93,8 +93,8 @@ export function ClayAvatarStack({
               }
             >
               {fallbackText}
-            </AvatarFallback>
-          </Avatar>
+            </ZoruAvatarFallback>
+          </ZoruAvatar>
         );
       })}
       {overflow > 0 ? (

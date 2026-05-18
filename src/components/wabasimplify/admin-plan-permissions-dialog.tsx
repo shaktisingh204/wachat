@@ -2,15 +2,15 @@
 
 import * as React from 'react';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-    DialogFooter,
-    DialogDescription,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruDialogFooter,
+    ZoruDialogDescription,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, ShieldCheck } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updatePlanPermissions } from '@/app/actions/admin.actions';
@@ -82,34 +82,34 @@ export function AdminPlanPermissionsDialog({
     };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
+        <ZoruDialog open={open} onOpenChange={setOpen}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     title="Manage plan permissions"
                     className="rounded-lg hover:bg-primary/10"
                 >
                     <ShieldCheck className="h-4 w-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl p-0 overflow-hidden">
-                <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="max-w-5xl w-[95vw] max-h-[92vh] flex flex-col rounded-2xl border-white/10 bg-background/95 backdrop-blur-xl p-0 overflow-hidden">
+                <ZoruDialogHeader className="px-6 pt-6 pb-4 border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                     <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
                             <ShieldCheck className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                            <DialogTitle className="text-lg">
+                            <ZoruDialogTitle className="text-lg">
                                 Master Permissions — {planName}
-                            </DialogTitle>
-                            <DialogDescription className="mt-0.5">
+                            </ZoruDialogTitle>
+                            <ZoruDialogDescription className="mt-0.5">
                                 Every switch here is a hard ceiling. Unchecked actions are blocked
                                 for all users on this plan, even owners.
-                            </DialogDescription>
+                            </ZoruDialogDescription>
                         </div>
                     </div>
-                </DialogHeader>
+                </ZoruDialogHeader>
 
                 <div className="flex-1 overflow-y-auto px-6 py-4">
                     <PlanPermissionsMatrix
@@ -119,24 +119,24 @@ export function AdminPlanPermissionsDialog({
                     />
                 </div>
 
-                <DialogFooter className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
-                    <Button
+                <ZoruDialogFooter className="px-6 py-4 border-t border-white/10 bg-white/[0.02]">
+                    <ZoruButton
                         variant="outline"
                         onClick={() => setOpen(false)}
                         className="rounded-xl border-white/10 bg-white/5"
                     >
                         Cancel
-                    </Button>
-                    <Button
+                    </ZoruButton>
+                    <ZoruButton
                         onClick={handleSave}
                         disabled={isLoading}
                         className="rounded-xl gap-2"
                     >
                         {isLoading && <LoaderCircle className="h-4 w-4 animate-spin" />}
                         Save Permissions
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+                    </ZoruButton>
+                </ZoruDialogFooter>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

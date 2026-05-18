@@ -1,8 +1,8 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface DatePickerEditorProps {
@@ -15,31 +15,31 @@ export function DatePickerEditor({ component, updateField }: DatePickerEditorPro
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="name">Name (ID)</Label>
-                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                <ZoruLabel htmlFor="name">Name (ID)</ZoruLabel>
+                <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="label">Label</Label>
-                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                <ZoruLabel htmlFor="label">ZoruLabel</ZoruLabel>
+                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
 
             <div className="space-y-2">
-                <Label htmlFor="helper-text">Helper Text</Label>
-                <Input id="helper-text" value={component['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
+                <ZoruLabel htmlFor="helper-text">Helper Text</ZoruLabel>
+                <ZoruInput id="helper-text" value={component['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="error-message">Error Message</Label>
-                <Input id="error-message" value={component['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                <ZoruLabel htmlFor="error-message">Error Message</ZoruLabel>
+                <ZoruInput id="error-message" value={component['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="min-date">Min Date</Label>
-                    <Input id="min-date" value={component['min-date'] || ''} onChange={(e) => updateField('min-date', e.target.value)} placeholder="YYYY-MM-DD" />
+                    <ZoruLabel htmlFor="min-date">Min Date</ZoruLabel>
+                    <ZoruInput id="min-date" value={component['min-date'] || ''} onChange={(e) => updateField('min-date', e.target.value)} placeholder="YYYY-MM-DD" />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="max-date">Max Date</Label>
-                    <Input id="max-date" value={component['max-date'] || ''} onChange={(e) => updateField('max-date', e.target.value)} placeholder="YYYY-MM-DD" />
+                    <ZoruLabel htmlFor="max-date">Max Date</ZoruLabel>
+                    <ZoruInput id="max-date" value={component['max-date'] || ''} onChange={(e) => updateField('max-date', e.target.value)} placeholder="YYYY-MM-DD" />
                 </div>
             </div>
 

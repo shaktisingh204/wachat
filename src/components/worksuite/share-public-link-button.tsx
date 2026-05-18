@@ -1,8 +1,9 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import { useState } from 'react';
 import { Copy, Link2, LoaderCircle, X } from 'lucide-react';
-import { ClayButton, ClayCard, ClayInput } from '@/components/clay';
+import { ClayCard, ClayInput } from '@/components/clay';
 import { generatePublicToken } from '@/app/actions/worksuite/public.actions';
 import type { WsPublicResourceType } from '@/lib/worksuite/public-types';
 
@@ -65,13 +66,13 @@ export function SharePublicLinkButton({
 
   return (
     <>
-      <ClayButton
+      <ZoruButton
         variant="pill"
         onClick={open_}
         leading={<Link2 className="h-4 w-4" />}
       >
         {label}
-      </ClayButton>
+      </ZoruButton>
       {open ? (
         <div
           role="dialog"
@@ -113,14 +114,14 @@ export function SharePublicLinkButton({
                     <span className="text-[11.5px] text-muted-foreground">
                       {copied ? 'Copied!' : 'Copy and share with your client.'}
                     </span>
-                    <ClayButton
+                    <ZoruButton
                       variant="obsidian"
                       size="sm"
                       onClick={copy}
                       leading={<Copy className="h-3.5 w-3.5" />}
                     >
                       Copy
-                    </ClayButton>
+                    </ZoruButton>
                   </div>
                 </div>
               ) : null}

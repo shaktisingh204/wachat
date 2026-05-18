@@ -1,27 +1,27 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
 import { UploadCloud, Link as LinkIcon, MapPin, ChevronsUpDown, Check } from 'lucide-react';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
 import { useState, useMemo, useRef } from 'react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from '@/components/ui/command';
+    ZoruCommand,
+    ZoruCommandEmpty,
+    ZoruCommandGroup,
+    ZoruCommandInput,
+    ZoruCommandItem,
+    ZoruCommandList,
+} from '@/components/zoruui';
 import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
+    ZoruPopover,
+    ZoruPopoverContent,
+    ZoruPopoverTrigger,
+} from '@/components/zoruui';
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface SmartVariableInputProps {
@@ -54,7 +54,7 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
     return (
         <div className="relative">
             <div className="flex gap-2">
-                <Input
+                <ZoruInput
                     id={id}
                     name={name}
                     placeholder={placeholder}
@@ -64,28 +64,28 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                     className="flex-1"
                 />
                 {variableOptions.length > 0 && (
-                    <Popover open={open} onOpenChange={setOpen}>
-                        <PopoverTrigger asChild>
-                            <Button
+                    <ZoruPopover open={open} onOpenChange={setOpen}>
+                        <ZoruPopoverTrigger asChild>
+                            <ZoruButton
                                 variant="outline"
                                 role="combobox"
                                 aria-expanded={open}
                                 className="w-[40px] px-0 flex-shrink-0"
                                 type="button"
-                                title="Select Variable"
+                                title="ZoruSelect Variable"
                             >
                                 <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                                <span className="sr-only">Select Variable</span>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-[200px] p-0" align="end">
-                            <Command>
-                                <CommandInput placeholder="Search variable..." />
-                                <CommandList>
-                                    <CommandEmpty>No variable found.</CommandEmpty>
-                                    <CommandGroup heading="Variables">
+                                <span className="sr-only">ZoruSelect Variable</span>
+                            </ZoruButton>
+                        </ZoruPopoverTrigger>
+                        <ZoruPopoverContent className="w-[200px] p-0" align="end">
+                            <ZoruCommand>
+                                <ZoruCommandInput placeholder="Search variable..." />
+                                <ZoruCommandList>
+                                    <ZoruCommandEmpty>No variable found.</ZoruCommandEmpty>
+                                    <ZoruCommandGroup heading="Variables">
                                         {variableOptions.map((variable) => (
-                                            <CommandItem
+                                            <ZoruCommandItem
                                                 key={variable}
                                                 value={variable}
                                                 onSelect={() => handleSelect(variable)}
@@ -97,13 +97,13 @@ function SmartVariableInput({ id, name, placeholder, required, variableOptions =
                                                     )}
                                                 />
                                                 {variable}
-                                            </CommandItem>
+                                            </ZoruCommandItem>
                                         ))}
-                                    </CommandGroup>
-                                </CommandList>
-                            </Command>
-                        </PopoverContent>
-                    </Popover>
+                                    </ZoruCommandGroup>
+                                </ZoruCommandList>
+                            </ZoruCommand>
+                        </ZoruPopoverContent>
+                    </ZoruPopover>
                 )}
             </div>
             {variableOptions.length > 0 && <p className="text-[10px] text-muted-foreground mt-1">Type manually or select a variable.</p>}
@@ -150,10 +150,10 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                         if (vars.length > 0) {
                             return (
                                 <div key={`header-${idx}`} className="space-y-2">
-                                    <Label className="font-semibold">Header Variables</Label>
+                                    <ZoruLabel className="font-semibold">Header Variables</ZoruLabel>
                                     {vars.map(v => (
                                         <div key={`header-var-${v}`} className="space-y-1">
-                                            <Label htmlFor={`variable_header_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</Label>
+                                            <ZoruLabel htmlFor={`variable_header_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</ZoruLabel>
                                             <SmartVariableInput
                                                 id={`variable_header_${v}`}
                                                 name={`variable_header_${v}`}
@@ -169,16 +169,16 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                     } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(component.format || '')) {
                         return (
                             <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-muted/10">
-                                <Label className="font-semibold">Header Media ({component.format})</Label>
-                                <RadioGroup value={headerMediaSource} onValueChange={(v) => setHeaderMediaSource(v as 'url' | 'file')} className="flex gap-4">
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="h-source-file" /><Label htmlFor="h-source-file" className="font-normal flex items-center gap-1 cursor-pointer"><UploadCloud className="h-4 w-4" /> Upload</Label></div>
-                                    <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="h-source-url" /><Label htmlFor="h-source-url" className="font-normal flex items-center gap-1 cursor-pointer"><LinkIcon className="h-4 w-4" /> URL</Label></div>
-                                </RadioGroup>
+                                <ZoruLabel className="font-semibold">Header Media ({component.format})</ZoruLabel>
+                                <ZoruRadioGroup value={headerMediaSource} onValueChange={(v) => setHeaderMediaSource(v as 'url' | 'file')} className="flex gap-4">
+                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="file" id="h-source-file" /><ZoruLabel htmlFor="h-source-file" className="font-normal flex items-center gap-1 cursor-pointer"><UploadCloud className="h-4 w-4" /> Upload</ZoruLabel></div>
+                                    <div className="flex items-center space-x-2"><ZoruRadioGroupItem value="url" id="h-source-url" /><ZoruLabel htmlFor="h-source-url" className="font-normal flex items-center gap-1 cursor-pointer"><LinkIcon className="h-4 w-4" /> URL</ZoruLabel></div>
+                                </ZoruRadioGroup>
 
                                 {headerMediaSource === 'file' ? (
                                     <div className="space-y-1">
                                         <input type="hidden" name="mediaSource" value="file" />
-                                        <Input
+                                        <ZoruInput
                                             ref={headerMediaFileRef}
                                             name="headerMediaFile"
                                             type="file"
@@ -205,7 +205,7 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                                 ) : (
                                     <div className="space-y-1">
                                         <input type="hidden" name="mediaSource" value="url" />
-                                        <Input name="headerMediaUrl" type="url" placeholder={`https://example.com/${component.format?.toLowerCase()}`} required />
+                                        <ZoruInput name="headerMediaUrl" type="url" placeholder={`https://example.com/${component.format?.toLowerCase()}`} required />
                                     </div>
                                 )}
                             </div>
@@ -213,23 +213,23 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                     } else if (component.format === 'LOCATION') {
                         return (
                             <div key={`header-${idx}`} className="space-y-3 p-3 border rounded-md bg-muted/10">
-                                <Label className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Location Header</Label>
+                                <ZoruLabel className="font-semibold flex items-center gap-2"><MapPin className="h-4 w-4" /> Location Header</ZoruLabel>
                                 <div className="grid grid-cols-2 gap-3">
                                     <div className="space-y-1">
-                                        <Label htmlFor="location_lat" className="text-xs">Latitude</Label>
-                                        <Input name="location_lat" id="location_lat" placeholder="25.2048" required step="any" type="number" />
+                                        <ZoruLabel htmlFor="location_lat" className="text-xs">Latitude</ZoruLabel>
+                                        <ZoruInput name="location_lat" id="location_lat" placeholder="25.2048" required step="any" type="number" />
                                     </div>
                                     <div className="space-y-1">
-                                        <Label htmlFor="location_long" className="text-xs">Longitude</Label>
-                                        <Input name="location_long" id="location_long" placeholder="55.2708" required step="any" type="number" />
+                                        <ZoruLabel htmlFor="location_long" className="text-xs">Longitude</ZoruLabel>
+                                        <ZoruInput name="location_long" id="location_long" placeholder="55.2708" required step="any" type="number" />
                                     </div>
                                     <div className="col-span-2 space-y-1">
-                                        <Label htmlFor="location_name" className="text-xs">Location Name</Label>
-                                        <Input name="location_name" id="location_name" placeholder="Burj Khalifa" required />
+                                        <ZoruLabel htmlFor="location_name" className="text-xs">Location Name</ZoruLabel>
+                                        <ZoruInput name="location_name" id="location_name" placeholder="Burj Khalifa" required />
                                     </div>
                                     <div className="col-span-2 space-y-1">
-                                        <Label htmlFor="location_address" className="text-xs">Address</Label>
-                                        <Input name="location_address" id="location_address" placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai" required />
+                                        <ZoruLabel htmlFor="location_address" className="text-xs">Address</ZoruLabel>
+                                        <ZoruInput name="location_address" id="location_address" placeholder="1 Sheikh Mohammed bin Rashid Blvd - Dubai" required />
                                     </div>
                                 </div>
                             </div>
@@ -249,11 +249,11 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
 
                 return (
                     <div className="space-y-3">
-                        <Label className="font-semibold">Body Variables</Label>
+                        <ZoruLabel className="font-semibold">Body Variables</ZoruLabel>
                         <div className="grid gap-3">
                             {vars.map(v => (
                                 <div key={`body-var-${v}`} className="space-y-1">
-                                    <Label htmlFor={`variable_body_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</Label>
+                                    <ZoruLabel htmlFor={`variable_body_${v}`} className="text-xs text-muted-foreground">Variable {'{{'}{v}{'}}'}</ZoruLabel>
                                     <SmartVariableInput
                                         id={`variable_body_${v}`}
                                         name={`variable_body_${v}`}
@@ -282,13 +282,13 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
 
                 return (
                     <div className="space-y-3 pt-2">
-                        <Label className="font-semibold">Button Parameters</Label>
+                        <ZoruLabel className="font-semibold">ZoruButton Parameters</ZoruLabel>
                         <div className="grid gap-3">
                             {interactiveButtons.map((btn: any) => (
                                 <div key={`btn-${btn.index}`} className="space-y-1">
-                                    <Label htmlFor={`variable_button_${btn.index}`} className="text-xs text-muted-foreground">
-                                        {btn.type === 'COPY_CODE' ? `Coupon Code (Button: ${btn.text})` : `URL Suffix (Button: ${btn.text})`}
-                                    </Label>
+                                    <ZoruLabel htmlFor={`variable_button_${btn.index}`} className="text-xs text-muted-foreground">
+                                        {btn.type === 'COPY_CODE' ? `Coupon Code (ZoruButton: ${btn.text})` : `URL Suffix (ZoruButton: ${btn.text})`}
+                                    </ZoruLabel>
                                     <SmartVariableInput
                                         id={`variable_button_${btn.index}`}
                                         name={`variable_button_${btn.index}`}
@@ -318,9 +318,9 @@ export function TemplateInputRenderer({ template, variableOptions = [] }: Templa
                             return (
                                 <div key={index} className="p-4 border rounded-md bg-muted/20 space-y-3">
                                     <div className="flex justify-between items-center">
-                                        <Label className="font-medium">Card {index + 1} ({header.format})</Label>
+                                        <ZoruLabel className="font-medium">ZoruCard {index + 1} ({header.format})</ZoruLabel>
                                     </div>
-                                    <Input
+                                    <ZoruInput
                                         ref={(el) => {
                                             cardMediaRefs.current[index] = el;
                                         }}

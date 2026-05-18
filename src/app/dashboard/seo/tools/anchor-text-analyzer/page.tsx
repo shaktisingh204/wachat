@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
 import { apiFetchUrl, parseHtml } from '@/lib/seo-tools/api-client';
 
 export default function AnchorTextAnalyzerPage() {
@@ -48,36 +48,36 @@ export default function AnchorTextAnalyzerPage() {
   return (
     <ToolShell title="Anchor Text Analyzer" description="Group links by anchor text and show the most common ones.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           placeholder="https://example.com"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
         />
-        <Button onClick={run} disabled={loading || !url}>
+        <ZoruButton onClick={run} disabled={loading || !url}>
           {loading ? 'Analyzing…' : 'Analyze'}
-        </Button>
+        </ZoruButton>
       </div>
 
       {error && (
-        <Card className="border-red-500/50">
-          <CardContent className="p-4 text-sm text-red-500">{error}</CardContent>
-        </Card>
+        <ZoruCard className="border-red-500/50">
+          <ZoruCardContent className="p-4 text-sm text-red-500">{error}</ZoruCardContent>
+        </ZoruCard>
       )}
 
       {rows && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="text-sm font-semibold">Top {rows.length} anchors</div>
             <div className="space-y-2">
               {rows.map((r, i) => (
                 <div key={i} className="flex items-center justify-between text-sm border-b pb-2">
                   <div className="truncate pr-3">{r.anchor}</div>
-                  <Badge variant="secondary">{r.count}</Badge>
+                  <ZoruBadge variant="secondary">{r.count}</ZoruBadge>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

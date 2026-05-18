@@ -2,17 +2,17 @@
 'use client';
 
 import type { WithId, Contact, Project, User, Plan } from '@/lib/definitions';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruScrollArea, ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { Button } from '../ui/button';
+import { ZoruButton } from '../ui/button';
 import { LoaderCircle, MessageSquarePlus, Search, Users } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
-import { Input } from '../ui/input';
+import { ZoruInput } from '../ui/input';
 import Link from 'next/link';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
 import { format } from 'date-fns';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -84,10 +84,10 @@ export function ChatContactList({
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
-            <Skeleton className="h-10 w-10 rounded-full" />
+            <ZoruSkeleton className="h-10 w-10 rounded-full" />
             <div className="flex-1 space-y-2">
-                <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
+                <ZoruSkeleton className="h-4 w-3/4" />
+                <ZoruSkeleton className="h-3 w-1/2" />
             </div>
         </div>
     );
@@ -97,19 +97,19 @@ export function ChatContactList({
             <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
                 {sessionUser ? (
                     <div className="flex items-center gap-3">
-                        <Avatar>
-                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
-                            <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
+                        <ZoruAvatar>
+                            <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <ZoruAvatarFallback>{sessionUser.name.charAt(0)}</ZoruAvatarFallback>
+                        </ZoruAvatar>
                         <p className="font-semibold">{sessionUser.name}</p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-3">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
+                        <ZoruSkeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2"><ZoruSkeleton className="h-4 w-24" /><ZoruSkeleton className="h-3 w-16" /></div>
                     </div>
                 )}
-                <Button
+                <ZoruButton
                     variant="ghost"
                     size="icon"
                     onClick={(e) => {
@@ -122,30 +122,30 @@ export function ChatContactList({
                 >
                     <MessageSquarePlus className="h-5 w-5" />
                     <span className="sr-only">New Chat</span>
-                </Button>
+                </ZoruButton>
             </div>
 
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
+                    <ZoruInput
                         placeholder="Search or start new chat"
                         className="pl-8"
                         onChange={(e) => handleSearch(e.target.value)}
                     />
                 </div>
-                <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
-                    <SelectTrigger id="phoneNumberId">
-                        <SelectValue placeholder="Select a phone number..." />
-                    </SelectTrigger>
-                    <SelectContent>
+                <ZoruSelect value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                    <ZoruSelectTrigger id="phoneNumberId">
+                        <ZoruSelectValue placeholder="ZoruSelect a phone number..." />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
                         {(project?.phoneNumbers || []).map((phone) => (
-                            <SelectItem key={phone.id} value={phone.id}>
+                            <ZoruSelectItem key={phone.id} value={phone.id}>
                                 {phone.display_phone_number} ({phone.verified_name})
-                            </SelectItem>
+                            </ZoruSelectItem>
                         ))}
-                    </SelectContent>
-                </Select>
+                    </ZoruSelectContent>
+                </ZoruSelect>
             </div>
 
             {/* All / Unread filter pills */}
@@ -176,7 +176,7 @@ export function ChatContactList({
                 </button>
             </div>
 
-            <ScrollArea className="flex-1">
+            <ZoruScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="p-2 space-y-1">
                         {[...Array(8)].map((_, i) => <ContactSkeleton key={i} />)}
@@ -197,9 +197,9 @@ export function ChatContactList({
                                         selectedContactId === contact._id.toString() && "bg-accent shadow-sm"
                                     )}
                                 >
-                                    <Avatar>
-                                        <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                                    </Avatar>
+                                    <ZoruAvatar>
+                                        <ZoruAvatarFallback>{contact.name.charAt(0).toUpperCase()}</ZoruAvatarFallback>
+                                    </ZoruAvatar>
                                     <div className="flex-1 min-w-0 pt-0.5">
                                         <div className="flex justify-between items-start">
                                             <span className={cn(
@@ -219,9 +219,9 @@ export function ChatContactList({
                                                 {lastMsgContent}
                                             </span>
                                             {unreadCount > 0 && (
-                                                <Badge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
+                                                <ZoruBadge variant="default" className="h-5 w-5 rounded-full p-0 flex items-center justify-center text-[10px] flex-shrink-0 ml-1.5">
                                                     {unreadCount}
-                                                </Badge>
+                                                </ZoruBadge>
                                             )}
                                         </div>
                                     </div>
@@ -239,13 +239,13 @@ export function ChatContactList({
                         </div>
                         <div>No contacts found{searchQuery ? ' for your search' : ' for this number'}.</div>
                         {!searchQuery && (
-                            <Button asChild variant="outline" size="sm" className="mt-2">
+                            <ZoruButton asChild variant="outline" size="sm" className="mt-2">
                                 <Link href="/wachat/contacts">Import or add contacts</Link>
-                            </Button>
+                            </ZoruButton>
                         )}
                     </div>
                 )}
-            </ScrollArea>
+            </ZoruScrollArea>
         </div>
     );
 }

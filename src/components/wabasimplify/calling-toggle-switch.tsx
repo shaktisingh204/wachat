@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
-import { Switch } from '@/components/ui/switch';
+import { ZoruSwitch } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import { savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
@@ -56,7 +56,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
     return (
         <div className="flex items-center gap-2">
             {isPending && <LoaderCircle className="h-4 w-4 animate-spin" />}
-            <Switch
+            <ZoruSwitch
                 id={`calling-switch-${phone.id}`}
                 checked={isChecked}
                 onCheckedChange={handleToggle}

@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function RobotsMetaPage() {
@@ -28,13 +28,13 @@ export default function RobotsMetaPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {(Object.keys(flags) as (keyof typeof flags)[]).map((k) => (
           <div key={k} className="flex items-center gap-2">
-            <Switch checked={flags[k]} onCheckedChange={() => toggle(k)} />
-            <Label className="capitalize">{k}</Label>
+            <ZoruSwitch checked={flags[k]} onCheckedChange={() => toggle(k)} />
+            <ZoruLabel className="capitalize">{k}</ZoruLabel>
           </div>
         ))}
       </div>
       <div className="font-mono text-sm bg-muted p-3 rounded">{output}</div>
-      <Button onClick={() => navigator.clipboard.writeText(output)}>Copy</Button>
+      <ZoruButton onClick={() => navigator.clipboard.writeText(output)}>Copy</ZoruButton>
     </ToolShell>
   );
 }

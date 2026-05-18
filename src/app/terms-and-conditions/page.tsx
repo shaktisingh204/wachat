@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import Link from 'next/link';
 
 export default function TermsAndConditionsPage() {
@@ -11,11 +11,11 @@ export default function TermsAndConditionsPage() {
                 &larr; Back to Home
             </Link>
         </div>
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-3xl font-bold font-headline">Terms and Conditions</CardTitle>
-          </CardHeader>
-          <CardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle className="text-3xl font-bold font-headline">Terms and Conditions</ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
             <p><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
             
             <h2 className="text-xl font-semibold">1. Agreement to Terms</h2>
@@ -45,8 +45,8 @@ export default function TermsAndConditionsPage() {
 
             <h2 className="text-xl font-semibold">Contact Us</h2>
             <p>If you have any questions about these Terms, please contact us at: [Your Contact Email]</p>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
 import React from 'react';
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+} from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
 import { ChevronLeft, AlertCircle, MessageSquare } from 'lucide-react';
 import type { Metadata } from 'next';
@@ -20,12 +20,12 @@ export default function ManualSetupDocsPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <Button variant="ghost" asChild className="mb-4 -ml-4">
+        <ZoruButton variant="ghost" asChild className="mb-4 -ml-4">
           <Link href="/dashboard/setup">
             <ChevronLeft className="mr-2 h-4 w-4" />
             Back to Setup Options
           </Link>
-        </Button>
+        </ZoruButton>
         <h1 className="text-3xl font-bold font-headline">Manual Setup Guide</h1>
         <p className="text-muted-foreground mt-2">
           This guide is for advanced users who want to connect their WhatsApp
@@ -33,15 +33,15 @@ export default function ManualSetupDocsPage() {
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Prerequisites</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Prerequisites</ZoruCardTitle>
+          <ZoruCardDescription>
             Before you begin, ensure you have the following set up in your Meta
             Business Portfolio:
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <ul className="list-disc space-y-2 pl-5 text-sm">
             <li>A Meta Developer Account.</li>
             <li>
@@ -54,18 +54,18 @@ export default function ManualSetupDocsPage() {
               Portfolio.
             </li>
           </ul>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Step 1: Find Your IDs</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Step 1: Find Your IDs</ZoruCardTitle>
+          <ZoruCardDescription>
             You'll need two IDs to start: your WhatsApp Business Account ID and
             your App ID.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
           <div>
             <h3 className="font-semibold">WhatsApp Business Account (WABA) ID</h3>
             <p className="text-sm text-muted-foreground mt-1">
@@ -81,25 +81,25 @@ export default function ManualSetupDocsPage() {
               all times.
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Step 2: Generate a Permanent Access Token</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Step 2: Generate a Permanent Access Token</ZoruCardTitle>
+          <ZoruCardDescription>
             This is the most critical step. You must generate a non-expiring
             token using a System User.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
           <ol className="list-decimal space-y-3 pl-5 text-sm">
             <li>
               Go to your <strong>Meta Business Settings</strong> &rarr;{' '}
               <strong>Users</strong> &rarr; <strong>System Users</strong>.
             </li>
             <li>
-              Select an existing System User (with Admin role) or create a new one.
+              ZoruSelect an existing System User (with Admin role) or create a new one.
             </li>
             <li>
               Click <strong>Add Assets</strong>. In the popup, assign your
@@ -110,7 +110,7 @@ export default function ManualSetupDocsPage() {
               With the System User selected, click{' '}
               <strong>Generate new token</strong>.
             </li>
-            <li>Select your App from the dropdown menu.</li>
+            <li>ZoruSelect your App from the dropdown menu.</li>
             <li>
               For Token Expiration, select <strong>Never</strong>. This is essential for uninterrupted service.
             </li>
@@ -121,25 +121,25 @@ export default function ManualSetupDocsPage() {
             </li>
             <li>Click <strong>Generate Token</strong> and copy it immediately. You will not be able to see it again.</li>
           </ol>
-          <Alert variant="destructive">
+          <ZoruAlert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Important: Store Your Token Securely</AlertTitle>
-            <AlertDescription>
+            <ZoruAlertTitle>Important: Store Your Token Securely</ZoruAlertTitle>
+            <ZoruAlertDescription>
               The permanent access token is like a password. Treat it securely
               and do not share it. If you lose it, you will need to revoke the old one and generate a new one.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+            </ZoruAlertDescription>
+          </ZoruAlert>
+        </ZoruCardContent>
+      </ZoruCard>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Step 3: Connect to SabNode</CardTitle>
-          <CardDescription>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Step 3: Connect to SabNode</ZoruCardTitle>
+          <ZoruCardDescription>
             Enter the credentials you've collected into the manual setup dialog.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
+          </ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
           <p className="text-sm">
             Go back to the{' '}
             <Link href="/dashboard/setup" className="text-primary hover:underline">
@@ -149,8 +149,8 @@ export default function ManualSetupDocsPage() {
             <strong>WABA ID</strong>, <strong>App ID</strong>, and{' '}
             <strong>Permanent Access Token</strong> into the respective fields. Click "Create Project" to complete the connection.
           </p>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
     </div>
   );

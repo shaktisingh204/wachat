@@ -4,8 +4,8 @@
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { sendFacebookMessage } from '@/app/actions/facebook.actions';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import { ZoruInput, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Send, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -21,10 +21,10 @@ const sendInitialState = { success: false, error: undefined };
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" size="icon" disabled={pending}>
+        <ZoruButton type="submit" size="icon" disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
-        </Button>
+        </ZoruButton>
     );
 }
 
@@ -47,7 +47,7 @@ export function FacebookMessageInput({ projectId, recipientId, onMessageSent, di
         <form ref={formRef} action={sendFormAction} className="flex-1 flex items-center gap-2">
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="recipientId" value={recipientId} />
-            <Input
+            <ZoruInput
                 name="messageText"
                 placeholder={disabled ? "You can no longer reply to this conversation." : "Type a message..."}
                 autoComplete="off"

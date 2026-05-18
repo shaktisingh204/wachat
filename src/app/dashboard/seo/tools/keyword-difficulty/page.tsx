@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 function hashString(s: string): number {
   let h = 0;
@@ -46,17 +46,17 @@ export default function KeywordDifficultyPage() {
   return (
     <ToolShell title="Keyword Difficulty" description="Estimate how hard it will be to rank for a keyword (heuristic score).">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           value={kw}
           onChange={(e) => setKw(e.target.value)}
           placeholder="Enter a keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <Button onClick={run}>Check</Button>
+        <ZoruButton onClick={run}>Check</ZoruButton>
       </div>
       {score !== null && l && (
-        <Card>
-          <CardContent className="p-6 space-y-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-6 space-y-4">
             <div className="flex items-baseline gap-3">
               <div className="text-5xl font-bold">{score}</div>
               <div className="text-sm text-muted-foreground">/ 100</div>
@@ -68,8 +68,8 @@ export default function KeywordDifficultyPage() {
             <p className="text-sm text-muted-foreground">
               Shorter, broader keywords tend to be more competitive. Long-tail keywords are easier to rank for but have less search volume. This is a heuristic score — integrate a SERP API for production-grade data.
             </p>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { generateApiKey, getApiKeysForUser, revokeApiKey } from '@/app/actions/api-keys.actions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { Loader2, Trash2, Key, Copy, Check } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { ZoruBadge } from '@/components/zoruui';
 import { format } from 'date-fns';
 
 export function ApiKeyManager() {
@@ -58,26 +58,26 @@ export function ApiKeyManager() {
     };
 
     return (
-        <Card className="w-full">
-            <CardHeader>
-                <CardTitle>API Keys</CardTitle>
-                <CardDescription>Manage keys for accessing the SMS API programmatically.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <ZoruCard className="w-full">
+            <ZoruCardHeader>
+                <ZoruCardTitle>API Keys</ZoruCardTitle>
+                <ZoruCardDescription>Manage keys for accessing the SMS API programmatically.</ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-6">
 
                 {/* Creation Form */}
                 <div className="flex gap-4 items-end">
                     <div className="grid w-full max-w-sm items-center gap-1.5">
-                        <Input
+                        <ZoruInput
                             placeholder="Key Name (e.g. Production App)"
                             value={newKeyName}
                             onChange={(e) => setNewKeyName(e.target.value)}
                         />
                     </div>
-                    <Button onClick={handleCreate} disabled={creating || !newKeyName}>
+                    <ZoruButton onClick={handleCreate} disabled={creating || !newKeyName}>
                         {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Key className="w-4 h-4 mr-2" />}
                         Generate Key
-                    </Button>
+                    </ZoruButton>
                 </div>
 
                 {/* Success Message */}
@@ -86,9 +86,9 @@ export function ApiKeyManager() {
                         <p className="text-sm text-green-800 font-medium mb-2">New API Key Generated!</p>
                         <div className="flex items-center gap-2">
                             <code className="bg-white px-2 py-1 rounded border font-mono text-sm">{generatedKey}</code>
-                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={copyToClipboard}>
+                            <ZoruButton size="icon" variant="ghost" className="h-8 w-8" onClick={copyToClipboard}>
                                 {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
-                            </Button>
+                            </ZoruButton>
                         </div>
                         <p className="text-xs text-green-700 mt-2">
                             Copy this now. You won't be able to see it again.
@@ -98,63 +98,63 @@ export function ApiKeyManager() {
 
                 {/* List */}
                 <div className="rounded-md border">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Prefix</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead>Last Used</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow>
+                                <ZoruTableHead>Name</ZoruTableHead>
+                                <ZoruTableHead>Prefix</ZoruTableHead>
+                                <ZoruTableHead>Created</ZoruTableHead>
+                                <ZoruTableHead>Last Used</ZoruTableHead>
+                                <ZoruTableHead>Status</ZoruTableHead>
+                                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
                             {loading && keys.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center">
+                                <ZoruTableRow>
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center">
                                         <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : keys.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                                <ZoruTableRow>
+                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
                                         No API keys found.
-                                    </TableCell>
-                                </TableRow>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : (
                                 keys.map((key) => (
-                                    <TableRow key={key._id}>
-                                        <TableCell className="font-medium">{key.name}</TableCell>
-                                        <TableCell className="font-mono text-xs">sn_*****</TableCell>
-                                        <TableCell className="text-muted-foreground">
+                                    <ZoruTableRow key={key._id}>
+                                        <ZoruTableCell className="font-medium">{key.name}</ZoruTableCell>
+                                        <ZoruTableCell className="font-mono text-xs">sn_*****</ZoruTableCell>
+                                        <ZoruTableCell className="text-muted-foreground">
                                             {format(new Date(key.createdAt), 'MMM d, yyyy')}
-                                        </TableCell>
-                                        <TableCell className="text-muted-foreground">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-muted-foreground">
                                             {key.lastUsed ? format(new Date(key.lastUsed), 'MMM d, HH:mm') : 'Never'}
-                                        </TableCell>
-                                        <TableCell>
-                                            {key.revoked ? <Badge variant="destructive">Revoked</Badge> : <Badge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">Active</Badge>}
-                                        </TableCell>
-                                        <TableCell className="text-right">
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            {key.revoked ? <ZoruBadge variant="destructive">Revoked</ZoruBadge> : <ZoruBadge variant="secondary" className="bg-green-100 text-green-800 hover:bg-green-100">Active</ZoruBadge>}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
                                             {!key.revoked && (
-                                                <Button
+                                                <ZoruButton
                                                     variant="ghost"
                                                     size="sm"
                                                     className="text-red-500 hover:text-red-700 hover:bg-red-50"
                                                     onClick={() => handleRevoke(key._id)}
                                                 >
                                                     <Trash2 className="h-4 w-4" /> Revoke
-                                                </Button>
+                                                </ZoruButton>
                                             )}
-                                        </TableCell>
-                                    </TableRow>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
                                 ))
                             )}
-                        </TableBody>
-                    </Table>
+                        </ZoruTableBody>
+                    </ZoruTable>
                 </div>
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

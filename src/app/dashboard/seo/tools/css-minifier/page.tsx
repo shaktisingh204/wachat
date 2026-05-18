@@ -4,7 +4,7 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function CssMinifierPage() {
@@ -21,9 +21,9 @@ export default function CssMinifierPage() {
   );
   return (
     <ToolShell title="CSS Minifier" description="Strip comments and whitespace from CSS.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste CSS…" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[200px] font-mono text-xs" placeholder="Paste CSS…" />
       <div className="text-sm text-muted-foreground">{text.length} → {min.length} bytes ({text.length ? ((1 - min.length / text.length) * 100).toFixed(1) : 0}% saved)</div>
-      <Textarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
+      <ZoruTextarea readOnly value={min} className="min-h-[200px] font-mono text-xs" />
     </ToolShell>
   );
 }

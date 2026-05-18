@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 export default function KeywordMixerPage() {
   const [listA, setListA] = useState('');
@@ -26,31 +26,31 @@ export default function KeywordMixerPage() {
   return (
     <ToolShell title="Keyword Mixer" description="Combine two lists of words into every possible pair combination.">
       <div className="grid md:grid-cols-2 gap-3">
-        <Textarea
+        <ZoruTextarea
           value={listA}
           onChange={(e) => setListA(e.target.value)}
           placeholder="List A (one per line)"
           className="min-h-[180px]"
         />
-        <Textarea
+        <ZoruTextarea
           value={listB}
           onChange={(e) => setListB(e.target.value)}
           placeholder="List B (one per line)"
           className="min-h-[180px]"
         />
       </div>
-      <Button onClick={run} className="w-fit">Mix</Button>
+      <ZoruButton onClick={run} className="w-fit">Mix</ZoruButton>
       {results.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <div className="text-xs text-muted-foreground mb-2">{results.length} combinations</div>
             <div className="grid md:grid-cols-2 gap-1 text-sm max-h-[400px] overflow-auto">
               {results.map((r, i) => (
                 <div key={i} className="p-1.5 rounded bg-muted/40">{r}</div>
               ))}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

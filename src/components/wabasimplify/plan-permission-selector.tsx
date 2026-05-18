@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
 import { ShieldCheck } from 'lucide-react';
 import type { GlobalPermissions } from '@/lib/definitions';
 import {
@@ -48,25 +48,25 @@ export function PlanPermissionSelector({
     );
 
     return (
-        <Card className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
-            <CardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
+        <ZoruCard className="rounded-2xl border-white/10 bg-white/5 backdrop-blur-xl shadow-lg overflow-hidden">
+            <ZoruCardHeader className="border-b border-white/10 bg-gradient-to-r from-primary/10 via-transparent to-transparent">
                 <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-xl bg-primary/15 border border-primary/30 flex items-center justify-center">
                         <ShieldCheck className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                        <CardTitle className="text-lg">Master Permission Control</CardTitle>
-                        <CardDescription>
+                        <ZoruCardTitle className="text-lg">Master Permission Control</ZoruCardTitle>
+                        <ZoruCardDescription>
                             Define the absolute ceiling of what users on this plan can do. Anything
                             unchecked here is blocked application-wide, even for paying users.
-                        </CardDescription>
+                        </ZoruCardDescription>
                     </div>
                 </div>
-            </CardHeader>
-            <CardContent className="pt-6">
+            </ZoruCardHeader>
+            <ZoruCardContent className="pt-6">
                 <input type="hidden" name={name} value={JSON.stringify(permissions)} />
                 <PlanPermissionsMatrix value={permissions} onChange={setPermissions} />
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }

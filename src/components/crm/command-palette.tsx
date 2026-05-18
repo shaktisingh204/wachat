@@ -29,16 +29,16 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
 import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from '@/components/ui/command';
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandSeparator,
+  ZoruCommandShortcut,
+} from '@/components/zoruui';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogTitle, ZoruDialogDescription } from '@/components/zoruui';
 
 import { lookupEntity } from '@/app/actions/crm-lookup.actions';
 import { rustLookupEntity } from '@/lib/rust-lookup-client';
@@ -471,46 +471,46 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const totalHits = ENTITY_ORDER.reduce((acc, e) => acc + results[e].length, 0);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent
         className="overflow-hidden p-0 shadow-lg sm:max-w-2xl border-zoru-line bg-zoru-surface-2"
       >
-        <DialogTitle className="sr-only">Command palette</DialogTitle>
-        <DialogDescription className="sr-only">
+        <ZoruDialogTitle className="sr-only">ZoruCommand palette</ZoruDialogTitle>
+        <ZoruDialogDescription className="sr-only">
           Search clients, vendors, items, employees, and run quick actions.
-        </DialogDescription>
-        <Command
+        </ZoruDialogDescription>
+        <ZoruCommand
           className="bg-transparent text-zoru-ink [&_[cmdk-group-heading]]:px-3 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-[11px] [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:uppercase [&_[cmdk-group-heading]]:tracking-wider [&_[cmdk-group-heading]]:text-zoru-ink-muted [&_[cmdk-group]]:px-2 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-3 [&_[cmdk-item]]:py-2.5"
           shouldFilter={!isEmptyQuery ? false : true}
           // When typing, we already filter on the server — disable the
           // built-in fuzzy filter so server hits always render. When
           // empty, we let cmdk filter the static quick actions.
         >
-          <CommandInput
+          <ZoruCommandInput
             placeholder="Search or run a command…"
             value={query}
             onValueChange={setQuery}
             autoFocus
           />
-          <CommandList className="max-h-[60vh] border-t border-zoru-line">
+          <ZoruCommandList className="max-h-[60vh] border-t border-zoru-line">
             {isEmptyQuery ? (
               <>
-                <CommandGroup heading="Quick actions">
+                <ZoruCommandGroup heading="Quick actions">
                   {quickActions.map((action) => (
-                    <CommandItem
+                    <ZoruCommandItem
                       key={action.id}
                       value={`${action.label} ${action.hint}`}
                       onSelect={() => handleSelectAction(action)}
                     >
                       <span className="flex-1 truncate">{action.label}</span>
-                      <CommandShortcut className="text-zoru-ink-muted">{action.hint}</CommandShortcut>
-                    </CommandItem>
+                      <ZoruCommandShortcut className="text-zoru-ink-muted">{action.hint}</ZoruCommandShortcut>
+                    </ZoruCommandItem>
                   ))}
-                </CommandGroup>
+                </ZoruCommandGroup>
                 {recentsLoaded && recents.length > 0 ? (
                   <>
-                    <CommandSeparator className="bg-zoru-line" />
-                    <CommandGroup heading="Recent">
+                    <ZoruCommandSeparator className="bg-zoru-line" />
+                    <ZoruCommandGroup heading="Recent">
                       {recents.map(({ entity, item }) => (
                         <ResultItem
                           key={`recent-${entity}-${item.id}`}
@@ -520,21 +520,21 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           onSelect={() => handleSelectItem(entity, item)}
                         />
                       ))}
-                    </CommandGroup>
+                    </ZoruCommandGroup>
                   </>
                 ) : null}
               </>
             ) : (
               <>
                 {!isSearching && totalHits === 0 ? (
-                  <CommandEmpty>No results for &ldquo;{debouncedQuery}&rdquo;.</CommandEmpty>
+                  <ZoruCommandEmpty>No results for &ldquo;{debouncedQuery}&rdquo;.</ZoruCommandEmpty>
                 ) : null}
 
                 {ENTITY_ORDER.map((entity) => {
                   const items = results[entity];
                   if (items.length === 0) return null;
                   return (
-                    <CommandGroup key={entity} heading={entityLabel[entity]}>
+                    <ZoruCommandGroup key={entity} heading={entityLabel[entity]}>
                       {items.map((item) => (
                         <ResultItem
                           key={`${entity}-${item.id}`}
@@ -544,7 +544,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                           onSelect={() => handleSelectItem(entity, item)}
                         />
                       ))}
-                    </CommandGroup>
+                    </ZoruCommandGroup>
                   );
                 })}
 
@@ -555,10 +555,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 ) : null}
               </>
             )}
-          </CommandList>
-        </Command>
-      </DialogContent>
-    </Dialog>
+          </ZoruCommandList>
+        </ZoruCommand>
+      </ZoruDialogContent>
+    </ZoruDialog>
   );
 }
 
@@ -634,8 +634,8 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
     .join(' ');
 
   return (
-    <CommandItem value={value} onSelect={onSelect}>
-      <Avatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
+    <ZoruCommandItem value={value} onSelect={onSelect}>
+      <ZoruAvatar avatarUrl={chip.avatarUrl} fallback={initials(chip.primary)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-sm text-zoru-ink">{chip.primary}</span>
         {chip.secondary || chip.tertiary ? (
@@ -644,14 +644,14 @@ function ResultItem({ entity, item, valuePrefix, onSelect }: ResultItemProps) {
           </span>
         ) : null}
       </div>
-      <CommandShortcut className="text-zoru-ink-muted">
+      <ZoruCommandShortcut className="text-zoru-ink-muted">
         {entityLabel[entity]}
-      </CommandShortcut>
-    </CommandItem>
+      </ZoruCommandShortcut>
+    </ZoruCommandItem>
   );
 }
 
-function Avatar({ avatarUrl, fallback }: { avatarUrl?: string; fallback: string }) {
+function ZoruAvatar({ avatarUrl, fallback }: { avatarUrl?: string; fallback: string }) {
   if (avatarUrl) {
     return (
       // Plain <img> on purpose: the palette is a transient overlay, the

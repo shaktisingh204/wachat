@@ -1,3 +1,4 @@
+import { ZoruButton } from '@/components/zoruui';
 'use client';
 
 import { useState, useRef, useEffect, useActionState } from 'react';
@@ -16,7 +17,6 @@ import { useToast } from "@/hooks/use-toast";
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import { LoaderCircle } from "lucide-react";
-import { ClayButton } from "@/components/clay";
 
 const initialState: { message?: string; error?: string; newProduct?: any } = {
     message: undefined,
@@ -34,14 +34,14 @@ interface QuickAddProductDialogProps {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <ClayButton
+        <ZoruButton
             type="submit"
             variant="obsidian"
             disabled={pending}
             leading={pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : undefined}
         >
             Save Product
-        </ClayButton>
+        </ZoruButton>
     )
 }
 
@@ -115,7 +115,7 @@ export function QuickAddProductDialog({ open, onOpenChange, onProductAdded, defa
                         </div>
                     </div>
                     <DialogFooter>
-                        <ClayButton type="button" variant="pill" onClick={() => onOpenChange(false)}>Cancel</ClayButton>
+                        <ZoruButton type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</ZoruButton>
                         <SubmitButton />
                     </DialogFooter>
                 </form>

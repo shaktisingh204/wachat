@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { diffLines } from '@/lib/seo-tools/text-utils';
 
@@ -18,12 +18,12 @@ export default function TextComparePage() {
   return (
     <ToolShell title="Text Compare (Diff)" description="Line-by-line side-by-side comparison of two texts.">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <Textarea value={a} onChange={(e) => setA(e.target.value)} placeholder="Original text…" className="min-h-[240px]" />
-        <Textarea value={b} onChange={(e) => setB(e.target.value)} placeholder="Changed text…" className="min-h-[240px]" />
+        <ZoruTextarea value={a} onChange={(e) => setA(e.target.value)} placeholder="Original text…" className="min-h-[240px]" />
+        <ZoruTextarea value={b} onChange={(e) => setB(e.target.value)} placeholder="Changed text…" className="min-h-[240px]" />
       </div>
       <div className="text-sm text-muted-foreground">{diffs} differing line(s)</div>
-      <Card>
-        <CardContent className="p-0">
+      <ZoruCard>
+        <ZoruCardContent className="p-0">
           <div className="font-mono text-xs">
             {rows.map((r, i) => (
               <div key={i} className={`grid grid-cols-2 border-b ${r.equal ? '' : 'bg-yellow-50 dark:bg-yellow-950/20'}`}>
@@ -32,8 +32,8 @@ export default function TextComparePage() {
               </div>
             ))}
           </div>
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

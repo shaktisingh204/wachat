@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { FileText, LoaderCircle } from 'lucide-react';
 import { generateClientReportData } from '@/app/actions/crm-reports.actions';
 import { useToast } from '@/hooks/use-toast';
@@ -44,9 +44,9 @@ export function ClientReportButton() {
     }
 
     return (
-        <Button onClick={handleClick} variant="outline" disabled={isPending}>
+        <ZoruButton onClick={handleClick} variant="outline" disabled={isPending}>
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <FileText className="mr-2 h-4 w-4" />}
             Generate Report
-        </Button>
+        </ZoruButton>
     )
 }

@@ -1,14 +1,15 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 
 'use client';
 
 import Image from 'next/image';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
 import type { WithId, EcommProduct, CrmProduct } from '@/lib/definitions';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger } from '@/components/zoruui';
 import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { ClayCard, ClayBadge, ClayButton } from '@/components/clay';
+import { ClayCard, ClayBadge } from '@/components/clay';
 
 interface CrmProductCardProps {
     product: WithId<EcommProduct> | WithId<CrmProduct>;
@@ -77,19 +78,19 @@ export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }
                 </div>
             </div>
             <div className="p-4 flex justify-end gap-2 border-t border-border">
-                <ClayButton variant="pill" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</ClayButton>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <ClayButton variant="rose" size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</ClayButton>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader><AlertDialogTitle className="text-foreground">Delete Product?</AlertDialogTitle><AlertDialogDescription className="text-muted-foreground">This will permanently delete "{product.name}".</AlertDialogDescription></AlertDialogHeader>
-                        <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
+                <ZoruButton variant="outline" size="sm" onClick={onEdit} leading={<Edit className="h-4 w-4" />}>Edit</ZoruButton>
+                <ZoruAlertDialog>
+                    <ZoruAlertDialogTrigger asChild>
+                        <ZoruButton size="sm" leading={<Trash2 className="h-4 w-4" />}>Delete</ZoruButton>
+                    </ZoruAlertDialogTrigger>
+                    <ZoruAlertDialogContent>
+                        <ZoruAlertDialogHeader><ZoruAlertDialogTitle className="text-foreground">Delete Product?</ZoruAlertDialogTitle><ZoruAlertDialogDescription className="text-muted-foreground">This will permanently delete "{product.name}".</ZoruAlertDialogDescription></ZoruAlertDialogHeader>
+                        <ZoruAlertDialogFooter>
+                            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+                        </ZoruAlertDialogFooter>
+                    </ZoruAlertDialogContent>
+                </ZoruAlertDialog>
             </div>
         </ClayCard>
     );

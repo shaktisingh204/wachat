@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 
 const QUESTION_TEMPLATES = [
   (s: string) => `how to ${s}`,
@@ -35,24 +35,24 @@ export default function QuestionKeywordsPage() {
   return (
     <ToolShell title="Question Keywords" description="Generate question-style keyword variants from a seed term.">
       <div className="flex gap-2">
-        <Input
+        <ZoruInput
           value={seed}
           onChange={(e) => setSeed(e.target.value)}
           placeholder="Enter seed keyword"
           onKeyDown={(e) => e.key === 'Enter' && run()}
         />
-        <Button onClick={run}>Generate Questions</Button>
+        <ZoruButton onClick={run}>Generate Questions</ZoruButton>
       </div>
       {results.length > 0 && (
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <ul className="space-y-2 text-sm">
               {results.map((r) => (
                 <li key={r} className="p-2 rounded bg-muted/40">{r}</li>
               ))}
             </ul>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

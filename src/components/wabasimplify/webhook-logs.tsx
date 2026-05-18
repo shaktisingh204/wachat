@@ -9,16 +9,16 @@ import type { WebhookLogListItem } from '@/lib/definitions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ZoruButton } from "@/components/ui/button";
+import { ZoruInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+} from '@/components/zoruui';
 import { useToast } from "@/hooks/use-toast";
 import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw, ServerCog, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
@@ -43,10 +43,10 @@ function ReprocessButton({ logId, onReprocessComplete }: { logId: string; onRepr
     }
 
     return (
-        <Button variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing} className="h-7 w-7">
+        <ZoruButton variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing} className="h-7 w-7">
             {isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RotateCw className="h-4 w-4" />}
             <span className="sr-only">Re-process Webhook</span>
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -173,20 +173,20 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                     <div className="flex flex-wrap items-center gap-2">
                          <div className="relative w-full sm:w-auto">
                             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
+                            <ZoruInput
                                 placeholder="Search logs..."
                                 className="pl-8 w-full sm:w-64"
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleClearLogs} disabled={isClearing || isLoading} variant="outline" size="sm">
+                        <ZoruButton onClick={handleClearLogs} disabled={isClearing || isLoading} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Clear Processed Logs
-                        </Button>
-                         <Button onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isLoading} variant="outline" size="sm">
+                        </ZoruButton>
+                         <ZoruButton onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isLoading} variant="outline" size="sm">
                             <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                             Refresh
-                        </Button>
+                        </ZoruButton>
                     </div>
                 </div>
             </CardHeader>
@@ -227,10 +227,10 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
                                                 <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery, false)} />
-                                                <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
+                                                <ZoruButton variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
                                                     <Eye className="h-4 w-4" />
                                                     <span className="sr-only">View Payload</span>
-                                                </Button>
+                                                </ZoruButton>
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -249,43 +249,43 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                         <span className="text-sm text-muted-foreground">
                             Page {currentPage} of {totalPages > 0 ? totalPages : 1}
                         </span>
-                        <Button
+                        <ZoruButton
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage(p => p - 1)}
                             disabled={currentPage <= 1 || isLoading}
                         >
                             Previous
-                        </Button>
-                        <Button
+                        </ZoruButton>
+                        <ZoruButton
                             variant="outline"
                             size="sm"
                             onClick={() => setCurrentPage(p => p + 1)}
                             disabled={currentPage >= totalPages || isLoading}
                         >
                             Next
-                        </Button>
+                        </ZoruButton>
                     </div>
                     </>
                 )}
             </CardContent>
 
-            <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
-                <DialogContent className="max-w-3xl">
-                    <DialogHeader>
+            <ZoruDialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
+                <ZoruDialogContent className="max-w-3xl">
+                    <ZoruDialogHeader>
                         <div className="flex justify-between items-start gap-4">
                             <div>
-                                <DialogTitle>Webhook Payload</DialogTitle>
-                                <DialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</DialogDescription>
+                                <ZoruDialogTitle>Webhook Payload</ZoruDialogTitle>
+                                <ZoruDialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</ZoruDialogDescription>
                             </div>
                             {selectedLogPayload && (
-                                <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
+                                <ZoruButton variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
                                     <Copy className="h-4 w-4" />
                                     <span className="sr-only">Copy Payload</span>
-                                </Button>
+                                </ZoruButton>
                             )}
                         </div>
-                    </DialogHeader>
+                    </ZoruDialogHeader>
                     <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
                         {loadingPayload ? (
                             <div className="flex items-center justify-center p-8">
@@ -299,8 +299,8 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
                             <div className="text-center text-muted-foreground p-8">Could not load payload.</div>
                         )}
                     </div>
-                </DialogContent>
-            </Dialog>
+                </ZoruDialogContent>
+            </ZoruDialog>
         </Card>
     );
 }

@@ -2,7 +2,7 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import type { User } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
@@ -27,21 +27,21 @@ export function AdminUserFilter({ users }: AdminUserFilterProps) {
   };
 
   return (
-    <Select
+    <ZoruSelect
       onValueChange={handleFilter}
       defaultValue={searchParams.get('userId')?.toString() || 'all'}
     >
-      <SelectTrigger className="w-full sm:w-[200px]">
-        <SelectValue placeholder="Filter by user..." />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value="all">All Users</SelectItem>
+      <ZoruSelectTrigger className="w-full sm:w-[200px]">
+        <ZoruSelectValue placeholder="Filter by user..." />
+      </ZoruSelectTrigger>
+      <ZoruSelectContent>
+        <ZoruSelectItem value="all">All Users</ZoruSelectItem>
         {users.map((user) => (
-          <SelectItem key={user._id.toString()} value={user._id.toString()}>
+          <ZoruSelectItem key={user._id.toString()} value={user._id.toString()}>
             {user.name} ({user.email})
-          </SelectItem>
+          </ZoruSelectItem>
         ))}
-      </SelectContent>
-    </Select>
+      </ZoruSelectContent>
+    </ZoruSelect>
   );
 }

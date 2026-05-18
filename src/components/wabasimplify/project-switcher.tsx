@@ -3,15 +3,15 @@
 
 import { useRouter } from 'next/navigation';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { Briefcase, Check, ChevronsUpDown } from 'lucide-react';
 import type { WithId, Project } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
@@ -46,29 +46,29 @@ export function ProjectSwitcher() {
     }
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start h-auto p-2">
+        <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="ghost" className="w-full justify-start h-auto p-2">
                     <div className="flex items-center gap-2 w-full">
-                        <Avatar className="h-8 w-8">
-                           <AvatarFallback><WhatsAppIcon className="h-5 w-5"/></AvatarFallback>
-                        </Avatar>
+                        <ZoruAvatar className="h-8 w-8">
+                           <ZoruAvatarFallback><WhatsAppIcon className="h-5 w-5"/></ZoruAvatarFallback>
+                        </ZoruAvatar>
                         <span className="truncate flex-1 text-left font-semibold">{activeProject.name}</span>
                         <ChevronsUpDown className="h-4 w-4 opacity-50 flex-shrink-0" />
                     </div>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <DropdownMenuLabel>Switch Project</DropdownMenuLabel>
-                <DropdownMenuSeparator />
+                </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <ZoruDropdownMenuLabel>ZoruSwitch Project</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuSeparator />
                 {projects.map(project => (
-                    <DropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
+                    <ZoruDropdownMenuItem key={project._id.toString()} onSelect={() => handleSelectProject(project)}>
                          <WhatsAppIcon className="mr-2 h-4 w-4" />
                         <span className="truncate">{project.name}</span>
                         {project._id.toString() === activeProject._id.toString() && <Check className="ml-auto h-4 w-4" />}
-                    </DropdownMenuItem>
+                    </ZoruDropdownMenuItem>
                 ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+            </ZoruDropdownMenuContent>
+        </ZoruDropdownMenu>
     );
 }

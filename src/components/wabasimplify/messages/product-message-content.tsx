@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
 import { ShoppingBag } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 
 interface ProductMessageContentProps {
   catalogId: string;
@@ -16,14 +16,14 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
   // For this component, we'll just display the information we have.
   return (
     <div className={isReply ? "w-full" : "w-64"}>
-      <Card className="shadow-none border-0 bg-transparent">
-        <CardHeader className="p-2">
+      <ZoruCard className="shadow-none border-0 bg-transparent">
+        <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <ShoppingBag className="h-5 w-5 text-primary"/>
-                <CardTitle className="text-base">Product Inquiry</CardTitle>
+                <ZoruCardTitle className="text-base">Product Inquiry</ZoruCardTitle>
             </div>
-        </CardHeader>
-        <CardContent className="p-2 space-y-1 text-xs">
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-2 space-y-1 text-xs">
           <p><span className="font-semibold">Product SKU:</span></p>
           <p className="font-mono text-muted-foreground bg-background rounded p-1">{productRetailerId}</p>
           {!isReply && (
@@ -32,13 +32,13 @@ export function ProductMessageContent({ catalogId, productRetailerId, isReply = 
               <p className="font-mono text-muted-foreground bg-background rounded p-1">{catalogId}</p>
             </>
           )}
-        </CardContent>
+        </ZoruCardContent>
         {!isReply && (
-            <CardFooter className="p-2">
-                <Button variant="outline" size="sm" className="w-full">View Product Details</Button>
-            </CardFooter>
+            <ZoruCardFooter className="p-2">
+                <ZoruButton variant="outline" size="sm" className="w-full">View Product Details</ZoruButton>
+            </ZoruCardFooter>
         )}
-      </Card>
+      </ZoruCard>
     </div>
   );
 }

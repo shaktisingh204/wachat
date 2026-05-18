@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiWhois } from '@/lib/seo-tools/api-client';
 
@@ -40,17 +40,17 @@ export default function DomainAgePage() {
   return (
     <ToolShell title="Domain Age Checker" description="Check when a domain was first registered.">
       <div className="flex gap-2">
-        <Input value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
+        <ZoruInput value={domain} onChange={(e) => setDomain(e.target.value)} placeholder="example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {info && (
-        <Card><CardContent className="p-4 space-y-2 text-sm">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-2 text-sm">
           <div><span className="font-semibold">Age:</span> {info.age}</div>
           <div><span className="font-semibold">Created:</span> {info.created || '—'}</div>
           <div><span className="font-semibold">Expires:</span> {info.expires || '—'}</div>
           <div><span className="font-semibold">Registrar:</span> {info.registrar || '—'}</div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

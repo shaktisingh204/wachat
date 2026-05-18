@@ -3,13 +3,13 @@
 import { useEffect, useState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy, Save, ShoppingBag, LayoutGrid, MessageSquare } from 'lucide-react';
 import { handleCreateTemplate, saveLibraryTemplate, handleBulkCreateTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
@@ -17,7 +17,7 @@ import { getCatalogs, type Catalog } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template, CreateTemplateState } from '@/lib/definitions';
-import { Separator } from '../ui/separator';
+import { ZoruSeparator } from '../ui/separator';
 import { createTemplateSchema } from '@/lib/template-schema';
 
 // New Components
@@ -46,7 +46,7 @@ function SubmitButton({ templateType, isAdminForm, isBulkForm }: { templateType:
   else if (templateType === 'MARKETING_CAROUSEL') buttonText = 'Submit Carousel for Approval';
 
   return (
-    <Button size="lg" type="submit" disabled={pending}>
+    <ZoruButton size="lg" type="submit" disabled={pending}>
       {pending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -58,7 +58,7 @@ function SubmitButton({ templateType, isAdminForm, isBulkForm }: { templateType:
           {buttonText}
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }
 
@@ -312,8 +312,8 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
       {/* Header / Type Selector */}
       <div className="mb-8">
-        <Label className="text-base mb-2 block">Choose Template Type</Label>
-        <RadioGroup
+        <ZoruLabel className="text-base mb-2 block">Choose Template Type</ZoruLabel>
+        <ZoruRadioGroup
           value={templateType}
           onValueChange={(v) => {
             const newType = v as any;
@@ -340,36 +340,36 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div className="relative">
-            <RadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
-            <Label htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
+            <ZoruRadioGroupItem value="STANDARD" id="t-standard" className="peer sr-only" />
+            <ZoruLabel htmlFor="t-standard" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
               <MessageSquare className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Standard Message</div>
                 <div className="text-xs text-muted-foreground">Text, Media, Buttons</div>
               </div>
-            </Label>
+            </ZoruLabel>
           </div>
           <div className="relative">
-            <RadioGroupItem value="MARKETING_CAROUSEL" id="t-carousel" className="peer sr-only" />
-            <Label htmlFor="t-carousel" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
+            <ZoruRadioGroupItem value="MARKETING_CAROUSEL" id="t-carousel" className="peer sr-only" />
+            <ZoruLabel htmlFor="t-carousel" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
               <LayoutGrid className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Marketing Carousel</div>
                 <div className="text-xs text-muted-foreground">Scrollable cards with media</div>
               </div>
-            </Label>
+            </ZoruLabel>
           </div>
           <div className="relative">
-            <RadioGroupItem value="CATALOG_MESSAGE" id="t-catalog" className="peer sr-only" />
-            <Label htmlFor="t-catalog" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
+            <ZoruRadioGroupItem value="CATALOG_MESSAGE" id="t-catalog" className="peer sr-only" />
+            <ZoruLabel htmlFor="t-catalog" className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary peer-data-[state=checked]:text-primary cursor-pointer h-full">
               <ShoppingBag className="mb-3 h-6 w-6" />
               <div className="text-center space-y-1">
                 <div className="font-semibold">Product Catalog</div>
                 <div className="text-xs text-muted-foreground">Interactive product list</div>
               </div>
-            </Label>
+            </ZoruLabel>
           </div>
-        </RadioGroup>
+        </ZoruRadioGroup>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -377,71 +377,71 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
         {/* Main Editor Column */}
         <div className="lg:col-span-2 space-y-6">
 
-          {/* Common Details Card */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Details</CardTitle>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-4">
+          {/* Common Details ZoruCard */}
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle>Template Details</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>Name</Label>
-                <Input name="name" value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="e.g., summer_promo" required />
+                <ZoruLabel>Name</ZoruLabel>
+                <ZoruInput name="name" value={templateName} onChange={(e) => setTemplateName(e.target.value)} placeholder="e.g., summer_promo" required />
               </div>
               {templateType !== 'CATALOG_MESSAGE' && (
                 <>
                   <div className="space-y-2">
-                    <Label>Category</Label>
-                    <Select name="category" value={category} onValueChange={(v) => setCategory(v as any)} required>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{categories.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <ZoruLabel>Category</ZoruLabel>
+                    <ZoruSelect name="category" value={category} onValueChange={(v) => setCategory(v as any)} required>
+                      <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                      <ZoruSelectContent>{categories.map(c => <ZoruSelectItem key={c.id} value={c.id}>{c.name}</ZoruSelectItem>)}</ZoruSelectContent>
+                    </ZoruSelect>
                   </div>
                   <div className="space-y-2">
-                    <Label>Language</Label>
-                    <Select name="language" value={language} onValueChange={setLanguage} required>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>{languages.map(l => <SelectItem key={l.code} value={l.code}>{l.name}</SelectItem>)}</SelectContent>
-                    </Select>
+                    <ZoruLabel>Language</ZoruLabel>
+                    <ZoruSelect name="language" value={language} onValueChange={setLanguage} required>
+                      <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                      <ZoruSelectContent>{languages.map(l => <ZoruSelectItem key={l.code} value={l.code}>{l.name}</ZoruSelectItem>)}</ZoruSelectContent>
+                    </ZoruSelect>
                   </div>
                 </>
               )}
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
 
           {/* --- EDITOR CONTENT BY TYPE --- */}
 
           {(templateType === 'STANDARD' || templateType === 'MARKETING_CAROUSEL') && (
-            <Card>
-              <CardHeader><CardTitle>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}</CardTitle></CardHeader>
-              <CardContent className="space-y-6">
+            <ZoruCard>
+              <ZoruCardHeader><ZoruCardTitle>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Introduction' : 'Message Content'}</ZoruCardTitle></ZoruCardHeader>
+              <ZoruCardContent className="space-y-6">
                 {/* Header - Only for Standard */}
                 {templateType === 'STANDARD' && (
                   <div className="space-y-3">
-                    <Label>Header</Label>
-                    <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
+                    <ZoruLabel>Header</ZoruLabel>
+                    <ZoruRadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="flex flex-wrap gap-2">
                       {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(f => (
                         <div key={f} className="flex items-center space-x-2 border p-2 rounded cursor-pointer hover:bg-accent">
-                          <RadioGroupItem value={f} id={`h-${f}`} />
-                          <Label htmlFor={`h-${f}`} className="cursor-pointer">{f}</Label>
+                          <ZoruRadioGroupItem value={f} id={`h-${f}`} />
+                          <ZoruLabel htmlFor={`h-${f}`} className="cursor-pointer">{f}</ZoruLabel>
                         </div>
                       ))}
-                    </RadioGroup>
+                    </ZoruRadioGroup>
                     <input type="hidden" name="headerFormat" value={headerFormat} />
 
                     {headerFormat === 'TEXT' && (
                       <div className="space-y-2">
-                        <Input name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
+                        <ZoruInput name="headerText" placeholder="Header Text (e.g. Welcome {{1}})" value={headerText} onChange={e => setHeaderText(e.target.value)} />
                         {headerText.match(/{{\s*(\d+)\s*}}/g) && (
                           <div className="mt-2 text-sm bg-muted/30 p-2 rounded">
-                            <Label className="text-xs font-semibold mb-1 block">Header Variable Example</Label>
-                            <Input name="headerExample" placeholder="e.g. Discount" className="h-8" required />
+                            <ZoruLabel className="text-xs font-semibold mb-1 block">Header Variable Example</ZoruLabel>
+                            <ZoruInput name="headerExample" placeholder="e.g. Discount" className="h-8" required />
                           </div>
                         )}
                       </div>
                     )}
                     {(headerFormat === 'IMAGE' || headerFormat === 'VIDEO' || headerFormat === 'DOCUMENT') && (
                       <div className="space-y-2">
-                        <Input
+                        <ZoruInput
                           type="file"
                           name="headerSampleFile"
                           accept={
@@ -451,15 +451,15 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                           }
                         />
                         <div className="text-xs text-muted-foreground">OR</div>
-                        <Input name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
+                        <ZoruInput name="headerSampleUrl" placeholder="https://..." value={headerSampleUrl} onChange={e => setHeaderSampleUrl(e.target.value)} />
                       </div>
                     )}
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Intro Body' : 'Body'}</Label>
-                  <Textarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder={templateType === 'MARKETING_CAROUSEL' ? "Check out our latest collection..." : "Hello {{1}}..."} className="min-h-[120px]" required />
+                  <ZoruLabel>{templateType === 'MARKETING_CAROUSEL' ? 'Carousel Intro Body' : 'Body'}</ZoruLabel>
+                  <ZoruTextarea name="body" value={body} onChange={e => setBody(e.target.value)} placeholder={templateType === 'MARKETING_CAROUSEL' ? "Check out our latest collection..." : "Hello {{1}}..."} className="min-h-[120px]" required />
 
                   {/* Variable Examples for Body */}
                   {(() => {
@@ -473,12 +473,12 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       if (vars.length > 0) {
                         return (
                           <div className="space-y-2 p-3 bg-muted/30 rounded border mt-2">
-                            <Label className="text-xs font-semibold">Variable Examples (Required)</Label>
+                            <ZoruLabel className="text-xs font-semibold">Variable Examples (Required)</ZoruLabel>
                             <div className="grid gap-2">
                               {vars.map(v => (
                                 <div key={v} className="flex items-center gap-2">
                                   <span className="text-xs text-muted-foreground w-8 font-mono">{`{{${v}}}`}</span>
-                                  <Input
+                                  <ZoruInput
                                     name={`body_example_${v}`}
                                     placeholder={`e.g. John`}
                                     className="h-8 text-sm"
@@ -497,22 +497,22 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
                 {/* Footer */}
                 <div className="space-y-2">
-                  <Label>Footer (Optional)</Label>
-                  <Input name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
+                  <ZoruLabel>Footer (Optional)</ZoruLabel>
+                  <ZoruInput name="footer" value={footer} onChange={e => setFooter(e.target.value)} />
                 </div>
-              </CardContent>
+              </ZoruCardContent>
 
               {/* Buttons Editor for Standard - Moved inside main card to avoid overlap issues */}
-              <CardContent className="space-y-3 pt-0">
+              <ZoruCardContent className="space-y-3 pt-0">
                 <div className="flex items-center justify-between">
-                  <Label className="text-base font-semibold">Buttons ({buttons.length})</Label>
+                  <ZoruLabel className="text-base font-semibold">Buttons ({buttons.length})</ZoruLabel>
                 </div>
 
                 {buttons.map((b, i) => (
                   <div key={i} className="p-3 border rounded relative bg-muted/20">
                     <div className="font-semibold text-xs mb-1">{b.type}</div>
-                    <Input
-                      placeholder="Label"
+                    <ZoruInput
+                      placeholder="ZoruLabel"
                       value={b.text}
                       onChange={(e) => {
                         const newBtns = [...buttons];
@@ -521,12 +521,12 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                       }}
                       className="mb-2"
                     />
-                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
+                    <ZoruButton type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-5 w-5" onClick={() => setButtons(btns => btns.filter((_, idx) => idx !== i))}>
                       <Trash2 className="h-3 w-3" />
-                    </Button>
+                    </ZoruButton>
 
                     {b.type === 'URL' && (
-                      <Input
+                      <ZoruInput
                         placeholder="https://website.com"
                         value={b.url || ''}
                         onChange={(e) => {
@@ -539,7 +539,7 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                     )}
 
                     {b.type === 'PHONE_NUMBER' && (
-                      <Input
+                      <ZoruInput
                         placeholder="+1234567890"
                         value={b.phone_number || ''}
                         onChange={(e) => {
@@ -554,12 +554,12 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                 ))}
                 {buttons.length < 3 && (
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</Button>
+                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'QUICK_REPLY', text: '' }])}>Quick Reply</ZoruButton>
+                    <ZoruButton type="button" variant="outline" size="sm" onClick={() => setButtons([...buttons, { type: 'URL', text: '', url: '' }])}>URL</ZoruButton>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </ZoruCardContent>
+            </ZoruCard>
           )}
 
           {templateType === 'MARKETING_CAROUSEL' && (
@@ -568,87 +568,87 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
 
           {templateType === 'CATALOG_MESSAGE' && (
             <div className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Catalog Configuration</CardTitle>
-                  <CardDescription>Select a catalog and define your sections.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+              <ZoruCard>
+                <ZoruCardHeader>
+                  <ZoruCardTitle>Catalog Configuration</ZoruCardTitle>
+                  <ZoruCardDescription>ZoruSelect a catalog and define your sections.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Select Catalog</Label>
-                    <Select value={catalogId} onValueChange={setCatalogId} required>
-                      <SelectTrigger><SelectValue placeholder="Choose a catalog..." /></SelectTrigger>
-                      <SelectContent>
-                        {catalogs.map(c => <SelectItem key={c.id} value={c.id}>{c.name} ({c.id})</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <ZoruLabel>ZoruSelect Catalog</ZoruLabel>
+                    <ZoruSelect value={catalogId} onValueChange={setCatalogId} required>
+                      <ZoruSelectTrigger><ZoruSelectValue placeholder="Choose a catalog..." /></ZoruSelectTrigger>
+                      <ZoruSelectContent>
+                        {catalogs.map(c => <ZoruSelectItem key={c.id} value={c.id}>{c.name} ({c.id})</ZoruSelectItem>)}
+                      </ZoruSelectContent>
+                    </ZoruSelect>
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Header Text (Optional)</Label>
-                    <Input value={catalogHeader} onChange={e => setCatalogHeader(e.target.value)} placeholder="Our Collection" />
+                    <ZoruLabel>Header Text (Optional)</ZoruLabel>
+                    <ZoruInput value={catalogHeader} onChange={e => setCatalogHeader(e.target.value)} placeholder="Our Collection" />
                   </div>
                   <div className="space-y-2">
-                    <Label>Body Text</Label>
-                    <Textarea value={catalogBody} onChange={e => setCatalogBody(e.target.value)} placeholder="Check out these items..." required />
+                    <ZoruLabel>Body Text</ZoruLabel>
+                    <ZoruTextarea value={catalogBody} onChange={e => setCatalogBody(e.target.value)} placeholder="Check out these items..." required />
                   </div>
                   <div className="space-y-2">
-                    <Label>Footer Text (Optional)</Label>
-                    <Input value={catalogFooter} onChange={e => setCatalogFooter(e.target.value)} placeholder="Prices incl. VAT" />
+                    <ZoruLabel>Footer Text (Optional)</ZoruLabel>
+                    <ZoruInput value={catalogFooter} onChange={e => setCatalogFooter(e.target.value)} placeholder="Prices incl. VAT" />
                   </div>
-                </CardContent>
-              </Card>
+                </ZoruCardContent>
+              </ZoruCard>
 
               {/* Section 1 */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">Section 1</CardTitle>
+              <ZoruCard>
+                <ZoruCardHeader className="flex flex-row items-center justify-between">
+                  <ZoruCardTitle className="text-base">Section 1</ZoruCardTitle>
                   <ProductPicker
                     projectId={project?._id.toString() || ''}
                     catalogId={catalogId}
                     selectedIds={catalogSection1Ids}
                     onSelectionChange={setCatalogSection1Ids}
                   />
-                </CardHeader>
-                <CardContent className="space-y-4">
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Section Title</Label>
-                    <Input value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
+                    <ZoruLabel>Section Title</ZoruLabel>
+                    <ZoruInput value={catalogSection1Title} onChange={e => setCatalogSection1Title(e.target.value)} />
                   </div>
                   <div className="p-4 border rounded-md bg-muted/20 text-sm">
                     {catalogSection1Ids.length === 0 ? (
-                      <span className="text-muted-foreground">No products selected. Click "Select Products" above.</span>
+                      <span className="text-muted-foreground">No products selected. Click "ZoruSelect Products" above.</span>
                     ) : (
                       <div className="grid grid-cols-2 gap-2">
                         {catalogSection1Ids.map(id => (
                           <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
                             <span className="truncate flex-1" title={id}>{id}</span>
-                            <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection1Ids(ids => ids.filter(x => x !== id))}>
+                            <ZoruButton type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection1Ids(ids => ids.filter(x => x !== id))}>
                               <Trash2 className="h-3 w-3" />
-                            </Button>
+                            </ZoruButton>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </ZoruCardContent>
+              </ZoruCard>
 
               {/* Section 2 */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="text-base">Section 2 (Optional)</CardTitle>
+              <ZoruCard>
+                <ZoruCardHeader className="flex flex-row items-center justify-between">
+                  <ZoruCardTitle className="text-base">Section 2 (Optional)</ZoruCardTitle>
                   <ProductPicker
                     projectId={project?._id.toString() || ''}
                     catalogId={catalogId}
                     selectedIds={catalogSection2Ids}
                     onSelectionChange={setCatalogSection2Ids}
                   />
-                </CardHeader>
-                <CardContent className="space-y-4">
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label>Section Title</Label>
-                    <Input value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
+                    <ZoruLabel>Section Title</ZoruLabel>
+                    <ZoruInput value={catalogSection2Title} onChange={e => setCatalogSection2Title(e.target.value)} />
                   </div>
                   {catalogSection2Ids.length > 0 && (
                     <div className="p-4 border rounded-md bg-muted/20 text-sm">
@@ -656,33 +656,33 @@ export function CreateTemplateForm({ project, bulkProjectIds = [], initialTempla
                         {catalogSection2Ids.map(id => (
                           <div key={id} className="bg-background border p-2 rounded flex justify-between items-center">
                             <span className="truncate flex-1" title={id}>{id}</span>
-                            <Button type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection2Ids(ids => ids.filter(x => x !== id))}>
+                            <ZoruButton type="button" variant="ghost" size="icon" className="h-4 w-4 ml-2" onClick={() => setCatalogSection2Ids(ids => ids.filter(x => x !== id))}>
                               <Trash2 className="h-3 w-3" />
-                            </Button>
+                            </ZoruButton>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </ZoruCardContent>
+              </ZoruCard>
             </div>
           )}
         </div>
 
         {/* Action Column */}
         <div className="lg:col-span-1 space-y-6">
-          <Card className="sticky top-6">
-            <CardHeader><CardTitle>Publish</CardTitle></CardHeader>
-            <CardContent>
+          <ZoruCard className="sticky top-6">
+            <ZoruCardHeader><ZoruCardTitle>Publish</ZoruCardTitle></ZoruCardHeader>
+            <ZoruCardContent>
               <p className="text-sm text-muted-foreground mb-4">
                 {templateType === 'STANDARD' && "Submitting will send this template to Meta for review. Approval usually takes 1 minute."}
                 {templateType === 'MARKETING_CAROUSEL' && "Carousels are validated by Meta. Ensure all images are high quality."}
                 {templateType === 'CATALOG_MESSAGE' && "Product messages are saved locally and do NOT require Meta approval."}
               </p>
               <SubmitButton templateType={templateType} isAdminForm={isAdminForm} isBulkForm={isBulkForm} />
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
 
         </div>
       </div>

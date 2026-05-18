@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { useEditor } from '@/components/builder/editor-provider';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 
 export const ThemePanel = () => {
     const { state, dispatch } = useEditor();
@@ -57,47 +57,47 @@ export const ThemePanel = () => {
                 <h4 className="text-sm font-medium text-gray-500">Colors</h4>
                 <div className="grid grid-cols-2 gap-4">
                     <div>
-                        <Label className="text-xs">Primary</Label>
+                        <ZoruLabel className="text-xs">Primary</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input
+                            <ZoruInput
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.primary}
                                 onChange={(e) => updateTheme('colors.primary', e.target.value)}
                             />
-                            <Input className="h-8 text-xs" value={theme.colors.primary} onChange={(e) => updateTheme('colors.primary', e.target.value)} />
+                            <ZoruInput className="h-8 text-xs" value={theme.colors.primary} onChange={(e) => updateTheme('colors.primary', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs">Secondary</Label>
+                        <ZoruLabel className="text-xs">Secondary</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input
+                            <ZoruInput
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.secondary}
                                 onChange={(e) => updateTheme('colors.secondary', e.target.value)}
                             />
-                            <Input className="h-8 text-xs" value={theme.colors.secondary} onChange={(e) => updateTheme('colors.secondary', e.target.value)} />
+                            <ZoruInput className="h-8 text-xs" value={theme.colors.secondary} onChange={(e) => updateTheme('colors.secondary', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs">Body Text</Label>
+                        <ZoruLabel className="text-xs">Body Text</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input
+                            <ZoruInput
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.text}
                                 onChange={(e) => updateTheme('colors.text', e.target.value)}
                             />
-                            <Input className="h-8 text-xs" value={theme.colors.text} onChange={(e) => updateTheme('colors.text', e.target.value)} />
+                            <ZoruInput className="h-8 text-xs" value={theme.colors.text} onChange={(e) => updateTheme('colors.text', e.target.value)} />
                         </div>
                     </div>
                     <div>
-                        <Label className="text-xs">Background</Label>
+                        <ZoruLabel className="text-xs">Background</ZoruLabel>
                         <div className="flex gap-2">
-                            <Input
+                            <ZoruInput
                                 type="color" className="w-8 h-8 p-0 border-0"
                                 value={theme.colors.background}
                                 onChange={(e) => updateTheme('colors.background', e.target.value)}
                             />
-                            <Input className="h-8 text-xs" value={theme.colors.background} onChange={(e) => updateTheme('colors.background', e.target.value)} />
+                            <ZoruInput className="h-8 text-xs" value={theme.colors.background} onChange={(e) => updateTheme('colors.background', e.target.value)} />
                         </div>
                     </div>
                 </div>
@@ -106,8 +106,8 @@ export const ThemePanel = () => {
             <div className="space-y-4">
                 <h4 className="text-sm font-medium text-gray-500">Typography</h4>
                 <div>
-                    <Label className="text-xs">Heading Font</Label>
-                    <Input
+                    <ZoruLabel className="text-xs">Heading Font</ZoruLabel>
+                    <ZoruInput
                         className="h-8 text-xs"
                         value={theme.fonts.heading}
                         onChange={(e) => updateTheme('fonts.heading', e.target.value)}
@@ -115,8 +115,8 @@ export const ThemePanel = () => {
                     />
                 </div>
                 <div>
-                    <Label className="text-xs">Body Font</Label>
-                    <Input
+                    <ZoruLabel className="text-xs">Body Font</ZoruLabel>
+                    <ZoruInput
                         className="h-8 text-xs"
                         value={theme.fonts.body}
                         onChange={(e) => updateTheme('fonts.body', e.target.value)}

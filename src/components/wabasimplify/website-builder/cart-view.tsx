@@ -3,9 +3,9 @@
 
 import Link from 'next/link';
 import { useCart } from '@/context/cart-context';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { Trash2 } from 'lucide-react';
@@ -22,9 +22,9 @@ export function CartView() {
                 <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
                 <h2 className="mt-4 text-2xl font-semibold">Your cart is empty</h2>
                 <p className="mt-2 text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
-                <Button asChild className="mt-6">
+                <ZoruButton asChild className="mt-6">
                      <Link href={`/shop/${shopSlug}`}>Continue Shopping</Link>
-                </Button>
+                </ZoruButton>
             </div>
         );
     }
@@ -33,7 +33,7 @@ export function CartView() {
          <div className="grid md:grid-cols-3 gap-8">
             <div className="md:col-span-2 space-y-4">
                 {cart.map(item => (
-                     <Card key={item.productId} className="flex items-center p-4 gap-4">
+                     <ZoruCard key={item.productId} className="flex items-center p-4 gap-4">
                          <div className="relative h-24 w-24 bg-muted rounded-md overflow-hidden">
                             <Image src={item.imageUrl || 'https://placehold.co/100x100.png'} alt={item.name} fill objectFit="cover" data-ai-hint="product image" />
                          </div>
@@ -42,23 +42,23 @@ export function CartView() {
                             <p className="text-muted-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price)}</p>
                          </div>
                          <div className="flex items-center border rounded-md">
-                            <Button variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</Button>
+                            <ZoruButton variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity - 1)}>-</ZoruButton>
                             <span className="w-10 text-center">{item.quantity}</span>
-                            <Button variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</Button>
+                            <ZoruButton variant="ghost" size="icon" onClick={() => updateQuantity(item.productId, item.quantity + 1)}>+</ZoruButton>
                          </div>
                          <p className="font-semibold w-24 text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</p>
-                         <Button variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
+                         <ZoruButton variant="ghost" size="icon" onClick={() => removeFromCart(item.productId)}>
                             <Trash2 className="h-4 w-4 text-destructive" />
-                         </Button>
-                    </Card>
+                         </ZoruButton>
+                    </ZoruCard>
                 ))}
             </div>
             <div className="md:col-span-1">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Order Summary</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                <ZoruCard>
+                    <ZoruCardHeader>
+                        <ZoruCardTitle>Order Summary</ZoruCardTitle>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="space-y-4">
                         <div className="flex justify-between">
                             <span>Subtotal ({itemCount} items)</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
@@ -67,18 +67,18 @@ export function CartView() {
                             <span>Shipping</span>
                             <span>Calculated at checkout</span>
                         </div>
-                        <Separator />
+                        <ZoruSeparator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
-                    </CardContent>
-                    <CardFooter>
-                        <Button asChild size="lg" className="w-full">
+                    </ZoruCardContent>
+                    <ZoruCardFooter>
+                        <ZoruButton asChild size="lg" className="w-full">
                              <Link href={`/shop/${shopSlug}/checkout`}>Proceed to Checkout</Link>
-                        </Button>
-                    </CardFooter>
-                </Card>
+                        </ZoruButton>
+                    </ZoruCardFooter>
+                </ZoruCard>
             </div>
         </div>
     );

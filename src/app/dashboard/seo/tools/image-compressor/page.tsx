@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function ImageCompressorPage() {
@@ -49,14 +49,14 @@ export default function ImageCompressorPage() {
 
   return (
     <ToolShell title="Image Compressor" description="Compress images client-side with adjustable JPEG quality.">
-      <Card>
-        <CardContent className="p-4 space-y-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <Label>Image file</Label>
-            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <ZoruLabel>Image file</ZoruLabel>
+            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
           <div>
-            <Label>Quality: {quality.toFixed(2)}</Label>
+            <ZoruLabel>Quality: {quality.toFixed(2)}</ZoruLabel>
             <input
               type="range"
               min={0.1}
@@ -67,15 +67,15 @@ export default function ImageCompressorPage() {
               className="w-full"
             />
           </div>
-          <Button onClick={compress} disabled={!file}>
+          <ZoruButton onClick={compress} disabled={!file}>
             Compress
-          </Button>
+          </ZoruButton>
           {err && <div className="text-sm text-destructive">{err}</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
       {outUrl && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
                 <div className="text-muted-foreground">Original</div>
@@ -91,8 +91,8 @@ export default function ImageCompressorPage() {
             <a href={outUrl} download="compressed.jpg" className="underline text-sm">
               Download compressed image
             </a>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

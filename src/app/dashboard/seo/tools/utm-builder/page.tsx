@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function UtmBuilderPage() {
@@ -28,15 +28,15 @@ export default function UtmBuilderPage() {
 
   return (
     <ToolShell title="UTM Link Builder" description="Generate a UTM-tagged URL for campaign tracking.">
-      <div className="space-y-1"><Label>Base URL</Label><Input value={base} onChange={(e) => setBase(e.target.value)} placeholder="https://example.com/landing" /></div>
+      <div className="space-y-1"><ZoruLabel>Base URL</ZoruLabel><ZoruInput value={base} onChange={(e) => setBase(e.target.value)} placeholder="https://example.com/landing" /></div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <div className="space-y-1"><Label>utm_source</Label><Input value={u.source} onChange={(e) => set('source', e.target.value)} placeholder="google" /></div>
-        <div className="space-y-1"><Label>utm_medium</Label><Input value={u.medium} onChange={(e) => set('medium', e.target.value)} placeholder="cpc" /></div>
-        <div className="space-y-1 md:col-span-2"><Label>utm_campaign</Label><Input value={u.campaign} onChange={(e) => set('campaign', e.target.value)} placeholder="spring_sale" /></div>
-        <div className="space-y-1"><Label>utm_term</Label><Input value={u.term} onChange={(e) => set('term', e.target.value)} /></div>
-        <div className="space-y-1"><Label>utm_content</Label><Input value={u.content} onChange={(e) => set('content', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>utm_source</ZoruLabel><ZoruInput value={u.source} onChange={(e) => set('source', e.target.value)} placeholder="google" /></div>
+        <div className="space-y-1"><ZoruLabel>utm_medium</ZoruLabel><ZoruInput value={u.medium} onChange={(e) => set('medium', e.target.value)} placeholder="cpc" /></div>
+        <div className="space-y-1 md:col-span-2"><ZoruLabel>utm_campaign</ZoruLabel><ZoruInput value={u.campaign} onChange={(e) => set('campaign', e.target.value)} placeholder="spring_sale" /></div>
+        <div className="space-y-1"><ZoruLabel>utm_term</ZoruLabel><ZoruInput value={u.term} onChange={(e) => set('term', e.target.value)} /></div>
+        <div className="space-y-1"><ZoruLabel>utm_content</ZoruLabel><ZoruInput value={u.content} onChange={(e) => set('content', e.target.value)} /></div>
       </div>
-      {out && <><div className="font-mono text-xs bg-muted p-3 rounded break-all">{out}</div><Button onClick={() => navigator.clipboard.writeText(out)}>Copy</Button></>}
+      {out && <><div className="font-mono text-xs bg-muted p-3 rounded break-all">{out}</div><ZoruButton onClick={() => navigator.clipboard.writeText(out)}>Copy</ZoruButton></>}
     </ToolShell>
   );
 }

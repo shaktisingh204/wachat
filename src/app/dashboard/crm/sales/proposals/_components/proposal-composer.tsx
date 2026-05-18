@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 /**
@@ -9,10 +10,9 @@
 
 import * as React from 'react';
 import { Plus, Trash2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ClayButton } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { EntityPicker } from '@/components/crm/entity-picker';
 import type { LookupItem } from '@/lib/lookup-registry';
 import type { WsProposalLineInput } from '@/lib/worksuite/proposals-types';
@@ -143,14 +143,14 @@ export function ProposalComposer({
                         />
                       </div>
                       {l.name ? (
-                        <Input
+                        <ZoruInput
                           value={l.name}
                           onChange={(e) => updateRow(l.id, 'name', e.target.value)}
                           placeholder="Item name"
                           className="mb-1 h-9 rounded-lg border-border bg-card text-[13px]"
                         />
                       ) : null}
-                      <Textarea
+                      <ZoruTextarea
                         value={l.description || ''}
                         onChange={(e) =>
                           updateRow(l.id, 'description', e.target.value)
@@ -161,7 +161,7 @@ export function ProposalComposer({
                       />
                     </td>
                     <td className="p-2 align-top">
-                      <Input
+                      <ZoruInput
                         type="number"
                         min={0}
                         step="1"
@@ -173,7 +173,7 @@ export function ProposalComposer({
                       />
                     </td>
                     <td className="p-2 align-top">
-                      <Input
+                      <ZoruInput
                         type="number"
                         min={0}
                         step="0.01"
@@ -185,7 +185,7 @@ export function ProposalComposer({
                       />
                     </td>
                     <td className="p-2 align-top">
-                      <Input
+                      <ZoruInput
                         type="number"
                         min={0}
                         step="0.01"
@@ -216,14 +216,14 @@ export function ProposalComposer({
       </div>
 
       <div className="flex flex-wrap justify-between gap-4">
-        <ClayButton
+        <ZoruButton
           type="button"
           variant="pill"
           leading={<Plus className="h-4 w-4" strokeWidth={1.75} />}
           onClick={addRow}
         >
           Add row
-        </ClayButton>
+        </ZoruButton>
 
         <div className="min-w-[260px] rounded-lg border border-border bg-secondary p-4">
           <div className="flex items-center justify-between py-1 text-[13px] text-foreground">
@@ -235,8 +235,8 @@ export function ProposalComposer({
             <span className="font-medium">{fmt(tax, currency)}</span>
           </div>
           <div className="flex items-center justify-between gap-3 py-1 text-[13px] text-foreground">
-            <Label className="text-foreground">Discount</Label>
-            <Input
+            <ZoruLabel className="text-foreground">Discount</ZoruLabel>
+            <ZoruInput
               type="number"
               min={0}
               step="0.01"
@@ -254,8 +254,8 @@ export function ProposalComposer({
 
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <Label className="text-foreground">Notes</Label>
-          <Textarea
+          <ZoruLabel className="text-foreground">Notes</ZoruLabel>
+          <ZoruTextarea
             rows={4}
             value={note}
             onChange={(e) => onNoteChange(e.target.value)}
@@ -264,8 +264,8 @@ export function ProposalComposer({
           />
         </div>
         <div>
-          <Label className="text-foreground">Terms &amp; Conditions</Label>
-          <Textarea
+          <ZoruLabel className="text-foreground">Terms &amp; Conditions</ZoruLabel>
+          <ZoruTextarea
             rows={4}
             value={terms}
             onChange={(e) => onTermsChange(e.target.value)}

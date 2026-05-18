@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const WORDS =
@@ -38,17 +38,17 @@ export default function LoremIpsumPage() {
     <ToolShell title="Lorem Ipsum Generator" description="Generate placeholder content.">
       <div className="flex flex-wrap items-end gap-4">
         <div className="space-y-1">
-          <Label>Paragraphs</Label>
-          <Input type="number" min={1} max={50} value={paragraphs} onChange={(e) => setParagraphs(Number(e.target.value) || 1)} className="w-24" />
+          <ZoruLabel>Paragraphs</ZoruLabel>
+          <ZoruInput type="number" min={1} max={50} value={paragraphs} onChange={(e) => setParagraphs(Number(e.target.value) || 1)} className="w-24" />
         </div>
         <div className="space-y-1">
-          <Label>Sentences / paragraph</Label>
-          <Input type="number" min={1} max={30} value={sentences} onChange={(e) => setSentences(Number(e.target.value) || 1)} className="w-32" />
+          <ZoruLabel>Sentences / paragraph</ZoruLabel>
+          <ZoruInput type="number" min={1} max={30} value={sentences} onChange={(e) => setSentences(Number(e.target.value) || 1)} className="w-32" />
         </div>
-        <Button onClick={() => setText(generate(paragraphs, sentences))}>Generate</Button>
-        <Button variant="outline" onClick={() => navigator.clipboard.writeText(text)}>Copy</Button>
+        <ZoruButton onClick={() => setText(generate(paragraphs, sentences))}>Generate</ZoruButton>
+        <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(text)}>Copy</ZoruButton>
       </div>
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[320px] font-mono text-xs" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} className="min-h-[320px] font-mono text-xs" />
     </ToolShell>
   );
 }

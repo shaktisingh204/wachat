@@ -7,11 +7,11 @@ import type { AnyMessage, OutgoingMessage, InteractiveMessageContent } from '@/l
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle, RefreshCw, ShoppingBag, Video, PlayCircle, Music, List, Bot, MapPin, CornerUpLeft } from 'lucide-react';
 import Image from 'next/image';
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
+import { ZoruTooltip, ZoruTooltipContent, ZoruTooltipTrigger, ZoruTooltipProvider, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback } from '../ui/avatar';
 import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
 import { TemplateMessageContent } from './messages/template-message-content';
 import { ProductMessageContent } from './messages/product-message-content';
@@ -52,12 +52,12 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     };
 
     return (
-        <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
+        <ZoruTooltipProvider>
+            <ZoruTooltip>
+                <ZoruTooltipTrigger asChild>
                     <span className="text-white/70 hover:text-white cursor-pointer">{getIcon()}</span>
-                </TooltipTrigger>
-                <TooltipContent side="top" align="end">
+                </ZoruTooltipTrigger>
+                <ZoruTooltipContent side="top" align="end">
                     <div className="text-xs space-y-1 p-1">
                         {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
                         {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
@@ -71,9 +71,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
                             </div>
                         )}
                     </div>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
+                </ZoruTooltipContent>
+            </ZoruTooltip>
+        </ZoruTooltipProvider>
     );
 }
 
@@ -205,10 +205,10 @@ const PaymentRequestContent = ({ message, phoneNumberId }: { message: OutgoingMe
             <p className="font-semibold">Payment Request</p>
             <p className="text-sm">Amount: ₹{message.content.payment_request.amount}</p>
             <p className="text-xs text-muted-foreground">{message.content.payment_request.description}</p>
-            <Button size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
+            <ZoruButton size="sm" className="w-full mt-2" onClick={checkStatus} disabled={isChecking}>
                 {isChecking ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
                 <span className="ml-2 capitalize">{statusToText(paymentStatus)}</span>
-            </Button>
+            </ZoruButton>
         </div>
     );
 };
@@ -411,21 +411,21 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
     return (
         <div className={cn("flex items-end gap-2 group/message relative", isOutgoing ? "justify-end" : "justify-start")}>
             {!isOutgoing && (
-                <Avatar className="h-8 w-8 self-end">
-                    <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
-                </Avatar>
+                <ZoruAvatar className="h-8 w-8 self-end">
+                    <ZoruAvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</ZoruAvatarFallback>
+                </ZoruAvatar>
             )}
             <div className="absolute top-0 opacity-0 group-hover/message:opacity-100 transition-opacity"
                 style={isOutgoing ? { right: '100%', marginRight: '0.5rem' } : { left: '100%', marginLeft: '0.5rem' }}
             >
                 <div className="flex items-center bg-background border rounded-full shadow-sm p-0.5">
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
+                    <ZoruButton variant="ghost" size="icon" className="h-6 w-6" onClick={() => onReply(message.wamid)}>
                         <CornerUpLeft className="h-3 w-3" />
-                    </Button>
+                    </ZoruButton>
                     {isTextBased && (
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={onTranslate} disabled={isTranslating}>
+                        <ZoruButton variant="ghost" size="icon" className="h-6 w-6" onClick={onTranslate} disabled={isTranslating}>
                             {isTranslating ? <LoaderCircle className="h-3 w-3 animate-spin" /> : <Languages className="h-3 w-3" />}
-                        </Button>
+                        </ZoruButton>
                     )}
                 </div>
             </div>
@@ -443,7 +443,7 @@ export const ChatMessage = React.memo(function ChatMessage({ message, conversati
 
                 {translatedText && (
                     <>
-                        <Separator className="my-2 bg-black/10 dark:bg-white/10" />
+                        <ZoruSeparator className="my-2 bg-black/10 dark:bg-white/10" />
                         <p className="whitespace-pre-wrap italic text-muted-foreground">{translatedText}</p>
                     </>
                 )}

@@ -1,12 +1,12 @@
 
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
+import { ZoruLabel, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import type { FormField } from '@/lib/definitions';
 
 interface CrmFormFieldEditorProps {
@@ -23,56 +23,56 @@ export function CrmFormFieldEditor({ field, onUpdate, onRemove }: CrmFormFieldEd
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label>Field Type</Label>
-                <Select value={field.type} onValueChange={(val) => handleUpdate('type', val)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="text">Text</SelectItem>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="textarea">Text Area</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="select">Select</SelectItem>
-                        <SelectItem value="checkbox">Checkbox</SelectItem>
-                        <SelectItem value="radio">Radio Group</SelectItem>
-                        <SelectItem value="date">Date</SelectItem>
-                        <SelectItem value="file">File Upload</SelectItem>
-                        <SelectItem value="acceptance">Acceptance</SelectItem>
-                        <SelectItem value="hidden">Hidden</SelectItem>
-                        <SelectItem value="html">HTML</SelectItem>
-                    </SelectContent>
-                </Select>
+                <ZoruLabel>Field Type</ZoruLabel>
+                <ZoruSelect value={field.type} onValueChange={(val) => handleUpdate('type', val)}>
+                    <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                        <ZoruSelectItem value="text">Text</ZoruSelectItem>
+                        <ZoruSelectItem value="email">Email</ZoruSelectItem>
+                        <ZoruSelectItem value="textarea">Text Area</ZoruSelectItem>
+                        <ZoruSelectItem value="number">Number</ZoruSelectItem>
+                        <ZoruSelectItem value="select">ZoruSelect</ZoruSelectItem>
+                        <ZoruSelectItem value="checkbox">ZoruCheckbox</ZoruSelectItem>
+                        <ZoruSelectItem value="radio">Radio Group</ZoruSelectItem>
+                        <ZoruSelectItem value="date">Date</ZoruSelectItem>
+                        <ZoruSelectItem value="file">File Upload</ZoruSelectItem>
+                        <ZoruSelectItem value="acceptance">Acceptance</ZoruSelectItem>
+                        <ZoruSelectItem value="hidden">Hidden</ZoruSelectItem>
+                        <ZoruSelectItem value="html">HTML</ZoruSelectItem>
+                    </ZoruSelectContent>
+                </ZoruSelect>
             </div>
             <div className="space-y-2">
-                <Label htmlFor="field-label">Label</Label>
-                <Input id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
+                <ZoruLabel htmlFor="field-label">ZoruLabel</ZoruLabel>
+                <ZoruInput id="field-label" value={field.label} onChange={(e) => handleUpdate('label', e.target.value)} />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="field-id">Field ID</Label>
-                <Input id="field-id" value={field.fieldId || ''} onChange={(e) => handleUpdate('fieldId', e.target.value)} placeholder="e.g., user_name"/>
+                <ZoruLabel htmlFor="field-id">Field ID</ZoruLabel>
+                <ZoruInput id="field-id" value={field.fieldId || ''} onChange={(e) => handleUpdate('fieldId', e.target.value)} placeholder="e.g., user_name"/>
                 <p className="text-xs text-muted-foreground">A unique ID used for the form data (no spaces).</p>
             </div>
              <div className="space-y-2">
-                <Label htmlFor="field-placeholder">Placeholder</Label>
-                <Input id="field-placeholder" value={field.placeholder || ''} onChange={(e) => handleUpdate('placeholder', e.target.value)} />
+                <ZoruLabel htmlFor="field-placeholder">Placeholder</ZoruLabel>
+                <ZoruInput id="field-placeholder" value={field.placeholder || ''} onChange={(e) => handleUpdate('placeholder', e.target.value)} />
             </div>
              <div className="space-y-2">
-                <Label htmlFor="field-description">Description</Label>
-                <Input id="field-description" value={field.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} />
+                <ZoruLabel htmlFor="field-description">Description</ZoruLabel>
+                <ZoruInput id="field-description" value={field.description || ''} onChange={(e) => handleUpdate('description', e.target.value)} />
             </div>
 
             {(field.type === 'select' || field.type === 'radio') && (
                 <div className="space-y-2">
-                    <Label htmlFor="field-options">Options (one per line)</Label>
-                    <Textarea id="field-options" value={field.options || ''} onChange={(e) => handleUpdate('options', e.target.value)} />
+                    <ZoruLabel htmlFor="field-options">Options (one per line)</ZoruLabel>
+                    <ZoruTextarea id="field-options" value={field.options || ''} onChange={(e) => handleUpdate('options', e.target.value)} />
                 </div>
             )}
              <div className="flex items-center space-x-2">
-                <Switch id="field-required" checked={field.required} onCheckedChange={(val) => handleUpdate('required', val)} />
-                <Label htmlFor="field-required">Required</Label>
+                <ZoruSwitch id="field-required" checked={field.required} onCheckedChange={(val) => handleUpdate('required', val)} />
+                <ZoruLabel htmlFor="field-required">Required</ZoruLabel>
             </div>
-            <Button variant="destructive" onClick={onRemove} className="w-full">
+            <ZoruButton variant="destructive" onClick={onRemove} className="w-full">
                 Delete Field
-            </Button>
+            </ZoruButton>
         </div>
     );
 }

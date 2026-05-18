@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface CalendarPickerEditorProps {
@@ -16,30 +16,30 @@ export function CalendarPickerEditor({ component, updateField }: CalendarPickerE
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="name">Name (unique identifier)</Label>
-                <Input id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                <ZoruLabel htmlFor="name">Name (unique identifier)</ZoruLabel>
+                <ZoruInput id="name" value={component.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="label">Label (shown to user)</Label>
-                <Input id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                <ZoruLabel htmlFor="label">ZoruLabel (shown to user)</ZoruLabel>
+                <ZoruInput id="label" value={component.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
             </div>
              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="min-date">Min Date (e.g., YYYY-MM-DD)</Label>
-                    <Input id="min-date" value={component['min-date'] || ''} onChange={(e) => updateField('min-date', e.target.value)} />
+                    <ZoruLabel htmlFor="min-date">Min Date (e.g., YYYY-MM-DD)</ZoruLabel>
+                    <ZoruInput id="min-date" value={component['min-date'] || ''} onChange={(e) => updateField('min-date', e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="max-date">Max Date (e.g., YYYY-MM-DD)</Label>
-                    <Input id="max-date" value={component['max-date'] || ''} onChange={(e) => updateField('max-date', e.target.value)} />
+                    <ZoruLabel htmlFor="max-date">Max Date (e.g., YYYY-MM-DD)</ZoruLabel>
+                    <ZoruInput id="max-date" value={component['max-date'] || ''} onChange={(e) => updateField('max-date', e.target.value)} />
                 </div>
             </div>
             <div className="flex items-center space-x-2">
-                <Switch 
+                <ZoruSwitch 
                     id="is-range-selector" 
                     checked={component['is-range-selector'] || false} 
                     onCheckedChange={(checked) => updateField('is-range-selector', checked)} 
                 />
-                <Label htmlFor="is-range-selector">Enable Range Selection</Label>
+                <ZoruLabel htmlFor="is-range-selector">Enable Range Selection</ZoruLabel>
             </div>
             
             <DynamicBooleanInput label="Required" value={component.required} onChange={v => updateField('required', v)} />

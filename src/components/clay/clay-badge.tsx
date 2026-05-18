@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { badgeVariants } from '@/components/ui/badge';
+import { badgeVariants } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Tone =
@@ -18,7 +18,7 @@ export interface ClayBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 }
 
 /**
- * Map each ClayBadge tone onto a shadcn Badge variant. Two clay tones
+ * Map each ClayBadge tone onto a shadcn ZoruBadge variant. Two clay tones
  * (`obsidian`, `rose-soft`) have no 1:1 shadcn variant, so we layer
  * a small override on top of the closest match.
  */

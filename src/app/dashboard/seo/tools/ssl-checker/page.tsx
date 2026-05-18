@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { apiSsl } from '@/lib/seo-tools/api-client';
 
@@ -28,12 +28,12 @@ export default function SslCheckerPage() {
   return (
     <ToolShell title="SSL Certificate Checker" description="Inspect the SSL certificate of any host.">
       <div className="flex gap-2">
-        <Input value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
-        <Button onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</Button>
+        <ZoruInput value={host} onChange={(e) => setHost(e.target.value)} placeholder="example.com" />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Checking…' : 'Check'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {data && (
-        <Card><CardContent className="p-4 space-y-2 text-sm">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-2 text-sm">
           <div><span className="font-semibold">Host:</span> {data.host}</div>
           <div><span className="font-semibold">Trusted:</span> {data.authorized ? '✅ yes' : '⚠️ no'}</div>
           <div><span className="font-semibold">Protocol:</span> {data.protocol || '—'}</div>
@@ -43,7 +43,7 @@ export default function SslCheckerPage() {
           <div><span className="font-semibold">Valid to:</span> {data.validTo || '—'}</div>
           <div><span className="font-semibold">Days remaining:</span> {data.daysRemaining ?? '—'}</div>
           <div className="font-mono text-xs break-all"><span className="font-semibold">SHA-256:</span> {data.fingerprint256 || '—'}</div>
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

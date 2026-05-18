@@ -3,13 +3,13 @@
 
 import { useRef } from 'react';
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Download } from 'lucide-react';
 import { QrCodeRenderer } from './qr-code-renderer';
 import { downloadQrCode, normalizeHex } from '@/lib/qr-utils';
@@ -40,14 +40,14 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-xs max-h-[85vh] flex flex-col overflow-hidden p-0">
-                <DialogHeader className="px-6 pt-6 pb-2">
-                    <DialogTitle>QR Code</DialogTitle>
-                    <DialogDescription>
+        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+            <ZoruDialogContent className="sm:max-w-xs max-h-[85vh] flex flex-col overflow-hidden p-0">
+                <ZoruDialogHeader className="px-6 pt-6 pb-2">
+                    <ZoruDialogTitle>QR Code</ZoruDialogTitle>
+                    <ZoruDialogDescription>
                         Scan this code with your device.
-                    </DialogDescription>
-                </DialogHeader>
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
                 <div className="flex-1 overflow-y-auto px-6 py-2">
                     <div ref={qrCodeRef} className="flex justify-center items-center p-4 bg-white rounded-lg">
                         <QrCodeRenderer
@@ -61,12 +61,12 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataU
                     </div>
                 </div>
                 <div className="px-6 pb-6 pt-2">
-                    <Button onClick={handleDownload} className="w-full">
+                    <ZoruButton onClick={handleDownload} className="w-full">
                         <Download className="mr-2 h-4 w-4" />
                         Download QR Code
-                    </Button>
+                    </ZoruButton>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </ZoruDialogContent>
+        </ZoruDialog>
     );
 }

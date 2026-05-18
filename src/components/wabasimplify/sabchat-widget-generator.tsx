@@ -3,16 +3,16 @@
 
 import { useState, useMemo, useActionState, useEffect } from 'react';
 import type { WithId, User, SabChatSettings } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Code, Save, LoaderCircle, MessageSquare } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CodeBlock } from './code-block';
-import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '../ui/avatar';
 import { saveSabChatSettings } from '@/app/actions/sabchat.actions';
 import { useFormStatus } from 'react-dom';
 
@@ -21,10 +21,10 @@ const initialState: { message: string | null; error?: string } = { message: null
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" disabled={pending}>
+        <ZoruButton type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Widget Settings
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -62,30 +62,30 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
     }, [user._id]);
 
     return (
-        <Card>
+        <ZoruCard>
             <form action={formAction}>
                 <input type="hidden" name="settings" value={JSON.stringify(settings)} />
-                <CardHeader>
+                <ZoruCardHeader>
                     <div className="flex items-center gap-3">
                         <Code className="h-8 w-8" />
                         <div>
-                            <CardTitle>Widget Configuration</CardTitle>
-                            <CardDescription>Customize and install the live chat widget on your website.</CardDescription>
+                            <ZoruCardTitle>Widget Configuration</ZoruCardTitle>
+                            <ZoruCardDescription>Customize and install the live chat widget on your website.</ZoruCardDescription>
                         </div>
                     </div>
-                </CardHeader>
-                <CardContent>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <div className="grid lg:grid-cols-2 gap-8 items-start">
                         {/* Customization Panel */}
                         <div className="space-y-4">
                             <div className="flex items-center space-x-2 border p-4 rounded-lg bg-slate-50">
-                                <Switch
+                                <ZoruSwitch
                                     id="widget-enabled"
                                     checked={settings.enabled}
                                     onCheckedChange={(checked) => handleSettingChange('enabled', checked)}
                                 />
                                 <div className="grid gap-1.5 leading-none">
-                                    <Label htmlFor="widget-enabled">Enable Chat Widget</Label>
+                                    <ZoruLabel htmlFor="widget-enabled">Enable Chat Widget</ZoruLabel>
                                     <p className="text-sm text-muted-foreground">
                                         {settings.enabled ? 'Widget is active and visible on your site.' : 'Widget is disabled and hidden from your site.'}
                                     </p>
@@ -97,37 +97,37 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                             </div>
 
                             <div className="space-y-2">
-                                <Label>Widget Color</Label>
-                                <Input type="color" value={settings.widgetColor} onChange={e => handleSettingChange('widgetColor', e.target.value)} />
+                                <ZoruLabel>Widget Color</ZoruLabel>
+                                <ZoruInput type="color" value={settings.widgetColor} onChange={e => handleSettingChange('widgetColor', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Team Name</Label>
-                                <Input value={settings.teamName} onChange={e => handleSettingChange('teamName', e.target.value)} />
+                                <ZoruLabel>Team Name</ZoruLabel>
+                                <ZoruInput value={settings.teamName} onChange={e => handleSettingChange('teamName', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Welcome Message</Label>
-                                <Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} />
+                                <ZoruLabel>Welcome Message</ZoruLabel>
+                                <ZoruTextarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} />
                             </div>
                             <div className="space-y-2">
-                                <Label>Avatar URL</Label>
-                                <Input value={settings.avatarUrl} onChange={e => handleSettingChange('avatarUrl', e.target.value)} />
+                                <ZoruLabel>ZoruAvatar URL</ZoruLabel>
+                                <ZoruInput value={settings.avatarUrl} onChange={e => handleSettingChange('avatarUrl', e.target.value)} />
                             </div>
                         </div>
                         {/* Preview and Code Panel */}
                         <div className="space-y-4">
-                            <Label>Live Preview</Label>
+                            <ZoruLabel>Live Preview</ZoruLabel>
                             <div className="relative h-[400px] bg-muted rounded-lg overflow-hidden flex items-end p-4 justify-end">
                                 <div className="static">
-                                    <Button style={{ backgroundColor: settings.widgetColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16 rounded-full">
+                                    <ZoruButton style={{ backgroundColor: settings.widgetColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16 rounded-full">
                                         <MessageSquare className="h-8 w-8" />
-                                    </Button>
+                                    </ZoruButton>
                                     {showWidget && (
                                         <div className="absolute bottom-[96px] right-[16px] w-[350px] bg-white rounded-lg shadow-2xl flex flex-col h-[300px]">
                                             <div style={{ backgroundColor: settings.widgetColor }} className="text-white p-4 flex items-center gap-3 rounded-t-lg">
-                                                <Avatar>
-                                                    {settings.avatarUrl && <AvatarImage src={settings.avatarUrl} />}
-                                                    <AvatarFallback>{settings.teamName?.charAt(0) || 'S'}</AvatarFallback>
-                                                </Avatar>
+                                                <ZoruAvatar>
+                                                    {settings.avatarUrl && <ZoruAvatarImage src={settings.avatarUrl} />}
+                                                    <ZoruAvatarFallback>{settings.teamName?.charAt(0) || 'S'}</ZoruAvatarFallback>
+                                                </ZoruAvatar>
                                                 <div>
                                                     <h4 className="font-bold">{settings.teamName}</h4>
                                                 </div>
@@ -142,17 +142,17 @@ export function SabChatWidgetGenerator({ user }: { user: WithId<User> }) {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label>Embed Code</Label>
+                                <ZoruLabel>Embed Code</ZoruLabel>
                                 <p className="text-xs text-muted-foreground">Copy and paste this code before the closing `&lt;/body&gt;` tag on your website.</p>
                                 <CodeBlock code={embedCode} />
                             </div>
                         </div>
                     </div>
-                </CardContent>
-                <CardFooter>
+                </ZoruCardContent>
+                <ZoruCardFooter>
                     <SubmitButton />
-                </CardFooter>
+                </ZoruCardFooter>
             </form>
-        </Card>
+        </ZoruCard>
     );
 }

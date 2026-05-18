@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { toSlug } from '@/lib/seo-tools/text-utils';
 
 export default function SlugGeneratorPage() {
@@ -30,8 +30,8 @@ export default function SlugGeneratorPage() {
   return (
     <ToolShell title="Slug Generator" description="Convert any title or phrase into a URL-safe slug.">
       <div className="flex flex-col gap-3">
-        <Label>Text</Label>
-        <Textarea
+        <ZoruLabel>Text</ZoruLabel>
+        <ZoruTextarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Enter a title or sentence…"
@@ -40,15 +40,15 @@ export default function SlugGeneratorPage() {
       </div>
 
       {slug && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
-            <Label>Generated slug</Label>
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
+            <ZoruLabel>Generated slug</ZoruLabel>
             <div className="font-mono text-lg break-all">{slug}</div>
-            <Button variant="outline" onClick={copy}>
+            <ZoruButton variant="outline" onClick={copy}>
               {copied ? 'Copied!' : 'Copy'}
-            </Button>
-          </CardContent>
-        </Card>
+            </ZoruButton>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

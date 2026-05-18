@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { LuCalendar, LuUsers } from 'react-icons/lu';
-import { Card } from '@/components/ui/card';
+import { ZoruCard, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ClayButton } from './clay-button';
+import { } from './clay-button';
 import { ClayAvatarStack, type ClayAvatarStackItem } from './clay-avatar-stack';
 
 export type RoundStatus = 'completed' | 'in-progress' | 'draft';
@@ -44,7 +44,7 @@ const statusTone: Record<
 
 /**
  * ClayRoundCard — round summary card built on top of the shadcn
- * `Card` primitive. Adds a meta row (date / candidate count / status),
+ * `ZoruCard` primitive. Adds a meta row (date / candidate count / status),
  * the title block, and a footer that pairs the avatar stack with a
  * dark CTA button.
  */
@@ -62,7 +62,7 @@ export function ClayRoundCard({
   const tone = statusTone[status];
 
   return (
-    <Card
+    <ZoruCard
       variant="default"
       className={cn('rounded-[14px] p-4 min-w-[260px]', className)}
     >
@@ -104,15 +104,15 @@ export function ClayRoundCard({
           size="md"
           overflowTone="rose"
         />
-        <ClayButton
+        <ZoruButton
           variant="obsidian"
           size="sm"
           onClick={onCtaClick}
           trailing={<span aria-hidden className="ml-0.5">→</span>}
         >
           {ctaLabel}
-        </ClayButton>
+        </ZoruButton>
       </div>
-    </Card>
+    </ZoruCard>
   );
 }

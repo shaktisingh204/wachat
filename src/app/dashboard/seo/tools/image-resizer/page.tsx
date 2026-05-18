@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function ImageResizerPage() {
@@ -46,38 +46,38 @@ export default function ImageResizerPage() {
 
   return (
     <ToolShell title="Image Resizer" description="Resize images client-side to exact dimensions.">
-      <Card>
-        <CardContent className="p-4 space-y-4">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-4">
           <div>
-            <Label>Image file</Label>
-            <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+            <ZoruLabel>Image file</ZoruLabel>
+            <ZoruInput type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>Width (px)</Label>
-              <Input type="number" value={width} onChange={(e) => setWidth(parseInt(e.target.value) || 0)} />
+              <ZoruLabel>Width (px)</ZoruLabel>
+              <ZoruInput type="number" value={width} onChange={(e) => setWidth(parseInt(e.target.value) || 0)} />
             </div>
             <div>
-              <Label>Height (px)</Label>
-              <Input type="number" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 0)} />
+              <ZoruLabel>Height (px)</ZoruLabel>
+              <ZoruInput type="number" value={height} onChange={(e) => setHeight(parseInt(e.target.value) || 0)} />
             </div>
           </div>
-          <Button onClick={resize} disabled={!file}>
+          <ZoruButton onClick={resize} disabled={!file}>
             Resize
-          </Button>
+          </ZoruButton>
           {err && <div className="text-sm text-destructive">{err}</div>}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
       {outUrl && (
-        <Card>
-          <CardContent className="p-4 space-y-3">
+        <ZoruCard>
+          <ZoruCardContent className="p-4 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={outUrl} alt="Resized preview" className="max-w-full rounded border" />
             <a href={outUrl} download="resized.png" className="underline text-sm">
               Download resized image
             </a>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

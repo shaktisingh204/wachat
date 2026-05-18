@@ -1,10 +1,10 @@
 
 'use client';
 
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator } from '@/components/zoruui';
 
 interface OrderMessageContentProps {
   order: {
@@ -28,14 +28,14 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
 
   return (
     <div className="w-64">
-      <Card className="shadow-none border-0 bg-transparent">
-        <CardHeader className="p-2">
+      <ZoruCard className="shadow-none border-0 bg-transparent">
+        <ZoruCardHeader className="p-2">
             <div className="flex items-center gap-2">
                  <IndianRupee className="h-5 w-5 text-primary"/>
-                <CardTitle className="text-base">Order Details</CardTitle>
+                <ZoruCardTitle className="text-base">Order Details</ZoruCardTitle>
             </div>
-        </CardHeader>
-        <CardContent className="p-2 space-y-2 text-xs">
+        </ZoruCardHeader>
+        <ZoruCardContent className="p-2 space-y-2 text-xs">
           {order.product_items.map(item => (
             <div key={item.product_retailer_id} className="flex justify-between items-center">
               <div>
@@ -45,18 +45,18 @@ export function OrderMessageContent({ order }: OrderMessageContentProps) {
               <span className="font-mono">{item.currency} {(parseFloat(item.item_price) * parseInt(item.quantity)).toFixed(2)}</span>
             </div>
           ))}
-          <Separator className="my-2"/>
+          <ZoruSeparator className="my-2"/>
           <div className="flex justify-between items-center font-bold pt-1">
               <span>Total</span>
               <span>{order.product_items[0]?.currency} {totalAmount.toFixed(2)}</span>
           </div>
-        </CardContent>
+        </ZoruCardContent>
          {order.text && (
-             <CardFooter className="p-2 text-xs text-muted-foreground border-t mt-2 pt-2">
+             <ZoruCardFooter className="p-2 text-xs text-muted-foreground border-t mt-2 pt-2">
                 <p>{order.text}</p>
-             </CardFooter>
+             </ZoruCardFooter>
          )}
-      </Card>
+      </ZoruCard>
     </div>
   );
 }

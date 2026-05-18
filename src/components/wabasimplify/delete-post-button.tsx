@@ -4,17 +4,17 @@
 
 import { useTransition } from 'react';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { handleDeletePost } from '@/app/actions/facebook.actions';
@@ -42,22 +42,22 @@ export function DeletePostButton({ postId, projectId, onPostDeleted }: DeletePos
     }
 
     return (
-        <AlertDialog>
-            <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-                <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>This will permanently delete the post from your Facebook Page. This action cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+        <ZoruAlertDialog>
+            <ZoruAlertDialogTrigger asChild>
+                <ZoruButton variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
+            </ZoruAlertDialogTrigger>
+            <ZoruAlertDialogContent>
+                <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>This will permanently delete the post from your Facebook Page. This action cannot be undone.</ZoruAlertDialogDescription>
+                </ZoruAlertDialogHeader>
+                <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
                         {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />} Delete
-                    </AlertDialogAction>
-                </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+                    </ZoruAlertDialogAction>
+                </ZoruAlertDialogFooter>
+            </ZoruAlertDialogContent>
+        </ZoruAlertDialog>
     );
 }

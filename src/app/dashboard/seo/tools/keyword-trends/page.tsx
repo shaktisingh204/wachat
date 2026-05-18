@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 function hash(s: string, salt: number) {
@@ -36,12 +36,12 @@ export default function KeywordTrendsPage() {
   return (
     <ToolShell title="Keyword Trends" description="12-month interest trend for a keyword (deterministic demo).">
       <div className="flex gap-2">
-        <Input value={kw} onChange={(e) => setKw(e.target.value)} placeholder="e.g. ai tools" />
-        <Button onClick={() => setSubmitted(kw)}>Show trend</Button>
+        <ZoruInput value={kw} onChange={(e) => setKw(e.target.value)} placeholder="e.g. ai tools" />
+        <ZoruButton onClick={() => setSubmitted(kw)}>Show trend</ZoruButton>
       </div>
       {submitted && (
-        <Card>
-          <CardContent className="p-4">
+        <ZoruCard>
+          <ZoruCardContent className="p-4">
             <div className="text-sm font-semibold mb-2">{submitted}</div>
             <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-40">
               <path d={path} fill="none" stroke="hsl(var(--primary))" strokeWidth="2" />
@@ -54,8 +54,8 @@ export default function KeywordTrendsPage() {
             <div className="grid grid-cols-12 text-[10px] text-muted-foreground text-center">
               {months.map((m) => <div key={m}>{m}</div>)}
             </div>
-          </CardContent>
-        </Card>
+          </ZoruCardContent>
+        </ZoruCard>
       )}
     </ToolShell>
   );

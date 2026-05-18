@@ -331,6 +331,24 @@ export type GlobalRolePermissions = {
     sabwa_audit?: ModulePermission;
     sabwa_settings?: ModulePermission;
 
+    // SabFlow (automation workflow engine — see src/lib/sabflow/rbac-keys.ts).
+    // Dot-notation keys: must be quoted property names.
+    'sabflow.doc.read'?: ModulePermission;
+    'sabflow.doc.write'?: ModulePermission;
+    'sabflow.doc.delete'?: ModulePermission;
+    'sabflow.doc.share'?: ModulePermission;
+    'sabflow.doc.admin'?: ModulePermission;
+    'sabflow.credential.read'?: ModulePermission;
+    'sabflow.credential.use'?: ModulePermission;
+    'sabflow.credential.write'?: ModulePermission;
+    'sabflow.credential.delete'?: ModulePermission;
+    'sabflow.credential.share'?: ModulePermission;
+    'sabflow.credential.admin'?: ModulePermission;
+    'sabflow.workflow.read'?: ModulePermission;
+    'sabflow.workflow.write'?: ModulePermission;
+    'sabflow.workflow.execute'?: ModulePermission;
+    'sabflow.trigger.admin'?: ModulePermission;
+
     // Utilities
     website_builder?: ModulePermission;
     url_shortener?: ModulePermission;

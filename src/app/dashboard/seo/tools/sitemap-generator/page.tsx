@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function SitemapGeneratorPage() {
@@ -37,15 +37,15 @@ export default function SitemapGeneratorPage() {
 
   return (
     <ToolShell title="XML Sitemap Generator" description="Generate a sitemap.xml from a list of URLs.">
-      <Textarea value={urls} onChange={(e) => setUrls(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One URL per line…" />
+      <ZoruTextarea value={urls} onChange={(e) => setUrls(e.target.value)} className="min-h-[180px] font-mono text-xs" placeholder="One URL per line…" />
       <div className="flex gap-2">
-        <Input value={priority} onChange={(e) => setPriority(e.target.value)} className="w-32" placeholder="priority" />
+        <ZoruInput value={priority} onChange={(e) => setPriority(e.target.value)} className="w-32" placeholder="priority" />
         <select className="border rounded h-9 px-2 bg-background" value={changefreq} onChange={(e) => setChangefreq(e.target.value)}>
           <option>always</option><option>hourly</option><option>daily</option><option>weekly</option><option>monthly</option><option>yearly</option><option>never</option>
         </select>
-        <Button onClick={download}>Download XML</Button>
+        <ZoruButton onClick={download}>Download XML</ZoruButton>
       </div>
-      <Textarea readOnly value={xml} className="min-h-[240px] font-mono text-xs" />
+      <ZoruTextarea readOnly value={xml} className="min-h-[240px] font-mono text-xs" />
     </ToolShell>
   );
 }

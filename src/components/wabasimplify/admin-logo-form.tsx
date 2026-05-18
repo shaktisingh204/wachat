@@ -2,15 +2,15 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Save, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { setAppLogo } from '@/app/actions/admin.actions';
 import { useRouter } from 'next/navigation';
-import { Separator } from '../ui/separator';
+import { ZoruSeparator } from '../ui/separator';
 import { SabFileUrlInput } from '@/components/sabfiles';
 
 export function AppLogoForm() {
@@ -34,18 +34,18 @@ export function AppLogoForm() {
 
     return (
         <form action={formAction}>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle className="flex items-center gap-2">
                         <ImageIcon className="h-5 w-5"/>
                         Application Logo
-                    </CardTitle>
-                    <CardDescription>Set a custom logo for the application. You can either upload a file or provide a public URL. Leave both blank to reset to default.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                    </ZoruCardTitle>
+                    <ZoruCardDescription>Set a custom logo for the application. You can either upload a file or provide a public URL. Leave both blank to reset to default.</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="logoFile">Upload Logo File</Label>
-                        <Input id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
+                        <ZoruLabel htmlFor="logoFile">Upload Logo File</ZoruLabel>
+                        <ZoruInput id="logoFile" name="logoFile" type="file" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
                     </div>
                      <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
@@ -56,7 +56,7 @@ export function AppLogoForm() {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="logoUrl">Logo URL</Label>
+                        <ZoruLabel htmlFor="logoUrl">Logo URL</ZoruLabel>
                         <SabFileUrlInput
                             id="logoUrl"
                             name="logoUrl"
@@ -67,14 +67,14 @@ export function AppLogoForm() {
                             disabled={isPending}
                         />
                     </div>
-                </CardContent>
-                <CardFooter>
-                    <Button type="submit" disabled={isPending}>
+                </ZoruCardContent>
+                <ZoruCardFooter>
+                    <ZoruButton type="submit" disabled={isPending}>
                         {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                         Save Logo
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardFooter>
+            </ZoruCard>
         </form>
     );
 }

@@ -9,23 +9,23 @@ import { useState } from 'react';
 import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter,
-} from '@/components/ui/card';
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardFooter,
+} from '@/components/zoruui';
 
 import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from '@/components/ui/alert';
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
 
 import { AlertCircle } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { ZoruCheckbox } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_ONBOARDING_APP_ID;
@@ -38,10 +38,10 @@ export default function SetupPage() {
   if (!appId || !configId) {
     return (
       <div className="flex items-center justify-center min-h-screen px-4">
-        <Alert variant="destructive" className="max-w-lg w-full">
+        <ZoruAlert variant="destructive" className="max-w-lg w-full">
           <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Configuration Error</AlertTitle>
-          <AlertDescription className="space-y-2">
+          <ZoruAlertTitle>Configuration Error</ZoruAlertTitle>
+          <ZoruAlertDescription className="space-y-2">
             <p>
               The following environment variables are missing:
             </p>
@@ -52,8 +52,8 @@ export default function SetupPage() {
             <p className="text-xs mt-2">
               Please configure them in your <code>.env</code> file.
             </p>
-          </AlertDescription>
-        </Alert>
+          </ZoruAlertDescription>
+        </ZoruAlert>
       </div>
     );
   }
@@ -70,15 +70,15 @@ export default function SetupPage() {
       </div>
 
       <div className="w-full max-w-lg">
-        <Card className="flex flex-col text-center card-gradient card-gradient-green">
-          <CardHeader>
-            <CardTitle>Guided Setup (Recommended)</CardTitle>
-            <CardDescription>
+        <ZoruCard className="flex flex-col text-center card-gradient card-gradient-green">
+          <ZoruCardHeader>
+            <ZoruCardTitle>Guided Setup (Recommended)</ZoruCardTitle>
+            <ZoruCardDescription>
               Use the secure pop-up to connect your account in a few clicks.
-            </CardDescription>
-          </CardHeader>
+            </ZoruCardDescription>
+          </ZoruCardHeader>
 
-          <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
+          <ZoruCardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
             <EmbeddedSignup
               appId={appId}
               configId={configId}
@@ -89,26 +89,26 @@ export default function SetupPage() {
             <p className="text-xs text-muted-foreground">
               You will be redirected to Facebook to authorize the connection.
             </p>
-          </CardContent>
+          </ZoruCardContent>
 
-          <CardFooter>
+          <ZoruCardFooter>
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <ZoruCheckbox
                 id="include-catalog"
                 checked={includeCatalog}
                 onCheckedChange={(checked) =>
                   setIncludeCatalog(Boolean(checked))
                 }
               />
-              <Label
+              <ZoruLabel
                 htmlFor="include-catalog"
                 className="text-sm font-normal"
               >
                 Include permissions for Catalog Management
-              </Label>
+              </ZoruLabel>
             </div>
-          </CardFooter>
-        </Card>
+          </ZoruCardFooter>
+        </ZoruCard>
       </div>
     </div>
   );

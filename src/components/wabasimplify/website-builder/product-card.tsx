@@ -4,8 +4,8 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ShoppingCart } from 'lucide-react';
 import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
 import { useCart } from '@/context/cart-context';
@@ -28,8 +28,8 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
 
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
-       <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
-            <CardHeader className="p-0">
+       <ZoruCard className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
+            <ZoruCardHeader className="p-0">
                 <div className="relative aspect-[4/5] bg-muted">
                 <Image
                     src={product.imageUrl || 'https://placehold.co/400x500.png'}
@@ -40,8 +40,8 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                     data-ai-hint="product photo"
                 />
                 </div>
-            </CardHeader>
-            <CardContent className="p-4 flex-grow flex flex-col justify-between">
+            </ZoruCardHeader>
+            <ZoruCardContent className="p-4 flex-grow flex flex-col justify-between">
                 <div>
                     <h3 className="font-semibold text-base line-clamp-2">{product.name}</h3>
                     <p className="text-sm text-muted-foreground">{product.category || 'Uncategorized'}</p>
@@ -53,13 +53,13 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                         currency: 'INR',
                     }).format(product.price)}
                     </p>
-                    <Button size="sm" variant="outline" onClick={handleAddToCart}>
+                    <ZoruButton size="sm" variant="outline" onClick={handleAddToCart}>
                         <ShoppingCart className="mr-2 h-4 w-4" />
                         Add
-                    </Button>
+                    </ZoruButton>
                 </div>
-            </CardContent>
-      </Card>
+            </ZoruCardContent>
+      </ZoruCard>
     </Link>
   );
 }

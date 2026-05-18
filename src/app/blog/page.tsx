@@ -1,6 +1,6 @@
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
 import Image from 'next/image';
 import { LandingHeader } from '@/components/landing/landing-header';
@@ -23,25 +23,25 @@ export default function BlogPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map(post => (
-                <Card key={post.title} className="flex flex-col">
-                    <CardHeader className="p-0">
+                <ZoruCard key={post.title} className="flex flex-col">
+                    <ZoruCardHeader className="p-0">
                         <div className="relative aspect-video">
                             <Image src={post.image} alt={post.title} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint={post.aiHint} />
                         </div>
                         <div className="p-4">
                              <p className="text-sm text-muted-foreground">{post.date}</p>
-                            <CardTitle className="text-lg mt-1">{post.title}</CardTitle>
+                            <ZoruCardTitle className="text-lg mt-1">{post.title}</ZoruCardTitle>
                         </div>
-                    </CardHeader>
-                    <CardContent className="flex-grow p-4 pt-0">
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="flex-grow p-4 pt-0">
                         <p className="text-muted-foreground text-sm">{post.description}</p>
-                    </CardContent>
-                    <CardFooter className="p-4">
-                        <Button variant="outline" asChild>
+                    </ZoruCardContent>
+                    <ZoruCardFooter className="p-4">
+                        <ZoruButton variant="outline" asChild>
                             <Link href="#">Read More</Link>
-                        </Button>
-                    </CardFooter>
-                </Card>
+                        </ZoruButton>
+                    </ZoruCardFooter>
+                </ZoruCard>
             ))}
         </div>
       </div>

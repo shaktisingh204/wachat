@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import { useState, useEffect, useRef, useActionState, useTransition } from 'react';
@@ -10,32 +11,32 @@ import {
   getInvitedUsers,
 } from '@/app/actions/team.actions';
 import { useToast } from '@/hooks/use-toast';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Label } from '@/components/ui/label';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 
-import { ClayCard, ClayButton } from '@/components/clay';
+import { ClayCard } from '@/components/clay';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 const removeAgentInitialState: any = { message: null, error: null };
@@ -72,30 +73,30 @@ function RemoveAgentButton({
   }, [state, toast, onAgentRemoved]);
 
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm" disabled={isPending}>
+    <ZoruAlertDialog>
+      <ZoruAlertDialogTrigger asChild>
+        <ZoruButton variant="destructive" size="sm" disabled={isPending}>
           {isPending ? (
             <LoaderCircle className="h-4 w-4 animate-spin" />
           ) : (
             <Trash2 className="h-4 w-4" />
           )}
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-foreground">Are you sure?</AlertDialogTitle>
-          <AlertDialogDescription className="text-muted-foreground">
+        </ZoruButton>
+      </ZoruAlertDialogTrigger>
+      <ZoruAlertDialogContent>
+        <ZoruAlertDialogHeader>
+          <ZoruAlertDialogTitle className="text-foreground">Are you sure?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogDescription className="text-muted-foreground">
             This will remove the agent&apos;s access from all of your projects. This action cannot
             be undone.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Confirm</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+          </ZoruAlertDialogDescription>
+        </ZoruAlertDialogHeader>
+        <ZoruAlertDialogFooter>
+          <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+          <ZoruAlertDialogAction onClick={handleDelete}>Confirm</ZoruAlertDialogAction>
+        </ZoruAlertDialogFooter>
+      </ZoruAlertDialogContent>
+    </ZoruAlertDialog>
   );
 }
 
@@ -137,10 +138,10 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
         className="flex flex-col gap-3 sm:flex-row sm:items-end"
       >
         <div className="flex-grow space-y-2">
-          <Label htmlFor="email" className="sr-only">
+          <ZoruLabel htmlFor="email" className="sr-only">
             Email
-          </Label>
-          <Input
+          </ZoruLabel>
+          <ZoruInput
             id="email"
             name="email"
             type="email"
@@ -150,23 +151,23 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="role" className="sr-only">
+          <ZoruLabel htmlFor="role" className="sr-only">
             Role
-          </Label>
-          <Select name="role" defaultValue="agent">
-            <SelectTrigger
+          </ZoruLabel>
+          <ZoruSelect name="role" defaultValue="agent">
+            <ZoruSelectTrigger
               id="role"
               className="h-10 w-full rounded-lg border-border bg-card text-[13px] sm:w-[180px]"
             >
-              <SelectValue placeholder="Select role" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="agent">Agent</SelectItem>
-              <SelectItem value="admin">Admin</SelectItem>
-            </SelectContent>
-          </Select>
+              <ZoruSelectValue placeholder="ZoruSelect role" />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+              <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+              <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+            </ZoruSelectContent>
+          </ZoruSelect>
         </div>
-        <ClayButton
+        <ZoruButton
           type="submit"
           variant="obsidian"
           disabled={isPending}
@@ -179,7 +180,7 @@ function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
           }
         >
           Invite Agent
-        </ClayButton>
+        </ZoruButton>
       </form>
     </ClayCard>
   );
@@ -211,7 +212,7 @@ export default function ManageUsersPage() {
       />
 
       <InviteAgentForm onAgentInvited={fetchData} />
-      <Separator className="bg-border" />
+      <ZoruSeparator className="bg-border" />
 
       <ClayCard>
         <div className="mb-4">
@@ -223,8 +224,8 @@ export default function ManageUsersPage() {
         <div className="space-y-3">
           {isLoading ? (
             <>
-              <Skeleton className="h-16 w-full rounded-lg" />
-              <Skeleton className="h-16 w-full rounded-lg" />
+              <ZoruSkeleton className="h-16 w-full rounded-lg" />
+              <ZoruSkeleton className="h-16 w-full rounded-lg" />
             </>
           ) : teamMembers.length > 0 ? (
             teamMembers.map((agent: any) => (
@@ -233,15 +234,15 @@ export default function ManageUsersPage() {
                 className="flex items-center justify-between gap-4 rounded-lg border border-border bg-secondary p-4"
               >
                 <div className="flex items-center gap-4">
-                  <Avatar className="border border-border">
-                    <AvatarImage
+                  <ZoruAvatar className="border border-border">
+                    <ZoruAvatarImage
                       src={`https://i.pravatar.cc/150?u=${agent.email}`}
                       alt={agent.name}
                     />
-                    <AvatarFallback className="bg-accent text-[12px] text-accent-foreground">
+                    <ZoruAvatarFallback className="bg-accent text-[12px] text-accent-foreground">
                       {agent.name.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                    </ZoruAvatarFallback>
+                  </ZoruAvatar>
                   <div className="space-y-0.5">
                     <p className="text-[13px] font-medium leading-none text-foreground">
                       {agent.name}

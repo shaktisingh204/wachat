@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { Lock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 
 export function FeatureLock({ isAllowed, children }: { isAllowed: boolean; children: React.ReactNode }) {
     if (isAllowed) {
@@ -25,9 +25,9 @@ export function FeatureLockOverlay({ isAllowed, featureName }: { isAllowed: bool
             <Lock className="h-12 w-12 text-muted-foreground"/>
             <h3 className="text-xl font-bold">'{featureName}' is a Premium Feature</h3>
             <p className="text-muted-foreground">This feature is not included in your current plan.</p>
-            <Button asChild>
+            <ZoruButton asChild>
                 <Link href="/dashboard/user/billing#upgrade">Upgrade Plan</Link>
-            </Button>
+            </ZoruButton>
         </div>
     )
 }

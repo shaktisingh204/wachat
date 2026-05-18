@@ -1,5 +1,5 @@
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import Link from 'next/link';
 import { LandingHeader } from '@/components/landing/landing-header';
 
@@ -14,17 +14,17 @@ export default function AboutUsPage() {
                   &larr; Back to Home
               </Link>
           </div>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-3xl font-bold font-headline">About SabNode</CardTitle>
-            </CardHeader>
-            <CardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
+          <ZoruCard>
+            <ZoruCardHeader>
+              <ZoruCardTitle className="text-3xl font-bold font-headline">About SabNode</ZoruCardTitle>
+            </ZoruCardHeader>
+            <ZoruCardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
               <p>Welcome to SabNode, your all-in-one solution for business communication and marketing automation. Our mission is to empower businesses of all sizes to connect with their customers in a more meaningful and efficient way.</p>
               <p>Founded on the principle of simplifying complexity, SabNode provides a powerful suite of tools that integrate seamlessly with platforms like WhatsApp and Meta, allowing you to manage campaigns, automate conversations, and engage customers without the technical overhead.</p>
               <h2 className="text-xl font-semibold">Our Vision</h2>
               <p>We believe that technology should be an enabler, not a barrier. Our vision is to build a platform that is not only powerful and scalable but also intuitive and accessible to everyone, from small business owners to enterprise marketing teams.</p>
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
         </div>
       </div>
     </div>

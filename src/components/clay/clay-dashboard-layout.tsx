@@ -132,28 +132,27 @@ import {
   ClayShell,
   ClaySidebar,
   ClayTopbar,
-  ClayButton,
   ClayUserCard,
   type ClayNavItem,
 } from '@/components/clay';
 import { useProject } from '@/context/project-context';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
 import {
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from '@/components/ui/command';
+  ZoruCommandDialog,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandSeparator,
+} from '@/components/zoruui';
 
 /* ── types ──────────────────────────────────────────────────────── */
 
@@ -1413,7 +1412,7 @@ const crmFinance: NavEntry[] = [
   },
   {
     key: 'crm-balance-sheet',
-    label: 'Balance Sheet',
+    label: 'Balance ZoruSheet',
     icon: <LuFileSpreadsheet className="h-[15px] w-[15px]" strokeWidth={1.75} />,
     href: '/dashboard/crm/accounting/balance-sheet',
     matches: ['/dashboard/crm/accounting/balance-sheet'],
@@ -2810,7 +2809,7 @@ export function ClayDashboardLayout({
   const activeKey = useActiveKey(context);
   const fullBleed = isFullBleed(pathname);
 
-  /* ── Command palette state (Cmd+K / Ctrl+K) ── */
+  /* ── ZoruCommand palette state (Cmd+K / Ctrl+K) ── */
   const [searchOpen, setSearchOpen] = React.useState(false);
 
   React.useEffect(() => {
@@ -2867,108 +2866,108 @@ export function ClayDashboardLayout({
           <>
             <BrandGlyph />
             <div className="ml-3 flex items-center gap-2">
-              <ClayButton
+              <ZoruButton
                 variant="pill"
                 size="sm"
                 leading={<LuSearch className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => setSearchOpen(true)}
               >
                 Search
-              </ClayButton>
-              <ClayButton
+              </ZoruButton>
+              <ZoruButton
                 variant="pill"
                 size="sm"
                 leading={<LuUserPlus className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/wachat/contacts')}
               >
                 Add contact
-              </ClayButton>
-              <ClayButton
+              </ZoruButton>
+              <ZoruButton
                 variant="pill"
                 size="sm"
                 leading={<LuBell className="h-3.5 w-3.5" strokeWidth={2} />}
                 onClick={() => router.push('/dashboard/notifications')}
               >
                 Notifications
-              </ClayButton>
+              </ZoruButton>
 
               {/* More (…) dropdown — workspace shortcuts */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <ClayButton variant="pill" size="icon" aria-label="More">
+              <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
+                  <ZoruButton variant="outline" size="icon" aria-label="More">
                     <LuEllipsis className="h-4 w-4" />
-                  </ClayButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-56">
-                  <DropdownMenuLabel>Workspace</DropdownMenuLabel>
-                  <DropdownMenuItem onSelect={() => router.push('/dashboard/settings')}>
+                  </ZoruButton>
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent align="start" className="w-56">
+                  <ZoruDropdownMenuLabel>Workspace</ZoruDropdownMenuLabel>
+                  <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/settings')}>
                     <LuSettings className="mr-2 h-4 w-4" /> Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => router.push('/dashboard/team')}>
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/team')}>
                     <LuUserPlus className="mr-2 h-4 w-4" /> Team
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => router.push('/wachat/integrations')}>
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/integrations')}>
                     <LuPlus className="mr-2 h-4 w-4" /> Integrations
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuSeparator />
+                  <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                     <LuUser className="mr-2 h-4 w-4" /> Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem
                     onSelect={() => window.open('https://docs.sabnode.com', '_blank')}
                   >
                     <LuCircleHelp className="mr-2 h-4 w-4" /> Help & docs
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => setSearchOpen(true)}>
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onSelect={() => setSearchOpen(true)}>
                     <LuKeyboard className="mr-2 h-4 w-4" /> Keyboard shortcuts
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuSeparator />
+                  <ZoruDropdownMenuItem
                     onSelect={() => (window.location.href = '/logout')}
                     className="text-destructive focus:text-destructive"
                   >
                     <LuLogOut className="mr-2 h-4 w-4" /> Log out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                  </ZoruDropdownMenuItem>
+                </ZoruDropdownMenuContent>
+              </ZoruDropdownMenu>
             </div>
           </>
         }
         right={
           <>
             {/* Language dropdown (placeholder — real i18n not wired) */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <ClayButton
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton
                   variant="pill"
                   size="sm"
                   trailing={<LuChevronDown className="h-3 w-3 opacity-60" />}
                 >
                   En
-                </ClayButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuLabel>
                   <LuLanguages className="mr-1 inline h-3.5 w-3.5" /> Language
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
+                </ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                   English (default)
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                   हिन्दी · Hindi
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                   Español · Spanish
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/profile')}>
                   Français · French
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
 
             {/* Date pill — click to refresh server data */}
-            <ClayButton
+            <ZoruButton
               variant="pill"
               size="sm"
               leading={<LuCalendar className="h-3.5 w-3.5" strokeWidth={2} />}
@@ -2977,7 +2976,7 @@ export function ClayDashboardLayout({
               aria-label="Refresh data"
             >
               {currentDate}
-            </ClayButton>
+            </ZoruButton>
 
             {/* Plan badge — links to billing */}
             <button
@@ -3015,110 +3014,110 @@ export function ClayDashboardLayout({
             </button>
 
             {/* Create dropdown — one-click entry into every creator */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <ClayButton
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton
                   variant="obsidian"
                   size="md"
                   className="px-5"
                   trailing={<LuChevronDown className="h-3.5 w-3.5 opacity-70" />}
                 >
                   Create
-                </ClayButton>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>Create new</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => router.push('/wachat/broadcasts')}>
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end" className="w-56">
+                <ZoruDropdownMenuLabel>Create new</ZoruDropdownMenuLabel>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/broadcasts')}>
                   <LuSend className="mr-2 h-4 w-4" /> WhatsApp broadcast
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/sabflow')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/sabflow')}>
                   <LuWorkflow className="mr-2 h-4 w-4" /> SabFlow automation
-                </DropdownMenuItem>
-                <DropdownMenuItem
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem
                   onSelect={() => router.push('/dashboard/crm/sales-crm/leads')}
                 >
                   <LuBriefcase className="mr-2 h-4 w-4" /> CRM lead
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/wachat/templates')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/wachat/templates')}>
                   <LuMessagesSquare className="mr-2 h-4 w-4" /> Message template
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/email')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/email')}>
                   <LuMail className="mr-2 h-4 w-4" /> Email campaign
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/sms')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/sms')}>
                   <LuSmartphone className="mr-2 h-4 w-4" /> SMS campaign
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/sabchat')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/sabchat')}>
                   <LuBot className="mr-2 h-4 w-4" /> SabChat bot
-                </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => router.push('/dashboard/seo')}>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/seo')}>
                   <LuGlobe className="mr-2 h-4 w-4" /> SEO project
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
           </>
         }
       />
 
-      {/* Command palette — jump to any module from anywhere */}
-      <CommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
-        <CommandInput placeholder="Jump to…  broadcasts, CRM, flows, SMS, SEO" />
-        <CommandList>
-          <CommandEmpty>No results.</CommandEmpty>
-          <CommandGroup heading="Primary">
-            <CommandItem onSelect={() => jump('/dashboard')}>
+      {/* ZoruCommand palette — jump to any module from anywhere */}
+      <ZoruCommandDialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <ZoruCommandInput placeholder="Jump to…  broadcasts, CRM, flows, SMS, SEO" />
+        <ZoruCommandList>
+          <ZoruCommandEmpty>No results.</ZoruCommandEmpty>
+          <ZoruCommandGroup heading="Primary">
+            <ZoruCommandItem onSelect={() => jump('/dashboard')}>
               <LuLayoutDashboard className="mr-2 h-4 w-4" /> Home
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/wachat')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/wachat')}>
               <LuMessagesSquare className="mr-2 h-4 w-4" /> Wachat
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/wachat/broadcasts')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/wachat/broadcasts')}>
               <LuSend className="mr-2 h-4 w-4" /> Broadcasts
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/sabflow')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/sabflow')}>
               <LuWorkflow className="mr-2 h-4 w-4" /> SabFlow
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/crm/sales-crm/leads')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/crm/sales-crm/leads')}>
               <LuBriefcase className="mr-2 h-4 w-4" /> CRM
-            </CommandItem>
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Apps">
-            <CommandItem onSelect={() => jump('/dashboard/sabchat')}>
+            </ZoruCommandItem>
+          </ZoruCommandGroup>
+          <ZoruCommandSeparator />
+          <ZoruCommandGroup heading="Apps">
+            <ZoruCommandItem onSelect={() => jump('/dashboard/sabchat')}>
               <LuBot className="mr-2 h-4 w-4" /> SabChat
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/seo')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/seo')}>
               <LuGlobe className="mr-2 h-4 w-4" /> SEO Suite
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/email')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/email')}>
               <LuMail className="mr-2 h-4 w-4" /> Email
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/sms')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/sms')}>
               <LuSmartphone className="mr-2 h-4 w-4" /> SMS
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/ad-manager/ad-accounts')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/ad-manager/ad-accounts')}>
               <LuSend className="mr-2 h-4 w-4" /> Ad Manager
-            </CommandItem>
-          </CommandGroup>
-          <CommandSeparator />
-          <CommandGroup heading="Account">
-            <CommandItem onSelect={() => jump('/dashboard/notifications')}>
+            </ZoruCommandItem>
+          </ZoruCommandGroup>
+          <ZoruCommandSeparator />
+          <ZoruCommandGroup heading="Account">
+            <ZoruCommandItem onSelect={() => jump('/dashboard/notifications')}>
               <LuBell className="mr-2 h-4 w-4" /> Notifications
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/billing')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/billing')}>
               <LuBriefcase className="mr-2 h-4 w-4" /> Billing &amp; credits
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/profile')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/profile')}>
               <LuUser className="mr-2 h-4 w-4" /> Profile
-            </CommandItem>
-            <CommandItem onSelect={() => jump('/dashboard/settings')}>
+            </ZoruCommandItem>
+            <ZoruCommandItem onSelect={() => jump('/dashboard/settings')}>
               <LuSettings className="mr-2 h-4 w-4" /> Settings
-            </CommandItem>
-          </CommandGroup>
-        </CommandList>
-      </CommandDialog>
+            </ZoruCommandItem>
+          </ZoruCommandGroup>
+        </ZoruCommandList>
+      </ZoruCommandDialog>
 
       {/* ── BODY ── */}
       <div className="flex min-h-0 flex-1 overflow-hidden">
@@ -3464,8 +3463,8 @@ function ClayWachatBrand() {
       </button>
 
       {/* Project switcher */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+      <ZoruDropdownMenu>
+        <ZoruDropdownMenuTrigger asChild>
           <button
             type="button"
             className="flex w-full items-center gap-2 rounded-[12px] border border-border bg-card px-2.5 py-2 text-left hover:border-border hover:bg-secondary transition-colors"
@@ -3486,7 +3485,7 @@ function ClayWachatBrand() {
                 <WabaHealthDot status={healthStatus} />
               </span>
               <span className="block truncate text-[12.5px] font-semibold text-foreground leading-tight">
-                {activeProject?.name || 'Select a project'}
+                {activeProject?.name || 'ZoruSelect a project'}
               </span>
             </span>
             <LuChevronDown
@@ -3494,22 +3493,22 @@ function ClayWachatBrand() {
               strokeWidth={2}
             />
           </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
+        </ZoruDropdownMenuTrigger>
+        <ZoruDropdownMenuContent
           align="start"
           className="w-[216px]"
           sideOffset={6}
         >
-          <DropdownMenuLabel>Switch project</DropdownMenuLabel>
-          <DropdownMenuSeparator />
+          <ZoruDropdownMenuLabel>ZoruSwitch project</ZoruDropdownMenuLabel>
+          <ZoruDropdownMenuSeparator />
           {projects.length === 0 ? (
-            <DropdownMenuItem disabled>No projects yet</DropdownMenuItem>
+            <ZoruDropdownMenuItem disabled>No projects yet</ZoruDropdownMenuItem>
           ) : (
             projects.slice(0, 10).map((p) => {
               const id = p._id.toString();
               const isActive = activeProject?._id?.toString() === id;
               return (
-                <DropdownMenuItem
+                <ZoruDropdownMenuItem
                   key={id}
                   onSelect={() => onSelect(id)}
                   className={cn(isActive && 'bg-accent/50')}
@@ -3518,17 +3517,17 @@ function ClayWachatBrand() {
                     {(p.name || '?').slice(0, 2)}
                   </span>
                   <span className="truncate">{p.name}</span>
-                </DropdownMenuItem>
+                </ZoruDropdownMenuItem>
               );
             })
           )}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => router.push('/wachat')}>
+          <ZoruDropdownMenuSeparator />
+          <ZoruDropdownMenuItem onSelect={() => router.push('/wachat')}>
             <LuPlus className="mr-2 h-4 w-4" />
             Browse all projects
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+          </ZoruDropdownMenuItem>
+        </ZoruDropdownMenuContent>
+      </ZoruDropdownMenu>
     </div>
   );
 }

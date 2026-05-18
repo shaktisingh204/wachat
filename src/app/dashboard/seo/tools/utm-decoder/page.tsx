@@ -4,17 +4,17 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 type Parsed = {
@@ -61,84 +61,84 @@ export default function UtmDecoderPage() {
       title="UTM Decoder"
       description="Paste a URL to extract and inspect its UTM tracking parameters."
     >
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <Label htmlFor="utm-url">URL</Label>
-          <Input
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-3">
+          <ZoruLabel htmlFor="utm-url">URL</ZoruLabel>
+          <ZoruInput
             id="utm-url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://example.com/?utm_source=..."
           />
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {!parsed.valid ? (
         <p className="text-sm text-muted-foreground">{parsed.error}</p>
       ) : (
         <div className="space-y-4">
-          <Card>
-            <CardContent className="p-4">
+          <ZoruCard>
+            <ZoruCardContent className="p-4">
               <div className="text-xs text-muted-foreground">Base URL</div>
               <div className="font-mono text-sm break-all">{parsed.base}</div>
-            </CardContent>
-          </Card>
+            </ZoruCardContent>
+          </ZoruCard>
 
           <div className="space-y-2">
-            <Label>UTM parameters ({parsed.utm.length})</Label>
-            <Card>
-              <CardContent className="p-0">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Parameter</TableHead>
-                      <TableHead>Value</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+            <ZoruLabel>UTM parameters ({parsed.utm.length})</ZoruLabel>
+            <ZoruCard>
+              <ZoruCardContent className="p-0">
+                <ZoruTable>
+                  <ZoruTableHeader>
+                    <ZoruTableRow>
+                      <ZoruTableHead>Parameter</ZoruTableHead>
+                      <ZoruTableHead>Value</ZoruTableHead>
+                    </ZoruTableRow>
+                  </ZoruTableHeader>
+                  <ZoruTableBody>
                     {parsed.utm.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={2} className="text-sm text-muted-foreground">
+                      <ZoruTableRow>
+                        <ZoruTableCell colSpan={2} className="text-sm text-muted-foreground">
                           No UTM parameters found.
-                        </TableCell>
-                      </TableRow>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
                     ) : (
                       parsed.utm.map((p) => (
-                        <TableRow key={p.key}>
-                          <TableCell className="font-mono text-xs">{p.key}</TableCell>
-                          <TableCell className="font-mono text-xs">{p.value}</TableCell>
-                        </TableRow>
+                        <ZoruTableRow key={p.key}>
+                          <ZoruTableCell className="font-mono text-xs">{p.key}</ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-xs">{p.value}</ZoruTableCell>
+                        </ZoruTableRow>
                       ))
                     )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                  </ZoruTableBody>
+                </ZoruTable>
+              </ZoruCardContent>
+            </ZoruCard>
           </div>
 
           {parsed.other.length > 0 && (
             <div className="space-y-2">
-              <Label>Other query parameters ({parsed.other.length})</Label>
-              <Card>
-                <CardContent className="p-0">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Parameter</TableHead>
-                        <TableHead>Value</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
+              <ZoruLabel>Other query parameters ({parsed.other.length})</ZoruLabel>
+              <ZoruCard>
+                <ZoruCardContent className="p-0">
+                  <ZoruTable>
+                    <ZoruTableHeader>
+                      <ZoruTableRow>
+                        <ZoruTableHead>Parameter</ZoruTableHead>
+                        <ZoruTableHead>Value</ZoruTableHead>
+                      </ZoruTableRow>
+                    </ZoruTableHeader>
+                    <ZoruTableBody>
                       {parsed.other.map((p) => (
-                        <TableRow key={p.key}>
-                          <TableCell className="font-mono text-xs">{p.key}</TableCell>
-                          <TableCell className="font-mono text-xs">{p.value}</TableCell>
-                        </TableRow>
+                        <ZoruTableRow key={p.key}>
+                          <ZoruTableCell className="font-mono text-xs">{p.key}</ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-xs">{p.value}</ZoruTableCell>
+                        </ZoruTableRow>
                       ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
+                    </ZoruTableBody>
+                  </ZoruTable>
+                </ZoruCardContent>
+              </ZoruCard>
             </div>
           )}
         </div>

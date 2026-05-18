@@ -2,13 +2,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { ZoruSeparator } from '@/components/zoruui';
 
 interface EditorProps {
   node: any;
@@ -42,32 +42,32 @@ export function ApiEditor({ node, onUpdate }: EditorProps) {
         <div className="space-y-4">
             <h3 className="font-semibold">Request</h3>
             <div className="space-y-4 pt-2 border-t">
-                <Select value={apiRequest.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
-                    <SelectTrigger><SelectValue/></SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="GET">GET</SelectItem>
-                        <SelectItem value="POST">POST</SelectItem>
-                        <SelectItem value="PUT">PUT</SelectItem>
-                    </SelectContent>
-                </Select>
-                <Input placeholder="https://api.example.com" value={apiRequest.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
-                <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={apiRequest.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
-                <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={apiRequest.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
+                <ZoruSelect value={apiRequest.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
+                    <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                        <ZoruSelectItem value="GET">GET</ZoruSelectItem>
+                        <ZoruSelectItem value="POST">POST</ZoruSelectItem>
+                        <ZoruSelectItem value="PUT">PUT</ZoruSelectItem>
+                    </ZoruSelectContent>
+                </ZoruSelect>
+                <ZoruInput placeholder="https://api.example.com" value={apiRequest.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                <ZoruTextarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={apiRequest.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
+                <ZoruTextarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={apiRequest.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
             </div>
-            <Separator />
+            <ZoruSeparator />
             <h3 className="font-semibold">Response</h3>
             <div className="space-y-4 pt-2">
-                <Label>Save Response to Variables</Label>
+                <ZoruLabel>Save Response to Variables</ZoruLabel>
                 <div className="space-y-3">
                     {(apiRequest.responseMappings || []).map((mapping: any, index: number) => (
                         <div key={index} className="p-2 border rounded-md space-y-2 relative">
-                            <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></Button>
-                            <Input placeholder="Variable Name (e.g. user_email)" value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
-                            <Input placeholder="Response Path (e.g. data.email)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} />
+                            <ZoruButton type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></ZoruButton>
+                            <ZoruInput placeholder="Variable Name (e.g. user_email)" value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
+                            <ZoruInput placeholder="Response Path (e.g. data.email)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} />
                         </div>
                     ))}
                 </div>
-                <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</Button>
+                <ZoruButton type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</ZoruButton>
             </div>
         </div>
     );

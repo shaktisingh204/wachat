@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countSentences, countWords } from '@/lib/seo-tools/text-utils';
 
@@ -17,11 +17,11 @@ export default function SentenceCounterPage() {
 
   return (
     <ToolShell title="Sentence Counter" description="Count sentences and average words per sentence.">
-      <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste your text…" className="min-h-[240px]" />
+      <ZoruTextarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste your text…" className="min-h-[240px]" />
       <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{sentences}</div><div className="text-xs text-muted-foreground">Sentences</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{avg}</div><div className="text-xs text-muted-foreground">Words / sentence</div></CardContent></Card>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{sentences}</div><div className="text-xs text-muted-foreground">Sentences</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{avg}</div><div className="text-xs text-muted-foreground">Words / sentence</div></ZoruCardContent></ZoruCard>
       </div>
     </ToolShell>
   );

@@ -1,9 +1,9 @@
 
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { Lightbulb } from 'lucide-react';
 
 interface IfEditorProps {
@@ -16,8 +16,8 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="condition">Condition Expression</Label>
-                <Input 
+                <ZoruLabel htmlFor="condition">Condition Expression</ZoruLabel>
+                <ZoruInput 
                     id="condition" 
                     value={component.condition || ''} 
                     onChange={(e) => updateField('condition', e.target.value)} 
@@ -30,13 +30,13 @@ export function IfEditor({ component, updateField }: IfEditorProps) {
                 </p>
             </div>
             
-            <Alert>
+            <ZoruAlert>
                 <Lightbulb className="h-4 w-4" />
-                <AlertTitle>Component Management</AlertTitle>
-                <AlertDescription>
+                <ZoruAlertTitle>Component Management</ZoruAlertTitle>
+                <ZoruAlertDescription>
                     The components to show in the "then" and "else" branches should be managed in the "Raw JSON" editor view for full control over nested components.
-                </AlertDescription>
-            </Alert>
+                </ZoruAlertDescription>
+            </ZoruAlert>
         </div>
     );
 }

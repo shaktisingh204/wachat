@@ -10,20 +10,20 @@ import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/d
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
 import { ContactInfoPanel } from './contact-info-panel';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { NewChatDialog } from './new-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Card } from '../ui/card';
+import { ZoruCard } from '../ui/card';
 import { useProject } from '@/context/project-context';
 
 const CONTACTS_PER_PAGE = 30;
 
 function ChatPageSkeleton() {
-    return <Skeleton className="h-full w-full rounded-xl" />;
+    return <ZoruSkeleton className="h-full w-full rounded-xl" />;
 }
 
 
@@ -225,13 +225,13 @@ export function ChatClient() {
     if (!activeProjectId) {
         return (
             <div className="h-full flex items-center justify-center p-4">
-                <Alert variant="destructive" className="max-w-md">
+                <ZoruAlert variant="destructive" className="max-w-md">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
+                    <ZoruAlertTitle>No Project Selected</ZoruAlertTitle>
+                    <ZoruAlertDescription>
                         Please select a project from the main dashboard to use the chat interface.
-                    </AlertDescription>
-                </Alert>
+                    </ZoruAlertDescription>
+                </ZoruAlert>
             </div>
         );
     }
@@ -280,14 +280,14 @@ export function ChatClient() {
                                 <div className="h-20 w-20 bg-muted rounded-full flex items-center justify-center mb-2">
                                     <MessageSquare className="h-10 w-10 text-muted-foreground/50" />
                                 </div>
-                                <h2 className="text-xl font-semibold">Select a conversation</h2>
+                                <h2 className="text-xl font-semibold">ZoruSelect a conversation</h2>
                                 <p className="max-w-xs text-sm">Choose a contact from the list or start a new chat to begin messaging.</p>
-                                <Button
+                                <ZoruButton
                                     onClick={() => setIsNewChatDialogOpen(true)}
                                     className="mt-4"
                                 >
                                     Start New Conversation
-                                </Button>
+                                </ZoruButton>
                             </div>
                         )}
                     </div>

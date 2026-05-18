@@ -14,7 +14,7 @@ import {
   X,
 } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
+import { ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 type Variant = 'default' | 'success' | 'error' | 'warning';
@@ -131,7 +131,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
 
               <div className="flex items-center gap-2">
                 {actions?.label && (
-                  <Button
+                  <ZoruButton
                     variant={actions.variant || 'outline'}
                     size="sm"
                     onClick={() => {
@@ -150,7 +150,7 @@ const Toaster = forwardRef<ToasterRef, { defaultPosition?: Position }>(
                     )}
                   >
                     {actions.label}
-                  </Button>
+                  </ZoruButton>
                 )}
 
                 <button

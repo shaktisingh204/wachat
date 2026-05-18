@@ -15,7 +15,7 @@
  *
  * Note: gate / hook ordering / conditions are preserved exactly as
  * they were before the shadcn restyle. Only the visual chrome was
- * migrated to shadcn `Card` + `Button`.
+ * migrated to shadcn `ZoruCard` + `ZoruButton`.
  */
 
 import * as React from 'react';
@@ -28,10 +28,10 @@ import {
   LuMessageSquare,
 } from 'react-icons/lu';
 
-import { Card } from '@/components/ui/card';
+import { ZoruCard, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
-import { ClayButton } from './clay-button';
+import { } from './clay-button';
 import { ClayInput } from './clay-input';
 import { ClayBreadcrumbs } from './clay-breadcrumbs';
 
@@ -95,14 +95,14 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
       <ClayBreadcrumbs
         items={[
           { label: 'Wachat', href: '/dashboard' },
-          { label: 'Select project' },
+          { label: 'ZoruSelect project' },
         ]}
       />
 
       <div className="mt-5 flex items-center justify-between gap-6">
         <div className="min-w-0">
           <h1 className="text-[30px] font-semibold tracking-[-0.015em] text-foreground leading-[1.1]">
-            Select a project
+            ZoruSelect a project
           </h1>
           <p className="mt-1.5 text-[13px] text-muted-foreground">
             Wachat is scoped per WhatsApp Business Account. Pick the
@@ -110,21 +110,21 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ClayButton
+          <ZoruButton
             variant="pill"
             size="md"
             onClick={() => router.push('/wachat')}
           >
             All projects
-          </ClayButton>
-          <ClayButton
+          </ZoruButton>
+          <ZoruButton
             variant="obsidian"
             size="md"
             leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
             onClick={() => router.push('/dashboard/setup')}
           >
             Connect account
-          </ClayButton>
+          </ZoruButton>
         </div>
       </div>
 
@@ -150,7 +150,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
           ))}
         </div>
       ) : filteredProjects.length === 0 ? (
-        <Card variant="default" className="mt-8 p-10 text-center">
+        <ZoruCard variant="default" className="mt-8 p-10 text-center">
           {filter ? (
             <>
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground">
@@ -162,14 +162,14 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               <div className="mt-1.5 text-[12.5px] text-muted-foreground">
                 Try a different name, or clear the filter to see all your projects.
               </div>
-              <ClayButton
+              <ZoruButton
                 variant="pill"
                 size="md"
                 onClick={() => setFilter('')}
                 className="mt-5"
               >
                 Clear filter
-              </ClayButton>
+              </ZoruButton>
             </>
           ) : (
             <>
@@ -184,14 +184,14 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                 broadcasts, managing chats, and building automations.
               </div>
               <div className="mt-5 flex items-center justify-center gap-2.5">
-                <ClayButton
+                <ZoruButton
                   variant="obsidian"
                   size="md"
                   leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
                   onClick={() => router.push('/dashboard/setup')}
                 >
                   Connect WhatsApp account
-                </ClayButton>
+                </ZoruButton>
               </div>
               <div className="mx-auto mt-6 grid max-w-lg grid-cols-3 gap-4 text-left">
                 <div>
@@ -209,7 +209,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
               </div>
             </>
           )}
-        </Card>
+        </ZoruCard>
       ) : (
         <div className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredProjects.map((p) => {
@@ -224,7 +224,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                 onClick={() => selectProject(id)}
                 className={cn('group block w-full text-left')}
               >
-                <Card
+                <ZoruCard
                   variant="default"
                   className="flex flex-col p-4 transition-transform group-hover:-translate-y-0.5 group-hover:shadow-md"
                 >
@@ -265,7 +265,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                       </>
                     ) : null}
                   </div>
-                </Card>
+                </ZoruCard>
               </button>
             );
           })}

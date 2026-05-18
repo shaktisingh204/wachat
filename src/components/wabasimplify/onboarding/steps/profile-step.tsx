@@ -3,21 +3,21 @@
 import * as React from 'react';
 import { AlertCircle, LoaderCircle } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+} from '@/components/zoruui';
 
 import { saveOnboardingProfile } from '@/app/actions/onboarding-flow.actions';
 
@@ -113,17 +113,17 @@ export function ProfileStep({
     return (
         <form onSubmit={submit} className="space-y-5" noValidate>
             {error && (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Fix the highlighted fields</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>Fix the highlighted fields</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             <div className="grid gap-5 sm:grid-cols-2">
                 <div className="space-y-2">
-                    <Label htmlFor="fullName">Full name *</Label>
-                    <Input
+                    <ZoruLabel htmlFor="fullName">Full name *</ZoruLabel>
+                    <ZoruInput
                         id="fullName"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
@@ -134,8 +134,8 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="companyName">Company / brand *</Label>
-                    <Input
+                    <ZoruLabel htmlFor="companyName">Company / brand *</ZoruLabel>
+                    <ZoruInput
                         id="companyName"
                         value={companyName}
                         onChange={(e) => setCompanyName(e.target.value)}
@@ -146,48 +146,48 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="role">Your role *</Label>
-                    <Select
+                    <ZoruLabel htmlFor="role">Your role *</ZoruLabel>
+                    <ZoruSelect
                         value={role}
                         onValueChange={setRole}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="role">
-                            <SelectValue placeholder="Select your role" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="role">
+                            <ZoruSelectValue placeholder="ZoruSelect your role" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {ROLES.map((r) => (
-                                <SelectItem key={r} value={r}>
+                                <ZoruSelectItem key={r} value={r}>
                                     {r}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="country">Country *</Label>
-                    <Select
+                    <ZoruLabel htmlFor="country">Country *</ZoruLabel>
+                    <ZoruSelect
                         value={country}
                         onValueChange={setCountry}
                         disabled={isPending}
                     >
-                        <SelectTrigger id="country">
-                            <SelectValue placeholder="Where are you based?" />
-                        </SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="country">
+                            <ZoruSelectValue placeholder="Where are you based?" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {COUNTRIES.map((c) => (
-                                <SelectItem key={c} value={c}>
+                                <ZoruSelectItem key={c} value={c}>
                                     {c}
-                                </SelectItem>
+                                </ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="phone">Phone (optional)</Label>
-                    <Input
+                    <ZoruLabel htmlFor="phone">Phone (optional)</ZoruLabel>
+                    <ZoruInput
                         id="phone"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -198,8 +198,8 @@ export function ProfileStep({
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="website">Website (optional)</Label>
-                    <Input
+                    <ZoruLabel htmlFor="website">Website (optional)</ZoruLabel>
+                    <ZoruInput
                         id="website"
                         value={website}
                         onChange={(e) => setWebsite(e.target.value)}
@@ -211,7 +211,7 @@ export function ProfileStep({
             </div>
 
             <div className="flex justify-end pt-2">
-                <Button
+                <ZoruButton
                     type="submit"
                     className="h-11 px-6 text-base"
                     disabled={isPending}
@@ -220,7 +220,7 @@ export function ProfileStep({
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Continue
-                </Button>
+                </ZoruButton>
             </div>
         </form>
     );

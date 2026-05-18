@@ -1,14 +1,14 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function GtmSnippetPage() {
@@ -46,36 +46,36 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       title="GTM Snippet Generator"
       description="Generate Google Tag Manager head and body snippets for your website."
     >
-      <Card>
-        <CardContent className="p-4 space-y-3">
-          <Label htmlFor="gtm-id">GTM Container ID</Label>
-          <Input
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-3">
+          <ZoruLabel htmlFor="gtm-id">GTM Container ID</ZoruLabel>
+          <ZoruInput
             id="gtm-id"
             value={id}
             onChange={(e) => setId(e.target.value)}
             placeholder="GTM-XXXXXXX"
           />
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label>Head snippet (paste in &lt;head&gt;)</Label>
-          <Button size="sm" variant="outline" onClick={() => copy('head', head)}>
+          <ZoruLabel>Head snippet (paste in &lt;head&gt;)</ZoruLabel>
+          <ZoruButton size="sm" variant="outline" onClick={() => copy('head', head)}>
             {copiedKey === 'head' ? 'Copied!' : 'Copy'}
-          </Button>
+          </ZoruButton>
         </div>
-        <Textarea readOnly value={head} className="min-h-[180px] font-mono text-xs" />
+        <ZoruTextarea readOnly value={head} className="min-h-[180px] font-mono text-xs" />
       </div>
 
       <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <Label>Body snippet (paste just after &lt;body&gt;)</Label>
-          <Button size="sm" variant="outline" onClick={() => copy('body', body)}>
+          <ZoruLabel>Body snippet (paste just after &lt;body&gt;)</ZoruLabel>
+          <ZoruButton size="sm" variant="outline" onClick={() => copy('body', body)}>
             {copiedKey === 'body' ? 'Copied!' : 'Copy'}
-          </Button>
+          </ZoruButton>
         </div>
-        <Textarea readOnly value={body} className="min-h-[120px] font-mono text-xs" />
+        <ZoruTextarea readOnly value={body} className="min-h-[120px] font-mono text-xs" />
       </div>
     </ToolShell>
   );

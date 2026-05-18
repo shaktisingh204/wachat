@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function ReverseImageSearchPage() {
@@ -25,15 +25,15 @@ export default function ReverseImageSearchPage() {
   return (
     <ToolShell title="Reverse Image Search" description="Search for an image across multiple reverse-image engines.">
       <div className="flex gap-2">
-        <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
-        <Button onClick={() => setSubmitted(url)}>Search</Button>
+        <ZoruInput value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://example.com/image.jpg" />
+        <ZoruButton onClick={() => setSubmitted(url)}>Search</ZoruButton>
       </div>
       {links.length > 0 && (
-        <Card><CardContent className="p-4 space-y-2">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-2">
           {links.map((l) => (
             <a key={l.name} className="block text-sm text-blue-600 hover:underline" target="_blank" rel="noopener" href={l.href}>🔗 Search on {l.name}</a>
           ))}
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

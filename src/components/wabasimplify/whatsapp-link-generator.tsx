@@ -4,12 +4,12 @@
 import { useState, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { Link, Copy, Check } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { WhatsAppIcon } from './custom-sidebar-components';
@@ -31,37 +31,37 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
   }, [selectedPhone, message]);
 
   return (
-    <Card className="card-gradient card-gradient-green">
-      <CardHeader>
+    <ZoruCard className="card-gradient card-gradient-green">
+      <ZoruCardHeader>
         <div className="flex items-center gap-3">
             <WhatsAppIcon className="h-8 w-8" />
             <div>
-                <CardTitle>WhatsApp Link Generator</CardTitle>
-                <CardDescription>Create a shareable link that opens a WhatsApp chat with a pre-filled message.</CardDescription>
+                <ZoruCardTitle>WhatsApp Link Generator</ZoruCardTitle>
+                <ZoruCardDescription>Create a shareable link that opens a WhatsApp chat with a pre-filled message.</ZoruCardDescription>
             </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+      </ZoruCardHeader>
+      <ZoruCardContent className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label htmlFor="phone-number">Phone Number</Label>
-                <Select value={selectedPhone} onValueChange={setSelectedPhone}>
-                    <SelectTrigger id="phone-number">
-                        <SelectValue placeholder="Select a number..." />
-                    </SelectTrigger>
-                    <SelectContent>
+                <ZoruLabel htmlFor="phone-number">Phone Number</ZoruLabel>
+                <ZoruSelect value={selectedPhone} onValueChange={setSelectedPhone}>
+                    <ZoruSelectTrigger id="phone-number">
+                        <ZoruSelectValue placeholder="ZoruSelect a number..." />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
                         {project.phoneNumbers.map(phone => (
-                            <SelectItem key={phone.id} value={phone.display_phone_number}>
+                            <ZoruSelectItem key={phone.id} value={phone.display_phone_number}>
                                 {phone.display_phone_number} ({phone.verified_name})
-                            </SelectItem>
+                            </ZoruSelectItem>
                         ))}
-                    </SelectContent>
-                </Select>
+                    </ZoruSelectContent>
+                </ZoruSelect>
             </div>
         </div>
         <div className="space-y-2">
-            <Label htmlFor="prefilled-message">Pre-filled Message (Optional)</Label>
-            <Textarea
+            <ZoruLabel htmlFor="prefilled-message">Pre-filled Message (Optional)</ZoruLabel>
+            <ZoruTextarea
                 id="prefilled-message"
                 placeholder="e.g., Hello, I'm interested in your services..."
                 value={message}
@@ -70,19 +70,19 @@ export function WhatsappLinkGenerator({ project }: WhatsappLinkGeneratorProps) {
             />
         </div>
         <div className="space-y-2">
-            <Label>Generated Link</Label>
+            <ZoruLabel>Generated Link</ZoruLabel>
             <div className="flex items-center gap-2">
-                <Input
+                <ZoruInput
                     readOnly
                     value={generatedLink}
                     className="font-mono text-xs"
                 />
-                <Button variant="outline" size="icon" onClick={() => copy(generatedLink)} disabled={!generatedLink}>
+                <ZoruButton variant="outline" size="icon" onClick={() => copy(generatedLink)} disabled={!generatedLink}>
                     {isCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-                </Button>
+                </ZoruButton>
             </div>
         </div>
-      </CardContent>
-    </Card>
+      </ZoruCardContent>
+    </ZoruCard>
   );
 }

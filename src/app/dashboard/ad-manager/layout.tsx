@@ -154,7 +154,7 @@ function AccountPill() {
       >
         {(activeAccount?.name || 'AD').slice(0, 2).toUpperCase()}
       </span>
-      {activeAccount?.name || 'Select account'}
+      {activeAccount?.name || 'ZoruSelect account'}
       <ChevronsUpDown className="ml-1.5 h-3 w-3 opacity-60" />
     </ZoruButton>
   );

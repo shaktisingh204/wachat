@@ -27,8 +27,8 @@ import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
 import { ColumnBlockEditor } from './column-block-editor';
 import { CartBlockEditor } from './cart-block-editor';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
 import { ProductBlockEditor } from './product-block-editor';
@@ -61,9 +61,9 @@ class BlockEditorErrorBoundary extends React.Component<{ children: React.ReactNo
                 <div className="p-4 rounded-md bg-destructive/10 text-destructive text-sm">
                     <p className="font-semibold">Something went wrong.</p>
                     <p>This block editor crashed. Try removing and re-adding the block.</p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
+                    <ZoruButton variant="outline" size="sm" className="mt-2" onClick={() => this.setState({ hasError: false })}>
                         Try Again
-                    </Button>
+                    </ZoruButton>
                 </div>
             );
         }
@@ -80,7 +80,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                     <Trash2 className="h-8 w-8 text-muted-foreground/30" />
                 </div>
                 <h3 className="font-medium text-lg text-foreground">No Block Selected</h3>
-                <p className="text-sm max-w-[200px] mt-2">Select a block on the canvas to edit its properties here.</p>
+                <p className="text-sm max-w-[200px] mt-2">ZoruSelect a block on the canvas to edit its properties here.</p>
             </div>
         );
     }
@@ -132,22 +132,22 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
     };
 
     return (
-        <Card className="h-full flex flex-col border-0 shadow-none bg-transparent">
-            <CardHeader className="pb-4 border-b">
-                <CardTitle className="text-lg">Block Properties</CardTitle>
-                <CardDescription>Editing: <span className="font-semibold text-primary capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 overflow-y-auto pt-6 px-1">
+        <ZoruCard className="h-full flex flex-col border-0 shadow-none bg-transparent">
+            <ZoruCardHeader className="pb-4 border-b">
+                <ZoruCardTitle className="text-lg">Block Properties</ZoruCardTitle>
+                <ZoruCardDescription>Editing: <span className="font-semibold text-primary capitalize">{selectedBlock.type?.replace(/([A-Z])/g, ' $1').trim()}</span></ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="flex-1 overflow-y-auto pt-6 px-1">
                 <BlockEditorErrorBoundary key={selectedBlock.id}>
                     {renderEditor()}
                 </BlockEditorErrorBoundary>
-            </CardContent>
-            <CardFooter className="border-t pt-4 mt-auto">
-                <Button variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
+            </ZoruCardContent>
+            <ZoruCardFooter className="border-t pt-4 mt-auto">
+                <ZoruButton variant="destructive" className="w-full shadow-sm hover:shadow-md transition-all" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
-                </Button>
-            </CardFooter>
-        </Card>
+                </ZoruButton>
+            </ZoruCardFooter>
+        </ZoruCard>
     );
 }

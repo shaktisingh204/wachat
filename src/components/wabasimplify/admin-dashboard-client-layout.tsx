@@ -4,15 +4,15 @@ import React from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuLabel,
+    ZoruDropdownMenuSeparator,
+    ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 import {
     Sidebar,
     SidebarContent,
@@ -27,7 +27,7 @@ import {
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft, Sparkles, Server } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { Skeleton } from '@/components/ui/skeleton';
+import { ZoruSkeleton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { checkAdminSession, getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 
@@ -125,40 +125,40 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                     <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
                         <div className="flex items-center gap-2">
                             <SidebarTrigger>
-                                <Button variant="ghost" size="icon">
+                                <ZoruButton variant="ghost" size="icon">
                                     <PanelLeft />
-                                </Button>
+                                </ZoruButton>
                             </SidebarTrigger>
                             <div className="text-sm font-semibold text-primary">Admin Panel</div>
                         </div>
                         <div className="flex items-center gap-1">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="flex items-center gap-2">
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar" />
-                                            <AvatarFallback>A</AvatarFallback>
-                                        </Avatar>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton variant="ghost" className="flex items-center gap-2">
+                                        <ZoruAvatar className="h-8 w-8">
+                                            <ZoruAvatarImage src="https://placehold.co/100x100.png" alt="Admin ZoruAvatar" data-ai-hint="person avatar" />
+                                            <ZoruAvatarFallback>A</ZoruAvatarFallback>
+                                        </ZoruAvatar>
                                         <span className="hidden md:inline">Admin User</span>
                                         <ChevronDown className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem asChild>
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent align="end">
+                                    <ZoruDropdownMenuLabel>Admin Account</ZoruDropdownMenuLabel>
+                                    <ZoruDropdownMenuSeparator />
+                                    <ZoruDropdownMenuItem asChild>
                                         <Link href="/api/auth/admin-logout" prefetch={false}>
                                             <LogOut className="mr-2 h-4 w-4" />
                                             <span>Logout</span>
                                         </Link>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                    </ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
                         </div>
                     </header>
                     <div className="flex-1 min-h-0">
                         <main className="h-full overflow-y-auto p-2 md:p-4 lg:p-8">
-                            <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
+                            <React.Suspense fallback={<ZoruSkeleton className="h-full w-full" />}>
                                 {children}
                             </React.Suspense>
                         </main>

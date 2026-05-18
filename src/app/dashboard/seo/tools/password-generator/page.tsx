@@ -1,13 +1,13 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function PasswordGeneratorPage() {
@@ -33,24 +33,24 @@ export default function PasswordGeneratorPage() {
 
   return (
     <ToolShell title="Password Generator" description="Generate strong, cryptographically random passwords.">
-      <div className="space-y-1"><Label>Length: {length}</Label>
+      <div className="space-y-1"><ZoruLabel>Length: {length}</ZoruLabel>
         <input type="range" min={8} max={64} value={length} onChange={(e) => setLength(Number(e.target.value))} className="w-full" />
       </div>
       <div className="flex flex-wrap gap-4">
         {(['upper','lower','digits','symbols'] as const).map((k) => (
           <div key={k} className="flex items-center gap-2">
-            <Switch checked={opts[k]} onCheckedChange={(v) => setOpts((s) => ({ ...s, [k]: v }))} />
-            <Label className="capitalize">{k}</Label>
+            <ZoruSwitch checked={opts[k]} onCheckedChange={(v) => setOpts((s) => ({ ...s, [k]: v }))} />
+            <ZoruLabel className="capitalize">{k}</ZoruLabel>
           </div>
         ))}
       </div>
       <div className="flex gap-2">
-        <Button onClick={generate}>Generate</Button>
-        {password && <Button variant="outline" onClick={() => navigator.clipboard.writeText(password)}>Copy</Button>}
+        <ZoruButton onClick={generate}>Generate</ZoruButton>
+        {password && <ZoruButton variant="outline" onClick={() => navigator.clipboard.writeText(password)}>Copy</ZoruButton>}
       </div>
       {password && (
         <>
-          <Input readOnly value={password} className="font-mono" />
+          <ZoruInput readOnly value={password} className="font-mono" />
           <div className="h-1.5 bg-muted rounded"><div className="h-full rounded bg-green-500" style={{ width: `${strength}%` }} /></div>
         </>
       )}

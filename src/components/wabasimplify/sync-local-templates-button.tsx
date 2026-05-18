@@ -3,7 +3,7 @@
 
 import { useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { RefreshCw, LoaderCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -30,7 +30,7 @@ export function SyncLocalTemplatesButton() {
   };
 
   return (
-    <Button onClick={onSync} variant="outline" disabled={isPending}>
+    <ZoruButton onClick={onSync} variant="outline" disabled={isPending}>
       {isPending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -42,6 +42,6 @@ export function SyncLocalTemplatesButton() {
           Sync Local Templates
         </>
       )}
-    </Button>
+    </ZoruButton>
   );
 }

@@ -1,8 +1,8 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 /**
@@ -40,10 +40,10 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
     return (
         <div className="space-y-6">
             <div className="space-y-2">
-                <Label htmlFor="text">
+                <ZoruLabel htmlFor="text">
                     {isRich ? 'Markdown content' : 'Text content'}
-                </Label>
-                <Textarea
+                </ZoruLabel>
+                <ZoruTextarea
                     id="text"
                     value={typeof component.text === 'string' ? component.text : Array.isArray(component.text) ? component.text.join('\n') : ''}
                     onChange={(e) => updateField('text', e.target.value)}
@@ -61,18 +61,18 @@ export function TextEditor({ component, updateField }: TextEditorProps) {
             {isBody ? (
                 <>
                     <div className="space-y-2">
-                        <Label>Font weight</Label>
-                        <Select
+                        <ZoruLabel>Font weight</ZoruLabel>
+                        <ZoruSelect
                             value={component['font-weight'] ?? 'normal'}
                             onValueChange={(val) => updateField('font-weight', val === 'normal' ? undefined : val)}
                         >
-                            <SelectTrigger><SelectValue /></SelectTrigger>
-                            <SelectContent>
+                            <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                            <ZoruSelectContent>
                                 {BODY_FONT_WEIGHTS.map(w => (
-                                    <SelectItem key={w.value} value={w.value}>{w.label}</SelectItem>
+                                    <ZoruSelectItem key={w.value} value={w.value}>{w.label}</ZoruSelectItem>
                                 ))}
-                            </SelectContent>
-                        </Select>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
 
                     <DynamicBooleanInput

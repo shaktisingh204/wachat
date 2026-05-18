@@ -3,7 +3,7 @@
 import { useTransition } from 'react';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, CheckCircle, ArrowUpRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createPayuPlanUpgrade } from '@/app/actions/payu.actions';
@@ -41,9 +41,9 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
 
     if (currentPlanId === plan._id.toString()) {
         return (
-            <Button className="w-full" disabled>
+            <ZoruButton className="w-full" disabled>
                 <CheckCircle className="mr-2 h-4 w-4" /> Current Plan
-            </Button>
+            </ZoruButton>
         );
     }
 
@@ -92,13 +92,13 @@ export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurch
     };
 
     return (
-        <Button onClick={handleClick} className="w-full" disabled={isPending}>
+        <ZoruButton onClick={handleClick} className="w-full" disabled={isPending}>
             {isPending ? (
                 <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <ArrowUpRight className="mr-2 h-4 w-4" />
             )}
-            {isFree ? `Switch to ${plan.name}` : `Upgrade to ${plan.name}`}
-        </Button>
+            {isFree ? `ZoruSwitch to ${plan.name}` : `Upgrade to ${plan.name}`}
+        </ZoruButton>
     );
 }

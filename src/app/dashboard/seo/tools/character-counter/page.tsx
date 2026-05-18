@@ -4,8 +4,8 @@ import { cn as _zoruCn } from '@/components/zoruui';
 void _zoruCn;
 
 import { useMemo, useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { countCharacters, countWords } from '@/lib/seo-tools/text-utils';
 
@@ -28,19 +28,19 @@ export default function CharacterCounterPage() {
 
   return (
     <ToolShell title="Character Counter" description="Character count with and without spaces, plus common SEO limits.">
-      <Textarea
+      <ZoruTextarea
         value={text}
         onChange={(e) => setText(e.target.value)}
         placeholder="Paste or type your content…"
         className="min-h-[240px]"
       />
       <div className="grid grid-cols-3 gap-3">
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-muted-foreground">With spaces</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-muted-foreground">Without spaces</div></CardContent></Card>
-        <Card><CardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-muted-foreground">Words</div></CardContent></Card>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.total}</div><div className="text-xs text-muted-foreground">With spaces</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.noSpaces}</div><div className="text-xs text-muted-foreground">Without spaces</div></ZoruCardContent></ZoruCard>
+        <ZoruCard><ZoruCardContent className="p-4"><div className="text-2xl font-bold">{stats.words}</div><div className="text-xs text-muted-foreground">Words</div></ZoruCardContent></ZoruCard>
       </div>
-      <Card>
-        <CardContent className="p-4 space-y-3">
+      <ZoruCard>
+        <ZoruCardContent className="p-4 space-y-3">
           <div className="text-sm font-semibold">Common limits</div>
           {Object.entries(stats.limits).map(([label, limit]) => {
             const pct = Math.min(100, (stats.total / limit) * 100);
@@ -59,8 +59,8 @@ export default function CharacterCounterPage() {
               </div>
             );
           })}
-        </CardContent>
-      </Card>
+        </ZoruCardContent>
+      </ZoruCard>
     </ToolShell>
   );
 }

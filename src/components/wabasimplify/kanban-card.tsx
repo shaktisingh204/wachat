@@ -2,10 +2,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import { ZoruBadge } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { MessageSquare } from 'lucide-react';
 import type { WithId, Contact } from '@/lib/definitions';
 import { useDraggable } from '@dnd-kit/core';
@@ -35,28 +35,28 @@ export function KanbanCard({ contact, index }: KanbanCardProps) {
 
     return (
         <div ref={setNodeRef} style={style} {...listeners} {...attributes}>
-            <Card className="cursor-grab active:cursor-grabbing bg-card">
-                <CardHeader>
+            <ZoruCard className="cursor-grab active:cursor-grabbing bg-card">
+                <ZoruCardHeader>
                     <div className="flex justify-between items-start">
-                        <CardTitle className="text-sm font-semibold">{contact.name}</CardTitle>
+                        <ZoruCardTitle className="text-sm font-semibold">{contact.name}</ZoruCardTitle>
                         {contact.unreadCount && contact.unreadCount > 0 && (
-                            <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
+                            <ZoruBadge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</ZoruBadge>
                         )}
                     </div>
-                    <CardDescription className="text-xs">{contact.waId}</CardDescription>
-                </CardHeader>
-                <CardContent>
+                    <ZoruCardDescription className="text-xs">{contact.waId}</ZoruCardDescription>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <p className="text-xs text-muted-foreground line-clamp-2">
                         {contact.lastMessage || 'No recent activity.'}
                     </p>
-                </CardContent>
-                <CardFooter>
-                    <Button variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
+                </ZoruCardContent>
+                <ZoruCardFooter>
+                    <ZoruButton variant="outline" size="sm" className="w-full" onClick={handleGoToChat}>
                         <MessageSquare className="mr-2 h-4 w-4" />
                         Open Chat
-                    </Button>
-                </CardFooter>
-            </Card>
+                    </ZoruButton>
+                </ZoruCardFooter>
+            </ZoruCard>
         </div>
     );
 }

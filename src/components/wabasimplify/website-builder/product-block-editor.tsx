@@ -1,8 +1,8 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 
 export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings: any, onUpdate: (newSettings: any) => void, blockType: string }) {
     const handleUpdate = (field: string, value: any) => {
@@ -17,29 +17,29 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
             case 'productBreadcrumbs':
                 return (
                      <div className="space-y-2">
-                        <Label>Alignment</Label>
-                        <Select value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}>
-                            <SelectTrigger><SelectValue/></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="left">Left</SelectItem>
-                                <SelectItem value="center">Center</SelectItem>
-                                <SelectItem value="right">Right</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <ZoruLabel>Alignment</ZoruLabel>
+                        <ZoruSelect value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}>
+                            <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="left">Left</ZoruSelectItem>
+                                <ZoruSelectItem value="center">Center</ZoruSelectItem>
+                                <ZoruSelectItem value="right">Right</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
                 );
             case 'productImage':
                 return (
                     <div className="space-y-2">
-                        <Label>Object Fit</Label>
-                        <Select value={settings.objectFit || 'cover'} onValueChange={(val) => handleUpdate('objectFit', val)}>
-                            <SelectTrigger><SelectValue/></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="cover">Cover</SelectItem>
-                                <SelectItem value="contain">Contain</SelectItem>
-                                <SelectItem value="fill">Fill</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <ZoruLabel>Object Fit</ZoruLabel>
+                        <ZoruSelect value={settings.objectFit || 'cover'} onValueChange={(val) => handleUpdate('objectFit', val)}>
+                            <ZoruSelectTrigger><ZoruSelectValue/></ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="cover">Cover</ZoruSelectItem>
+                                <ZoruSelectItem value="contain">Contain</ZoruSelectItem>
+                                <ZoruSelectItem value="fill">Fill</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                     </div>
                 );
             case 'productAddToCart':
@@ -51,14 +51,14 @@ export function ProductBlockEditor({ settings, onUpdate, blockType }: { settings
     
     return (
         <div className="space-y-4">
-             <Accordion type="single" collapsible className="w-full" defaultValue={'settings'}>
-                <AccordionItem value="settings">
-                    <AccordionTrigger>Settings</AccordionTrigger>
-                    <AccordionContent className="pt-2">
+             <ZoruAccordion type="single" collapsible className="w-full" defaultValue={'settings'}>
+                <ZoruAccordionItem value="settings">
+                    <ZoruAccordionTrigger>Settings</ZoruAccordionTrigger>
+                    <ZoruAccordionContent className="pt-2">
                         {renderSpecificEditor()}
-                    </AccordionContent>
-                </AccordionItem>
-            </Accordion>
+                    </ZoruAccordionContent>
+                </ZoruAccordionItem>
+            </ZoruAccordion>
         </div>
     );
 }

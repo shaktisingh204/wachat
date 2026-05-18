@@ -10,14 +10,14 @@ import {
 } from 'firebase/auth';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import {
-    Alert,
-    AlertDescription,
-    AlertTitle,
-} from '@/components/ui/alert';
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+} from '@/components/zoruui';
 import { auth } from '@/lib/firebase/config';
 import { consumePendingInviteToken } from '@/app/actions/team.actions';
 
@@ -105,15 +105,15 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
     return (
         <div className="space-y-6">
             {error && (
-                <Alert variant="destructive">
+                <ZoruAlert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Could not create account</AlertTitle>
-                    <AlertDescription>{error}</AlertDescription>
-                </Alert>
+                    <ZoruAlertTitle>Could not create account</ZoruAlertTitle>
+                    <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                </ZoruAlert>
             )}
 
             <div className="grid gap-3 sm:grid-cols-2">
-                <Button
+                <ZoruButton
                     variant="outline"
                     type="button"
                     disabled={isPending}
@@ -121,8 +121,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 >
                     <GoogleIcon />
                     Continue with Google
-                </Button>
-                <Button
+                </ZoruButton>
+                <ZoruButton
                     variant="outline"
                     type="button"
                     disabled={isPending}
@@ -130,7 +130,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 >
                     <FacebookIcon />
                     Continue with Facebook
-                </Button>
+                </ZoruButton>
             </div>
 
             <div className="relative">
@@ -146,8 +146,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
 
             <form onSubmit={handleEmailSignup} className="space-y-4" noValidate>
                 <div className="space-y-2">
-                    <Label htmlFor="name">Full name</Label>
-                    <Input
+                    <ZoruLabel htmlFor="name">Full name</ZoruLabel>
+                    <ZoruInput
                         id="name"
                         name="name"
                         placeholder="Jane Cooper"
@@ -158,8 +158,8 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="email">Work email</Label>
-                    <Input
+                    <ZoruLabel htmlFor="email">Work email</ZoruLabel>
+                    <ZoruInput
                         id="email"
                         name="email"
                         type="email"
@@ -171,9 +171,9 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
+                    <ZoruLabel htmlFor="password">Password</ZoruLabel>
                     <div className="relative">
-                        <Input
+                        <ZoruInput
                             id="password"
                             name="password"
                             type={showPassword ? 'text' : 'password'}
@@ -206,7 +206,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                     </p>
                 </div>
 
-                <Button
+                <ZoruButton
                     type="submit"
                     className="w-full h-11 text-base"
                     disabled={isPending}
@@ -215,7 +215,7 @@ export function AccountStep({ onAccountCreated }: AccountStepProps) {
                         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
                     ) : null}
                     Create account & continue
-                </Button>
+                </ZoruButton>
             </form>
         </div>
     );

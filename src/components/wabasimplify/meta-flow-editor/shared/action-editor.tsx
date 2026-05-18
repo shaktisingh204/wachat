@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import { ZoruTextarea } from '@/components/zoruui';
+import { ZoruSeparator } from '@/components/zoruui';
 
 interface ActionEditorProps {
     label: string;
@@ -42,38 +42,38 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
 
     return (
         <div className="space-y-2 rounded-lg border p-4">
-            <Label className="font-semibold">{label}</Label>
-            <Select value={actionName} onValueChange={handleNameChange}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="complete">Complete Flow</SelectItem>
-                    <SelectItem value="navigate">Navigate to Screen</SelectItem>
-                    <SelectItem value="data_exchange">Data Exchange (API)</SelectItem>
-                    <SelectItem value="open_url">Open URL</SelectItem>
-                </SelectContent>
-            </Select>
+            <ZoruLabel className="font-semibold">{label}</ZoruLabel>
+            <ZoruSelect value={actionName} onValueChange={handleNameChange}>
+                <ZoruSelectTrigger><ZoruSelectValue /></ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="complete">Complete Flow</ZoruSelectItem>
+                    <ZoruSelectItem value="navigate">Navigate to Screen</ZoruSelectItem>
+                    <ZoruSelectItem value="data_exchange">Data Exchange (API)</ZoruSelectItem>
+                    <ZoruSelectItem value="open_url">Open URL</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
 
             {actionName === 'navigate' && (
                 <div className="space-y-2 pt-2">
-                    <Label htmlFor="next-screen">Next Screen</Label>
-                     <Select
+                    <ZoruLabel htmlFor="next-screen">Next Screen</ZoruLabel>
+                     <ZoruSelect
                         value={action?.next?.name || ''}
                         onValueChange={(val) => onActionChange({ ...action, next: { type: 'screen', name: val } })}
                     >
-                        <SelectTrigger id="next-screen"><SelectValue placeholder="Select a screen..." /></SelectTrigger>
-                        <SelectContent>
+                        <ZoruSelectTrigger id="next-screen"><ZoruSelectValue placeholder="ZoruSelect a screen..." /></ZoruSelectTrigger>
+                        <ZoruSelectContent>
                             {allScreens.map(screen => (
-                                <SelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</SelectItem>
+                                <ZoruSelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</ZoruSelectItem>
                             ))}
-                        </SelectContent>
-                    </Select>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
                 </div>
             )}
             
             {actionName === 'open_url' && (
                 <div className="space-y-2 pt-2">
-                    <Label htmlFor="url">URL to Open</Label>
-                    <Input
+                    <ZoruLabel htmlFor="url">URL to Open</ZoruLabel>
+                    <ZoruInput
                         id="url"
                         placeholder="https://example.com"
                         value={action?.url || ''}
@@ -82,11 +82,11 @@ export function ActionEditor({ label, action, onActionChange, actionType, allScr
                 </div>
             )}
 
-            <Separator className="my-4" />
+            <ZoruSeparator className="my-4" />
             
             <div className="space-y-2">
-                 <Label htmlFor="payload">Payload (JSON)</Label>
-                 <Textarea
+                 <ZoruLabel htmlFor="payload">Payload (JSON)</ZoruLabel>
+                 <ZoruTextarea
                     id="payload"
                     className="font-mono text-xs h-24"
                     placeholder={`{\n  "source": "on_boarding_flow"\n}`}

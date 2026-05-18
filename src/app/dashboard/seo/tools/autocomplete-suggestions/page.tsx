@@ -1,12 +1,12 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
 void _zoruCn;
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function AutocompleteSuggestionsPage() {
@@ -37,14 +37,14 @@ export default function AutocompleteSuggestionsPage() {
   return (
     <ToolShell title="Autocomplete Suggestions" description="Google autocomplete for your seed keyword.">
       <div className="flex gap-2">
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo tools" onKeyDown={(e) => e.key === 'Enter' && run()} />
-        <Button onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Suggest'}</Button>
+        <ZoruInput value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. seo tools" onKeyDown={(e) => e.key === 'Enter' && run()} />
+        <ZoruButton onClick={run} disabled={loading}>{loading ? 'Loading…' : 'Suggest'}</ZoruButton>
       </div>
-      {error && <Card className="border-red-500"><CardContent className="p-4 text-red-600 text-sm">{error}</CardContent></Card>}
+      {error && <ZoruCard className="border-red-500"><ZoruCardContent className="p-4 text-red-600 text-sm">{error}</ZoruCardContent></ZoruCard>}
       {results.length > 0 && (
-        <Card><CardContent className="p-4 space-y-1">
+        <ZoruCard><ZoruCardContent className="p-4 space-y-1">
           {results.map((s, i) => <div key={i} className="text-sm border-b last:border-0 py-1">{s}</div>)}
-        </CardContent></Card>
+        </ZoruCardContent></ZoruCard>
       )}
     </ToolShell>
   );

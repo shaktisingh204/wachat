@@ -4,12 +4,12 @@
 import { useState, useEffect, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { AlertCircle, CheckCircle, LoaderCircle } from 'lucide-react';
 import { handleForgotPassword } from '@/app/actions/user.actions';
 
@@ -21,10 +21,10 @@ const initialState = {
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" className="w-full" disabled={pending}>
+        <ZoruButton type="submit" className="w-full" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
             Send Reset Link
-        </Button>
+        </ZoruButton>
     )
 }
 
@@ -47,40 +47,40 @@ export default function ForgotPasswordPage() {
                 </Link>
             </div>
 
-            <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
+            <ZoruCard className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
                 <form action={formAction}>
-                    <CardHeader className="text-center">
-                        <CardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</CardTitle>
-                        <CardDescription>Enter your email and we'll send you instructions to reset your password.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6 p-6">
+                    <ZoruCardHeader className="text-center">
+                        <ZoruCardTitle className="text-2xl font-bold font-headline">Forgot Your Password?</ZoruCardTitle>
+                        <ZoruCardDescription>Enter your email and we'll send you instructions to reset your password.</ZoruCardDescription>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="space-y-6 p-6">
                         {state?.error && (
-                            <Alert variant="destructive">
+                            <ZoruAlert variant="destructive">
                                 <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>{state.error}</AlertDescription>
-                            </Alert>
+                                <ZoruAlertTitle>Error</ZoruAlertTitle>
+                                <ZoruAlertDescription>{state.error}</ZoruAlertDescription>
+                            </ZoruAlert>
                         )}
                         {state?.message && (
-                            <Alert>
+                            <ZoruAlert>
                                 <CheckCircle className="h-4 w-4" />
-                                <AlertTitle>Check Your Email</AlertTitle>
-                                <AlertDescription>{state.message}</AlertDescription>
-                            </Alert>
+                                <ZoruAlertTitle>Check Your Email</ZoruAlertTitle>
+                                <ZoruAlertDescription>{state.message}</ZoruAlertDescription>
+                            </ZoruAlert>
                         )}
                         <div className="space-y-2">
-                            <Label htmlFor="email" className="sr-only">Email</Label>
-                            <Input id="email" name="email" type="email" placeholder="Enter your email" required />
+                            <ZoruLabel htmlFor="email" className="sr-only">Email</ZoruLabel>
+                            <ZoruInput id="email" name="email" type="email" placeholder="Enter your email" required />
                         </div>
                         <SubmitButton />
-                    </CardContent>
-                    <CardFooter className="justify-center">
+                    </ZoruCardContent>
+                    <ZoruCardFooter className="justify-center">
                         <p className="text-sm text-muted-foreground">
                             <Link href="/login" className="font-semibold text-foreground hover:text-primary">&larr; Back to Sign In</Link>
                         </p>
-                    </CardFooter>
+                    </ZoruCardFooter>
                 </form>
-            </Card>
+            </ZoruCard>
 
             <div className="absolute bottom-6 text-center w-full">
                 <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>

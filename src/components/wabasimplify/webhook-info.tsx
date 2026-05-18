@@ -3,16 +3,16 @@
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
-import { Skeleton } from '../ui/skeleton';
+import { ZoruSkeleton } from '../ui/skeleton';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions/index.ts';
-import { Badge } from '../ui/badge';
+import { ZoruBadge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import { SubscribeProjectButton } from './subscribe-project-button';
 
@@ -52,18 +52,18 @@ function InfoRow({ label, value, isSecret = false }: { label: string, value: str
 
     return (
         <div className="space-y-2">
-            <Label>{label}</Label>
+            <ZoruLabel>{label}</ZoruLabel>
             <div className="flex items-center gap-2">
-                <Input
+                <ZoruInput
                     readOnly
                     value={value}
                     type={isSecret ? 'password' : 'text'}
                     className="font-mono"
                 />
-                <Button variant="outline" size="icon" onClick={handleCopy}>
+                <ZoruButton variant="outline" size="icon" onClick={handleCopy}>
                     <Copy className="h-4 w-4" />
                     <span className="sr-only">Copy {label}</span>
-                </Button>
+                </ZoruButton>
             </div>
         </div>
     )
@@ -99,19 +99,19 @@ function WebhookStatus() {
     }, []);
 
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+        <ZoruCard>
+            <ZoruCardHeader className="flex flex-row items-center justify-between">
                 <div>
-                    <CardTitle>Live Status</CardTitle>
-                    <CardDescription>Real-time status of your webhook subscription from Meta.</CardDescription>
+                    <ZoruCardTitle>Live Status</ZoruCardTitle>
+                    <ZoruCardDescription>Real-time status of your webhook subscription from Meta.</ZoruCardDescription>
                 </div>
-                <Button variant="outline" size="icon" onClick={checkStatus} disabled={isLoading}>
+                <ZoruButton variant="outline" size="icon" onClick={checkStatus} disabled={isLoading}>
                    {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4" />}
-                </Button>
-            </CardHeader>
-            <CardContent>
+                </ZoruButton>
+            </ZoruCardHeader>
+            <ZoruCardContent>
                 {isLoading ? (
-                    <Skeleton className="h-10 w-full" />
+                    <ZoruSkeleton className="h-10 w-full" />
                 ) : status && projectId ? (
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
@@ -130,10 +130,10 @@ function WebhookStatus() {
                         <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
                     </div>
                 ) : (
-                    <p className="text-muted-foreground text-sm">Could not determine status. Select a project.</p>
+                    <p className="text-muted-foreground text-sm">Could not determine status. ZoruSelect a project.</p>
                 )}
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
     );
 }
 
@@ -158,39 +158,39 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
 
     if (!isClient) {
         return (
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-6 w-1/3" />
-                    <Skeleton className="h-4 w-2/3" />
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruSkeleton className="h-6 w-1/3" />
+                    <ZoruSkeleton className="h-4 w-2/3" />
+                </ZoruCardHeader>
+                <ZoruCardContent className="space-y-4">
                     <div className="space-y-2">
-                       <Skeleton className="h-4 w-1/4" />
-                       <Skeleton className="h-10 w-full" />
+                       <ZoruSkeleton className="h-4 w-1/4" />
+                       <ZoruSkeleton className="h-10 w-full" />
                     </div>
                     <div className="space-y-2">
-                       <Skeleton className="h-4 w-1/4" />
-                       <Skeleton className="h-10 w-full" />
+                       <ZoruSkeleton className="h-4 w-1/4" />
+                       <ZoruSkeleton className="h-10 w-full" />
                     </div>
-                </CardContent>
-            </Card>
+                </ZoruCardContent>
+            </ZoruCard>
         )
     }
 
   return (
     <div className="grid lg:grid-cols-2 gap-8">
-        <Card className="card-gradient card-gradient-green">
-            <CardHeader>
-                <CardTitle>Webhook Configuration</CardTitle>
-                <CardDescription>
+        <ZoruCard className="card-gradient card-gradient-green">
+            <ZoruCardHeader>
+                <ZoruCardTitle>Webhook Configuration</ZoruCardTitle>
+                <ZoruCardDescription>
                     Copy these values into your Meta App configuration.
-                </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
+                </ZoruCardDescription>
+            </ZoruCardHeader>
+            <ZoruCardContent className="space-y-4">
                 <InfoRow label="Callback URL" value={fullUrl} />
                 <InfoRow label="Verify Token" value={verifyToken || "Token not set in .env"} isSecret />
-            </CardContent>
-        </Card>
+            </ZoruCardContent>
+        </ZoruCard>
         <WebhookStatus />
     </div>
   );

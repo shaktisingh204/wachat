@@ -1,11 +1,12 @@
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
 import * as React from 'react';
 import { UserPlus, Ban, Copy, LoaderCircle, Trash2 } from 'lucide-react';
 
-import { ClayCard, ClayButton, ClayBadge } from '@/components/clay';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { ClayCard, ClayBadge } from '@/components/clay';
+import { ZoruInput } from '@/components/zoruui';
+import { ZoruLabel } from '@/components/zoruui';
 import { useToast } from '@/hooks/use-toast';
 import {
   sendUserInvitation,
@@ -110,10 +111,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
           aria-label="Send invitation"
         >
           <div>
-            <Label className="text-[11.5px] text-muted-foreground" htmlFor="inv-email">
+            <ZoruLabel className="text-[11.5px] text-muted-foreground" htmlFor="inv-email">
               Email
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="inv-email"
               type="email"
               required
@@ -124,10 +125,10 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             />
           </div>
           <div>
-            <Label className="text-[11.5px] text-muted-foreground" htmlFor="inv-role">
+            <ZoruLabel className="text-[11.5px] text-muted-foreground" htmlFor="inv-role">
               Role id (optional)
-            </Label>
-            <Input
+            </ZoruLabel>
+            <ZoruInput
               id="inv-role"
               value={roleId}
               onChange={(e) => setRoleId(e.target.value)}
@@ -136,7 +137,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
             />
           </div>
           <div className="flex items-end">
-            <ClayButton
+            <ZoruButton
               type="submit"
               variant="obsidian"
               disabled={sending || !email.trim()}
@@ -149,7 +150,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
               }
             >
               Send invitation
-            </ClayButton>
+            </ZoruButton>
           </div>
         </form>
       </ClayCard>
@@ -182,25 +183,25 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                   </p>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  <ClayButton
+                  <ZoruButton
                     variant="pill"
                     size="sm"
                     onClick={() => copyToken(inv.token)}
                     leading={<Copy className="h-3.5 w-3.5" />}
                   >
                     Copy token
-                  </ClayButton>
+                  </ZoruButton>
                   {inv.status === 'pending' ? (
-                    <ClayButton
+                    <ZoruButton
                       variant="pill"
                       size="sm"
                       onClick={() => handleRevoke(inv._id)}
                       leading={<Ban className="h-3.5 w-3.5" />}
                     >
                       Revoke
-                    </ClayButton>
+                    </ZoruButton>
                   ) : null}
-                  <ClayButton
+                  <ZoruButton
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(inv._id)}
@@ -209,7 +210,7 @@ export function InvitationsManager({ initialInvitations }: InvitationsManagerPro
                     }
                   >
                     Delete
-                  </ClayButton>
+                  </ZoruButton>
                 </div>
               </li>
             ))}

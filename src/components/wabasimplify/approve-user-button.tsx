@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { Button } from '@/components/ui/button';
+import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { approveUser } from '@/app/actions/admin.actions';
@@ -27,9 +27,9 @@ export function ApproveUserButton({ userId }: ApproveUserButtonProps) {
     };
 
     return (
-        <Button onClick={handleApprove} disabled={isPending} size="sm">
+        <ZoruButton onClick={handleApprove} disabled={isPending} size="sm">
             {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle className="mr-2 h-4 w-4" />}
             Approve
-        </Button>
+        </ZoruButton>
     );
 }
