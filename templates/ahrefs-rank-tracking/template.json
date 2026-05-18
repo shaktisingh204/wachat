@@ -1,0 +1,10 @@
+{
+  "id": "ahrefs-rank-tracking",
+  "name": "Ahrefs Rank Tracking",
+  "description": "Pulls keyword ranks from Ahrefs every morning and compares each one against the previous day. Significant movement (over five positions) is flagged in #seo with the keyword, the old and new rank, and a copy is logged to an Airtable history table for trend analysis.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ahrefs", "seo", "rank-tracking", "airtable", "slack", "reporting"],
+  "version": "0.1.0"
+}

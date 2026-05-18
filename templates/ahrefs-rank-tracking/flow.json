@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_seo",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] }
+      }
+    },
+    {
+      "id": "n_ahrefs",
+      "name": "Pull Ahrefs Ranks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://apiv2.ahrefs.com/?from=positions&target={{ $vars.AHREFS_TARGET_DOMAIN }}&output=json&token={{ $vars.AHREFS_TOKEN }}"
+      }
+    },
+    {
+      "id": "n_diff",
+      "name": "Compute Deltas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const today = $input.first().json.positions || []; const yesterday = $('Pull Yesterday')?.first?.()?.json?.positions || []; const map = Object.fromEntries(yesterday.map(p => [p.keyword, p.position])); const moves = today.map(p => ({ keyword: p.keyword, today: p.position, yesterday: map[p.keyword] ?? null, delta: (map[p.keyword] ?? p.position) - p.position })).filter(m => Math.abs(m.delta) > 5); return [{ json: { moves, hasMovement: moves.length > 0 } }];"
+      }
+    },
+    {
+      "id": "n_if_move",
+      "name": "Any Big Moves?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            { "value1": "={{ $json.hasMovement }}", "value2": true }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_seo",
+      "name": "Slack #seo",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SEO_CHANNEL }}",
+        "text": ":chart_with_upwards_trend: {{ $json.moves.length }} keywords moved >5 positions today."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_airtable_movers",
+      "name": "Airtable Movers Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Rank Movers",
+        "fields": {
+          "Date": "={{ $now }}",
+          "Movers JSON": "={{ JSON.stringify($json.moves) }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    },
+    {
+      "id": "n_airtable_history",
+      "name": "Airtable Daily History",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 100],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Rank History",
+        "fields": {
+          "Date": "={{ $now }}",
+          "Snapshot": "={{ JSON.stringify($node['Pull Ahrefs Ranks'].json.positions) }}"
+        }
+      },
+      "credentials": {
+        "airtableApi": { "id": "airtable-cred", "name": "Airtable API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_ahrefs", "type": "main", "index": 0 }]] },
+    "n_ahrefs": { "main": [[{ "node": "n_diff", "type": "main", "index": 0 }]] },
+    "n_diff": { "main": [[{ "node": "n_if_move", "type": "main", "index": 0 }]] },
+    "n_if_move": {
+      "true": [[{ "node": "n_slack_seo", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_airtable_history", "type": "main", "index": 0 }]]
+    },
+    "n_slack_seo": { "main": [[{ "node": "n_airtable_movers", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron", "n_ahrefs", "n_diff", "n_if_move",
+        "n_slack_seo", "n_airtable_movers", "n_airtable_history"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_domain", "name": "AHREFS_TARGET_DOMAIN", "defaultValue": "example.com" },
+    { "id": "v_token", "name": "AHREFS_TOKEN", "defaultValue": "" },
+    { "id": "v_seo", "name": "SEO_CHANNEL", "defaultValue": "#seo" },
+    { "id": "v_airtable", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
