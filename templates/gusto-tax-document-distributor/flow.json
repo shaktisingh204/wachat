@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_jan31",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 31 1 *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_jan31",
+      "name": "January 31",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 31 1 *" }] } }
+    },
+    {
+      "id": "n_gusto_list",
+      "name": "List Gusto Tax Docs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GUSTO_API_BASE }}/v1/companies/{{ $vars.GUSTO_COMPANY_ID }}/forms?year={{ $vars.TAX_YEAR }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "oAuth2Api"
+      },
+      "credentials": { "oAuth2Api": { "id": "gusto-cred", "name": "Gusto OAuth2" } }
+    },
+    {
+      "id": "n_split_doc",
+      "name": "One Per Form",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract_doc",
+      "name": "Extract Form Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "employeeEmail", "value": "={{ $json.employee.email }}" },
+            { "name": "employeeUuid", "value": "={{ $json.employee.uuid }}" },
+            { "name": "formType", "value": "={{ $json.form_type }}" },
+            { "name": "pdfUrl", "value": "={{ $json.pdf_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_s3_upload",
+      "name": "Archive PDF to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.TAX_DOCS_BUCKET }}",
+        "fileName": "{{ $vars.TAX_YEAR }}/{{ $json.employeeUuid }}/{{ $json.formType }}.pdf",
+        "binaryData": true,
+        "binaryPropertyName": "data"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS S3" } }
+    },
+    {
+      "id": "n_email_employee",
+      "name": "Email Employee",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.PEOPLE_FROM_EMAIL }}",
+        "toEmail": "={{ $json.employeeEmail }}",
+        "subject": "Your {{ $vars.TAX_YEAR }} {{ $json.formType }} is ready",
+        "contentType": "text/html",
+        "content": "<p>Your {{ $vars.TAX_YEAR }} {{ $json.formType }} is available in our secure portal.</p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    }
+  ],
+  "connections": {
+    "n_cron_jan31": { "main": [[{ "node": "n_gusto_list", "type": "main", "index": 0 }]] },
+    "n_gusto_list": { "main": [[{ "node": "n_split_doc", "type": "main", "index": 0 }]] },
+    "n_split_doc": { "main": [[{ "node": "n_extract_doc", "type": "main", "index": 0 }]] },
+    "n_extract_doc": { "main": [[{ "node": "n_s3_upload", "type": "main", "index": 0 }]] },
+    "n_s3_upload": { "main": [[{ "node": "n_email_employee", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_jan31", "n_gusto_list", "n_split_doc", "n_extract_doc", "n_s3_upload", "n_email_employee"]
+    }
+  ],
+  "variables": [
+    { "id": "v_gb", "name": "GUSTO_API_BASE", "defaultValue": "https://api.gusto.com" },
+    { "id": "v_gc", "name": "GUSTO_COMPANY_ID", "defaultValue": "" },
+    { "id": "v_ty", "name": "TAX_YEAR", "defaultValue": "2025" },
+    { "id": "v_bucket", "name": "TAX_DOCS_BUCKET", "defaultValue": "" },
+    { "id": "v_from", "name": "PEOPLE_FROM_EMAIL", "defaultValue": "people@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

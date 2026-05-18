@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * MON", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * MON" }] } }
+    },
+    {
+      "id": "n_sheet",
+      "name": "Read COGS Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "read",
+        "sheetId": "={{ $vars.SHEET_ID }}",
+        "range": "COGS!A2:C"
+      },
+      "credentials": { "googleSheetsOAuth2Api": { "id": "gs-cred", "name": "Google Sheets" } }
+    },
+    {
+      "id": "n_split",
+      "name": "One Per SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sku", "value": "={{ $json[0] }}" },
+            { "name": "cost", "value": "={{ $json[2] }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shopify_update",
+      "name": "Update Shopify Cost",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "productVariant",
+        "operation": "update",
+        "matchOn": "sku",
+        "sku": "={{ $json.sku }}",
+        "updateFields": { "inventoryItem": { "cost": "={{ $json.cost }}" } }
+      },
+      "credentials": { "shopifyApi": { "id": "shopify-cred", "name": "Shopify" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.OPS_SLACK }}",
+        "text": ":pencil2: Refreshed Shopify COGS for {{ $vars.SHEET_ID }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_sheet", "type": "main", "index": 0 }]] },
+    "n_sheet": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_shopify_update", "type": "main", "index": 0 }]] },
+    "n_shopify_update": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_sheet", "n_split", "n_extract", "n_shopify_update", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_s", "name": "SHEET_ID", "defaultValue": "" },
+    { "id": "v_o", "name": "OPS_SLACK", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

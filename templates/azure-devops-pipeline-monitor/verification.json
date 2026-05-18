@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "azure-devops-pipeline-monitor",
+  "cases": [
+    {
+      "id": "pipeline-failed",
+      "description": "ADO webhook posts to Slack and opens a Linear ticket.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

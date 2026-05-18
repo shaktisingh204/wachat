@@ -1,0 +1,94 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * MON", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Monday 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * MON" }] } }
+    },
+    {
+      "id": "n_list_members",
+      "name": "List Vault Members",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.OP_API }}/v1/vaults/{{ $vars.OP_VAULT_ID }}/members",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "1pw-cred", "name": "1Password SCIM Token" } }
+    },
+    {
+      "id": "n_filter",
+      "name": "Find Stale Users",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const items = $input.first().json || [];\nconst cutoff = Date.now() - 90*86400000;\nconst stale = items.filter(m => Date.parse(m.lastAuth || 0) < cutoff);\nreturn [{ json: { count: stale.length, names: stale.map(m=>m.email).join(', ') } }];"
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Report",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "report", "value": ":lock: 1Password audit — {{ $json.count }} stale users in {{ $vars.OP_VAULT_ID }}: {{ $json.names }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Post #security",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SECURITY_SLACK }}",
+        "text": "={{ $json.report }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_list_members", "type": "main", "index": 0 }]] },
+    "n_list_members": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_list_members", "n_filter", "n_format", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_o", "name": "OP_API", "defaultValue": "https://api.1password.com" },
+    { "id": "v_v", "name": "OP_VAULT_ID", "defaultValue": "" },
+    { "id": "v_s", "name": "SECURITY_SLACK", "defaultValue": "#security" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gcp-pubsub-dlq-monitor",
+  "cases": [
+    {
+      "id": "dlq-breach",
+      "description": "Hourly DLQ depth check alerts on breach.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

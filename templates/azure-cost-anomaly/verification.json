@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "azure-cost-anomaly",
+  "cases": [
+    {
+      "id": "anomaly-route",
+      "description": "Cost anomaly notification logic.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

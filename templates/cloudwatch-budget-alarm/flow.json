@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_budget_alarm",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "aws.budgets.alarm",
+    "options": {
+      "path": "/webhooks/cloudwatch-budget-alarm",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-AWS-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_budget_webhook",
+      "name": "Budget Alarm",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "cloudwatch-budget-alarm", "responseMode": "onReceived" },
+      "webhookId": "cloudwatch-budget-alarm-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Severity",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "severity", "value": "={{ $json.NewStateValue || $json.severity || 'WARN' }}" },
+            { "name": "budget", "value": "={{ $json.AlarmName }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route Severity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "INFO" }] }, "outputKey": "info" },
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "WARN" }] }, "outputKey": "warn" },
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "CRITICAL" }] }, "outputKey": "critical" }
+          ]
+        },
+        "fallbackOutput": "warn"
+      }
+    },
+    {
+      "id": "n_info",
+      "name": "Slack Info",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FIN_NOTES_SLACK }}",
+        "text": ":money_with_wings: AWS budget note: *{{ $json.budget }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_warn",
+      "name": "Slack Warn",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FIN_ALERTS_SLACK }}",
+        "text": ":warning: AWS budget WARN: *{{ $json.budget }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_critical",
+      "name": "Open Linear Cost Review",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 200],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "AWS budget CRITICAL: {{ $json.budget }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    }
+  ],
+  "connections": {
+    "n_budget_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "info": [[{ "node": "n_info", "type": "main", "index": 0 }]],
+      "warn": [[{ "node": "n_warn", "type": "main", "index": 0 }]],
+      "critical": [[{ "node": "n_critical", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_budget_webhook", "n_extract", "n_route", "n_info", "n_warn", "n_critical"]
+    }
+  ],
+  "variables": [
+    { "id": "v_fn", "name": "FIN_NOTES_SLACK", "defaultValue": "#finance-notes" },
+    { "id": "v_fa", "name": "FIN_ALERTS_SLACK", "defaultValue": "#finance-alerts" },
+    { "id": "v_t", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

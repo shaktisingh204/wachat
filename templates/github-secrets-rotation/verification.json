@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-secrets-rotation",
+  "cases": [
+    {
+      "id": "rotate-secrets",
+      "description": "GitHub Actions secrets rotated and announced.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

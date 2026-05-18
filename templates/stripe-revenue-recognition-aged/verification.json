@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "stripe-revenue-recognition-aged",
+  "cases": [
+    {
+      "id": "monthly-rollforward",
+      "description": "Monthly RevRec posted to QuickBooks.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

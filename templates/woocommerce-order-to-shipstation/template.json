@@ -1,0 +1,10 @@
+{
+  "id": "woocommerce-order-to-shipstation",
+  "name": "WooCommerce Order to ShipStation",
+  "description": "Listens for the WooCommerce `order.created` webhook, normalises the customer + line items, creates a ShipStation order through their API, and sends the buyer a SendGrid tracking-ready confirmation. Removes manual order copy-paste between WooCommerce and fulfilment.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["woocommerce", "shipstation", "sendgrid", "fulfillment", "ecommerce", "webhook"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 3 * * SUN", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Sunday 3am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * SUN" }] } }
+    },
+    {
+      "id": "n_list",
+      "name": "List Blobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.AZURE_BLOB_API }}/{{ $vars.AZURE_CONTAINER }}?comp=list&restype=container",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "azure-cred", "name": "Azure Storage Token" } }
+    },
+    {
+      "id": "n_filter",
+      "name": "Filter Old",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const blobs = $input.first().json.EnumerationResults?.Blobs?.Blob || [];\nconst cutoff = Date.now() - Number(($vars && $vars.RETENTION_DAYS) || 90) * 86400000;\nconst keep = blobs.filter(b => Date.parse(b.Properties['Last-Modified']) < cutoff);\nreturn [{ json: { names: keep.map(b => b.Name), count: keep.length, bytes: keep.reduce((a,b)=>a+Number(b.Properties['Content-Length']||0), 0) } }];"
+      }
+    },
+    {
+      "id": "n_delete",
+      "name": "Delete Old Blobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.AZURE_BLOB_API }}/{{ $vars.AZURE_CONTAINER }}?comp=batch",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "names", "value": "={{ JSON.stringify($json.names) }}" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "azure-cred", "name": "Azure Storage Token" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.OPS_SLACK }}",
+        "text": ":wastebasket: Purged {{ $node['Filter Old'].json.count }} blobs ({{ $node['Filter Old'].json.bytes }} bytes) from {{ $vars.AZURE_CONTAINER }}."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_list", "type": "main", "index": 0 }]] },
+    "n_list": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_delete", "type": "main", "index": 0 }]] },
+    "n_delete": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_list", "n_filter", "n_delete", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_a", "name": "AZURE_BLOB_API", "defaultValue": "https://example.blob.core.windows.net" },
+    { "id": "v_c", "name": "AZURE_CONTAINER", "defaultValue": "" },
+    { "id": "v_r", "name": "RETENTION_DAYS", "defaultValue": "90" },
+    { "id": "v_s", "name": "OPS_SLACK", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

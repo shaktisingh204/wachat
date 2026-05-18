@@ -1,0 +1,10 @@
+{
+  "id": "prometheus-anomaly-classifier",
+  "name": "Prometheus Anomaly Classifier",
+  "description": "On every Prometheus Alertmanager webhook, asks OpenAI to classify the firing alert into capacity, error, or latency, and routes each class to its own remediation flow (autoscaler, error channel, perf channel). Pre-classifies pager duty noise before humans see it.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["prometheus", "alertmanager", "openai", "slack", "ops", "ai"],
+  "version": "0.1.0"
+}

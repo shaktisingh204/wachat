@@ -1,0 +1,10 @@
+{
+  "id": "bigcommerce-abandoned-cart",
+  "name": "BigCommerce Abandoned Cart Recovery",
+  "description": "On a BigCommerce abandoned-cart webhook, waits an hour to give shoppers time to return on their own, then enrolls the cart owner in a Klaviyo recovery flow and posts the conversion attempt to a #growth Slack channel for visibility. Captures revenue that would otherwise leak.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["bigcommerce", "klaviyo", "abandoned-cart", "slack", "ecommerce", "webhook"],
+  "version": "0.1.0"
+}

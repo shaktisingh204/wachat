@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "render-deploy-rollback",
+  "cases": [
+    {
+      "id": "auto-rollback",
+      "description": "Failed Render deploy rolls back and notifies Slack.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

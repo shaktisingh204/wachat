@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_mn_joined",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "mighty.member.joined",
+    "options": {
+      "path": "/webhooks/mighty-networks-new-member",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-MN-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_mn_webhook",
+      "name": "Member Joined",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "mighty-networks-new-member", "responseMode": "onReceived" },
+      "webhookId": "mighty-networks-new-member-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Member",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "memberId", "value": "={{ $json.member.id }}" },
+            { "name": "name", "value": "={{ $json.member.full_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_dm",
+      "name": "Send Welcome DM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, -150],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MN_API }}/v1/messages",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "recipient", "value": "={{ $json.memberId }}" },
+            { "name": "body", "value": "Welcome, {{ $json.name }}! Glad you're here." }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "mn-cred", "name": "Mighty Networks API" } }
+    },
+    {
+      "id": "n_feed_post",
+      "name": "Post in Community Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MN_API }}/v1/posts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "channelId", "value": "={{ $vars.WELCOME_CHANNEL }}" },
+            { "name": "body", "value": "Everyone welcome {{ $json.name }}!" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "mn-cred", "name": "Mighty Networks API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #community",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 150],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.COMMUNITY_SLACK }}",
+        "text": ":star2: New community member: *{{ $json.name }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Log Member",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "operation": "insert", "collection": "mn_members" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_mn_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_dm", "type": "main", "index": 0 },
+        { "node": "n_feed_post", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_dm": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_feed_post": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_mn_webhook", "n_extract", "n_dm", "n_feed_post", "n_slack", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_m", "name": "MN_API", "defaultValue": "https://api.mightynetworks.com" },
+    { "id": "v_w", "name": "WELCOME_CHANNEL", "defaultValue": "" },
+    { "id": "v_c", "name": "COMMUNITY_SLACK", "defaultValue": "#community" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

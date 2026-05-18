@@ -1,0 +1,10 @@
+{
+  "id": "gusto-tax-document-distributor",
+  "name": "Gusto Tax Document Distributor",
+  "description": "Runs once per year on January 31st, pulls every W-2 and 1099 from Gusto, archives each PDF in an S3 retention bucket, then emails each employee a secure link to their personal copy through SendGrid. Replaces the manual download-zip-and-email parade payroll admins do every January.",
+  "category": "HR",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gusto", "tax", "w2", "1099", "s3", "sendgrid"],
+  "version": "0.1.0"
+}

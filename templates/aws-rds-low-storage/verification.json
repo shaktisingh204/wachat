@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "aws-rds-low-storage",
+  "cases": [
+    {
+      "id": "low-storage",
+      "description": "Auto-scales RDS allocated storage by 20%.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

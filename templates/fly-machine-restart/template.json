@@ -1,0 +1,10 @@
+{
+  "id": "fly-machine-restart",
+  "name": "Fly Machine Restart",
+  "description": "Triggered by a synthetic health check, restarts Fly.io machines for an app, waits sixty seconds, and re-probes. If the app is still unhealthy the on-call rotation is paged; if recovered, a confirmation lands in #ops. Provides a hands-off first-response for transient Fly outages.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["fly.io", "healthcheck", "pagerduty", "slack", "self-healing", "webhook"],
+  "version": "0.1.0"
+}

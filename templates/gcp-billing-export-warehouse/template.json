@@ -1,0 +1,10 @@
+{
+  "id": "gcp-billing-export-warehouse",
+  "name": "GCP Billing Export to Warehouse",
+  "description": "Daily, pulls the previous day's GCP billing export CSV from Cloud Storage, loads it into a partitioned BigQuery table, and posts a #data Slack confirmation with row counts. Centralises spend data for FinOps dashboards without manual SQL pipelines.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gcp", "bigquery", "cloud-storage", "slack", "finops", "cron"],
+  "version": "0.1.0"
+}

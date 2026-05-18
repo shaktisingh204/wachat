@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_circle_failed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "circleci.workflow.failed",
+    "options": {
+      "path": "/webhooks/circle-ci-flaky-test-tracker",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Circle-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_circle_webhook",
+      "name": "Workflow Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "circle-ci-flaky-test-tracker", "responseMode": "onReceived" },
+      "webhookId": "circle-ci-flaky-test-tracker-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Job IDs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "workflowId", "value": "={{ $json.workflow.id }}" },
+            { "name": "project", "value": "={{ $json.project.slug }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_artifact",
+      "name": "Fetch JUnit Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.CIRCLE_API }}/v2/workflow/{{ $json.workflowId }}/tests"
+      }
+    },
+    {
+      "id": "n_detect",
+      "name": "Detect Flakes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "jsCode": "const tests = $input.first().json.items || [];\nconst flakes = tests.filter(t => t.result === 'failure' && t.run_time < 1.0);\nreturn [{ json: { flaky: flakes.length > 0, count: flakes.length, names: flakes.map(t=>t.name).join(', ') } }];"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Flaky?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "boolean": [{ "value1": "={{ $json.flaky }}", "value2": true }] }, "outputKey": "flaky" }
+          ]
+        },
+        "fallbackOutput": "clean"
+      }
+    },
+    {
+      "id": "n_linear",
+      "name": "Open Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [1200, -100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "Flaky tests ({{ $json.count }}): {{ $json.names }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #flaky-tests",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.FLAKY_SLACK }}",
+        "text": ":warning: {{ $json.count }} flaky tests in {{ $node['Extract Job IDs'].json.project }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "No Flakes",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 250],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_circle_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_fetch_artifact", "type": "main", "index": 0 }]] },
+    "n_fetch_artifact": { "main": [[{ "node": "n_detect", "type": "main", "index": 0 }]] },
+    "n_detect": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "flaky": [[
+        { "node": "n_linear", "type": "main", "index": 0 },
+        { "node": "n_slack", "type": "main", "index": 0 }
+      ]],
+      "clean": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_circle_webhook", "n_extract", "n_fetch_artifact", "n_detect", "n_route", "n_linear", "n_slack", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_c", "name": "CIRCLE_API", "defaultValue": "https://circleci.com/api" },
+    { "id": "v_t", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_s", "name": "FLAKY_SLACK", "defaultValue": "#flaky-tests" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

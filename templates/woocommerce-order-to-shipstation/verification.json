@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "woocommerce-order-to-shipstation",
+  "cases": [
+    {
+      "id": "order-fulfilled",
+      "description": "Woo order syncs to ShipStation and email goes out.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

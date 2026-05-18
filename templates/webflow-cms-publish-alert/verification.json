@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "webflow-cms-publish-alert",
+  "cases": [
+    {
+      "id": "publish-distribute",
+      "description": "Webflow CMS publish fans out to Slack + LinkedIn.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

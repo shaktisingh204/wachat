@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gitlab-mr-auto-label",
+  "cases": [
+    {
+      "id": "mr-opened",
+      "description": "GitLab MR opens, GPT picks labels, GitLab API applies them.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

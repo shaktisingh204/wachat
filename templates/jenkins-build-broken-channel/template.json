@@ -1,0 +1,10 @@
+{
+  "id": "jenkins-build-broken-channel",
+  "name": "Jenkins Build Broken Channel",
+  "description": "When Jenkins reports a `job.failed`, fetches the previous successful build for the same job, identifies the commit author who introduced the breaking change, and posts a structured failure card to the #builds Slack channel mentioning that author. Sets the social contract — the breaker fixes.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["jenkins", "slack", "ci", "build", "blame", "webhook"],
+  "version": "0.1.0"
+}

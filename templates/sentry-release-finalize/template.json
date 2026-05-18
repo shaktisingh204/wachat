@@ -1,0 +1,10 @@
+{
+  "id": "sentry-release-finalize",
+  "name": "Sentry Release Finalize",
+  "description": "On every deploy webhook from CI, marks the corresponding Sentry release as finalized, records a deploy entry with the new commit range, and posts the changelog to the #releases Slack channel. Keeps Sentry release health metrics aligned with production deploys.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["sentry", "slack", "release", "deploy", "ci", "webhook"],
+  "version": "0.1.0"
+}

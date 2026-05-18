@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "jenkins-build-broken-channel",
+  "cases": [
+    {
+      "id": "build-broken",
+      "description": "Jenkins job fails, Slack gets a broken-build card.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

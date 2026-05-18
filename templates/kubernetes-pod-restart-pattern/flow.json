@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_hourly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 * * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] } }
+    },
+    {
+      "id": "n_kube_list",
+      "name": "List Pods",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.KUBE_API }}/api/v1/pods?fieldSelector=status.phase!=Succeeded",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "kube-cred", "name": "K8s Service Account Token" } }
+    },
+    {
+      "id": "n_filter",
+      "name": "Filter Crashloopy",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "jsCode": "const items = $input.first().json.items || [];\nconst hot = items.filter(p => (p.status?.containerStatuses||[]).some(c => c.restartCount > 3));\nreturn [{ json: { pattern: hot.length > 0, count: hot.length, names: hot.map(p => `${p.metadata.namespace}/${p.metadata.name}`) } }];"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Pattern?",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "boolean": [{ "value1": "={{ $json.pattern }}", "value2": true }] }, "outputKey": "alert" }
+          ]
+        },
+        "fallbackOutput": "ok"
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack On-Call",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.ONCALL_SLACK }}",
+        "text": ":fire: {{ $json.count }} pods restarting too fast: {{ $json.names.join(', ') }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear",
+      "name": "Open Linear",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "K8s restart loop: {{ $json.count }} pods"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "All Clear",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 250],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_kube_list", "type": "main", "index": 0 }]] },
+    "n_kube_list": { "main": [[{ "node": "n_filter", "type": "main", "index": 0 }]] },
+    "n_filter": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "alert": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_linear", "type": "main", "index": 0 }
+      ]],
+      "ok": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_kube_list", "n_filter", "n_route", "n_slack", "n_linear", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_k", "name": "KUBE_API", "defaultValue": "https://kubernetes.default.svc" },
+    { "id": "v_s", "name": "ONCALL_SLACK", "defaultValue": "#oncall" },
+    { "id": "v_t", "name": "LINEAR_TEAM_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
