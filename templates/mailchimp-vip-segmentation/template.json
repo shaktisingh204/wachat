@@ -1,0 +1,10 @@
+{
+  "id": "mailchimp-vip-segmentation",
+  "name": "Mailchimp VIP Segmentation",
+  "description": "Daily job that walks the Mailchimp list, joins each contact with their Stripe lifetime value, and adds anyone above the VIP threshold to a dedicated Mailchimp segment. A short summary lands in Slack #marketing so the team knows how the VIP cohort moved.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mailchimp", "stripe", "vip", "segmentation", "slack", "marketing"],
+  "version": "0.1.0"
+}
