@@ -1,0 +1,10 @@
+{
+  "id": "databricks-job-failure-pager",
+  "name": "Databricks Job Failure Pager",
+  "description": "Listens to Databricks job.failed webhooks, fetches the run details, and inspects the error class. Infra-class failures wake the on-call via PagerDuty plus Slack; transient or user-code failures only post a Slack heads-up so teams can triage on the next business day.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["databricks", "pagerduty", "slack", "data-platform", "on-call", "monitoring"],
+  "version": "0.1.0"
+}

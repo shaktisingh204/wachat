@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "databricks-job-failure-pager",
+  "cases": [
+    {
+      "id": "cluster-crash",
+      "description": "An infra-class run state pages on-call and posts to the data-oncall channel.",
+      "triggerPayload": { "run_id": 991122, "run_name": "nightly-feature-store" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
