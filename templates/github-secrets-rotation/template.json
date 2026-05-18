@@ -1,0 +1,10 @@
+{
+  "id": "github-secrets-rotation",
+  "name": "GitHub Actions Secrets Rotation",
+  "description": "Quarterly, generates new values for the configured GitHub Actions secrets, pushes the new versions through the Repos API (with `libsodium` encryption), then posts a confirmation to #security listing which keys were rotated. Removes the year-long shelf life on CI secrets nobody remembers to touch.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["github", "secrets", "rotation", "security", "slack", "cron"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cron_quarter",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 1 1,4,7,10 *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Quarterly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 1 1,4,7,10 *" }] } }
+    },
+    {
+      "id": "n_generate",
+      "name": "Generate New Values",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "jsCode": "const names = (($vars && $vars.SECRET_NAMES) || 'DEPLOY_TOKEN,DOCKER_TOKEN').split(',');\nconst pairs = names.map(n => ({ name: n.trim(), value: 'rot-' + Math.random().toString(36).slice(2) }));\nreturn pairs.map(p => ({ json: p }));"
+      }
+    },
+    {
+      "id": "n_get_pub_key",
+      "name": "Get Repo Public Key",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GH_API }}/repos/{{ $vars.GH_OWNER }}/{{ $vars.GH_REPO }}/actions/secrets/public-key",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "github-cred", "name": "GitHub Token" } }
+    },
+    {
+      "id": "n_set_secret",
+      "name": "Set Each Secret",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $vars.GH_API }}/repos/{{ $vars.GH_OWNER }}/{{ $vars.GH_REPO }}/actions/secrets/{{ $node['Generate New Values'].json.name }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "encrypted_value", "value": "={{ $node['Generate New Values'].json.value }}" },
+            { "name": "key_id", "value": "={{ $json.key_id }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "github-cred", "name": "GitHub Token" } }
+    },
+    {
+      "id": "n_audit",
+      "name": "Audit Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "operation": "insert", "collection": "gh_secret_rotations" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #security",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SECURITY_SLACK }}",
+        "text": ":key: Rotated GitHub Actions secrets: {{ $vars.SECRET_NAMES }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_generate", "type": "main", "index": 0 }]] },
+    "n_generate": { "main": [[{ "node": "n_get_pub_key", "type": "main", "index": 0 }]] },
+    "n_get_pub_key": { "main": [[{ "node": "n_set_secret", "type": "main", "index": 0 }]] },
+    "n_set_secret": { "main": [[{ "node": "n_audit", "type": "main", "index": 0 }]] },
+    "n_audit": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_generate", "n_get_pub_key", "n_set_secret", "n_audit", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_g", "name": "GH_API", "defaultValue": "https://api.github.com" },
+    { "id": "v_o", "name": "GH_OWNER", "defaultValue": "" },
+    { "id": "v_r", "name": "GH_REPO", "defaultValue": "" },
+    { "id": "v_n", "name": "SECRET_NAMES", "defaultValue": "DEPLOY_TOKEN,DOCKER_TOKEN" },
+    { "id": "v_s", "name": "SECURITY_SLACK", "defaultValue": "#security" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
