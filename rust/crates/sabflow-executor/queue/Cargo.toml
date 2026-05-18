@@ -4,26 +4,27 @@ version = "0.1.0"
 edition.workspace = true
 license.workspace = true
 publish.workspace = true
-description = "SabFlow executor — queue & dispatcher (Track B Phase 2). BullMQ-compatible Redis dispatcher loop, claims jobs and hands them to the executor."
+description = "SabFlow executor — queue & dispatcher (Track B Phase 2). BullMQ-compatible Redis dispatcher loop, retry/backoff, DLQ, cancellation."
 
 [lib]
 name = "sabflow_executor_queue"
 path = "src/lib.rs"
 
 [dependencies]
-# Async stack — matches the workspace standard (sabflow-executor-rust-stack ADR §5).
+# Async stack — workspace standard (sabflow-executor-rust-stack ADR §5).
 tokio = { version = "1", features = ["macros", "rt", "rt-multi-thread", "time", "sync", "signal"] }
-# CancellationToken lives in tokio-util's `rt` feature.
 tokio-util = { version = "0.7", features = ["rt"] }
-# Redis client — Track B Phase 2 §3 mandates the `redis` crate (BullMQ-compat).
+# Redis client — BullMQ-compat Lua + Hash/List/Sorted-Set commands.
 redis = { version = "0.27", default-features = false, features = ["tokio-comp", "script", "aio"] }
+# Serde for IPC + retry spec wire shape.
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-# `async_trait` for dyn ExecutorHandler + LuaExecutor traits.
 async-trait = "0.1"
 thiserror = "2"
 anyhow = "1"
 tracing = "0.1"
+# Full-jitter PRNG for retry backoff.
+rand = "0.8"
 
 [lints]
 workspace = true
