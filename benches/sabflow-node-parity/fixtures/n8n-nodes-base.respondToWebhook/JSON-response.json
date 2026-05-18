@@ -1,0 +1,57 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "JSON-response",
+  "description": "Respond to Webhook in JSON mode with a custom status and one header. Verifies that the node both emits the response envelope on its downstream branch and stashes it in ctx.variables[\"$webhookResponse\"] for the receiver to pick up.",
+  "node": "n8n-nodes-base.respondToWebhook",
+  "params": {
+    "respondWith": "json",
+    "responseCode": 201,
+    "responseBody": {
+      "ok": true,
+      "id": "evt_42"
+    },
+    "responseHeaders": {
+      "X-SabFlow-Source": "respondToWebhook"
+    }
+  },
+  "input": {
+    "items": [
+      { "trigger": "ignored" }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "statusCode": 201,
+            "headers": {
+              "X-SabFlow-Source": "respondToWebhook"
+            },
+            "body": {
+              "ok": true,
+              "id": "evt_42"
+            }
+          }
+        ]
+      }
+    ],
+    "variables": {
+      "$webhookResponse": {
+        "statusCode": 201,
+        "body": {
+          "ok": true,
+          "id": "evt_42"
+        }
+      }
+    }
+  },
+  "expectedFields": [
+    "branches[0].items[0].statusCode",
+    "branches[0].items[0].headers.X-SabFlow-Source",
+    "branches[0].items[0].body.ok",
+    "branches[0].items[0].body.id",
+    "variables.$webhookResponse.statusCode",
+    "variables.$webhookResponse.body.id"
+  ]
+}

@@ -1,20 +1,26 @@
-//! Respond to Webhook node.
+//! Respond to Webhook node — `n8n-nodes-base.respondToWebhook` parity.
 //!
-//! Builds a synthetic webhook-response object and stashes it in
-//! `ctx.variables["$webhookResponse"]`.  The engine runtime is responsible for
-//! reading that variable after execution and publishing it on the Redis
+//! Terminal node. Builds a synthetic webhook-response object and stashes it
+//! in `ctx.variables["$webhookResponse"]`. The engine runtime is responsible
+//! for reading that variable after execution and publishing it on the Redis
 //! pub/sub channel `sabflow:webhook-response:{execution_id}` so the public
 //! webhook receiver can reply to the original caller.
 //!
-//! Supports three response modes:
-//!   - `json`   → arbitrary JSON body (with `{{var}}` substitution on strings)
-//!   - `text`   → plain text body (substituted)
-//!   - `noData` → empty body, only status + headers
+//! Body modes (mirrors the n8n V1 dropdown):
 //!
-//! Headers are an optional object of `name → value` pairs.
+//! - `json`              → arbitrary JSON body, with `{{var}}` substitution
+//!                          on string leaves
+//! - `firstIncomingItem` → use the first item flowing into this node as the
+//!                          response body (the most common pattern for
+//!                          "echo what the flow produced")
+//! - `text`              → plain text body (substituted)
+//! - `noData`            → empty body, only status + headers
+//!
+//! Headers are an optional object of `name → value` pairs. Status defaults
+//! to `200`.
 
 use async_trait::async_trait;
-use serde_json::{json, Map, Value};
+use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
@@ -24,6 +30,14 @@ use crate::{
 };
 
 pub struct RespondToWebhookNode;
+
+fn opt_desc(name: &str, value: &str, desc: &str) -> NodePropertyOption {
+    NodePropertyOption {
+        name: name.to_string(),
+        value: json!(value),
+        description: Some(desc.to_string()),
+    }
+}
 
 #[async_trait]
 impl Node for RespondToWebhookNode {
@@ -39,23 +53,16 @@ impl Node for RespondToWebhookNode {
         .properties(vec![
             NodeProperty::new("respondWith", "Respond With", NodePropertyType::Options)
                 .options(vec![
-                    NodePropertyOption {
-                        name: "JSON".into(),
-                        value: Value::String("json".into()),
-                        description: Some("Reply with a JSON body".into()),
-                    },
-                    NodePropertyOption {
-                        name: "Text".into(),
-                        value: Value::String("text".into()),
-                        description: Some("Reply with a plain text body".into()),
-                    },
-                    NodePropertyOption {
-                        name: "No Data".into(),
-                        value: Value::String("noData".into()),
-                        description: Some("Reply with only status and headers".into()),
-                    },
+                    opt_desc("JSON", "json", "Reply with a JSON body"),
+                    opt_desc(
+                        "First Incoming Item",
+                        "firstIncomingItem",
+                        "Echo the first item that flowed into this node",
+                    ),
+                    opt_desc("Text", "text", "Reply with a plain text body"),
+                    opt_desc("No Data", "noData", "Reply with only status and headers"),
                 ])
-                .default(Value::String("json".into()))
+                .default(json!("json"))
                 .required(),
             NodeProperty::new("responseCode", "Response Code", NodePropertyType::Number)
                 .description("HTTP status code to return")
@@ -74,7 +81,7 @@ impl Node for RespondToWebhookNode {
     async fn execute(
         &self,
         ctx: &mut ExecutionContext,
-        _input: NodeInput,
+        input: NodeInput,
         params: &Value,
     ) -> NodeResult<NodeOutput> {
         let respond_with = ctx
@@ -98,6 +105,11 @@ impl Node for RespondToWebhookNode {
                 Value::String(text)
             }
             "noData" => Value::Null,
+            "firstIncomingItem" => input
+                .items
+                .first()
+                .cloned()
+                .unwrap_or(Value::Object(Map::new())),
             // default to JSON for "json" and any unknown value
             _ => {
                 let raw = params.get("responseBody").cloned().unwrap_or(Value::Null);

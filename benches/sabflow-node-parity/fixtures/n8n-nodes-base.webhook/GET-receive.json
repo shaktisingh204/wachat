@@ -1,0 +1,60 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "GET-receive",
+  "description": "GET /webhook/example with query params and no auth. The trigger payload is the inbound HTTP envelope; the node should pass body/headers/query/params/method/path through to a single downstream item.",
+  "node": "n8n-nodes-base.webhook",
+  "params": {
+    "httpMethod": "GET",
+    "path": "example",
+    "authentication": "none",
+    "responseMode": "onReceived",
+    "responseCode": 200,
+    "responseData": "firstEntryJson"
+  },
+  "triggerData": {
+    "method": "GET",
+    "path": "example",
+    "headers": {
+      "user-agent": "curl/8.4.0",
+      "accept": "*/*"
+    },
+    "query": {
+      "ref": "homepage",
+      "utm": "rss"
+    },
+    "params": {},
+    "body": {}
+  },
+  "input": {
+    "items": []
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "body": {},
+            "headers": {
+              "user-agent": "curl/8.4.0",
+              "accept": "*/*"
+            },
+            "query": {
+              "ref": "homepage",
+              "utm": "rss"
+            },
+            "params": {},
+            "method": "GET",
+            "path": "example"
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].method",
+    "branches[0].items[0].path",
+    "branches[0].items[0].query.ref",
+    "branches[0].items[0].query.utm",
+    "branches[0].items[0].headers.user-agent"
+  ]
+}

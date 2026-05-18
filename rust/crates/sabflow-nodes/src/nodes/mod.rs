@@ -19,7 +19,7 @@ pub mod merge_node;
 pub mod wait_node;
 pub mod code_node;
 pub mod schedule_trigger;
-pub mod webhook_trigger;
+pub mod webhook;
 pub mod noop_node;
 
 // ── Fully-implemented integration nodes ─────────────────────────────────────
@@ -118,7 +118,7 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(wait_node::WaitNode);
     r.register(code_node::CodeNode);
     r.register(schedule_trigger::ScheduleTriggerNode);
-    r.register(webhook_trigger::WebhookTriggerNode);
+    r.register(webhook::WebhookNode);
     r.register(noop_node::NoOpNode);
     // Integrations (20)
     r.register(slack::SlackNode);
