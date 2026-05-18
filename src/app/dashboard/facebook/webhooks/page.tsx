@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/webhooks — Webhook endpoints (ZoruUI).
- *
- * Replaces the legacy WebhookLogs from @/components/wabasimplify with
- * the local FacebookWebhookLogs (which already wraps create / test /
- * delete dialogs and renders inside ZoruDataTable-like Zoru chrome).
- *
- * Page chrome:
- *   - ZoruBreadcrumb  (SabNode › Meta Suite › Webhooks)
- *   - ZoruPageHeader  (eyebrow + title + description + actions)
- *   - Status alert when no project is selected
- *   - FacebookWebhookLogs body
- */
-
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Cog, ExternalLink, Webhook } from 'lucide-react';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -34,6 +15,29 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Cog,
+  ExternalLink,
+  Webhook } from 'lucide-react';
+
+/**
+ * /dashboard/facebook/webhooks — Webhook endpoints (ZoruUI).
+ *
+ * Replaces the legacy WebhookLogs from @/components/wabasimplify with
+ * the local FacebookWebhookLogs (which already wraps create / test /
+ * delete dialogs and renders inside ZoruDataTable-like Zoru chrome).
+ *
+ * Page chrome:
+ *   - ZoruBreadcrumb  (SabNode › Meta Suite › Webhooks)
+ *   - ZoruPageHeader  (eyebrow + title + description + actions)
+ *   - Status alert when no project is selected
+ *   - FacebookWebhookLogs body
+ */
+
+import * as React from 'react';
 
 import { FacebookWebhookLogs } from '../_components/facebook-webhook-logs';
 import { NoProjectState } from '../_components/no-project-state';

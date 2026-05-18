@@ -1,12 +1,13 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
-import * as React from 'react';
+import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { UserPlus, Ban, Copy, LoaderCircle, Trash2 } from 'lucide-react';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import { ClayCard,
+  ClayBadge } from '@/components/clay';
+
+import * as React from 'react';
+
 import { useToast } from '@/hooks/use-toast';
 import {
   sendUserInvitation,

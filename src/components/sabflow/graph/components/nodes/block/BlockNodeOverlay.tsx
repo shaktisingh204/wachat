@@ -1,4 +1,5 @@
 'use client';
+
 import { cn } from '@/lib/utils';
 import type { Block } from '@/lib/sabflow/types';
 import { getBlockIcon, getBlockLabel } from '@/lib/sabflow/blocks';

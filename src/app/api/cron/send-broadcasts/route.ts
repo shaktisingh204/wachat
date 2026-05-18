@@ -1,4 +1,3 @@
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { issueRustJwt } from '@/lib/jwt-for-rust';
 

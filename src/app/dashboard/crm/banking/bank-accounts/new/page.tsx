@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { ArrowLeft, Landmark } from 'lucide-react';
+
 /**
  * New bank account — pre-filled with `accountType=bank` via the form's
  * default. Reuses the shared <PaymentAccountFormClient> from
@@ -6,9 +9,7 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, Landmark } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { PaymentAccountFormClient } from '../../all/_components/payment-account-form-client';
 

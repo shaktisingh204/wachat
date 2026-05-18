@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, useZoruToast } from '@/components/zoruui';
 /**
  * <RfqListClient> — canonical RFQs list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D (purchase-side mirror of
@@ -21,10 +22,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruCard,
-  useZoruToast,
-} from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import type { CrmRfqStatus } from '@/lib/rust-client/crm-rfqs';

@@ -1,42 +1,46 @@
 'use client';
 
-import * as React from 'react';
-import { format, formatDistanceToNowStrict, isSameDay } from 'date-fns';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  format,
+  formatDistanceToNowStrict,
+  isSameDay } from 'date-fns';
 import {
     Bell,
-    Image as ImageIcon,
-    Loader,
-    MessageSquare,
-    Paperclip,
-    Plus,
-    Search,
-    Send,
-    Users,
-    X,
-} from 'lucide-react';
+  Image as ImageIcon,
+  Loader,
+  MessageSquare,
+  Paperclip,
+  Plus,
+  Search,
+  Send,
+  Users,
+  X,
+  } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruInput,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
+
 import {
     createGroupChannel,
     getChannelMessages,

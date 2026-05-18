@@ -1,3 +1,8 @@
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruChatClient } from '../_components/zoru-chat-client';
+import {
+  Suspense } from 'react';
+
 /**
  * /wachat/chat — Live chat workspace.
  *
@@ -6,10 +11,6 @@
  * page is just the route entry — it renders a Suspense boundary with
  * a Zoru skeleton fallback.
  */
-
-import { Suspense } from 'react';
-import { ZoruChatClient } from '@/app/wachat/_components/zoru-chat-client';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 

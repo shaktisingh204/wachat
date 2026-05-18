@@ -1,5 +1,27 @@
 'use client';
 
+import { ZoruButton, ZoruBadge, ZoruScrollArea, ZoruScrollBar } from '@/components/zoruui';
+import {
+  Heart,
+  MessageCircle,
+  Send,
+  Bookmark,
+  MoreHorizontal,
+  ThumbsUp,
+  Share2,
+  Facebook,
+  Instagram,
+  MessageSquare,
+  Globe,
+  ChevronLeft,
+  ChevronRight,
+  Music2,
+  Play,
+  Volume2,
+  } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+
 /**
  * Meta-style ad preview renderer. Mirrors the 14+ placements that
  * Meta Ads Manager shows in its right-side preview pane: Facebook
@@ -15,19 +37,7 @@
  */
 
 import * as React from 'react';
-import {
-    Heart, MessageCircle, Send, Bookmark, MoreHorizontal,
-    ThumbsUp, Share2, Facebook, Instagram, MessageSquare, Globe,
-    ChevronLeft, ChevronRight, Music2, Play, Volume2,
-} from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-import {
-    ZoruButton,
-    ZoruBadge,
-    ZoruScrollArea,
-    ZoruScrollBar,
-} from '@/components/zoruui';
 import type { FacebookPage } from '@/lib/definitions';
 import { PREVIEW_VARIANTS, type AdPreviewFormat } from '@/components/wabasimplify/ad-manager/constants';
 import type { CreateFormState } from './form-state';

@@ -1,40 +1,5 @@
 "use client";
 
-/**
- * ScheduleDialog — shared modal for creating / editing scheduled SabWa
- * messages. Re-used by:
- *
- *   - `/sabwa/scheduler`           (calendar view)
- *   - `/sabwa/scheduler/queue`     (queue table)
- *   - any "Schedule send" CTA elsewhere in the SabWa shell.
- *
- * Phase 1 wiring: every persistence call goes through the server actions
- * in `@/app/actions/sabwa.actions` (`scheduleMessage`,
- * `updateScheduledMessage`, plus `sendMessage` for the "Test now"
- * shortcut). Those actions are still stubs that throw "not implemented",
- * so the UI catches and surfaces them as a toast — that's expected for
- * Phase 1 and unblocks the rest of the scheduler UI.
- *
- * SabFiles policy: media attachments come from `<SabFilePickerButton>`.
- * There is intentionally no free-text URL field.
- *
- * Rebuilt on ZoruUI primitives. The recipient-type picker is rendered as
- * a segmented ZoruButton group (no tab UI per ZoruUI design rules).
- */
-
-import * as React from "react";
-import {
-  CalendarIcon,
-  Clock,
-  Loader2,
-  Megaphone,
-  MessageSquare,
-  Paperclip,
-  Send,
-  Users,
-  X,
-} from "lucide-react";
-
 import {
   ZoruButton,
   ZoruCalendar,
@@ -65,7 +30,43 @@ import {
   ZoruTextarea,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  CalendarIcon,
+  Clock,
+  Loader2,
+  Megaphone,
+  MessageSquare,
+  Paperclip,
+  Send,
+  Users,
+  X,
+  } from "lucide-react";
+
+/**
+ * ScheduleDialog — shared modal for creating / editing scheduled SabWa
+ * messages. Re-used by:
+ *
+ *   - `/sabwa/scheduler`           (calendar view)
+ *   - `/sabwa/scheduler/queue`     (queue table)
+ *   - any "Schedule send" CTA elsewhere in the SabWa shell.
+ *
+ * Phase 1 wiring: every persistence call goes through the server actions
+ * in `@/app/actions/sabwa.actions` (`scheduleMessage`,
+ * `updateScheduledMessage`, plus `sendMessage` for the "Test now"
+ * shortcut). Those actions are still stubs that throw "not implemented",
+ * so the UI catches and surfaces them as a toast — that's expected for
+ * Phase 1 and unblocks the rest of the scheduler UI.
+ *
+ * SabFiles policy: media attachments come from `<SabFilePickerButton>`.
+ * There is intentionally no free-text URL field.
+ *
+ * Rebuilt on ZoruUI primitives. The recipient-type picker is rendered as
+ * a segmented ZoruButton group (no tab UI per ZoruUI design rules).
+ */
+
+import * as React from "react";
+
 import { SabFilePickerButton } from "@/components/sabfiles";
 
 import {

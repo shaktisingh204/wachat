@@ -1,3 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+
 /**
  * Coupon detail — `/dashboard/crm/sales/coupons/[id]`.
  *
@@ -8,10 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getCouponById } from '@/app/actions/crm-coupons.actions';

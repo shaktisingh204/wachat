@@ -1,4 +1,5 @@
 'use client';
+
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Block, BlockType } from '@/lib/sabflow/types';
 import { getEffectivePins } from '@/lib/sabflow/pins';

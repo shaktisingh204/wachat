@@ -1,36 +1,5 @@
 'use client';
 
-/**
- * WebhookLogs (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/webhook-logs. Same server actions
- * (getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook,
- * getWebhookLogPayload), same pagination + reprocess + payload-view
- * behaviour.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  AlertCircle,
-  Copy,
-  Eye,
-  Loader2,
-  RefreshCw,
-  RotateCw,
-  Search,
-  Trash2,
-} from 'lucide-react';
-
-import {
-  getWebhookLogPayload,
-  getWebhookLogs,
-  handleClearProcessedLogs,
-} from '@/app/actions/index.ts';
-import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
-import type { WebhookLogListItem } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -51,6 +20,41 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+  AlertCircle,
+  Copy,
+  Eye,
+  Loader2,
+  RefreshCw,
+  RotateCw,
+  Search,
+  Trash2,
+  } from 'lucide-react';
+
+import {
+  getWebhookLogPayload,
+  getWebhookLogs,
+  handleClearProcessedLogs,
+  } from '@/app/actions/index.ts';
+import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
+import type { WebhookLogListItem } from '@/lib/definitions';
+
+/**
+ * WebhookLogs (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/webhook-logs. Same server actions
+ * (getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook,
+ * getWebhookLogPayload), same pagination + reprocess + payload-view
+ * behaviour.
+ */
+
+import * as React from 'react';
 
 const LOGS_PER_PAGE = 15;
 

@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { Pencil,
+  Settings2 } from 'lucide-react';
+
 /**
  * Custom field detail page.
  *
@@ -8,14 +15,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { Pencil, Settings2 } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';

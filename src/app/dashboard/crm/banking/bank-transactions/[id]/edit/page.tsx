@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  ArrowLeftRight } from 'lucide-react';
+
 /**
  * Edit bank transaction — server page that loads the existing row and
  * the account dropdown options. Mutations flow through
@@ -5,10 +12,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, ArrowLeftRight } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 import { getSession } from '@/app/actions/user.actions';

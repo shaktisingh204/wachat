@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Trash2,
+  Download,
+  X } from 'lucide-react';
+import {
+    useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  } from 'react';
+
 /**
  * <SettingsEntityShell /> — settings-style list page chrome per CRM
  * §1D.4 (settings list) bar. Composes:
@@ -28,29 +55,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Plus, Trash2, Download, X } from 'lucide-react';
-import {
-    useActionState,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-    useTransition,
-} from 'react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     downloadCsv,

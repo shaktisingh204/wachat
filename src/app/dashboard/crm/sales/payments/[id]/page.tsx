@@ -1,3 +1,10 @@
+import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { CreditCard,
+  Pencil,
+  ArrowLeft } from 'lucide-react';
+
 /**
  * Payment receipt detail — `/dashboard/crm/sales/payments/[id]`.
  *
@@ -9,10 +16,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { CreditCard, Pencil, ArrowLeft } from 'lucide-react';
 
-import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getPaymentReceipt } from '@/app/actions/crm/payment-receipts.actions';

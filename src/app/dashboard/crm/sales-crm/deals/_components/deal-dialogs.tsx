@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Shared dialogs for the Deals detail action group.
- *
- * Extracted so the action-bar component stays small and the dialog
- * markup is reusable from both the detail page and the list page row
- * actions. None of these are wired to a "real" send pipeline yet — they
- * persist an audit trail and (where appropriate) open a wa.me deep link
- * so the user can finish the send in the WhatsApp client.
- */
-
-import * as React from 'react';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -30,6 +18,18 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+/**
+ * Shared dialogs for the Deals detail action group.
+ *
+ * Extracted so the action-bar component stays small and the dialog
+ * markup is reusable from both the detail page and the list page row
+ * actions. None of these are wired to a "real" send pipeline yet — they
+ * persist an audit trail and (where appropriate) open a wa.me deep link
+ * so the user can finish the send in the WhatsApp client.
+ */
+
+import * as React from 'react';
+
 import { sendDealEmail, updateCrmDeal } from '@/app/actions/crm-deals.actions';
 
 /* ─── Email composer ─────────────────────────────────────────────────── */

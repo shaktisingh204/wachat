@@ -1,4 +1,5 @@
 'use client';
+
 /**
  * CanvasNodeDefault — port of n8n's CanvasNodeDefault.vue.
  *

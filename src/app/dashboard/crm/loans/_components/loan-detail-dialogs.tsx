@@ -1,14 +1,5 @@
 'use client';
 
-/**
- * Loan detail dialogs:
- *   • <LoanRecordPaymentDialog> — capture amount, date, mode, txn id.
- *     Calls recordLoanPayment.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -21,6 +12,17 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Loan detail dialogs:
+ *   • <LoanRecordPaymentDialog> — capture amount, date, mode, txn id.
+ *     Calls recordLoanPayment.
+ */
+
+import * as React from 'react';
+
 import { recordLoanPayment } from '@/app/actions/crm-loans.actions';
 
 interface BaseDialogProps {

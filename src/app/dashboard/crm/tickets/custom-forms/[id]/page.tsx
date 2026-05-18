@@ -1,14 +1,3 @@
-/**
- * Custom form detail page.
- *
- * Renders the form's metadata + a structured table of its field
- * definitions (no JSON dump).
- */
-
-import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, FormInput, Pencil } from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -20,6 +9,22 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  FormInput,
+  Pencil } from 'lucide-react';
+
+/**
+ * Custom form detail page.
+ *
+ * Renders the form's metadata + a structured table of its field
+ * definitions (no JSON dump).
+ */
+
+import Link from 'next/link';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

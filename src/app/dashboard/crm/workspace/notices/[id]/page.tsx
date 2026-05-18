@@ -1,12 +1,13 @@
-/**
- * Notice detail — §1D.2 bar.
- */
-
-import { notFound } from 'next/navigation';
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
 import { Pin } from 'lucide-react';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+
+/**
+ * Notice detail — §1D.2 bar.
+ */
 
 import { getNoticeById } from '@/app/actions/worksuite/knowledge.actions';
 

@@ -1,13 +1,18 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ArrowLeft,
+  Pencil,
+  Pin } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Announcement detail — §1B W7.
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ArrowLeft, Pencil, Pin } from 'lucide-react';
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

@@ -1,22 +1,36 @@
 'use client';
 
-import { Download, SlidersHorizontal, CalendarCheck, LoaderCircle, Users, TrendingUp, UserCheck, UserX } from 'lucide-react';
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateAttendanceReportData, getReportEmployees, getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruLabel,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  useZoruToast,
+  ZoruSelectItem,
+} from '@/components/zoruui';
+import {
+  Download,
+  SlidersHorizontal,
+  CalendarCheck,
+  LoaderCircle,
+  Users,
+  TrendingUp,
+  UserCheck,
+  UserX } from 'lucide-react';
+import { useState,
+  useEffect,
+  useTransition,
+  useCallback } from 'react';
+import { generateAttendanceReportData,
+  getReportEmployees,
+  getReportDepartments } from '@/app/actions/crm-hr-reports.actions';
 import Papa from 'papaparse';
 import { format } from 'date-fns';
 import { DatePicker } from '@/components/ui/date-picker';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 
 type AttendanceRow = {

@@ -1,3 +1,15 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import {
+    Gavel,
+  PlusCircle,
+  CheckCircle2,
+  AlertTriangle,
+  Scale,
+  } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+
 /**
  * Disciplinary case detail page.
  *
@@ -8,17 +20,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import {
-    Gavel,
-    PlusCircle,
-    CheckCircle2,
-    AlertTriangle,
-    Scale,
-} from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
 import { getSession } from '@/app/actions/user.actions';

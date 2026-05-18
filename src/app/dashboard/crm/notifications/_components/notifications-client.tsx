@@ -1,5 +1,20 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruStatCard, cn, useZoruToast } from '@/components/zoruui';
+import {
+  AlertTriangle,
+  AtSign,
+  Bell,
+  Check,
+  CheckCheck,
+  Clock,
+  ExternalLink,
+  Inbox,
+  UserPlus,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+
 /**
  * §5.3 — CRM Notifications Hub (client island).
  *
@@ -15,27 +30,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    AlertTriangle,
-    AtSign,
-    Bell,
-    Check,
-    CheckCheck,
-    Clock,
-    ExternalLink,
-    Inbox,
-    UserPlus,
-} from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruStatCard,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     getCrmNotifications,
     markAllNotificationsRead,

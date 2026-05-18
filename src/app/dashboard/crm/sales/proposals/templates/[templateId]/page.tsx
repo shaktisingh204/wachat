@@ -1,10 +1,10 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { ZoruSkeleton, cn } from '@/components/zoruui';
+import { cn as _zoruCn, use, useEffect, useState, useTransition } from 'react';
+
 void _zoruCn;
 
-import { use, useEffect, useState, useTransition } from 'react';
-import { ZoruSkeleton } from '@/components/zoruui';
 import { getProposalTemplateById } from '@/app/actions/worksuite/proposals.actions';
 import {
   TemplateEditor,

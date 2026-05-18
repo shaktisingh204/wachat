@@ -1,36 +1,5 @@
 'use client';
 
-/**
- * Audit Log Viewer — §5.5 filter-chip page.
- *
- * Filters are URL-driven (entityKind, actorId, action, from, to,
- * search) so links/back-button work. The browser also exposes:
- *   • Per-entity chip (every registered EntityKey)
- *   • Per-actor chip (employee picker + free-text fallback)
- *   • Per-date range chip (from / to)
- *   • Action chip (create / update / delete / status_change / …)
- *   • Free-text "search-in-diff" (server-side, $text if indexed else regex)
- *   • CSV export streamed from `exportAuditLogCsv` server action
- *
- * KPI strip: Today · This week · Top actor · Top entity kind.
- *
- * Read-only. Sort: `ts desc` (server-side).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Eye,
-  FileJson,
-  FileText,
-  Search,
-  X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityFormField } from '@/components/crm/entity-form-field';
-import { StatusPill } from '@/components/crm/status-pill';
 import {
   ZoruBadge,
   ZoruButton,
@@ -55,6 +24,41 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import {
+  Eye,
+  FileJson,
+  FileText,
+  Search,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { StatusPill } from '@/components/crm/status-pill';
+
+/**
+ * Audit Log Viewer — §5.5 filter-chip page.
+ *
+ * Filters are URL-driven (entityKind, actorId, action, from, to,
+ * search) so links/back-button work. The browser also exposes:
+ *   • Per-entity chip (every registered EntityKey)
+ *   • Per-actor chip (employee picker + free-text fallback)
+ *   • Per-date range chip (from / to)
+ *   • Action chip (create / update / delete / status_change / …)
+ *   • Free-text "search-in-diff" (server-side, $text if indexed else regex)
+ *   • CSV export streamed from `exportAuditLogCsv` server action
+ *
+ * KPI strip: Today · This week · Top actor · Top entity kind.
+ *
+ * Read-only. Sort: `ts desc` (server-side).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ENTITY_KEYS, type EntityKey } from '@/lib/lookup-registry';
 import {
   exportAuditLogCsv,

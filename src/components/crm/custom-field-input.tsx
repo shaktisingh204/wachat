@@ -1,5 +1,16 @@
 'use client';
 
+import {
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  ZoruCheckbox,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
 /**
  * <CustomFieldInput> + <CustomFieldDisplay> — render a single
  * `WsCustomField` instance.
@@ -22,17 +33,7 @@
  */
 
 import * as React from 'react';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruCheckbox } from '@/components/zoruui';
-import {
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
+
 import { cn } from '@/lib/utils';
 import { EntityPicker, EntityPickerChip } from '@/components/crm/entity-picker';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';

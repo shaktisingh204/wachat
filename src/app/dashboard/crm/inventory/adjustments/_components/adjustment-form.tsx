@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * <AdjustmentForm /> — canonical create form for stock adjustments.
  *
@@ -15,19 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 

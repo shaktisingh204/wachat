@@ -1,11 +1,11 @@
-
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
+import {
+  useCart } from '@/context/cart-context';
+
 import Link from 'next/link';
-import { useCart } from '@/context/cart-context';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+
 import { ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import { Trash2 } from 'lucide-react';

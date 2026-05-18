@@ -1,16 +1,18 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Loader2 } from 'lucide-react';
+
 /**
  * Client widget that drives the e-invoice generate/cancel actions.
  * Stays minimal: a single Generate or Cancel button with a confirm
  * dialog + cancel-reason prompt.
  */
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 import {
     cancelIrn,
     generateIrn,

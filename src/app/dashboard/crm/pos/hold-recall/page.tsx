@@ -1,3 +1,10 @@
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import {
+  PauseCircle,
+  ShoppingCart } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS held tickets — `/dashboard/crm/pos/hold-recall`.
  *
@@ -7,19 +14,7 @@
  */
 
 import Link from 'next/link';
-import { PauseCircle, ShoppingCart } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { getPosHolds } from '@/app/actions/crm-pos.actions';
 
 export const dynamic = 'force-dynamic';

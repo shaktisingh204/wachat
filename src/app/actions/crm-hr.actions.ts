@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getSession } from "@/app/actions/user.actions";
@@ -500,7 +498,6 @@ export async function deleteCrmPtSlab(slabId: string): Promise<{ success: boolea
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
 
 export async function generateProfessionalTaxReport(): Promise<any[]> {
     const session = await getSession();

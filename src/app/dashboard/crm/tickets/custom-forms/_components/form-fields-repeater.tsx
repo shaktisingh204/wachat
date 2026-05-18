@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea } from '@/components/zoruui';
+import {
+  GripVertical,
+  Plus,
+  Trash2 } from 'lucide-react';
+
 /**
  * <FormFieldsRepeater /> — structured add/remove rows for ticket
  * custom-form field definitions.
@@ -12,15 +18,7 @@
  */
 
 import * as React from 'react';
-import { GripVertical, Plus, Trash2 } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
-} from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import type { CrmFormFieldDef } from '@/lib/rust-client/crm-forms';

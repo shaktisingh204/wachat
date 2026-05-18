@@ -1,5 +1,28 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Pencil,
+  ArrowRight,
+  Mail,
+  MessageCircle,
+  Printer,
+  Archive,
+  Trophy,
+  CircleX,
+  Activity,
+  ListPlus,
+  } from 'lucide-react';
+
 /**
  * <DealDetailActions> — top-right action group for the deal detail page.
  *
@@ -12,28 +35,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Pencil,
-  ArrowRight,
-  Mail,
-  MessageCircle,
-  Printer,
-  Archive,
-  Trophy,
-  CircleX,
-  Activity,
-  ListPlus,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { archiveCrmDeal, updateCrmDealStage } from '@/app/actions/crm-deals.actions';

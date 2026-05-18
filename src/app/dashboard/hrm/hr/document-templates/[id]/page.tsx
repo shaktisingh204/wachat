@@ -1,3 +1,18 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+    ClipboardList,
+  Pencil,
+  FilePlus,
+  Copy,
+  Archive,
+  ArrowLeft,
+  } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Document template detail page (§1D.2).
  *
@@ -6,19 +21,6 @@
  * Duplicate · Archive (stubs).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-    ClipboardList,
-    Pencil,
-    FilePlus,
-    Copy,
-    Archive,
-    ArrowLeft,
-} from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
     getHrEntityById,
     fmtDate,

@@ -1,4 +1,3 @@
-
 'use server';
 
 import { connectToDatabase } from './mongodb';

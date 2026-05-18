@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * <RoleForm /> — create + edit form for a tenant-scoped role.
  *
@@ -9,21 +19,6 @@
  * stays on `roles/[id]` (the detail page) — this form only edits the
  * role's own metadata.
  */
-
-import { useActionState, useEffect } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 
 import { saveRole } from '@/app/actions/worksuite/rbac.actions';
 import type { WsRole } from '@/lib/worksuite/rbac-types';

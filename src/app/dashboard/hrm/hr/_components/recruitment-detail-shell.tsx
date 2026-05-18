@@ -1,3 +1,14 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  Pencil,
+  Printer,
+  Mail,
+  Copy,
+  Trash2,
+  Activity,
+  ChevronRight,
+  } from 'lucide-react';
+
 /**
  * RecruitmentDetailShell — §1D.2 detail-page chrome shared by every HR
  * recruitment pillar. Wraps the shared `<EntityDetailShell>` with:
@@ -15,23 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  Pencil,
-  Printer,
-  Mail,
-  Copy,
-  Trash2,
-  Activity,
-  ChevronRight,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

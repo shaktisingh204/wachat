@@ -1,10 +1,6 @@
 'use client';
 
-import {
-    ZoruCard,
-    ZoruCardDescription,
-    ZoruCardTitle,
-} from '@/components/zoruui';
+import { ZoruCard, ZoruCardDescription, ZoruCardTitle } from '@/components/zoruui';
 import { Users } from 'lucide-react';
 
 export default function ExpertsDirectoryPage() {

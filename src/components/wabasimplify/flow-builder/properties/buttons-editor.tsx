@@ -1,10 +1,6 @@
-
 'use client';
 
-import { ZoruInput, ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput, ZoruButton, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 

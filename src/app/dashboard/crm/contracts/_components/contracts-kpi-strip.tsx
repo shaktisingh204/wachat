@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { CalendarClock, FileSignature, IndianRupee, Send, ShieldCheck, } from 'lucide-react';
+
 /**
  * KPI strip for the Contracts list (§1D.1).
  *
@@ -11,15 +14,6 @@
  */
 
 import * as React from 'react';
-import {
-  CalendarClock,
-  FileSignature,
-  IndianRupee,
-  Send,
-  ShieldCheck,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 export type ContractsKpiKey =
   | 'all'

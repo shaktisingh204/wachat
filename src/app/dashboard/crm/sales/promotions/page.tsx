@@ -1,9 +1,11 @@
 'use client';
 
-import { Tag } from 'lucide-react';
+import { ZoruBadge } from '@/components/zoruui';
+import {
+  Tag } from 'lucide-react';
 
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { ZoruBadge } from '@/components/zoruui';
+
 import {
   getPromotions,
   savePromotion,

@@ -1,15 +1,13 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
-import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSkeleton,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -20,6 +18,17 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { getCrmEmailTemplates,
+  deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
+import type { WithId,
+  CrmEmailTemplate } from '@/lib/definitions';
+import { LoaderCircle, Plus, Trash2, Edit } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+
 import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 
 export function EmailTemplatesManager() {

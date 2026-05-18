@@ -1,7 +1,5 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -10,10 +8,19 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  ZoruButton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruLabel,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+
 import { LoaderCircle, RefreshCw, Facebook } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCatalogs, syncCatalogs } from '@/app/actions/catalog.actions';
@@ -68,7 +75,6 @@ export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProduc
       }
     });
   };
-
 
   return (
     <ZoruDialog open={open} onOpenChange={setOpen}>

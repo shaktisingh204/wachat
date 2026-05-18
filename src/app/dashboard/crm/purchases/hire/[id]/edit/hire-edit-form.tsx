@@ -1,25 +1,22 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * Client island for the hire edit page. Wraps `updateCrmHire` in
  * `useActionState`, surfaces toasts on success/error, and pushes the
  * user back to the hire detail view on save.
  */
 
-import { useActionState, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { updateCrmHire } from '@/app/actions/crm-hire.actions';
 
 export interface HireEditFormInitial {

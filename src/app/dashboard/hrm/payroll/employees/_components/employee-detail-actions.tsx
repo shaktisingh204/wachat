@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Activity,
+  Archive,
+  IdCard,
+  Mail,
+  MoreHorizontal,
+  PackageOpen,
+  Pencil,
+  PlaneTakeoff,
+  Printer,
+  UserMinus,
+  } from 'lucide-react';
+
 /**
  * <EmployeeDetailActions> — top-right action group on the employee
  * detail page. Renders 10 affordances per the §1D spec:
@@ -21,29 +45,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Activity,
-  Archive,
-  IdCard,
-  Mail,
-  MoreHorizontal,
-  PackageOpen,
-  Pencil,
-  PlaneTakeoff,
-  Printer,
-  UserMinus,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { updateEmployee } from '@/app/actions/crm/employees.actions';

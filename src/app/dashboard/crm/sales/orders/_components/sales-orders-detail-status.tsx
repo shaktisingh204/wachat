@@ -1,5 +1,15 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  X } from 'lucide-react';
+
+import { StatusPill,
+  statusToTone } from '@/components/crm/status-pill';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 /**
  * <SalesOrderInlineStatus> — clickable status pill on the SO detail
  * page that opens an inline `<EnumFormField enumName="salesOrderStatus">`
@@ -17,12 +27,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LoaderCircle, X } from 'lucide-react';
 
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import { useZoruToast } from '@/components/zoruui';
 import { setSalesOrderStatus } from '@/app/actions/crm/sales-orders.actions';
 
 interface Props {

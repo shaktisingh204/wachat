@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getSession } from './user.actions';
@@ -95,7 +93,6 @@ export async function getProjectForBroadcast(projectId: string): Promise<(Pick<W
     }
 }
 
-
 export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<WithId<Project>[]> {
     try {
         const { projectsApi } = await import('@/lib/rust-client/projects');
@@ -117,7 +114,6 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
 }
 
 // getProjectsForAdmin moved to admin.actions.ts
-
 
 export async function handleUpdateProjectSettings(
     prevState: any,
@@ -295,9 +291,7 @@ export async function saveKanbanStatuses(projectId: string, statuses: string[]):
 
 // handleUpdateContactStatus moved to contact.actions.ts
 
-
 // handleUpdateContactDetails moved to contact.actions.ts
-
 
 export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
@@ -368,7 +362,6 @@ export async function handleUpdateOptInOutSettings(prevState: any, formData: For
         return { error: 'Failed to save settings.' };
     }
 }
-
 
 export async function handleSaveUserAttributes(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
@@ -505,7 +498,6 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
         return { error: getErrorMessage(e) || 'Failed to delete project.' };
     }
 }
-
 
 export async function handleUpdateProjectTags(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();

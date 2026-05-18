@@ -1,22 +1,26 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Truck } from 'lucide-react';
+
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 /**
  * Shipping zones list — `/dashboard/crm/store/shipping`.
  */
 
 import Link from 'next/link';
-import { Plus, Truck } from 'lucide-react';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import {
     getShippingZoneList,
     getStorefrontList,

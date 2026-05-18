@@ -1,34 +1,5 @@
 'use client';
 
-/**
- * Wachat Calls — Logs tab (ZoruUI).
- *
- * KPI tiles, filters, sortable table, CSV export, refresh.
- * Per-call detail sheet for transcript / recording metadata.
- *
- * Data: crm_call_logs collection via getCallLogs().
- */
-
-import * as React from 'react';
-import { useEffect, useMemo, useState, useTransition, useCallback } from 'react';
-import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  Check,
-  Clock,
-  Loader2,
-  Phone,
-  PhoneMissed,
-  RefreshCw,
-  Search,
-  X,
-  Download,
-} from 'lucide-react';
-import { formatDistanceToNow, format } from 'date-fns';
-
-import { getCallLogs } from '@/app/actions/calling.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -49,6 +20,41 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  Check,
+  Clock,
+  Loader2,
+  Phone,
+  PhoneMissed,
+  RefreshCw,
+  Search,
+  X,
+  Download,
+  } from 'lucide-react';
+import { formatDistanceToNow,
+  format } from 'date-fns';
+
+import { getCallLogs } from '@/app/actions/calling.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Calls — Logs tab (ZoruUI).
+ *
+ * KPI tiles, filters, sortable table, CSV export, refresh.
+ * Per-call detail sheet for transcript / recording metadata.
+ *
+ * Data: crm_call_logs collection via getCallLogs().
+ */
+
+import * as React from 'react';
 
 type CallLog = {
   _id: string;

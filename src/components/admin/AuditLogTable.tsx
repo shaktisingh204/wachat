@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruBadge, ZoruInput, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import {
+  Search,
+  ShieldAlert,
+  ShieldCheck } from 'lucide-react';
+
 /**
  * Admin-side viewer for the compliance audit log.
  *
@@ -11,18 +17,7 @@
  * flows.
  */
 import * as React from 'react';
-import { Search, ShieldAlert, ShieldCheck } from 'lucide-react';
 
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import {
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 import type {

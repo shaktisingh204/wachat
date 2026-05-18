@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  Activity,
+  Archive,
+  Lock,
+  Pencil,
+  Pin,
+  Reply,
+  Trash2,
+  } from 'lucide-react';
+
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Discussion detail actions — Edit · Lock · Pin · Reply · Archive ·
  * Activity · Delete. Lock/Pin/Archive currently route to /edit since
@@ -8,18 +21,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    Archive,
-    Lock,
-    Pencil,
-    Pin,
-    Reply,
-    Trash2,
-} from 'lucide-react';
-
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import { deleteDiscussion } from '@/app/actions/worksuite/knowledge.actions';
 

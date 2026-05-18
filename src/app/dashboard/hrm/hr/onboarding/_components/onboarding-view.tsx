@@ -1,5 +1,14 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  ListChecks,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * Onboarding list — §1D.1 rebuild.
  *
@@ -16,15 +25,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  ListChecks,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
 
-import { useZoruToast } from '@/components/zoruui';
 import {
   RecruitmentListShell,
   renderStatusCell,

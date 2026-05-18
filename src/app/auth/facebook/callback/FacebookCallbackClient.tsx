@@ -1,17 +1,13 @@
+'use client';
 
-'use client'
-
-import { useEffect, useTransition } from 'react'
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription } from '@/components/zoruui';
+import {
+  useEffect,
+  useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { handleFacebookOAuthCallback } from '@/app/actions/facebook.actions'
 import { LoaderCircle } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import {
-  ZoruCard,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruCardDescription,
-} from '@/components/zoruui'
 
 type Props = {
   code?: string

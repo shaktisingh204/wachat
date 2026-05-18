@@ -1,3 +1,19 @@
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+    LogOut,
+  Pencil,
+  Printer,
+  CheckCircle2,
+  FileSignature,
+  ArrowLeft,
+  Trash2,
+  } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Exit detail page (§1D.2).
  *
@@ -8,20 +24,6 @@
  * TODO 1D.2 markers).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-    LogOut,
-    Pencil,
-    Printer,
-    CheckCircle2,
-    FileSignature,
-    ArrowLeft,
-    Trash2,
-} from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import {
     getHrEntityById,
     fmtDate,

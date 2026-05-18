@@ -1,5 +1,19 @@
 "use client";
 
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruPageActions,
+  ZoruPageDescription,
+  ZoruPageEyebrow,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+} from '@/components/zoruui';
 /**
  * Local Meta Suite › Commerce shells.
  *
@@ -14,21 +28,6 @@
  */
 
 import * as React from "react";
-
-import {
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruPageActions,
-  ZoruPageDescription,
-  ZoruPageEyebrow,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from "@/components/zoruui";
 
 export function CommercePage({ children }: { children: React.ReactNode }) {
   return (

@@ -1,19 +1,13 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-
-
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch, ZoruSeparator } from '@/components/zoruui';
 import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { ClayCard } from '@/components/clay';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
 import { LoaderCircle, Server, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveCrmEmailSettings } from '@/app/actions/crm-email.actions';
 import type { EmailSettings as CrmEmailSettings } from '@/lib/definitions';
-import { ZoruSwitch } from '../ui/switch';
-import { ZoruSeparator } from '../ui/separator';
 
 const initialState = { message: null, error: undefined };
 

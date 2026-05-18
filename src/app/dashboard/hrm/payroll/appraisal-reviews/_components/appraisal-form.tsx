@@ -1,5 +1,37 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from 'lucide-react';
+
 // TODO 1E.sweep: status -> <EnumFormField enumName="appraisalStatus">; period -> <EnumFormField enumName="okrPeriod">; reviewer/employee -> <EntityFormField entity="employee">. See plan §1E.
 
 /**
@@ -15,32 +47,6 @@
  *   kpis (Vec<{name, target, achieved, score}> repeater),
  *   overallRating (1..5), comments, status, finalizedAt.
  */
-
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { saveAppraisalReview } from '@/app/actions/crm-appraisals.actions';
 import type {

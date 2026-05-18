@@ -1,5 +1,19 @@
 "use client";
 
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruSeparator, ZoruSkeleton } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useParams } from "next/navigation";
+import { AlertCircle } from "lucide-react";
+
+import { getEcommShopById } from "@/app/actions/custom-ecommerce.actions";
+import { getCustomDomains } from "@/app/actions/url-shortener.actions";
+import type { CustomDomain,
+  EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/settings
  *
@@ -9,22 +23,6 @@
  */
 
 import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
-import { AlertCircle } from "lucide-react";
-
-import { getEcommShopById } from "@/app/actions/custom-ecommerce.actions";
-import { getCustomDomains } from "@/app/actions/url-shortener.actions";
-import type { CustomDomain, EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruSeparator,
-  ZoruSkeleton,
-} from "@/components/zoruui";
 
 import { EcommCustomDomainForm } from "../../../_components/ecomm-custom-domain-form";
 import { EcommSettingsForm } from "../../../_components/ecomm-settings-form";

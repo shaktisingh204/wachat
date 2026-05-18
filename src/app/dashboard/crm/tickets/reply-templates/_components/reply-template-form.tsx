@@ -1,5 +1,17 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 /**
  * <ReplyTemplateForm /> — create + edit form for ticket reply templates.
  *
@@ -10,22 +22,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Save } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import {

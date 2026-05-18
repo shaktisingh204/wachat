@@ -1,23 +1,7 @@
 'use client';
 
-/**
- * /wachat/chat-labels — Manage colored labels for chat organization,
- * rebuilt on ZoruUI primitives. Color picker uses neutral swatches only.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useActionState } from 'react';
-import { Tag, X, Loader2, Plus } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getChatLabels,
-  saveChatLabel,
-  deleteChatLabel,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -32,6 +16,26 @@ import {
   ZoruBadge,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useActionState } from 'react';
+import { Tag,
+  X,
+  Loader2,
+  Plus } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getChatLabels, saveChatLabel, deleteChatLabel } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/chat-labels — Manage colored labels for chat organization,
+ * rebuilt on ZoruUI primitives. Color picker uses neutral swatches only.
+ */
+
+import * as React from 'react';
 
 /**
  * Neutral palette swatches — labels still encode their accent color via

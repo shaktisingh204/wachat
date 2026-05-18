@@ -1,5 +1,15 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Factory,
+  Layers,
+  Plus } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * <BomListClient> — orchestrates the §1D BOM list page.
  *
@@ -12,12 +22,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Factory, Layers, Plus } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 import {
     bulkBomAction,

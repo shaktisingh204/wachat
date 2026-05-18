@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  Download,
+  ListChecks,
+  Lock,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * <RfqBulkBar> — sticky bulk-action ribbon for the RFQs list. Wires
  * real server actions for archive / delete / status-change / close.
@@ -7,15 +15,6 @@
  */
 
 import * as React from 'react';
-import { Download, ListChecks, Lock, Trash2, X } from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 
 import type { CrmRfqStatus } from '@/lib/rust-client/crm-rfqs';
 

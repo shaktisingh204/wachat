@@ -1,23 +1,32 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { ShieldCheck, Mail, Upload, List, CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 import {
-    ZoruCard,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruBadge,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-    useZoruToast,
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruBadge,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { ShieldCheck,
+  Mail,
+  Upload,
+  List,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Loader2 } from 'lucide-react';
 
 type VerificationResult = {
     email: string;

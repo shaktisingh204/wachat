@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Tag } from 'lucide-react';
+
 /**
  * Edit promotion page — loads the document via `getPromotionById` and
  * passes it as `initialData` to `<PromotionForm />`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Tag } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getPromotionById } from '@/app/actions/crm-promotions.actions';

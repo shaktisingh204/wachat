@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { FileText,
+  Plus } from 'lucide-react';
+
 /**
  * <QuotationListClient> — canonical Quotations list view per
  * `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D.
@@ -20,14 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { FileText, Plus } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

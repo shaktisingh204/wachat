@@ -1,9 +1,9 @@
 'use client';
 
-import * as React from 'react';
+import { ZoruButton } from '@/components/zoruui';
 import { Archive, Download, RefreshCw, Trash2 } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
+import * as React from 'react';
 
 interface CoaBulkBarProps {
     selectedCount: number;

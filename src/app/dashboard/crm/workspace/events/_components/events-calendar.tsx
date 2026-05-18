@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
+import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
+
 /**
  * Month-grid calendar view embedded into the events list page (§1D.4).
  * Replaces the standalone /events/calendar page when toggled on.
@@ -11,9 +14,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight, CalendarDays } from 'lucide-react';
-
-import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
 
 import { toDate } from './events-shared';
 import type { WsEvent } from '@/lib/worksuite/knowledge-types';

@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * /sabwa/settings — Profile sub-page (default route).
- *
- * Visual layer migrated to ZoruUI. Sub-section navigation rendered via
- * `<SettingsTabs>` which is now a segmented ZoruButton-style nav (no
- * tab UI per ZoruUI rules) linking to each settings sub-route.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  UserCog,
-  RefreshCw,
-  Upload as UploadIcon,
-  Phone,
-  Clock,
-  Smartphone,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -47,6 +28,25 @@ import {
   ZoruTextarea,
   zoruSonnerToast as toast,
 } from '@/components/zoruui';
+import {
+  UserCog,
+  RefreshCw,
+  Upload as UploadIcon,
+  Phone,
+  Clock,
+  Smartphone,
+  } from 'lucide-react';
+
+/**
+ * /sabwa/settings — Profile sub-page (default route).
+ *
+ * Visual layer migrated to ZoruUI. Sub-section navigation rendered via
+ * `<SettingsTabs>` which is now a segmented ZoruButton-style nav (no
+ * tab UI per ZoruUI rules) linking to each settings sub-route.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { SabFilePickerButton } from '@/components/sabfiles/sab-file-picker';
 import { StatusBadge } from '../_components/status-badge';

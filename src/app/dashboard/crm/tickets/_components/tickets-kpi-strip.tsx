@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { AlertTriangle, CheckCircle2, Clock, LifeBuoy, Star, } from 'lucide-react';
+
 /**
  * KPI strip for the Tickets list page (§1D.1).
  *
@@ -14,15 +17,7 @@
  */
 
 import * as React from 'react';
-import {
-    AlertTriangle,
-    CheckCircle2,
-    Clock,
-    LifeBuoy,
-    Star,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
 
 export type TicketsKpiKey =

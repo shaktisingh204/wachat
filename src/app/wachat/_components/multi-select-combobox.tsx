@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * MultiSelectCombobox (wachat-local, ZoruUI).
- *
- * Drop-in replacement for the wabasimplify multi-select-combobox used
- * by AddContactDialog. Built only on Zoru primitives — neutral palette,
- * no clay tokens.
- */
-
-import * as React from 'react';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -26,6 +15,20 @@ import {
   ZoruScrollArea,
   cn,
 } from '@/components/zoruui';
+import {
+  Check,
+  ChevronsUpDown,
+  X } from 'lucide-react';
+
+/**
+ * MultiSelectCombobox (wachat-local, ZoruUI).
+ *
+ * Drop-in replacement for the wabasimplify multi-select-combobox used
+ * by AddContactDialog. Built only on Zoru primitives — neutral palette,
+ * no clay tokens.
+ */
+
+import * as React from 'react';
 
 export type MultiSelectOption = {
   value: string;

@@ -1,7 +1,6 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruSkeleton } from '@/components/zoruui';
 import {
   Users,
   ArrowRight,
@@ -12,16 +11,14 @@ import {
   Search,
   LayoutGrid,
   List,
-} from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
+  } from 'lucide-react';
+import { useEffect,
+  useState,
+  useTransition } from 'react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruSkeleton,
-} from '@/components/zoruui';
+import * as React from 'react';
+import Link from 'next/link';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 

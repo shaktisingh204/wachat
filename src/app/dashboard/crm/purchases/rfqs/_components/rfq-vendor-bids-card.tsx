@@ -1,3 +1,4 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
 /**
  * <RfqVendorBidsCard> — server component that lists all vendor bids
  * submitted against an RFQ. Highlights the awarded vendor and exposes
@@ -10,7 +11,6 @@
 
 import Link from 'next/link';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { listVendorBids } from '@/app/actions/crm/vendor-bids.actions';

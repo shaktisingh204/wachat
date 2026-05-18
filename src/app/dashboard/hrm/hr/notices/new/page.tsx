@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { ArrowLeft, Bell } from 'lucide-react';
+
 /**
  * HR Notices — new notice page.
  *
@@ -7,9 +10,7 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, Bell } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { NoticeForm } from '../_components/notice-form';
 

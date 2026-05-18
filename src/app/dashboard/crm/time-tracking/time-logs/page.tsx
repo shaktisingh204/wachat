@@ -1,5 +1,31 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruStatCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+  Clock,
+  DollarSign,
+  Filter,
+  Play,
+  PlayCircle,
+  Plus,
+  Square,
+  TrendingUp,
+  Calendar,
+  } from 'lucide-react';
+
 /**
  * Time Logs — list page (rebuilt per §1D.1).
  *
@@ -15,31 +41,7 @@
  */
 
 import * as React from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  Clock,
-  DollarSign,
-  Filter,
-  Play,
-  PlayCircle,
-  Plus,
-  Square,
-  TrendingUp,
-  Calendar,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruStatCard,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

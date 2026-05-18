@@ -1,3 +1,6 @@
+import { ZoruCard } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+
 /**
  * Store order detail — `/dashboard/crm/store/orders/[orderId]`.
  *
@@ -6,9 +9,6 @@
  * `markOrderPaid` is flagged TODO in the action layer.
  */
 
-import { notFound } from 'next/navigation';
-
-import { ZoruCard } from '@/components/zoruui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

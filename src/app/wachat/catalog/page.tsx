@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * Wachat Catalog — catalog list + Meta Commerce setup guide.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState } from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import type { WithId } from 'mongodb';
-import {
-  ArrowRight,
-  CircleAlert,
-  ExternalLink,
-  GitBranch,
-  Lock,
-  ShoppingBag,
-} from 'lucide-react';
-
-import { getCatalogs } from '@/app/actions/catalog.actions';
-import { getProjectById } from '@/app/actions/project.actions';
-import type { Catalog } from '@/lib/definitions';
-import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
-import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
-import { useProject } from '@/context/project-context';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -42,6 +16,36 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import type { WithId } from 'mongodb';
+import {
+  ArrowRight,
+  CircleAlert,
+  ExternalLink,
+  GitBranch,
+  Lock,
+  ShoppingBag,
+  } from 'lucide-react';
+
+import { getCatalogs } from '@/app/actions/catalog.actions';
+import { getProjectById } from '@/app/actions/project.actions';
+import type { Catalog } from '@/lib/definitions';
+import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
+import EmbeddedSignup from '@/components/wabasimplify/embedded-signup';
+import { useProject } from '@/context/project-context';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+/**
+ * Wachat Catalog — catalog list + Meta Commerce setup guide.
+ */
+
+import * as React from 'react';
 
 function WACatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
   return (

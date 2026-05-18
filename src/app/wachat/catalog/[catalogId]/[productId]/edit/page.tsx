@@ -1,15 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import { ProductForm } from '@/components/wabasimplify/product-form';
-import { useProject } from '@/context/project-context';
-import { getProductsForCatalog } from '@/app/actions/catalog.actions';
-import type { Product } from '@/lib/definitions';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -24,6 +14,19 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import { ProductForm } from '@/components/wabasimplify/product-form';
+import { useProject } from '@/context/project-context';
+import { getProductsForCatalog } from '@/app/actions/catalog.actions';
+import type { Product } from '@/lib/definitions';
 
 export default function EditProductPage() {
   const params = useParams();

@@ -1,24 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
   useEffect,
   useState,
   useTransition,
-} from 'react';
-import { LoaderCircle, Ticket } from 'lucide-react';
+  } from 'react';
+import { LoaderCircle,
+  Ticket } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  ZoruSwitch,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {
   getTicketEmailSetting,

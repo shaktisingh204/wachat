@@ -1,5 +1,3 @@
-
-
 'use server';
 
 /**
@@ -70,7 +68,6 @@ export async function getTokenScopes(projectId: string): Promise<{ scopes?: stri
     }
 }
 
-
 // =================================================================
 //  TOKEN EXCHANGE & REFRESH
 // =================================================================
@@ -102,7 +99,6 @@ export async function getPageTokenFromUserToken(userToken: string, pageId: strin
     }
 }
 
-
 // =================================================================
 //  APP ACCESS TOKEN (for server-to-server calls)
 // =================================================================
@@ -115,7 +111,6 @@ export async function getAppAccessToken(): Promise<{ appToken?: string; error?: 
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // =================================================================
 //  PERMISSIONS CHECK
@@ -148,7 +143,6 @@ export async function checkPermission(projectId: string, permission: string): Pr
     }
 }
 
-
 // =================================================================
 //  RATE LIMIT STATUS
 // =================================================================
@@ -161,7 +155,6 @@ export async function getApiUsageStatus(projectId: string): Promise<{ usage?: an
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // =================================================================
 //  CROSS-PLATFORM: BATCH API REQUESTS
@@ -178,7 +171,6 @@ export async function batchGraphRequests(
         return { error: getErrorMessage(e) };
     }
 }
-
 
 // =================================================================
 //  USER IDENTITY (Me endpoint)

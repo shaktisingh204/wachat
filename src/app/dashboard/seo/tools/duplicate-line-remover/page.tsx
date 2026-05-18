@@ -1,11 +1,10 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruTextarea, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useState } from 'react';
+
 void _zoruCn;
 
-import { useState } from 'react';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 import { removeDuplicateLines } from '@/lib/seo-tools/text-utils';
 

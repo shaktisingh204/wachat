@@ -1,6 +1,16 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, useZoruToast } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
 import { IndianRupee, Box, Download, LoaderCircle, DollarSign } from 'lucide-react';
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateStockValueReport } from "@/app/actions/crm-reports.actions";

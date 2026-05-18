@@ -1,37 +1,5 @@
 "use client";
 
-/**
- * SabWa — Scheduler Queue (`/sabwa/scheduler/queue`).
- *
- * Power-user table for the schedule pipeline. Filters by session,
- * status, and date range; bulk-cancel or bulk-reschedule selected
- * rows; click a row to open the shared `ScheduleDialog` in edit
- * mode.
- *
- * Wiring goes through:
- *   - `listScheduledMessages` (read — returns `{ items: [] }` on engine 404)
- *   - `updateScheduledMessage` (single reschedule + bulk reschedule)
- *   - `cancelScheduledMessage`  (single + bulk cancel)
- *
- * When the engine returns nothing (no scheduled messages yet), we show
- * an empty state — no fake sample rows.
- *
- * Rebuilt on ZoruUI primitives.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  CalendarClock,
-  CalendarIcon,
-  ListChecks,
-  Plus,
-  RefreshCw,
-  Search,
-  Smartphone,
-  Trash2,
-} from "lucide-react";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -62,7 +30,39 @@ import {
   ZoruTableRow,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  CalendarClock,
+  CalendarIcon,
+  ListChecks,
+  Plus,
+  RefreshCw,
+  Search,
+  Smartphone,
+  Trash2,
+  } from "lucide-react";
+
+/**
+ * SabWa — Scheduler Queue (`/sabwa/scheduler/queue`).
+ *
+ * Power-user table for the schedule pipeline. Filters by session,
+ * status, and date range; bulk-cancel or bulk-reschedule selected
+ * rows; click a row to open the shared `ScheduleDialog` in edit
+ * mode.
+ *
+ * Wiring goes through:
+ *   - `listScheduledMessages` (read — returns `{ items: [] }` on engine 404)
+ *   - `updateScheduledMessage` (single reschedule + bulk reschedule)
+ *   - `cancelScheduledMessage`  (single + bulk cancel)
+ *
+ * When the engine returns nothing (no scheduled messages yet), we show
+ * an empty state — no fake sample rows.
+ *
+ * Rebuilt on ZoruUI primitives.
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 import {
   cancelScheduledMessage,

@@ -1,3 +1,25 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruProgress,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowLeft,
+  CalendarClock,
+  CalendarDays,
+  Plus,
+  } from 'lucide-react';
+
 /**
  * Employee leave-quotas sub-tab —
  *   `/dashboard/hrm/payroll/employees/[employeeId]/leave-quotas`.
@@ -9,26 +31,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowLeft,
-    CalendarClock,
-    CalendarDays,
-    Plus,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruProgress,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getEmployee } from '@/app/actions/crm/employees.actions';

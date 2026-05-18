@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruDateRangePicker, ZoruLabel } from '@/components/zoruui';
+import {
+  CheckCircle2,
+  Clock,
+  MoonStar,
+  Trash2,
+  UserPlus,
+  X } from 'lucide-react';
+
 /**
  * Filter row + bulk action bar for the tasks list page.
  *
@@ -11,16 +20,7 @@
 
 import * as React from 'react';
 import type { DateRange } from 'react-day-picker';
-import { CheckCircle2, Clock, MoonStar, Trash2, UserPlus, X } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDateRangePicker,
-    ZoruLabel,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';

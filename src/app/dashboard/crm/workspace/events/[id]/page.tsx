@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Event detail — §1D.2 bar.
  *
@@ -6,10 +12,6 @@
  * to client islands.
  */
 
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { Calendar, ExternalLink, MapPin } from 'lucide-react';
 
 import {

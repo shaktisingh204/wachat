@@ -1,10 +1,12 @@
 'use client';
 
-import * as React from 'react';
-import { useProject } from '@/context/project-context';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+import {
+  useProject } from '@/context/project-context';
 import { SidebarTrigger } from '@/components/ui/sidebar';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
+
+import * as React from 'react';
+
 import { NotificationPopover } from '@/components/notifications/notification-popover';
 import { PanelLeft } from 'lucide-react';
 

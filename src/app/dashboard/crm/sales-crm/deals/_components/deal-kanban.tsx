@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruBadge, ZoruCard, ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Clock,
+  Trophy } from 'lucide-react';
+
 /**
  * <DealKanban> — drag-between-columns deal pipeline board.
  *
@@ -14,15 +20,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { Clock, Trophy } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { statusToTone, StatusPill } from '@/components/crm/status-pill';

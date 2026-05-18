@@ -1,8 +1,6 @@
-
 'use client';
 
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel, ZoruSelect } from '@/components/zoruui';
 import { DataSourceEditor } from '../shared/data-source-editor';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';

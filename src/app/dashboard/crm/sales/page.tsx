@@ -1,12 +1,4 @@
-/**
- * Sales module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/sales/clients')` shim. Now serves a
- * proper landing page so users can navigate the whole sales surface
- * from one place.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   Building2,
@@ -31,15 +23,17 @@ import {
   Receipt,
   Repeat,
   Calendar,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * Sales module overview — tile grid linking every sub-feature.
+ *
+ * Was a `redirect('/dashboard/crm/sales/clients')` shim. Now serves a
+ * proper landing page so users can navigate the whole sales surface
+ * from one place.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

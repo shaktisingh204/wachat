@@ -1,56 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook — Meta Suite root / overview.
- *
- * Rebuilt on ZoruUI primitives. Same data — `getProjectById`,
- * `getPageDetails`, `getPageInsights`, `getFacebookPosts`,
- * `getInstagramAccountForPage` — and the same handlers as before.
- * Visual layer is pure zoru tokens, no rainbow accents.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition, useCallback, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
-import {
-  AlertCircle,
-  ArrowRight,
-  Calendar,
-  Edit,
-  MessageSquare,
-  MoreHorizontal,
-  Megaphone,
-  Newspaper,
-  Plus,
-  Search,
-  Settings,
-  Share2,
-  SlidersHorizontal,
-  Sparkles,
-  Star,
-  ThumbsUp,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-
-import { getProjectById } from "@/app/actions/project.actions";
-import {
-  getPageDetails,
-  getPageInsights,
-  getFacebookPosts,
-  getInstagramAccountForPage,
-} from "@/app/actions/facebook.actions";
-import type {
-  FacebookComment,
-  FacebookPageDetails,
-  FacebookPost,
-  PageInsights,
-  Project,
-  WithId,
-} from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -80,7 +29,63 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
+import {
+  AlertCircle,
+  ArrowRight,
+  Calendar,
+  Edit,
+  MessageSquare,
+  MoreHorizontal,
+  Megaphone,
+  Newspaper,
+  Plus,
+  Search,
+  Settings,
+  Share2,
+  SlidersHorizontal,
+  Sparkles,
+  Star,
+  ThumbsUp,
+  TrendingUp,
+  Users,
+  } from "lucide-react";
+
+import { getProjectById } from "@/app/actions/project.actions";
+import {
+  getPageDetails,
+  getPageInsights,
+  getFacebookPosts,
+  getInstagramAccountForPage,
+  } from "@/app/actions/facebook.actions";
+import type {
+  FacebookComment,
+  FacebookPageDetails,
+  FacebookPost,
+  PageInsights,
+  Project,
+  WithId,
+  } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook — Meta Suite root / overview.
+ *
+ * Rebuilt on ZoruUI primitives. Same data — `getProjectById`,
+ * `getPageDetails`, `getPageInsights`, `getFacebookPosts`,
+ * `getInstagramAccountForPage` — and the same handlers as before.
+ * Visual layer is pure zoru tokens, no rainbow accents.
+ */
+
+import * as React from "react";
 
 import { PermissionErrorDialog } from "./_components/permission-error-dialog";
 import {

@@ -1,29 +1,49 @@
-
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
+import {
+  ZoruSeparator,
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useMemo } from 'react';
+import { DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { saveWebsitePage, getWebsitePages } from '@/app/actions/portfolio.actions';
-import type { WithId, Website, WebsitePage, EcommProduct, WebsiteBlock, EcommShop, EcommPage } from '@/lib/definitions';
+import { saveWebsitePage,
+  getWebsitePages } from '@/app/actions/portfolio.actions';
+import type { WithId,
+  Website,
+  WebsitePage,
+  EcommProduct,
+  WebsiteBlock,
+  EcommShop,
+  EcommPage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import { PageManagerPanel } from './page-manager-panel';
-import { ZoruSeparator, ZoruButton } from '@/components/zoruui';
 import { WebsiteBuilderHeader } from './website-builder-header';
-import { saveEcommPage, getEcommPages, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
+import { saveEcommPage,
+  getEcommPages,
+  updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
+import { ChevronLeft,
+  ChevronRight,
+  X,
+  Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { ZoruButton } from '@/components/zoruui';
-import {
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 function findList(items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null {
     if (droppableId === 'canvas') return items;

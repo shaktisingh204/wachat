@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * Loans list client — §1D.1 upgrade. Adds KPI strip, filter chips, and
- * client-side bulk selection (CSV export) on top of the legacy server
- * Mongo read.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { ListChecks, Pencil, Search, X } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -27,6 +17,21 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  ListChecks,
+  Pencil,
+  Search,
+  X } from 'lucide-react';
+
+/**
+ * Loans list client — §1D.1 upgrade. Adds KPI strip, filter chips, and
+ * client-side bulk selection (CSV export) on top of the legacy server
+ * Mongo read.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {

@@ -1,5 +1,10 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  Tag,
+  X } from 'lucide-react';
+
 /**
  * <LeadTagsChips> — clickable tag list on the lead detail page.
  *
@@ -9,16 +14,7 @@
  */
 
 import * as React from 'react';
-import { Tag, X } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { updateCrmLeadTags } from '@/app/actions/crm-leads.actions';

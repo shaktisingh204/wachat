@@ -1,5 +1,38 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+    Activity,
+  ArrowRightLeft,
+  CheckCircle2,
+  FileText,
+  Plus,
+  Trash2,
+  Truck,
+  X,
+  } from 'lucide-react';
+
 /**
  * <StockTransfersListClient /> — KPI strip · filters · table · pagination.
  *
@@ -9,38 +42,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-    Activity,
-    ArrowRightLeft,
-    CheckCircle2,
-    FileText,
-    Plus,
-    Trash2,
-    Truck,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSkeleton,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';

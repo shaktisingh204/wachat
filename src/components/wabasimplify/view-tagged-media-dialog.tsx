@@ -1,11 +1,22 @@
-
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruSkeleton,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
 import { getTaggedMediaForProduct } from '@/app/actions/catalog.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+
 import { AlertCircle, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

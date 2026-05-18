@@ -1,14 +1,14 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { Banknote, Check, Download } from 'lucide-react';
+
 /**
  * <PayrollRunsBulkBar> — sticky bulk-action bar for the payroll-runs
  * list (per §1D.1). Actions: approve · disburse · export CSV.
  */
 
 import * as React from 'react';
-import { Banknote, Check, Download } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 interface PayrollRunsBulkBarProps {
   count: number;

@@ -1,29 +1,7 @@
 'use client';
 
-/**
- * Wachat Message Analytics — ZoruUI rebuild.
- *
- * KPI strip + line chart + breakdown table. Greyscale-only chart palette
- * via ZORU_CHART_PALETTE; series differentiated by stroke-dasharray.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  ChevronDown,
-  Clock,
-  Download,
-  Inbox,
-  Loader2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getMessageAnalytics } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZORU_CHART_PALETTE,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -62,6 +40,32 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  ChevronDown,
+  Clock,
+  Download,
+  Inbox,
+  Loader2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getMessageAnalytics } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Message Analytics — ZoruUI rebuild.
+ *
+ * KPI strip + line chart + breakdown table. Greyscale-only chart palette
+ * via ZORU_CHART_PALETTE; series differentiated by stroke-dasharray.
+ */
+
+import * as React from 'react';
 
 type DailyRow = { date: string; outgoing: number; incoming: number };
 type Period = 7 | 30 | 90;

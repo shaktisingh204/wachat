@@ -1,4 +1,3 @@
-
 export * from './start-editor';
 export * from './text-editor';
 export * from './image-editor';

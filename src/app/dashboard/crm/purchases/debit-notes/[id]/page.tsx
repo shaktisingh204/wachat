@@ -1,3 +1,27 @@
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+  Pencil,
+  ArrowLeft,
+  Activity,
+  Printer,
+  Mail,
+  ClipboardList,
+  } from 'lucide-react';
+
 /**
  * Debit note detail — `/dashboard/crm/purchases/debit-notes/[id]`
  * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
@@ -14,29 +38,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-  Pencil,
-  ArrowLeft,
-  Activity,
-  Printer,
-  Mail,
-  ClipboardList,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

@@ -1,41 +1,5 @@
 'use client';
 
-/**
- * SabWa Groups — list page client (SABWA_PLAN.md §6 page 6).
- *
- * - Top toolbar: search + "New group".
- * - Category strip (horizontally scrollable) with "All" / "Uncategorised" /
- *   each user-defined category. Active pill drives `?category=` re-fetch.
- * - Grid of group cards with subject, member count, admin / announcement
- *   badges, mute icon, last-activity timestamp.
- * - Right-click / long-press → context menu (Open chat / Manage /
- *   Mute / Leave). Drag a card onto a category pill → setGroupCategory.
- * - "New group" dialog: subject + contact-searcher → createGroup.
- *
- * All server side-effects are routed through `@/app/actions/sabwa.actions`.
- *
- * ZoruUI migration — visual swap only; data flow, server actions and
- * prop shapes are unchanged.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  BellOff,
-  ChevronRight,
-  ExternalLink,
-  LogOut,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Settings,
-  ShieldCheck,
-  Tag,
-  Users,
-  Volume2,
-} from 'lucide-react';
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -75,6 +39,44 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import {
+  BellOff,
+  ChevronRight,
+  ExternalLink,
+  LogOut,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Settings,
+  ShieldCheck,
+  Tag,
+  Users,
+  Volume2,
+  } from 'lucide-react';
+
+/**
+ * SabWa Groups — list page client (SABWA_PLAN.md §6 page 6).
+ *
+ * - Top toolbar: search + "New group".
+ * - Category strip (horizontally scrollable) with "All" / "Uncategorised" /
+ *   each user-defined category. Active pill drives `?category=` re-fetch.
+ * - Grid of group cards with subject, member count, admin / announcement
+ *   badges, mute icon, last-activity timestamp.
+ * - Right-click / long-press → context menu (Open chat / Manage /
+ *   Mute / Leave). Drag a card onto a category pill → setGroupCategory.
+ * - "New group" dialog: subject + contact-searcher → createGroup.
+ *
+ * All server side-effects are routed through `@/app/actions/sabwa.actions`.
+ *
+ * ZoruUI migration — visual swap only; data flow, server actions and
+ * prop shapes are unchanged.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import {
   createGroup,

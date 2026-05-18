@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard, useZoruToast } from '@/components/zoruui';
+import { Building, GripVertical, Mail } from 'lucide-react';
+
 /**
  * <LeadsKanban> — board grouped by stage (or status when the lead has
  * no stage). Native HTML5 drag-and-drop wires cards into columns and
@@ -17,9 +20,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Building, GripVertical, Mail } from 'lucide-react';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {
     changeCrmLeadStatus,

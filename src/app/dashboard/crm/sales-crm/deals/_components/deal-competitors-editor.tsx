@@ -1,13 +1,12 @@
 'use client';
 
+import { ZoruButton, ZoruInput } from '@/components/zoruui';
 /**
  * <DealCompetitorsEditor> — free-text competitor chips. Extracted from
  * <DealForm> to keep the parent under the 600-line cap.
  */
 
 import * as React from 'react';
-
-import { ZoruButton, ZoruInput } from '@/components/zoruui';
 
 interface DealCompetitorsEditorProps {
   competitors: string[];

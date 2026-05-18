@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSwitch,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Edit,
+  LoaderCircle,
+  Plus,
+  ShieldCheck,
+  Trash2,
+  Webhook,
+  } from 'lucide-react';
+
 /**
  * <IntegrationsList /> — client list of custom CRM integrations.
  *
@@ -10,30 +34,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Edit,
-    LoaderCircle,
-    Plus,
-    ShieldCheck,
-    Trash2,
-    Webhook,
-} from 'lucide-react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruSwitch,
-    useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {

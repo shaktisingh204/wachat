@@ -1,29 +1,23 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruSwitch, ZoruTableCell, ZoruTableRow, cn } from '@/components/zoruui';
+import {
+  useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import {
+    Copy,
+  GripVertical,
+  Pencil,
+  PlayCircle,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Sortable row inside the auto-reply rules table. Uses `@dnd-kit` so
  * users can drag rules to change their priority.
  */
 
 import * as React from 'react';
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import {
-    Copy,
-    GripVertical,
-    Pencil,
-    PlayCircle,
-    Trash2,
-} from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruSwitch,
-    ZoruTableCell,
-    ZoruTableRow,
-    cn,
-} from '@/components/zoruui';
 
 import type { RuleRow } from '../_types';
 import {

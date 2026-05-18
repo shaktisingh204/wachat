@@ -1,15 +1,9 @@
-
 'use client';
 
-import { useRef } from 'react';
+import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruButton } from '@/components/zoruui';
 import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-} from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+  useRef } from 'react';
+
 import { Download } from 'lucide-react';
 import { QrCodeRenderer } from './qr-code-renderer';
 import { downloadQrCode, normalizeHex } from '@/lib/qr-utils';

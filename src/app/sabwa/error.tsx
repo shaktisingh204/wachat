@@ -1,9 +1,10 @@
 'use client';
 
+import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
+import { AlertTriangle } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle } from 'lucide-react';
-import { ZoruButton, ZoruEmptyState } from '@/components/zoruui';
 
 export default function SabwaError({
   error,

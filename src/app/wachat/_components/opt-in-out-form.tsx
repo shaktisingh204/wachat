@@ -1,20 +1,5 @@
 'use client';
 
-/**
- * OptInOutForm (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/opt-in-out-form. Same server
- * action (handleUpdateOptInOutSettings), same form fields and switch.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Loader2, Save } from 'lucide-react';
-
-import { handleUpdateOptInOutSettings } from '@/app/actions/index.ts';
-import type { Project, WithId } from '@/lib/definitions';
-
 import {
   ZoruButton,
   ZoruCardContent,
@@ -27,6 +12,26 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Loader2,
+  Save } from 'lucide-react';
+
+import { handleUpdateOptInOutSettings } from '@/app/actions/index.ts';
+import type { Project,
+  WithId } from '@/lib/definitions';
+
+/**
+ * OptInOutForm (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/opt-in-out-form. Same server
+ * action (handleUpdateOptInOutSettings), same form fields and switch.
+ */
+
+import * as React from 'react';
 
 const initialState: { message: string | null; error: string | null } = {
   message: null,

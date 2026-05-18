@@ -1,5 +1,8 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * useDealBulk — bulk-action handlers for the deals list. Each handler
  * funnels through `startBulkTransition` so the loading state is shared,
@@ -8,9 +11,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import { useZoruToast } from '@/components/zoruui';
 import {
   bulkArchiveDeals,
   bulkAssignDeals,

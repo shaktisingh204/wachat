@@ -1,11 +1,7 @@
-import { MessageSquare } from 'lucide-react';
-
+import { ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+  MessageSquare } from 'lucide-react';
+
 import {
   listConversations,
   getConversationWith,

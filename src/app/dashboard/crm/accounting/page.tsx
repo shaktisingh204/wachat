@@ -1,10 +1,4 @@
-/**
- * Accounting module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/accounting/charts')` shim.
- */
-
-import Link from 'next/link';
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
   ArrowUpRight,
   BookOpen,
@@ -16,15 +10,15 @@ import {
   ScrollText,
   TrendingUp,
   Wallet,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
+/**
+ * Accounting module overview — tile grid linking every sub-feature.
+ *
+ * Was a `redirect('/dashboard/crm/accounting/charts')` shim.
+ */
+
+import Link from 'next/link';
 
 interface NavTile {
   href: string;

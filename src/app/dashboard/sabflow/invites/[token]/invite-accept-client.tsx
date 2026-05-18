@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * Client side of the invite-accept flow. Rendered by
- * /dashboard/sabflow/invites/[token]/page.tsx — it already verified the
- * invite's validity and resolved the workspace name, so this only needs
- * to submit the accept / decline action.
- *
- * ZoruUI rewrite — chrome only. Same fetch endpoints & router hop.
- */
-
-import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Building2, Check, Loader2, UserPlus, X } from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -23,7 +10,25 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCardContent,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useState } from "react";
+import { useRouter } from "next/navigation";
+import { Building2,
+  Check,
+  Loader2,
+  UserPlus,
+  X } from "lucide-react";
+
+/**
+ * Client side of the invite-accept flow. Rendered by
+ * /dashboard/sabflow/invites/[token]/page.tsx — it already verified the
+ * invite's validity and resolved the workspace name, so this only needs
+ * to submit the accept / decline action.
+ *
+ * ZoruUI rewrite — chrome only. Same fetch endpoints & router hop.
+ */
 
 import type { WorkspaceRole } from "@/lib/sabflow/workspaces/types";
 

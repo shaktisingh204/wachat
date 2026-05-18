@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * /wachat/message-tags — manage conversation tags.
- * ZoruUI: header + breadcrumb, ZoruDataTable, ZoruColorPicker (neutral
- * palette), edit-tag dialog, delete alert dialog.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
-
-import { useProject } from '@/context/project-context';
-import {
-  getMessageTags,
-  saveMessageTag,
-  deleteMessageTag,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -55,6 +37,32 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo } from 'react';
+import { Plus,
+  Pencil,
+  Trash2,
+  Tag } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
+import { useProject } from '@/context/project-context';
+import {
+  getMessageTags,
+  saveMessageTag,
+  deleteMessageTag,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/message-tags — manage conversation tags.
+ * ZoruUI: header + breadcrumb, ZoruDataTable, ZoruColorPicker (neutral
+ * palette), edit-tag dialog, delete alert dialog.
+ */
+
+import * as React from 'react';
 
 interface Tag {
   _id: string;

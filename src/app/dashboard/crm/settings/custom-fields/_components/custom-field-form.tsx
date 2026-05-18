@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * <CustomFieldForm /> — create + edit form for a CRM custom-field
- * definition (`crm_custom_fields`). Mirrors the email-templates pattern:
- * a single client component bound to `saveCustomField` via
- * `useActionState`, reusable on both the (legacy) new dialog and the
- * dedicated edit page.
- *
- * The list page (`/dashboard/crm/settings/custom-fields`) still uses an
- * inline dialog for backwards compatibility, but the new
- * `[id]/edit/page.tsx` route mounts this component standalone so the
- * full structured-options / validation surface gets the full viewport.
- */
-
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Plus, Save, X } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -33,6 +14,32 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Plus,
+  Save,
+  X } from 'lucide-react';
+
+/**
+ * <CustomFieldForm /> — create + edit form for a CRM custom-field
+ * definition (`crm_custom_fields`). Mirrors the email-templates pattern:
+ * a single client component bound to `saveCustomField` via
+ * `useActionState`, reusable on both the (legacy) new dialog and the
+ * dedicated edit page.
+ *
+ * The list page (`/dashboard/crm/settings/custom-fields`) still uses an
+ * inline dialog for backwards compatibility, but the new
+ * `[id]/edit/page.tsx` route mounts this component standalone so the
+ * full structured-options / validation surface gets the full viewport.
+ */
+
 import { EnumFormField } from '@/components/crm/enum-form-field';
 
 import { saveCustomField } from '@/app/actions/crm-custom-fields.actions';

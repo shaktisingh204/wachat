@@ -1,15 +1,16 @@
 'use client';
 
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruKanbanBoard } from '../../_components/zoru-kanban-board';
+import {
+  Suspense } from 'react';
+
 /**
  * /wachat/chat/kanban — Conversations as a kanban board.
  *
  * The board itself lives in `ZoruKanbanBoard`. This page wraps it with
  * a Zoru skeleton fallback while data loads.
  */
-
-import { Suspense } from 'react';
-import { ZoruKanbanBoard } from '@/app/wachat/_components/zoru-kanban-board';
-import { ZoruSkeleton } from '@/components/zoruui';
 
 function KanbanPageSkeleton() {
   return (

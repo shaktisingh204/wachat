@@ -1,9 +1,11 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { cn } from '@/lib/utils';
+
 import React from 'react';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { usePathname } from 'next/navigation';
 
 export interface ModuleSidebarItem {

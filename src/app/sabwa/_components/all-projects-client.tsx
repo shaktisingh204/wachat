@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * AllProjectsClient — `/sabwa` clean projects landing.
- *
- * Just two things:
- *   1. List of SabWa workspaces (filtered to `kind === 'sabwa'`).
- *   2. "New SabWa project" button → inline create dialog.
- *
- * Clicking a workspace activates it and navigates to /sabwa/overview,
- * which is the accounts hub (linked WhatsApp numbers + connect-more
- * CTA + active-session picker). The legal/connect details all live on
- * that page.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { ChevronRight, Loader2, MessageSquare, Plus, Search, Sparkles } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { addSabwaProject } from '@/app/actions/sabwa.actions';
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -40,6 +21,32 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { ChevronRight,
+  Loader2,
+  MessageSquare,
+  Plus,
+  Search,
+  Sparkles } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { addSabwaProject } from '@/app/actions/sabwa.actions';
+
+/**
+ * AllProjectsClient — `/sabwa` clean projects landing.
+ *
+ * Just two things:
+ *   1. List of SabWa workspaces (filtered to `kind === 'sabwa'`).
+ *   2. "New SabWa project" button → inline create dialog.
+ *
+ * Clicking a workspace activates it and navigates to /sabwa/overview,
+ * which is the accounts hub (linked WhatsApp numbers + connect-more
+ * CTA + active-session picker). The legal/connect details all live on
+ * that page.
+ */
+
+import * as React from 'react';
 
 export interface AllProjectsBootstrap {
   projects: Array<{

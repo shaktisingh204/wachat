@@ -1,3 +1,4 @@
+import { ZoruCard } from '@/components/zoruui';
 /**
  * <InvoiceDetailBody> — body cards on the invoice detail page.
  *
@@ -6,7 +7,6 @@
  * regions live elsewhere (right rail, header actions, notes composer).
  */
 
-import { ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmInvoiceDoc } from '@/lib/rust-client/crm-invoices';

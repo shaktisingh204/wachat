@@ -1,20 +1,5 @@
 "use client";
 
-/**
- * Shared chrome for /dashboard/ad-manager ZoruUI pages.
- *
- * - <AmBreadcrumb> renders SabNode › Ad Manager › <section>.
- * - <AmHeader> renders ZoruPageHeader with title / description / actions.
- * - <AmNoProject> is the canonical empty state for "No project selected".
- * - <AmErrorAlert> is the canonical error.
- *
- * All migrated ad-manager pages import from here so headers stay
- * consistent. Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
- */
-
-import * as React from "react";
-import { CircleAlert } from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -30,7 +15,23 @@ import {
   ZoruPageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  CircleAlert } from "lucide-react";
+
+/**
+ * Shared chrome for /dashboard/ad-manager ZoruUI pages.
+ *
+ * - <AmBreadcrumb> renders SabNode › Ad Manager › <section>.
+ * - <AmHeader> renders ZoruPageHeader with title / description / actions.
+ * - <AmNoProject> is the canonical empty state for "No project selected".
+ * - <AmErrorAlert> is the canonical error.
+ *
+ * All migrated ad-manager pages import from here so headers stay
+ * consistent. Mirrors src/app/dashboard/facebook/_components/zoru-fb-page-shell.tsx.
+ */
+
+import * as React from "react";
 
 interface AmBreadcrumbProps {
   page: string;

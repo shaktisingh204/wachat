@@ -1,21 +1,39 @@
-
-
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruSeparator,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useRef } from 'react';
 import type { WithId } from 'mongodb';
-import type { Project, User, Plan } from '@/lib/definitions';
-import { handleInviteAgent, handleRemoveAgent } from '@/app/actions/team.actions';
+import type { Project,
+  User,
+  Plan } from '@/lib/definitions';
+import { handleInviteAgent,
+  handleRemoveAgent } from '@/app/actions/team.actions';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { Plus, Trash2, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+
 import { useActionState } from 'react';
 import Link from 'next/link';
 
@@ -26,7 +44,6 @@ interface AgentsRolesSettingsTabProps {
 
 const removeAgentInitialState: any = { message: null, error: null };
 const inviteAgentInitialState: any = { message: null, error: null };
-
 
 function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
     const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
@@ -103,7 +120,6 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
         </ZoruCard>
     );
 }
-
 
 export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTabProps) {
     const [isClient, setIsClient] = useState(false);

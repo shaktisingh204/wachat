@@ -35,7 +35,6 @@ async function getNextDebitNoteNumber(db: Db, userId: ObjectId): Promise<string>
     return `DN-${Date.now().toString().slice(-5)}`;
 }
 
-
 export async function getDebitNotes(
     page: number = 1,
     limit: number = 20,
@@ -192,7 +191,6 @@ export async function saveDebitNote(prevState: any, formData: FormData): Promise
         return { error: getErrorMessage(e) };
     }
 }
-
 
 export async function getDebitNoteById(noteId: string): Promise<WithId<CrmDebitNote> | null> {
     const session = await getSession();

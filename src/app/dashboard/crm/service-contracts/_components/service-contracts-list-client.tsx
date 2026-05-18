@@ -1,21 +1,5 @@
 'use client';
 
-/**
- * Service Contracts (AMC) list — §1D.1 upgrade adding KPI strip,
- * filter chips, and bulk select to the original server-driven table.
- *
- * Note: the underlying data still flows through the legacy Mongo read
- * path in `<ServiceContractsPage>` — this client takes the
- * pre-serialised rows and layers KPI + filter behaviour on top. Bulk
- * actions are scoped to client-side ops (CSV export); destructive
- * server-side bulk actions are deferred until the Rust list endpoint
- * exposes a bulk handler.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { ListChecks, Plus, Search, Wrench, X } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -33,6 +17,28 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  ListChecks,
+  Plus,
+  Search,
+  Wrench,
+  X } from 'lucide-react';
+
+/**
+ * Service Contracts (AMC) list — §1D.1 upgrade adding KPI strip,
+ * filter chips, and bulk select to the original server-driven table.
+ *
+ * Note: the underlying data still flows through the legacy Mongo read
+ * path in `<ServiceContractsPage>` — this client takes the
+ * pre-serialised rows and layers KPI + filter behaviour on top. Bulk
+ * actions are scoped to client-side ops (CSV export); destructive
+ * server-side bulk actions are deferred until the Rust list endpoint
+ * exposes a bulk handler.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {

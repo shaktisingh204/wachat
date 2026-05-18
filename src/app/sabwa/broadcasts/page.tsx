@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * /sabwa/broadcasts — Broadcast lists (ZoruUI).
- *
- * Per SABWA_PLAN.md §6 page 9: WhatsApp's native broadcast lists (1:1 fan-out,
- * no cross-recipient visibility). CRUD broadcast lists, send composer, history.
- *
- * Two-pane layout on md+: left = list of broadcasts, right = selected detail.
- * On mobile we collapse to a list → detail navigation.
- *
- * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
- * surface, prop shapes and data flow are unchanged.
- */
-
-import * as React from 'react';
-import {
-  ArrowLeft,
-  ChevronRight,
-  Loader2,
-  Paperclip,
-  Plus,
-  Send,
-  Trash2,
-  Users,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -62,6 +36,33 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  ArrowLeft,
+  ChevronRight,
+  Loader2,
+  Paperclip,
+  Plus,
+  Send,
+  Trash2,
+  Users,
+  X,
+  } from 'lucide-react';
+
+/**
+ * /sabwa/broadcasts — Broadcast lists (ZoruUI).
+ *
+ * Per SABWA_PLAN.md §6 page 9: WhatsApp's native broadcast lists (1:1 fan-out,
+ * no cross-recipient visibility). CRUD broadcast lists, send composer, history.
+ *
+ * Two-pane layout on md+: left = list of broadcasts, right = selected detail.
+ * On mobile we collapse to a list → detail navigation.
+ *
+ * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
+ * surface, prop shapes and data flow are unchanged.
+ */
+
+import * as React from 'react';
+
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import {
   deleteBroadcast,

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet } from 'lucide-react';
+
 /**
  * <ItemsKpiStrip> — KPI strip for the canonical items list.
  *
@@ -8,9 +11,6 @@
  */
 
 import * as React from 'react';
-import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { ItemKpiSnapshot, ItemPresetKey } from './types';
 

@@ -1,21 +1,17 @@
 'use client';
 
-import * as React from 'react';
-import { useActionState, useEffect, useRef } from 'react';
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { LoaderCircle } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveDepartmentAction } from '@/app/actions/crm/departments.actions';
 import type { CrmDepartmentDoc } from '@/lib/rust-client/crm-departments';

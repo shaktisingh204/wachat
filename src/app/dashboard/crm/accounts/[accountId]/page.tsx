@@ -1,3 +1,22 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruBadge } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { formatDistanceToNow } from 'date-fns';
+import {
+    Banknote,
+  Building,
+  CheckSquare,
+  FileText,
+  Globe,
+  Handshake,
+  LifeBuoy,
+  Mail,
+  MapPin,
+  Phone as PhoneIcon,
+  Receipt,
+  Users,
+  } from 'lucide-react';
+
 /**
  * Account detail page — `/dashboard/crm/accounts/[accountId]` (§1D.2).
  *
@@ -16,31 +35,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    Banknote,
-    Building,
-    CheckSquare,
-    FileText,
-    Globe,
-    Handshake,
-    LifeBuoy,
-    Mail,
-    MapPin,
-    Phone as PhoneIcon,
-    Receipt,
-    Users,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruBadge,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { StatusPill } from '@/components/crm/status-pill';

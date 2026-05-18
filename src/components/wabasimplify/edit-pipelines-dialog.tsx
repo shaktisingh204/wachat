@@ -1,11 +1,22 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogFooter } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogFooter,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+
 import { Plus, Trash2, LoaderCircle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
@@ -153,5 +164,4 @@ export function EditPipelinesDialog({ isOpen, onOpenChange, onSuccess, initialPi
         </ZoruDialog>
     );
 }
-
 

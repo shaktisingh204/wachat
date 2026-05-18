@@ -1,5 +1,17 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import {
+  MoreHorizontal,
+  Package } from 'lucide-react';
+
 /**
  * <ItemsTable> — table-view body for the canonical items list.
  *
@@ -13,16 +25,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MoreHorizontal, Package } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 

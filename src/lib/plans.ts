@@ -1,5 +1,3 @@
-
-
 // TODO(sabwa): SabWa plan caps (sessions / daily send / scheduler / bulk / AI)
 // live in `src/lib/sabwa/plan-limits.ts` until the `Plan.appLimits` shape in
 // `src/lib/definitions.ts` is extended with a `sabwa?: { … }` discriminator.

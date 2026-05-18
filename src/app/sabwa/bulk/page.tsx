@@ -1,40 +1,5 @@
 'use client';
 
-/**
- * /sabwa/bulk — Bulk Sender wizard (ZoruUI).
- *
- * Per SABWA_PLAN.md §6 page 10 and §9 (anti-ban): a 4-step wizard
- *
- *   Audience → Compose → Review → Run
- *
- * with mandatory rate-limit, jitter and ToS-gate confirmations. Bulk-send on a
- * personal WhatsApp account is the #1 cause of bans, so the page is built
- * around guardrails first, then ergonomics.
- *
- * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
- * surface, prop shapes and data flow are unchanged. Audience source uses a
- * segmented ZoruButton group instead of a Tabs/ZoruRadioGroup card matrix per the
- * no-tab-ui directive; stepper is the existing pattern from `connect/_client`.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  AlertTriangle,
-  ArrowLeft,
-  ArrowRight,
-  Check,
-  ChevronRight,
-  Pause,
-  Play,
-  Plus,
-  Send,
-  Sparkles,
-  Square,
-  Upload,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -77,6 +42,42 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  AlertTriangle,
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  ChevronRight,
+  Pause,
+  Play,
+  Plus,
+  Send,
+  Sparkles,
+  Square,
+  Upload,
+  X,
+  } from 'lucide-react';
+
+/**
+ * /sabwa/bulk — Bulk Sender wizard (ZoruUI).
+ *
+ * Per SABWA_PLAN.md §6 page 10 and §9 (anti-ban): a 4-step wizard
+ *
+ *   Audience → Compose → Review → Run
+ *
+ * with mandatory rate-limit, jitter and ToS-gate confirmations. Bulk-send on a
+ * personal WhatsApp account is the #1 cause of bans, so the page is built
+ * around guardrails first, then ergonomics.
+ *
+ * Migrated from shadcn `/ui/*` to ZoruUI. Visual swap only — server-action
+ * surface, prop shapes and data flow are unchanged. Audience source uses a
+ * segmented ZoruButton group instead of a Tabs/ZoruRadioGroup card matrix per the
+ * no-tab-ui directive; stepper is the existing pattern from `connect/_client`.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { Slider } from '@/components/ui/slider';
 import {
   SabFilePickerButton,

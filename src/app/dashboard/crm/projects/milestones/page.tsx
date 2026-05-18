@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * Milestones — list page (rebuilt per §1D.1).
- *
- * Composition:
- *   <EntityListShell>
- *     • KPI strip (4 cards: Total · Reached · Pending · Overdue)
- *     • Filter row (status · project)
- *     • Table columns: name · project · target date · status · cost · actions
- *
- * Inline create + edit dialog (settings-style §1D.4) — no separate /new
- * route to keep this milestone tab fast.
- */
-
-import * as React from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import { useActionState } from 'react';
-import {
-  AlertTriangle,
-  CheckCircle2,
-  Clock,
-  Edit,
-  Flag,
-  MoreHorizontal,
-  Plus,
-  Target,
-  Trash2,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruStatCard,
@@ -57,6 +29,36 @@ import {
   ZoruDropdownMenuTrigger,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { useActionState } from 'react';
+import {
+  AlertTriangle,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Flag,
+  MoreHorizontal,
+  Plus,
+  Target,
+  Trash2,
+  } from 'lucide-react';
+
+/**
+ * Milestones — list page (rebuilt per §1D.1).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (4 cards: Total · Reached · Pending · Overdue)
+ *     • Filter row (status · project)
+ *     • Table columns: name · project · target date · status · cost · actions
+ *
+ * Inline create + edit dialog (settings-style §1D.4) — no separate /new
+ * route to keep this milestone tab fast.
+ */
+
+import * as React from 'react';
+
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

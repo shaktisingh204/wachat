@@ -1,84 +1,3 @@
-"use client";
-
-/**
- * /wachat/chat — ZoruUI rebuild of `ChatClient`.
- *
- * Three-pane workspace:
- *   1. Conversations list  (rebuilt inline with Zoru primitives)
- *   2. Message thread      (existing wabasimplify ChatWindow — preserves
- *                           every server-action call: send-message,
- *                           attachments, reactions, reply, etc.)
- *   3. Contact info panel  (existing wabasimplify ContactInfoPanel —
- *                           preserves contact-edit server actions;
- *                           presented in a ZoruSheet on mobile, side
- *                           panel on lg+ desktop).
- *
- * Server-action wiring preserved end-to-end:
- *   - getInitialChatData(projectId, phoneId, contactId)
- *   - getConversation(contactId)
- *   - markConversationAsRead(contactId)
- *   - findOrCreateContact(projectId, phoneNumberId, waId)
- *   - getContactsPageData(projectId, phoneNumberId, page, '')
- *
- * Polling, infinite-scroll, and reaction-merge logic mirror the legacy
- * `ChatClient` exactly.
- *
- * TODO: Two children remain imported from `@/components/wabasimplify`
- * because they embed deep server-action wiring that's out of scope for
- * the visual-shell rebuild:
- *   - <ChatWindow>           → wraps ChatMessage + ChatMessageInput
- *                              (send-message, attachments, reactions)
- *   - <ContactInfoPanel>     → 368 lines of contact-edit server actions
- * They are used as black-box children. The rest of the UI (contact
- * roster, new-chat dialog, mobile sheet, alerts, skeleton) is pure
- * Zoru.
- */
-
-import * as React from "react";
-import {
-  useEffect,
-  useState,
-  useCallback,
-  useTransition,
-  useMemo,
-  useRef,
-} from "react";
-import { useSearchParams } from "next/navigation";
-import { format } from "date-fns";
-import { useDebouncedCallback } from "use-debounce";
-import {
-  AlertCircle,
-  Check,
-  ChevronsUpDown,
-  LoaderCircle,
-  MessageSquare,
-  MessageSquarePlus,
-  Search,
-  Users,
-} from "lucide-react";
-import Link from "next/link";
-import type { WithId } from "mongodb";
-
-import {
-  getInitialChatData,
-  getConversation,
-  markConversationAsRead,
-  findOrCreateContact,
-} from "@/app/actions/index";
-import { getContactsPageData } from "@/app/actions/contact.actions";
-import type {
-  Project,
-  Contact,
-  AnyMessage,
-  Template,
-} from "@/lib/definitions";
-import { useProject } from "@/context/project-context";
-import { countryCodes } from "@/lib/country-codes";
-
-// Black-box children — preserve their server-action wiring untouched.
-import { ChatWindow } from "@/components/wabasimplify/chat-window";
-import { ContactInfoPanel } from "@/components/wabasimplify/contact-info-panel";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -118,7 +37,88 @@ import {
   ZoruSkeleton,
   useZoruToast,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useTransition,
+  useMemo,
+  useRef,
+  } from "react";
+import { useSearchParams } from "next/navigation";
+import { format } from "date-fns";
+import { useDebouncedCallback } from "use-debounce";
+import {
+  AlertCircle,
+  Check,
+  ChevronsUpDown,
+  LoaderCircle,
+  MessageSquare,
+  MessageSquarePlus,
+  Search,
+  Users,
+  } from "lucide-react";
+import Link from "next/link";
+import type { WithId } from "mongodb";
+
+import {
+  getInitialChatData,
+  getConversation,
+  markConversationAsRead,
+  findOrCreateContact,
+  } from "@/app/actions/index";
+import { getContactsPageData } from "@/app/actions/contact.actions";
+import type {
+  Project,
+  Contact,
+  AnyMessage,
+  Template,
+  } from "@/lib/definitions";
+import { useProject } from "@/context/project-context";
+import { countryCodes } from "@/lib/country-codes";
+
+// Black-box children — preserve their server-action wiring untouched.
+import { ChatWindow } from "@/components/wabasimplify/chat-window";
+import { ContactInfoPanel } from "@/components/wabasimplify/contact-info-panel";
+
+"use client";
+
+/**
+ * /wachat/chat — ZoruUI rebuild of `ChatClient`.
+ *
+ * Three-pane workspace:
+ *   1. Conversations list  (rebuilt inline with Zoru primitives)
+ *   2. Message thread      (existing wabasimplify ChatWindow — preserves
+ *                           every server-action call: send-message,
+ *                           attachments, reactions, reply, etc.)
+ *   3. Contact info panel  (existing wabasimplify ContactInfoPanel —
+ *                           preserves contact-edit server actions;
+ *                           presented in a ZoruSheet on mobile, side
+ *                           panel on lg+ desktop).
+ *
+ * Server-action wiring preserved end-to-end:
+ *   - getInitialChatData(projectId, phoneId, contactId)
+ *   - getConversation(contactId)
+ *   - markConversationAsRead(contactId)
+ *   - findOrCreateContact(projectId, phoneNumberId, waId)
+ *   - getContactsPageData(projectId, phoneNumberId, page, '')
+ *
+ * Polling, infinite-scroll, and reaction-merge logic mirror the legacy
+ * `ChatClient` exactly.
+ *
+ * TODO: Two children remain imported from `@/components/wabasimplify`
+ * because they embed deep server-action wiring that's out of scope for
+ * the visual-shell rebuild:
+ *   - <ChatWindow>           → wraps ChatMessage + ChatMessageInput
+ *                              (send-message, attachments, reactions)
+ *   - <ContactInfoPanel>     → 368 lines of contact-edit server actions
+ * They are used as black-box children. The rest of the UI (contact
+ * roster, new-chat dialog, mobile sheet, alerts, skeleton) is pure
+ * Zoru.
+ */
+
+import * as React from "react";
 
 const _CONTACTS_PER_PAGE = 30;
 

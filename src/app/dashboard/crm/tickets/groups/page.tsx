@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * Ticket Groups — settings-style list (mirrors the Account Groups page).
- *
- * Inline-create / edit dialog with parent-group selector (populated from
- * the same list), default-assignee + default-SLA ObjectId text inputs
- * (no embedded picker — see "Gaps" in the implementation report), color
- * + icon, description, and active toggle. Search + status filter on top.
- *
- * Reads/writes route through `crm-ticket-groups.actions.ts`, which is a
- * thin shim over the Rust BFF at `/v1/crm/ticket-groups`.
- */
-
-import * as React from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Edit, LifeBuoy, LoaderCircle, Plus, Trash2 } from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -49,6 +32,28 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Edit,
+  LifeBuoy,
+  LoaderCircle,
+  Plus,
+  Trash2 } from 'lucide-react';
+
+/**
+ * Ticket Groups — settings-style list (mirrors the Account Groups page).
+ *
+ * Inline-create / edit dialog with parent-group selector (populated from
+ * the same list), default-assignee + default-SLA ObjectId text inputs
+ * (no embedded picker — see "Gaps" in the implementation report), color
+ * + icon, description, and active toggle. Search + status filter on top.
+ *
+ * Reads/writes route through `crm-ticket-groups.actions.ts`, which is a
+ * thin shim over the Rust BFF at `/v1/crm/ticket-groups`.
+ */
+
+import * as React from 'react';
 
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

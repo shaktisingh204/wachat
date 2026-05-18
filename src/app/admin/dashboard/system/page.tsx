@@ -1,5 +1,6 @@
-import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
 import { ZoruSeparator } from '@/components/zoruui';
+import { ShieldCheck, AlertTriangle, Zap, RefreshCw, Image as ImageIcon } from 'lucide-react';
+
 import { SubscribeAllButton } from '@/components/wabasimplify/subscribe-all-button';
 import { RunCronJobsButton } from '@/components/wabasimplify/run-cron-jobs-button';
 import { SyncLocalTemplatesButton } from '@/components/wabasimplify/sync-local-templates-button';

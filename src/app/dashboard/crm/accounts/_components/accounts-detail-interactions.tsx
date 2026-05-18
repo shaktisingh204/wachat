@@ -1,5 +1,8 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * Client island for the account detail page (§1D.2).
  *
@@ -11,9 +14,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import { useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
 import {

@@ -1,11 +1,13 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import { Trash2 } from 'lucide-react';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+
+import * as React from 'react';
 
 export interface HrDeleteButtonProps {
   entityId: string;

@@ -1,8 +1,8 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import React, { useEffect, useState } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { cn } from '@/lib/utils';
 import { Facebook, Twitter, Linkedin, MessageSquare, Send, Mail, Printer } from 'lucide-react';
 

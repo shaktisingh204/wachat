@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  CheckCircle2,
+  Download,
+  Edit,
+  Handshake,
+  PiggyBank,
+  Plus,
+  Sparkles,
+  X,
+  } from 'lucide-react';
+
 /**
  * Hire list — client island (P1.1B Wave 3 — Purchases rebuild · §1D.1).
  *
@@ -22,34 +50,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    CheckCircle2,
-    Download,
-    Edit,
-    Handshake,
-    PiggyBank,
-    Plus,
-    Sparkles,
-    X,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

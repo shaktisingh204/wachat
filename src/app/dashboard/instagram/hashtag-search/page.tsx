@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/hashtag-search — Top + recent media for a hashtag.
- *
- * Workflow:
- *   1. Resolve the hashtag id via the Graph `ig_hashtag_search` endpoint.
- *   2. Fetch `/top_media` (highest performing) and `/recent_media`
- *      (most recent within the last 24h) in parallel.
- *   3. Render two media grids — no tab UI, just stacked sections.
- */
-
-import * as React from 'react';
-import { useCallback, useState, useTransition } from 'react';
-import {
-  AlertCircle,
-  Hash,
-  RefreshCw,
-  Search,
-} from 'lucide-react';
-
-import {
-  getHashtagRecentMedia,
-  getHashtagTopMedia,
-  searchInstagramHashtag,
-} from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -43,6 +17,35 @@ import {
   ZoruSkeleton,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertCircle,
+  Hash,
+  RefreshCw,
+  Search,
+  } from 'lucide-react';
+
+import {
+  getHashtagRecentMedia,
+  getHashtagTopMedia,
+  searchInstagramHashtag,
+  } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/instagram/hashtag-search — Top + recent media for a hashtag.
+ *
+ * Workflow:
+ *   1. Resolve the hashtag id via the Graph `ig_hashtag_search` endpoint.
+ *   2. Fetch `/top_media` (highest performing) and `/recent_media`
+ *      (most recent within the last 24h) in parallel.
+ *   3. Render two media grids — no tab UI, just stacked sections.
+ */
+
+import * as React from 'react';
 
 interface HashtagMedia {
   id: string;

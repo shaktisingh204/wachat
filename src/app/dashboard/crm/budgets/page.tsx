@@ -1,9 +1,11 @@
-export const dynamic = 'force-dynamic';
-
-import { Target } from 'lucide-react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  Target } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import { ZoruButton } from '@/components/zoruui';
+
+export const dynamic = 'force-dynamic';
+
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import Link from 'next/link';

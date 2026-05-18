@@ -1,4 +1,5 @@
 'use client';
+
 import type { Block } from '@/lib/sabflow/types';
 import { VariableInput } from '../VariableInput';
 import { cn } from '@/lib/utils';

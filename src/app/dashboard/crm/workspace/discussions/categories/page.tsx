@@ -1,5 +1,35 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogClose,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  ArrowLeft,
+  Folder,
+  Plus,
+  Trash2 } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
 /**
  * Discussion Categories — settings-style list (§1D.4 specialized).
  *
@@ -11,31 +41,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Folder, Plus, Trash2 } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogClose,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteDiscussionCategory,

@@ -1,5 +1,15 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  endOfDay,
+  format,
+  isWithinInterval,
+  parseISO,
+  startOfDay,
+  } from 'date-fns';
+import { DateRange } from 'react-day-picker';
+
 /**
  * TransactionChart (wachat-local, ZoruUI).
  *
@@ -9,21 +19,6 @@
  */
 
 import * as React from 'react';
-import {
-  endOfDay,
-  format,
-  isWithinInterval,
-  parseISO,
-  startOfDay,
-} from 'date-fns';
-import { DateRange } from 'react-day-picker';
-
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 interface TransactionChartProps {
   transactions: any[];

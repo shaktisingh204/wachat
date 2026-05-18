@@ -1,3 +1,10 @@
+import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { ScrollText } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * New POS refund — `/dashboard/crm/pos/refunds/new`.
  *
@@ -8,15 +15,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { ScrollText } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-} from '@/components/zoruui';
 import { getPosTransactionById } from '@/app/actions/crm-pos.actions';
 
 import { PosRefundForm } from '../../_components/pos-refund-form';

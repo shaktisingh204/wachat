@@ -1,7 +1,5 @@
 'use client';
 
-import { useActionState, useCallback, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -10,22 +8,37 @@ import {
   ZoruDialogHeader,
   ZoruDialogTitle,
   ZoruDialogTrigger,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruScrollArea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruCheckbox,
+  ZoruTextarea,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Plus, Building, Upload, X } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmClient } from '@/app/actions/crm.actions';
 import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import type { WsCustomField } from '@/lib/worksuite/meta-types';
-import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruScrollArea } from '../ui/scroll-area';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
-import { ZoruCheckbox } from '../ui/checkbox';
-import { ZoruTextarea } from '../ui/textarea';
+import { CustomFieldInput,
+  type CustomFieldValue } from '@/components/crm/custom-field-input';
 
 const initialState: { message?: string; error?: string; newClient?: any } = { message: undefined, error: undefined, newClient: undefined };
 

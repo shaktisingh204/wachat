@@ -1,30 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/all/projects — Project ↔ Facebook connection list.
- *
- * Rebuilt on ZoruUI primitives. Same `getProjects` server action and the
- * same OAuth entrypoint (`/api/auth/meta-suite/login`) as
- * `/dashboard/facebook/all-projects` — visual layer is pure zoru, neutral
- * palette, no rainbow accents.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  RefreshCw,
-  Sparkles,
-  Wrench,
-  XCircle,
-} from "lucide-react";
-
-import { getProjects } from "@/app/actions/project.actions";
-import type { Project, WithId } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -44,7 +19,37 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  RefreshCw,
+  Sparkles,
+  Wrench,
+  XCircle,
+  } from "lucide-react";
+
+import { getProjects } from "@/app/actions/project.actions";
+import type { Project,
+  WithId } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/all/projects — Project ↔ Facebook connection list.
+ *
+ * Rebuilt on ZoruUI primitives. Same `getProjects` server action and the
+ * same OAuth entrypoint (`/api/auth/meta-suite/login`) as
+ * `/dashboard/facebook/all-projects` — visual layer is pure zoru, neutral
+ * palette, no rainbow accents.
+ */
+
+import * as React from "react";
 
 import { ManualSetupDialog } from "../../_components/manual-setup-dialog";
 import { FacebookGlyph } from "../../_components/icons";

@@ -1,8 +1,5 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -10,20 +7,37 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruScrollArea,
+  ZoruSeparator,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, EcommShop, EcommProduct, EcommProductVariant } from '@/lib/definitions';
+import type { WithId,
+  EcommShop,
+  EcommProduct,
+  EcommProductVariant } from '@/lib/definitions';
 import { saveEcommProduct } from '@/app/actions/custom-ecommerce.actions';
-import { ZoruScrollArea } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+
 import { DatePicker } from '../ui/date-picker';
 
 const initialState = { message: null, error: undefined };

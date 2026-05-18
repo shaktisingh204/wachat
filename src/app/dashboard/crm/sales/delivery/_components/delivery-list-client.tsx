@@ -1,25 +1,5 @@
 'use client';
 
-/**
- * §1D list client for Delivery Challans — thin-§1D variant per the
- * rebuild plan's scope cap (activity sub-route + density toggle
- * deferred).
- *
- * Presentational bits (KPI strip, filter toolbar, chips, bulk-bar, CSV
- * helpers) live in `./delivery-list-bits.tsx`.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  ArrowRightCircle,
-  LoaderCircle,
-  Pencil,
-  Trash2,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -40,6 +20,30 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  ArrowRightCircle,
+  LoaderCircle,
+  Pencil,
+  Trash2,
+  } from 'lucide-react';
+
+/**
+ * §1D list client for Delivery Challans — thin-§1D variant per the
+ * rebuild plan's scope cap (activity sub-route + density toggle
+ * deferred).
+ *
+ * Presentational bits (KPI strip, filter toolbar, chips, bulk-bar, CSV
+ * helpers) live in `./delivery-list-bits.tsx`.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

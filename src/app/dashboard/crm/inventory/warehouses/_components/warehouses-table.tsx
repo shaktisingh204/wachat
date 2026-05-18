@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Archive,
+  BadgeCheck,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * `<WarehousesTable>` — 10-col list table for the §1D warehouses page.
  *
@@ -10,30 +34,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Archive,
-    BadgeCheck,
-    Edit,
-    MoreHorizontal,
-    Trash2,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 

@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * PermissionErrorDialog (Meta Suite local, zoru-only).
- *
- * Visual swap of `@/components/wabasimplify/permission-error-dialog`.
- * Same trigger surface — surfaces a Meta permission error and lets the
- * operator re-authorize. Pure zoru tokens, neutral palette.
- */
-
-import * as React from "react";
-import { AlertCircle } from "lucide-react";
-
-import type { Project, WithId } from "@/lib/definitions";
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -23,7 +11,22 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  AlertCircle } from "lucide-react";
+
+import type { Project,
+  WithId } from "@/lib/definitions";
+
+/**
+ * PermissionErrorDialog (Meta Suite local, zoru-only).
+ *
+ * Visual swap of `@/components/wabasimplify/permission-error-dialog`.
+ * Same trigger surface — surfaces a Meta permission error and lets the
+ * operator re-authorize. Pure zoru tokens, neutral palette.
+ */
+
+import * as React from "react";
 
 import { FacebookGlyph } from "./icons";
 

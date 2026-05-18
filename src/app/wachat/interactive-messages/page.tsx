@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * /wachat/interactive-messages — build interactive WhatsApp messages
- * with buttons / lists / location / product. Send-test dialog copies
- * payload to clipboard.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import { Plus, Trash2, Eye, Copy, Send } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -40,6 +28,23 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { Plus,
+  Trash2,
+  Eye,
+  Copy,
+  Send } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * /wachat/interactive-messages — build interactive WhatsApp messages
+ * with buttons / lists / location / product. Send-test dialog copies
+ * payload to clipboard.
+ */
+
+import * as React from 'react';
 
 type MsgType = 'buttons' | 'list' | 'product' | 'location_request';
 interface ListRow {

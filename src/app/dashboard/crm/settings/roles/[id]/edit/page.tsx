@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Shield } from 'lucide-react';
+
 /**
  * Edit role page — server wrapper that loads the role and passes it as
  * `initialData` to `<RoleForm />`. The full permission matrix and member
@@ -7,10 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Shield } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getRoleById } from '@/app/actions/worksuite/rbac.actions';

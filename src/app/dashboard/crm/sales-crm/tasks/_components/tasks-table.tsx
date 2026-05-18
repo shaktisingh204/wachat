@@ -1,5 +1,35 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import {
+    AlertTriangle,
+  CheckCircle2,
+  CheckSquare,
+  Clock,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+  UserPlus,
+  } from 'lucide-react';
+
 /**
  * <TasksTable> — dense table for the tasks list view.
  *
@@ -13,35 +43,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    AlertTriangle,
-    CheckCircle2,
-    CheckSquare,
-    Clock,
-    Edit,
-    MoreHorizontal,
-    Trash2,
-    UserPlus,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { EntityKey } from '@/lib/lookup-registry';

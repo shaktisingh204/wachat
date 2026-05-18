@@ -1,14 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  Edit,
-  Eye,
-  MoreHorizontal,
-  Trash2,
-} from 'lucide-react';
-
 import {
   ZoruTable,
   ZoruTableBody,
@@ -22,6 +13,16 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuTrigger,
 } from '@/components/zoruui';
+import {
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  } from 'lucide-react';
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { WsProject } from '@/lib/worksuite/project-types';

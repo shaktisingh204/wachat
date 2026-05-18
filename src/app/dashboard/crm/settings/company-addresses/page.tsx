@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { MapPin,
+  Star,
+  Building,
+  Globe } from 'lucide-react';
+
 /**
  * Company Addresses settings — §1D.4 bar:
  *  - KPI strip (Total · Office · Default · Distinct countries)
@@ -11,10 +19,7 @@
  */
 
 import * as React from 'react';
-import { useTransition } from 'react';
-import { MapPin, Star, Building, Globe } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getCompanyAddresses,

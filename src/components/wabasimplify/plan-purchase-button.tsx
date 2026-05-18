@@ -1,9 +1,11 @@
 'use client';
 
-import { useTransition } from 'react';
+import { ZoruButton, ZoruSwitch } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
 import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { LoaderCircle, CheckCircle, ArrowUpRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createPayuPlanUpgrade } from '@/app/actions/payu.actions';

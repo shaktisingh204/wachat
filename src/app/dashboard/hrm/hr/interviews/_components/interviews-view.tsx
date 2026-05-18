@@ -1,5 +1,16 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  CalendarDays,
+  CalendarRange,
+  ClipboardList,
+  XCircle,
+  LayoutGrid,
+  Table as TableIcon,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * Interviews list — §1D.1 + calendar view per spec.
  *
@@ -11,17 +22,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  CalendarDays,
-  CalendarRange,
-  ClipboardList,
-  XCircle,
-  LayoutGrid,
-  Table as TableIcon,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
 
-import { useZoruToast } from '@/components/zoruui';
 import {
   RecruitmentListShell,
   renderStatusCell,

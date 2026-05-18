@@ -1,3 +1,18 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+  ArrowLeft,
+  PenLine,
+  PlaneTakeoff,
+  StickyNote,
+  ListChecks,
+  CalendarCheck,
+  FileText,
+  Package,
+  Banknote,
+  } from 'lucide-react';
+
 /**
  * Employee detail — `/dashboard/hrm/payroll/employees/[employeeId]`.
  *
@@ -27,20 +42,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-  ArrowLeft,
-  PenLine,
-  PlaneTakeoff,
-  StickyNote,
-  ListChecks,
-  CalendarCheck,
-  FileText,
-  Package,
-  Banknote,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { RelatedRail } from '@/components/crm/RelatedRail';

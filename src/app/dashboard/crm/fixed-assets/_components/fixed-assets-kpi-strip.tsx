@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Boxes, IndianRupee, Layers, TrendingDown, Wallet } from 'lucide-react';
+
 /**
  * KPI strip for the Fixed Assets list (§1D.1).
  *
@@ -11,9 +14,7 @@
  */
 
 import * as React from 'react';
-import { Boxes, IndianRupee, Layers, TrendingDown, Wallet } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { CrmFixedAssetDoc } from '@/lib/rust-client/crm-fixed-assets';
 
 export type FixedAssetsKpiKey = 'all' | 'active' | 'retired';

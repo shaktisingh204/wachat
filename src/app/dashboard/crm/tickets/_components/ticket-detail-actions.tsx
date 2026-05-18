@@ -1,5 +1,22 @@
 'use client';
 
+import { ZoruButton, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+    Activity,
+  CheckCircle2,
+  Combine,
+  Forward,
+  Lock,
+  Mail,
+  Pencil,
+  Printer,
+  Reply,
+  RotateCcw,
+  UserPlus,
+  } from 'lucide-react';
+
 /**
  * <TicketDetailActions> — header action group for the ticket detail
  * page (§1D.2 — 10 actions).
@@ -13,28 +30,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    Activity,
-    CheckCircle2,
-    Combine,
-    Forward,
-    Lock,
-    Mail,
-    Pencil,
-    Printer,
-    Reply,
-    RotateCcw,
-    UserPlus,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { updateTicket } from '@/app/actions/crm/tickets.actions';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';

@@ -1,3 +1,21 @@
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import { ObjectId } from 'mongodb';
+import { ArrowLeft,
+  Trophy,
+  PlusCircle } from 'lucide-react';
+
 /**
  * Award program detail page.
  *
@@ -13,21 +31,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ObjectId } from 'mongodb';
-import { ArrowLeft, Trophy, PlusCircle } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { getAwardProgramById } from '@/app/actions/crm-awards.actions';
 import { getSession } from '@/app/actions/user.actions';

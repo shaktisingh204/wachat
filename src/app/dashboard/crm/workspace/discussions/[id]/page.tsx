@@ -1,11 +1,12 @@
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Discussion detail — §1D.2 bar.
  */
-
-import { notFound } from 'next/navigation';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 
 import {
     getDiscussionById,

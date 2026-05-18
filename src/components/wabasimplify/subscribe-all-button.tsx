@@ -1,10 +1,13 @@
-
 'use client';
 
-import { useTransition, useState, useEffect } from 'react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useTransition,
+  useState,
+  useEffect } from 'react';
 import { handleSubscribeAllProjects } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { Rss, LoaderCircle } from 'lucide-react';
 
 export function SubscribeAllButton() {

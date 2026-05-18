@@ -1,16 +1,15 @@
 'use client';
 
-/**
- * <ItemDetailActions> — top-right action group on the item detail page.
- *
- * Renders 9+ actions: Edit · Adjust stock · Duplicate · Print barcode ·
- * Generate QR · Email · Archive · Delete · Activity. The status pill is a
- * clickable dropdown.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -24,16 +23,19 @@ import {
   ShoppingCart,
   Trash2,
   Warehouse,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <ItemDetailActions> — top-right action group on the item detail page.
+ *
+ * Renders 9+ actions: Edit · Adjust stock · Duplicate · Print barcode ·
+ * Generate QR · Email · Archive · Delete · Activity. The status pill is a
+ * clickable dropdown.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { deleteCrmProduct } from '@/app/actions/crm-products.actions';

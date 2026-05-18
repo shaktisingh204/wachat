@@ -1,5 +1,4 @@
-import { ZoruWaterLoader } from "@/components/zoruui";
-
+import { ZoruWaterLoader } from '@/components/zoruui';
 export default function WachatLoading() {
   return (
     <div className="flex min-h-[60vh] items-center justify-center">

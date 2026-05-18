@@ -1,3 +1,21 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+    Building2,
+  ClipboardList,
+  FileMinus,
+  FileText,
+  Package,
+  ShoppingBag,
+  Ticket,
+  Wallet,
+  } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+
 /**
  * Vendor detail — `/dashboard/crm/purchases/vendors/[id]`
  * (P1.1B Wave 3 — Purchases rebuild · §1D.2).
@@ -12,29 +30,6 @@
  * preserving the slug avoids breaking every existing link.
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-    Building2,
-    ClipboardList,
-    FileMinus,
-    FileText,
-    Package,
-    ShoppingBag,
-    Ticket,
-    Wallet,
-} from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import {
     getCrmVendorById,
     getCrmVendorRelatedCounts,

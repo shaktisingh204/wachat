@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 /**
  * Lightweight month-grid calendar view for the Bookings list (§1D.4
  * "Calendar view"). This is a compact, dependency-free month grid —
@@ -14,9 +17,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import type {
   CrmBookingDoc,
   CrmBookingStatus,

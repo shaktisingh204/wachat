@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard, ZoruBadge } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+  Users,
+  Pencil,
+  ArrowLeft,
+  Handshake,
+  ListChecks,
+  LifeBuoy,
+  FileText,
+  } from 'lucide-react';
+
 /**
  * Lead detail — `/dashboard/crm/leads/[id]`.
  *
@@ -8,22 +21,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-  Users,
-  Pencil,
-  ArrowLeft,
-  Handshake,
-  ListChecks,
-  LifeBuoy,
-  FileText,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruBadge,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';

@@ -1,49 +1,7 @@
 'use client';
 
-/**
- * Wachat Contacts — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers, same server actions. Only the visual
- * primitives are swapped to ZoruUI. The shared AddContactDialog +
- * ImportContactsDialog handle the create/import flows and remain
- * unchanged (their internals will be migrated separately).
- */
-
-import * as React from 'react';
 import {
-  useEffect,
-  useState,
-  useCallback,
-  useTransition,
-  useMemo,
-} from 'react';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import type { WithId } from 'mongodb';
-import { useDebouncedCallback } from 'use-debounce';
-
-import {
-  AlertCircle,
-  Search,
-  Users,
-  Loader2,
-  MessageSquare,
-  Trash2,
-  Tag as TagIcon,
-  ChevronLeft,
-  ChevronRight,
-  ChevronDown,
-  Check,
-  Plus,
-} from 'lucide-react';
-
-import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
-import type { Contact, Tag } from '@/lib/definitions';
-import { AddContactDialog } from '@/app/wachat/_components/add-contact-dialog';
-import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-dialog';
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -76,6 +34,52 @@ import {
   ZoruSkeleton,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useCallback,
+  useTransition,
+  useMemo,
+  } from 'react';
+import { useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import type { WithId } from 'mongodb';
+import { useDebouncedCallback } from 'use-debounce';
+
+import {
+  AlertCircle,
+  Search,
+  Users,
+  Loader2,
+  MessageSquare,
+  Trash2,
+  Tag as TagIcon,
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Check,
+  Plus,
+  } from 'lucide-react';
+
+import { getContactsPageData,
+  deleteContact } from '@/app/actions/contact.actions';
+import type { Contact,
+  Tag } from '@/lib/definitions';
+import { AddContactDialog } from '@/app/wachat/_components/add-contact-dialog';
+import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-dialog';
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Contacts — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers, same server actions. Only the visual
+ * primitives are swapped to ZoruUI. The shared AddContactDialog +
+ * ImportContactsDialog handle the create/import flows and remain
+ * unchanged (their internals will be migrated separately).
+ */
+
+import * as React from 'react';
 
 const CONTACTS_PER_PAGE = 20;
 

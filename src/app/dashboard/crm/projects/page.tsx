@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruStatCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+  Briefcase,
+  CheckCircle2,
+  AlertTriangle,
+  Clock,
+  DollarSign,
+  LayoutGrid,
+  List,
+  GanttChart,
+  Plus,
+  } from 'lucide-react';
+
 /**
  * Projects — list page (rebuilt per §1D.1).
  *
@@ -16,29 +40,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  Briefcase,
-  CheckCircle2,
-  AlertTriangle,
-  Clock,
-  DollarSign,
-  LayoutGrid,
-  List,
-  GanttChart,
-  Plus,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruStatCard,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

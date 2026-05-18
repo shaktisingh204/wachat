@@ -1,12 +1,10 @@
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { AlertOctagon, ArrowLeft } from 'lucide-react';
-
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import { AlertOctagon,
+  ArrowLeft } from 'lucide-react';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { getIssueById } from '@/app/actions/worksuite/meta.actions';
 

@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Section primitives for the canonical Item form — part 1.
- *
- * Covers: Basic · Description · Pricing · Purchase · Inventory. The
- * remaining sections (Images, Dimensions, Accounting, Meta) live in
- * `items-form-sections-extra.tsx` so each file stays under the 600-line
- * cap.
- */
-
-import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCheckbox,
@@ -24,6 +12,21 @@ import {
   ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  Plus,
+  Trash2 } from 'lucide-react';
+
+/**
+ * Section primitives for the canonical Item form — part 1.
+ *
+ * Covers: Basic · Description · Pricing · Purchase · Inventory. The
+ * remaining sections (Images, Dimensions, Accounting, Meta) live in
+ * `items-form-sections-extra.tsx` so each file stays under the 600-line
+ * cap.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityMultiFormField } from '@/components/crm/entity-multi-form-field';
 

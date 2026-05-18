@@ -1,18 +1,21 @@
 'use client';
 
-import { useTransition, useState } from 'react';
 import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useTransition,
+  useState } from 'react';
+
 import { LoaderCircle, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { createCrmPipeline } from '@/app/actions/crm-pipelines.actions';

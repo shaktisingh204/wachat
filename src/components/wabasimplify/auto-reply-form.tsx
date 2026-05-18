@@ -1,20 +1,37 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruLabel,
+  ZoruSwitch,
+  ZoruTextarea,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, Save, Trash2, PlusCircle } from 'lucide-react';
 import { handleUpdateAutoReplySettings } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, Project, GeneralReplyRule } from '@/lib/definitions';
-import { ZoruInput } from '../ui/input';
+import type { WithId,
+  Project,
+  GeneralReplyRule } from '@/lib/definitions';
 import { timezones } from '@/lib/timezones';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 

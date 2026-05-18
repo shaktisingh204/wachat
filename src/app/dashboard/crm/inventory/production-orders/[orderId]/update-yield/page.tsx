@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  Save,
+  LoaderCircle,
+  Factory } from 'lucide-react';
+import Link from 'next/link';
+import { useParams,
+  useRouter } from 'next/navigation';
+
 /**
  * Update-yield dialog target — preserved route per §1D scope notes.
  *
@@ -7,20 +20,6 @@
  * and notes. Submits to `updateProductionOrderYield`.
  */
 
-import { useActionState, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, Save, LoaderCircle, Factory } from 'lucide-react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { updateProductionOrderYield } from '@/app/actions/crm-production-orders.actions';

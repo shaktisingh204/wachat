@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/subscribers — Messenger subscriber list (ZoruUI).
- *
- * Loads all PSIDs that have ever messaged the connected Facebook Page and
- * surfaces them in a Zoru data table with bulk-action menu, search filter,
- * and an add-subscriber dialog. Same data + same handlers as the original
- * wabasimplify version.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import type { WithId } from 'mongodb';
-import type { ColumnDef } from '@tanstack/react-table';
-import {
-  AlertCircle,
-  Copy,
-  Download,
-  MessageSquare,
-  MoreHorizontal,
-  Plus,
-  RefreshCw,
-  Trash2,
-  Users,
-} from 'lucide-react';
-
-import { getFacebookSubscribers } from '@/app/actions/facebook.actions';
-import type { FacebookSubscriber } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -70,6 +42,39 @@ import {
   ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import type { WithId } from 'mongodb';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  AlertCircle,
+  Copy,
+  Download,
+  MessageSquare,
+  MoreHorizontal,
+  Plus,
+  RefreshCw,
+  Trash2,
+  Users,
+  } from 'lucide-react';
+
+import { getFacebookSubscribers } from '@/app/actions/facebook.actions';
+import type { FacebookSubscriber } from '@/lib/definitions';
+
+/**
+ * /dashboard/facebook/subscribers — Messenger subscriber list (ZoruUI).
+ *
+ * Loads all PSIDs that have ever messaged the connected Facebook Page and
+ * surfaces them in a Zoru data table with bulk-action menu, search filter,
+ * and an add-subscriber dialog. Same data + same handlers as the original
+ * wabasimplify version.
+ */
+
+import * as React from 'react';
 
 type SubscriberRow = WithId<FacebookSubscriber>;
 

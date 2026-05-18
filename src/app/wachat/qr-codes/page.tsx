@@ -1,32 +1,5 @@
 'use client';
 
-/**
- * Wachat QR Codes (ZoruUI).
- *
- * Manage WhatsApp QR codes with prefilled messages. Grid of QR cards
- * with download / regenerate / delete dialogs.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  QrCode,
-  Plus,
-  Trash2,
-  Pencil,
-  RefreshCw,
-  Copy,
-  Download,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getQrCodes,
-  handleCreateQrCode,
-  handleUpdateQrCode,
-  handleDeleteQrCode,
-} from '@/app/actions/whatsapp.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -63,6 +36,37 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  QrCode,
+  Plus,
+  Trash2,
+  Pencil,
+  RefreshCw,
+  Copy,
+  Download,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getQrCodes,
+  handleCreateQrCode,
+  handleUpdateQrCode,
+  handleDeleteQrCode,
+  } from '@/app/actions/whatsapp.actions';
+
+/**
+ * Wachat QR Codes (ZoruUI).
+ *
+ * Manage WhatsApp QR codes with prefilled messages. Grid of QR cards
+ * with download / regenerate / delete dialogs.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

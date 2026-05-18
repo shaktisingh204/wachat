@@ -1,19 +1,5 @@
 'use client';
 
-/**
- * Wachat Bulk → Create Template — bulk-create one template across many
- * projects. Keeps existing CreateTemplateForm, only ZoruUI chrome.
- */
-
-import * as React from 'react';
-import { Suspense, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { ChevronLeft, Database, AlertCircle } from 'lucide-react';
-
-import { CreateTemplateForm } from '@/app/wachat/_components/create-template-form';
-import { getProjectById } from '@/app/actions/project.actions';
-import type { WithId, Project } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -27,6 +13,26 @@ import {
   ZoruButton,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  Suspense,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { ChevronLeft,
+  Database,
+  AlertCircle } from 'lucide-react';
+
+import { CreateTemplateForm } from '@/app/wachat/_components/create-template-form';
+import { getProjectById } from '@/app/actions/project.actions';
+import type { WithId,
+  Project } from '@/lib/definitions';
+
+/**
+ * Wachat Bulk → Create Template — bulk-create one template across many
+ * projects. Keeps existing CreateTemplateForm, only ZoruUI chrome.
+ */
+
+import * as React from 'react';
 
 function BulkTemplatePageSkeleton() {
   return (

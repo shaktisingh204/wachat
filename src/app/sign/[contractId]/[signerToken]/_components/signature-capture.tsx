@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruButton, ZoruCheckbox, ZoruInput, ZoruLabel, cn, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Eraser,
+  FileSignature,
+  PenLine,
+  Type,
+  Upload } from 'lucide-react';
+
 /**
  * <SignatureCapture> — client island for the public `/sign/...`
  * route. Three modes:
@@ -14,17 +23,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Eraser, FileSignature, PenLine, Type, Upload } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     SabFilePickerButton,
     type SabFilePick,

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
+import { EntityPicker } from '@/components/crm/entity-picker';
+
 /**
  * Internal Phase-1 demo route — exercises every new reference-data
  * picker (country, state, city, timezone, language, salutation,
@@ -9,8 +12,6 @@
  */
 
 import * as React from 'react';
-import { EntityPicker } from '@/components/crm/entity-picker';
-import { ZoruCard } from '@/components/zoruui';
 
 export default function PickerDemoPage() {
   const [country, setCountry] = React.useState<string | null>('IN');

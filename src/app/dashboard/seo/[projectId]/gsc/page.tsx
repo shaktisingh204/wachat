@@ -1,14 +1,11 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruSkeleton } from '@/components/zoruui';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruSkeleton,
-} from '@/components/zoruui';
+  use,
+  useEffect,
+  useState } from 'react';
+
 import { LineChart, Loader2, CheckCircle } from 'lucide-react';
 import { startGscAuth, getGscIntegration, getGscData } from '@/app/actions/seo-gsc.actions';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';

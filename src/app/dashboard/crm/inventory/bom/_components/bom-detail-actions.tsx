@@ -1,5 +1,19 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+    Activity,
+  Archive,
+  Copy,
+  Edit,
+  Factory,
+  Mail,
+  Power,
+  Printer,
+  } from 'lucide-react';
+
 /**
  * 8-action header for the BOM detail page (per §1D.2):
  *   Edit · Activate/Deactivate · Duplicate · Print · Create Production
@@ -8,19 +22,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    Activity,
-    Archive,
-    Copy,
-    Edit,
-    Factory,
-    Mail,
-    Power,
-    Printer,
-} from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { duplicateBom, setBomStatus } from '@/app/actions/crm-bom.actions';
 

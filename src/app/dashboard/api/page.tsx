@@ -1,3 +1,15 @@
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import {
+  ArrowUpRight,
+  Key,
+  KeyRound,
+  Boxes,
+  Webhook,
+  BarChart3,
+  FileSearch,
+  BookOpen,
+  } from 'lucide-react';
+
 /**
  * Developer platform overview hub.
  *
@@ -10,24 +22,6 @@
  */
 
 import Link from 'next/link';
-import {
-  ArrowUpRight,
-  Key,
-  KeyRound,
-  Boxes,
-  Webhook,
-  BarChart3,
-  FileSearch,
-  BookOpen,
-} from 'lucide-react';
-
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * Client side of the Payment Receipts list — owns the search box, the
- * table, and the hard-delete confirmation dialog. Search input is
- * debounced and writes back to the URL so the server component
- * re-fetches.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  Pencil,
-  Search,
-  Trash2,
-  LoaderCircle,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -39,6 +21,28 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  Pencil,
+  Search,
+  Trash2,
+  LoaderCircle,
+  } from 'lucide-react';
+
+/**
+ * Client side of the Payment Receipts list — owns the search box, the
+ * table, and the hard-delete confirmation dialog. Search input is
+ * debounced and writes back to the URL so the server component
+ * re-fetches.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { deletePaymentReceiptAction } from '@/app/actions/crm/payment-receipts.actions';

@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruDateRangePicker,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  X } from 'lucide-react';
+
 /**
  * Filter row + bulk bar for the Knowledge Base list (§1D.1).
  *
@@ -11,21 +27,7 @@
 
 import * as React from 'react';
 import type { DateRange } from 'react-day-picker';
-import { X } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruDateRangePicker,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export type KbStatusFilter = 'all' | 'draft' | 'published' | 'archived';

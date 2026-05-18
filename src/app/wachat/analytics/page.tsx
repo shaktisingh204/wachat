@@ -1,37 +1,5 @@
 'use client';
 
-/**
- * Wachat Analytics — WhatsApp messaging analytics dashboard.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  Activity,
-  ArrowDown,
-  CircleAlert,
-  CheckCheck,
-  Eye,
-  MessageSquare,
-  RefreshCw,
-  Send,
-} from 'lucide-react';
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from 'recharts';
-
-import { useProject } from '@/context/project-context';
-import {
-  getLocalMessageAnalytics,
-  getBroadcastAnalytics,
-} from '@/app/actions/whatsapp-analytics.actions';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -49,6 +17,43 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  Activity,
+  ArrowDown,
+  CircleAlert,
+  CheckCheck,
+  Eye,
+  MessageSquare,
+  RefreshCw,
+  Send,
+  } from 'lucide-react';
+import {
+  CartesianGrid,
+  Legend,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+  } from 'recharts';
+
+import { useProject } from '@/context/project-context';
+import {
+  getLocalMessageAnalytics,
+  getBroadcastAnalytics,
+  } from '@/app/actions/whatsapp-analytics.actions';
+
+/**
+ * Wachat Analytics — WhatsApp messaging analytics dashboard.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,3 +1,14 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  ObjectId } from 'mongodb';
+import { AlertCircle,
+  CalendarDays,
+  FileText,
+  ShieldCheck,
+  User } from 'lucide-react';
+
+import { connectToDatabase } from '@/lib/mongodb';
+
 /**
  * Public contract-signing page — `/sign/[contractId]/[signerToken]`.
  *
@@ -19,16 +30,6 @@
  * Dynamic by design — uses request-time data (route params, no
  * caching). No `'use cache'` directives.
  */
-
-import { ObjectId } from 'mongodb';
-import { AlertCircle, CalendarDays, FileText, ShieldCheck, User } from 'lucide-react';
-
-import { connectToDatabase } from '@/lib/mongodb';
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruCardContent,
-} from '@/components/zoruui';
 
 import { SignatureCapture } from './_components/signature-capture';
 

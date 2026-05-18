@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { ArrowLeft, CalendarPlus } from 'lucide-react';
+
 /**
  * Workplace Events — create page.
  *
@@ -7,9 +10,6 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, CalendarPlus } from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
 import { EventForm } from '../_components/event-form';

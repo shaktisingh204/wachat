@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import {
+    Archive,
+  Building,
+  ChevronDown,
+  Edit,
+  MoreHorizontal,
+  Trash2,
+  UserCircle2,
+  } from 'lucide-react';
+
 /**
  * <ContactsTable> — dense table for the contacts list view.
  *
@@ -11,33 +39,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    Archive,
-    Building,
-    ChevronDown,
-    Edit,
-    MoreHorizontal,
-    Trash2,
-    UserCircle2,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmContact } from '@/lib/definitions';

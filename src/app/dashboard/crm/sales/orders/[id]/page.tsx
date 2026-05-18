@@ -1,3 +1,21 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+  ShoppingCart,
+  Pencil,
+  ArrowLeft,
+  Truck,
+  Receipt,
+  Mail,
+  Printer,
+  Share2,
+  Copy,
+  Archive,
+  Activity,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Sales Order detail — `/dashboard/crm/sales/orders/[id]`.
  *
@@ -17,23 +35,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-  ShoppingCart,
-  Pencil,
-  ArrowLeft,
-  Truck,
-  Receipt,
-  Mail,
-  Printer,
-  Share2,
-  Copy,
-  Archive,
-  Activity,
-  Trash2,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';

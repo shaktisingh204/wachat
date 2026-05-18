@@ -1,5 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { AlertTriangle } from 'lucide-react';
 
 export default function NotFound() {

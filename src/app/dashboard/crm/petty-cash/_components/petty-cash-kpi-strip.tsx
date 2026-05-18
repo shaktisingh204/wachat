@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { AlertOctagon, IndianRupee, Receipt, Wallet, } from 'lucide-react';
+
 /**
  * KPI strip for the Petty Cash list (§1D.1).
  *
@@ -10,14 +13,7 @@
  */
 
 import * as React from 'react';
-import {
-  AlertOctagon,
-  IndianRupee,
-  Receipt,
-  Wallet,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { PettyCashRow } from './petty-cash-types';
 
 export type PettyCashKpiKey = 'all' | 'active' | 'topUpDue' | 'ious';

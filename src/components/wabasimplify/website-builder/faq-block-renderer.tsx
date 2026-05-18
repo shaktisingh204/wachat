@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';

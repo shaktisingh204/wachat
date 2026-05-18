@@ -1,3 +1,13 @@
+import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
+import {
+  ArrowUpRight,
+  Inbox,
+  Mail,
+  Send,
+  FileText,
+  Settings,
+  } from 'lucide-react';
+
 /**
  * CRM → Email module overview.
  *
@@ -7,22 +17,6 @@
  */
 
 import Link from 'next/link';
-import {
-  ArrowUpRight,
-  Inbox,
-  Mail,
-  Send,
-  FileText,
-  Settings,
-} from 'lucide-react';
-
-import {
-  ZoruCard,
-  ZoruPageDescription,
-  ZoruPageHeader,
-  ZoruPageHeading,
-  ZoruPageTitle,
-} from '@/components/zoruui';
 
 interface NavTile {
   href: string;

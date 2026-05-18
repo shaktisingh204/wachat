@@ -1,11 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import type { WithId, Project } from '@/lib/definitions';
-
-import { getProjectById } from '@/app/actions/project.actions';
-import { useProject } from '@/context/project-context';
-import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -18,6 +12,16 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import type { WithId,
+  Project } from '@/lib/definitions';
+
+import { getProjectById } from '@/app/actions/project.actions';
+import { useProject } from '@/context/project-context';
+import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
 
 export default function WhatsappLinkGeneratorPage() {
   const { activeProject } = useProject();

@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  useParams,
+  useRouter } from 'next/navigation';
+import { formatDistanceToNow } from 'date-fns';
+import { CheckSquare } from 'lucide-react';
+
 /**
  * Task detail page (§1D.2).
  *
@@ -12,19 +19,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { formatDistanceToNow } from 'date-fns';
-import { CheckSquare } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';

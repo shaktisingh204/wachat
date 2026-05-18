@@ -1,13 +1,5 @@
 'use client';
 
-/**
- * <BillQuickEdits> — inline status + vendor chips on the bill detail
- * "At a glance" card.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -22,6 +14,16 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * <BillQuickEdits> — inline status + vendor chips on the bill detail
+ * "At a glance" card.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

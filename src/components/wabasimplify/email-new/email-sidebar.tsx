@@ -1,7 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import React from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import {
     Inbox,
     Send,

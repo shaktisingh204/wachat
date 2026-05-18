@@ -1,14 +1,18 @@
+import { ZoruBadge, ZoruCard, cn } from '@/components/zoruui';
+import {
+  Zap,
+  Mail,
+  Bot,
+  ShoppingCart,
+  MessageSquare,
+  Megaphone } from 'lucide-react';
+
+import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
+
 export const dynamic = 'force-dynamic';
 
 import Link from 'next/link';
-import { Zap, Mail, Bot, ShoppingCart, MessageSquare, Megaphone } from 'lucide-react';
 
-import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
-import {
-  ZoruBadge,
-  ZoruCard,
-  cn,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 const btnBase =

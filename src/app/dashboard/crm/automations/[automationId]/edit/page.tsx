@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Zap } from 'lucide-react';
+
 /**
  * Edit automation page — server wrapper that loads the automation by id
  * and passes it as `initialData` to `<AutomationForm />`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Zap } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getAutomationById } from '@/app/actions/crm-automations.actions';

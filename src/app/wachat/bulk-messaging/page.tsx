@@ -1,18 +1,7 @@
 'use client';
 
-/**
- * Wachat Bulk Messaging — send messages to multiple numbers at once.
- * ZoruUI rebuild. Same handler (sendBulkMessages); only chrome is new.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import { CircleCheck, CircleX, Loader2, Send } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-
 import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -34,6 +23,21 @@ import {
   ZoruProgress,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { CircleCheck,
+  CircleX,
+  Loader2,
+  Send } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Bulk Messaging — send messages to multiple numbers at once.
+ * ZoruUI rebuild. Same handler (sendBulkMessages); only chrome is new.
+ */
+
+import * as React from 'react';
 
 import { sendBulkMessages } from '@/app/actions/wachat-features.actions';
 

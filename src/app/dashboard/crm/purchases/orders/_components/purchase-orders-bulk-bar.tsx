@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  CheckCheck,
+  Download,
+  ListChecks,
+  Mail,
+  PackageCheck,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
 /**
  * <PurchaseOrdersBulkBar> — sticky bulk-action ribbon for the PO list.
  *
@@ -10,23 +21,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  CheckCheck,
-  Download,
-  ListChecks,
-  Mail,
-  PackageCheck,
-  Trash2,
-  X,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import type { CrmPurchaseOrderStatus } from '@/lib/rust-client/crm-purchase-orders';
 
 const STATUS_OPTIONS: { value: CrmPurchaseOrderStatus; label: string }[] = [

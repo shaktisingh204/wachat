@@ -1,50 +1,7 @@
 'use client';
 
-/**
- * Wachat Broadcasts — campaign list, ZoruUI rebuild.
- *
- * Same data + handlers as before (getBroadcasts, getTemplates,
- * handleSyncTemplates, handleStopBroadcast, RequeueBroadcastDialog).
- * Visual layer fully on Zoru primitives — neutral palette, no rainbow.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import type { WithId } from 'mongodb';
-import { formatDistanceToNow } from 'date-fns';
-
 import {
-  ArrowUpRight,
-  BookCopy,
-  ChevronLeft,
-  ChevronRight,
-  CircleAlert,
-  CircleStop,
-  Clock,
-  Ellipsis,
-  FileText,
-  Loader2,
-  Plus,
-  RefreshCw,
-  Search,
-  Users,
-} from 'lucide-react';
-
-import { getTemplates, handleStopBroadcast } from '@/app/actions/index.ts';
-import { handleSyncTemplates } from '@/app/actions/template.actions';
-import { getMetaFlows } from '@/app/actions/meta-flow.actions';
-import { getBroadcasts } from '@/app/actions/broadcast.actions';
-import type { Template, MetaFlow } from '@/lib/definitions';
-
-import { useZoruToast } from '@/components/zoruui';
-import { useProject } from '@/context/project-context';
-
-import { BroadcastForm } from '@/app/wachat/_components/broadcast-form';
-import { RequeueBroadcastDialog } from '@/app/wachat/_components/requeue-broadcast-dialog';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -79,6 +36,55 @@ import {
   ZoruStatCard,
   cn,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type { WithId } from 'mongodb';
+import { formatDistanceToNow } from 'date-fns';
+
+import {
+  ArrowUpRight,
+  BookCopy,
+  ChevronLeft,
+  ChevronRight,
+  CircleAlert,
+  CircleStop,
+  Clock,
+  Ellipsis,
+  FileText,
+  Loader2,
+  Plus,
+  RefreshCw,
+  Search,
+  Users,
+  } from 'lucide-react';
+
+import { getTemplates,
+  handleStopBroadcast } from '@/app/actions/index.ts';
+import { handleSyncTemplates } from '@/app/actions/template.actions';
+import { getMetaFlows } from '@/app/actions/meta-flow.actions';
+import { getBroadcasts } from '@/app/actions/broadcast.actions';
+import type { Template,
+  MetaFlow } from '@/lib/definitions';
+
+import { useProject } from '@/context/project-context';
+
+import { BroadcastForm } from '@/app/wachat/_components/broadcast-form';
+import { RequeueBroadcastDialog } from '@/app/wachat/_components/requeue-broadcast-dialog';
+
+/**
+ * Wachat Broadcasts — campaign list, ZoruUI rebuild.
+ *
+ * Same data + handlers as before (getBroadcasts, getTemplates,
+ * handleSyncTemplates, handleStopBroadcast, RequeueBroadcastDialog).
+ * Visual layer fully on Zoru primitives — neutral palette, no rainbow.
+ */
+
+import * as React from 'react';
 
 const BROADCASTS_PER_PAGE = 10;
 

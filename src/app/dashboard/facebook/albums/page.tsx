@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/albums — Facebook Page photo albums.
- *
- * Lists albums for the active project's connected Page via the
- * `wachat-facebook-content` Rust crate. Click an album to expand its
- * photos inline.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { AlertCircle, ChevronDown, Image as ImageIcon, RefreshCw } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getFacebookAlbumsAction,
-  getFacebookAlbumPhotosAction,
-} from '@/app/actions/facebook-albums.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -35,6 +16,32 @@ import {
   ZoruEmptyState,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { AlertCircle,
+  ChevronDown,
+  Image as ImageIcon,
+  RefreshCw } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getFacebookAlbumsAction,
+  getFacebookAlbumPhotosAction,
+  } from '@/app/actions/facebook-albums.actions';
+
+/**
+ * /dashboard/facebook/albums — Facebook Page photo albums.
+ *
+ * Lists albums for the active project's connected Page via the
+ * `wachat-facebook-content` Rust crate. Click an album to expand its
+ * photos inline.
+ */
+
+import * as React from 'react';
 
 interface Album {
   id: string;

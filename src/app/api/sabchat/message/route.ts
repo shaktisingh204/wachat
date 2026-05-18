@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import { postChatMessage } from '@/app/actions/sabchat.actions';
 

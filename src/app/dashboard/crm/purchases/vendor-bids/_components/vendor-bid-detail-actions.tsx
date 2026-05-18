@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Activity,
+  Archive,
+  ArrowRight,
+  Award,
+  ListChecks,
+  Pencil,
+  Printer,
+  Send,
+  ThumbsDown,
+  } from 'lucide-react';
+
 /**
  * <VendorBidDetailActions> — top-right action group for the vendor-bid
  * detail page. Per `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D, ships 7
@@ -18,27 +40,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Activity,
-  Archive,
-  ArrowRight,
-  Award,
-  ListChecks,
-  Pencil,
-  Printer,
-  Send,
-  ThumbsDown,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

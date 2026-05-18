@@ -1,4 +1,3 @@
-
 import { DltSmsTemplate } from '../types';
 
 export class SmsTemplateService {

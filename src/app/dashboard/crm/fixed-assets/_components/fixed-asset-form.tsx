@@ -1,23 +1,5 @@
 'use client';
 
-/**
- * <FixedAssetForm> — single source of truth for both Create and Edit
- * flows.
- *
- * Server-action driven via `saveFixedAssetAction`. Relational fields
- * (vendor, custodian employee, warehouse) are encoded as
- * `<EntityFormField>` so the value stored is an id. `fixedAsset` is
- * NOT a member of `WsCustomFieldBelongsTo`, so this form deliberately
- * skips the custom-fields panel.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { LoaderCircle } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -30,6 +12,28 @@ import {
   ZoruSelectValue,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { LoaderCircle } from 'lucide-react';
+
+/**
+ * <FixedAssetForm> — single source of truth for both Create and Edit
+ * flows.
+ *
+ * Server-action driven via `saveFixedAssetAction`. Relational fields
+ * (vendor, custodian employee, warehouse) are encoded as
+ * `<EntityFormField>` so the value stored is an id. `fixedAsset` is
+ * NOT a member of `WsCustomFieldBelongsTo`, so this form deliberately
+ * skips the custom-fields panel.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { saveFixedAssetAction } from '@/app/actions/crm/fixed-assets.actions';
 import type { CrmFixedAssetDoc } from '@/lib/rust-client/crm-fixed-assets';

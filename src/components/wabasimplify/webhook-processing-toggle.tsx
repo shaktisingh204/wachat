@@ -1,13 +1,14 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { getWebhookProcessingStatus, setWebhookProcessingStatus } from '@/app/actions/admin.actions';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import { ZoruSwitch, ZoruLabel, ZoruSkeleton } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { getWebhookProcessingStatus,
+  setWebhookProcessingStatus } from '@/app/actions/admin.actions';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
-import { ZoruSkeleton } from '../ui/skeleton';
 
 export function WebhookProcessingToggle() {
     const [isEnabled, setIsEnabled] = useState(true);

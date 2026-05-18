@@ -1,14 +1,10 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
-void _zoruCn;
-
-import { useState } from 'react';
+import { ZoruButton, ZoruInput, ZoruCard, ZoruCardContent, ZoruBadge, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useState } from 'react';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+
+void _zoruCn;
 
 const PREFIXES = ['best', 'top', 'affordable', 'professional', 'online'];
 const SUFFIXES = ['guide', 'tips', 'examples', 'ideas', 'review', 'tutorial', 'services', 'tools', 'company', 'software'];

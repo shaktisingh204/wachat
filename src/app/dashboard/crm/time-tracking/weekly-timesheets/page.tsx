@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * Weekly Timesheets — list page (rebuilt per §1D.1).
- *
- * Composition:
- *   <EntityListShell>
- *     • KPI strip (4 cards: Submitted · Pending approval · Approved · Avg hours/employee)
- *     • Filter row (status · employee · week range)
- *     • Table columns: employee · week of · total hours · status · submitted at · approver · actions
- *
- * Inline create + edit dialog. Detail at
- * `/dashboard/crm/time-tracking/weekly-timesheets/[timesheetId]` (preserved).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useActionState } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  CalendarRange,
-  CheckCircle2,
-  Clock,
-  Edit,
-  Eye,
-  MoreHorizontal,
-  Plus,
-  Send,
-  Trash2,
-  TrendingUp,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruInput,
@@ -59,6 +29,38 @@ import {
   ZoruDialogTitle,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+  CalendarRange,
+  CheckCircle2,
+  Clock,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Plus,
+  Send,
+  Trash2,
+  TrendingUp,
+  } from 'lucide-react';
+
+/**
+ * Weekly Timesheets — list page (rebuilt per §1D.1).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (4 cards: Submitted · Pending approval · Approved · Avg hours/employee)
+ *     • Filter row (status · employee · week range)
+ *     • Table columns: employee · week of · total hours · status · submitted at · approver · actions
+ *
+ * Inline create + edit dialog. Detail at
+ * `/dashboard/crm/time-tracking/weekly-timesheets/[timesheetId]` (preserved).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';

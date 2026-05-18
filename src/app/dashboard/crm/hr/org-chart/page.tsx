@@ -1,16 +1,18 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruSkeleton } from '@/components/zoruui';
+import {
+  Network,
+  ArrowRight,
+  ChevronDown,
+  ChevronRight } from 'lucide-react';
+import { useEffect,
+  useState,
+  useTransition } from 'react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { Network, ArrowRight, ChevronDown, ChevronRight } from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruSkeleton,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getCrmEmployees } from '@/app/actions/crm-employees.actions';
 

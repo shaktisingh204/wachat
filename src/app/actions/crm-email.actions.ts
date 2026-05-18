@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -49,7 +47,6 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
-
 
 export async function sendCrmEmail(prevState: any, formData: FormData): Promise<{ success: boolean; message?: string, error?: string }> {
     const session = await getSession();

@@ -1,5 +1,15 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  X } from 'lucide-react';
+
+import { StatusPill,
+  statusToTone } from '@/components/crm/status-pill';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 /**
  * <CreditNoteInlineStatus> — clickable status pill on the CN detail
  * page that opens an inline `<EnumFormField enumName="creditNoteStatusV2">`
@@ -13,12 +23,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LoaderCircle, X } from 'lucide-react';
 
-import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import { useZoruToast } from '@/components/zoruui';
 import { setCreditNoteStatus } from '@/app/actions/crm/credit-notes.actions';
 import type { CreditNoteStatus } from '@/lib/rust-client/crm-credit-notes';
 

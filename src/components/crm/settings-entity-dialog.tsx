@@ -1,23 +1,25 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruLabel,
+} from '@/components/zoruui';
+import {
+  LoaderCircle } from 'lucide-react';
+
 /**
  * Inline create/edit dialog used by <SettingsEntityShell>. Extracted
  * to keep the shell file under the 600-line budget.
  */
 
 import * as React from 'react';
-import { LoaderCircle } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruLabel,
-} from '@/components/zoruui';
 import {
     FieldRenderer,
     formatFieldValue,

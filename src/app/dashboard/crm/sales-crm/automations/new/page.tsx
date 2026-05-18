@@ -1,9 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import { ArrowLeft, Save, LoaderCircle, Zap } from 'lucide-react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import {
   ZoruButton,
   ZoruCard,
@@ -17,6 +13,15 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { ArrowLeft,
+  Save,
+  LoaderCircle,
+  Zap } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { saveCrmAutomation } from '@/app/actions/crm-automations.actions';
 

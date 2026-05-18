@@ -1,14 +1,12 @@
-
 'use client';
 
-import type { WithId, Project, FacebookConversation, FacebookMessage } from '@/lib/definitions';
-import { ZoruScrollArea, ZoruButton } from '@/components/zoruui';
-import { ZoruSkeleton } from '../ui/skeleton';
-import { ZoruButton } from '../ui/button';
+import { ZoruScrollArea, ZoruButton, ZoruSkeleton, ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 import { ArrowLeft, Info, LoaderCircle, Phone, Video } from 'lucide-react';
 import { FacebookChatMessage } from './facebook-chat-message';
 import { FacebookMessageInput } from './facebook-message-input';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '../ui/avatar';
+
+import type { WithId, Project, FacebookConversation, FacebookMessage } from '@/lib/definitions';
+
 import { useEffect, useRef } from 'react';
 
 interface FacebookChatWindowProps {

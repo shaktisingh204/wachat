@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Booking detail-page dialogs:
- *   • <BookingCancelDialog> — captures a reason, calls cancelBooking.
- *   • <BookingRescheduleDialog> — picks a new slot, calls rescheduleBooking.
- *   • <BookingSendConfirmationDialog> — sends a wa.me / mailto link with
- *     pre-filled booking details. No server endpoint yet — fallback to
- *     the user's mail client until a transactional email endpoint exists.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -25,6 +13,20 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Booking detail-page dialogs:
+ *   • <BookingCancelDialog> — captures a reason, calls cancelBooking.
+ *   • <BookingRescheduleDialog> — picks a new slot, calls rescheduleBooking.
+ *   • <BookingSendConfirmationDialog> — sends a wa.me / mailto link with
+ *     pre-filled booking details. No server endpoint yet — fallback to
+ *     the user's mail client until a transactional email endpoint exists.
+ */
+
+import * as React from 'react';
+
 import {
   cancelBooking,
   rescheduleBooking,

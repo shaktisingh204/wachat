@@ -1,5 +1,10 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardContent } from '@/components/zoruui';
+import {
+  LoaderCircle } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+
 /**
  * <EntityFormShell /> — reusable form-page chrome for every CRM / HRM
  * `/new` and `/[id]/edit` route (per Phase 1A of the CRM frontend rebuild).
@@ -42,17 +47,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { LoaderCircle } from 'lucide-react';
-import { useFormStatus } from 'react-dom';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruCardDescription,
-    ZoruCardContent,
-} from '@/components/zoruui';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 

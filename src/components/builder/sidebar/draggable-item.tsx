@@ -1,8 +1,10 @@
 "use client";
 
-import React from 'react';
+import { ZoruButton } from '@/components/zoruui';
 import { useDraggable } from '@dnd-kit/core';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface DraggableSidebarItemProps {

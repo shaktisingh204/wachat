@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { getSession } from '@/app/actions/index.ts';
@@ -51,7 +49,6 @@ export async function generateClientReportData(): Promise<{ success: boolean; da
         return { success: false, error: 'Failed to generate report data.' };
     }
 }
-
 
 export async function getLeadsSummaryData(filters: {
     pipelineId?: string;
@@ -124,7 +121,6 @@ export async function getLeadsSummaryData(filters: {
         return null;
     }
 }
-
 
 export async function generateTeamSalesReportData(filters: {
     createdFrom?: Date;

@@ -1,4 +1,3 @@
-
 export const indianStates = [
     "Andhra Pradesh",
     "Arunachal Pradesh",

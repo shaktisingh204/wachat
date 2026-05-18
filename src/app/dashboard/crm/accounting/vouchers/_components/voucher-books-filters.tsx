@@ -1,13 +1,7 @@
 'use client';
 
+import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 import * as React from 'react';
-import {
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 
 import { VOUCHER_TYPES, type VoucherBookType } from './types';
 

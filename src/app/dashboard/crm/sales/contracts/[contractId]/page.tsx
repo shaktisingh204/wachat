@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import { FileText,
+  ArrowLeft,
+  Plus } from 'lucide-react';
+
 /**
  * Contract detail page.
  *
@@ -11,10 +18,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { FileText, ArrowLeft, Plus } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { getContractById } from '@/app/actions/crm-contracts.actions';
 

@@ -1,10 +1,10 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
+import { cn as _zoruCn, ZoruCard, ZoruCardContent } from '@/components/zoruui';
 void _zoruCn;
 
 import SchemaBuilder from '@/components/seo/schema-builder';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+
 import { Code2 } from 'lucide-react';
 
 export default function SchemaToolPage() {

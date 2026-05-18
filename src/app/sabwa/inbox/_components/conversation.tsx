@@ -1,3 +1,10 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  ChevronDown,
+  Loader2,
+  MessageSquare } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
+
 /**
  * Conversation pane — the middle column of the SabWa inbox.
  *
@@ -14,10 +21,7 @@
 'use client';
 
 import * as React from 'react';
-import { ChevronDown, Loader2, MessageSquare } from 'lucide-react';
-import { v4 as uuidv4 } from 'uuid';
 
-import { ZoruButton } from '@/components/zoruui';
 import { Composer } from '@/app/sabwa/_components/composer';
 import { ConversationHeader } from '@/app/sabwa/_components/conversation-header';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';

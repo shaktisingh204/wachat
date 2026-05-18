@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Upload,
+  X } from 'lucide-react';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+
 /**
  * Announcement form (§1B W7) — shared by /new and /[id]/edit.
  *
@@ -14,25 +38,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Upload, X } from 'lucide-react';
 
-import { EntityFormShell } from '@/components/crm/entity-form-shell';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSwitch,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import { saveAnnouncement } from '@/app/actions/crm-announcements.actions';

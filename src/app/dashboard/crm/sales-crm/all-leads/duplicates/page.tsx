@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
+import {
+  Copy,
+  Mail,
+  Phone,
+  RefreshCcw } from 'lucide-react';
+
 /**
  * Lead duplicates page.
  *
@@ -13,18 +20,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Copy, Mail, Phone, RefreshCcw } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruSkeleton,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {

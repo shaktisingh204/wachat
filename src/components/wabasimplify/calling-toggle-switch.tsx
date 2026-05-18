@@ -1,8 +1,8 @@
-
 'use client';
 
-import { useState, useTransition, useEffect, useCallback } from 'react';
 import { ZoruSwitch } from '@/components/zoruui';
+import { useState, useTransition, useEffect, useCallback } from 'react';
+
 import { useToast } from '@/hooks/use-toast';
 import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import { savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';

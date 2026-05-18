@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge } from '@/components/zoruui';
+import { Percent, Star, BarChart3, TrendingUp } from 'lucide-react';
+
 /**
  * Taxes settings — §1D.4 bar:
  *  - KPI strip (Total · Default · Avg rate · Highest)
@@ -10,9 +13,7 @@
  */
 
 import * as React from 'react';
-import { Percent, Star, BarChart3, TrendingUp } from 'lucide-react';
 
-import { ZoruBadge } from '@/components/zoruui';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import { getTaxes, saveTax, deleteTax } from '@/app/actions/worksuite/meta.actions';
 import type { WsTax } from '@/lib/worksuite/meta-types';

@@ -1,28 +1,58 @@
-
 'use client';
 
-import { useState, useTransition, useEffect, useMemo } from 'react';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruScrollArea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruBadge,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+} from '@/components/zoruui';
+import {
+  useState,
+  useTransition,
+  useEffect,
+  useMemo } from 'react';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, Agent, Tag } from '@/lib/definitions';
-import { handleUpdateContactDetails, handleUpdateContactStatus, updateContactTags } from '@/app/actions/index';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
+import type { Project,
+  Contact,
+  Agent,
+  Tag } from '@/lib/definitions';
+import { handleUpdateContactDetails,
+  handleUpdateContactStatus,
+  updateContactTags } from '@/app/actions/index';
 import { useToast } from '@/hooks/use-toast';
-import { LoaderCircle, Save, Phone, Mail, FileText, Link, ThumbsUp, Pencil, X } from 'lucide-react';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
-import { ZoruSeparator } from '../ui/separator';
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
-import { ZoruCommand, ZoruCommandEmpty, ZoruCommandGroup, ZoruCommandInput, ZoruCommandItem, ZoruCommandList } from '@/components/zoruui';
+import { LoaderCircle,
+  Save,
+  Phone,
+  Mail,
+  FileText,
+  Link,
+  ThumbsUp,
+  Pencil,
+  X } from 'lucide-react';
 import { ChevronsUpDown, Check, Settings } from 'lucide-react';
-import { ZoruBadge } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ZoruAvatar, ZoruAvatarFallback } from '../ui/avatar';
+
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ProjectTagsManagerDialog } from './project-tags-manager-dialog';
 import { useProject } from '@/context/project-context';
-
 
 interface ContactInfoPanelProps {
     project: WithId<Project>;

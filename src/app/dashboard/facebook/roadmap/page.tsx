@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/roadmap — Meta Suite product roadmap (ZoruUI).
- *
- * Replaces the legacy redirect-only stub. Renders a status-grouped grid
- * of ZoruCard tiles. Status is communicated via ZoruBadge using ONLY
- * neutral / success / info / ghost variants (no rainbow accents).
- *
- * Data is local + static — this is product-marketing content, not user
- * data, so there's no server action behind it. Updating this list does
- * not require a backend change.
- */
-
-import * as React from 'react';
-import {
-  BarChart3,
-  Bot,
-  CalendarClock,
-  CheckCircle2,
-  Clock,
-  ImageIcon,
-  Map as MapIcon,
-  Megaphone,
-  MessageSquare,
-  Rocket,
-  ShoppingBag,
-  Sparkles,
-  Target,
-  Workflow,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -45,6 +15,36 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
+import {
+  BarChart3,
+  Bot,
+  CalendarClock,
+  CheckCircle2,
+  Clock,
+  ImageIcon,
+  Map as MapIcon,
+  Megaphone,
+  MessageSquare,
+  Rocket,
+  ShoppingBag,
+  Sparkles,
+  Target,
+  Workflow,
+  } from 'lucide-react';
+
+/**
+ * /dashboard/facebook/roadmap — Meta Suite product roadmap (ZoruUI).
+ *
+ * Replaces the legacy redirect-only stub. Renders a status-grouped grid
+ * of ZoruCard tiles. Status is communicated via ZoruBadge using ONLY
+ * neutral / success / info / ghost variants (no rainbow accents).
+ *
+ * Data is local + static — this is product-marketing content, not user
+ * data, so there's no server action behind it. Updating this list does
+ * not require a backend change.
+ */
+
+import * as React from 'react';
 
 type RoadmapStatus = 'shipped' | 'in_progress' | 'planned';
 

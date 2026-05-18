@@ -1,5 +1,14 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { Loader2,
+  Rss } from 'lucide-react';
+
+import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
+import { getProjectById } from '@/app/actions/index.ts';
+
 /**
  * SubscribeProjectButton (wachat-local, ZoruUI).
  *
@@ -9,13 +18,6 @@
  */
 
 import * as React from 'react';
-import { useTransition } from 'react';
-import { Loader2, Rss } from 'lucide-react';
-
-import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
-import { getProjectById } from '@/app/actions/index.ts';
-
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 
 interface SubscribeProjectButtonProps {
   projectId: string;

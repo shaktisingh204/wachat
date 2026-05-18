@@ -1,14 +1,12 @@
 'use client';
 
-/**
- * Wachat Calls — Setup tab (ZoruUI).
- *
- * Phone picker, status banner, calling settings form, and live API call
- * log tracking every fetch/save.
- */
-
-import * as React from 'react';
-import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruEmptyState, cn, useZoruToast } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition,
+  useCallback,
+  useMemo } from 'react';
 import {
   Phone,
   AlertCircle,
@@ -17,7 +15,7 @@ import {
   RefreshCw,
   Loader2,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 import { getProjectById } from '@/app/actions/index.ts';
@@ -25,14 +23,16 @@ import type { PhoneNumber } from '@/lib/definitions';
 
 import { CallingSettingsForm } from '@/app/wachat/_components/calling-settings-form';
 import { useProject } from '@/context/project-context';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruEmptyState,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+
+/**
+ * Wachat Calls — Setup tab (ZoruUI).
+ *
+ * Phone picker, status banner, calling settings form, and live API call
+ * log tracking every fetch/save.
+ */
+
+import * as React from 'react';
+
 import {
   recordApiCall,
   clearApiLog,

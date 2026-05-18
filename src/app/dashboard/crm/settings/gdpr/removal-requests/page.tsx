@@ -1,5 +1,39 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruLabel,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+    UserMinus,
+  Plus,
+  Eye,
+  CheckCircle2,
+  XCircle,
+  ShieldOff,
+  Loader2,
+  } from 'lucide-react';
+
 /**
  * GDPR Erase Requests — list page (CRM_REBUILD_PLAN §6.9).
  *
@@ -17,39 +51,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    UserMinus,
-    Plus,
-    Eye,
-    CheckCircle2,
-    XCircle,
-    ShieldOff,
-    Loader2,
-} from 'lucide-react';
-
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruLabel,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruTextarea,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityListShell } from '@/components/crm/entity-list-shell';

@@ -1,5 +1,3 @@
-
-
 'use server';
 
 /**
@@ -506,7 +504,6 @@ export async function addCrmLeadAndDeal(
         return { error: `Failed to create deal: ${getErrorMessage(e)}` };
     }
 }
-
 
 export async function updateCrmDealStage(dealId: string, newStage: string): Promise<{ success: boolean; error?: string }> {
     if (!dealId) {

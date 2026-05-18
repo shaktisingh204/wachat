@@ -1,5 +1,33 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import {
+    AlertTriangle,
+  ChevronDown,
+  Edit,
+  LifeBuoy,
+  MoreHorizontal,
+  Trash2,
+  Combine,
+  } from 'lucide-react';
+
 /**
  * <TicketsTable> — dense table view for the Tickets list (§1D.1).
  *
@@ -14,33 +42,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    AlertTriangle,
-    ChevronDown,
-    Edit,
-    LifeBuoy,
-    MoreHorizontal,
-    Trash2,
-    Combine,
-} from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';

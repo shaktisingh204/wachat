@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { AlertCircle, Banknote, Clock, FileEdit, Wallet, } from 'lucide-react';
+
 /**
  * <InvoicesKpiStrip> — KPI strip for the canonical invoices list.
  *
@@ -8,15 +11,6 @@
  */
 
 import * as React from 'react';
-import {
-  AlertCircle,
-  Banknote,
-  Clock,
-  FileEdit,
-  Wallet,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { InvoiceKpiSnapshot, InvoicePresetKey } from './types';
 

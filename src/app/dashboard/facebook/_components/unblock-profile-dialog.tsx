@@ -1,16 +1,5 @@
 "use client";
 
-/**
- * UnblockProfileDialog (Meta Suite local, zoru-only).
- *
- * Confirmation dialog for `unblockProfile` server action.
- */
-
-import * as React from "react";
-import { useTransition } from "react";
-import { Loader2 } from "lucide-react";
-
-import { unblockProfile } from "@/app/actions/facebook.actions";
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -21,7 +10,20 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useTransition } from "react";
+import { Loader2 } from "lucide-react";
+
+import { unblockProfile } from "@/app/actions/facebook.actions";
+
+/**
+ * UnblockProfileDialog (Meta Suite local, zoru-only).
+ *
+ * Confirmation dialog for `unblockProfile` server action.
+ */
+
+import * as React from "react";
 
 export interface UnblockProfileDialogProps {
   open: boolean;

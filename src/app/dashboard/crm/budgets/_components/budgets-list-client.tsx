@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * Budgets list client — §1D.1 upgrade. Adds KPI strip, filter chips,
- * and client-side bulk selection (CSV export). Source data still
- * flows from the legacy Mongo read on the server page.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { ListChecks, Search, X } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -27,6 +17,20 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  ListChecks,
+  Search,
+  X } from 'lucide-react';
+
+/**
+ * Budgets list client — §1D.1 upgrade. Adds KPI strip, filter chips,
+ * and client-side bulk selection (CSV export). Source data still
+ * flows from the legacy Mongo read on the server page.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {

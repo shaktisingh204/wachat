@@ -61,7 +61,6 @@ async function getNextQuotationNumber(db: Db, userId: ObjectId): Promise<string>
     return `QUO-${Date.now().toString().slice(-5)}`;
 }
 
-
 export async function getQuotations(
     page: number = 1,
     limit: number = 20,

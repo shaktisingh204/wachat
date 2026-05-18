@@ -1,39 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/setup — Meta Suite onboarding wizard.
- *
- * Three-step numbered stepper (no tab UI):
- *   1. Connect Meta — OAuth or manual setup
- *   2. Pick a page — choose a project / page to focus on
- *   3. Link assets — verify WhatsApp & Instagram links and finish
- *
- * Same data flow as `all-projects` (reads `getProjects`, OAuths through
- * `/api/auth/meta-suite/login`), zero behavioral changes. Pure zoru
- * tokens — neutral palette only.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Circle,
-  ExternalLink,
-  Instagram,
-  RefreshCw,
-  Settings,
-  Sparkles,
-} from "lucide-react";
-
-import { getProjects } from "@/app/actions/project.actions";
-import { getInstagramAccountForPage } from "@/app/actions/facebook.actions";
-import type { Project, WithId } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -59,7 +25,47 @@ import {
   ZoruSkeleton,
   cn,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Circle,
+  ExternalLink,
+  Instagram,
+  RefreshCw,
+  Settings,
+  Sparkles,
+  } from "lucide-react";
+
+import { getProjects } from "@/app/actions/project.actions";
+import { getInstagramAccountForPage } from "@/app/actions/facebook.actions";
+import type { Project,
+  WithId } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/setup — Meta Suite onboarding wizard.
+ *
+ * Three-step numbered stepper (no tab UI):
+ *   1. Connect Meta — OAuth or manual setup
+ *   2. Pick a page — choose a project / page to focus on
+ *   3. Link assets — verify WhatsApp & Instagram links and finish
+ *
+ * Same data flow as `all-projects` (reads `getProjects`, OAuths through
+ * `/api/auth/meta-suite/login`), zero behavioral changes. Pure zoru
+ * tokens — neutral palette only.
+ */
+
+import * as React from "react";
 
 import { ManualSetupDialog } from "../_components/manual-setup-dialog";
 import { FacebookGlyph, WhatsAppGlyph } from "../_components/icons";

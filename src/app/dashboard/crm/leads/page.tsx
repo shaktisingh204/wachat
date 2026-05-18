@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { Users, Plus } from 'lucide-react';
+
 /**
  * CRM Leads list — `/dashboard/crm/leads`.
  *
@@ -10,9 +13,7 @@
  */
 
 import Link from 'next/link';
-import { Users, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { getT } from '@/lib/i18n/server';
 import { CrmPageHeader } from '../_components/crm-page-header';
 import { listLeads } from '@/app/actions/crm/leads.actions';

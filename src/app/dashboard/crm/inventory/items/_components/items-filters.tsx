@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * <ItemsFilters> — collapsible filter row for the items list.
  *
@@ -10,14 +11,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const STATUS_OPTIONS = [

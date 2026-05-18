@@ -1,5 +1,25 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruButton,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  CheckCircle2,
+  LoaderCircle,
+  RotateCcw,
+  Trash2 } from 'lucide-react';
+
 /**
  * <BankTransactionStatusActions> — tiny client component used on the
  * transaction detail page. Wraps {@link setBankTransactionStatus} +
@@ -8,21 +28,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, CheckCircle2, LoaderCircle, RotateCcw, Trash2 } from 'lucide-react';
-
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruButton,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteBankTransaction,

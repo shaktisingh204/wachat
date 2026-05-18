@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -20,7 +19,6 @@ import { CalendarPickerEditor } from './dialogs/calendar-picker-editor';
 import { PhotoPickerEditor } from './dialogs/photo-picker-editor';
 import { DocumentPickerEditor } from './dialogs/document-picker-editor';
 import { OptInEditor } from './dialogs/opt-in-editor';
-
 
 interface ComponentEditorProps {
   component: any | null;

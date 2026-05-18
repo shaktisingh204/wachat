@@ -1,23 +1,27 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  Edit,
+  LoaderCircle,
+  MoreHorizontal,
+  Trash2 } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import { Edit, LoaderCircle, MoreHorizontal, Trash2 } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import type { CoaNature, CoaRow } from './types';

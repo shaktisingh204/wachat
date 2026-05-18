@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React from 'react';
@@ -28,7 +26,6 @@ import { SpacerBlockRenderer } from './spacer-block-renderer';
 import { IconBlockRenderer } from './icon-block-renderer';
 import { CartBlockRenderer } from './cart-block-renderer';
 import { ProductImageRenderer, ProductTitleRenderer, ProductPriceRenderer, ProductDescriptionRenderer, ProductAddToCartRenderer, ProductBreadcrumbsRenderer } from './product-block-renderers';
-
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />

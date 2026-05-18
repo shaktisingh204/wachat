@@ -1,5 +1,17 @@
 'use client';
 
+import { useZoruToast, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
+import {
+  LayoutGrid,
+  Table as TableIcon,
+  Sparkles,
+  Search as SearchIcon,
+  Send,
+  Trophy,
+  UserCheck,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * Candidates list — §1D.1 rebuild for P1.1B Wave 6.
  *
@@ -25,18 +37,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  LayoutGrid,
-  Table as TableIcon,
-  Sparkles,
-  Search as SearchIcon,
-  Send,
-  Trophy,
-  UserCheck,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
 
-import { useZoruToast, ZoruAvatar, ZoruAvatarFallback } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {

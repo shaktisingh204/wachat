@@ -1,8 +1,5 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruDialog,
   ZoruDialogContent,
@@ -10,19 +7,38 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
 import { LoaderCircle, FileUp, Send, FileSpreadsheet } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, CrmEmailTemplate, EmailCampaign } from '@/lib/definitions';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
+import type { WithId,
+  CrmEmailTemplate,
+  EmailCampaign } from '@/lib/definitions';
 import { DatePicker } from '../ui/date-picker';
 import { handleSendBulkEmail } from '@/app/actions/email.actions';
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '../ui/card';
-import { ZoruSeparator } from '../ui/separator';
+import { Card,
+  CardHeader,
+  CardTitle,
+  CardContent,
+  CardDescription,
+  CardFooter } from '../ui/card';
+
 import { Switch } from '../ui/switch';
 
 const initialState = { message: null, error: null };

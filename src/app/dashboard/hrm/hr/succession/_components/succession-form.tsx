@@ -1,5 +1,32 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { ArrowLeft,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from 'lucide-react';
+
 // TODO 1E.sweep: readiness -> <EnumFormField enumName="successionReadiness">; incumbent/successors -> <EntityFormField entity="employee">. See plan §1E.
 
 /**
@@ -10,27 +37,6 @@
  * `{ name, employeeId, readiness }` rows serialised to JSON via a
  * hidden input on submit.
  */
-
-import { useActionState, useEffect, useState } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { ArrowLeft, LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import { saveSuccessionPlan } from '@/app/actions/crm-succession.actions';
 import type {

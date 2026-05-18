@@ -1,5 +1,15 @@
 'use client';
 
+import { useZoruToast } from '@/components/zoruui';
+import {
+  FileText,
+  Send,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  } from 'lucide-react';
+import { useDebouncedCallback } from 'use-debounce';
+
 /**
  * Offers list — §1D.1 rebuild.
  *
@@ -11,16 +21,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-  FileText,
-  Send,
-  CheckCircle2,
-  XCircle,
-  Clock,
-} from 'lucide-react';
-import { useDebouncedCallback } from 'use-debounce';
 
-import { useZoruToast } from '@/components/zoruui';
 import {
   RecruitmentListShell,
   renderStatusCell,

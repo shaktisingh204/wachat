@@ -1,27 +1,5 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import { useParams } from 'next/navigation';
-import Link from 'next/link';
-import Image from 'next/image';
-import {
-  ChevronLeft,
-  Edit,
-  Package,
-  PlusCircle,
-  ShoppingBag,
-  Trash2,
-} from 'lucide-react';
-
-import {
-  getProductsForCatalog,
-  deleteProductFromCatalog,
-  listProductSets,
-} from '@/app/actions/catalog.actions';
-import type { ProductSet } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-import { CreateCollectionDialog } from '@/components/wabasimplify/create-collection-dialog';
-import { DeleteCollectionButton } from '@/components/wabasimplify/delete-collection-button';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -59,6 +37,32 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition } from 'react';
+import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  ChevronLeft,
+  Edit,
+  Package,
+  PlusCircle,
+  ShoppingBag,
+  Trash2,
+  } from 'lucide-react';
+
+import {
+  getProductsForCatalog,
+  deleteProductFromCatalog,
+  listProductSets,
+  } from '@/app/actions/catalog.actions';
+import type { ProductSet } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+import { CreateCollectionDialog } from '@/components/wabasimplify/create-collection-dialog';
+import { DeleteCollectionButton } from '@/components/wabasimplify/delete-collection-button';
 
 const ProductsTable = ({
   products,

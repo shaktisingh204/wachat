@@ -1,34 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/messenger-settings — Messenger profile settings.
- *
- * Wraps the Messenger profile fields exposed by
- * `wachat-facebook-messenger-profile`: greeting, get-started payload, ice
- * breakers, and whitelisted domains. Each section saves independently and
- * supports deletion via `deleteMessengerProfileFields`.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  AlertCircle,
-  MessageSquare,
-  Plus,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  deleteMessengerProfileFields,
-  getMessengerProfile,
-  setMessengerGetStarted,
-  setMessengerGreeting,
-  setMessengerIceBreakers,
-  setWhitelistedDomains,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -48,6 +19,39 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertCircle,
+  MessageSquare,
+  Plus,
+  RefreshCw,
+  Trash2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  deleteMessengerProfileFields,
+  getMessengerProfile,
+  setMessengerGetStarted,
+  setMessengerGreeting,
+  setMessengerIceBreakers,
+  setWhitelistedDomains,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/messenger-settings — Messenger profile settings.
+ *
+ * Wraps the Messenger profile fields exposed by
+ * `wachat-facebook-messenger-profile`: greeting, get-started payload, ice
+ * breakers, and whitelisted domains. Each section saves independently and
+ * supports deletion via `deleteMessengerProfileFields`.
+ */
+
+import * as React from 'react';
 
 interface IceBreaker {
   question: string;

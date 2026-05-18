@@ -1,10 +1,9 @@
-
 'use client';
 
-import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
+import {
+  getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
+
 import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';

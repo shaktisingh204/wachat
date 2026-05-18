@@ -1,11 +1,8 @@
-
-
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { CartView } from '@/components/wabasimplify/website-builder/cart-view';
 import { CartProvider } from '@/context/cart-context';
-
 
 export default async function CartPage(props: { params: Promise<{ slug: string }>}) {
     const params = await props.params;

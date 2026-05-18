@@ -1,6 +1,4 @@
-
 import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import Link from 'next/link';
 import { Check } from 'lucide-react';
 import { LandingHeader } from '@/components/landing/landing-header';

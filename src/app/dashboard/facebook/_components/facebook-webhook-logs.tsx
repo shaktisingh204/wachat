@@ -1,49 +1,5 @@
 'use client';
 
-/**
- * FacebookWebhookLogs (local, ZoruUI).
- *
- * Local replacement for @/components/wabasimplify/webhook-logs scoped to
- * the Meta Suite. Same server actions (getWebhookLogs,
- * handleClearProcessedLogs, handleReprocessWebhook,
- * getWebhookLogPayload), same pagination + reprocess + view-payload
- * behaviour. All visuals come from ZoruUI primitives.
- *
- * Adds three Meta-Suite-flavoured dialogs surfaced from the toolbar:
- *   - create-webhook  (TODO — currently informational; Meta webhook
- *                      subscription endpoints are configured at the
- *                      project level and the create-flow on this page
- *                      is stubbed pending a dedicated server action)
- *   - test-webhook    (re-uses handleReprocessWebhook on the most recent
- *                      log entry — equivalent to a "send test event")
- *   - delete-webhook  (destructive ZoruAlertDialog wrapping
- *                      handleClearProcessedLogs)
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-  AlertCircle,
-  Copy,
-  Eye,
-  Loader2,
-  Plus,
-  RefreshCw,
-  RotateCw,
-  Search,
-  TestTube,
-  Trash2,
-} from 'lucide-react';
-
-import {
-  getWebhookLogPayload,
-  getWebhookLogs,
-  handleClearProcessedLogs,
-} from '@/app/actions/index.ts';
-import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
-import type { WebhookLogListItem } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -74,6 +30,54 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+  AlertCircle,
+  Copy,
+  Eye,
+  Loader2,
+  Plus,
+  RefreshCw,
+  RotateCw,
+  Search,
+  TestTube,
+  Trash2,
+  } from 'lucide-react';
+
+import {
+  getWebhookLogPayload,
+  getWebhookLogs,
+  handleClearProcessedLogs,
+  } from '@/app/actions/index.ts';
+import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
+import type { WebhookLogListItem } from '@/lib/definitions';
+
+/**
+ * FacebookWebhookLogs (local, ZoruUI).
+ *
+ * Local replacement for @/components/wabasimplify/webhook-logs scoped to
+ * the Meta Suite. Same server actions (getWebhookLogs,
+ * handleClearProcessedLogs, handleReprocessWebhook,
+ * getWebhookLogPayload), same pagination + reprocess + view-payload
+ * behaviour. All visuals come from ZoruUI primitives.
+ *
+ * Adds three Meta-Suite-flavoured dialogs surfaced from the toolbar:
+ *   - create-webhook  (TODO — currently informational; Meta webhook
+ *                      subscription endpoints are configured at the
+ *                      project level and the create-flow on this page
+ *                      is stubbed pending a dedicated server action)
+ *   - test-webhook    (re-uses handleReprocessWebhook on the most recent
+ *                      log entry — equivalent to a "send test event")
+ *   - delete-webhook  (destructive ZoruAlertDialog wrapping
+ *                      handleClearProcessedLogs)
+ */
+
+import * as React from 'react';
 
 const LOGS_PER_PAGE = 15;
 

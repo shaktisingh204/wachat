@@ -1,5 +1,9 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import { useTransition } from 'react';
+import { Send } from 'lucide-react';
+
 /**
  * Recovery-email dispatcher — small client island that calls
  * `dispatchRecoveryEmail` and shows a toast.
@@ -7,10 +11,6 @@
  * The actual mail dispatch is stubbed in the action (see structured log).
  */
 
-import { useTransition } from 'react';
-import { Send } from 'lucide-react';
-
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { dispatchRecoveryEmail } from '@/app/actions/crm-store.actions';
 
 export function RecoveryButton({ cartId }: { cartId: string }) {

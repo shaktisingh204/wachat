@@ -1,3 +1,14 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowLeft,
+  ExternalLink,
+  FileText,
+  Plus,
+  } from 'lucide-react';
+
 /**
  * Employee documents sub-tab —
  *   `/dashboard/hrm/payroll/employees/[employeeId]/documents`.
@@ -9,15 +20,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowLeft,
-    ExternalLink,
-    FileText,
-    Plus,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

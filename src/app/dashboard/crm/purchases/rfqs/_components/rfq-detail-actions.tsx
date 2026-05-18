@@ -1,5 +1,26 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  Activity,
+  Archive,
+  ArrowRight,
+  Award,
+  Lock,
+  Pencil,
+  Printer,
+  Send,
+  } from 'lucide-react';
+
 /**
  * <RfqDetailActions> — top-right action group for the RFQ detail page.
  * Per `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D the surface ships 8
@@ -21,26 +42,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  Activity,
-  Archive,
-  ArrowRight,
-  Award,
-  Lock,
-  Pencil,
-  Printer,
-  Send,
-} from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {

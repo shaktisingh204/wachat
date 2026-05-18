@@ -1,15 +1,14 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { Settings, LoaderCircle, Save } from 'lucide-react';
+import { ZoruCard, ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch, useZoruToast } from '@/components/zoruui';
 import {
-  ZoruCard,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSwitch,
-  useZoruToast,
-} from '@/components/zoruui';
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { Settings,
+  LoaderCircle,
+  Save } from 'lucide-react';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {
   getLeaveSettings,

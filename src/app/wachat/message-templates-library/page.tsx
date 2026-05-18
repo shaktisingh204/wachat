@@ -1,29 +1,5 @@
 'use client';
 
-/**
- * Wachat Message Templates Library — browse project templates +
- * premade library, rebuilt on ZoruUI primitives.
- */
-
-import * as React from 'react';
-import {
-  useEffect,
-  useState,
-  useTransition,
-  useCallback,
-} from 'react';
-import {
-  CircleX,
-  Copy,
-  Check,
-  Loader2,
-  RefreshCw,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getTemplates } from '@/app/actions/template.actions';
-import { premadeTemplates } from '@/lib/premade-templates';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -51,6 +27,30 @@ import {
   useZoruToast,
   type ZoruBadgeProps,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  } from 'react';
+import {
+  CircleX,
+  Copy,
+  Check,
+  Loader2,
+  RefreshCw,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getTemplates } from '@/app/actions/template.actions';
+import { premadeTemplates } from '@/lib/premade-templates';
+
+/**
+ * Wachat Message Templates Library — browse project templates +
+ * premade library, rebuilt on ZoruUI primitives.
+ */
+
+import * as React from 'react';
 
 const TONE_MAP: Record<string, ZoruBadgeProps['variant']> = {
   UTILITY: 'info',

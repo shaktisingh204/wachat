@@ -1,4 +1,3 @@
-
 export type ElementType = 'SECTION' | 'COLUMN' | 'WIDGET';
 export type WidgetType = 'HEADING' | 'TEXT' | 'IMAGE' | 'BUTTON' | 'SPACER';
 

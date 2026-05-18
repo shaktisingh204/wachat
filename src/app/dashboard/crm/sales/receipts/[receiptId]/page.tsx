@@ -1,3 +1,15 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+    FileCheck,
+  Pencil,
+  ArrowLeft,
+  Activity,
+  Printer,
+  Mail,
+  } from 'lucide-react';
+
 /**
  * Payment receipt detail — `/dashboard/crm/sales/receipts/[receiptId]`.
  *
@@ -8,20 +20,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-    FileCheck,
-    Pencil,
-    ArrowLeft,
-    Activity,
-    Printer,
-    Mail,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 // `<StatusPill>` lives inside `<ReceiptInlineStatus>` now.

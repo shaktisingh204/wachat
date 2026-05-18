@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruCard } from '@/components/zoruui';
+import { ChevronDown, ChevronRight } from 'lucide-react';
+
 /**
  * <CoaTree> — hierarchical tree view of accounts grouped by parent group.
  * Used by the "tree" view-switcher option on the CoA list page.
@@ -7,9 +10,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 
-import { ZoruCard } from '@/components/zoruui';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import type { CoaNature, CoaRow } from './types';

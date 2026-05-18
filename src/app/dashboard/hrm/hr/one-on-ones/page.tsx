@@ -1,5 +1,24 @@
 'use client';
 
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { Users } from 'lucide-react';
+
+import { getOneOnOnes,
+  deleteOneOnOne } from '@/app/actions/hr.actions';
+import type { HrOneOnOne } from '@/lib/hr-types';
+
+import {
+  HrDateCell,
+  HrListShell,
+  HrStatusCell,
+  } from '../_components/hr-list-shell';
+
 /**
  * One-on-ones — list page rebuilt to §1D.1 bar.
  *
@@ -11,18 +30,6 @@
  */
 
 import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { Users } from 'lucide-react';
-
-import { getOneOnOnes, deleteOneOnOne } from '@/app/actions/hr.actions';
-import type { HrOneOnOne } from '@/lib/hr-types';
-
-import {
-  HrDateCell,
-  HrListShell,
-  HrStatusCell,
-} from '../_components/hr-list-shell';
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 
 type Row = HrOneOnOne & {
   _id: string;

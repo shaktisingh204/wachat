@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * Wachat Template Builder — visual WhatsApp template builder, rebuilt
- * on ZoruUI primitives. Save copies the JSON payload to clipboard
- * after a confirm dialog.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import {
-  Plus,
-  Eye,
-  Copy,
-  Trash2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -48,6 +31,24 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import {
+  Plus,
+  Eye,
+  Copy,
+  Trash2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Template Builder — visual WhatsApp template builder, rebuilt
+ * on ZoruUI primitives. Save copies the JSON payload to clipboard
+ * after a confirm dialog.
+ */
+
+import * as React from 'react';
 
 type HeaderType = 'none' | 'text' | 'image' | 'video' | 'document';
 type BtnType = 'quick_reply' | 'url' | 'phone';

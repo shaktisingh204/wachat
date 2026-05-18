@@ -1,30 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/faq — FAQ knowledge base for the AI assistant.
- *
- * Same `saveSabChatFaq` and `deleteSabChatFaq` server actions. Visual
- * layer fully Zoru.
- */
-
-import { useEffect, useState } from "react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import {
-  HelpCircle,
-  LoaderCircle,
-  Pencil,
-  Plus,
-  Trash2,
-} from "lucide-react";
-
-import {
-  deleteSabChatFaq,
-  saveSabChatFaq,
-} from "@/app/actions/sabchat.actions";
-import { useProject } from "@/context/project-context";
-import type { SabChatFaqItem } from "@/lib/definitions";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -65,7 +40,33 @@ import {
   ZoruTableRow,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  HelpCircle,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  Trash2,
+  } from "lucide-react";
+
+import {
+  deleteSabChatFaq,
+  saveSabChatFaq,
+  } from "@/app/actions/sabchat.actions";
+import { useProject } from "@/context/project-context";
+import type { SabChatFaqItem } from "@/lib/definitions";
+
+/**
+ * /dashboard/sabchat/faq — FAQ knowledge base for the AI assistant.
+ *
+ * Same `saveSabChatFaq` and `deleteSabChatFaq` server actions. Visual
+ * layer fully Zoru.
+ */
 
 const formInitialState: { message: string | null; error?: string } = {
   message: null,

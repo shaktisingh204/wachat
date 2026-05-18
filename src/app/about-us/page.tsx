@@ -1,4 +1,3 @@
-
 import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import Link from 'next/link';
 import { LandingHeader } from '@/components/landing/landing-header';

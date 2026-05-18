@@ -1,3 +1,15 @@
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import {
+    ArrowRight,
+  BarChart3,
+  FileText,
+  Handshake,
+  TrendingUp,
+  Users,
+  } from 'lucide-react';
+
 /**
  * Sales-CRM Conversions — funnel analytics view.
  *
@@ -13,17 +25,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import {
-    ArrowRight,
-    BarChart3,
-    FileText,
-    Handshake,
-    TrendingUp,
-    Users,
-} from 'lucide-react';
 
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

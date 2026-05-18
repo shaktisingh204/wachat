@@ -1,17 +1,5 @@
 'use client';
 
-/**
- * Right-pane inspector. Shows the trigger form when nothing is selected,
- * otherwise shows the per-node-type settings form. Each form mutates the
- * node's `data` object in place and bubbles a fresh node array up to the
- * editor shell.
- *
- * For `send_media`, the file source is wired through `SabFileUrlInput` —
- * the project-wide policy is that every file input must come from SabFiles.
- */
-import { Plus, Trash2 } from 'lucide-react';
-
-import { SabFileUrlInput } from '@/components/sabfiles';
 import {
   ZoruButton,
   ZoruInput,
@@ -23,6 +11,21 @@ import {
   ZoruSelectValue,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  Plus,
+  Trash2 } from 'lucide-react';
+
+import { SabFileUrlInput } from '@/components/sabfiles';
+
+/**
+ * Right-pane inspector. Shows the trigger form when nothing is selected,
+ * otherwise shows the per-node-type settings form. Each form mutates the
+ * node's `data` object in place and bubbles a fresh node array up to the
+ * editor shell.
+ *
+ * For `send_media`, the file source is wired through `SabFileUrlInput` —
+ * the project-wide policy is that every file input must come from SabFiles.
+ */
 
 import { nodeMeta } from './node-registry';
 import { FlowTriggerPanel } from './FlowTriggerPanel';

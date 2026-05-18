@@ -1,38 +1,5 @@
 'use client';
 
-/**
- * SabWa — Templates (Page 15)
- *
- * Folder-organised grid of reusable message templates with rich body,
- * variables, and a media attachment via SabFiles. The editor opens in a
- * Dialog. Each card exposes a "Use template" menu for insert / broadcast
- * / schedule, and search filters across name + body.
- *
- * Migrated to ZoruUI primitives. No behaviour changes — same server
- * actions, same prop shapes.
- *
- * Source of truth: SABWA_PLAN.md § 6 — Page 15.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  BookCopy,
-  Edit3,
-  FolderPlus,
-  Folder,
-  MessageSquarePlus,
-  MoreHorizontal,
-  Plus,
-  Search,
-  Send,
-  Smartphone,
-  Trash2,
-  CalendarClock,
-  Paperclip,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -68,6 +35,40 @@ import {
   ZoruTextarea,
   cn,
 } from '@/components/zoruui';
+import {
+  BookCopy,
+  Edit3,
+  FolderPlus,
+  Folder,
+  MessageSquarePlus,
+  MoreHorizontal,
+  Plus,
+  Search,
+  Send,
+  Smartphone,
+  Trash2,
+  CalendarClock,
+  Paperclip,
+  X,
+  } from 'lucide-react';
+
+/**
+ * SabWa — Templates (Page 15)
+ *
+ * Folder-organised grid of reusable message templates with rich body,
+ * variables, and a media attachment via SabFiles. The editor opens in a
+ * Dialog. Each card exposes a "Use template" menu for insert / broadcast
+ * / schedule, and search filters across name + body.
+ *
+ * Migrated to ZoruUI primitives. No behaviour changes — same server
+ * actions, same prop shapes.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 — Page 15.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { SabFilePickerButton } from '@/components/sabfiles';
 import {
   listTemplates,

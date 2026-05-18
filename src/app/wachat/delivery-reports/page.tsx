@@ -1,28 +1,7 @@
 'use client';
 
-/**
- * Wachat Delivery Reports — ZoruUI rebuild.
- *
- * KPI strip + per-message delivery table with row-detail sheet
- * + export-CSV dialog. Greyscale only.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  CheckCheck,
-  CircleX,
-  Download,
-  Eye,
-  Inbox,
-  Send,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getDeliveryReport } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -56,6 +35,31 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  CheckCheck,
+  CircleX,
+  Download,
+  Eye,
+  Inbox,
+  Send,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getDeliveryReport } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Delivery Reports — ZoruUI rebuild.
+ *
+ * KPI strip + per-message delivery table with row-detail sheet
+ * + export-CSV dialog. Greyscale only.
+ */
+
+import * as React from 'react';
 
 const STAT_META = [
   { key: 'sent', label: 'Sent', icon: Send },

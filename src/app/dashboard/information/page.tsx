@@ -1,16 +1,27 @@
-
 'use client';
 
-import React, { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions/index';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruSkeleton,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  getProjectById } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
-import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import type { Project,
+  PaymentConfiguration,
+  BusinessCapabilities } from '@/lib/definitions';
 import { AlertCircle, Banknote, Briefcase } from 'lucide-react';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+
+import React, { useEffect, useState, useTransition } from 'react';
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (

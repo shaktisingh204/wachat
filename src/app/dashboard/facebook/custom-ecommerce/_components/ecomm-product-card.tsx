@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-card`.
- *
- * Same data shape and same `deleteEcommProduct` server action — visuals are
- * rebuilt with ZoruCard, ZoruBadge, ZoruButton, and ZoruAlertDialog.
- */
-
-import * as React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Edit, Trash2 } from "lucide-react";
-
-import { deleteEcommProduct } from "@/app/actions/custom-ecommerce.actions";
-import type { EcommProduct, EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -34,7 +18,26 @@ import {
   ZoruCardHeader,
   ZoruCardTitle,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Edit,
+  Trash2 } from "lucide-react";
+
+import { deleteEcommProduct } from "@/app/actions/custom-ecommerce.actions";
+import type { EcommProduct,
+  EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-card`.
+ *
+ * Same data shape and same `deleteEcommProduct` server action — visuals are
+ * rebuilt with ZoruCard, ZoruBadge, ZoruButton, and ZoruAlertDialog.
+ */
+
+import * as React from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface EcommProductCardProps {
   product: WithId<EcommProduct>;

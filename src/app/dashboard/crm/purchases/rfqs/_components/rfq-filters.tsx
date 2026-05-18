@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruInput, ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * <RfqFilters> — collapsible filter row for the RFQs list.
  *
@@ -10,15 +11,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 const STATUS_OPTIONS = [

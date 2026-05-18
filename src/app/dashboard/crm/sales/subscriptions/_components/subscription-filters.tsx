@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruLabel, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
 /**
  * <SubscriptionFilters> — collapsible filter row for the §1D
  * subscriptions list.
@@ -12,14 +13,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 

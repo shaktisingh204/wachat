@@ -1,25 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Blacklist — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { ShieldBan, Plus, Trash2, Upload, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getBlacklist,
-  addToBlacklist,
-  removeFromBlacklist,
-  bulkAddToBlacklist,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -51,6 +33,27 @@ import {
   ZoruSkeleton,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { ShieldBan,
+  Plus,
+  Trash2,
+  Upload,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getBlacklist, addToBlacklist, removeFromBlacklist, bulkAddToBlacklist } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Contact Blacklist — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 export default function ContactBlacklistPage() {
   const { activeProject } = useProject();

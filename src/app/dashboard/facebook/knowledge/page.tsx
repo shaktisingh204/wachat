@@ -1,41 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/knowledge — Knowledge base for Messenger agents.
- *
- * Lists uploaded knowledge documents (title, type, size, status, createdAt)
- * and exposes an upload flow via SabFilePickerButton from
- * `@/components/sabfiles`. The picker is the project-wide source for file
- * inputs — we never expose a free-text URL paste here (see SabFiles policy).
- *
- * On pick, the selected SabFile URL + title are forwarded to
- * `uploadKnowledgeDoc` as a FormData blob. Delete is a confirm-step.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  BookOpen,
-  FileText,
-  RefreshCw,
-  Trash2,
-  Upload,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getKnowledgeDocs,
-  uploadKnowledgeDoc,
-  deleteKnowledgeDoc,
-} from '@/app/actions/facebook.actions';
-
-import {
-  SabFilePickerButton,
-  type SabFilePick,
-} from '@/components/sabfiles';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -69,6 +33,46 @@ import {
   ZoruSkeleton,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  BookOpen,
+  FileText,
+  RefreshCw,
+  Trash2,
+  Upload,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getKnowledgeDocs,
+  uploadKnowledgeDoc,
+  deleteKnowledgeDoc,
+  } from '@/app/actions/facebook.actions';
+
+import {
+  SabFilePickerButton,
+  type SabFilePick,
+  } from '@/components/sabfiles';
+
+/**
+ * /dashboard/facebook/knowledge — Knowledge base for Messenger agents.
+ *
+ * Lists uploaded knowledge documents (title, type, size, status, createdAt)
+ * and exposes an upload flow via SabFilePickerButton from
+ * `@/components/sabfiles`. The picker is the project-wide source for file
+ * inputs — we never expose a free-text URL paste here (see SabFiles policy).
+ *
+ * On pick, the selected SabFile URL + title are forwarded to
+ * `uploadKnowledgeDoc` as a FormData blob. Delete is a confirm-step.
+ */
+
+import * as React from 'react';
 
 interface KnowledgeDoc {
   _id?: string;

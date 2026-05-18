@@ -1,36 +1,73 @@
-import type { Metadata } from 'next';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
 import type { WithId } from 'mongodb';
 
 import {
     // Core icons
-    Briefcase, Users, Wifi, Activity, CreditCard, Receipt,
-    // Wachat icons
-    MessageSquare, Send, Inbox, BookOpen, GitFork, PlayCircle, Quote, FileText,
-    // CRM icons
-    UserSquare, Target, HandCoins, FileCheck, Package, Building2, Truck, ListChecks, Zap, ClipboardList, BookMarked,
-    // Ads icons
-    Megaphone, Share2, Users2,
-    // Marketing icons
-    Mail, MessageCircle,
-    // Platform icons
-    Search, BarChart3, KeyRound, Workflow, MessagesSquare, Bell, Hash,
-    // Tools icons
-    Link2, QrCode, Store, ShoppingBag, Globe,
-} from 'lucide-react';
+    Briefcase,
+  Users,
+  Wifi,
+  Activity,
+  CreditCard,
+  Receipt,
+  // Wachat icons
+    MessageSquare,
+  Send,
+  Inbox,
+  BookOpen,
+  GitFork,
+  PlayCircle,
+  Quote,
+  FileText,
+  // CRM icons
+    UserSquare,
+  Target,
+  HandCoins,
+  FileCheck,
+  Package,
+  Building2,
+  Truck,
+  ListChecks,
+  Zap,
+  ClipboardList,
+  BookMarked,
+  // Ads icons
+    Megaphone,
+  Share2,
+  Users2,
+  // Marketing icons
+    Mail,
+  MessageCircle,
+  // Platform icons
+    Search,
+  BarChart3,
+  KeyRound,
+  Workflow,
+  MessagesSquare,
+  Bell,
+  Hash,
+  // Tools icons
+    Link2,
+  QrCode,
+  Store,
+  ShoppingBag,
+  Globe,
+  } from 'lucide-react';
 
 import {
     getProjectsForAdmin,
-    getAdminDashboardStats,
-    type AdminStats,
-} from '@/app/actions/admin.actions';
+  getAdminDashboardStats,
+  type AdminStats,
+  } from '@/app/actions/admin.actions';
 import { getAdminSession } from '@/lib/admin-session';
 import { getPlans } from '@/app/actions/plan.actions';
 import { rustClient } from '@/lib/rust-client';
 import type { Project } from '@/lib/definitions';
 
-import { ZoruButton } from '@/components/zoruui';
+import type { Metadata } from 'next';
+import Link from 'next/link';
+
 import { ProjectSearch } from '@/components/wabasimplify/project-search';
 import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
 import { AdminUpdateCreditsButton } from '@/components/wabasimplify/admin-update-credits-button';

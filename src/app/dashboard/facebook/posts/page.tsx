@@ -1,37 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/posts — Master Facebook post list.
- *
- * ZoruUI rebuild: page header + breadcrumb, ZoruDataTable with status
- * badges, edit/delete actions per row. Same data (`getFacebookPosts`,
- * `handleLikeObject`) and same handlers as before. Neutral palette only.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useState, useTransition } from "react";
-import Image from "next/image";
-import { formatDistanceToNow } from "date-fns";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  AlertCircle,
-  Edit,
-  ExternalLink,
-  Image as ImageIcon,
-  MessageCircle,
-  Newspaper,
-  RefreshCw,
-  Share2,
-  ThumbsUp,
-  Video,
-} from "lucide-react";
-
-import {
-  getFacebookPosts,
-  handleLikeObject,
-} from "@/app/actions/facebook.actions";
-import type { FacebookPost } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -62,7 +30,43 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from "react";
+import Image from "next/image";
+import { formatDistanceToNow } from "date-fns";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  AlertCircle,
+  Edit,
+  ExternalLink,
+  Image as ImageIcon,
+  MessageCircle,
+  Newspaper,
+  RefreshCw,
+  Share2,
+  ThumbsUp,
+  Video,
+  } from "lucide-react";
+
+import {
+  getFacebookPosts,
+  handleLikeObject,
+  } from "@/app/actions/facebook.actions";
+import type { FacebookPost } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/posts — Master Facebook post list.
+ *
+ * ZoruUI rebuild: page header + breadcrumb, ZoruDataTable with status
+ * badges, edit/delete actions per row. Same data (`getFacebookPosts`,
+ * `handleLikeObject`) and same handlers as before. Neutral palette only.
+ */
+
+import * as React from "react";
 
 import { DeletePostButton } from "../_components/delete-post-button";
 import { UpdatePostDialog } from "../_components/update-post-dialog";

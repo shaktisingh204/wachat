@@ -1,34 +1,5 @@
 'use client';
 
-/**
- * §1D list client for Sales Orders — KPI strip, filter chips, bulk-bar,
- * 12-col table, saved presets.
- *
- * Owns search debounce → URL, status / customer / sales-agent / date /
- * expected-shipment filters → URL, multi-row selection state, and the
- * delete confirmation dialog. Server component re-fetches on URL change.
- *
- * Presentational bits (KPI strip, preset bar, filter toolbar, active
- * chips, bulk-bar, CSV helpers) live in
- * `./sales-orders-list-bits.tsx` so this orchestrator stays under the
- * 600-line per-file cap.
- *
- * Bulk actions: archive · delete · export (CSV) · change status ·
- * convert selection to delivery challans (multi-tab open).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  ArrowRightCircle,
-  LoaderCircle,
-  Pencil,
-  Trash2,
-  Truck,
-} from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -49,6 +20,39 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  ArrowRightCircle,
+  LoaderCircle,
+  Pencil,
+  Trash2,
+  Truck,
+  } from 'lucide-react';
+
+/**
+ * §1D list client for Sales Orders — KPI strip, filter chips, bulk-bar,
+ * 12-col table, saved presets.
+ *
+ * Owns search debounce → URL, status / customer / sales-agent / date /
+ * expected-shipment filters → URL, multi-row selection state, and the
+ * delete confirmation dialog. Server component re-fetches on URL change.
+ *
+ * Presentational bits (KPI strip, preset bar, filter toolbar, active
+ * chips, bulk-bar, CSV helpers) live in
+ * `./sales-orders-list-bits.tsx` so this orchestrator stays under the
+ * 600-line per-file cap.
+ *
+ * Bulk actions: archive · delete · export (CSV) · change status ·
+ * convert selection to delivery challans (multi-tab open).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

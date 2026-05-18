@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  Activity,
+  Archive,
+  Edit,
+  Handshake,
+  Mail,
+  MessageCircle,
+  Phone,
+  Printer,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * Header action group for the contact detail page (extracted to keep
  * `[contactId]/page.tsx` under the 600-line scope cap).
@@ -12,19 +25,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    Archive,
-    Edit,
-    Handshake,
-    Mail,
-    MessageCircle,
-    Phone,
-    Printer,
-    Trash2,
-} from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 export interface ContactDetailActionsProps {
     contactId: string;

@@ -1,29 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Merge — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  Search,
-  GitMerge,
-  Check,
-  Loader2,
-  Users,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import {
-  getContactsPageData,
-  updateContactTags,
-} from '@/app/actions/contact.actions';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -47,6 +25,29 @@ import {
   ZoruSkeleton,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  Search,
+  GitMerge,
+  Check,
+  Loader2,
+  Users,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactsPageData, updateContactTags } from '@/app/actions/contact.actions';
+
+/**
+ * Wachat Contact Merge — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 export default function ContactMergePage() {
   const { activeProject } = useProject();

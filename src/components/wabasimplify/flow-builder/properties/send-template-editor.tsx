@@ -1,15 +1,14 @@
-
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
+import { ZoruLabel, ZoruInput, ZoruRadioGroup, ZoruRadioGroupItem, ZoruSelect } from '@/components/zoruui';
 import { SmartCombobox } from '@/components/wabasimplify/smart-combobox';
 import { getTemplates } from '@/app/actions';
 import { useProject } from '@/context/project-context';
 import type { Template } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { useEffect, useState } from 'react';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruRadioGroup, ZoruRadioGroupItem } from '@/components/zoruui';
+import { useEffect,
+  useState } from 'react';
+
 import { SabFileToFileButton } from '@/components/sabfiles';
 
 interface EditorProps {
@@ -77,7 +76,6 @@ export function SendTemplateEditor({ node, onUpdate }: EditorProps) {
 
         return [...new Set(varNumbers)].sort((a, b) => a - b);
     };
-
 
     const variables = getTemplateVariables(selectedTemplate);
 

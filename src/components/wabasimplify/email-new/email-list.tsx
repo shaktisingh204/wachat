@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { ZoruInput } from '@/components/zoruui';
+import { ZoruInput, ZoruScrollArea, ZoruBadge } from '@/components/zoruui';
 import { Search, Star, Paperclip } from 'lucide-react';
-import { ZoruScrollArea } from '@/components/zoruui';
 import { mockConversations } from './email-data';
 import { cn } from '@/lib/utils';
-import { formatDistanceToNow, isToday, format } from 'date-fns';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { ZoruBadge } from '@/components/zoruui';
+import { formatDistanceToNow,
+  isToday,
+  format } from 'date-fns';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
+
+import React, { useState, useEffect } from 'react';
 
 export function EmailList({ initialAccountId }: { initialAccountId?: string }) {
     const searchParams = useSearchParams();

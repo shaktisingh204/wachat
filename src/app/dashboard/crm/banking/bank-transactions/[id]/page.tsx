@@ -1,3 +1,17 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowDownLeft,
+  ArrowLeft,
+  ArrowLeftRight,
+  ArrowUpRight,
+  CheckCircle2,
+  FileText,
+  Paperclip,
+  } from 'lucide-react';
+
 /**
  * Bank Transaction detail page (server component).
  *
@@ -8,18 +22,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowDownLeft,
-    ArrowLeft,
-    ArrowLeftRight,
-    ArrowUpRight,
-    CheckCircle2,
-    FileText,
-    Paperclip,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

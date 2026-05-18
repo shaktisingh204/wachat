@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruHomeShell } from '@/components/zoruui';
+import { usePathname } from "next/navigation";
+
 /**
  * WachatShell — wraps `ZoruHomeShell` with the wachat-specific
  * grouped sidebar (Inbox, Contacts, Broadcasts, Templates,
@@ -10,9 +13,6 @@
  */
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
-
-import { ZoruHomeShell } from "@/components/zoruui";
 
 import { buildWachatSidebarGroups } from "./wachat-sidebar-config";
 

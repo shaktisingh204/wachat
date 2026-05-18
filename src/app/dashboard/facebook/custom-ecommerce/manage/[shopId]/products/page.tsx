@@ -1,5 +1,23 @@
 "use client";
 
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruEmptyState, ZoruSkeleton } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useParams } from "next/navigation";
+import { AlertCircle,
+  PlusCircle,
+  ShoppingBag } from "lucide-react";
+
+import {
+  getEcommProducts,
+  getEcommShopById,
+  } from "@/app/actions/custom-ecommerce.actions";
+import type { EcommProduct,
+  EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId]/products
  *
@@ -9,25 +27,6 @@
  */
 
 import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
-import { AlertCircle, PlusCircle, ShoppingBag } from "lucide-react";
-
-import {
-  getEcommProducts,
-  getEcommShopById,
-} from "@/app/actions/custom-ecommerce.actions";
-import type { EcommProduct, EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruButton,
-  ZoruEmptyState,
-  ZoruSkeleton,
-} from "@/components/zoruui";
 
 import { EcommProductCard } from "../../../_components/ecomm-product-card";
 import { EcommProductDialog } from "../../../_components/ecomm-product-dialog";

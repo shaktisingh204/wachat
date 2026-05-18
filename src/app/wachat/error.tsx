@@ -1,17 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  useEffect } from 'react';
+import { AlertTriangle,
+  RotateCcw } from 'lucide-react';
+
 /**
  * Wachat error boundary — catches unexpected React render errors and
  * displays a user-friendly recovery screen instead of the raw
  * Next.js "Internal Server Error" page.
  */
-
-import { useEffect } from 'react';
-import { AlertTriangle, RotateCcw } from 'lucide-react';
-import {
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 
 export default function WachatError({
   error,

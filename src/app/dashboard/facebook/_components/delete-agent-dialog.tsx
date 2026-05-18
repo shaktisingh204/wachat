@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * DeleteAgentDialog (Meta Suite local, zoru-only).
- *
- * Confirmation dialog for `deleteFacebookAgent`. Replaces the inline
- * `confirm(...)` prompt with a proper destructive alert dialog.
- */
-
-import * as React from "react";
-import { useTransition } from "react";
-import { Loader2, Trash2 } from "lucide-react";
-
-import { deleteFacebookAgent } from "@/app/actions/facebook.actions";
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -22,7 +10,22 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useTransition } from "react";
+import { Loader2,
+  Trash2 } from "lucide-react";
+
+import { deleteFacebookAgent } from "@/app/actions/facebook.actions";
+
+/**
+ * DeleteAgentDialog (Meta Suite local, zoru-only).
+ *
+ * Confirmation dialog for `deleteFacebookAgent`. Replaces the inline
+ * `confirm(...)` prompt with a proper destructive alert dialog.
+ */
+
+import * as React from "react";
 
 export interface DeleteAgentDialogProps {
   open: boolean;

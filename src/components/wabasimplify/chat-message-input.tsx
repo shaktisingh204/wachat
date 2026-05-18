@@ -1,25 +1,46 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import {
+  ZoruInput,
+  ZoruButton,
+  ZoruPopover,
+  ZoruPopoverAnchor,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruScrollArea,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getCannedMessages } from '@/app/actions/project.actions';
 import { handleSendMessage } from '@/app/actions/whatsapp.actions';
-import type { CannedMessage, Template, Contact, Project } from '@/lib/definitions';
+import type { CannedMessage,
+  Template,
+  Contact,
+  Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { Send, LoaderCircle, Star } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruPopover, ZoruPopoverAnchor, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
 import { SendTemplateDialog } from './send-template-dialog';
 import { RequestPaymentDialog } from './request-payment-dialog';
 import { RequestWhatsAppPaymentDialog } from './request-whatsapp-payment-dialog';
 import { SendCatalogDialog } from './send-catalog-dialog';
 import { ChatAttachmentMenu } from './chat-attachment-menu';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle } from '@/components/zoruui';
-import { ZoruCommand, ZoruCommandEmpty, ZoruCommandGroup, ZoruCommandInput, ZoruCommandItem, ZoruCommandList } from '@/components/zoruui';
+
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SabFileToFileButton } from '@/components/sabfiles';
@@ -83,7 +104,6 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         }
     }, [sendState, toast]);
 
-
     const [isUploading, setIsUploading] = useState(false);
 
     const handleFormSubmit = async (data?: { [key: string]: any }) => {
@@ -106,7 +126,6 @@ export function ChatMessageInput({ project, contact, templates, replyToMessageId
         }
         handleFormSubmit(data);
     };
-
 
     const uploadMediaFile = async (file: File) => {
         setIsUploading(true); // Start upload state

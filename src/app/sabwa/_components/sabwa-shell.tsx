@@ -1,5 +1,8 @@
 "use client";
 
+import { ZoruHomeShell } from '@/components/zoruui';
+import { usePathname } from "next/navigation";
+
 /**
  * SabwaShell — wraps `ZoruHomeShell` with the SabWa-specific grouped
  * sidebar (Get started, Inbox & chats, Groups, Outbound, Library,
@@ -10,9 +13,7 @@
  */
 
 import * as React from "react";
-import { usePathname } from "next/navigation";
 
-import { ZoruHomeShell } from "@/components/zoruui";
 import { useSabwaSession } from "@/lib/sabwa/session-context";
 
 import { buildSabwaSidebarGroups } from "./sabwa-sidebar-config";

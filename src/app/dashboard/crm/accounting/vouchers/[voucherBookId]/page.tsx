@@ -1,17 +1,13 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Edit, History, Printer, Archive, Plus } from 'lucide-react';
-
+import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
+  notFound } from 'next/navigation';
+import { Edit,
+  History,
+  Printer,
+  Archive,
+  Plus } from 'lucide-react';
+
+import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill } from '@/components/crm/status-pill';

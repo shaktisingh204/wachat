@@ -1,5 +1,38 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useId } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import {
+    ArrowLeft,
+  FileUp,
+  GripVertical,
+  LoaderCircle,
+  Paperclip,
+  Plus,
+  Save,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
 /**
  * <ProposalForm /> — create + edit form for CRM Sales Proposals.
  *
@@ -10,35 +43,6 @@
  *   - status select with the full status set
  */
 
-import { useActionState, useEffect, useState, useId } from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import {
-    ArrowLeft,
-    FileUp,
-    GripVertical,
-    LoaderCircle,
-    Paperclip,
-    Plus,
-    Save,
-    Trash2,
-    X,
-} from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import {

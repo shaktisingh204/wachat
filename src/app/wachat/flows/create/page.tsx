@@ -1,7 +1,28 @@
 'use client';
 
-import { Suspense, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   AlertTriangle,
@@ -11,7 +32,7 @@ import {
   LoaderCircle,
   Save,
   Upload,
-} from 'lucide-react';
+  } from 'lucide-react';
 import type { WithId } from 'mongodb';
 
 import { useProject } from '@/context/project-context';
@@ -28,22 +49,9 @@ import {
   publishMetaFlow,
   saveMetaFlowDraft,
   updateMetaFlowMetadata,
-} from '@/app/actions/meta-flow.actions';
-import type { MetaFlowValidationError, Project } from '@/lib/definitions';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSkeleton,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
+  } from '@/app/actions/meta-flow.actions';
+import type { MetaFlowValidationError,
+  Project } from '@/lib/definitions';
 
 const DEFAULT_FLOW = {
   version: '7.3',

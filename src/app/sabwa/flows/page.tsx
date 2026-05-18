@@ -1,33 +1,5 @@
 "use client";
 
-/**
- * /sabwa/flows — Chatbot flows for SabWa.
- *
- * Bridges SabWa to the existing SabFlow visual builder.
- * Real data layer: `listSabFlows(projectId)` from `@/app/actions/sabflow`,
- * filtered to a `sabwa-` projectId prefix so personal-WhatsApp flows stay
- * separate from generic SabFlow ones.
- *
- * If no flows exist (Phase 1 / engine offline), the empty-state still
- * surfaces the SabWa trigger + action catalogue as a collapsible reference
- * so users understand what the builder will give them.
- *
- * Rebuilt on ZoruUI primitives — neutral zoru-* tokens only, no tab UI.
- */
-
-import * as React from "react";
-import Link from "next/link";
-import {
-  ChevronDown,
-  CircleSlash,
-  Loader2,
-  Play,
-  Plus,
-  RefreshCw,
-  Smartphone,
-  Workflow,
-} from "lucide-react";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -48,7 +20,36 @@ import {
   ZoruEmptyState,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  ChevronDown,
+  CircleSlash,
+  Loader2,
+  Play,
+  Plus,
+  RefreshCw,
+  Smartphone,
+  Workflow,
+  } from "lucide-react";
+
+/**
+ * /sabwa/flows — Chatbot flows for SabWa.
+ *
+ * Bridges SabWa to the existing SabFlow visual builder.
+ * Real data layer: `listSabFlows(projectId)` from `@/app/actions/sabflow`,
+ * filtered to a `sabwa-` projectId prefix so personal-WhatsApp flows stay
+ * separate from generic SabFlow ones.
+ *
+ * If no flows exist (Phase 1 / engine offline), the empty-state still
+ * surfaces the SabWa trigger + action catalogue as a collapsible reference
+ * so users understand what the builder will give them.
+ *
+ * Rebuilt on ZoruUI primitives — neutral zoru-* tokens only, no tab UI.
+ */
+
+import * as React from "react";
+import Link from "next/link";
+
 import { useProject } from "@/context/project-context";
 import { listSabFlows } from "@/app/actions/sabflow";
 import { useSabwaSession } from "@/lib/sabwa/session-context";

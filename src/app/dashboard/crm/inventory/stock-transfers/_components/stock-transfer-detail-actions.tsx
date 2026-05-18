@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  Ban,
+  Trash2 } from 'lucide-react';
+
 /**
  * <StockTransferDetailActions /> — header action group rendered next to
  * the title on the detail page. Owns the cancel + archive + delete flows
@@ -7,10 +14,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, Ban, Trash2 } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 
 import {

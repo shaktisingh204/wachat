@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+
 /**
  * <SubscriptionForm> — single source of truth for both Create and Edit
  * flows of `/dashboard/crm/sales/subscriptions` (§1D.3 / §1D.4 rebuild).
@@ -26,20 +42,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
-import {
-  ZoruCheckbox,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';

@@ -1,5 +1,30 @@
 'use client';
 
+import {
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import {
+    Archive,
+  Building,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  } from 'lucide-react';
+
 /**
  * <AccountsTable> — dense table for the accounts list view (§1D.1).
  *
@@ -10,30 +35,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import {
-    Archive,
-    Building,
-    Edit,
-    Eye,
-    MoreHorizontal,
-} from 'lucide-react';
 
-import {
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruSkeleton,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill } from '@/components/crm/status-pill';
 import type { CrmAccount } from '@/lib/definitions';
 import type { WithId } from 'mongodb';

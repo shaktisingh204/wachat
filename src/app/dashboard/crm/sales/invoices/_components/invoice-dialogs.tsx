@@ -1,20 +1,5 @@
 'use client';
 
-/**
- * Invoice detail-page dialogs.
- *
- *   • <InvoiceEmailDialog> — compose + send. Wires `sendInvoiceEmail`
- *     server action which marks the invoice `sent` and writes an audit
- *     row.
- *   • <InvoiceWhatsAppDialog> — opens wa.me deep link with prefilled
- *     text. No server-side state change.
- *   • <InvoiceMarkPaidDialog> — convenience for the "Mark paid" header
- *     action; sets status and toasts.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -28,6 +13,23 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * Invoice detail-page dialogs.
+ *
+ *   • <InvoiceEmailDialog> — compose + send. Wires `sendInvoiceEmail`
+ *     server action which marks the invoice `sent` and writes an audit
+ *     row.
+ *   • <InvoiceWhatsAppDialog> — opens wa.me deep link with prefilled
+ *     text. No server-side state change.
+ *   • <InvoiceMarkPaidDialog> — convenience for the "Mark paid" header
+ *     action; sets status and toasts.
+ */
+
+import * as React from 'react';
+
 import {
   sendInvoiceEmail,
   updateInvoiceStatus,

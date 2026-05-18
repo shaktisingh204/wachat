@@ -1,3 +1,18 @@
+import {
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruScrollArea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  Inbox,
+  MessageSquare,
+  Search } from 'lucide-react';
+
 /**
  * Inbox left pane — search + filter + chat list.
  *
@@ -10,18 +25,7 @@
 'use client';
 
 import * as React from 'react';
-import { Inbox, MessageSquare, Search } from 'lucide-react';
 
-import {
-  ZoruEmptyState,
-  ZoruInput,
-  ZoruScrollArea,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
 import { ChatListRow } from '@/app/sabwa/_components/chat-list-row';
 import { EmptyState } from '@/app/sabwa/_components/empty-state';
 import { cn } from '@/lib/utils';

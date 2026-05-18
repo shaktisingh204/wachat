@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * Client side of the Bookings list — owns the search box, the table,
- * the bulk action bar, the KPI strip, the calendar view switcher, and
- * the hard-delete confirmation dialog.
- *
- * The Rust list endpoint doesn't currently support free-text search,
- * so the query is only used for client-side filtering of the in-memory
- * page; it still round-trips to the URL so the navigation state is
- * preserved on refresh.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  CalendarDays,
-  ListChecks,
-  Pencil,
-  Search,
-  Table2,
-  Trash2,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -43,6 +18,35 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  CalendarDays,
+  ListChecks,
+  Pencil,
+  Search,
+  Table2,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+/**
+ * Client side of the Bookings list — owns the search box, the table,
+ * the bulk action bar, the KPI strip, the calendar view switcher, and
+ * the hard-delete confirmation dialog.
+ *
+ * The Rust list endpoint doesn't currently support free-text search,
+ * so the query is only used for client-side filtering of the in-memory
+ * page; it still round-trips to the URL so the navigation state is
+ * preserved on refresh.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

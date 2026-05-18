@@ -1,3 +1,15 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import {
+    PackageCheck,
+  Pencil,
+  ArrowLeft,
+  Activity,
+  Printer,
+  Receipt,
+  } from 'lucide-react';
+
 /**
  * GRN detail — `/dashboard/crm/inventory/grn/[id]`.
  *
@@ -11,17 +23,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import {
-    PackageCheck,
-    Pencil,
-    ArrowLeft,
-    Activity,
-    Printer,
-    Receipt,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

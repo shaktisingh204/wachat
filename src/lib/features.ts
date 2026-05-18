@@ -1,4 +1,3 @@
-
 export const sabnodeFeatures = `
 SabNode: Your All-in-One Business Communication and Growth Platform
 

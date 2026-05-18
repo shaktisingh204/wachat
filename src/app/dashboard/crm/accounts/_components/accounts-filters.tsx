@@ -1,25 +1,30 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  Archive,
+  Download,
+  Tag,
+  X } from 'lucide-react';
+
 /**
  * Filter row + bulk action bar for the accounts list page (§1D.1).
  * Pure presentation — concrete filter values are owned by `page.tsx`.
  */
 
 import * as React from 'react';
-import { Archive, Download, Tag, X } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 export type AccountStatusFilter = 'all' | 'active' | 'archived';

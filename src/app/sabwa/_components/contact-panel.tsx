@@ -1,3 +1,15 @@
+import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton, ZoruScrollArea } from '@/components/zoruui';
+import {
+  Archive,
+  Ban,
+  BellOff,
+  FileText,
+  ImageIcon,
+  Users,
+  Video,
+  X,
+  } from 'lucide-react';
+
 /**
  * ContactPanel — right-side pane of the SabWa inbox.
  *
@@ -13,24 +25,7 @@
 'use client';
 
 import * as React from 'react';
-import {
-  Archive,
-  Ban,
-  BellOff,
-  FileText,
-  ImageIcon,
-  Users,
-  Video,
-  X,
-} from 'lucide-react';
 
-import {
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  ZoruButton,
-  ZoruScrollArea,
-} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { formatJid, useResolveJid } from '@/lib/sabwa/format-jid';
 import { useSabwaSession } from '@/lib/sabwa/session-context';

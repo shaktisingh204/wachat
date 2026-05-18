@@ -1,38 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/post-randomizer — Auto-rotate post pool, ZoruUI rebuild.
- *
- * Same handlers + server actions (`saveRandomizerSettings`,
- * `getRandomizerPosts`, `addRandomizerPost`, `deleteRandomizerPost`).
- * Uses `useProject` for project context and FeatureLock for plan gating.
- * Visual layer: ZoruPageHeader + ZoruBreadcrumb, two-column layout
- * (settings card + content pool list), CreateRandomizerPostDialog.
- */
-
-import * as React from "react";
-import {
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-} from "react";
-import Image from "next/image";
-import { Edit, Loader2, PlusCircle, Repeat, Save, Trash2 } from "lucide-react";
-
-import { getProjectById } from "@/app/actions/project.actions";
-import {
-  deleteRandomizerPost,
-  getRandomizerPosts,
-  saveRandomizerSettings,
-} from "@/app/actions/facebook.actions";
-import type {
-  PostRandomizerSettings,
-  RandomizerPost,
-  WithId,
-} from "@/lib/definitions";
-import { useProject } from "@/context/project-context";
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -60,7 +27,45 @@ import {
   ZoruSkeleton,
   ZoruSwitch,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  } from "react";
+import Image from "next/image";
+import { Edit,
+  Loader2,
+  PlusCircle,
+  Repeat,
+  Save,
+  Trash2 } from "lucide-react";
+
+import { getProjectById } from "@/app/actions/project.actions";
+import {
+  deleteRandomizerPost,
+  getRandomizerPosts,
+  saveRandomizerSettings,
+  } from "@/app/actions/facebook.actions";
+import type {
+  PostRandomizerSettings,
+  RandomizerPost,
+  WithId,
+  } from "@/lib/definitions";
+import { useProject } from "@/context/project-context";
+
+/**
+ * /dashboard/facebook/post-randomizer — Auto-rotate post pool, ZoruUI rebuild.
+ *
+ * Same handlers + server actions (`saveRandomizerSettings`,
+ * `getRandomizerPosts`, `addRandomizerPost`, `deleteRandomizerPost`).
+ * Uses `useProject` for project context and FeatureLock for plan gating.
+ * Visual layer: ZoruPageHeader + ZoruBreadcrumb, two-column layout
+ * (settings card + content pool list), CreateRandomizerPostDialog.
+ */
+
+import * as React from "react";
 
 import { CreateRandomizerPostDialog } from "../_components/create-randomizer-post-dialog";
 import { FeatureLock, FeatureLockOverlay } from "../_components/feature-lock";

@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * ImportContactsDialog (wachat-local, ZoruUI).
- *
- * Replaces @/components/wabasimplify/import-contacts-dialog. Same server
- * action (handleImportContacts), same form fields and CSV download
- * handler.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Download, FileUp, Loader2, Upload } from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import { handleImportContacts } from '@/app/actions/contact.actions';
-import type { Project } from '@/lib/definitions';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -35,6 +18,30 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Download,
+  FileUp,
+  Loader2,
+  Upload } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import { handleImportContacts } from '@/app/actions/contact.actions';
+import type { Project } from '@/lib/definitions';
+
+/**
+ * ImportContactsDialog (wachat-local, ZoruUI).
+ *
+ * Replaces @/components/wabasimplify/import-contacts-dialog. Same server
+ * action (handleImportContacts), same form fields and CSV download
+ * handler.
+ */
+
+import * as React from 'react';
 
 const initialState = {
   message: null as string | null,

@@ -1,19 +1,7 @@
 'use client';
 
-/**
- * /wachat/chat-ratings — Customer satisfaction stream + rating histogram,
- * rebuilt on ZoruUI primitives. Stars use neutral ink shades.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Star, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getChatRatings } from '@/app/actions/wachat-features.actions';
-
 import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -23,6 +11,23 @@ import {
   ZoruCard,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Star,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getChatRatings } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/chat-ratings — Customer satisfaction stream + rating histogram,
+ * rebuilt on ZoruUI primitives. Stars use neutral ink shades.
+ */
+
+import * as React from 'react';
 
 function Stars({ count }: { count: number }) {
   return (

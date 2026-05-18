@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, zoruSonnerToast } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * Client island for the POS session detail page — Close / Reconcile /
  * Archive buttons. Reads the live status and renders only the
@@ -7,9 +10,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import { ZoruButton, zoruSonnerToast } from '@/components/zoruui';
 import {
     closePosSession,
     reconcilePosSession,

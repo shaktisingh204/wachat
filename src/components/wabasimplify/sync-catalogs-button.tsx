@@ -1,10 +1,11 @@
-
 'use client';
 
-import { useTransition } from 'react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
 import { syncCatalogs } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { RefreshCw, LoaderCircle } from 'lucide-react';
 
 interface SyncCatalogsButtonProps {

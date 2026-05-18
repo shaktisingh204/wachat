@@ -1,18 +1,16 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle, ZoruButton, ZoruSkeleton } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
 import { getSession } from '@/app/actions/index.ts';
 import type { User } from '@/lib/definitions';
-import { AlertCircle, ChevronLeft } from 'lucide-react';
+import { AlertCircle,
+  ChevronLeft } from 'lucide-react';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
 import Link from 'next/link';
-import {
-    ZoruAlert,
-    ZoruAlertDescription,
-    ZoruAlertTitle,
-    ZoruButton,
-    ZoruSkeleton,
-} from '@/components/zoruui';
 
 function SettingsPageSkeleton() {
     return (

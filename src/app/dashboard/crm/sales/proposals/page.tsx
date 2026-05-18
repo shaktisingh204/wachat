@@ -1,14 +1,5 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import Link from 'next/link';
-import {
-  FileText,
-  Plus,
-  LoaderCircle,
-  LayoutTemplate,
-  Search,
-} from 'lucide-react';
 import {
   ZoruBadge,
   ZoruButton,
@@ -26,6 +17,21 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import {
+  FileText,
+  Plus,
+  LoaderCircle,
+  LayoutTemplate,
+  Search,
+  } from 'lucide-react';
+
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { getProposals } from '@/app/actions/worksuite/proposals.actions';
 import type {

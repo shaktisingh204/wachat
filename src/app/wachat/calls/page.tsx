@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect } from 'react';
+import { ZoruEmptyState } from '@/components/zoruui';
+import {
+  useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-
-import { ZoruEmptyState } from '@/components/zoruui';
 
 // Redirect the base /wachat/calls route to the default logs tab.
 export default function CallsRedirectPage() {

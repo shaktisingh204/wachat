@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
 import {
   use,
   useCallback,
@@ -7,7 +8,7 @@ import {
   useRef,
   useState,
   useTransition,
-} from 'react';
+  } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
@@ -23,16 +24,8 @@ import {
   DollarSign,
   User as UserIcon,
   FileCheck2,
-} from 'lucide-react';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSkeleton,
-  useZoruToast,
-} from '@/components/zoruui';
+  } from 'lucide-react';
+
 import { SharePublicLinkButton } from '@/components/worksuite/share-public-link-button';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import {

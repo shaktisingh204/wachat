@@ -1,4 +1,5 @@
 'use client';
+
 import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';

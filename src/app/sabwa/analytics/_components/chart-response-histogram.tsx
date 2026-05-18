@@ -1,21 +1,18 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  Timer } from 'lucide-react';
+
+import type { SabwaAnalyticsHistogramBin } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartResponseHistogram — bar chart of response-time buckets. Greyscale.
  */
 
 import * as React from 'react';
-import { Timer } from 'lucide-react';
-
-import type { SabwaAnalyticsHistogramBin } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 export interface ChartResponseHistogramProps {
   data: SabwaAnalyticsHistogramBin[];

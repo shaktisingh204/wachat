@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
 /**
  * <QuotationFormSections> — the top-of-form sections of
  * `<QuotationForm>` (Header · Customer · Subject · Notes). Extracted
@@ -10,12 +11,6 @@
 
 import * as React from 'react';
 
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import type {

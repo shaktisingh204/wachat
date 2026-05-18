@@ -1,12 +1,26 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Search, Check, Loader2, ShoppingBag } from 'lucide-react';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger, ZoruDialogFooter } from '@/components/zoruui';
-import { ZoruScrollArea } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruDialogFooter,
+  ZoruScrollArea,
+  ZoruBadge,
+  ZoruSelect,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect } from 'react';
+import { Search,
+  Check,
+  Loader2,
+  ShoppingBag } from 'lucide-react';
+
 import { getProductsForCatalog, type Product } from '@/app/actions/catalog.actions';
 import { useToast } from '@/hooks/use-toast';
 

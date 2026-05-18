@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * <QuotationQuickEdits> — inline owner/status chips on the quotation
- * detail "At a glance" card. Status chip changes the quotation status
- * via `updateQuotationStatus`; owner chip opens a small dialog and
- * patches the quotation via the same canonical update endpoint.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -24,6 +14,18 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * <QuotationQuickEdits> — inline owner/status chips on the quotation
+ * detail "At a glance" card. Status chip changes the quotation status
+ * via `updateQuotationStatus`; owner chip opens a small dialog and
+ * patches the quotation via the same canonical update endpoint.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

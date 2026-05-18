@@ -1,5 +1,3 @@
-
-
 export type SmsProviderType =
     | 'twilio'
     | 'msg91'

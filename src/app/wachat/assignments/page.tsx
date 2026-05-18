@@ -1,22 +1,7 @@
 'use client';
 
-/**
- * /wachat/assignments — Assign unassigned conversations to agents,
- * rebuilt on ZoruUI primitives.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Inbox, UserPlus, RefreshCw, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getUnassignedConversations,
-  assignConversation,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -34,6 +19,25 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Inbox,
+  UserPlus,
+  RefreshCw,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getUnassignedConversations, assignConversation } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/assignments — Assign unassigned conversations to agents,
+ * rebuilt on ZoruUI primitives.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

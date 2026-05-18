@@ -1,18 +1,32 @@
-
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardContent, ZoruCardDescription } from "@/components/ui/card";
-import { ZoruButton } from "@/components/ui/button";
-import { PlusCircle, Send } from "lucide-react";
-import { ZoruSkeleton } from "@/components/ui/skeleton";
-import type { WithId, CrmEmailTemplate, EmailCampaign } from '@/lib/definitions';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruButton,
+  ZoruSkeleton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { PlusCircle, Send } from 'lucide-react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { getEmailCampaigns } from '@/app/actions/email.actions';
 import { EmailCampaignForm } from './email-campaign-form';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import { formatDistanceToNow } from 'date-fns';
-import { ZoruBadge } from '../ui/badge';
+
+import type { WithId, CrmEmailTemplate, EmailCampaign } from '@/lib/definitions';
 
 function ClientSkeleton() {
     return (

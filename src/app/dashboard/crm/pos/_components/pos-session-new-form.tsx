@@ -1,23 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel, ZoruTextarea, zoruSonnerToast } from '@/components/zoruui';
+import {
+  useActionState } from 'react';
+import { useRouter } from 'next/navigation';
+
 /**
  * Client form for opening a new POS session.
  * Posts to `openPosSession` server action via `useActionState`.
  */
 
 import * as React from 'react';
-import { useActionState } from 'react';
-import { useRouter } from 'next/navigation';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    zoruSonnerToast,
-} from '@/components/zoruui';
 
 import { openPosSession } from '@/app/actions/crm-pos.actions';
 

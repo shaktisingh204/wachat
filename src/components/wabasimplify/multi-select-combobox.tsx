@@ -1,25 +1,27 @@
-
 'use client';
 
-import React from 'react';
-import { cn } from '@/lib/utils';
-import { Check, ChevronsUpDown, X } from 'lucide-react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 import {
+  ZoruButton,
   ZoruCommand,
   ZoruCommandEmpty,
   ZoruCommandGroup,
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-} from '@/components/zoruui';
-import {
   ZoruPopover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
+  ZoruBadge,
+  ZoruScrollArea,
+  ZoruSelect,
 } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruScrollArea } from '../ui/scroll-area';
+import {
+  cn } from '@/lib/utils';
+import { Check,
+  ChevronsUpDown,
+  X } from 'lucide-react';
+
+import React from 'react';
 
 export type MultiSelectOption = {
   value: string;

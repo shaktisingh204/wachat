@@ -1,26 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/audience — Audience demographics + saved segments.
- *
- * Top panel: Page-fan demographics (gender, age, top countries) rendered
- * with ZoruProgress bars. Bottom panel: saved audience segments with a
- * "New segment" dialog. Backed by Rust BFF actions in
- * `src/app/actions/facebook.actions.ts`.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { AlertCircle, Plus, RefreshCw, Users } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-
-import { useProject } from '@/context/project-context';
-import {
-  getAudienceSegments,
-  getPageFanDemographics,
-  saveAudienceSegment,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -56,6 +35,35 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { AlertCircle,
+  Plus,
+  RefreshCw,
+  Users } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+import { useProject } from '@/context/project-context';
+import {
+  getAudienceSegments,
+  getPageFanDemographics,
+  saveAudienceSegment,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/audience — Audience demographics + saved segments.
+ *
+ * Top panel: Page-fan demographics (gender, age, top countries) rendered
+ * with ZoruProgress bars. Bottom panel: saved audience segments with a
+ * "New segment" dialog. Backed by Rust BFF actions in
+ * `src/app/actions/facebook.actions.ts`.
+ */
+
+import * as React from 'react';
 
 interface AudienceSegment {
   _id?: string;

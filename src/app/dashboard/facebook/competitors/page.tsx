@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/competitors — Tracked competitor Pages.
- *
- * Lists competitors with follower / 7-day-post / last-synced metrics,
- * an "Add competitor" dialog, and per-row sync + remove. The underlying
- * Rust action returns NOT_IMPL today — the UI surfaces a friendly empty
- * state and keeps the controls live so the page is ready when the BFF
- * lands.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  AlertCircle,
-  ExternalLink,
-  Plus,
-  Radar,
-  RefreshCw,
-  Trash2,
-} from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-
-import { useProject } from '@/context/project-context';
-import {
-  addCompetitor,
-  getTrackedCompetitors,
-  removeCompetitor,
-  syncCompetitorData,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -70,6 +40,40 @@ import {
   ZoruTableRow,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  AlertCircle,
+  ExternalLink,
+  Plus,
+  Radar,
+  RefreshCw,
+  Trash2,
+  } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
+
+import { useProject } from '@/context/project-context';
+import {
+  addCompetitor,
+  getTrackedCompetitors,
+  removeCompetitor,
+  syncCompetitorData,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/competitors — Tracked competitor Pages.
+ *
+ * Lists competitors with follower / 7-day-post / last-synced metrics,
+ * an "Add competitor" dialog, and per-row sync + remove. The underlying
+ * Rust action returns NOT_IMPL today — the UI surfaces a friendly empty
+ * state and keeps the controls live so the page is ready when the BFF
+ * lands.
+ */
+
+import * as React from 'react';
 
 interface Competitor {
   _id?: string;

@@ -1,5 +1,3 @@
-
-
 import bcrypt from 'bcryptjs';
 import { connectToDatabase } from './mongodb';
 import { SignJWT, jwtVerify } from 'jose';
@@ -47,7 +45,6 @@ function initializeFirebaseAdmin() {
         }, FIREBASE_APP_NAME);
     }
 }
-
 
 export async function hashPassword(password: string): Promise<string> {
     return await bcrypt.hash(password, SALT_ROUNDS);
@@ -138,7 +135,6 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
         return null;
     }
 }
-
 
 export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload | null> {
     try {

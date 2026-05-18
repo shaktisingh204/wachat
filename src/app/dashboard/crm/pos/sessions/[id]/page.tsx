@@ -1,3 +1,22 @@
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Store,
+  Receipt } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS session detail — `/dashboard/crm/pos/sessions/[id]`.
  *
@@ -7,22 +26,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Store, Receipt } from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import { StatusPill, type StatusPillProps } from '@/components/crm/status-pill';
 import {
     getPosSessionById,

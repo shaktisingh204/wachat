@@ -1,47 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/broadcasts — Messenger broadcasts (ZoruUI).
- *
- * Composer is a 3-step numbered stepper (Audience › Compose › Review),
- * NOT tabs. The history view is a `ZoruDataTable`. Same data + handlers
- * as the original wabasimplify version (handleSendFacebookBroadcast,
- * getFacebookBroadcasts, useProject).
- */
-
-import * as React from 'react';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
-import { useFormStatus } from 'react-dom';
-import { formatDistanceToNow } from 'date-fns';
-import type { WithId } from 'mongodb';
-import type { ColumnDef } from '@tanstack/react-table';
-import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Loader2,
-  RefreshCw,
-  Send,
-  Users,
-} from 'lucide-react';
-
-import {
-  getFacebookBroadcasts,
-  handleSendFacebookBroadcast,
-} from '@/app/actions/facebook.actions';
-import type { FacebookBroadcast } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -74,6 +32,48 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+  } from 'react';
+import { useFormStatus } from 'react-dom';
+import { formatDistanceToNow } from 'date-fns';
+import type { WithId } from 'mongodb';
+import type { ColumnDef } from '@tanstack/react-table';
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle2,
+  ChevronRight,
+  Loader2,
+  RefreshCw,
+  Send,
+  Users,
+  } from 'lucide-react';
+
+import {
+  getFacebookBroadcasts,
+  handleSendFacebookBroadcast,
+  } from '@/app/actions/facebook.actions';
+import type { FacebookBroadcast } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/facebook/broadcasts — Messenger broadcasts (ZoruUI).
+ *
+ * Composer is a 3-step numbered stepper (Audience › Compose › Review),
+ * NOT tabs. The history view is a `ZoruDataTable`. Same data + handlers
+ * as the original wabasimplify version (handleSendFacebookBroadcast,
+ * getFacebookBroadcasts, useProject).
+ */
+
+import * as React from 'react';
 
 import {
   FeatureLock,

@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  Download,
+  ListChecks,
+  Pencil,
+  RefreshCw,
+  Trash2,
+  Warehouse,
+  X,
+  } from 'lucide-react';
+
 /**
  * <ItemsBulkBar> — sticky bulk-action ribbon for the items list.
  *
@@ -9,23 +20,6 @@
  */
 
 import * as React from 'react';
-import {
-  Download,
-  ListChecks,
-  Pencil,
-  RefreshCw,
-  Trash2,
-  Warehouse,
-  X,
-} from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 
 export type ItemsBulkEditField = 'category' | 'brand' | 'taxRate' | 'unit';
 

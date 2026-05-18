@@ -1,18 +1,5 @@
 'use client';
 
-/**
- * Wachat Webhooks — ZoruUI migration.
- * Endpoint info, setup guide, create/test/delete dialogs, recent events.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import { Lightbulb, Plus, Send, Trash2, Webhook } from 'lucide-react';
-
-import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
-import { WebhookLogs } from '@/app/wachat/_components/webhook-logs';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -41,6 +28,24 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { Lightbulb,
+  Plus,
+  Send,
+  Trash2,
+  Webhook } from 'lucide-react';
+
+import { WebhookInfo } from '@/app/wachat/_components/webhook-info';
+import { WebhookLogs } from '@/app/wachat/_components/webhook-logs';
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Webhooks — ZoruUI migration.
+ * Endpoint info, setup guide, create/test/delete dialogs, recent events.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

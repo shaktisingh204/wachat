@@ -1,3 +1,15 @@
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import { LineChart,
+  Pencil,
+  Copy,
+  Archive,
+  ArrowLeft } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Compensation band detail page (§1D.2).
  *
@@ -5,12 +17,6 @@
  * overview grid. Action: Edit (other actions deferred — see TODO 1D.2).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { LineChart, Pencil, Copy, Archive, ArrowLeft } from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import {
     getHrEntityById,
     fmtDate,

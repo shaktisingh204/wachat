@@ -1,5 +1,19 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+} from '@/components/zoruui';
+import {
+  Loader2 } from 'lucide-react';
+
 /**
  * <ConfirmDialog/> — destructive-action confirmation modal.
  *
@@ -43,19 +57,6 @@
  */
 
 import * as React from 'react';
-import { Loader2 } from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
 
 export interface ConfirmDialogProps {
   open: boolean;

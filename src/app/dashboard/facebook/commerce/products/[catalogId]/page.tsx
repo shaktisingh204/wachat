@@ -1,5 +1,48 @@
 "use client";
 
+import {
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruDataTable,
+  ZoruEmptyState,
+  ZoruSkeleton,
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition,
+  useMemo } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useParams } from "next/navigation";
+import type { ColumnDef } from "@tanstack/react-table";
+import {
+  AlertCircle,
+  ChevronLeft,
+  Edit,
+  Layers,
+  PlusCircle,
+  RefreshCw,
+  ShoppingBag,
+  Tags,
+  Trash2,
+  } from "lucide-react";
+
+import {
+  getProductsForCatalog,
+  listProductSets,
+  } from "@/app/actions/catalog.actions";
+import type { ProductSet } from "@/lib/definitions";
+
 /**
  * /dashboard/facebook/commerce/products/[catalogId]
  *
@@ -19,44 +62,6 @@
  */
 
 import * as React from "react";
-import { useCallback, useEffect, useState, useTransition, useMemo } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useParams } from "next/navigation";
-import type { ColumnDef } from "@tanstack/react-table";
-import {
-  AlertCircle,
-  ChevronLeft,
-  Edit,
-  Layers,
-  PlusCircle,
-  RefreshCw,
-  ShoppingBag,
-  Tags,
-  Trash2,
-} from "lucide-react";
-
-import {
-  getProductsForCatalog,
-  listProductSets,
-} from "@/app/actions/catalog.actions";
-import type { ProductSet } from "@/lib/definitions";
-
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardDescription,
-  ZoruCardHeader,
-  ZoruCardTitle,
-  ZoruDataTable,
-  ZoruEmptyState,
-  ZoruSkeleton,
-} from "@/components/zoruui";
 
 import {
   CommerceBreadcrumb,

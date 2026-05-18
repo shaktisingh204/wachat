@@ -1,5 +1,17 @@
 'use client';
 
+import { ZoruCard, ZoruButton, ZoruSelect } from '@/components/zoruui';
+import {
+  usePathname,
+  useRouter } from 'next/navigation';
+import {
+  LuArrowRight,
+  LuCheck,
+  LuPlus,
+  LuSearch,
+  LuMessageSquare,
+  } from 'react-icons/lu';
+
 /**
  * ClayProjectGate — "pick a project first" gate for Wachat routes.
  *
@@ -19,16 +31,7 @@
  */
 
 import * as React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  LuArrowRight,
-  LuCheck,
-  LuPlus,
-  LuSearch,
-  LuMessageSquare,
-} from 'react-icons/lu';
 
-import { ZoruCard, ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 import { useProject } from '@/context/project-context';
 import { } from './clay-button';

@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/inbox — live chat inbox.
- *
- * Visual layer fully Zoru. Same server actions as before — we delegate
- * to the local ZoruSabChatClient which preserves
- * `getChatSessionsForUser`, `getFullChatSession`, and
- * `postChatMessageAction` end-to-end.
- */
-
-import { Suspense } from "react";
-import { Inbox } from "lucide-react";
-
-import { ZoruSabChatClient } from "../_components/zoru-sabchat-client";
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -25,7 +12,20 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import { ZoruSabChatClient } from '../_components/zoru-sabchat-client';
+import {
+  Suspense } from "react";
+import { Inbox } from "lucide-react";
+
+/**
+ * /dashboard/sabchat/inbox — live chat inbox.
+ *
+ * Visual layer fully Zoru. Same server actions as before — we delegate
+ * to the local ZoruSabChatClient which preserves
+ * `getChatSessionsForUser`, `getFullChatSession`, and
+ * `postChatMessageAction` end-to-end.
+ */
 
 function InboxSkeleton() {
   return (

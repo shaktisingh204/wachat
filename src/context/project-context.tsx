@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -144,7 +142,6 @@ export function ProjectProvider({
             });
         }
     }, [router, toast]);
-
 
     // Reload effective permissions whenever the active project changes.
     useEffect(() => {

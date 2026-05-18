@@ -1,19 +1,28 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruSeparator,
+  ZoruTextarea,
+} from '@/components/zoruui';
 import { Plus, Trash2, TrendingUp, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
-import { ZoruTextarea } from '@/components/zoruui';
+
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 type CarouselImage = {
@@ -22,7 +31,6 @@ type CarouselImage = {
     link?: string;
     caption?: string;
 };
-
 
 const hoverAnimationOptions = [
     { value: 'none', label: 'None' }, { value: 'grow', label: 'Grow' }, { value: 'shrink', label: 'Shrink' },
@@ -73,7 +81,6 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
         const newAttributes = (settings.customAttributes || []).filter((_: any, i: number) => i !== index);
         handleUpdate('customAttributes', newAttributes);
     }
-
 
     return (
         <Tabs defaultValue="content" className="w-full">

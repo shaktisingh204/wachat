@@ -1,5 +1,21 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Loader2 } from 'lucide-react';
+
 /**
  * <HrActionButtons /> — shared client island for HR detail-page header
  * actions (§1D.2 of the CRM rebuild contract).
@@ -26,21 +42,7 @@
  */
 
 import * as React from 'react';
-import { Loader2 } from 'lucide-react';
 
-import {
-  ZoruButton,
-  ZoruDialog,
-  ZoruDialogContent,
-  ZoruDialogDescription,
-  ZoruDialogFooter,
-  ZoruDialogHeader,
-  ZoruDialogTitle,
-  ZoruInput,
-  ZoruLabel,
-  ZoruTextarea,
-  useZoruToast,
-} from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 
 type ButtonVariant = 'default' | 'outline' | 'ghost' | 'destructive' | 'secondary';

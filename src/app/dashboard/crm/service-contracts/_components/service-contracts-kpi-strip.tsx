@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Activity, CalendarClock, IndianRupee, Repeat, Timer } from 'lucide-react';
+
 /**
  * KPI strip for Service Contracts (AMC) list (§1D.1).
  *
@@ -11,9 +14,7 @@
  */
 
 import * as React from 'react';
-import { Activity, CalendarClock, IndianRupee, Repeat, Timer } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { ServiceContractRow } from './service-contracts-types';
 
 export type ServiceContractsKpiKey =

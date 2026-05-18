@@ -1,13 +1,23 @@
 'use client';
 
-import * as React from 'react';
-import { planFeatureMap, planFeaturesDefaults } from '@/lib/plans';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruBadge,
+  ZoruSwitch,
+} from '@/components/zoruui';
+import {
+  planFeatureMap,
+  planFeaturesDefaults } from '@/lib/plans';
 import type { PlanFeaturePermissions } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
+
+import * as React from 'react';
+
 import { ChevronDown, Search, Check, X, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

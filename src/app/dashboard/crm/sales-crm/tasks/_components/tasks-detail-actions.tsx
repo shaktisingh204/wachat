@@ -1,5 +1,27 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import {
+  Activity,
+  Archive,
+  CheckCircle2,
+  ChevronDown,
+  Clock,
+  Edit,
+  LoaderCircle,
+  Mail,
+  Trash2,
+  UserPlus,
+  } from 'lucide-react';
+
 /**
  * Header action group for the task detail page (extracted to keep
  * `[id]/page.tsx` under the 600-line scope cap).
@@ -11,28 +33,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    Archive,
-    CheckCircle2,
-    ChevronDown,
-    Clock,
-    Edit,
-    LoaderCircle,
-    Mail,
-    Trash2,
-    UserPlus,
-} from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuLabel,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 
 export interface TaskDetailActionsProps {
     taskId: string;

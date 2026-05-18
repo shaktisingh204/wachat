@@ -1,3 +1,8 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  ArrowLeft,
+  Truck } from 'lucide-react';
+
 /**
  * Generate-new e-way bill — `/dashboard/crm/tax/eway-bills/new`.
  *
@@ -7,15 +12,7 @@
  */
 
 import Link from 'next/link';
-import { ArrowLeft, Truck } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { NewEWayBillForm } from './_components/new-form';
 

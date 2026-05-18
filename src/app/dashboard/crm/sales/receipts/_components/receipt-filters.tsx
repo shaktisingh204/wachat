@@ -1,5 +1,19 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruDateRangePicker,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import {
+  X } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
+
 /**
  * Filters row for Payment Receipts. Per §1D.1:
  *
@@ -12,19 +26,7 @@
  */
 
 import * as React from 'react';
-import { X } from 'lucide-react';
-import type { DateRange } from 'react-day-picker';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruDateRangePicker,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import type { ReceiptKpiFilter } from './receipt-kpi-strip';

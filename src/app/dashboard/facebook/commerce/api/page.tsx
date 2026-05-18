@@ -1,38 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/commerce/api — Meta Suite Commerce API reference
- * + integration config.
- *
- * Two stacked surfaces:
- *   1. Integration config form — webhook URL, signing secret, key
- *      preview. Read-only by default with an explicit "Rotate key"
- *      destructive action that opens a ZoruAlertDialog.
- *   2. API reference cards — overview of the Meta APIs that power the
- *      Commerce builder. Same content as the legacy page, restyled.
- *
- * Pure ZoruUI primitives. No coloured gradients.
- */
-
-import * as React from "react";
-import { useEffect, useState } from "react";
-import Link from "next/link";
-import {
-  Copy,
-  Eye,
-  EyeOff,
-  KeyRound,
-  LayoutGrid,
-  Megaphone,
-  MessageSquare,
-  Package,
-  RotateCw,
-  Server,
-  Settings,
-  ShoppingBag,
-  Webhook,
-} from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -49,7 +16,42 @@ import {
   ZoruLabel,
   ZoruSwitch,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from "react";
+import Link from "next/link";
+import {
+  Copy,
+  Eye,
+  EyeOff,
+  KeyRound,
+  LayoutGrid,
+  Megaphone,
+  MessageSquare,
+  Package,
+  RotateCw,
+  Server,
+  Settings,
+  ShoppingBag,
+  Webhook,
+  } from "lucide-react";
+
+/**
+ * /dashboard/facebook/commerce/api — Meta Suite Commerce API reference
+ * + integration config.
+ *
+ * Two stacked surfaces:
+ *   1. Integration config form — webhook URL, signing secret, key
+ *      preview. Read-only by default with an explicit "Rotate key"
+ *      destructive action that opens a ZoruAlertDialog.
+ *   2. API reference cards — overview of the Meta APIs that power the
+ *      Commerce builder. Same content as the legacy page, restyled.
+ *
+ * Pure ZoruUI primitives. No coloured gradients.
+ */
+
+import * as React from "react";
 
 import {
   CommerceBreadcrumb,

@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
+import { Languages,
+  Star,
+  ToggleRight } from 'lucide-react';
+
 /**
  * Languages settings — §1D.4 bar:
  *  - KPI strip (Total · Enabled · Default)
@@ -11,10 +18,7 @@
  */
 
 import * as React from 'react';
-import { useTransition } from 'react';
-import { Languages, Star, ToggleRight } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, useZoruToast } from '@/components/zoruui';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getLanguages,

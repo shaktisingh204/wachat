@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { LoaderCircle,
+  Send } from 'lucide-react';
+
 /**
  * <TicketConversation> — notes composer + internal-vs-public toggle
  * (§1D.2 conversation thread).
@@ -15,17 +21,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { LoaderCircle, Send } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { updateTicket } from '@/app/actions/crm/tickets.actions';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
 

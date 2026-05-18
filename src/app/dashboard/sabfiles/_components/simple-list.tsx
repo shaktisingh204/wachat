@@ -1,25 +1,20 @@
 'use client';
 
+import { ZoruButton, ZoruCard, ZoruCardContent, cn, useZoruToast } from '@/components/zoruui';
+import {
+  File as FileIcon,
+  FileImage,
+  FileText,
+  FileVideo,
+  Folder,
+  RotateCcw,
+  Star,
+  Trash2,
+  } from 'lucide-react';
+
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    File as FileIcon,
-    FileImage,
-    FileText,
-    FileVideo,
-    Folder,
-    RotateCcw,
-    Star,
-    Trash2,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     emptyTrash,
     permanentDelete,

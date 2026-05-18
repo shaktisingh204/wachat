@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * ManualSetupDialog (Meta Suite local, zoru-only).
- *
- * Visual swap of `@/components/wabasimplify/manual-facebook-setup-dialog`.
- * Same `handleManualFacebookPageSetup` server action, same form fields,
- * same toast outcomes — only the visual layer is rewritten on Zoru* atoms.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
-import { Loader2, Wrench } from "lucide-react";
-
-import { handleManualFacebookPageSetup } from "@/app/actions/facebook.actions";
 import {
   ZoruButton,
   ZoruDialog,
@@ -26,7 +12,27 @@ import {
   ZoruInput,
   ZoruLabel,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from "react";
+import { useFormStatus } from "react-dom";
+import { Loader2,
+  Wrench } from "lucide-react";
+
+import { handleManualFacebookPageSetup } from "@/app/actions/facebook.actions";
+
+/**
+ * ManualSetupDialog (Meta Suite local, zoru-only).
+ *
+ * Visual swap of `@/components/wabasimplify/manual-facebook-setup-dialog`.
+ * Same `handleManualFacebookPageSetup` server action, same form fields,
+ * same toast outcomes — only the visual layer is rewritten on Zoru* atoms.
+ */
+
+import * as React from "react";
 
 const initialState: { success?: boolean; error?: string } = {
   success: false,

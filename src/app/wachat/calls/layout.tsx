@@ -1,18 +1,5 @@
 'use client';
 
-/**
- * Wachat Calls — ZoruUI layout.
- *
- * Two sub-pages: Call Logs · Call Setup. Sub-nav uses ZoruButton
- * variants (no tab UI per the no-tab-ui directive). Each sub-page's
- * content is rendered by its child route.
- */
-
-import * as React from 'react';
-import { usePathname } from 'next/navigation';
-import { History, Phone, Settings } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -22,6 +9,23 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruButton,
 } from '@/components/zoruui';
+import {
+  usePathname } from 'next/navigation';
+import { History,
+  Phone,
+  Settings } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Calls — ZoruUI layout.
+ *
+ * Two sub-pages: Call Logs · Call Setup. Sub-nav uses ZoruButton
+ * variants (no tab UI per the no-tab-ui directive). Each sub-page's
+ * content is rendered by its child route.
+ */
+
+import * as React from 'react';
 
 const SECTIONS = [
   {

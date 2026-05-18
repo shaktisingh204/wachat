@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Archive, Building2, Sparkles, Star, Users, } from 'lucide-react';
+
 /**
  * KPI strip for the accounts list (§1D.1). Cards are clickable filter
  * toggles — clicking a card flips the matching category/status filter on
@@ -7,15 +10,7 @@
  */
 
 import * as React from 'react';
-import {
-    Archive,
-    Building2,
-    Sparkles,
-    Star,
-    Users,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { AccountCategoryFilter, AccountStatusFilter } from './accounts-filters';
 
 export interface AccountKpis {

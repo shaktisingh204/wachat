@@ -1,13 +1,8 @@
 'use client';
 
-/**
- * <PortalDetailActions> — 7 actions: Edit · Send magic link · Resend
- * invite · Suspend · Restore · Activity · Delete.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Link2,
@@ -16,12 +11,16 @@ import {
   Power,
   PowerOff,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <PortalDetailActions> — 7 actions: Edit · Send magic link · Resend
+ * invite · Suspend · Restore · Activity · Delete.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   deletePortalUser,

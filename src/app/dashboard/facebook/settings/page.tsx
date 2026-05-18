@@ -1,30 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/settings — page-level settings (Meta connection).
- *
- * Rebuilt on ZoruUI primitives. Same `getProjectById` server action — the
- * read-only IDs and reconnect button keep the original data flow.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  Copy,
-  RefreshCw,
-  Settings as SettingsIcon,
-  ShieldCheck,
-  XCircle,
-} from "lucide-react";
-
-import { getProjectById } from "@/app/actions/project.actions";
-import type { Project, WithId } from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -47,7 +22,36 @@ import {
   ZoruSeparator,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  Copy,
+  RefreshCw,
+  Settings as SettingsIcon,
+  ShieldCheck,
+  XCircle,
+  } from "lucide-react";
+
+import { getProjectById } from "@/app/actions/project.actions";
+import type { Project,
+  WithId } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/settings — page-level settings (Meta connection).
+ *
+ * Rebuilt on ZoruUI primitives. Same `getProjectById` server action — the
+ * read-only IDs and reconnect button keep the original data flow.
+ */
+
+import * as React from "react";
 
 import { NoProjectState } from "../_components/no-project-state";
 import { FacebookGlyph, InstagramGlyph, WhatsAppGlyph } from "../_components/icons";

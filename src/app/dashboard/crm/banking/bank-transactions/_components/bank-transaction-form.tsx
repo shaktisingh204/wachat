@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { Upload,
+  X } from 'lucide-react';
+
+import { EntityFormShell } from '@/components/crm/entity-form-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+
 /**
  * <BankTransactionForm/> — shared by /bank-transactions/new and
  * /[id]/edit (§1B W7).
@@ -11,20 +24,7 @@
  */
 
 import * as React from 'react';
-import { useActionState, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Upload, X } from 'lucide-react';
 
-import { EntityFormShell } from '@/components/crm/entity-form-shell';
-import { EntityFormField } from '@/components/crm/entity-form-field';
-import { EnumFormField } from '@/components/crm/enum-form-field';
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
 import {

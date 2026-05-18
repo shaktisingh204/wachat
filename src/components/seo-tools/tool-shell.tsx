@@ -1,9 +1,10 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { ArrowLeft, Wrench } from 'lucide-react';
+
 import React from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Wrench } from 'lucide-react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 
 interface ToolShellProps {
   title: string;

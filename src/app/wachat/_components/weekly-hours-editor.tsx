@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * WeeklyHoursEditor (wachat-local, ZoruUI).
- *
- * Adds/edits weekly operating hours rows. Pure controlled component —
- * mirrors the wabasimplify version's API exactly.
- */
-
-import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
-import type { WeeklyOperatingHours } from '@/lib/definitions';
-
 import {
   ZoruButton,
   ZoruInput,
@@ -21,6 +10,19 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import {
+  Plus,
+  Trash2 } from 'lucide-react';
+import type { WeeklyOperatingHours } from '@/lib/definitions';
+
+/**
+ * WeeklyHoursEditor (wachat-local, ZoruUI).
+ *
+ * Adds/edits weekly operating hours rows. Pure controlled component —
+ * mirrors the wabasimplify version's API exactly.
+ */
+
+import * as React from 'react';
 
 const daysOfWeek = [
   'MONDAY',

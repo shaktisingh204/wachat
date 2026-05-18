@@ -1,28 +1,7 @@
 'use client';
 
-/**
- * Wachat Team Performance — ZoruUI rebuild.
- *
- * Team leaderboard + agent stat tiles + time-range dropdown
- * + per-agent drill-in sheet. Pure greyscale.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  ChevronDown,
-  Eye,
-  MessageSquare,
-  RefreshCw,
-  Timer,
-  Users,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -57,6 +36,31 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  ChevronDown,
+  Eye,
+  MessageSquare,
+  RefreshCw,
+  Timer,
+  Users,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getAgentPerformance } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Team Performance — ZoruUI rebuild.
+ *
+ * Team leaderboard + agent stat tiles + time-range dropdown
+ * + per-agent drill-in sheet. Pure greyscale.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,8 +1,8 @@
-
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useState, useTransition } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { FileText, LoaderCircle } from 'lucide-react';
 import { generateClientReportData } from '@/app/actions/crm-reports.actions';
 import { useToast } from '@/hooks/use-toast';

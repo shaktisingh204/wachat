@@ -1,4 +1,3 @@
-
 'use server';
 
 import 'server-only';
@@ -174,7 +173,6 @@ export async function getProjectsForAdmin(
     }
 }
 
-
 export async function handleDeleteProjectByAdmin(prevState: any, formData: FormData) {
     const projectId = formData.get('projectId') as string;
     if (!projectId) {
@@ -229,7 +227,6 @@ export async function updateProjectMpsByAdmin(
         return translateRustError(e);
     }
 }
-
 
 export async function updateProjectPlanByAdmin(
     projectId: string,
@@ -434,9 +431,6 @@ export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
         return { enabled: false };
     }
 }
-
-
-
 
 export async function impersonateUser(
     userId: string,

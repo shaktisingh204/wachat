@@ -1,9 +1,9 @@
 'use client';
 
+import { ZoruBadge } from '@/components/zoruui';
 import * as React from 'react';
 import Link from 'next/link';
 
-import { ZoruBadge } from '@/components/zoruui';
 import {
   fmtDate,
   fmtMoney,

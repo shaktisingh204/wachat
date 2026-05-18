@@ -1,29 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/commerce — Meta Commerce hub.
- *
- * Lightweight landing page for the commerce sub-module: live counts of
- * catalogs and links into the existing detail pages. Backed by the
- * `meta-suite` Rust crate via the `getCatalogs` server action.
- */
-
-import * as React from 'react';
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import {
-  ArrowRight,
-  BarChart3,
-  Cog,
-  Package,
-  ShoppingBag,
-  ShoppingCart,
-  Store,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getCatalogs } from '@/app/actions/catalog.actions';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -36,6 +12,32 @@ import {
   ZoruCard,
   ZoruEmptyState,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import {
+  ArrowRight,
+  BarChart3,
+  Cog,
+  Package,
+  ShoppingBag,
+  ShoppingCart,
+  Store,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getCatalogs } from '@/app/actions/catalog.actions';
+
+/**
+ * /dashboard/facebook/commerce — Meta Commerce hub.
+ *
+ * Lightweight landing page for the commerce sub-module: live counts of
+ * catalogs and links into the existing detail pages. Backed by the
+ * `meta-suite` Rust crate via the `getCatalogs` server action.
+ */
+
+import * as React from 'react';
 
 interface Tile {
   key: string;

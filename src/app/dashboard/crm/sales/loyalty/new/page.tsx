@@ -1,18 +1,17 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ArrowLeft, Save, LoaderCircle, Award } from 'lucide-react';
+import { ArrowLeft,
+  Save,
+  LoaderCircle,
+  Award } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
+
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { saveLoyaltyProgram } from '@/app/actions/crm-loyalty.actions';
 

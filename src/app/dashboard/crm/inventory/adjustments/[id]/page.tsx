@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { History,
+  Pencil,
+  Printer } from 'lucide-react';
+
 /**
  * Stock Adjustment detail — server route per §1D.
  *
@@ -12,17 +19,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { History, Pencil, Printer } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

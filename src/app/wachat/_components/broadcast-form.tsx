@@ -1,43 +1,5 @@
 'use client';
 
-/**
- * BroadcastForm (wachat-local, ZoruUI)
- *
- * The WhatsApp campaign composer. 6 numbered steps on a single form:
- *   1. Type             (Message template vs. Interactive flow)
- *   2. Send-from number
- *   3. Content          (template picker or flow picker)
- *   4. Flow entry msg   (only if type=flow)
- *   5. Audience         (CSV/XLSX upload OR tag segment)
- *   6. Template vars    (derived from selected template + CSV headers)
- *
- * All CSV/XLSX validation, tag-popover behavior, and server-action
- * wiring (handleStartBroadcast) are preserved 1:1 from the wabasimplify
- * version. Visual layer is fully Zoru.
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import Papa from 'papaparse';
-import * as xlsx from 'xlsx';
-import type { WithId } from 'mongodb';
-import {
-  AlertCircle,
-  Check,
-  ChevronsUpDown,
-  Download,
-  FileText,
-  Loader2,
-  Send,
-  Tag as TagIcon,
-  Upload,
-} from 'lucide-react';
-
-import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
-import type { Template, Tag, MetaFlow } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruButton,
   ZoruCheckbox,
@@ -62,6 +24,50 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import Papa from 'papaparse';
+import * as xlsx from 'xlsx';
+import type { WithId } from 'mongodb';
+import {
+  AlertCircle,
+  Check,
+  ChevronsUpDown,
+  Download,
+  FileText,
+  Loader2,
+  Send,
+  Tag as TagIcon,
+  Upload,
+  } from 'lucide-react';
+
+import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
+import type { Template,
+  Tag,
+  MetaFlow } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * BroadcastForm (wachat-local, ZoruUI)
+ *
+ * The WhatsApp campaign composer. 6 numbered steps on a single form:
+ *   1. Type             (Message template vs. Interactive flow)
+ *   2. Send-from number
+ *   3. Content          (template picker or flow picker)
+ *   4. Flow entry msg   (only if type=flow)
+ *   5. Audience         (CSV/XLSX upload OR tag segment)
+ *   6. Template vars    (derived from selected template + CSV headers)
+ *
+ * All CSV/XLSX validation, tag-popover behavior, and server-action
+ * wiring (handleStartBroadcast) are preserved 1:1 from the wabasimplify
+ * version. Visual layer is fully Zoru.
+ */
+
+import * as React from 'react';
 
 import { SabFileToFileButton } from '@/components/sabfiles';
 

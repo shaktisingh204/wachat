@@ -1,26 +1,33 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Eye, LoaderCircle, Monitor, Moon, Save, Sun } from 'lucide-react';
-
 import {
-    ZoruBreadcrumb,
-    ZoruBreadcrumbItem,
-    ZoruBreadcrumbLink,
-    ZoruBreadcrumbList,
-    ZoruBreadcrumbPage,
-    ZoruBreadcrumbSeparator,
-    ZoruButton,
-    ZoruCard,
-    ZoruLabel,
-    ZoruPageDescription,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruSwitch,
-    cn,
-    useZoruToast,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruSwitch,
+  cn,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import { Eye,
+  LoaderCircle,
+  Monitor,
+  Moon,
+  Save,
+  Sun } from 'lucide-react';
+
 import {
     getAppearancePrefs,
     setAppearancePrefs,

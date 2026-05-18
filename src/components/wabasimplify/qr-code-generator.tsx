@@ -1,26 +1,59 @@
-'use client';
-
-import { useState, useRef, useEffect, useTransition } from 'react';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruPopover,
+  ZoruPopoverContent,
+  ZoruPopoverTrigger,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  useState,
+  useRef,
+  useEffect,
+  useTransition } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Slider } from '@/components/ui/slider';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
-import { LoaderCircle, QrCode, Link as LinkIcon, Type, Mail, Phone, Wifi, MessageSquare, Download, Save, RefreshCw, Wand2, Upload } from 'lucide-react';
+import {
+  LoaderCircle,
+  QrCode,
+  Link as LinkIcon,
+  Type,
+  Mail,
+  Phone,
+  Wifi,
+  MessageSquare,
+  Download,
+  Save,
+  RefreshCw,
+  Wand2,
+  Upload,
+} from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
 import { createQrCode } from '@/app/actions/qr-code.actions';
 import { QrCodeRenderer } from './qr-code-renderer';
 import { SketchPicker } from 'react-color';
-import type { User, Tag } from '@/lib/definitions';
+import type { User,
+  Tag } from '@/lib/definitions';
 import { MultiSelectCombobox } from './multi-select-combobox'; // Assuming this exists from previous file
 import { cn } from '@/lib/utils';
-import { ZoruSeparator } from '@/components/zoruui';
+
+'use client';
+
 import { downloadQrCode, filterPhoneLikeInput, normalizeQrWebsiteUrl, QR_FIELD_LIMITS } from '@/lib/qr-utils';
 
 const DATA_TYPES = [
@@ -78,7 +111,6 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
     };
 
     const qrValue = getQrValue();
-
 
     const handleDownload = async (format: 'png' | 'svg') => {
         const svg = qrWrapperRef.current?.querySelector('svg');

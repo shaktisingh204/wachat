@@ -1,11 +1,7 @@
-import { getSmsConfig } from "@/app/actions/sms-config.actions";
-import { ProviderConfigForm } from "@/components/wabasimplify/sms/provider-config-form";
+import { ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
 import {
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
+  getSmsConfig } from "@/app/actions/sms-config.actions";
+import { ProviderConfigForm } from "@/components/wabasimplify/sms/provider-config-form";
 
 export default async function SmsConfigPage() {
     const config = await getSmsConfig();

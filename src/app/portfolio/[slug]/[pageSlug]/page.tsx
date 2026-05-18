@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { connectToDatabase } from '@/lib/mongodb';

@@ -1,9 +1,6 @@
-
 'use client';
 
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
+import { ZoruInput, ZoruLabel, ZoruSwitch } from '@/components/zoruui';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface CalendarPickerEditorProps {

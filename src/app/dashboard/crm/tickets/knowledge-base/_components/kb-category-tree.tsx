@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import {
+  formatDistanceToNow } from 'date-fns';
+import { BookOpen,
+  FolderOpen } from 'lucide-react';
+
 /**
  * <KbCategoryTree> — alternate view of the KB list grouped by category
  * (§1D.1 view switcher).
@@ -12,10 +18,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { formatDistanceToNow } from 'date-fns';
-import { BookOpen, FolderOpen } from 'lucide-react';
 
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
 

@@ -1,16 +1,20 @@
 'use client';
 
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Check, LoaderCircle, SkipForward } from 'lucide-react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Check,
+  LoaderCircle,
+  SkipForward } from 'lucide-react';
 
 import type { Plan } from '@/lib/definitions';
 import type {
     OnboardingState,
-} from '@/app/actions/onboarding-flow.actions';
+  } from '@/app/actions/onboarding-flow.actions';
 import { skipOnboarding } from '@/app/actions/onboarding-flow.actions';
 import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
+import * as React from 'react';
 
 import { AccountStep } from './steps/account-step';
 import { ProfileStep } from './steps/profile-step';

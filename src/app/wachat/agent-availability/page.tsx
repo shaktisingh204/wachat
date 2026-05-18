@@ -1,22 +1,7 @@
 'use client';
 
-/**
- * /wachat/agent-availability — View and toggle agent online/away/offline,
- * rebuilt on ZoruUI primitives.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Users, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getAgentStatuses,
-  setAgentStatus,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
@@ -35,6 +20,23 @@ import {
   ZoruTableRow,
   type ZoruBadgeProps,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Users,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getAgentStatuses, setAgentStatus } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/agent-availability — View and toggle agent online/away/offline,
+ * rebuilt on ZoruUI primitives.
+ */
+
+import * as React from 'react';
 
 const STATUS_VARIANTS: Record<string, ZoruBadgeProps['variant']> = {
   online: 'success',

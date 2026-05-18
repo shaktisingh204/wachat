@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * Shared chrome for Meta Suite ZoruUI pages.
- *
- * - <FbBreadcrumb> renders SabNode › Meta Suite › <section>.
- * - <FbHeader> renders ZoruPageHeader with eyebrow / title / description /
- *   actions slot.
- * - <FbNoProject> is the canonical empty state for "No project selected".
- *
- * All Phase 4 pages use these to keep page-headers consistent.
- */
-
-import * as React from "react";
-import { CircleAlert } from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -29,7 +15,22 @@ import {
   ZoruPageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  CircleAlert } from "lucide-react";
+
+/**
+ * Shared chrome for Meta Suite ZoruUI pages.
+ *
+ * - <FbBreadcrumb> renders SabNode › Meta Suite › <section>.
+ * - <FbHeader> renders ZoruPageHeader with eyebrow / title / description /
+ *   actions slot.
+ * - <FbNoProject> is the canonical empty state for "No project selected".
+ *
+ * All Phase 4 pages use these to keep page-headers consistent.
+ */
+
+import * as React from "react";
 
 interface FbBreadcrumbProps {
   page: string;

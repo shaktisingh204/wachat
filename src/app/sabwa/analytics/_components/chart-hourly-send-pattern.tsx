@@ -1,5 +1,13 @@
 'use client';
 
+import { ZORU_CHART_PALETTE, ZoruChart, ZoruChartContainer, ZoruChartTooltip } from '@/components/zoruui';
+import {
+  Clock } from 'lucide-react';
+
+import type { SabwaAnalyticsHourBar } from '@/app/actions/sabwa.actions';
+
+import { EmptyState } from '@/app/sabwa/_components/empty-state';
+
 /**
  * ChartHourlySendPattern — bar chart of outbound message count per hour,
  * with annotation bands for "safe" (under 60/h), "elevated" (60-100/h),
@@ -10,17 +18,6 @@
  */
 
 import * as React from 'react';
-import { Clock } from 'lucide-react';
-
-import type { SabwaAnalyticsHourBar } from '@/app/actions/sabwa.actions';
-
-import { EmptyState } from '@/app/sabwa/_components/empty-state';
-import {
-  ZORU_CHART_PALETTE,
-  ZoruChart,
-  ZoruChartContainer,
-  ZoruChartTooltip,
-} from '@/components/zoruui';
 
 const SAFE_LIMIT = 60;
 const ELEVATED_LIMIT = 100;

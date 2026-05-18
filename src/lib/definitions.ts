@@ -1,5 +1,3 @@
-
-
 import type { ObjectId, WithId } from 'mongodb';
 export type { WithId };
 
@@ -114,7 +112,6 @@ export type SabChatSession = {
         page?: string;
     }
 }
-
 
 export type Website = {
     _id: ObjectId;
@@ -481,7 +478,6 @@ export type EmailSettings = {
     };
 }
 
-
 export type CrmTask = {
     _id: ObjectId;
     userId: ObjectId;
@@ -684,14 +680,6 @@ export type EmailCampaign = {
     openRate?: number;
     clickRate?: number;
 };
-
-
-
-
-
-
-
-
 
 export type EmailAttachment = {
     id: string;
@@ -1391,7 +1379,6 @@ export type CrmAppraisalReview = {
     updatedAt?: Date;
 };
 
-
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
@@ -1822,7 +1809,6 @@ export type SabFlow = {
     updatedAt: Date;
 };
 
-
 export type FacebookFlowNode = {
     id: string;
     type: string;
@@ -2041,7 +2027,6 @@ export type FacebookSubscriber = {
         cartLastUpdatedAt?: Date;
     };
 };
-
 
 export type MetaFlowValidationError = {
     error: string;
@@ -2678,7 +2663,6 @@ export type WebhookLog = {
     error?: string;
 };
 
-
 export type MetaPhoneNumber = {
     id: string;
     display_phone_number: string;
@@ -2780,7 +2764,6 @@ export type BroadcastJob = {
 };
 
 export type AdminUserView = Omit<User, 'password'>;
-
 
 export type CreateTemplateState = {
     message?: string | null;
@@ -2892,7 +2875,6 @@ export type Product = {
     createdAt: Date;
     updatedAt?: Date;
 };
-
 
 export type ProductSet = {
     id: string;
@@ -3240,7 +3222,6 @@ export type CreditNoteLineItem = {
     rate: number;
 };
 
-
 // --- SEO Suite Types ---
 
 export type BrandMention = {
@@ -3299,8 +3280,6 @@ export type CrmCustomRole = {
     id: string;
     name: string;
 };
-
-
 
 export type MetaPhoneNumbersResponse = {
     data: MetaPhoneNumber[];

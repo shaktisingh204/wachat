@@ -1,21 +1,5 @@
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
-import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { Search, Users, Mail, Phone, MoreHorizontal } from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import { getCrmContacts, deleteCrmContact } from '@/app/actions/crm.actions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
-import { getSession } from '@/app/actions/user.actions';
-import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
-import { useT } from '@/lib/i18n/client';
-import type { CrmContact, CrmAccount, CrmPipeline } from '@/lib/definitions';
-import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
-import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -45,6 +29,33 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
+import { Search,
+  Users,
+  Mail,
+  Phone,
+  MoreHorizontal } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import { getCrmContacts,
+  deleteCrmContact } from '@/app/actions/crm.actions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import { getSession } from '@/app/actions/user.actions';
+import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
+import { useT } from '@/lib/i18n/client';
+import type { CrmContact,
+  CrmAccount,
+  CrmPipeline } from '@/lib/definitions';
+import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
+import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
+
 import { CrmPageHeader } from '../_components/crm-page-header';
 
 const CONTACTS_PER_PAGE = 15;

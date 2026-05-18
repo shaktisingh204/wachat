@@ -1,14 +1,20 @@
-
 'use client';
 
-import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { ZoruButton, ZoruSeparator } from '@/components/zoruui';
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
+import { WebsiteBlock,
+  EcommProduct,
+  WithId } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
+import { Trash2,
+  GripVertical,
+  LayoutGrid } from 'lucide-react';
+
 import { BlockRenderer } from './block-renderer';
 import React from 'react';
 

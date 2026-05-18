@@ -1,6 +1,4 @@
-
 import { GenericProviderConfig } from './generic';
-
 
 export const PROVIDER_PRESETS: Record<string, Partial<GenericProviderConfig> & { credentialMapping?: Record<string, string> }> = {
     'fast2sms': {

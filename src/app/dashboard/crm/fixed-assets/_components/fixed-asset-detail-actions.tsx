@@ -1,14 +1,8 @@
 'use client';
 
-/**
- * <FixedAssetDetailActions> — 9 actions per §1D.2: Edit · Assign ·
- * Unassign · Depreciate now · Retire · Print label · Maintenance log ·
- * Archive · Activity.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
 import {
   Activity,
   Archive,
@@ -19,12 +13,17 @@ import {
   UserMinus,
   UserPlus,
   Wrench,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
+/**
+ * <FixedAssetDetailActions> — 9 actions per §1D.2: Edit · Assign ·
+ * Unassign · Depreciate now · Retire · Print label · Maintenance log ·
+ * Archive · Activity.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   deleteFixedAssetAction,

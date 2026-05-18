@@ -1,6 +1,8 @@
-import { Suspense } from 'react'
+import { ZoruCard, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  Suspense } from 'react'
 import { LoaderCircle } from 'lucide-react'
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui'
+
 import FacebookCallbackClient from './FacebookCallbackClient'
 
 type PageProps = {

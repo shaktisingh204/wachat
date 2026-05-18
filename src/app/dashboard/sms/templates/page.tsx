@@ -1,31 +1,34 @@
-
-import { createDltTemplate, getDltTemplates, deleteDltTemplate } from "@/app/actions/sms-template.actions";
-import { PlusCircle, Trash2 } from "lucide-react";
 import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
 } from '@/components/zoruui';
+import {
+  createDltTemplate,
+  getDltTemplates,
+  deleteDltTemplate } from "@/app/actions/sms-template.actions";
+import { PlusCircle,
+  Trash2 } from "lucide-react";
 
 export default async function DltTemplatesPage() {
     const templates = await getDltTemplates();

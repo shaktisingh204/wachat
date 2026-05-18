@@ -1,54 +1,5 @@
 'use client';
 
-/**
- * CreateTemplateForm (wachat-local, ZoruUI)
- *
- * The WhatsApp template builder. Three top-level template types:
- *   - STANDARD            (text/media + buttons)            — full parity
- *   - MARKETING_CAROUSEL  (scrollable cards)                — STUBBED
- *   - CATALOG_MESSAGE     (catalog product picker)          — STUBBED
- *
- * The 80% case (STANDARD) is fully reproduced on Zoru primitives.
- * Carousel and Catalog modes show a TODO placeholder pending zoru-port
- * of CarouselBuilder + ProductPicker (currently wabasimplify-only).
- *
- * Server-action calls preserved 1:1:
- *   handleCreateTemplate (default)
- *   saveLibraryTemplate  (isAdminForm)
- *   handleBulkCreateTemplate (isBulkForm)
- *
- * NOTE: FlowsEncryptionDialog (Meta error 139002 fallback) is also
- * stubbed — error surfaces via toast instead. TODO: zoru-local port.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
-import {
-  AlertCircle,
-  FileUp,
-  LayoutGrid,
-  Loader2,
-  MessageSquare,
-  ShoppingBag,
-  Trash2,
-} from 'lucide-react';
-import type { WithId } from 'mongodb';
-
-import {
-  handleBulkCreateTemplate,
-  handleCreateTemplate,
-  saveLibraryTemplate,
-} from '@/app/actions/template.actions';
-import { getTemplateCategories } from '@/app/actions/plan.actions';
-import { getCatalogs, type Catalog } from '@/app/actions/catalog.actions';
-import type {
-  CreateTemplateState,
-  Project,
-  Template,
-} from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -72,6 +23,60 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import {
+  AlertCircle,
+  FileUp,
+  LayoutGrid,
+  Loader2,
+  MessageSquare,
+  ShoppingBag,
+  Trash2,
+  } from 'lucide-react';
+import type { WithId } from 'mongodb';
+
+import {
+  handleBulkCreateTemplate,
+  handleCreateTemplate,
+  saveLibraryTemplate,
+  } from '@/app/actions/template.actions';
+import { getTemplateCategories } from '@/app/actions/plan.actions';
+import { getCatalogs,
+  type Catalog } from '@/app/actions/catalog.actions';
+import type {
+  CreateTemplateState,
+  Project,
+  Template,
+  } from '@/lib/definitions';
+
+/**
+ * CreateTemplateForm (wachat-local, ZoruUI)
+ *
+ * The WhatsApp template builder. Three top-level template types:
+ *   - STANDARD            (text/media + buttons)            — full parity
+ *   - MARKETING_CAROUSEL  (scrollable cards)                — STUBBED
+ *   - CATALOG_MESSAGE     (catalog product picker)          — STUBBED
+ *
+ * The 80% case (STANDARD) is fully reproduced on Zoru primitives.
+ * Carousel and Catalog modes show a TODO placeholder pending zoru-port
+ * of CarouselBuilder + ProductPicker (currently wabasimplify-only).
+ *
+ * Server-action calls preserved 1:1:
+ *   handleCreateTemplate (default)
+ *   saveLibraryTemplate  (isAdminForm)
+ *   handleBulkCreateTemplate (isBulkForm)
+ *
+ * NOTE: FlowsEncryptionDialog (Meta error 139002 fallback) is also
+ * stubbed — error surfaces via toast instead. TODO: zoru-local port.
+ */
+
+import * as React from 'react';
+
 import { SabFileToFileButton, SabFileUrlInput } from '@/components/sabfiles';
 
 const createTemplateInitialState: CreateTemplateState = {

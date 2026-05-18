@@ -1,29 +1,5 @@
 "use client";
 
-/**
- * SabFlow — flow version diff page.
- *
- * /dashboard/sabflow/flow-builder/[flowId]/diff?from={versionId}&to={versionId|current}
- *
- * Fetches both snapshots client-side and renders the shared `FlowDiffView`
- * (composite, untouched). Provides "Restore from left" and "Restore from
- * right" actions which call the existing
- * `/api/sabflow/[flowId]/versions/[versionId]/restore` route.
- *
- * ZoruUI rewrite — chrome only. The `FlowDiffView` composite is opaque.
- */
-
-import { useCallback, useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  Loader2,
-  RotateCcw,
-  X,
-} from "lucide-react";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -37,7 +13,36 @@ import {
   ZoruAlertDialogTitle,
   ZoruButton,
   ZoruEmptyState,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState } from "react";
+import Link from "next/link";
+import { useParams,
+  useRouter,
+  useSearchParams } from "next/navigation";
+import {
+  AlertTriangle,
+  ArrowLeft,
+  Loader2,
+  RotateCcw,
+  X,
+  } from "lucide-react";
+
+/**
+ * SabFlow — flow version diff page.
+ *
+ * /dashboard/sabflow/flow-builder/[flowId]/diff?from={versionId}&to={versionId|current}
+ *
+ * Fetches both snapshots client-side and renders the shared `FlowDiffView`
+ * (composite, untouched). Provides "Restore from left" and "Restore from
+ * right" actions which call the existing
+ * `/api/sabflow/[flowId]/versions/[versionId]/restore` route.
+ *
+ * ZoruUI rewrite — chrome only. The `FlowDiffView` composite is opaque.
+ */
 
 import type { SabFlowDoc } from "@/lib/sabflow/types";
 import { FlowDiffView } from "@/components/sabflow/diff/FlowDiffView";

@@ -1,5 +1,9 @@
 "use client";
 
+import { ZoruSkeleton } from '@/components/zoruui';
+import { ZoruFacebookChatClient } from '../_components/zoru-fb-chat-client';
+import { Suspense } from "react";
+
 /**
  * /dashboard/facebook/messages — Messenger inbox.
  *
@@ -7,12 +11,6 @@
  * Same data, same handlers as the legacy FacebookChatClient — only the
  * visual layer changed. See zoru-fb-chat-client.tsx for details.
  */
-
-import { Suspense } from "react";
-
-import { ZoruSkeleton } from "@/components/zoruui";
-
-import { ZoruFacebookChatClient } from "../_components/zoru-fb-chat-client";
 
 function ChatPageFallback() {
   return (

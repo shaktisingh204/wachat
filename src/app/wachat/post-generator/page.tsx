@@ -1,20 +1,5 @@
 'use client';
 
-/**
- * Wachat Post Generator (ZoruUI).
- *
- * AI-powered Facebook post idea generator. Form on the left, AI
- * suggestions on the right with a publish-confirm dialog before
- * marking a suggestion as the post to use.
- */
-
-import * as React from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
-import { Copy, Lightbulb, Loader2, Sparkles, Send } from 'lucide-react';
-
-import { getSuggestions } from '@/app/actions/ai-actions';
-import { mockFacebookDataString } from '@/lib/mock-data';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -44,6 +29,27 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useFormState,
+  useFormStatus } from 'react-dom';
+import { Copy,
+  Lightbulb,
+  Loader2,
+  Sparkles,
+  Send } from 'lucide-react';
+
+import { getSuggestions } from '@/app/actions/ai-actions';
+import { mockFacebookDataString } from '@/lib/mock-data';
+
+/**
+ * Wachat Post Generator (ZoruUI).
+ *
+ * AI-powered Facebook post idea generator. Form on the left, AI
+ * suggestions on the right with a publish-confirm dialog before
+ * marking a suggestion as the post to use.
+ */
+
+import * as React from 'react';
 
 type SuggestionsState = { suggestions: string[]; errors?: { facebookData?: string[] } };
 

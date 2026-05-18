@@ -1,3 +1,19 @@
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruEmptyState,
+} from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import { MessageSquare,
+  PlugZap } from 'lucide-react';
+
 /**
  * Inbox shell — client root for `/sabwa/inbox`.
  *
@@ -17,19 +33,7 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { MessageSquare, PlugZap } from 'lucide-react';
 
-import {
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruEmptyState,
-} from '@/components/zoruui';
 import { StatusBadge } from '@/app/sabwa/_components/status-badge';
 import { useChats } from '@/lib/sabwa/use-sabwa-data';
 import { useSabwaSession } from '@/lib/sabwa/session-context';

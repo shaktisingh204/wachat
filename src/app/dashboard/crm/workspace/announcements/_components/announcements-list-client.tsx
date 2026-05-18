@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { Megaphone,
+  Pin,
+  Plus,
+  Trash2,
+  X } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill,
+  type StatusTone } from '@/components/crm/status-pill';
+
 /**
  * <AnnouncementsListClient> — interactive list with status / audience /
  * pinned filters and free-text search. Receives an initial snapshot from
@@ -8,23 +32,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { Megaphone, Pin, Plus, Trash2, X } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteAnnouncement,

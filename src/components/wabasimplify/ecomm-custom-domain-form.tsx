@@ -1,22 +1,34 @@
-
 'use client';
 
-import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSeparator,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
+  ZoruSkeleton,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useTransition,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
 import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
 import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
-import type { WithId, CustomDomain } from '@/lib/definitions';
-import { ZoruSkeleton } from '@/components/zoruui';
+import type { WithId,
+  CustomDomain } from '@/lib/definitions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
-import { ZoruBadge } from '@/components/zoruui';
-
 
 const addDomainInitialState = { success: undefined, error: undefined };
 
@@ -66,7 +78,6 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
 
     return <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</ZoruButton>;
 }
-
 
 export function EcommCustomDomainForm() {
     const { toast } = useToast();

@@ -1,41 +1,5 @@
 "use client";
 
-/**
- * /dashboard/notifications — full notification history.
- *
- * Linked from the global header `ZoruNotificationPopover` via its
- * "View all notifications →" footer. Same server actions
- * (`getAllNotifications`, `markNotificationAsRead`,
- * `markAllNotificationsAsRead`) and pagination contract as before.
- * Visual layer fully Zoru: no clay, no `@/components/ui/*`,
- * no `@/hooks/use-toast`, no tab UI, neutral palette only.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import {
-  BadgeCheck,
-  Bell,
-  BellRing,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Filter,
-  Globe,
-  Inbox,
-  Loader2,
-  RefreshCw,
-} from "lucide-react";
-
-import {
-  getAllNotifications,
-  markAllNotificationsAsRead,
-  markNotificationAsRead,
-} from "@/app/actions/notification.actions";
-import type { NotificationWithProject } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   cn,
   ZoruBadge,
@@ -60,7 +24,47 @@ import {
   ZoruSelectValue,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  BadgeCheck,
+  Bell,
+  BellRing,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Filter,
+  Globe,
+  Inbox,
+  Loader2,
+  RefreshCw,
+  } from "lucide-react";
+
+import {
+  getAllNotifications,
+  markAllNotificationsAsRead,
+  markNotificationAsRead,
+  } from "@/app/actions/notification.actions";
+import type { NotificationWithProject } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * /dashboard/notifications — full notification history.
+ *
+ * Linked from the global header `ZoruNotificationPopover` via its
+ * "View all notifications →" footer. Same server actions
+ * (`getAllNotifications`, `markNotificationAsRead`,
+ * `markAllNotificationsAsRead`) and pagination contract as before.
+ * Visual layer fully Zoru: no clay, no `@/components/ui/*`,
+ * no `@/hooks/use-toast`, no tab UI, neutral palette only.
+ */
+
+import * as React from "react";
 
 const NOTIFICATIONS_PER_PAGE = 20;
 

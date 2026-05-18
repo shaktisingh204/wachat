@@ -1,3 +1,19 @@
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+
 /**
  * Payslip detail page.
  *
@@ -10,20 +26,6 @@
  * Action group lives in <PayslipActions> (client island).
  */
 
-import { notFound, redirect } from 'next/navigation';
-
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-} from '@/components/zoruui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

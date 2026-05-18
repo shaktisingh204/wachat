@@ -1,12 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import type { WithId } from 'mongodb';
-
-import { getProjectById } from '@/app/actions/project.actions';
-import type { Project } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -19,6 +12,16 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import type { WithId } from 'mongodb';
+
+import { getProjectById } from '@/app/actions/project.actions';
+import type { Project } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
 
 export default function RazorpayIntegrationPage() {
   const { activeProject } = useProject();

@@ -1,13 +1,31 @@
-
 'use client';
 
-import Image from 'next/image';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruBadge,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+} from '@/components/zoruui';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
-import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
-import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger } from '@/components/zoruui';
+import type { WithId,
+  EcommProduct,
+  EcommShop } from '@/lib/definitions';
+
+import Image from 'next/image';
+
 import { deleteEcommProduct } from '@/app/actions/custom-ecommerce.actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
@@ -41,7 +59,6 @@ export function EcommProductCard({ product, shopSettings, onEdit, onDelete, shop
         }
         return <>{children}</>;
     }
-
 
     return (
         <ZoruCard className="flex flex-col">

@@ -1,8 +1,10 @@
 'use client';
 
-import { Flag } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
 import { ZoruBadge } from '@/components/zoruui';
+import {
+  Flag } from 'lucide-react';
+import { HrEntityPage } from '../../_components/hr-entity-page';
+
 import {
   getFlags,
   saveFlag,

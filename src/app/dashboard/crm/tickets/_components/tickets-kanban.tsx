@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge, ZoruCard } from '@/components/zoruui';
+import { AlertTriangle } from 'lucide-react';
+
 /**
  * <TicketsKanban> — Kanban-by-status view (§1D.1 view switcher).
  *
@@ -11,9 +14,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { AlertTriangle } from 'lucide-react';
 
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
 

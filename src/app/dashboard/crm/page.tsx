@@ -1,14 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import { Users, Trophy, DollarSign, Handshake, Plus, Pin } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-
-import { getCrmDashboardStats } from '@/app/actions/crm.actions';
-import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
-import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
-import { useT } from '@/lib/i18n/client';
 import {
   ZoruBadge,
   ZoruButton,
@@ -19,6 +10,23 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState } from 'react';
+import Link from 'next/link';
+import { Users,
+  Trophy,
+  DollarSign,
+  Handshake,
+  Plus,
+  Pin } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+import { getCrmDashboardStats } from '@/app/actions/crm.actions';
+import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
+import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
+import { useT } from '@/lib/i18n/client';
+
 import {
   RecentDealsCard,
   UpcomingTasksCard,

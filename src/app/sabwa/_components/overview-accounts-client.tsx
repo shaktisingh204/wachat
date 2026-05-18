@@ -1,49 +1,5 @@
 'use client';
 
-/**
- * OverviewAccountsClient — `/sabwa/overview` accounts hub.
- *
- * Once a project is opened, this becomes the home for that project:
- *   - Active project name + "Change project" link back to /sabwa
- *   - List of linked WhatsApp accounts (sessions) for the project
- *   - Radio-select an account → activates it for Inbox / Chats / etc.
- *   - "Connect another WhatsApp" CTA → /sabwa/connect
- *
- * When no accounts are linked, renders an empty state with a primary
- * "Connect WhatsApp" CTA. When one is selected, the rest of SabWa
- * (sidebar links: Inbox, Chats, Groups, etc.) operates against that
- * session via `useSabwaSession()`.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowRight,
-  Briefcase,
-  Check,
-  CheckCircle2,
-  ChevronRight,
-  LogOut,
-  Pencil,
-  Plus,
-  QrCode,
-  Smartphone,
-  Sparkles,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  useSabwaSession,
-  toSessionInfo,
-  type SabwaSessionInfo,
-} from '@/lib/sabwa/session-context';
-import {
-  listSessions,
-  logoutSession,
-  renameSession,
-} from '@/app/actions/sabwa.actions';
-import type { SabwaSession } from '@/lib/sabwa/types';
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -73,6 +29,52 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  ArrowRight,
+  Briefcase,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  LogOut,
+  Pencil,
+  Plus,
+  QrCode,
+  Smartphone,
+  Sparkles,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  useSabwaSession,
+  toSessionInfo,
+  type SabwaSessionInfo,
+  } from '@/lib/sabwa/session-context';
+import {
+  listSessions,
+  logoutSession,
+  renameSession,
+  } from '@/app/actions/sabwa.actions';
+import type { SabwaSession } from '@/lib/sabwa/types';
+
+/**
+ * OverviewAccountsClient — `/sabwa/overview` accounts hub.
+ *
+ * Once a project is opened, this becomes the home for that project:
+ *   - Active project name + "Change project" link back to /sabwa
+ *   - List of linked WhatsApp accounts (sessions) for the project
+ *   - Radio-select an account → activates it for Inbox / Chats / etc.
+ *   - "Connect another WhatsApp" CTA → /sabwa/connect
+ *
+ * When no accounts are linked, renders an empty state with a primary
+ * "Connect WhatsApp" CTA. When one is selected, the rest of SabWa
+ * (sidebar links: Inbox, Chats, Groups, etc.) operates against that
+ * session via `useSabwaSession()`.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 /* ── status pill helpers ───────────────────────────────────────── */
 

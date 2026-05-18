@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -93,7 +91,6 @@ export async function getCrmContacts(
         } else {
             sort.lastActivity = -1; // Default sort
         }
-
 
         const skip = (page - 1) * limit;
 
@@ -525,12 +522,10 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
     }
 }
 
-
 export async function importCrmContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     // This action remains as it's more about data import than role management.
     return { error: 'Not yet implemented.' }
 }
-
 
 export async function addCrmNote(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, note?: { content: string; author: string; createdAt: string } }> {
     const session = await getSession();
@@ -648,7 +643,6 @@ export async function saveCrmProviders(prevState: any, formData: FormData) {
         return { error: getErrorMessage(e) };
     }
 }
-
 
 export async function getCrmDashboardStats() {
     const session = await getSession();

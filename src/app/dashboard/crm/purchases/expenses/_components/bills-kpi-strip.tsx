@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { AlertCircle, Banknote, Clock, FileEdit, Wallet, } from 'lucide-react';
+
 /**
  * <BillsKpiStrip> — KPI strip for the canonical bills list (§1D).
  *
@@ -11,15 +14,6 @@
  */
 
 import * as React from 'react';
-import {
-  AlertCircle,
-  Banknote,
-  Clock,
-  FileEdit,
-  Wallet,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { BillKpiSnapshot, BillPresetKey } from './types';
 

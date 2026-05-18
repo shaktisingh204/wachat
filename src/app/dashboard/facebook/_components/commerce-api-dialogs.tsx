@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * Commerce › API dialogs (zoru-only).
- *
- * RotateApiKeyConfirmDialog — surfaces a destructive confirmation flow
- * for rotating the Commerce API key. The actual rotation endpoint is
- * plan-gated; this dialog mirrors the legacy behaviour by showing
- * intent and surfacing a generated placeholder key on success.
- */
-
-import * as React from "react";
-import { useTransition } from "react";
-import { Loader2, RotateCw } from "lucide-react";
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -23,7 +10,22 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useTransition } from "react";
+import { Loader2,
+  RotateCw } from "lucide-react";
+
+/**
+ * Commerce › API dialogs (zoru-only).
+ *
+ * RotateApiKeyConfirmDialog — surfaces a destructive confirmation flow
+ * for rotating the Commerce API key. The actual rotation endpoint is
+ * plan-gated; this dialog mirrors the legacy behaviour by showing
+ * intent and surfacing a generated placeholder key on success.
+ */
+
+import * as React from "react";
 
 export interface RotateApiKeyConfirmDialogProps {
   open: boolean;

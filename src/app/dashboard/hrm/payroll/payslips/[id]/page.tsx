@@ -1,15 +1,16 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  Receipt } from 'lucide-react';
+
 /**
  * Payslip detail page — per-employee breakdown card.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, Receipt } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 

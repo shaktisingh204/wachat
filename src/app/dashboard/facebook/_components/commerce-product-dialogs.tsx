@@ -1,37 +1,5 @@
 "use client";
 
-/**
- * Commerce › Product dialogs (zoru-only).
- *
- * Local replacements for the legacy clay/wabasimplify dialogs:
- *   - CreateProductDialog        (addProductToCatalog)
- *   - EditProductDialog          (updateProductInCatalog)
- *   - DeleteProductConfirmDialog (deleteProductFromCatalog)
- *   - ViewTaggedMediaDialog      (getTaggedMediaForProduct)
- *
- * Pure ZoruUI primitives, useZoruToast, lucide-react.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { useFormStatus } from "react-dom";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  AlertCircle,
-  Image as ImageIcon,
-  Loader2,
-  Pencil,
-  PlusCircle,
-} from "lucide-react";
-
-import {
-  addProductToCatalog,
-  deleteProductFromCatalog,
-  getTaggedMediaForProduct,
-  updateProductInCatalog,
-} from "@/app/actions/catalog.actions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -61,7 +29,45 @@ import {
   ZoruSkeleton,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import Image from "next/image";
+import Link from "next/link";
+import {
+  AlertCircle,
+  Image as ImageIcon,
+  Loader2,
+  Pencil,
+  PlusCircle,
+  } from "lucide-react";
+
+import {
+  addProductToCatalog,
+  deleteProductFromCatalog,
+  getTaggedMediaForProduct,
+  updateProductInCatalog,
+  } from "@/app/actions/catalog.actions";
+
+/**
+ * Commerce › Product dialogs (zoru-only).
+ *
+ * Local replacements for the legacy clay/wabasimplify dialogs:
+ *   - CreateProductDialog        (addProductToCatalog)
+ *   - EditProductDialog          (updateProductInCatalog)
+ *   - DeleteProductConfirmDialog (deleteProductFromCatalog)
+ *   - ViewTaggedMediaDialog      (getTaggedMediaForProduct)
+ *
+ * Pure ZoruUI primitives, useZoruToast, lucide-react.
+ */
+
+import * as React from "react";
+
 import { SabFileUrlInput } from "@/components/sabfiles";
 
 /* ------------------------------------------------------------------ */

@@ -1,13 +1,14 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Activity, AlertTriangle, CheckCircle2, Gauge, Pause } from 'lucide-react';
+
 /**
  * KPI strip for production orders — 5 stat cards required by §1D.
  */
 
 import * as React from 'react';
-import { Activity, AlertTriangle, CheckCircle2, Gauge, Pause } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { CrmProductionOrderKpis } from '@/app/actions/crm-production-orders.actions';
 
 export type PoStatusFilter = 'all' | 'planned' | 'in_progress' | 'completed';

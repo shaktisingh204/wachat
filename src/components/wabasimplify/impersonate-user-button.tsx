@@ -1,7 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
 import { useState } from 'react';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { LogIn } from 'lucide-react';
 import { impersonateUser } from '@/app/actions/admin.actions';
 import { useToast } from '@/hooks/use-toast';

@@ -1,11 +1,12 @@
-
 'use client';
+
+import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
+import {
+  cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 import React from 'react';
 import type { FacebookMessage } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '@/components/zoruui';
 
 interface FacebookChatMessageProps {
     message: FacebookMessage;

@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Banknote, Coins, FileMinus, Network, TrendingUp } from 'lucide-react';
+
 /**
  * <CoaKpiStrip> — KPI strip for the Chart of Accounts list (§1D.1 bar).
  *
@@ -8,9 +11,6 @@
  */
 
 import * as React from 'react';
-import { Banknote, Coins, FileMinus, Network, TrendingUp } from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 export type CoaNatureFilter = 'all' | 'Asset' | 'Liability' | 'Income' | 'Expense' | 'Capital';
 

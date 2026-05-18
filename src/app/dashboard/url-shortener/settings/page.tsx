@@ -1,11 +1,5 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useTransition, useState, useCallback } from 'react';
-import { useFormStatus } from 'react-dom';
-import { Key, LoaderCircle, Trash2, CheckCircle, Copy, BookOpen, AlertTriangle, Globe } from 'lucide-react';
-import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
-import type { WithId, CustomDomain } from '@/lib/definitions';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -24,7 +18,29 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
-
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useTransition,
+  useState,
+  useCallback } from 'react';
+import { useFormStatus } from 'react-dom';
+import { Key,
+  LoaderCircle,
+  Trash2,
+  CheckCircle,
+  Copy,
+  BookOpen,
+  AlertTriangle,
+  Globe } from 'lucide-react';
+import { addCustomDomain,
+  getCustomDomains,
+  verifyCustomDomain,
+  deleteCustomDomain } from '@/app/actions/url-shortener.actions';
+import type { WithId,
+  CustomDomain } from '@/lib/definitions';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 
 const addDomainInitialState = { success: undefined, error: undefined };
 
@@ -75,7 +91,6 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
 
     return <ZoruButton variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-zoru-danger-ink" />}</ZoruButton>;
 }
-
 
 export default function UrlShortenerSettingsPage() {
     const { toast } = useZoruToast();

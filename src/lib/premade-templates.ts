@@ -1,4 +1,3 @@
-
 import type { LibraryTemplate } from '@/lib/definitions';
 
 // Note: This is a static library of templates. The `components` array is structured

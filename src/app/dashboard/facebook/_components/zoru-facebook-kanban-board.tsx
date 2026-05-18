@@ -1,46 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/kanban — ZoruUI rebuild of `FacebookKanbanBoard`.
- *
- * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx`:
- *   - Conversations grouped by status into columns.
- *   - Each column is a ZoruCard, each conversation is a row card.
- *   - No drag-and-drop — status changes happen via per-row dropdown.
- *
- * Server-action wiring preserved:
- *   - getFacebookKanbanData(projectId)
- *   - saveFacebookKanbanStatuses(projectId, names)
- *   - handleUpdateFacebookSubscriberStatus(subscriberId, status)
- *
- * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
- * useDroppable on columns + useDraggable on cards) and call
- * handleUpdateFacebookSubscriberStatus from the drop handler. Until
- * then the dropdown menu is the only path to move a conversation
- * between lists.
- */
-
-import * as React from "react";
-import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
-import {
-  AlertCircle,
-  MessageSquare,
-  MoreHorizontal,
-  Plus,
-} from "lucide-react";
-
-import {
-  getFacebookKanbanData,
-  handleUpdateFacebookSubscriberStatus,
-  saveFacebookKanbanStatuses,
-} from "@/app/actions/facebook.actions";
-import type {
-  WithId,
-  FacebookSubscriber,
-  Project,
-} from "@/lib/definitions";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -65,7 +24,51 @@ import {
   ZoruSkeleton,
   useZoruToast,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from "react";
+import { useRouter } from "next/navigation";
+import {
+  AlertCircle,
+  MessageSquare,
+  MoreHorizontal,
+  Plus,
+  } from "lucide-react";
+
+import {
+  getFacebookKanbanData,
+  handleUpdateFacebookSubscriberStatus,
+  saveFacebookKanbanStatuses,
+  } from "@/app/actions/facebook.actions";
+import type {
+  WithId,
+  FacebookSubscriber,
+  Project,
+  } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/kanban — ZoruUI rebuild of `FacebookKanbanBoard`.
+ *
+ * Mirrors `src/app/wachat/_components/zoru-kanban-board.tsx`:
+ *   - Conversations grouped by status into columns.
+ *   - Each column is a ZoruCard, each conversation is a row card.
+ *   - No drag-and-drop — status changes happen via per-row dropdown.
+ *
+ * Server-action wiring preserved:
+ *   - getFacebookKanbanData(projectId)
+ *   - saveFacebookKanbanStatuses(projectId, names)
+ *   - handleUpdateFacebookSubscriberStatus(subscriberId, status)
+ *
+ * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
+ * useDroppable on columns + useDraggable on cards) and call
+ * handleUpdateFacebookSubscriberStatus from the drop handler. Until
+ * then the dropdown menu is the only path to move a conversation
+ * between lists.
+ */
+
+import * as React from "react";
 
 type FacebookKanbanColumnData = {
   name: string;

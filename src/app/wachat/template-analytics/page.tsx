@@ -1,31 +1,5 @@
 'use client';
 
-/**
- * Wachat Template Analytics — view delivery and read metrics per
- * template, rebuilt on ZoruUI primitives. Greyscale chart palette.
- */
-
-import * as React from 'react';
-import {
-  useEffect,
-  useMemo,
-  useState,
-  useTransition,
-  useCallback,
-} from 'react';
-import {
-  BarChart3,
-  Loader2,
-  RefreshCw,
-  Send,
-  CircleCheck,
-  Eye,
-  CircleX,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
-
 import {
   ZORU_CHART_PALETTE,
   ZoruBreadcrumb,
@@ -57,6 +31,32 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  useCallback,
+  } from 'react';
+import {
+  BarChart3,
+  Loader2,
+  RefreshCw,
+  Send,
+  CircleCheck,
+  Eye,
+  CircleX,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getTemplateAnalytics } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Template Analytics — view delivery and read metrics per
+ * template, rebuilt on ZoruUI primitives. Greyscale chart palette.
+ */
+
+import * as React from 'react';
 
 type AnalyticsRow = {
   _id?: string;

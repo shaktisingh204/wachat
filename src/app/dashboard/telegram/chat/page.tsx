@@ -1,5 +1,47 @@
 'use client';
 
+import {
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruBadge,
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruEmptyState,
+  ZoruInput,
+  ZoruScrollArea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
+  ZoruSkeleton,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  ChevronRight,
+  CornerUpLeft,
+  Loader2,
+  MessageCircle,
+  MoreVertical,
+  Paperclip,
+  Pin,
+  PinOff,
+  RefreshCw,
+  Search,
+  Send,
+  Smile,
+  Trash2,
+  Users,
+  X,
+  type LucideIcon,
+  } from 'lucide-react';
+
 /**
  * Telegram Chat — full inbox UI for `/dashboard/telegram/chat`.
  *
@@ -14,48 +56,7 @@
  */
 
 import * as React from 'react';
-import {
-    ChevronRight,
-    CornerUpLeft,
-    Loader2,
-    MessageCircle,
-    MoreVertical,
-    Paperclip,
-    Pin,
-    PinOff,
-    RefreshCw,
-    Search,
-    Send,
-    Smile,
-    Trash2,
-    Users,
-    X,
-    type LucideIcon,
-} from 'lucide-react';
 
-import {
-    ZoruAvatar,
-    ZoruAvatarFallback,
-    ZoruBadge,
-    ZoruButton,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator,
-    ZoruDropdownMenuTrigger,
-    ZoruEmptyState,
-    ZoruInput,
-    ZoruScrollArea,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruSeparator,
-    ZoruSkeleton,
-    cn,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     SabFilePicker,
     type SabFilePick,

@@ -1,3 +1,6 @@
+import { ZoruButton } from '@/components/zoruui';
+import { ShoppingCart, Plus } from 'lucide-react';
+
 /**
  * CRM Sales Orders list — `/dashboard/crm/sales/orders`.
  *
@@ -17,9 +20,7 @@
  */
 
 import Link from 'next/link';
-import { ShoppingCart, Plus } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '../../_components/crm-page-header';
 import { listSalesOrders } from '@/app/actions/crm/sales-orders.actions';
 import { crmSalesOrdersApi } from '@/lib/rust-client/crm-sales-orders';

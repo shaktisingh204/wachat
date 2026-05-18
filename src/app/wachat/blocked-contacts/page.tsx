@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * Wachat Blocked Contacts — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Ban, ShieldOff, Plus, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getBlockedContacts,
-  blockContact,
-  unblockContact,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -48,6 +31,26 @@ import {
   ZoruLabel,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Ban,
+  ShieldOff,
+  Plus,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getBlockedContacts, blockContact, unblockContact } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Blocked Contacts — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

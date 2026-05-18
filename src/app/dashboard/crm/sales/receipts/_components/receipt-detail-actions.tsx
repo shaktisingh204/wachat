@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  CheckCircle2,
+  LoaderCircle,
+  XCircle } from 'lucide-react';
+
 /**
  * Inline status mutation buttons for the receipt detail page —
  * Mark Cleared / Mark Bounced / Archive. Lives next to the Edit and
@@ -7,10 +15,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, CheckCircle2, LoaderCircle, XCircle } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import {
     bulkPaymentReceiptAction,
     setPaymentReceiptStatus,

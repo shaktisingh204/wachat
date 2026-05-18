@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 /**
  * Interviews calendar — read-only month/week grid grouping interviews
  * by `scheduledAt` date.
@@ -11,12 +12,6 @@
 import * as React from 'react';
 import Link from 'next/link';
 
-import {
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 interface Interview {

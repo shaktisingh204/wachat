@@ -1,22 +1,28 @@
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, Contact } from '@/lib/definitions';
-import { ZoruTextarea } from '../ui/textarea';
+import type { WithId,
+  Contact } from '@/lib/definitions';
+
 import { handlePaymentRequest } from '@/app/actions/integrations.actions';
 
 const initialState = { message: undefined, error: undefined };

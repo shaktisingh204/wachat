@@ -1,21 +1,5 @@
 'use client';
 
-/**
- * Client islands for the integration detail page action group:
- *   - <IntegrationConnectButton /> flips `isActive` and remaps `status`
- *     between `'connected'` / `'disconnected'`.
- *   - <IntegrationDeleteButton /> hard-deletes the integration after a
- *     confirm dialog.
- *
- * Credentials are NEVER passed through these islands — the server-side
- * actions read existing secrets from Mongo and only the public sentinel
- * `'***hidden***'` ever crosses the boundary.
- */
-
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import { Plug, PlugZap, Trash2 } from 'lucide-react';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -28,6 +12,26 @@ import {
   ZoruButton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { Plug,
+  PlugZap,
+  Trash2 } from 'lucide-react';
+
+/**
+ * Client islands for the integration detail page action group:
+ *   - <IntegrationConnectButton /> flips `isActive` and remaps `status`
+ *     between `'connected'` / `'disconnected'`.
+ *   - <IntegrationDeleteButton /> hard-deletes the integration after a
+ *     confirm dialog.
+ *
+ * Credentials are NEVER passed through these islands — the server-side
+ * actions read existing secrets from Mongo and only the public sentinel
+ * `'***hidden***'` ever crosses the boundary.
+ */
+
 import {
   deleteIntegration,
   setIntegrationActive,

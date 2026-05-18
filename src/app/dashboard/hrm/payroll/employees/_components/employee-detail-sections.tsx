@@ -1,3 +1,6 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import { CalendarCheck, FileText, PlaneTakeoff } from 'lucide-react';
+
 /**
  * <EmployeeDetailSections> — sectioned body for the employee detail
  * page. Per the §1D spec the design originally called for tabs; since
@@ -15,9 +18,7 @@
  */
 
 import Link from 'next/link';
-import { CalendarCheck, FileText, PlaneTakeoff } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import type {

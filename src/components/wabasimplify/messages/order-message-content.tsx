@@ -1,10 +1,8 @@
-
 'use client';
 
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruSeparator } from '@/components/zoruui';
 import { IndianRupee } from 'lucide-react';
 import Image from 'next/image';
-import { ZoruSeparator } from '@/components/zoruui';
 
 interface OrderMessageContentProps {
   order: {

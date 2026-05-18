@@ -1,5 +1,13 @@
 'use client';
 
+import { ZoruButton, ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger } from '@/components/zoruui';
+import {
+  Download,
+  ListChecks,
+  Send,
+  Trash2,
+  X } from 'lucide-react';
+
 /**
  * <QuotationBulkBar> — sticky bulk-action ribbon for the quotations
  * list. Wires real server actions for archive / delete / status-change
@@ -7,15 +15,6 @@
  */
 
 import * as React from 'react';
-import { Download, ListChecks, Send, Trash2, X } from 'lucide-react';
-
-import {
-  ZoruButton,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 
 import type { CrmQuotationStatus } from '@/lib/rust-client/crm-quotations';
 

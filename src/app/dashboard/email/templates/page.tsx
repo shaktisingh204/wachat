@@ -1,15 +1,10 @@
-
 'use client';
 
-import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
+import { ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
+import {
+  EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
 import { FileText } from 'lucide-react';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
-import {
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
 
 export default function EmailTemplatesPage() {
     return (

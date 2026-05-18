@@ -1,12 +1,14 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+
 /**
  * Product detail — `/dashboard/crm/store/products/[id]`.
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
     EntityDetailShell,
     type EntityStatusTone,

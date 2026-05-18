@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 /**
  * <AttendanceCalendarByEmployee> — month-grid where each row is an
  * employee and each column is a day; cells are colour-coded by status.
@@ -10,9 +13,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 
 import type { AttendanceListRow } from './types';

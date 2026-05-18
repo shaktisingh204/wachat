@@ -1,3 +1,7 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import { notFound } from 'next/navigation';
+import { Pencil } from 'lucide-react';
+
 /**
  * Proforma invoice detail — `/dashboard/crm/sales/proforma/[id]`.
  *
@@ -7,10 +11,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Pencil } from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getProformaInvoiceById } from '@/app/actions/crm-proforma-invoices.actions';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';

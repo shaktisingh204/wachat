@@ -1,21 +1,5 @@
 'use client';
 
-/**
- * /wachat/greeting-messages — single-form page (one config per project).
- * ZoruUI: header + breadcrumb, ZoruSwitch for activate, ZoruTextarea for
- * body, ZoruCard for preview. Skeleton on initial load.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Eye, EyeOff, Save } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getGreetingMessage,
-  saveGreetingMessage,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -37,6 +21,28 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Eye,
+  EyeOff,
+  Save } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getGreetingMessage,
+  saveGreetingMessage,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/greeting-messages — single-form page (one config per project).
+ * ZoruUI: header + breadcrumb, ZoruSwitch for activate, ZoruTextarea for
+ * body, ZoruCard for preview. Skeleton on initial load.
+ */
+
+import * as React from 'react';
 
 const VARIABLES = ['{name}', '{phone}', '{email}', '{company}'];
 

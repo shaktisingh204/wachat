@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { AlertTriangle, Banknote, CalendarClock, HandCoins, Receipt, } from 'lucide-react';
+
 /**
  * KPI strip for the Loans list (§1D.1).
  *
@@ -11,15 +14,7 @@
  */
 
 import * as React from 'react';
-import {
-  AlertTriangle,
-  Banknote,
-  CalendarClock,
-  HandCoins,
-  Receipt,
-} from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { LoanRow } from './loans-types';
 
 export type LoansKpiKey = 'all' | 'active' | 'overdue' | 'dueSoon';

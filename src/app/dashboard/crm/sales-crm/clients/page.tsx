@@ -1,5 +1,16 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import { Building2,
+  List,
+  Plus } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+
 /**
  * Accounts — list page (rebuilt per §1D.1).
  *
@@ -21,13 +32,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import { Building2, List, Plus } from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { PaginationBar } from '@/components/crm/pagination-bar';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { useT } from '@/lib/i18n/client';
 
 import {

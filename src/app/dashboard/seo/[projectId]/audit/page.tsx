@@ -1,17 +1,21 @@
 'use client';
 
-import { useEffect, useState, use } from 'react';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruProgress,
-    ZoruSkeleton,
-    useZoruToast,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruProgress,
+  ZoruSkeleton,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  use } from 'react';
+
 import { AlertCircle, Play, RefreshCw, Loader2 } from 'lucide-react';
 import { startAudit, getAuditStatus } from '@/app/actions/seo-audit.actions';
 import { getLatestAudit } from '@/app/actions/seo.actions';

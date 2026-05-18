@@ -1,13 +1,17 @@
+import { ZoruButton } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  MessageSquareText } from 'lucide-react';
+
 /**
  * Edit reply template — server wrapper that loads the template by id
  * and passes it as `initialData` to `<ReplyTemplateForm />`.
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import { ArrowLeft, MessageSquareText } from 'lucide-react';
 
-import { ZoruButton } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { getSession } from '@/app/actions/user.actions';
 import { getReplyTemplateById } from '@/app/actions/crm-reply-templates.actions';

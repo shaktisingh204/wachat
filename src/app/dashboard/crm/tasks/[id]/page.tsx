@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import Link from 'next/link';
+import {
+    ArrowLeft,
+  CheckCircle2,
+  FolderKanban,
+  Paperclip,
+  Pencil,
+  } from 'lucide-react';
+
 /**
  * Task detail — `/dashboard/crm/tasks/[id]`.
  *
@@ -5,23 +18,6 @@
  * task overview, checklist (read-only), attachments and notes.
  */
 
-import { notFound, redirect } from 'next/navigation';
-import Link from 'next/link';
-import {
-    ArrowLeft,
-    CheckCircle2,
-    FolderKanban,
-    Paperclip,
-    Pencil,
-} from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

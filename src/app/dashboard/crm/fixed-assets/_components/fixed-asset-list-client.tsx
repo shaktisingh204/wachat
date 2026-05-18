@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * Client side of the Fixed Assets list — owns the search box, the
- * table, the bulk action bar, the KPI strip, and the hard-delete
- * confirmation dialog. Search input is debounced and writes back to
- * the URL so the server component re-fetches.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import {
-  AlertCircle,
-  ListChecks,
-  Pencil,
-  Search,
-  Trash2,
-  X,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -38,6 +19,29 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams,
+  usePathname } from 'next/navigation';
+import {
+  AlertCircle,
+  ListChecks,
+  Pencil,
+  Search,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+/**
+ * Client side of the Fixed Assets list — owns the search box, the
+ * table, the bulk action bar, the KPI strip, and the hard-delete
+ * confirmation dialog. Search input is debounced and writes back to
+ * the URL so the server component re-fetches.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { deleteFixedAssetAction } from '@/app/actions/crm/fixed-assets.actions';

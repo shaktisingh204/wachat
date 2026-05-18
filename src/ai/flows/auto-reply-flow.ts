@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Generates an AI-powered auto-reply based on business context, with language detection.
@@ -157,7 +156,6 @@ function detectLanguageFromWaId(waId: string): string {
 const AutoReplyPromptInputSchema = AutoReplyInputSchema.extend({
     targetLanguage: z.string(),
 });
-
 
 const prompt = ai.definePrompt({
   name: 'autoReplyPrompt',

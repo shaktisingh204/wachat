@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruButton, ZoruInput } from '@/components/zoruui';
+import { Plus, Trash2 } from 'lucide-react';
+
 /**
  * Line-items table for `<SalesOrdersForm>`. Extracted to its own file
  * to keep the parent form under the 600-line per-file cap.
@@ -9,9 +12,7 @@
  */
 
 import * as React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
 
-import { ZoruButton, ZoruInput } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import type { LookupItem } from '@/lib/lookup-registry';
 

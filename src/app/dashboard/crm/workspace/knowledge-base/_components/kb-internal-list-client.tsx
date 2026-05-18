@@ -1,5 +1,35 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+    BookOpen,
+  CheckSquare,
+  LayoutList,
+  ListTree,
+  Pin,
+  Plus,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill } from '@/components/crm/status-pill';
+
 /**
  * Internal KB list (§1D.1) — mirrors the customer-facing
  * /tickets/knowledge-base shape: KPI strip · 5 filters · table or
@@ -9,34 +39,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-    BookOpen,
-    CheckSquare,
-    LayoutList,
-    ListTree,
-    Pin,
-    Plus,
-    Trash2,
-    X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill } from '@/components/crm/status-pill';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteKnowledgeBase,

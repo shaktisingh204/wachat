@@ -1,19 +1,18 @@
-
-'use client';
-
-import { useState, useEffect, useTransition } from 'react';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
-import { Eye, Trash2, LoaderCircle } from 'lucide-react';
-import type { WithId } from 'mongodb';
-import { getQrCodes, deleteQrCode } from '@/app/actions/qr-code.actions';
-type QrCode = any;
-type QrCodeWithShortUrl = any;
-import { QrCodeDialog } from './qr-code-dialog';
 import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+  ZoruSkeleton,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -24,9 +23,22 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
 } from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useTransition } from 'react';
+import { Eye, Trash2, LoaderCircle } from 'lucide-react';
+import type { WithId } from 'mongodb';
+import { getQrCodes,
+  deleteQrCode } from '@/app/actions/qr-code.actions';
+type QrCode = any;
+type QrCodeWithShortUrl = any;
+import { QrCodeDialog } from './qr-code-dialog';
+
+'use client';
+
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-
 
 function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onDeleted: () => void }) {
     const { toast } = useToast();

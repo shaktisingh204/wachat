@@ -1,5 +1,18 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  Activity,
+  Archive,
+  Copy,
+  Edit,
+  Handshake,
+  Mail,
+  Phone,
+  Printer,
+  UserPlus,
+  } from 'lucide-react';
+
 /**
  * Header action group for the account detail page (§1D.2).
  *
@@ -11,19 +24,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Activity,
-    Archive,
-    Copy,
-    Edit,
-    Handshake,
-    Mail,
-    Phone,
-    Printer,
-    UserPlus,
-} from 'lucide-react';
-
-import { ZoruButton } from '@/components/zoruui';
 
 export interface AccountDetailActionsProps {
     accountId: string;

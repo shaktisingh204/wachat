@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  redirect } from 'next/navigation';
+import { ArrowLeft,
+  BookOpen } from 'lucide-react';
+import { ObjectId } from 'mongodb';
+
 /**
  * KB article detail — `/dashboard/crm/tickets/knowledge-base/[articleId]` (§1D.2).
  *
@@ -11,18 +18,7 @@
  */
 
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { ArrowLeft, BookOpen } from 'lucide-react';
-import { ObjectId } from 'mongodb';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

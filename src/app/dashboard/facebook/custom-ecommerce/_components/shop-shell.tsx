@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * Shared zoru-only chrome for the Custom E-commerce manage scope.
- *
- * - `ShopPage`: max-width container with neutral surface tokens.
- * - `ShopBreadcrumb`: SabNode › Meta Suite › Custom Shops › <shop> › <leaf>.
- * - `ShopHeader`: page-header with eyebrow + title + description + actions.
- * - `ShopSubNav`: route-driven sub-page nav using outline/default ZoruButtons
- *   (NOT tabs — per the design directive).
- */
-
-import * as React from "react";
-import Link from "next/link";
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -27,7 +14,19 @@ import {
   ZoruPageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+/**
+ * Shared zoru-only chrome for the Custom E-commerce manage scope.
+ *
+ * - `ShopPage`: max-width container with neutral surface tokens.
+ * - `ShopBreadcrumb`: SabNode › Meta Suite › Custom Shops › <shop> › <leaf>.
+ * - `ShopHeader`: page-header with eyebrow + title + description + actions.
+ * - `ShopSubNav`: route-driven sub-page nav using outline/default ZoruButtons
+ *   (NOT tabs — per the design directive).
+ */
+
+import * as React from "react";
+import Link from "next/link";
 
 export function ShopPage({ children }: { children: React.ReactNode }) {
   return (

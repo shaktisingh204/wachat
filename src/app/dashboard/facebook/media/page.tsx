@@ -1,29 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/media — Page media library (ZoruUI).
- *
- * The Meta API surfaces 4 collections (photos, albums, videos, playlists).
- * Per the no-tab-ui rule we flatten them into a single ZoruFilesPage and
- * expose a neutral kind selector via ZoruDropdownMenu.
- *
- * ZoruFilesPage already composes 5 dialogs internally (preview, rename,
- * delete, share, upload). Upload/rename/delete are stubbed for the
- * Facebook side because Meta's Graph API does not expose generic asset
- * mutation in this surface — see TODOs.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { ChevronDown, FolderOpen, Image as ImageIcon, ListVideo, Video } from 'lucide-react';
-
-import {
-  getPageAlbums,
-  getPagePhotos,
-  getPageVideos,
-  getVideoPlaylists,
-} from '@/app/actions/facebook.actions';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -51,6 +27,39 @@ import {
   useZoruToast,
   type ZoruFileEntity,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { ChevronDown,
+  FolderOpen,
+  Image as ImageIcon,
+  ListVideo,
+  Video } from 'lucide-react';
+
+import {
+  getPageAlbums,
+  getPagePhotos,
+  getPageVideos,
+  getVideoPlaylists,
+  } from '@/app/actions/facebook.actions';
+
+/**
+ * /dashboard/facebook/media — Page media library (ZoruUI).
+ *
+ * The Meta API surfaces 4 collections (photos, albums, videos, playlists).
+ * Per the no-tab-ui rule we flatten them into a single ZoruFilesPage and
+ * expose a neutral kind selector via ZoruDropdownMenu.
+ *
+ * ZoruFilesPage already composes 5 dialogs internally (preview, rename,
+ * delete, share, upload). Upload/rename/delete are stubbed for the
+ * Facebook side because Meta's Graph API does not expose generic asset
+ * mutation in this surface — see TODOs.
+ */
+
+import * as React from 'react';
 
 import { ErrorState, NoProjectState } from '../_components/no-project-state';
 

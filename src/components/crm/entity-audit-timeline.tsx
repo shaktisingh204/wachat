@@ -1,3 +1,9 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  ObjectId } from 'mongodb';
+
+import { getSession } from '@/app/actions/user.actions';
+
 /**
  * <EntityAuditTimeline /> — server component that renders the audit history
  * for a single CRM entity instance (per `docs/ecosystem/CRM_PLAN.md` §A7).
@@ -11,16 +17,7 @@
  * Caller wraps in <Suspense> if they want a loading skeleton; this server
  * component renders synchronously after its single Mongo query.
  */
-import { ObjectId } from 'mongodb';
 
-import { getSession } from '@/app/actions/user.actions';
-import {
-    ZoruBadge,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-} from '@/components/zoruui';
 import { connectToDatabase } from '@/lib/mongodb';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */

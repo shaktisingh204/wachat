@@ -1,5 +1,21 @@
 'use client';
 
+import { ZoruButton, ZoruCard, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+    Activity,
+  Archive,
+  CheckCircle2,
+  Copy,
+  Mail,
+  Pencil,
+  Share2,
+  ThumbsDown,
+  ThumbsUp,
+  Undo2,
+  } from 'lucide-react';
+
 /**
  * <KbDetailActions> — header action group + "Was this helpful?" widget
  * for the KB detail page (§1D.2 — 7 actions).
@@ -10,25 +26,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    Activity,
-    Archive,
-    CheckCircle2,
-    Copy,
-    Mail,
-    Pencil,
-    Share2,
-    ThumbsDown,
-    ThumbsUp,
-    Undo2,
-} from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    useZoruToast,
-} from '@/components/zoruui';
 import {
     recordKbHelpfulVote,
     saveKbArticle,

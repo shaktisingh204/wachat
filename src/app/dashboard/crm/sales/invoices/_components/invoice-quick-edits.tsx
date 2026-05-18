@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * <InvoiceQuickEdits> — inline status / sales-agent / customer chips
- * on the invoice detail "At a glance" card. Each chip opens a small
- * dropdown/dialog, mutates via `updateInvoiceStatus` / `patchInvoice`,
- * and refreshes the page on success.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -24,6 +14,18 @@ import {
   ZoruLabel,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * <InvoiceQuickEdits> — inline status / sales-agent / customer chips
+ * on the invoice detail "At a glance" card. Each chip opens a small
+ * dropdown/dialog, mutates via `updateInvoiceStatus` / `patchInvoice`,
+ * and refreshes the page on success.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';

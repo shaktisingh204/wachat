@@ -1,20 +1,5 @@
 'use client';
 
-/**
- * PO detail-page dialogs.
- *
- *   • <PurchaseOrderEmailDialog> — compose + send. Wires
- *     `sendPurchaseOrderEmail` server action which marks the PO `sent`
- *     and writes an audit row.
- *   • <PurchaseOrderWhatsAppDialog> — opens wa.me deep link with
- *     prefilled text. No server-side state change.
- *   • <PurchaseOrderApproveDialog> — convenience for the "Approve"
- *     header action; advances status to `approved`.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
 import {
   ZoruButton,
   ZoruDialog,
@@ -28,6 +13,23 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
+/**
+ * PO detail-page dialogs.
+ *
+ *   • <PurchaseOrderEmailDialog> — compose + send. Wires
+ *     `sendPurchaseOrderEmail` server action which marks the PO `sent`
+ *     and writes an audit row.
+ *   • <PurchaseOrderWhatsAppDialog> — opens wa.me deep link with
+ *     prefilled text. No server-side state change.
+ *   • <PurchaseOrderApproveDialog> — convenience for the "Approve"
+ *     header action; advances status to `approved`.
+ */
+
+import * as React from 'react';
+
 import {
   approvePurchaseOrder,
   sendPurchaseOrderEmail,

@@ -1,18 +1,36 @@
 'use client';
 
-import { useTransition } from 'react';
-import { ZoruCard, ZoruCardContent, ZoruButton } from '@/components/zoruui';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruProgress,
+} from '@/components/zoruui';
+import {
+  useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { updateTeamTaskStatus, deleteTeamTask } from '@/app/actions/team-tasks.actions';
-import type { WithId, TeamTask } from '@/lib/definitions';
+import { updateTeamTaskStatus,
+  deleteTeamTask } from '@/app/actions/team-tasks.actions';
+import type { WithId,
+  TeamTask } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
 import { format, isPast } from 'date-fns';
 import { Trash2 } from 'lucide-react';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
 
 const priorityConfig = {
     High: { color: 'bg-red-500', label: 'High' },
@@ -76,7 +94,7 @@ export function TeamTaskList({ tasks, onTaskUpdated }: { tasks: (WithId<TeamTask
                                                     <ZoruSelectTrigger className={cn(
                                                         'h-8 text-xs w-32',
                                                         task.status === 'Completed' && 'border-green-500 text-green-600',
-                                                        task.status === 'In ZoruProgress' && 'border-blue-500 text-blue-600'
+                                                        task.status === 'In Progress' && 'border-blue-500 text-blue-600'
                                                     )}>
                                                         <ZoruSelectValue />
                                                     </ZoruSelectTrigger>

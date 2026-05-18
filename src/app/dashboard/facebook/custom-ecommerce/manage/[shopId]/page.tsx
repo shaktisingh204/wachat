@@ -1,17 +1,18 @@
 "use client";
 
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  useEffect } from "react";
+import { useParams,
+  useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+
 /**
  * /dashboard/facebook/custom-ecommerce/manage/[shopId] — index redirect.
  *
  * The shop scope has no "overview" page — the layout's sub-nav drives users
  * straight into a leaf. We redirect to /settings (the most useful default).
  */
-
-import { useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { LoaderCircle } from "lucide-react";
-
-import { ZoruSkeleton } from "@/components/zoruui";
 
 export default function ShopManageIndexPage() {
   const router = useRouter();

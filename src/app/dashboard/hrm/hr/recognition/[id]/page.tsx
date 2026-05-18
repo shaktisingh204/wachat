@@ -1,9 +1,11 @@
-import { Award } from 'lucide-react';
+import { ZoruCard } from '@/components/zoruui';
+import {
+  Award } from 'lucide-react';
 
 import { HrDetailPage } from '../../_components/hr-detail-page';
-import { getRecognitions, deleteRecognition } from '@/app/actions/hr.actions';
+import { getRecognitions,
+  deleteRecognition } from '@/app/actions/hr.actions';
 import type { HrRecognition } from '@/lib/hr-types';
-import { ZoruCard } from '@/components/zoruui';
 
 type Row = HrRecognition & {
   _id: string;

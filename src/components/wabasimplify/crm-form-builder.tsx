@@ -1,34 +1,58 @@
-
 'use client';
 
-import React, { useState, useEffect, useCallback, useTransition } from 'react';
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors, closestCenter } from '@dnd-kit/core';
-import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruScrollArea,
+  ZoruSeparator,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+} from '@/components/zoruui';
+import {
+  DndContext,
+  DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  closestCenter } from '@dnd-kit/core';
+import { SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ZoruButton, ZoruButton, ZoruButton } from '@/components/zoruui';
 import { ClayCard } from '@/components/clay';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruScrollArea } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
 import { Plus, Trash2, ArrowLeft, Save, LoaderCircle, Eye, Code2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { useToast } from '@/hooks/use-toast';
 import { CrmFormFieldEditor } from '@/components/wabasimplify/crm-form-field-editor';
 import { saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { CrmFormPreview } from '@/components/wabasimplify/crm-form-preview';
-import type { WithId, CrmForm, FormField } from '@/lib/definitions';
+import type { WithId,
+  CrmForm,
+  FormField } from '@/lib/definitions';
 import { useRouter } from 'next/navigation';
 import { StyleSettingsPanel } from '@/components/wabasimplify/website-builder/style-settings-panel';
 import Image from 'next/image';
 import { CodeBlock } from './code-block';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogDescription, ZoruDialogHeader, ZoruDialogTitle, ZoruDialogTrigger } from '@/components/zoruui';
 
+import React, { useState, useEffect, useCallback, useTransition } from 'react';
 
 const defaultFields: FormField[] = [
     { id: uuidv4(), type: 'text', label: 'Name', required: true, columnWidth: '50%', fieldId: 'name' },

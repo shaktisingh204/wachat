@@ -1,12 +1,10 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruInput, ZoruCard, ZoruCardContent, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useState } from 'react';
+
 void _zoruCn;
 
-import { useState } from 'react';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 const PREFIXES = ['how to', 'what is', 'why is', 'when does', 'where is', 'can i', 'should i'];

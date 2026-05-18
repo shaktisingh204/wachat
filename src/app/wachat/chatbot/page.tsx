@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * /wachat/chatbot — Chatbot config + flow picker + test chat panel (ZoruUI).
- *
- * Phase 6 visual swap. Server actions and data flow are unchanged.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  Bot,
-  Loader,
-  Plus,
-  RefreshCw,
-  Send,
-  Sparkles,
-  Trash2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  deleteChatbotResponse,
-  getChatbotResponses,
-  saveChatbotResponse,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -73,6 +48,35 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  Bot,
+  Loader,
+  Plus,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Trash2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  deleteChatbotResponse,
+  getChatbotResponses,
+  saveChatbotResponse,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/chatbot — Chatbot config + flow picker + test chat panel (ZoruUI).
+ *
+ * Phase 6 visual swap. Server actions and data flow are unchanged.
+ */
+
+import * as React from 'react';
 
 const MATCH_TYPES = [
   { value: 'contains', label: 'Contains' },

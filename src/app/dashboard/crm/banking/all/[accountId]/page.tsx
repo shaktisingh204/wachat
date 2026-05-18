@@ -1,8 +1,15 @@
-import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Edit, History, Printer, Archive, RotateCw, ArrowLeftRight, FileText } from 'lucide-react';
-
 import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Edit,
+  History,
+  Printer,
+  Archive,
+  RotateCw,
+  ArrowLeftRight,
+  FileText } from 'lucide-react';
+
+import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill } from '@/components/crm/status-pill';

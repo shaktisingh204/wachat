@@ -1,10 +1,8 @@
-
 'use client';
 
+import { ZoruLabel, ZoruButton, ZoruInput } from '@/components/zoruui';
 import React from 'react';
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+
 import { Plus, Trash2 } from 'lucide-react';
 import type { HolidaySchedule } from '@/lib/definitions';
 import { DatePicker } from '../ui/date-picker';

@@ -1,5 +1,9 @@
 'use client';
 
+import { ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem, ZoruDropdownMenuTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
 /**
  * <RfqQuickEdits> — inline status chip on the RFQ detail "At a glance"
  * card. Status chip changes the RFQ status via `updateRfqStatus`.
@@ -11,15 +15,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import {
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  useZoruToast,
-} from '@/components/zoruui';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { updateRfqStatus } from '@/app/actions/crm/rfqs.actions';

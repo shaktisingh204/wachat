@@ -1,5 +1,24 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+} from '@/components/zoruui';
+import {
+  Archive,
+  Download,
+  Snowflake,
+  Trash2,
+  Warehouse,
+  X } from 'lucide-react';
+
 /**
  * Presentational bits for the §1D Warehouses list — KPI strip, filter
  * row, and bulk-bar. Extracted to keep `<WarehousesListClient>` under
@@ -7,19 +26,7 @@
  */
 
 import * as React from 'react';
-import { Archive, Download, Snowflake, Trash2, Warehouse, X } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import type {

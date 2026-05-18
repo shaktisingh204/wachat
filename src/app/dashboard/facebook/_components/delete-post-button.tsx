@@ -1,15 +1,5 @@
 "use client";
 
-/**
- * Local zoru replacement for `@/components/wabasimplify/delete-post-button`.
- *
- * Same server action (`handleDeletePost`), confirmation via `ZoruAlertDialog`.
- */
-
-import * as React from "react";
-import { Loader2, Trash2 } from "lucide-react";
-
-import { handleDeletePost } from "@/app/actions/facebook.actions";
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -22,7 +12,20 @@ import {
   ZoruAlertDialogTrigger,
   ZoruButton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  Loader2,
+  Trash2 } from "lucide-react";
+
+import { handleDeletePost } from "@/app/actions/facebook.actions";
+
+/**
+ * Local zoru replacement for `@/components/wabasimplify/delete-post-button`.
+ *
+ * Same server action (`handleDeletePost`), confirmation via `ZoruAlertDialog`.
+ */
+
+import * as React from "react";
 
 interface DeletePostButtonProps {
   postId: string;

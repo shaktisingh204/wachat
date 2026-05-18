@@ -1,30 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/stories — Active IG stories (24-hour expiry).
- *
- * Lists the IG account's active stories via the `/stories` edge, then
- * fetches per-story metrics (impressions, reach, exits, taps_forward) on
- * demand via `getInstagramStoryInsights`. The story tiles render
- * inline; metric tiles appear beneath each story.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  ExternalLink,
-  PanelsTopLeft,
-  RefreshCw,
-} from 'lucide-react';
-
-import {
-  getInstagramStories,
-  getInstagramStoryInsights,
-} from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -41,6 +16,35 @@ import {
   ZoruEmptyState,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  ExternalLink,
+  PanelsTopLeft,
+  RefreshCw,
+  } from 'lucide-react';
+
+import {
+  getInstagramStories,
+  getInstagramStoryInsights,
+  } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * /dashboard/instagram/stories — Active IG stories (24-hour expiry).
+ *
+ * Lists the IG account's active stories via the `/stories` edge, then
+ * fetches per-story metrics (impressions, reach, exits, taps_forward) on
+ * demand via `getInstagramStoryInsights`. The story tiles render
+ * inline; metric tiles appear beneath each story.
+ */
+
+import * as React from 'react';
 
 interface IgStory {
   id: string;

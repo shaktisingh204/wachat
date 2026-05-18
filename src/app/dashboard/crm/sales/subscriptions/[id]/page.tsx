@@ -1,3 +1,10 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import { Repeat,
+  Pencil,
+  ArrowLeft } from 'lucide-react';
+
 /**
  * Subscription detail — `/dashboard/crm/sales/subscriptions/[id]`.
  *
@@ -7,14 +14,7 @@
  */
 
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
-import { Repeat, Pencil, ArrowLeft } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
 import { CrmPageHeader } from '../../../_components/crm-page-header';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { getSubscription } from '@/app/actions/crm/subscriptions.actions';

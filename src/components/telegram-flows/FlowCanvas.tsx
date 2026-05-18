@@ -1,5 +1,29 @@
 'use client';
 
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+  } from 'react';
+
+import { Trash2 } from 'lucide-react';
+
+import {
+  TELEGRAM_NODE_TYPES,
+  nodeMeta,
+  type NodeTypeMeta,
+  } from './node-registry';
+import type {
+  FlowEdge,
+  FlowNode,
+  FlowTrigger,
+  } from '@/lib/rust-client/telegram-flows';
+
 /**
  * Lightweight Telegram-flow canvas. Renders nodes as draggable cards on an
  * SVG-backed surface and the edges as straight connectors. Intentionally
@@ -11,30 +35,7 @@
  * clicking a node selects it via `onSelectNode`. No external graph state
  * provider needed.
  */
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type CSSProperties,
-  type PointerEvent as ReactPointerEvent,
-} from 'react';
 
-import { Trash2 } from 'lucide-react';
-
-import {
-  TELEGRAM_NODE_TYPES,
-  nodeMeta,
-  type NodeTypeMeta,
-} from './node-registry';
-import type {
-  FlowEdge,
-  FlowNode,
-  FlowTrigger,
-} from '@/lib/rust-client/telegram-flows';
-
-import { ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 const NODE_WIDTH = 220;

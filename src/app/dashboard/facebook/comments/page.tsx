@@ -1,36 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/comments — Facebook Comments inbox.
- *
- * Two-pane layout: a left rail of recent Facebook posts for the active
- * project, and a right pane that, once a post is selected, loads the
- * post's comments via the wachat-facebook-comments Rust BFF and lets
- * the operator reply, delete, or like a comment.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  MessageCircle,
-  RefreshCw,
-  Send,
-  ThumbsUp,
-  Trash2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getFacebookPosts,
-  getPostComments,
-  handleDeleteComment,
-  handleLikeObject,
-  handlePostComment,
-} from '@/app/actions/facebook.actions';
-import type { FacebookPost } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -49,6 +18,42 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  MessageCircle,
+  RefreshCw,
+  Send,
+  ThumbsUp,
+  Trash2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getFacebookPosts,
+  getPostComments,
+  handleDeleteComment,
+  handleLikeObject,
+  handlePostComment,
+  } from '@/app/actions/facebook.actions';
+import type { FacebookPost } from '@/lib/definitions';
+
+/**
+ * /dashboard/facebook/comments — Facebook Comments inbox.
+ *
+ * Two-pane layout: a left rail of recent Facebook posts for the active
+ * project, and a right pane that, once a post is selected, loads the
+ * post's comments via the wachat-facebook-comments Rust BFF and lets
+ * the operator reply, delete, or like a comment.
+ */
+
+import * as React from 'react';
 
 interface FacebookComment {
   id: string;

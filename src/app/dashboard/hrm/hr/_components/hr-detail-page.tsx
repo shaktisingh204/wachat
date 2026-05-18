@@ -1,3 +1,12 @@
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  Pencil } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
+import { statusToTone,
+  type StatusTone } from '@/components/crm/status-pill';
+
 /**
  * HrDetailPage — §1D.2-compliant detail layout for HR / performance
  * entities. Composes <EntityDetailShell> with a header action group
@@ -11,18 +20,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Pencil } from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
-import { statusToTone, type StatusTone } from '@/components/crm/status-pill';
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 
 import { HrDeleteButton } from './hr-delete-button';
 

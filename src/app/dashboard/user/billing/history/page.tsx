@@ -1,15 +1,30 @@
-
 'use client';
+
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+  ZoruAlert,
+  ZoruAlertTitle,
+  ZoruAlertDescription,
+} from '@/components/zoruui';
+import { ChevronLeft, Receipt } from 'lucide-react';
 
 import type { WalletTransaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+
 import Link from 'next/link';
-import { ChevronLeft, Receipt } from 'lucide-react';
-import { ZoruAlert, ZoruAlertTitle, ZoruAlertDescription } from '@/components/zoruui';
+
 import { getSession } from '@/app/actions';
 import { useEffect, useState, useTransition } from 'react';
 import { format } from 'date-fns';

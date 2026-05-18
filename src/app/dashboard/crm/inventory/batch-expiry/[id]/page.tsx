@@ -1,3 +1,14 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    AlertTriangle,
+  ArrowLeft,
+  CalendarClock,
+  Pencil,
+  } from 'lucide-react';
+
 /**
  * Batch detail — server component.
  *
@@ -6,15 +17,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    AlertTriangle,
-    ArrowLeft,
-    CalendarClock,
-    Pencil,
-} from 'lucide-react';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';

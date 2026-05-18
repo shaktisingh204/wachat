@@ -1,18 +1,27 @@
 'use client';
 
-/**
- * ClayDashboardLayout — the shared Clay chrome used by every
- * authenticated SabNode route. Holds the topbar, sidebar, and
- * a main slot for route children.
- *
- * Reused by:
- *   - /home/layout.tsx
- *   - (later) /dashboard/layout.tsx — which will swap out the old
- *     AdminLayout in Phase 1 of the Clay rollout.
- */
-
-import * as React from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import {
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruCommandDialog,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandSeparator,
+  ZoruButton,
+  ZoruSwitch,
+  ZoruSelect,
+  ZoruSheet,
+} from '@/components/zoruui';
+import {
+  usePathname,
+  useRouter } from 'next/navigation';
 import {
   LuSearch,
   LuUserPlus,
@@ -125,7 +134,7 @@ import {
   LuUmbrella,
   LuAward,
   LuClipboardList,
-} from 'react-icons/lu';
+  } from 'react-icons/lu';
 
 import { cn } from '@/lib/utils';
 import {
@@ -134,25 +143,21 @@ import {
   ClayTopbar,
   ClayUserCard,
   type ClayNavItem,
-} from '@/components/clay';
+  } from '@/components/clay';
 import { useProject } from '@/context/project-context';
-import {
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
-import {
-  ZoruCommandDialog,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  ZoruCommandSeparator,
-} from '@/components/zoruui';
+
+/**
+ * ClayDashboardLayout — the shared Clay chrome used by every
+ * authenticated SabNode route. Holds the topbar, sidebar, and
+ * a main slot for route children.
+ *
+ * Reused by:
+ *   - /home/layout.tsx
+ *   - (later) /dashboard/layout.tsx — which will swap out the old
+ *     AdminLayout in Phase 1 of the Clay rollout.
+ */
+
+import * as React from 'react';
 
 /* ── types ──────────────────────────────────────────────────────── */
 

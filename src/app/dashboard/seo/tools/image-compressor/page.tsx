@@ -1,13 +1,10 @@
 'use client';
 
-import { cn as _zoruCn, ZoruButton } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel, cn } from '@/components/zoruui';
+import { cn as _zoruCn, useState } from 'react';
+
 void _zoruCn;
 
-import { useState } from 'react';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function ImageCompressorPage() {

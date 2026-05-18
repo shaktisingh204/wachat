@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  BadgeCheck,
+  CircleX } from 'lucide-react';
+
 /**
  * Client-side action buttons rendered in the adjustment detail header.
  * Owns the Approve / Reject / Archive (delete) flows. Approve & reject
@@ -7,18 +14,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, BadgeCheck, CircleX } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruLabel,
-    ZoruPopover,
-    ZoruPopoverContent,
-    ZoruPopoverTrigger,
-    useZoruToast,
-} from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 
 import {

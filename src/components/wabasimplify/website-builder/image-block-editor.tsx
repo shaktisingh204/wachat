@@ -1,17 +1,26 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ZoruButton } from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruSeparator } from '@/components/zoruui';
+
 import { Slider } from '@/components/ui/slider';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
@@ -46,7 +55,6 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
         const newAttributes = (settings.customAttributes || []).filter((_: any, i:number) => i !== index);
         handleUpdate('customAttributes', newAttributes);
     }
-
 
     return (
         <Tabs defaultValue="content" className="w-full">

@@ -1,17 +1,33 @@
 "use client";
 
-/**
- * /home — SabNode account dashboard, rebuilt in ZoruUI.
- *
- * Same real data as before (getAccountHomeData), no mocks. Pure neutral
- * palette — module tiles, stat cards, and notifications all sit on the
- * zoru surface tokens. No rainbow accents.
- */
-
-import * as React from "react";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuLabel,
+  ZoruDropdownMenuRadioGroup,
+  ZoruDropdownMenuRadioItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruSkeleton,
+  cn,
+} from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { format, formatDistanceToNow } from "date-fns";
+import { format,
+  formatDistanceToNow } from "date-fns";
 import {
   AlarmClock,
   ArrowDownRight,
@@ -42,38 +58,27 @@ import {
   Sparkles,
   Users,
   Workflow,
-} from "lucide-react";
+  } from "lucide-react";
 
 import {
   getAccountHomeData,
   type AccountHomeData,
-} from "@/app/actions/home.actions";
+  } from "@/app/actions/home.actions";
 import { getSession } from "@/app/actions/user.actions";
 import {
   getOnboardingState,
   type OnboardingState,
-} from "@/app/actions/onboarding-flow.actions";
+  } from "@/app/actions/onboarding-flow.actions";
 
-import {
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuLabel,
-  ZoruDropdownMenuRadioGroup,
-  ZoruDropdownMenuRadioItem,
-  ZoruDropdownMenuSeparator,
-  ZoruDropdownMenuTrigger,
-  ZoruSkeleton,
-  cn,
-} from "@/components/zoruui";
+/**
+ * /home — SabNode account dashboard, rebuilt in ZoruUI.
+ *
+ * Same real data as before (getAccountHomeData), no mocks. Pure neutral
+ * palette — module tiles, stat cards, and notifications all sit on the
+ * zoru surface tokens. No rainbow accents.
+ */
+
+import * as React from "react";
 
 /* ── helpers ─────────────────────────────────────────────────────── */
 

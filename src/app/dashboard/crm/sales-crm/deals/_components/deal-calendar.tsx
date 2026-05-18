@@ -1,5 +1,11 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { ChevronLeft,
+  ChevronRight } from 'lucide-react';
+
 /**
  * <DealCalendar> — month-view calendar grouping deals by `expectedClose`.
  *
@@ -11,10 +17,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { updateCrmDeal } from '@/app/actions/crm-deals.actions';
 import type { DealListRow } from './types';
 

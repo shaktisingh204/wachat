@@ -1,44 +1,5 @@
 'use client';
 
-/**
- * SabWa — Auto-Reply (Page 17)
- *
- * Priority-ordered rule builder. Each rule binds one or more triggers
- * (keyword/contains/regex/time-window/contact-label/outside-business-hours/
- * first-message-from-new-contact) to one or more actions (send-template /
- * send-message / forward-to-flow / set-label / set-away-message).
- *
- * Rules are drag-to-reorder; first match wins. The page also embeds a
- * client-side **test sandbox** that runs the same matching logic over a
- * pasted message + sender, so users can verify their rules before going
- * live.
- *
- * Source of truth: SABWA_PLAN.md § 6 — Page 17.
- *
- * Rebuilt on ZoruUI primitives. Neutral zoru-* tokens only — no rainbow
- * accent colors. No tab UI per the ZoruUI design rules.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import {
-  Beaker,
-  Clock,
-  Copy,
-  Edit3,
-  GripVertical,
-  MessageSquareDashed,
-  Plus,
-  Send,
-  Smartphone,
-  Tag as TagIcon,
-  Trash2,
-  X,
-  CheckCircle2,
-  Workflow,
-  MailWarning,
-} from 'lucide-react';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -71,6 +32,46 @@ import {
   ZoruTextarea,
   cn,
 } from '@/components/zoruui';
+import {
+  Beaker,
+  Clock,
+  Copy,
+  Edit3,
+  GripVertical,
+  MessageSquareDashed,
+  Plus,
+  Send,
+  Smartphone,
+  Tag as TagIcon,
+  Trash2,
+  X,
+  CheckCircle2,
+  Workflow,
+  MailWarning,
+  } from 'lucide-react';
+
+/**
+ * SabWa — Auto-Reply (Page 17)
+ *
+ * Priority-ordered rule builder. Each rule binds one or more triggers
+ * (keyword/contains/regex/time-window/contact-label/outside-business-hours/
+ * first-message-from-new-contact) to one or more actions (send-template /
+ * send-message / forward-to-flow / set-label / set-away-message).
+ *
+ * Rules are drag-to-reorder; first match wins. The page also embeds a
+ * client-side **test sandbox** that runs the same matching logic over a
+ * pasted message + sender, so users can verify their rules before going
+ * live.
+ *
+ * Source of truth: SABWA_PLAN.md § 6 — Page 17.
+ *
+ * Rebuilt on ZoruUI primitives. Neutral zoru-* tokens only — no rainbow
+ * accent colors. No tab UI per the ZoruUI design rules.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+
 import {
   listAutoReplies,
   upsertAutoReply,

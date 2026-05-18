@@ -1,14 +1,9 @@
-
 'use client';
 
-import { ZoruInput, ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import { ZoruInput, ZoruButton, ZoruLabel, ZoruScrollArea, ZoruSeparator, ZoruBadge } from '@/components/zoruui';
 import { Plus, Trash2 } from 'lucide-react';
 import { ActionEditor } from '../shared/action-editor';
-import { ZoruScrollArea } from '@/components/zoruui';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruSeparator } from '@/components/zoruui';
 
 interface NavigationListEditorProps {
   component: any;

@@ -1,14 +1,6 @@
 'use client';
 
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
-import { AtSign, LoaderCircle, Mail, Save, User as UserIcon } from 'lucide-react';
-
-import { getSession, handleUpdateUserProfile } from '@/app/actions/user.actions';
-import type { WithId, User } from '@/lib/definitions';
-import { useT } from '@/lib/i18n/client';
 import {
-  ZoruBreadcrumb,
   ZoruBreadcrumbItem,
   ZoruBreadcrumbLink,
   ZoruBreadcrumbList,
@@ -30,7 +22,22 @@ import {
   ZoruSkeleton,
   ZoruTextarea,
   useZoruToast,
+  ZoruBreadcrumb,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useFormStatus } from 'react-dom';
+import { AtSign,
+  LoaderCircle,
+  Mail,
+  Save,
+  User as UserIcon } from 'lucide-react';
+
+import { getSession,
+  handleUpdateUserProfile } from '@/app/actions/user.actions';
 
 const initialState = { message: undefined, error: undefined } as {
   message?: string;

@@ -1,9 +1,10 @@
 'use client';
 
-import { useProject } from '@/context/project-context';
 import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage, ZoruButton } from '@/components/zoruui';
+import {
+  useProject } from '@/context/project-context';
 import { Bell, Sparkles } from 'lucide-react';
-import { ZoruButton } from '@/components/zoruui';
+
 import { useEffect, useState } from 'react';
 
 export function DashboardHeader() {

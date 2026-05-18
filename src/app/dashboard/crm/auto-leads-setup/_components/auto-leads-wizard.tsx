@@ -1,5 +1,46 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruProgress,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  cn,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bell,
+  Check,
+  Facebook,
+  LoaderCircle,
+  MessageCircle,
+  Plus,
+  Settings,
+  Sparkles,
+  TestTube,
+  Trash2,
+  Webhook,
+  Wand2,
+  } from 'lucide-react';
+
+import {
+  deleteAutoLeadRule,
+  saveAutoLeadRule,
+  } from '@/app/actions/crm-auto-leads.actions';
+import { CrmPageHeader } from '../../_components/crm-page-header';
+
 /**
  * Auto-Leads Setup — §1D 5-step wizard.
  *
@@ -18,45 +59,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import {
-  ArrowLeft,
-  ArrowRight,
-  Bell,
-  Check,
-  Facebook,
-  LoaderCircle,
-  MessageCircle,
-  Plus,
-  Settings,
-  Sparkles,
-  TestTube,
-  Trash2,
-  Webhook,
-  Wand2,
-} from 'lucide-react';
-
-import {
-  deleteAutoLeadRule,
-  saveAutoLeadRule,
-} from '@/app/actions/crm-auto-leads.actions';
-import { CrmPageHeader } from '../../_components/crm-page-header';
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruProgress,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-  cn,
-  useZoruToast,
-} from '@/components/zoruui';
 
 interface RuleRow {
   _id: string;

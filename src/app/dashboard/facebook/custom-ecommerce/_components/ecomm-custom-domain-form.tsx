@@ -1,32 +1,5 @@
 "use client";
 
-/**
- * Zoru-only replacement for
- * `@/components/wabasimplify/ecomm-custom-domain-form`. Same server actions,
- * same data flow — only the visual layer changes.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
-import { useFormStatus } from "react-dom";
-import {
-  CheckCircle,
-  Copy,
-  Key,
-  LoaderCircle,
-  Trash2,
-} from "lucide-react";
-
-import {
-  addCustomDomain,
-  deleteCustomDomain,
-  getCustomDomains,
-  verifyCustomDomain,
-} from "@/app/actions/url-shortener.actions";
-import type { CustomDomain } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
-
 import {
   ZoruBadge,
   ZoruButton,
@@ -40,7 +13,39 @@ import {
   ZoruSeparator,
   ZoruSkeleton,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState,
+  useTransition } from "react";
+import { useFormStatus } from "react-dom";
+import {
+  CheckCircle,
+  Copy,
+  Key,
+  LoaderCircle,
+  Trash2,
+  } from "lucide-react";
+
+import {
+  addCustomDomain,
+  deleteCustomDomain,
+  getCustomDomains,
+  verifyCustomDomain,
+  } from "@/app/actions/url-shortener.actions";
+import type { CustomDomain } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+import { useCopyToClipboard } from "@/hooks/use-copy-to-clipboard";
+
+/**
+ * Zoru-only replacement for
+ * `@/components/wabasimplify/ecomm-custom-domain-form`. Same server actions,
+ * same data flow — only the visual layer changes.
+ */
+
+import * as React from "react";
 
 const addDomainInitialState: { success?: boolean; error?: string } = {
   success: undefined,

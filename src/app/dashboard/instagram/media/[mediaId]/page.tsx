@@ -1,8 +1,5 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { useParams } from 'next/navigation';
-import { getInstagramMediaDetails } from '@/app/actions/instagram.actions';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -15,6 +12,13 @@ import {
   ZoruCardHeader,
   ZoruSkeleton,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useParams } from 'next/navigation';
+import { getInstagramMediaDetails } from '@/app/actions/instagram.actions';
+
 import { AlertCircle, ArrowLeft, ThumbsUp, MessageSquare, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';

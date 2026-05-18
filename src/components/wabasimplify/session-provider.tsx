@@ -1,4 +1,3 @@
-
 'use client';
 
 // This file is now a placeholder and is not used.

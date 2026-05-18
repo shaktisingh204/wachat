@@ -1,15 +1,5 @@
 'use client';
 
-/**
- * <LeaveFiltersRow> — filter chip row for the leave list (per §1D.1).
- *
- * 6 filters: status, employee, leave type, department, date range, approver.
- * Status pivots local state; entity filters use <EntityFormField>.
- */
-
-import * as React from 'react';
-import { XCircle } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruInput,
@@ -20,6 +10,18 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import {
+  XCircle } from 'lucide-react';
+
+/**
+ * <LeaveFiltersRow> — filter chip row for the leave list (per §1D.1).
+ *
+ * 6 filters: status, employee, leave type, department, date range, approver.
+ * Status pivots local state; entity filters use <EntityFormField>.
+ */
+
+import * as React from 'react';
+
 import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import type {

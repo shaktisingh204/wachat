@@ -1,5 +1,9 @@
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  X } from 'lucide-react';
+
 /**
  * Filter chip row for the events list (§1D bar).
  *
@@ -9,17 +13,6 @@
  */
 
 import * as React from 'react';
-import { X } from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-} from '@/components/zoruui';
 
 import type { EventsRepeatFilter, EventsRsvpFilter } from './events-shared';
 

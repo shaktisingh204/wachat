@@ -1,10 +1,5 @@
-
-
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
 import {
   ZoruButton,
   ZoruDialog,
@@ -23,6 +18,13 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+
 import { LoaderCircle, Send } from 'lucide-react';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
 import { sendCrmEmail } from '@/app/actions/crm-email.actions';
@@ -62,7 +64,6 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
       setBody(''); // Reset body when opening
     }
   }, [isOpen, initialSubject]);
-
 
   useEffect(() => {
     if (state.success) {

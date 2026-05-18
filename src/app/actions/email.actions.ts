@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -320,7 +319,6 @@ export async function getEmailCampaigns(fromEmail?: string): Promise<WithId<Emai
         return [];
     }
 }
-
 
 export async function handleSendBulkEmail(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();

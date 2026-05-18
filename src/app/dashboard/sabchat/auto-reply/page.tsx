@@ -1,21 +1,5 @@
 "use client";
 
-/**
- * /dashboard/sabchat/auto-reply — automated welcome / away messages.
- *
- * Same `saveSabChatSettings` server action; pass-through hidden field
- * preserves all unrelated settings keys. Per-trigger blocks rendered as
- * a Zoru accordion as required by the migration plan.
- */
-
-import { useEffect } from "react";
-import { useActionState } from "react";
-import { useFormStatus } from "react-dom";
-import { Bot, LoaderCircle, Save } from "lucide-react";
-
-import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
-import { useProject } from "@/context/project-context";
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -41,7 +25,25 @@ import {
   ZoruSwitch,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useEffect } from "react";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
+import { Bot,
+  LoaderCircle,
+  Save } from "lucide-react";
+
+import { saveSabChatSettings } from "@/app/actions/sabchat.actions";
+import { useProject } from "@/context/project-context";
+
+/**
+ * /dashboard/sabchat/auto-reply — automated welcome / away messages.
+ *
+ * Same `saveSabChatSettings` server action; pass-through hidden field
+ * preserves all unrelated settings keys. Per-trigger blocks rendered as
+ * a Zoru accordion as required by the migration plan.
+ */
 
 const initialState: { message: string | null; error?: string } = {
   message: null,

@@ -1,7 +1,8 @@
 'use client';
 
-import { use } from 'react';
 import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import { use } from 'react';
+
 import { Database, Upload, Lock } from 'lucide-react';
 
 export default function PseoPage({ params }: { params: Promise<{ projectId: string }> }) {

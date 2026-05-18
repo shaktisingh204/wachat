@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge } from '@/components/zoruui';
+import { Flag, Star, CheckCircle2 } from 'lucide-react';
+
 /**
  * Project Statuses settings — §1D.4 bar:
  *  - KPI strip (Total · Default · Final/terminal)
@@ -10,9 +13,7 @@
  */
 
 import * as React from 'react';
-import { Flag, Star, CheckCircle2 } from 'lucide-react';
 
-import { ZoruBadge } from '@/components/zoruui';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getProjectStatusSettings,

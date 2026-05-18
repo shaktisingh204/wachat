@@ -1,20 +1,38 @@
-
 'use client';
 
-import { useState, useMemo, useActionState, useEffect } from 'react';
-import type { WithId, Project } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardFooter, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruLabel,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruAvatar,
+  ZoruAvatarImage,
+  ZoruAvatarFallback,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  useState,
+  useMemo,
+  useActionState,
+  useEffect } from 'react';
+import type { WithId,
+  Project } from '@/lib/definitions';
 import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppIcon } from './custom-sidebar-components';
-import { ZoruAvatar, ZoruAvatarImage, ZoruAvatarFallback } from '../ui/avatar';
 import { CodeBlock } from './code-block';
-import { ZoruSeparator } from '../ui/separator';
+
 import { Slider } from '../ui/slider';
 import { ColorPicker } from '../ui/color-picker';
 import { saveWidgetSettings } from '@/app/actions/widget.actions';
@@ -73,7 +91,6 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     const handleSettingChange = (field: keyof typeof settings, value: string | number | boolean) => {
         setSettings(prev => ({ ...prev, [field]: value }));
     }
-
 
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;

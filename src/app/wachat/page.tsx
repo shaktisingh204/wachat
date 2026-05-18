@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * /wachat — WhatsApp project picker, rebuilt on ZoruUI primitives.
- *
- * Same project data, same select handler, same recent/health logic.
- * Visual swap only — neutral palette, no clay-* utilities.
- */
-
-import * as React from 'react';
-import { useEffect, useMemo, useState, useTransition } from 'react';
-import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import {
-  Plus,
-  Search,
-  ArrowRight,
-  MessageSquare,
-  Clock,
-  Sparkles,
-  Wifi,
-  WifiOff,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
-import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -43,6 +15,39 @@ import {
   ZoruSkeleton,
   cn,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import { useRouter,
+  useSearchParams } from 'next/navigation';
+import {
+  Plus,
+  Search,
+  ArrowRight,
+  MessageSquare,
+  Clock,
+  Sparkles,
+  Wifi,
+  WifiOff,
+  ChevronLeft,
+  ChevronRight,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getWabaHealthStatus } from '@/app/actions/whatsapp.actions';
+import { SyncProjectsDialog } from '@/app/wachat/_components/sync-projects-dialog';
+
+/**
+ * /wachat — WhatsApp project picker, rebuilt on ZoruUI primitives.
+ *
+ * Same project data, same select handler, same recent/health logic.
+ * Visual swap only — neutral palette, no clay-* utilities.
+ */
+
+import * as React from 'react';
 
 /* ── helpers ───────────────────────────────────────────────────── */
 

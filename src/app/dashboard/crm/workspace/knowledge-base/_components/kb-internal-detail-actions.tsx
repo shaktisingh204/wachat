@@ -1,22 +1,23 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import {
-    Activity,
-    Archive,
-    Copy,
-    Mail,
-    Pencil,
-    Pin,
-    Share2,
-    Trash2,
-    ThumbsDown,
-    ThumbsUp,
-} from 'lucide-react';
+  Activity,
+  Archive,
+  Copy,
+  Mail,
+  Pencil,
+  Pin,
+  Share2,
+  Trash2,
+  ThumbsDown,
+  ThumbsUp,
+  } from 'lucide-react';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import {
     deleteKnowledgeBase,

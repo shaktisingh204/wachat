@@ -1,40 +1,5 @@
 'use client';
 
-/**
- * Wachat Numbers — ZoruUI migration.
- *
- * Lists every WhatsApp Business phone number on the active project:
- * verification status, quality rating, profile, and the legacy
- * actions (edit profile, flows-encryption setup, register number).
- * Same data + handlers as the previous Clay version.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
-import Image from 'next/image';
-import type { WithId } from 'mongodb';
-import {
-  AlertCircle,
-  CheckCircle2,
-  Pencil,
-  Phone,
-  RefreshCw,
-  Shield,
-  ShieldCheck,
-  Trash2,
-  UserRound,
-} from 'lucide-react';
-
-import { getProjectById } from '@/app/actions/project.actions';
-import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
-import type { PhoneNumber, Project } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-
-import { EditPhoneNumberDialog } from '@/app/wachat/_components/edit-phone-number-dialog';
-import { RegisterPhoneButton } from '@/app/wachat/_components/register-phone-button';
-import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -66,6 +31,46 @@ import {
   cn,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import type { WithId } from 'mongodb';
+import {
+  AlertCircle,
+  CheckCircle2,
+  Pencil,
+  Phone,
+  RefreshCw,
+  Shield,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  } from 'lucide-react';
+
+import { getProjectById } from '@/app/actions/project.actions';
+import { handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
+import type { PhoneNumber,
+  Project } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+import { EditPhoneNumberDialog } from '@/app/wachat/_components/edit-phone-number-dialog';
+import { RegisterPhoneButton } from '@/app/wachat/_components/register-phone-button';
+import { FlowsEncryptionDialog } from '@/components/dashboard/numbers/flows-encryption-dialog';
+
+/**
+ * Wachat Numbers — ZoruUI migration.
+ *
+ * Lists every WhatsApp Business phone number on the active project:
+ * verification status, quality rating, profile, and the legacy
+ * actions (edit profile, flows-encryption setup, register number).
+ * Same data + handlers as the previous Clay version.
+ */
+
+import * as React from 'react';
 
 type Tone = 'success' | 'warning' | 'ghost' | 'danger';
 

@@ -1,15 +1,16 @@
 'use client';
 
-/**
- * /dashboard/facebook/ads — Facebook Ads landing inside the Meta Suite.
- *
- * The full ads workspace lives at /dashboard/ad-manager. This landing
- * page is a quick-jump hub for the most-used surfaces so operators
- * working in Meta Suite don't have to switch contexts.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+} from '@/components/zoruui';
 import {
   ArrowRight,
   BarChart3,
@@ -23,19 +24,18 @@ import {
   Target,
   Wallet,
   Zap,
-} from 'lucide-react';
+  } from 'lucide-react';
 
-import {
-  ZoruBadge,
-  ZoruBreadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
-  ZoruButton,
-  ZoruCard,
-} from '@/components/zoruui';
+/**
+ * /dashboard/facebook/ads — Facebook Ads landing inside the Meta Suite.
+ *
+ * The full ads workspace lives at /dashboard/ad-manager. This landing
+ * page is a quick-jump hub for the most-used surfaces so operators
+ * working in Meta Suite don't have to switch contexts.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 interface Tile {
   key: string;

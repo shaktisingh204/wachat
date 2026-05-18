@@ -1,39 +1,43 @@
-
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruSkeleton,
+  ZoruInput,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruBadge,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+} from '@/components/zoruui';
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getEmailContacts } from '@/app/actions/email.actions';
 import { getSession } from '@/app/actions/user.actions';
-import type { EmailContact, User } from '@/lib/definitions';
+import type { EmailContact,
+  User } from '@/lib/definitions';
 import { Search } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
 import { EmailAddContactDialog } from '@/components/wabasimplify/email-add-contact-dialog';
 import { EmailImportContactsDialog } from '@/components/wabasimplify/email-import-contacts-dialog';
 import { formatDistanceToNow } from 'date-fns';
 import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
-import {
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    ZoruSkeleton,
-    ZoruInput,
-    ZoruAvatar,
-    ZoruAvatarFallback,
-    ZoruBadge,
-    ZoruPageHeader,
-    ZoruPageHeading,
-    ZoruPageTitle,
-    ZoruPageDescription,
-} from '@/components/zoruui';
 
 const CONTACTS_PER_PAGE = 20;
 

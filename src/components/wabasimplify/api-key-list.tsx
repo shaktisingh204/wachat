@@ -1,15 +1,32 @@
-
 'use client';
 
-import { useState, useTransition } from 'react';
+import {
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruButton,
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruAlertDialogTrigger,
+  ZoruBadge,
+} from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { revokeApiKey } from '@/app/actions/api-keys.actions';
 import type { ApiKey } from '@/lib/definitions';
-import { ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruAlertDialog, ZoruAlertDialogAction, ZoruAlertDialogCancel, ZoruAlertDialogContent, ZoruAlertDialogDescription, ZoruAlertDialogFooter, ZoruAlertDialogHeader, ZoruAlertDialogTitle, ZoruAlertDialogTrigger } from '@/components/zoruui';
 import { LoaderCircle, Trash2 } from 'lucide-react';
-import { ZoruBadge } from '../ui/badge';
+
 import { formatDistanceToNow } from 'date-fns';
 
 interface ApiKeyListProps {

@@ -1,5 +1,22 @@
 'use client';
 
+import {
+  ZoruCommand,
+  ZoruCommandEmpty,
+  ZoruCommandGroup,
+  ZoruCommandInput,
+  ZoruCommandItem,
+  ZoruCommandList,
+  ZoruCommandSeparator,
+  ZoruCommandShortcut,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+
 /**
  * Global Cmd-K command palette for SabNode CRM.
  *
@@ -26,19 +43,6 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-
-import {
-  ZoruCommand,
-  ZoruCommandEmpty,
-  ZoruCommandGroup,
-  ZoruCommandInput,
-  ZoruCommandItem,
-  ZoruCommandList,
-  ZoruCommandSeparator,
-  ZoruCommandShortcut,
-} from '@/components/zoruui';
-import { ZoruDialog, ZoruDialogContent, ZoruDialogTitle, ZoruDialogDescription } from '@/components/zoruui';
 
 import { lookupEntity } from '@/app/actions/crm-lookup.actions';
 import { rustLookupEntity } from '@/lib/rust-lookup-client';

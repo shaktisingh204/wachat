@@ -1,3 +1,8 @@
+import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+
 /**
  * Petty Cash detail — `/dashboard/crm/petty-cash/[id]`.
  *
@@ -6,16 +11,6 @@
  * branch, days since reconcile.
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-
-import {
-  ZoruBadge,
-  ZoruCard,
-  ZoruCardContent,
-  ZoruCardHeader,
-  ZoruCardTitle,
-} from '@/components/zoruui';
 import { EntityDetailShell, type EntityStatusTone } from '@/components/crm/entity-detail-shell';
 import { getPettyCashFloatById } from '@/app/actions/crm-petty-cash.actions';
 

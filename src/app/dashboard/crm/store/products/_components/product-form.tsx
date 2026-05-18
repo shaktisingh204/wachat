@@ -1,5 +1,34 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import {
+    ArrowLeft,
+  ImageIcon,
+  LoaderCircle,
+  Save,
+  X,
+  } from 'lucide-react';
+
 /**
  * Shared client form for create + edit store Product.
  *
@@ -13,32 +42,6 @@
  * - Tags: comma-separated free text (no chip picker yet).
  */
 
-import { useActionState, useEffect, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    ArrowLeft,
-    ImageIcon,
-    LoaderCircle,
-    Save,
-    X,
-} from 'lucide-react';
-
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { saveProduct } from '@/app/actions/crm-store.actions';

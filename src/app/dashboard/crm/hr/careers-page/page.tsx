@@ -1,24 +1,5 @@
 'use client';
 
-/**
- * Careers page settings — §1D.4 specialised "settings list" upgrade.
- *
- * Singular configuration document (not a CRUD list). Renders sectioned
- * cards covering:
- *   • Slug + theme
- *   • Intro text + headline
- *   • CTA + visibility
- *   • SEO meta (placeholders — server keys are preserved)
- *
- * Preserves every FormData key the existing `saveCareersPageConfig`
- * action reads (headline · intro · logoUrl · primaryColor · ctaLabel ·
- * slug · isPublished).
- */
-
-import * as React from 'react';
-import { useActionState, useEffect, useState, useTransition } from 'react';
-import { Globe, LoaderCircle } from 'lucide-react';
-
 import {
   ZoruButton,
   ZoruCard,
@@ -37,6 +18,31 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { Globe,
+  LoaderCircle } from 'lucide-react';
+
+/**
+ * Careers page settings — §1D.4 specialised "settings list" upgrade.
+ *
+ * Singular configuration document (not a CRUD list). Renders sectioned
+ * cards covering:
+ *   • Slug + theme
+ *   • Intro text + headline
+ *   • CTA + visibility
+ *   • SEO meta (placeholders — server keys are preserved)
+ *
+ * Preserves every FormData key the existing `saveCareersPageConfig`
+ * action reads (headline · intro · logoUrl · primaryColor · ctaLabel ·
+ * slug · isPublished).
+ */
+
+import * as React from 'react';
+
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import {

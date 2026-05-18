@@ -1,3 +1,19 @@
+import { ZoruBadge, ZoruButton } from '@/components/zoruui';
+import {
+  notFound } from 'next/navigation';
+import Link from 'next/link';
+import {
+    Plane,
+  Pencil,
+  Check,
+  X,
+  Ticket,
+  Printer,
+  ArrowLeft,
+  } from 'lucide-react';
+
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+
 /**
  * Travel request detail page (§1D.2).
  *
@@ -6,20 +22,6 @@
  * (stubs).
  */
 
-import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import {
-    Plane,
-    Pencil,
-    Check,
-    X,
-    Ticket,
-    Printer,
-    ArrowLeft,
-} from 'lucide-react';
-
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
 import { statusToTone } from '@/components/crm/status-pill';
 import {
     getHrEntityById,

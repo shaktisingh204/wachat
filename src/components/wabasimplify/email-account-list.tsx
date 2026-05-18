@@ -1,8 +1,15 @@
 'use client';
 
-import { ZoruCard, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruButton,
+  ZoruBadge,
+  ZoruSelect,
+} from '@/components/zoruui';
 import { CheckCircle, Plus, Mail } from 'lucide-react';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { useRouter } from 'next/navigation';

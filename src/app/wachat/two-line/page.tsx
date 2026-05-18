@@ -1,16 +1,5 @@
 'use client';
 
-/**
- * Wachat Two-Line — ZoruUI migration.
- * Concept overview + activate dialog. The "live preview" is now a
- * neutral inline mock of the two-line shell — no legacy sidebar
- * dependency.
- */
-
-import * as React from 'react';
-import { useState } from 'react';
-import { ArrowRight, Layers, MessageSquare, Phone, Shield, Sparkles } from 'lucide-react';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -29,6 +18,23 @@ import {
   ZoruSwitch,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState } from 'react';
+import { ArrowRight,
+  Layers,
+  MessageSquare,
+  Phone,
+  Shield,
+  Sparkles } from 'lucide-react';
+
+/**
+ * Wachat Two-Line — ZoruUI migration.
+ * Concept overview + activate dialog. The "live preview" is now a
+ * neutral inline mock of the two-line shell — no legacy sidebar
+ * dependency.
+ */
+
+import * as React from 'react';
 
 export default function TwoLineSidebarDemoPage() {
   const { toast } = useZoruToast();

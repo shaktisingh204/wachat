@@ -1,13 +1,15 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
-import * as React from 'react';
+import { ZoruButton, ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { useRouter, usePathname } from 'next/navigation';
-import { Search, XCircle } from 'lucide-react';
+import { Search,
+  XCircle } from 'lucide-react';
 
-import { ClayCard, ClayBadge } from '@/components/clay';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
+import { ClayCard,
+  ClayBadge } from '@/components/clay';
+
+import * as React from 'react';
+
 import type { WsUserActivity } from '@/lib/worksuite/chat-types';
 
 export interface ActivityBrowserProps {

@@ -1,7 +1,6 @@
-
 'use client';
 
-import { ZoruLabel } from '@/components/zoruui';
+import { ZoruLabel, ZoruSheet } from '@/components/zoruui';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 
 export function GoogleSheetsConnection({ flowId }: { flowId?: string }) {

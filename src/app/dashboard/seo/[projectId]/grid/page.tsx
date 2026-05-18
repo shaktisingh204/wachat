@@ -1,17 +1,20 @@
 'use client';
 
-import { useState, use } from 'react';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardDescription,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruInput,
-    ZoruLabel,
-    useZoruToast,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  useZoruToast,
 } from '@/components/zoruui';
+import {
+  useState,
+  use } from 'react';
+
 import { Map, Play } from 'lucide-react';
 import { startGridTracking } from '@/app/actions/seo.actions';
 

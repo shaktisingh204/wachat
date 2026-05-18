@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * §1D Stock-adjustment edit form.
  *
@@ -10,14 +13,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
 
-import {
-    ZoruInput,
-    ZoruLabel,
-    ZoruTextarea,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityFormShell } from '@/components/crm/entity-form-shell';
 import { EnumFormField } from '@/components/crm/enum-form-field';
 

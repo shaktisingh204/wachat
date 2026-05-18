@@ -1,13 +1,14 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Boxes, GitBranch, IndianRupee, Layers } from 'lucide-react';
+
 /**
  * KPI strip for the BOM list — 4 stat cards required by §1D.
  */
 
 import * as React from 'react';
-import { Boxes, GitBranch, IndianRupee, Layers } from 'lucide-react';
 
-import { ZoruStatCard } from '@/components/zoruui';
 import type { CrmBomKpis } from '@/app/actions/crm-bom.actions';
 
 export interface BomKpiStripProps {

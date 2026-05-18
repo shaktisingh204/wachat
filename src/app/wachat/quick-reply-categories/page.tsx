@@ -1,22 +1,5 @@
 'use client';
 
-/**
- * /wachat/quick-reply-categories — organize quick replies into categories.
- * ZoruUI: header + breadcrumb, ZoruDataTable for list, dialogs for
- * create/edit/delete. Empty state via ZoruEmptyState.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { Plus, Pencil, Trash2, Tag } from 'lucide-react';
-import type { ColumnDef } from '@tanstack/react-table';
-
-import { useProject } from '@/context/project-context';
-import {
-  getQuickReplyCategories,
-  saveQuickReplyCategory,
-} from '@/app/actions/wachat-features.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -54,6 +37,31 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback,
+  useMemo } from 'react';
+import { Plus,
+  Pencil,
+  Trash2,
+  Tag } from 'lucide-react';
+import type { ColumnDef } from '@tanstack/react-table';
+
+import { useProject } from '@/context/project-context';
+import {
+  getQuickReplyCategories,
+  saveQuickReplyCategory,
+  } from '@/app/actions/wachat-features.actions';
+
+/**
+ * /wachat/quick-reply-categories — organize quick replies into categories.
+ * ZoruUI: header + breadcrumb, ZoruDataTable for list, dialogs for
+ * create/edit/delete. Empty state via ZoruEmptyState.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

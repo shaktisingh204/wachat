@@ -1,26 +1,5 @@
 "use client";
 
-/**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-settings-form`.
- *
- * Same `updateEcommShopSettings` server action, same data shape — just new
- * visuals. Mounts inside the per-shop settings page.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useState } from "react";
-import { useFormStatus } from "react-dom";
-import { Bell, CreditCard, LoaderCircle, Save } from "lucide-react";
-
-import { updateEcommShopSettings } from "@/app/actions/custom-ecommerce.actions";
-import { getEcommFlows } from "@/app/actions/custom-ecommerce-flow.actions";
-import type {
-  CustomDomain,
-  EcommFlow,
-  EcommShop,
-} from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruButton,
   ZoruCard,
@@ -39,7 +18,34 @@ import {
   ZoruSeparator,
   ZoruSwitch,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from "react";
+import { useFormStatus } from "react-dom";
+import { Bell,
+  CreditCard,
+  LoaderCircle,
+  Save } from "lucide-react";
+
+import { updateEcommShopSettings } from "@/app/actions/custom-ecommerce.actions";
+import { getEcommFlows } from "@/app/actions/custom-ecommerce-flow.actions";
+import type {
+  CustomDomain,
+  EcommFlow,
+  EcommShop,
+  } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * Zoru-only replacement for `@/components/wabasimplify/ecomm-settings-form`.
+ *
+ * Same `updateEcommShopSettings` server action, same data shape — just new
+ * visuals. Mounts inside the per-shop settings page.
+ */
+
+import * as React from "react";
 
 const initialState: { message?: string | null; error?: string } = {
   message: null,

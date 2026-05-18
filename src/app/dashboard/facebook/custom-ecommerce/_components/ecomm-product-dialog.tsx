@@ -1,27 +1,5 @@
 "use client";
 
-/**
- * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-dialog`.
- *
- * Same external props (`isOpen`, `onOpenChange`, `shop`, `product`,
- * `onSuccess`) and the same `saveEcommProduct` server action — only the
- * visual layer is rebuilt with zoru atoms.
- */
-
-import * as React from "react";
-import { useActionState, useEffect, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
-import { LoaderCircle, Plus, Save, Trash2 } from "lucide-react";
-import { v4 as uuidv4 } from "uuid";
-
-import { saveEcommProduct } from "@/app/actions/custom-ecommerce.actions";
-import type {
-  EcommProduct,
-  EcommProductVariant,
-  EcommShop,
-} from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruAccordion,
   ZoruAccordionContent,
@@ -45,7 +23,37 @@ import {
   ZoruSeparator,
   ZoruTextarea,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useRef,
+  useState } from "react";
+import { useFormStatus } from "react-dom";
+import { LoaderCircle,
+  Plus,
+  Save,
+  Trash2 } from "lucide-react";
+import { v4 as uuidv4 } from "uuid";
+
+import { saveEcommProduct } from "@/app/actions/custom-ecommerce.actions";
+import type {
+  EcommProduct,
+  EcommProductVariant,
+  EcommShop,
+  } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * Zoru-only replacement for `@/components/wabasimplify/ecomm-product-dialog`.
+ *
+ * Same external props (`isOpen`, `onOpenChange`, `shop`, `product`,
+ * `onSuccess`) and the same `saveEcommProduct` server action — only the
+ * visual layer is rebuilt with zoru atoms.
+ */
+
+import * as React from "react";
+
 import { SabFileUrlInput } from "@/components/sabfiles";
 
 const initialState: { message?: string | null; error?: string } = {

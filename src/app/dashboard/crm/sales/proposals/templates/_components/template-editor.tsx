@@ -1,14 +1,15 @@
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
 'use client';
 
+import { ZoruButton, ZoruInput, ZoruLabel, ZoruSwitch } from '@/components/zoruui';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, LayoutTemplate, LoaderCircle, Save } from 'lucide-react';
+import { ArrowLeft,
+  LayoutTemplate,
+  LoaderCircle,
+  Save } from 'lucide-react';
 import { ClayCard } from '@/components/clay';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
+
 import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { useToast } from '@/hooks/use-toast';
 import { saveProposalTemplate } from '@/app/actions/worksuite/proposals.actions';

@@ -1,8 +1,8 @@
-
 'use client';
 
-import React from 'react';
 import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
+import React from 'react';
+
 import { cn } from '@/lib/utils';
 import * as LucideIcons from 'lucide-react';
 

@@ -1,17 +1,5 @@
 "use client";
 
-/**
- * BlockProfileDialog (Meta Suite local, zoru-only).
- *
- * Wraps `blockProfile` server action — same business logic as the legacy
- * inline input. Operator confirms, the profile ID is sent to Meta.
- */
-
-import * as React from "react";
-import { useState, useTransition } from "react";
-import { Loader2, UserPlus } from "lucide-react";
-
-import { blockProfile } from "@/app/actions/facebook.actions";
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -26,7 +14,23 @@ import {
   ZoruInput,
   ZoruLabel,
   useZoruToast,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from "react";
+import { Loader2,
+  UserPlus } from "lucide-react";
+
+import { blockProfile } from "@/app/actions/facebook.actions";
+
+/**
+ * BlockProfileDialog (Meta Suite local, zoru-only).
+ *
+ * Wraps `blockProfile` server action — same business logic as the legacy
+ * inline input. Operator confirms, the profile ID is sent to Meta.
+ */
+
+import * as React from "react";
 
 export interface BlockProfileDialogProps {
   projectId: string;

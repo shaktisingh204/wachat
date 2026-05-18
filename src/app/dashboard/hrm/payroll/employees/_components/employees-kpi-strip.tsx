@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruStatCard } from '@/components/zoruui';
+import { Users, UserCheck, PlaneTakeoff, UserMinus, UserPlus, } from 'lucide-react';
+
 /**
  * <EmployeesKpiStrip> — KPI strip for the canonical Employees list.
  *
@@ -10,15 +13,6 @@
  */
 
 import * as React from 'react';
-import {
-  Users,
-  UserCheck,
-  PlaneTakeoff,
-  UserMinus,
-  UserPlus,
-} from 'lucide-react';
-
-import { ZoruStatCard } from '@/components/zoruui';
 
 import type { EmployeeKpiSnapshot, EmployeePresetKey } from './types';
 

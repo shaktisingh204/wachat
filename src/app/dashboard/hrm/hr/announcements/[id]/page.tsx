@@ -1,3 +1,19 @@
+import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  notFound,
+  redirect } from 'next/navigation';
+import {
+    ArrowLeft,
+  Calendar,
+  CheckCircle2,
+  Eye,
+  Megaphone,
+  MessageSquare,
+  Pencil,
+  Pin,
+  Users,
+  } from 'lucide-react';
+
 /**
  * HR Announcement detail page.
  *
@@ -12,20 +28,7 @@
  */
 
 import Link from 'next/link';
-import { notFound, redirect } from 'next/navigation';
-import {
-    ArrowLeft,
-    Calendar,
-    CheckCircle2,
-    Eye,
-    Megaphone,
-    MessageSquare,
-    Pencil,
-    Pin,
-    Users,
-} from 'lucide-react';
 
-import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getAnnouncementById } from '@/app/actions/crm-announcements.actions';

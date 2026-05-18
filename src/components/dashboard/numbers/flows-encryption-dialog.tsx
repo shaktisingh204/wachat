@@ -1,19 +1,25 @@
 'use client';
 
-import { useState, useTransition } from 'react';
-import { Project, PhoneNumber } from '@/lib/definitions';
 import {
-    ZoruDialog,
-    ZoruDialogContent,
-    ZoruDialogDescription,
-    ZoruDialogFooter,
-    ZoruDialogHeader,
-    ZoruDialogTitle,
-    ZoruDialogTrigger,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
+  ZoruButton,
+  ZoruBadge,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruAlertTitle,
 } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruAlert, ZoruAlertDescription, ZoruAlertTitle } from '@/components/zoruui';
+import {
+  useState,
+  useTransition } from 'react';
+import { Project,
+  PhoneNumber } from '@/lib/definitions';
+
 import { Loader2, Lock, ShieldCheck, Upload, Key, CheckCircle, AlertTriangle } from 'lucide-react';
 import { generateAndSaveFlowsKeys, uploadPublicKeyToMeta } from '@/app/actions/flows-encryption.actions';
 import { useToast } from '@/hooks/use-toast';

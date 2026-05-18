@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  BadgeCheck,
+  RotateCcw } from 'lucide-react';
+
 /**
  * Client-side action buttons rendered alongside the Edit/Activity
  * links in the warehouse detail header. Owns the Set-default and
@@ -7,10 +14,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, BadgeCheck, RotateCcw } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 
 import {

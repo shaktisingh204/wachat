@@ -1,11 +1,5 @@
 'use client';
 
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Check, Copy, Key, Loader2, Plus, ShieldAlert, Trash2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { getApiKeys, createApiKey, revokeApiKey } from '@/app/actions/wachat-features.actions';
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -27,6 +21,25 @@ import {
   ZoruPageTitle,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Check,
+  Copy,
+  Key,
+  Loader2,
+  Plus,
+  ShieldAlert,
+  Trash2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getApiKeys,
+  createApiKey,
+  revokeApiKey } from '@/app/actions/wachat-features.actions';
+
+import * as React from 'react';
 
 function maskKey(key: string) {
   if (key.length <= 12) return key;

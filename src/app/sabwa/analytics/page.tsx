@@ -1,28 +1,5 @@
 'use client';
 
-/**
- * /sabwa/analytics — KPI cards + Recharts dashboards for the active session.
- *
- * Wires up to `getAnalytics({ sessionId, range })`. While the Phase-1 stub
- * returns an empty payload, every chart renders an <EmptyState> instead of
- * a "Phase 1" error, so the page is usable end-to-end today.
- *
- * Visual layer migrated to ZoruUI. The range picker is rendered as a
- * segmented ZoruButton group (no tab UI per ZoruUI design rules).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
-import { format, subDays } from 'date-fns';
-import { Activity, BarChart3, Loader2, RefreshCw, Smartphone } from 'lucide-react';
-
-import {
-  getAnalytics,
-  type SabwaAnalyticsPayload,
-  type SabwaAnalyticsRange,
-} from '@/app/actions/sabwa.actions';
-import { useSabwaSession } from '@/lib/sabwa/session-context';
-
 import {
   ZoruBadge,
   ZoruBreadcrumb,
@@ -41,6 +18,35 @@ import {
   ZoruEmptyState,
   cn,
 } from '@/components/zoruui';
+import {
+  format,
+  subDays } from 'date-fns';
+import { Activity,
+  BarChart3,
+  Loader2,
+  RefreshCw,
+  Smartphone } from 'lucide-react';
+
+import {
+  getAnalytics,
+  type SabwaAnalyticsPayload,
+  type SabwaAnalyticsRange,
+  } from '@/app/actions/sabwa.actions';
+import { useSabwaSession } from '@/lib/sabwa/session-context';
+
+/**
+ * /sabwa/analytics — KPI cards + Recharts dashboards for the active session.
+ *
+ * Wires up to `getAnalytics({ sessionId, range })`. While the Phase-1 stub
+ * returns an empty payload, every chart renders an <EmptyState> instead of
+ * a "Phase 1" error, so the page is usable end-to-end today.
+ *
+ * Visual layer migrated to ZoruUI. The range picker is rendered as a
+ * segmented ZoruButton group (no tab UI per ZoruUI design rules).
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 
 import { ChartAiUsage } from './_components/chart-ai-usage';
 import { ChartGroupHeatmap } from './_components/chart-group-heatmap';

@@ -1,16 +1,22 @@
-
 'use client';
 
-import type { WithId, EmailConversation } from '@/lib/definitions';
-import { ZoruScrollArea, ZoruButton } from '@/components/zoruui';
-import { ZoruAvatar, ZoruAvatarFallback, ZoruAvatarImage } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  ZoruScrollArea,
+  ZoruButton,
+  ZoruAvatar,
+  ZoruAvatarFallback,
+  ZoruAvatarImage,
+  ZoruBadge,
+  ZoruSkeleton,
+  ZoruInput,
+} from '@/components/zoruui';
 import { cn } from '@/lib/utils';
-import { ZoruButton } from '../ui/button';
 import { formatDistanceToNow } from 'date-fns';
-import { Search, Edit } from 'lucide-react';
-import { ZoruInput } from '../ui/input';
+import { Search,
+  Edit } from 'lucide-react';
+
+import type { WithId, EmailConversation } from '@/lib/definitions';
+
 import { useState } from 'react';
 import { EmailComposeDialog } from './email-compose-dialog';
 

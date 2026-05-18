@@ -1,5 +1,26 @@
 'use client';
 
+import { ZoruBadge } from '@/components/zoruui';
+import {
+  Sparkles,
+  Handshake,
+  FileText,
+  ShoppingCart,
+  Truck,
+  Receipt,
+  FileCheck,
+  FileMinus,
+  MessageSquareQuote,
+  Gavel,
+  ShoppingBag,
+  PackageCheck,
+  ArrowUpRight,
+  type LucideIcon,
+  } from 'lucide-react';
+
+import type { LineageKind,
+  LineageRef } from '@/lib/definitions';
+
 /**
  * <LineageRail> — vertical "Linked Documents" rail rendered on CRM
  * doc detail pages. See crm_function_plan.md §13.5.
@@ -19,25 +40,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Sparkles,
-    Handshake,
-    FileText,
-    ShoppingCart,
-    Truck,
-    Receipt,
-    FileCheck,
-    FileMinus,
-    MessageSquareQuote,
-    Gavel,
-    ShoppingBag,
-    PackageCheck,
-    ArrowUpRight,
-    type LucideIcon,
-} from 'lucide-react';
 
-import type { LineageKind, LineageRef } from '@/lib/definitions';
-import { ZoruBadge } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
 /** Canonical sales-side document chain. */

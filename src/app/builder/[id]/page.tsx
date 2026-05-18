@@ -1,4 +1,3 @@
-
 import { connectToDatabase } from '@/lib/mongodb';
 import { EditorLayout } from '@/components/builder/editor-layout';
 import { EditorProvider } from '@/components/builder/editor-provider';

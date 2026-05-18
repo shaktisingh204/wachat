@@ -1,6 +1,14 @@
 'use client';
 
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger, ZoruBadge, ZoruCard, ZoruSeparator } from '@/components/zoruui';
+import {
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruBadge,
+  ZoruCard,
+  ZoruSeparator,
+} from '@/components/zoruui';
 import Link from 'next/link';
 import { ChevronLeft, BookOpen } from 'lucide-react';
 

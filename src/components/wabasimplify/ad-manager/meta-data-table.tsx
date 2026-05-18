@@ -1,5 +1,35 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruSwitch,
+  ZoruBadge,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuSeparator,
+  ZoruDropdownMenuTrigger,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import {
+  MoreHorizontal,
+  ArrowUpDown,
+  Circle,
+  Copy,
+  Trash2,
+  Edit,
+  Eye,
+  AlertTriangle,
+  } from 'lucide-react';
+
+import { cn } from '@/lib/utils';
+
 /**
  * Meta-style data table. Renders a row for each entity with a checkbox,
  * inline toggle, delivery badge, and metric columns. Used for campaigns,
@@ -8,22 +38,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    MoreHorizontal, ArrowUpDown, Circle, Copy, Trash2, Edit, Eye, AlertTriangle,
-} from 'lucide-react';
 
-import { cn } from '@/lib/utils';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
-import { ZoruCheckbox } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import {
-    ZoruDropdownMenu, ZoruDropdownMenuContent, ZoruDropdownMenuItem,
-    ZoruDropdownMenuSeparator, ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
-import {
-    ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow,
-} from '@/components/zoruui';
 import { formatMoney, formatNumber, formatPercent } from './constants';
 
 export type MetaRow = {

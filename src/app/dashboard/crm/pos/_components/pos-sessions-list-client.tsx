@@ -1,5 +1,26 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  zoruSonnerToast,
+} from '@/components/zoruui';
+import {
+  Search,
+  X } from 'lucide-react';
+
 /**
  * POS sessions list — client island. Free-text terminal + status
  * filters, click-through to detail, inline Close / Reconcile actions.
@@ -7,25 +28,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Search, X } from 'lucide-react';
 
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    zoruSonnerToast,
-} from '@/components/zoruui';
 import { StatusPill, type StatusPillProps } from '@/components/crm/status-pill';
 
 import {

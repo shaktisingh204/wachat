@@ -1,18 +1,25 @@
-
 'use client';
 
-import { useState } from 'react';
-import type { WithId, Project } from '@/lib/definitions';
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSwitch,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import {
+  useState } from 'react';
+import type { WithId,
+  Project } from '@/lib/definitions';
 import { handleUpdateMasterSwitch } from '@/app/actions/project.actions';
 import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
-import { ZoruSeparator } from '../ui/separator';
+
 import { AutoReplyForm } from './auto-reply-form';
 import { OptInOutForm } from './opt-in-out-form';
-
 
 interface AutoReplySettingsTabProps {
   project: WithId<Project>;

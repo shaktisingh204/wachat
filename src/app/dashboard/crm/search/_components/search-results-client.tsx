@@ -1,5 +1,8 @@
 'use client';
 
+import { ZoruBadge, ZoruCard, cn } from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
+
 /**
  * `<SearchResultsClient>` — interactive grid of grouped search results
  * for `/dashboard/crm/search`.
@@ -15,9 +18,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-
-import { ZoruBadge, ZoruCard, cn } from '@/components/zoruui';
 
 import type { SearchResult, SearchResultGroup } from '@/app/actions/crm-search.actions';
 

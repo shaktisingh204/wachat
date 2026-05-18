@@ -1,4 +1,3 @@
-
 import cache from './cache';
 
 const RATE_LIMIT_PREFIX = 'rate-limit:';

@@ -1,3 +1,14 @@
+import { ZoruButton, ZoruCard } from '@/components/zoruui';
+import {
+  AlertTriangle,
+  CircleCheck,
+  FileText,
+  Plus,
+  Receipt,
+  ShoppingCart,
+  Truck,
+  } from 'lucide-react';
+
 /**
  * <ItemRelatedRail> — right-rail snapshot for the item detail page.
  *
@@ -11,17 +22,6 @@
  */
 
 import Link from 'next/link';
-import {
-  AlertTriangle,
-  CircleCheck,
-  FileText,
-  Plus,
-  Receipt,
-  ShoppingCart,
-  Truck,
-} from 'lucide-react';
-
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
 
 interface ItemRelatedRailProps {
   productId: string;

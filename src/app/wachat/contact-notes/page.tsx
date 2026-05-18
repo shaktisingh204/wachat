@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Notes — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useState, useTransition, useCallback, useActionState } from 'react';
-import { Search, Loader2, StickyNote, Trash2, Plus } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getContactNotes,
-  addContactNote,
-  deleteContactNote,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -41,7 +24,29 @@ import {
   ZoruLabel,
   ZoruSkeleton,
   ZoruTextarea,
+  cn,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition,
+  useCallback,
+  useActionState } from 'react';
+import { Search,
+  Loader2,
+  StickyNote,
+  Trash2,
+  Plus } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactNotes, addContactNote, deleteContactNote } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Contact Notes — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 export default function ContactNotesPage() {
   const { activeProject } = useProject();

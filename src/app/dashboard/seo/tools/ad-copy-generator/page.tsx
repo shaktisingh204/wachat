@@ -1,12 +1,8 @@
 'use client';
 
+import { ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel } from '@/components/zoruui';
 import { useMemo, useState } from 'react';
-import {
-  ZoruCard,
-  ZoruCardContent,
-  ZoruInput,
-  ZoruLabel,
-} from '@/components/zoruui';
+
 import { ToolShell } from '@/components/seo-tools/tool-shell';
 
 export default function AdCopyGeneratorPage() {

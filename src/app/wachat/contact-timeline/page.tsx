@@ -1,27 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Timeline — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useState, useTransition, useCallback } from 'react';
 import {
-  History,
-  Search,
-  MessageSquare,
-  StickyNote,
-  Loader2,
-  Filter,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getContactTimeline } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruBadge,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -44,6 +24,29 @@ import {
   ZoruSkeleton,
   cn,
 } from '@/components/zoruui';
+import {
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  History,
+  Search,
+  MessageSquare,
+  StickyNote,
+  Loader2,
+  Filter,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactTimeline } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Contact Timeline — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 type FilterMode = 'all' | 'message' | 'note';
 

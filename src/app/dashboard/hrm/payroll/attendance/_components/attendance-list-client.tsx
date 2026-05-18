@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, useZoruToast } from '@/components/zoruui';
 /**
  * <AttendanceListClient> — canonical Attendance list view per §1D.
  *
@@ -16,7 +17,6 @@
 
 import * as React from 'react';
 
-import { ZoruCard, useZoruToast } from '@/components/zoruui';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 
 import { AttendanceKpiStrip } from './attendance-kpi-strip';

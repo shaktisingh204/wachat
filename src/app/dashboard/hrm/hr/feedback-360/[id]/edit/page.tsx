@@ -1,11 +1,16 @@
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import {
+  use,
+  useEffect,
+  useState } from 'react';
 import { Star } from 'lucide-react';
 import { HrFormPage } from '../../../_components/hr-form-page';
-import { fields, sections } from '../../_config';
-import { getFeedback360, saveFeedback360 } from '@/app/actions/hr.actions';
-import { ZoruSkeleton } from '@/components/zoruui';
+import { fields,
+  sections } from '../../_config';
+import { getFeedback360,
+  saveFeedback360 } from '@/app/actions/hr.actions';
 
 export default function EditFeedback360Page({
   params,

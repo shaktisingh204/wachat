@@ -1,27 +1,5 @@
 'use client';
 
-/**
- * Wachat Template Library — premade templates grid, rebuilt on
- * ZoruUI primitives. Click a template to open clone-to-account dialog.
- */
-
-import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState, useTransition } from 'react';
-import {
-  BookCopy,
-  ChevronLeft,
-  Image as ImageIcon,
-  Phone,
-  Link as LinkIcon,
-  Star,
-  Search,
-} from 'lucide-react';
-
-import { getLibraryTemplates } from '@/app/actions/template.actions';
-import { type LibraryTemplate } from '@/lib/definitions';
-import { useProject } from '@/context/project-context';
-
 import {
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -56,6 +34,32 @@ import {
   ZoruBadge,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { useEffect,
+  useMemo,
+  useState,
+  useTransition } from 'react';
+import {
+  BookCopy,
+  ChevronLeft,
+  Image as ImageIcon,
+  Phone,
+  Link as LinkIcon,
+  Star,
+  Search,
+  } from 'lucide-react';
+
+import { getLibraryTemplates } from '@/app/actions/template.actions';
+import { type LibraryTemplate } from '@/lib/definitions';
+import { useProject } from '@/context/project-context';
+
+/**
+ * Wachat Template Library — premade templates grid, rebuilt on
+ * ZoruUI primitives. Click a template to open clone-to-account dialog.
+ */
+
+import * as React from 'react';
 
 /* ── Preview tile ──────────────────────────────── */
 

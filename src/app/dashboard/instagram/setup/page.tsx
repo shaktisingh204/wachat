@@ -1,35 +1,5 @@
 'use client';
 
-/**
- * /dashboard/instagram/setup — Instagram connection status per project.
- *
- * Lists every Facebook project owned by the caller and inspects whether
- * its Page has a linked Instagram Business account. Pages without a link
- * surface a "Connect" affordance that routes back to the canonical
- * Meta Suite onboarding wizard (`/dashboard/facebook/all-projects`),
- * which is the source of truth for OAuth and IG/FB pairing.
- *
- * Pure client surface: data is loaded via two server actions
- * (`getProjects` and `getInstagramAccountForPage`) — no axios in the page.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import {
-  AlertCircle,
-  ArrowRight,
-  CheckCircle2,
-  ExternalLink,
-  Instagram,
-  RefreshCw,
-} from 'lucide-react';
-
-import { getProjects } from '@/app/actions/project.actions';
-import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
-import { useProject } from '@/context/project-context';
-import type { Project, WithId } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -50,6 +20,41 @@ import {
   ZoruSkeleton,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import {
+  AlertCircle,
+  ArrowRight,
+  CheckCircle2,
+  ExternalLink,
+  Instagram,
+  RefreshCw,
+  } from 'lucide-react';
+
+import { getProjects } from '@/app/actions/project.actions';
+import { getInstagramAccountForPage } from '@/app/actions/instagram.actions';
+import { useProject } from '@/context/project-context';
+import type { Project,
+  WithId } from '@/lib/definitions';
+
+/**
+ * /dashboard/instagram/setup — Instagram connection status per project.
+ *
+ * Lists every Facebook project owned by the caller and inspects whether
+ * its Page has a linked Instagram Business account. Pages without a link
+ * surface a "Connect" affordance that routes back to the canonical
+ * Meta Suite onboarding wizard (`/dashboard/facebook/all-projects`),
+ * which is the source of truth for OAuth and IG/FB pairing.
+ *
+ * Pure client surface: data is loaded via two server actions
+ * (`getProjects` and `getInstagramAccountForPage`) — no axios in the page.
+ */
+
+import * as React from 'react';
 
 type IgStatus = 'loading' | 'connected' | 'missing' | 'error';
 

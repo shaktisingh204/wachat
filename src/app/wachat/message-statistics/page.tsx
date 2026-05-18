@@ -1,29 +1,7 @@
 'use client';
 
-/**
- * Wachat Message Statistics — ZoruUI rebuild.
- *
- * Aggregate stat-card grid + segment filter (daily / weekly / monthly)
- * + neutral bar histogram. Greyscale palette only.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
 import {
-  ArrowDownLeft,
-  ArrowUpRight,
-  BarChart3,
-  ChevronDown,
-  Image as ImageIcon,
-  Inbox,
-  MessageSquare,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
-import { getMessageStatistics } from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZORU_CHART_PALETTE,
   ZoruBreadcrumb,
   ZoruBreadcrumbItem,
@@ -50,6 +28,32 @@ import {
   ZoruSkeleton,
   ZoruStatCard,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  BarChart3,
+  ChevronDown,
+  Image as ImageIcon,
+  Inbox,
+  MessageSquare,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getMessageStatistics } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Message Statistics — ZoruUI rebuild.
+ *
+ * Aggregate stat-card grid + segment filter (daily / weekly / monthly)
+ * + neutral bar histogram. Greyscale palette only.
+ */
+
+import * as React from 'react';
 
 type Period = 'daily' | 'weekly' | 'monthly';
 

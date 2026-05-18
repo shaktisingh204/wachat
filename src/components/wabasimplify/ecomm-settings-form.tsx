@@ -1,20 +1,36 @@
-
 'use client';
 
-import { useActionState, useEffect, useState } from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardFooter,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSeparator,
+  ZoruSwitch,
+} from '@/components/zoruui';
+import {
+  useActionState,
+  useEffect,
+  useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruCardDescription, ZoruCardFooter, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
 import { LoaderCircle, Save, IndianRupee, CreditCard, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import { getEcommFlows } from '@/app/actions/custom-ecommerce-flow.actions';
-import type { WithId, EcommShop, CustomDomain, EcommFlow } from '@/lib/definitions';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '../ui/select';
-import { ZoruSeparator } from '../ui/separator';
-import { ZoruSwitch } from '../ui/switch';
+import type { WithId,
+  EcommShop,
+  CustomDomain,
+  EcommFlow } from '@/lib/definitions';
 
 const initialState = { message: null, error: undefined };
 

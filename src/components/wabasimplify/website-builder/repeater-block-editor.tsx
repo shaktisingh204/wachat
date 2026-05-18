@@ -1,17 +1,27 @@
-
 'use client';
 
-import { ZoruLabel, ZoruButton } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruTextarea } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
+import {
+  ZoruLabel,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruAccordion,
+  ZoruAccordionContent,
+  ZoruAccordionItem,
+  ZoruAccordionTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  ZoruSeparator,
+  ZoruCard,
+  ZoruCardContent,
+} from '@/components/zoruui';
 import { Plus, Trash2, Upload } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { ZoruAccordion, ZoruAccordionContent, ZoruAccordionItem, ZoruAccordionTrigger } from '@/components/zoruui';
-import { ZoruSelect, ZoruSelectContent, ZoruSelectItem, ZoruSelectTrigger, ZoruSelectValue } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import { ZoruCard, ZoruCardContent } from '@/components/zoruui';
+
 import Image from 'next/image';
 import { SabFilePickerButton } from '@/components/sabfiles';
 
@@ -23,7 +33,6 @@ type RepeaterItem = {
   buttonText?: string;
   buttonLink?: string;
 };
-
 
 export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const items = settings.items || [];

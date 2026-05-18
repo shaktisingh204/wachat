@@ -1,9 +1,11 @@
 'use client';
 
-import { Wallet } from 'lucide-react';
+import { ZoruBadge } from '@/components/zoruui';
+import {
+  Wallet } from 'lucide-react';
 
 import { HrEntityPage } from '../../_components/hr-entity-page';
-import { ZoruBadge } from '@/components/zoruui';
+
 import {
   getOfflinePaymentMethods,
   saveOfflinePaymentMethod,

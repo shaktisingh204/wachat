@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter,
+  useSearchParams } from 'next/navigation';
+import { useFormStatus } from 'react-dom';
+import { LoaderCircle } from 'lucide-react';
+
 /**
  * <ItemForm> — canonical create + edit form for CRM items per
  * CRM_REBUILD_PLAN §1D.3.
@@ -35,14 +42,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useFormStatus } from 'react-dom';
-import { LoaderCircle } from 'lucide-react';
 
-import {
-  ZoruButton,
-  useZoruToast,
-} from '@/components/zoruui';
 import { DirtyFormPrompt } from '@/components/crm/dirty-form-prompt';
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
 import type { CrmProduct } from '@/lib/definitions';

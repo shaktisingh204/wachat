@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruSeparator } from '@/components/zoruui';
 /**
  * Sub-sections of `<SalesOrdersForm>` — shipping address card + totals
  * preview card. Extracted to keep the parent form under the 600-line
@@ -7,13 +8,6 @@
  */
 
 import * as React from 'react';
-
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSeparator,
-} from '@/components/zoruui';
 
 export type ShipAddr = {
   line1?: string;

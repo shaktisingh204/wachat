@@ -1,5 +1,20 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+} from '@/components/zoruui';
+import {
+  ExternalLink,
+  MapPin,
+  MoreHorizontal,
+  Trash2 } from 'lucide-react';
+
 /**
  * Events table — §1D.1 bar.
  *
@@ -9,17 +24,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { ExternalLink, MapPin, MoreHorizontal, Trash2 } from 'lucide-react';
 
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCheckbox,
-    ZoruDropdownMenu,
-    ZoruDropdownMenuContent,
-    ZoruDropdownMenuItem,
-    ZoruDropdownMenuTrigger,
-} from '@/components/zoruui';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import {

@@ -1,14 +1,15 @@
-
-
 'use client';
 
-import Link from 'next/link';
 import { ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruButton } from '@/components/zoruui';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
-import type { WithId, EcommProduct } from '@/lib/definitions';
+import type { WithId,
+  EcommProduct } from '@/lib/definitions';
 import { ProductCard } from './product-card';
-import { ZoruButton } from '@/components/zoruui';
+
+import Link from 'next/link';
+
+import Image from 'next/image';
+
 import React from 'react';
 
 export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: { settings: any, products: WithId<EcommProduct>[], shopSlug: string }) {

@@ -1,24 +1,7 @@
 'use client';
 
-/**
- * Wachat Contact Groups — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers. Visual primitives swapped to ZoruUI.
- */
-
-import * as React from 'react';
-import { useEffect, useState, useTransition, useCallback } from 'react';
-import { Plus, Trash2, Users, Loader2 } from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import { useZoruToast } from '@/components/zoruui';
 import {
-  getContactGroups,
-  saveContactGroup,
-  deleteContactGroup,
-} from '@/app/actions/wachat-features.actions';
-
-import {
+  useZoruToast,
   ZoruAlertDialog,
   ZoruAlertDialogAction,
   ZoruAlertDialogCancel,
@@ -50,6 +33,26 @@ import {
   ZoruSkeleton,
   ZoruTextarea,
 } from '@/components/zoruui';
+import {
+  useEffect,
+  useState,
+  useTransition,
+  useCallback } from 'react';
+import { Plus,
+  Trash2,
+  Users,
+  Loader2 } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import { getContactGroups, saveContactGroup, deleteContactGroup } from '@/app/actions/wachat-features.actions';
+
+/**
+ * Wachat Contact Groups — rebuilt on ZoruUI primitives (phase 2).
+ *
+ * Same data, same handlers. Visual primitives swapped to ZoruUI.
+ */
+
+import * as React from 'react';
 
 export default function ContactGroupsPage() {
   const { activeProject } = useProject();

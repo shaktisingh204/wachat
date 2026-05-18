@@ -1,34 +1,5 @@
 'use client';
 
-/**
- * /wachat/automation — Conversational AI overview (ZoruUI).
- *
- * Wraps Meta's native conversational_automation API: welcome message,
- * ice-breaker prompts, slash commands. Same data + handlers as before.
- *
- * Phase 6 visual swap. Model picker / fallback rendered as ZoruRadioCard.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import {
-  Bot,
-  MessageCircle,
-  Plus,
-  RefreshCw,
-  Save,
-  Sparkles,
-  Terminal,
-  Trash2,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getConversationalAutomation,
-  handleDeleteConversationalAutomation,
-  handleUpdateConversationalAutomation,
-} from '@/app/actions/whatsapp.actions';
-
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -68,6 +39,39 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import {
+  Bot,
+  MessageCircle,
+  Plus,
+  RefreshCw,
+  Save,
+  Sparkles,
+  Terminal,
+  Trash2,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getConversationalAutomation,
+  handleDeleteConversationalAutomation,
+  handleUpdateConversationalAutomation,
+  } from '@/app/actions/whatsapp.actions';
+
+/**
+ * /wachat/automation — Conversational AI overview (ZoruUI).
+ *
+ * Wraps Meta's native conversational_automation API: welcome message,
+ * ice-breaker prompts, slash commands. Same data + handlers as before.
+ *
+ * Phase 6 visual swap. Model picker / fallback rendered as ZoruRadioCard.
+ */
+
+import * as React from 'react';
 
 export const dynamic = 'force-dynamic';
 

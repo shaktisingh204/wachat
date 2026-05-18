@@ -1,5 +1,29 @@
 'use client';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import {
+    ArrowDown,
+  ArrowUp,
+  LoaderCircle,
+  Plus,
+  Save,
+  Trash2,
+  } from 'lucide-react';
+
 /**
  * §6.5 Dashboard editor (client).
  *
@@ -13,28 +37,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import {
-    ArrowDown,
-    ArrowUp,
-    LoaderCircle,
-    Plus,
-    Save,
-    Trash2,
-} from 'lucide-react';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruInput,
-    ZoruLabel,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    useZoruToast,
-} from '@/components/zoruui';
+
 import {
     saveDashboardLayout,
     type DashboardWidget,

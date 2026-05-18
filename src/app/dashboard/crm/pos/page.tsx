@@ -1,3 +1,16 @@
+import { ZoruButton, ZoruCard, ZoruCardContent } from '@/components/zoruui';
+import {
+  Banknote,
+  Plus,
+  Receipt,
+  ScrollText,
+  ShoppingCart,
+  Store,
+  PauseCircle,
+  } from 'lucide-react';
+
+import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+
 /**
  * POS home / overview — `/dashboard/crm/pos`.
  *
@@ -7,22 +20,7 @@
  */
 
 import Link from 'next/link';
-import {
-    Banknote,
-    Plus,
-    Receipt,
-    ScrollText,
-    ShoppingCart,
-    Store,
-    PauseCircle,
-} from 'lucide-react';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
-import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-} from '@/components/zoruui';
 import { getPosOverviewKpis } from '@/app/actions/crm-pos.actions';
 
 export const dynamic = 'force-dynamic';

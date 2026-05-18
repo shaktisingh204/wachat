@@ -1,33 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/pages — Connected Facebook Pages.
- *
- * Lists every Facebook Page the current user has connected via
- * `getFacebookPages` and highlights the active project's page details
- * (about / phone / website) via `getPageDetails`. Page details can be
- * edited inline and persisted with `handleUpdatePageDetails`.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import Link from 'next/link';
-import {
-  AlertCircle,
-  ExternalLink,
-  Newspaper,
-  RefreshCw,
-  Users,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getFacebookPages,
-  getPageDetails,
-  handleUpdatePageDetails,
-} from '@/app/actions/facebook.actions';
-import type { FacebookPage, FacebookPageDetails } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -48,6 +20,39 @@ import {
   ZoruTextarea,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import Link from 'next/link';
+import {
+  AlertCircle,
+  ExternalLink,
+  Newspaper,
+  RefreshCw,
+  Users,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getFacebookPages,
+  getPageDetails,
+  handleUpdatePageDetails,
+  } from '@/app/actions/facebook.actions';
+import type { FacebookPage,
+  FacebookPageDetails } from '@/lib/definitions';
+
+/**
+ * /dashboard/facebook/pages — Connected Facebook Pages.
+ *
+ * Lists every Facebook Page the current user has connected via
+ * `getFacebookPages` and highlights the active project's page details
+ * (about / phone / website) via `getPageDetails`. Page details can be
+ * edited inline and persisted with `handleUpdatePageDetails`.
+ */
+
+import * as React from 'react';
 
 function formatNumber(n: number | undefined): string {
   if (n == null || Number.isNaN(n)) return '—';

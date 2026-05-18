@@ -1,6 +1,29 @@
 'use client';
 
-import * as React from 'react';
+import {
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardDescription,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruButton,
+  ZoruSwitch,
+  ZoruLabel,
+  ZoruInput,
+  ZoruBadge,
+  ZoruSeparator,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
 import {
   Bell,
   Mail,
@@ -10,31 +33,10 @@ import {
   Plus,
   Play,
   Trash2,
-} from 'lucide-react';
+  } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { ZoruCard, ZoruCardContent, ZoruCardDescription, ZoruCardHeader, ZoruCardTitle, ZoruButton } from '@/components/zoruui';
-import { ZoruButton } from '@/components/zoruui';
-import { ZoruSwitch } from '@/components/zoruui';
-import { ZoruLabel } from '@/components/zoruui';
-import { ZoruInput } from '@/components/zoruui';
-import { ZoruBadge } from '@/components/zoruui';
-import { ZoruSeparator } from '@/components/zoruui';
-import {
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-} from '@/components/zoruui';
-import {
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
+import * as React from 'react';
 
 import { useProject } from '@/context/project-context';
 import { SettingsTabs } from '../_components/settings-tabs';

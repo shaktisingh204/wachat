@@ -1,5 +1,45 @@
 'use client';
 
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruInput,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Shield,
+  Users,
+  UserCog,
+  UserCheck,
+  Pencil,
+  Trash2,
+  LoaderCircle,
+  Search,
+  Download,
+  X,
+  Plus,
+  } from 'lucide-react';
+import { useEffect,
+  useState,
+  useTransition } from 'react';
+
 /**
  * Roles list — §1D bar:
  *  - KPI strip (Total · System · Custom · Members assigned)
@@ -17,44 +57,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import {
-    Shield,
-    Users,
-    UserCog,
-    UserCheck,
-    Pencil,
-    Trash2,
-    LoaderCircle,
-    Search,
-    Download,
-    X,
-    Plus,
-} from 'lucide-react';
-import { useEffect, useState, useTransition } from 'react';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruCheckbox,
-    ZoruInput,
-    ZoruStatCard,
-    ZoruTable,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     getRolesWithCounts,

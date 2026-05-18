@@ -1,37 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/all-projects — connected Facebook Pages.
- *
- * Rebuilt on ZoruUI primitives. Same `getProjects` server action, same
- * "Connect Page" OAuth entry, same manual-setup flow — visual layer is
- * pure zoru, neutral palette.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useState, useTransition } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import {
-  ArrowRight,
-  ArrowUpRight,
-  BarChart3,
-  CheckCircle2,
-  ExternalLink,
-  Image as ImageIcon,
-  Megaphone,
-  MessageSquare,
-  RefreshCw,
-  Settings,
-  ShoppingBag,
-  Sparkles,
-  Users,
-  Zap,
-} from "lucide-react";
-
-import { getProjects } from "@/app/actions";
-import type { Project, WithId } from "@/lib/definitions";
-
 import {
   ZoruAvatar,
   ZoruAvatarFallback,
@@ -52,7 +20,44 @@ import {
   ZoruPageTitle,
   ZoruSkeleton,
   cn,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  BarChart3,
+  CheckCircle2,
+  ExternalLink,
+  Image as ImageIcon,
+  Megaphone,
+  MessageSquare,
+  RefreshCw,
+  Settings,
+  ShoppingBag,
+  Sparkles,
+  Users,
+  Zap,
+  } from "lucide-react";
+
+import { getProjects } from "@/app/actions";
+import type { Project,
+  WithId } from "@/lib/definitions";
+
+/**
+ * /dashboard/facebook/all-projects — connected Facebook Pages.
+ *
+ * Rebuilt on ZoruUI primitives. Same `getProjects` server action, same
+ * "Connect Page" OAuth entry, same manual-setup flow — visual layer is
+ * pure zoru, neutral palette.
+ */
+
+import * as React from "react";
 
 import { ManualSetupDialog } from "../_components/manual-setup-dialog";
 import { FacebookGlyph } from "../_components/icons";

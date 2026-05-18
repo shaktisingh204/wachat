@@ -1,5 +1,12 @@
 'use client';
 
+import { ZoruButton, useZoruToast } from '@/components/zoruui';
+import {
+  useRouter } from 'next/navigation';
+import { Archive,
+  BadgeDollarSign,
+  LoaderCircle } from 'lucide-react';
+
 /**
  * Inline status mutation buttons for the credit-note detail page —
  * Mark Refunded / Archive. Lives next to the Edit and Activity
@@ -7,10 +14,7 @@
  */
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Archive, BadgeDollarSign, LoaderCircle } from 'lucide-react';
 
-import { ZoruButton, useZoruToast } from '@/components/zoruui';
 import {
     bulkCreditNoteAction,
     setCreditNoteStatus,

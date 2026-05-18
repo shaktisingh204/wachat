@@ -1,12 +1,12 @@
-
-
 'use client';
 
-import { useTransition } from 'react';
+import { ZoruButton } from '@/components/zoruui';
+import {
+  useTransition } from 'react';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions/index.ts';
 import { useToast } from '@/hooks/use-toast';
-import { ZoruButton, ZoruButton } from '@/components/zoruui';
+
 import { Rss, LoaderCircle } from 'lucide-react';
 
 interface SubscribeProjectButtonProps {

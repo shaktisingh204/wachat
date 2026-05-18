@@ -1,5 +1,6 @@
 'use client';
 
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruSeparator } from '@/components/zoruui';
 /**
  * <SummarySection> — invoice money summary card.
  *
@@ -9,13 +10,6 @@
  */
 
 import * as React from 'react';
-
-import {
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSeparator,
-} from '@/components/zoruui';
 
 export interface SummarySectionProps {
   currency: string;

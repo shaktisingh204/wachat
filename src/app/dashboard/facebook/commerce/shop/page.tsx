@@ -1,39 +1,5 @@
 'use client';
 
-/**
- * /dashboard/facebook/commerce/shop — Meta Commerce shop overview.
- *
- * Header card surfaces merchant settings (display name, currency, payout
- * email) from `getCommerceMerchantSettings`, followed by a recent orders
- * table from `getFacebookOrders`. Each row has a fulfill / cancel / refund
- * action menu, each gated by a small confirm dialog before firing the
- * matching server action.
- */
-
-import * as React from 'react';
-import { useCallback, useEffect, useState, useTransition } from 'react';
-import { format, formatDistanceToNow } from 'date-fns';
-import {
-  AlertCircle,
-  CheckCircle2,
-  MoreHorizontal,
-  PackageCheck,
-  RefreshCw,
-  Store,
-  Undo2,
-  XCircle,
-} from 'lucide-react';
-
-import { useProject } from '@/context/project-context';
-import {
-  getCommerceMerchantSettings,
-  getFacebookOrders,
-  fulfillOrder,
-  cancelOrder,
-  refundOrder,
-} from '@/app/actions/facebook.actions';
-import type { FacebookOrder } from '@/lib/definitions';
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -65,6 +31,45 @@ import {
   ZoruSkeleton,
   zoruSonnerToast,
 } from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useTransition } from 'react';
+import { format,
+  formatDistanceToNow } from 'date-fns';
+import {
+  AlertCircle,
+  CheckCircle2,
+  MoreHorizontal,
+  PackageCheck,
+  RefreshCw,
+  Store,
+  Undo2,
+  XCircle,
+  } from 'lucide-react';
+
+import { useProject } from '@/context/project-context';
+import {
+  getCommerceMerchantSettings,
+  getFacebookOrders,
+  fulfillOrder,
+  cancelOrder,
+  refundOrder,
+  } from '@/app/actions/facebook.actions';
+import type { FacebookOrder } from '@/lib/definitions';
+
+/**
+ * /dashboard/facebook/commerce/shop — Meta Commerce shop overview.
+ *
+ * Header card surfaces merchant settings (display name, currency, payout
+ * email) from `getCommerceMerchantSettings`, followed by a recent orders
+ * table from `getFacebookOrders`. Each row has a fulfill / cancel / refund
+ * action menu, each gated by a small confirm dialog before firing the
+ * matching server action.
+ */
+
+import * as React from 'react';
 
 interface MerchantSettings {
   display_name?: string;

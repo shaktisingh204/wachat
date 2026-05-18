@@ -1,5 +1,34 @@
 'use client';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useDebouncedCallback } from 'use-debounce';
+import {
+    LayoutGrid,
+  LayoutList,
+  MessageSquare,
+  MessagesSquare,
+  Plus,
+  Trash2,
+  X,
+  } from 'lucide-react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { StatusPill } from '@/components/crm/status-pill';
+
 /**
  * Discussions list (§1D.1) — KPI strip (4), filters (category, author,
  * date range, status), table or kanban-by-category view.
@@ -10,33 +39,6 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { useDebouncedCallback } from 'use-debounce';
-import {
-    LayoutGrid,
-    LayoutList,
-    MessageSquare,
-    MessagesSquare,
-    Plus,
-    Trash2,
-    X,
-} from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { StatusPill } from '@/components/crm/status-pill';
-import {
-    ZoruBadge,
-    ZoruButton,
-    ZoruCard,
-    ZoruInput,
-    ZoruSelect,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    ZoruStatCard,
-    useZoruToast,
-} from '@/components/zoruui';
 
 import {
     deleteDiscussion,

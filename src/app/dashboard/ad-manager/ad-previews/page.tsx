@@ -1,16 +1,14 @@
 'use client';
 
-import * as React from 'react';
-import { Image as ImageIcon, CircleAlert, RefreshCw, ExternalLink } from 'lucide-react';
+import { ZoruButton, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle, ZoruBadge, ZoruSkeleton } from '@/components/zoruui';
 import {
-    ZoruButton,
-    ZoruCard,
-    ZoruCardContent,
-    ZoruCardHeader,
-    ZoruCardTitle,
-    ZoruBadge,
-    ZoruSkeleton,
-} from '@/components/zoruui';
+  Image as ImageIcon,
+  CircleAlert,
+  RefreshCw,
+  ExternalLink } from 'lucide-react';
+
+import * as React from 'react';
+
 import { AmBreadcrumb, AmHeader, AmErrorAlert } from '@/app/dashboard/ad-manager/_components/am-page-shell';
 import { useAdManager } from '@/context/ad-manager-context';
 import { useToast } from '@/hooks/use-toast';

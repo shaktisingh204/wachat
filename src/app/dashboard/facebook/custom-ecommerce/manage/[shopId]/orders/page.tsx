@@ -1,26 +1,5 @@
 "use client";
 
-/**
- * /dashboard/facebook/custom-ecommerce/manage/[shopId]/orders
- *
- * Per-shop orders table built on `ZoruDataTable` with a per-order detail
- * sheet. Same data fetchers as before — only the visual layer changes.
- */
-
-import * as React from "react";
-import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
-import { useParams } from "next/navigation";
-import { format } from "date-fns";
-import { AlertCircle, Eye, LoaderCircle, Package, RefreshCw } from "lucide-react";
-import type { ColumnDef } from "@tanstack/react-table";
-
-import {
-  getEcommOrders,
-  getEcommShopById,
-} from "@/app/actions/custom-ecommerce.actions";
-import type { EcommOrder, EcommShop } from "@/lib/definitions";
-import type { WithId } from "mongodb";
-
 import {
   ZoruAlert,
   ZoruAlertDescription,
@@ -36,7 +15,38 @@ import {
   ZoruSheetHeader,
   ZoruSheetTitle,
   ZoruSkeleton,
-} from "@/components/zoruui";
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition } from "react";
+import { useParams } from "next/navigation";
+import { format } from "date-fns";
+import { AlertCircle,
+  Eye,
+  LoaderCircle,
+  Package,
+  RefreshCw } from "lucide-react";
+import type { ColumnDef } from "@tanstack/react-table";
+
+import {
+  getEcommOrders,
+  getEcommShopById,
+  } from "@/app/actions/custom-ecommerce.actions";
+import type { EcommOrder,
+  EcommShop } from "@/lib/definitions";
+import type { WithId } from "mongodb";
+
+/**
+ * /dashboard/facebook/custom-ecommerce/manage/[shopId]/orders
+ *
+ * Per-shop orders table built on `ZoruDataTable` with a per-order detail
+ * sheet. Same data fetchers as before — only the visual layer changes.
+ */
+
+import * as React from "react";
 
 function statusVariant(s?: string): "default" | "secondary" | "outline" | "danger" {
   if (!s) return "outline";
