@@ -1,0 +1,43 @@
+# Standalone-package marker. Track B Phase 2 ships its slices one crate at
+# a time and the orchestrator wires them into `rust/Cargo.toml` as a batch
+# — until then this empty `[workspace]` table tells cargo "I'm intentionally
+# not a member of the enclosing workspace" so `cargo check -p
+# sabflow-executor-queue` from this crate's directory or `--manifest-path`
+# works in isolation. Once the orchestrator merges Phase 2, this marker can
+# be dropped and the crate joins the workspace members list.
+[workspace]
+
+[package]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+edition = "2024"
+description = "SabFlow executor dispatcher — Redis-backed claim-side rate limiter for workflow executions, mirroring the per-workspace + per-plan check the TS enqueue path runs at `src/lib/sabflow/queue/rate-limit.ts`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "sabflow_executor_queue"
+path = "src/lib.rs"
+
+[dependencies]
+# Async stack — matches the rest of the workspace.
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }
+
+# Serialization for the result enum so callers can log / surface it.
+serde = { version = "1", features = ["derive"] }
+
+# Standard error / logging plumbing used everywhere in this workspace.
+thiserror = "2"
+anyhow = "1"
+tracing = "0.1"
+
+# Redis client. fred is the workspace standard (see `sabnode-db`). We don't
+# need Lua here — INCR + EXPIRE is two plain commands — so we skip the
+# `i-scripts` feature.
+fred = { version = "10.1", default-features = true, features = [
+    "enable-rustls",
+    "i-keys",
+] }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
