@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "notion-pr-template-creator",
+  "cases": [
+    {
+      "id": "design-pr",
+      "description": "PR opened with [design] label triggers design doc creation.",
+      "triggerPayload": { "pull_request": { "number": 42, "title": "New feature X", "labels": [{ "name": "design" }] } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

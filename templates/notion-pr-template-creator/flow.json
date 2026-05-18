@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_pr",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.pull_request.opened",
+    "options": {
+      "path": "/webhooks/notion-pr-template-creator",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "PR Opened",
+      "type": "n8n-nodes-base.githubTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "events": ["pull_request"], "owner": "={{ $vars.GH_OWNER }}", "repository": "={{ $vars.GH_REPO }}" },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_if_design",
+      "name": "Design Label?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [{ "value1": "={{ $json.pull_request.labels.map(l => l.name).join(',') }}", "operation": "contains", "value2": "design" }]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_pr",
+      "name": "Fetch PR Body",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [480, -100],
+      "parameters": {
+        "resource": "pullRequest",
+        "operation": "get",
+        "owner": "={{ $vars.GH_OWNER }}",
+        "repository": "={{ $vars.GH_REPO }}",
+        "pullRequestNumber": "={{ $json.pull_request.number }}"
+      },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_gpt",
+      "name": "GPT-4o Skeleton",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, -100],
+      "parameters": {
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Turn this PR body into a design-doc skeleton with sections: Problem, Goals, Non-Goals, Options, Decision." },
+            { "role": "user", "content": "={{ $json.body }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI" } }
+    },
+    {
+      "id": "n_notion",
+      "name": "Create Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_DESIGN_DB }}",
+        "title": "=Design: {{ $node['PR Opened'].json.pull_request.title }}"
+      },
+      "credentials": { "notionApi": { "id": "notion-cred", "name": "Notion" } }
+    },
+    {
+      "id": "n_comment",
+      "name": "Comment on PR",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [1200, -100],
+      "parameters": {
+        "resource": "issue",
+        "operation": "createComment",
+        "owner": "={{ $vars.GH_OWNER }}",
+        "repository": "={{ $vars.GH_REPO }}",
+        "issueNumber": "={{ $node['PR Opened'].json.pull_request.number }}",
+        "body": "=Design doc started: {{ $node['Create Notion Page'].json.url }}"
+      },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Not Tagged",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_if_design", "type": "main", "index": 0 }]] },
+    "n_if_design": {
+      "true": [[{ "node": "n_fetch_pr", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_pr": { "main": [[{ "node": "n_gpt", "type": "main", "index": 0 }]] },
+    "n_gpt": { "main": [[{ "node": "n_notion", "type": "main", "index": 0 }]] },
+    "n_notion": { "main": [[{ "node": "n_comment", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_if_design", "n_fetch_pr", "n_gpt", "n_notion", "n_comment", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_owner", "name": "GH_OWNER", "defaultValue": "your-org" },
+    { "id": "v_repo", "name": "GH_REPO", "defaultValue": "your-repo" },
+    { "id": "v_db", "name": "NOTION_DESIGN_DB", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
