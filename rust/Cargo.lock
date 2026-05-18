@@ -7755,6 +7755,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sabflow-executor-core"
+version = "0.1.0"
+
+[[package]]
+name = "sabflow-executor-errors"
+version = "0.1.0"
+
+[[package]]
+name = "sabflow-executor-expression"
+version = "0.1.0"
+
+[[package]]
+name = "sabflow-executor-nodes"
+version = "0.1.0"
+
+[[package]]
+name = "sabflow-executor-queue"
+version = "0.1.0"
+
+[[package]]
 name = "sabflow-nodes"
 version = "0.1.0"
 dependencies = [
