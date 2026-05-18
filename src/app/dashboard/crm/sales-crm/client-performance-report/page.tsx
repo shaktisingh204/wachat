@@ -18,7 +18,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, LineChart } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateClientPerformanceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
@@ -26,7 +26,7 @@ import Papa from 'papaparse';
 
 import { format } from "date-fns";
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function ClientPerformanceReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
@@ -88,17 +88,15 @@ export default function ClientPerformanceReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Client Performance Report"
-                subtitle="Analyze revenue and lead metrics for each client account."
-                icon={LineChart}
-                actions={
-                    <ZoruButton variant="outline" onClick={handleDownload}>
-                        Download CSV
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Client Performance Report"
+            subtitle="Analyze revenue and lead metrics for each client account."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload}>
+                    Download CSV
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -164,6 +162,6 @@ export default function ClientPerformanceReportPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

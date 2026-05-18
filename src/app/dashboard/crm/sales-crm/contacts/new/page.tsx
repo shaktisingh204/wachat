@@ -10,11 +10,9 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, UserPlus } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
     ContactForm,
     type ContactFormPrefill,
@@ -74,24 +72,8 @@ export default function NewContactPage() {
                 : 'Add a person to your CRM contact book.';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href="/dashboard/crm/sales-crm/contacts"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to Contacts
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="New Contact"
-                subtitle={subtitle}
-                icon={UserPlus}
-            />
-
+        <EntityListShell title="New Contact" subtitle={subtitle}>
             <ContactForm mode="create" prefill={prefill} />
-        </div>
+        </EntityListShell>
     );
 }

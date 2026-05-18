@@ -1,9 +1,7 @@
 import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
-import { FolderKanban } from 'lucide-react';
-
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatCard, BarRow } from '../_components/report-toolbar';
 import { getProjectStatusReport } from '@/app/actions/worksuite/reports.actions';
 
@@ -20,12 +18,10 @@ export default async function ProjectStatusReportPage() {
       : 0;
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Project Status"
-        subtitle="Projects grouped by status with average completion."
-        icon={FolderKanban}
-      />
+    <EntityListShell
+      title="Project Status"
+      subtitle="Projects grouped by status with average completion."
+    >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <StatCard label="Total projects" value={String(total)} />
         <StatCard label="Statuses" value={String(rows.length)} />
@@ -57,6 +53,6 @@ export default async function ProjectStatusReportPage() {
           ))
         )}
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

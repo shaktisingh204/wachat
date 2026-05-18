@@ -10,12 +10,11 @@ import {
   ZoruTableRow,
 } from '@/components/zoruui';
 import {
-  Zap,
   Plus } from 'lucide-react';
 import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -75,19 +74,17 @@ export default async function AutomationsPage() {
   }
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Automations"
-        subtitle="Trigger-based rules that send emails, create tasks and update records automatically."
-        icon={Zap}
-        actions={
-          <ZoruButton variant="outline" size="sm" asChild>
-            <Link href="/dashboard/crm/sales-crm/automations/new">
-              <Plus className="h-4 w-4" /> New automation
-            </Link>
-          </ZoruButton>
-        }
-      />
+    <EntityListShell
+      title="Automations"
+      subtitle="Trigger-based rules that send emails, create tasks and update records automatically."
+      primaryAction={
+        <ZoruButton variant="outline" size="sm" asChild>
+          <Link href="/dashboard/crm/sales-crm/automations/new">
+            <Plus className="h-4 w-4" /> New automation
+          </Link>
+        </ZoruButton>
+      }
+    >
 
       <ZoruCard className="p-6">
         <div className="mb-4">
@@ -171,6 +168,6 @@ export default async function AutomationsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

@@ -18,13 +18,7 @@ export default async function OverdueTasksPage() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Overdue Tasks"
-        subtitle="Open tasks past their due date."
-        icon={AlertTriangle}
-      />
-
+    <EntityListShell title="Overdue Tasks" subtitle="Open tasks past their due date.">
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <StatCard label="Overdue tasks" value={String(rows.length)} tone="red" />
         <StatCard
@@ -83,6 +77,6 @@ export default async function OverdueTasksPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
-    </div>
+    </EntityListShell>
   );
 }

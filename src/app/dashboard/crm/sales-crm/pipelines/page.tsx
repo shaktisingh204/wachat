@@ -12,12 +12,12 @@ import {
 import { useState, useEffect, useTransition } from 'react';
 import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
 import type { CrmPipeline } from '@/lib/definitions';
-import { Plus, Eye, Edit, Columns3 } from "lucide-react";
+import { Columns3 } from "lucide-react";
 import { EditPipelinesDialog } from '@/components/wabasimplify/edit-pipelines-dialog';
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 function PageSkeleton() {
     return (
@@ -77,22 +77,20 @@ export default function SalesPipelinePage() {
                 initialPipelines={pipelines}
             />
 
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Sales Pipelines"
-                    subtitle="Create and manage multiple sales pipelines to track your deals."
-                    icon={Columns3}
-                    actions={
-                        <>
-                            <ZoruButton variant="outline" onClick={() => setIsEditOpen(true)}>
-                                Edit Pipelines
-                            </ZoruButton>
-                            <ZoruButton onClick={() => setIsCreateOpen(true)}>
-                                New Pipeline
-                            </ZoruButton>
-                        </>
-                    }
-                />
+            <EntityListShell
+                title="Sales Pipelines"
+                subtitle="Create and manage multiple sales pipelines to track your deals."
+                primaryAction={
+                    <>
+                        <ZoruButton variant="outline" onClick={() => setIsEditOpen(true)}>
+                            Edit Pipelines
+                        </ZoruButton>
+                        <ZoruButton onClick={() => setIsCreateOpen(true)}>
+                            New Pipeline
+                        </ZoruButton>
+                    </>
+                }
+            >
 
                 {pipelines.length > 0 ? (
                     <ZoruAccordion type="multiple" defaultValue={pipelines.map(p => p.id)} className="w-full space-y-4">
@@ -135,7 +133,7 @@ export default function SalesPipelinePage() {
                         </div>
                     </ZoruCard>
                 )}
-            </div>
+            </EntityListShell>
         </>
     );
 }

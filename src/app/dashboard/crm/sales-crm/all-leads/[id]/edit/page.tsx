@@ -7,10 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
-import { ArrowLeft, Edit } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { LeadForm } from '../../_components/leads-form';
 import { getCrmLeadById } from '@/app/actions/crm-leads.actions';
 
@@ -24,24 +22,11 @@ export default async function EditLeadPage({ params }: PageProps) {
     if (!lead) notFound();
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href={`/dashboard/crm/sales-crm/all-leads/${id}`}
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to lead
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="Edit Lead"
-                subtitle={`Update the details for "${lead.title}".`}
-                icon={Edit}
-            />
-
+        <EntityListShell
+            title="Edit Lead"
+            subtitle={`Update the details for "${lead.title}".`}
+        >
             <LeadForm mode="edit" initial={lead} showConvert={false} />
-        </div>
+        </EntityListShell>
     );
 }

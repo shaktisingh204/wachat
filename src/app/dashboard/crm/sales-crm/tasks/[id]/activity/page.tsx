@@ -7,7 +7,6 @@
 
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmTaskById } from '@/app/actions/crm-tasks.actions';
@@ -22,21 +21,15 @@ export default async function TaskActivityPage({ params }: PageProps) {
     if (!task) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader
-                title={`${task.title} — Activity`}
-                subtitle="Audit trail of changes made to this task."
-            />
-            <EntityDetailShell
-                title={task.title || 'Task'}
-                eyebrow="TASK ACTIVITY"
-                back={{
-                    href: `/dashboard/crm/sales-crm/tasks/${id}`,
-                    label: 'Back to task',
-                }}
-            >
-                <EntityAuditTimeline entityKind="task" entityId={id} />
-            </EntityDetailShell>
-        </div>
+        <EntityDetailShell
+            title={task.title || 'Task'}
+            eyebrow="TASK ACTIVITY"
+            back={{
+                href: `/dashboard/crm/sales-crm/tasks/${id}`,
+                label: 'Back to task',
+            }}
+        >
+            <EntityAuditTimeline entityKind="task" entityId={id} />
+        </EntityDetailShell>
     );
 }

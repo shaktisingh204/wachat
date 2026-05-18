@@ -13,11 +13,9 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CheckSquare } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { TaskForm } from '../_components/tasks-form';
 import { getSession } from '@/app/actions/user.actions';
 import type { TaskLinkedKind } from '@/app/actions/crm-tasks.actions';
@@ -65,32 +63,19 @@ export default function NewTaskPage() {
             : null;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href="/dashboard/crm/sales-crm/tasks"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to Tasks
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="New Task"
-                subtitle={
-                    linkedKind && linkedKind !== 'none' && linkedId
-                        ? `Creating from ${linkedKind} ${linkedId.slice(-6)}`
-                        : 'Track a call, meeting, follow-up, or to-do.'
-                }
-                icon={CheckSquare}
-            />
-
+        <EntityListShell
+            title="New Task"
+            subtitle={
+                linkedKind && linkedKind !== 'none' && linkedId
+                    ? `Creating from ${linkedKind} ${linkedId.slice(-6)}`
+                    : 'Track a call, meeting, follow-up, or to-do.'
+            }
+        >
             <TaskForm
                 mode="create"
                 prefill={prefill}
                 currentUserId={currentUserId}
             />
-        </div>
+        </EntityListShell>
     );
 }

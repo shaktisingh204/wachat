@@ -7,9 +7,8 @@
  */
 
 import { notFound } from 'next/navigation';
-import { Trophy } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getCrmDealById } from '@/app/actions/crm-deals.actions';
 import { DealForm } from '../../_components/deal-form';
 
@@ -25,23 +24,14 @@ export default async function EditDealPage({ params }: PageProps) {
   if (!deal) notFound();
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title={`Edit ${deal.name || 'deal'}`}
-        subtitle="Update deal details and pipeline placement."
-        icon={Trophy}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-          { label: 'Deals', href: '/dashboard/crm/sales-crm/deals' },
-          { label: deal.name || 'Deal', href: `/dashboard/crm/sales-crm/deals/${id}` },
-          { label: 'Edit' },
-        ]}
-      />
+    <EntityListShell
+      title={`Edit ${deal.name || 'deal'}`}
+      subtitle="Update deal details and pipeline placement."
+    >
       <DealForm
         initial={deal}
         redirectTo={`/dashboard/crm/sales-crm/deals/${id}`}
       />
-    </div>
+    </EntityListShell>
   );
 }

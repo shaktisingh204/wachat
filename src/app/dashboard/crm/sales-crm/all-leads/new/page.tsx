@@ -10,11 +10,9 @@
  */
 
 import * as React from 'react';
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, UserPlus } from 'lucide-react';
 
-import { CrmPageHeader } from '../../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { LeadForm } from '../_components/leads-form';
 import type { CrmLead } from '@/lib/definitions';
 
@@ -41,28 +39,15 @@ export default function NewLeadPage() {
             : null;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <div>
-                <Link
-                    href="/dashboard/crm/sales-crm/all-leads"
-                    className="inline-flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink"
-                >
-                    <ArrowLeft className="h-3.5 w-3.5" />
-                    Back to All Leads
-                </Link>
-            </div>
-
-            <CrmPageHeader
-                title="New Lead"
-                subtitle={
-                    fromKind && fromId
-                        ? `Creating from ${fromKind} ${fromId.slice(-6)}`
-                        : 'Capture a new prospect for your sales pipeline.'
-                }
-                icon={UserPlus}
-            />
-
+        <EntityListShell
+            title="New Lead"
+            subtitle={
+                fromKind && fromId
+                    ? `Creating from ${fromKind} ${fromId.slice(-6)}`
+                    : 'Capture a new prospect for your sales pipeline.'
+            }
+        >
             <LeadForm mode="create" prefill={prefill} showConvert />
-        </div>
+        </EntityListShell>
     );
 }

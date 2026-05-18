@@ -10,10 +10,9 @@
  * Per CRM_REBUILD_PLAN §1D.1.
  */
 
-import { Trophy } from 'lucide-react';
 import { ObjectId, type WithId } from 'mongodb';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
@@ -217,18 +216,10 @@ export default async function DealsListPage({ searchParams }: PageProps) {
   const kpi = computeKpi(deals);
 
   return (
-    <div className="flex w-full flex-col gap-6">
-      <CrmPageHeader
-        title="Deals"
-        subtitle="Pipeline opportunities — track value, stage, and forecast in one place."
-        icon={Trophy}
-        breadcrumbs={[
-          { label: 'CRM', href: '/dashboard/crm' },
-          { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-          { label: 'Deals' },
-        ]}
-      />
-
+    <EntityListShell
+      title="Deals"
+      subtitle="Pipeline opportunities — track value, stage, and forecast in one place."
+    >
       <DealListClient
         deals={deals}
         total={total}
@@ -241,6 +232,6 @@ export default async function DealsListPage({ searchParams }: PageProps) {
         currentUserId={session?.user?._id ? String(session.user._id) : null}
         error={error}
       />
-    </div>
+    </EntityListShell>
   );
 }

@@ -18,13 +18,13 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { Download, BarChart } from "lucide-react";
+import { Download } from "lucide-react";
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { generateLeadSourceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
 import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 export default function LeadSourceReportPage() {
     const [reportData, setReportData] = useState<any[]>([]);
@@ -85,17 +85,15 @@ export default function LeadSourceReportPage() {
     };
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Lead Source Report"
-                subtitle="Analyze the effectiveness of your lead sources."
-                icon={BarChart}
-                actions={
-                    <ZoruButton variant="outline" onClick={handleDownload}>
-                        Download CSV
-                    </ZoruButton>
-                }
-            />
+        <EntityListShell
+            title="Lead Source Report"
+            subtitle="Analyze the effectiveness of your lead sources."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload}>
+                    Download CSV
+                </ZoruButton>
+            }
+        >
 
             <ZoruCard>
                 <div className="mb-4">
@@ -161,6 +159,6 @@ export default function LeadSourceReportPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

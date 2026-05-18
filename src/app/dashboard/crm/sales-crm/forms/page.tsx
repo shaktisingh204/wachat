@@ -21,11 +21,11 @@ import { getCrmForms } from '@/app/actions/crm-forms.actions';
 import type { CrmForm } from '@/lib/definitions';
 
 import { Search, Plus, ClipboardList, Eye, Edit, Trash2 } from 'lucide-react';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
 import { useDebouncedCallback } from 'use-debounce';
 import { formatDistanceToNow } from 'date-fns';
 
-import { CrmPageHeader } from '../../_components/crm-page-header';
 
 const FORMS_PER_PAGE = 20;
 
@@ -61,12 +61,10 @@ export default function CrmFormsPage() {
 
     if (forms.length === 0 && !isLoading) {
         return (
-            <div className="flex w-full flex-col gap-6">
-                <CrmPageHeader
-                    title="Forms"
-                    subtitle="Create and embed forms on your website to capture leads directly into your CRM."
-                    icon={ClipboardList}
-                />
+            <EntityListShell
+                title="Forms"
+                subtitle="Create and embed forms on your website to capture leads directly into your CRM."
+            >
                 <ZoruCard variant="outline" className="border-dashed">
                     <div className="flex flex-col items-center gap-3 py-12 text-center">
                         <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
@@ -83,24 +81,22 @@ export default function CrmFormsPage() {
                         </Link>
                     </div>
                 </ZoruCard>
-            </div>
+            </EntityListShell>
         );
     }
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title="Forms"
-                subtitle="Manage your lead capture forms."
-                icon={ClipboardList}
-                actions={
-                    <Link href="/dashboard/crm/sales-crm/forms/new">
-                        <ZoruButton>
-                            New Form
-                        </ZoruButton>
-                    </Link>
-                }
-            />
+        <EntityListShell
+            title="Forms"
+            subtitle="Manage your lead capture forms."
+            primaryAction={
+                <Link href="/dashboard/crm/sales-crm/forms/new">
+                    <ZoruButton>
+                        New Form
+                    </ZoruButton>
+                </Link>
+            }
+        >
 
             <ZoruCard>
                 <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
@@ -149,6 +145,6 @@ export default function CrmFormsPage() {
                     </ZoruTable>
                 </div>
             </ZoruCard>
-        </div>
+        </EntityListShell>
     );
 }

@@ -2,8 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  ClipboardList,
+import {
   Eye,
   Pencil } from 'lucide-react';
 
@@ -16,7 +15,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getFormById } from '@/app/actions/crm-forms.actions';
@@ -57,43 +56,31 @@ export default async function FormDetailPage({
     const settings = (form.settings ?? {}) as Record<string, unknown>;
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-                    { label: 'Forms', href: BASE },
-                    { label: form.name },
-                ]}
-                title={form.name}
-                subtitle={form.slug ? `/${form.slug}` : 'Lead-capture form'}
-                icon={ClipboardList}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton variant="outline" asChild>
-                            <a
-                                href={`/embed/crm-form/${formId}`}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Eye className="mr-2 h-4 w-4" />
-                                Preview
-                            </a>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${formId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            title={form.name}
+            eyebrow="FORM"
+            back={{ href: BASE, label: 'Forms' }}
+            actions={
+                <div className="flex items-center gap-2">
+                    <ZoruButton variant="outline" asChild>
+                        <a
+                            href={`/embed/crm-form/${formId}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Eye className="mr-2 h-4 w-4" />
+                            Preview
+                        </a>
+                    </ZoruButton>
+                    <ZoruButton asChild>
+                        <Link href={`${BASE}/${formId}/edit`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                        </Link>
+                    </ZoruButton>
+                </div>
+            }
+        >
 
             {/* Summary card */}
             <ZoruCard className="p-6">
@@ -189,6 +176,6 @@ export default async function FormDetailPage({
                     </ol>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

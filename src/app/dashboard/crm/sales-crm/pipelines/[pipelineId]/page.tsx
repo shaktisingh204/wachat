@@ -2,9 +2,7 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   notFound,
   redirect } from 'next/navigation';
-import { ArrowLeft,
-  Columns3,
-  Pencil } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 
 /**
  * Pipeline detail page.
@@ -16,7 +14,7 @@ import { ArrowLeft,
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getPipelineById } from '@/app/actions/crm-pipelines.actions';
@@ -49,33 +47,19 @@ export default async function PipelineDetailPage({
     const stages = pipeline.stages ?? [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'Sales CRM', href: '/dashboard/crm/sales-crm' },
-                    { label: 'Pipelines', href: BASE },
-                    { label: pipeline.name },
-                ]}
-                title={pipeline.name}
-                subtitle={pipeline.description || 'Pipeline detail'}
-                icon={Columns3}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${pipelineId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            title={pipeline.name}
+            eyebrow="PIPELINE"
+            back={{ href: BASE, label: 'Pipelines' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${pipelineId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Summary card */}
             <ZoruCard className="p-6">
@@ -187,6 +171,6 @@ export default async function PipelineDetailPage({
                     </ol>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }
