@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ai-rfp-responder",
+  "cases": [
+    {
+      "id": "upload",
+      "description": "RFP upload triggers OCR, vision, retrieval, drafting, and fan-out.",
+      "triggerPayload": {
+        "fileUrl": "https://files.example.com/rfp-acme.pdf",
+        "requesterEmail": "ae@example.com",
+        "opportunityId": "0061x000003ABcD",
+        "opportunityName": "Acme RFP Q3"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
