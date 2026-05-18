@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_wix_booking",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "wix.booking.created",
+    "options": {
+      "path": "/webhooks/wix-booking-confirm",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Wix-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_wix_webhook",
+      "name": "Booking Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "wix-booking-confirm", "responseMode": "onReceived" },
+      "webhookId": "wix-booking-confirm-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Booking",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "customerEmail", "value": "={{ $json.customer.email }}" },
+            { "name": "service", "value": "={{ $json.service.name }}" },
+            { "name": "startTime", "value": "={{ $json.startTime }}" },
+            { "name": "endTime", "value": "={{ $json.endTime }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Email Customer",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.STUDIO_FROM_EMAIL }}",
+        "toEmail": "={{ $json.customerEmail }}",
+        "subject": "Confirmed: {{ $json.service }}",
+        "contentType": "text/html",
+        "content": "<p>See you at {{ $json.startTime }}.</p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_gcal",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {
+        "operation": "create",
+        "calendar": "={{ $vars.STAFF_CALENDAR_ID }}",
+        "start": "={{ $json.startTime }}",
+        "end": "={{ $json.endTime }}",
+        "summary": "{{ $json.service }} — {{ $json.customerEmail }}"
+      },
+      "credentials": { "googleCalendarOAuth2Api": { "id": "gcal-cred", "name": "Google Calendar" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Log Booking",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "operation": "insert", "collection": "wix_bookings" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_wix_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_sendgrid", "type": "main", "index": 0 },
+        { "node": "n_gcal", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_sendgrid": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_gcal": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_wix_webhook", "n_extract", "n_sendgrid", "n_gcal", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_f", "name": "STUDIO_FROM_EMAIL", "defaultValue": "studio@example.com" },
+    { "id": "v_c", "name": "STAFF_CALENDAR_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
