@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "agent-tool-call-monitor",
+  "cases": [
+    {
+      "id": "threshold-crossed",
+      "description": "Tool-call failure webhook crosses the 10-minute threshold, opens a Linear issue, pages Slack, and logs to Mongo.",
+      "triggerPayload": {
+        "tool_name": "search_docs",
+        "error": "TimeoutError: tool did not respond in 30s",
+        "agent_id": "agt_42",
+        "trace_id": "trc_abc123"
+      },
+      "expect": {
+        "finalStatus": "success"
+      }
+    }
+  ]
+}
