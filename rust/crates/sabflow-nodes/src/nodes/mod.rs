@@ -21,7 +21,9 @@ pub mod merge_node;
 pub mod wait_node;
 pub mod code;
 pub mod schedule_trigger;
-pub mod webhook;
+pub mod manual_trigger;
+pub mod execute_workflow_trigger;
+pub mod webhook_trigger;
 pub mod noop_node;
 
 // ── Phase C.3.4: typed Logic / Transform nodes ──────────────────────────────
@@ -127,7 +129,9 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(wait_node::WaitNode);
     r.register(code::CodeNode);
     r.register(schedule_trigger::ScheduleTriggerNode);
-    r.register(webhook::WebhookNode);
+    r.register(manual_trigger::ManualTriggerNode);
+    r.register(execute_workflow_trigger::ExecuteWorkflowTriggerNode);
+    r.register(webhook_trigger::WebhookTriggerNode);
     r.register(noop_node::NoOpNode);
     // C.3.4 — Filter (real impl) + FunctionItem (typed-error stub).
     r.register(filter::FilterNode);
@@ -353,7 +357,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("mailgun", "Mailgun", NodeCategory::Communication, "Email API"),
         ("mailjet", "Mailjet", NodeCategory::Communication, "Email service"),
         ("mandrill", "Mandrill", NodeCategory::Communication, "Transactional email"),
-        ("manualTrigger", "Manual Trigger", NodeCategory::Trigger, "Run manually from the editor"),
         ("markdown", "Markdown", NodeCategory::Transform, "Markdown <-> HTML conversion"),
         ("marketstack", "marketstack", NodeCategory::Finance, "Stock market data"),
         ("matrix", "Matrix", NodeCategory::Communication, "Decentralised chat"),
