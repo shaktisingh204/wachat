@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_render_failed",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "render.deploy.failed",
+    "options": {
+      "path": "/webhooks/render-deploy-rollback",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Render-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_render_webhook",
+      "name": "Render Deploy Failed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "render-deploy-rollback", "responseMode": "onReceived" },
+      "webhookId": "render-deploy-rollback-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Service",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": { "string": [{ "name": "serviceId", "value": "={{ $json.service.id }}" }] }
+      }
+    },
+    {
+      "id": "n_list_deploys",
+      "name": "List Recent Deploys",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.RENDER_API }}/v1/services/{{ $json.serviceId }}/deploys?limit=10",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "render-cred", "name": "Render API" } }
+    },
+    {
+      "id": "n_pick_lkg",
+      "name": "Pick Last Good",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "jsCode": "const list = $input.first().json;\nconst lkg = (Array.isArray(list)?list:[]).find(d => d.status === 'live');\nreturn [{ json: { deployId: lkg ? lkg.id : 'dep-prev' } }];"
+      }
+    },
+    {
+      "id": "n_rollback",
+      "name": "Rollback to Last Good",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.RENDER_API }}/v1/services/{{ $node['Extract Service'].json.serviceId }}/rollback",
+        "sendBody": true,
+        "bodyParameters": { "parameters": [{ "name": "deployId", "value": "={{ $json.deployId }}" }] },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "render-cred", "name": "Render API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.RELEASES_SLACK }}",
+        "text": ":leftwards_arrow_with_hook: Render rolled back service {{ $node['Extract Service'].json.serviceId }} to {{ $json.deployId }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_render_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_list_deploys", "type": "main", "index": 0 }]] },
+    "n_list_deploys": { "main": [[{ "node": "n_pick_lkg", "type": "main", "index": 0 }]] },
+    "n_pick_lkg": { "main": [[{ "node": "n_rollback", "type": "main", "index": 0 }]] },
+    "n_rollback": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_render_webhook", "n_extract", "n_list_deploys", "n_pick_lkg", "n_rollback", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_r", "name": "RENDER_API", "defaultValue": "https://api.render.com" },
+    { "id": "v_s", "name": "RELEASES_SLACK", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

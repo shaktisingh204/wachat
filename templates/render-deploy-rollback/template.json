@@ -1,0 +1,10 @@
+{
+  "id": "render-deploy-rollback",
+  "name": "Render Deploy Rollback",
+  "description": "When Render emits a `deploy.failed` webhook, finds the last known-good deploy via the Render API, triggers a rollback to that revision, and posts a concise status update to the #releases Slack channel. Removes the 'who knows the rollback runbook' delay.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["render", "rollback", "slack", "deploy", "ci", "webhook"],
+  "version": "0.1.0"
+}
