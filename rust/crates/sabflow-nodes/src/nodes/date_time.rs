@@ -325,3 +325,119 @@ impl Node for DateTimeNode {
         Ok(NodeOutput::single(vec![body]))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Arc;
+
+    fn ctx() -> ExecutionContext {
+        ExecutionContext::new(
+            "test-exec".to_string(),
+            Arc::new(reqwest::Client::new()),
+        )
+    }
+
+    #[test]
+    fn parse_iso8601_with_tz() {
+        let dt = parse_datetime("2024-01-15T12:30:00Z").unwrap();
+        assert_eq!(dt.timestamp(), 1_705_321_800);
+    }
+
+    #[test]
+    fn parse_naive_assumes_utc() {
+        let dt = parse_datetime("2024-01-15 12:30:00").unwrap();
+        assert_eq!(dt.timestamp(), 1_705_321_800);
+    }
+
+    #[test]
+    fn parse_date_only() {
+        let dt = parse_datetime("2024-01-15").unwrap();
+        assert_eq!(dt.timestamp(), 1_705_276_800);
+    }
+
+    #[test]
+    fn parse_unix_seconds() {
+        let dt = parse_datetime("1705321800").unwrap();
+        assert_eq!(dt.timestamp(), 1_705_321_800);
+    }
+
+    #[test]
+    fn parse_unix_millis() {
+        let dt = parse_datetime("1705321800000").unwrap();
+        assert_eq!(dt.timestamp(), 1_705_321_800);
+    }
+
+    #[test]
+    fn shift_add_days() {
+        let dt = parse_datetime("2024-01-15T00:00:00Z").unwrap();
+        let shifted = shift_datetime(dt, "days", 10, false).unwrap();
+        assert_eq!(shifted.to_rfc3339(), "2024-01-25T00:00:00+00:00");
+    }
+
+    #[test]
+    fn shift_subtract_months() {
+        let dt = parse_datetime("2024-03-15T00:00:00Z").unwrap();
+        let shifted = shift_datetime(dt, "months", 2, true).unwrap();
+        assert_eq!(shifted.to_rfc3339(), "2024-01-15T00:00:00+00:00");
+    }
+
+    #[tokio::test]
+    async fn op_format_produces_chrono_output() {
+        let node = DateTimeNode;
+        let mut c = ctx();
+        let params = json!({
+            "operation": "format",
+            "value": "2024-01-15T12:30:00Z",
+            "format": "%Y/%m/%d",
+        });
+        let out = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap();
+        assert_eq!(out.branches[0].items[0]["dateTime"], json!("2024/01/15"));
+    }
+
+    #[tokio::test]
+    async fn op_diff_seconds() {
+        let node = DateTimeNode;
+        let mut c = ctx();
+        let params = json!({
+            "operation": "diff",
+            "value": "2024-01-15T00:00:00Z",
+            "compareValue": "2024-01-15T00:01:00Z",
+        });
+        let out = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap();
+        assert_eq!(out.branches[0].items[0]["seconds"], json!(60));
+    }
+
+    #[tokio::test]
+    async fn op_add_days_round_trip() {
+        let node = DateTimeNode;
+        let mut c = ctx();
+        let params = json!({
+            "operation": "add",
+            "value": "2024-01-15T00:00:00Z",
+            "unit": "days",
+            "amount": 5,
+        });
+        let out = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap();
+        assert_eq!(
+            out.branches[0].items[0]["iso"],
+            json!("2024-01-20T00:00:00+00:00")
+        );
+    }
+
+    #[test]
+    fn descriptor_is_not_a_stub() {
+        let d = DateTimeNode.descriptor();
+        assert_eq!(d.name, "dateTime");
+        assert!(!d.stub, "DateTime must not be registered as a stub");
+    }
+}

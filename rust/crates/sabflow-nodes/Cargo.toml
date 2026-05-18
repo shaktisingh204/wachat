@@ -87,24 +87,10 @@ jsonwebtoken = "9"
 # RSS / Atom feed parser for the `rssFeedRead` node.
 rss = "2"
 
-# AES-256-GCM for the credential-mock envelope inside `test_support`.
-# Mirrors the wire format of
-# `src/lib/sabflow/executor/credentials/crypto.ts` (Node's
-# `aes-256-gcm`) so test envelopes are byte-compatible with the runtime
-# resolver. Pulled in unconditionally so integration tests under
-# `tests/` (which see the lib as an external crate, no dev-deps) can
-# reach the `test_support::credentials_mock` types. The production code
-# path never references the module; LTO will drop the symbols on a
-# release build.
-#
-# NOT promoted to the workspace root — kept local to `sabflow-nodes`.
-aes-gcm = "0.10"
-
-[dev-dependencies]
-# Mock HTTP server for `tests/credentials_parity.rs`. Same version
-# pinned by the wachat templates integration suite, so the Cargo
-# lockfile collapses to a single copy.
-wiremock = "0.6"
+# gzip / deflate codecs for the `compression` node. Already in the workspace
+# Cargo.lock transitively (via reqwest's `gzip` feature), so this only promotes
+# it to a direct dep.
+flate2 = "1"
 
 [lints]
 workspace = true

@@ -24,7 +24,8 @@ pub mod schedule_trigger;
 pub mod manual_trigger;
 pub mod execute_workflow_trigger;
 pub mod webhook_trigger;
-pub mod noop_node;
+pub mod no_op;
+pub mod compression;
 
 // ── Phase C.3.8 — sub-flow / wait / halt control-flow nodes ──────────────────
 pub mod execute_workflow;
@@ -132,10 +133,8 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(manual_trigger::ManualTriggerNode);
     r.register(execute_workflow_trigger::ExecuteWorkflowTriggerNode);
     r.register(webhook_trigger::WebhookTriggerNode);
-    r.register(noop_node::NoOpNode);
-    // C.3.8 — sub-flow + halt
-    r.register(execute_workflow::ExecuteWorkflowNode);
-    r.register(stop_and_error::StopAndErrorNode);
+    r.register(no_op::NoOpNode);
+    r.register(compression::CompressionNode);
     // Integrations (20)
     r.register(slack::SlackNode);
     r.register(discord::DiscordNode);
@@ -255,7 +254,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("coda", "Coda", NodeCategory::Productivity, "All-in-one doc"),
         ("coinGecko", "CoinGecko", NodeCategory::Finance, "Cryptocurrency price data"),
         ("compareDatasets", "Compare Datasets", NodeCategory::Transform, "Diff two datasets"),
-        ("compression", "Compression", NodeCategory::Transform, "Compress and decompress files"),
         ("contentful", "Contentful", NodeCategory::Developer, "Headless CMS"),
         ("convertKit", "ConvertKit", NodeCategory::Marketing, "Email marketing for creators"),
         ("copper", "Copper", NodeCategory::Crm, "CRM built for Google Workspace"),
@@ -267,7 +265,6 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("customerIo", "Customer.io", NodeCategory::Marketing, "Behavioural email"),
         ("dataTable", "Data Table", NodeCategory::Transform, "Tabular data operations"),
         ("databricks", "Databricks", NodeCategory::Analytics, "Lakehouse platform"),
-        ("dateTime", "Date & Time", NodeCategory::Transform, "Format and manipulate dates"),
         ("debugHelper", "Debug Helper", NodeCategory::Developer, "Generate test data"),
         ("deepL", "DeepL", NodeCategory::Ai, "Translation API"),
         ("demio", "Demio", NodeCategory::Marketing, "Webinars"),
