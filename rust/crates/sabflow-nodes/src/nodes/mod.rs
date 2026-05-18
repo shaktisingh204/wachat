@@ -109,13 +109,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.5.5 — 6 productivity-SaaS implementations ───────────────────────
-pub mod coda;
-pub mod bamboo_hr;
-pub mod todoist;
-pub mod clockify;
-pub mod workable;
-pub mod figma;
+// ── Phase C.5.6: Marketing & analytics integrations ─────────────────────────
+pub mod mautic;
+pub mod intercom;
+pub mod bitly;
+pub mod hunter;
+pub mod drift;
+pub mod clearbit;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -232,13 +232,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.5.5 — 6 productivity-SaaS implementations
-    r.register(coda::CodaNode);
-    r.register(bamboo_hr::BambooHrNode);
-    r.register(todoist::TodoistNode);
-    r.register(clockify::ClockifyNode);
-    r.register(workable::WorkableNode);
-    r.register(figma::FigmaNode);
+    // Phase C.5.6 — marketing & analytics
+    r.register(mautic::MauticNode);
+    r.register(intercom::IntercomNode);
+    r.register(bitly::BitlyNode);
+    r.register(hunter::HunterNode);
+    r.register(drift::DriftNode);
+    r.register(clearbit::ClearbitNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
