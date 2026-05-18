@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "kibana-error-summary",
+  "cases": [
+    {
+      "id": "hourly-digest",
+      "description": "Kibana errors are clustered and posted to engineering.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
