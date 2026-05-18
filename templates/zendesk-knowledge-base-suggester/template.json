@@ -1,0 +1,10 @@
+{
+  "id": "zendesk-knowledge-base-suggester",
+  "name": "Zendesk Knowledge Base Suggester",
+  "description": "Triggered when a Zendesk ticket is marked solved, embeds the resolution text and asks Pinecone if there's a similar KB article already. When nothing close exists, the flow opens a Linear issue for a KB writer and pings #cx-ops so the gap doesn't sit forever.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["zendesk", "kb", "openai", "pinecone", "linear", "slack"],
+  "version": "0.1.0"
+}
