@@ -1,13 +1,18 @@
 //! sabflow-executor-queue — Track B Phase 2.
 //!
-//! Houses the SabFlow execution-queue plumbing: BullMQ-compatible Redis
-//! dispatcher worker loop (`dispatcher`), per-workspace concurrency caps
-//! (`concurrency`), retry policy + full-jitter exponential backoff (`retry`),
-//! and follow-up modules added by remaining Phase 2 sub-tasks.
+//! BullMQ-compatible Redis dispatcher with retry/backoff, DLQ, per-workspace
+//! concurrency + rate limiting, cooperative cancellation, graceful shutdown,
+//! and metrics. Modules land one per Phase 2 sub-task.
 
 pub mod dispatcher;
 pub mod concurrency;
 pub mod retry;
+pub mod dlq;
+pub mod rate_limit;
+pub mod shutdown;
+pub mod cancel;
+pub mod state;
+pub mod metrics;
 
 pub use retry::{
     classify_for_retry, delay_for, BackoffStrategy, RetryAction, RetrySpec, CRON_DEFAULT,
@@ -15,5 +20,5 @@ pub use retry::{
 };
 
 pub fn placeholder() -> &'static str {
-    "sabflow-executor-queue: scaffold"
+    "sabflow-executor-queue: phase 2"
 }
