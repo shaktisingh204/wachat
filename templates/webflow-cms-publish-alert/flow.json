@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_wf_publish",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "webflow.cms.item.published",
+    "options": {
+      "path": "/webhooks/webflow-cms-publish-alert",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-WF-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_wf_webhook",
+      "name": "Webflow CMS Publish",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "webflow-cms-publish-alert", "responseMode": "onReceived" },
+      "webhookId": "webflow-cms-publish-alert-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Item",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.name }}" },
+            { "name": "slug", "value": "={{ $json.slug }}" },
+            { "name": "url", "value": "{{ $vars.SITE_BASE_URL }}/{{ $json.slug }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #marketing",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.MARKETING_SLACK }}",
+        "text": ":newspaper: New article: *{{ $json.title }}* — {{ $json.url }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linkedin",
+      "name": "Post to LinkedIn Page",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {
+        "resource": "post",
+        "operation": "create",
+        "text": "New on our blog: {{ $json.title }} — {{ $json.url }}"
+      },
+      "credentials": { "linkedInOAuth2Api": { "id": "linkedin-cred", "name": "LinkedIn" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Log Publish",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "operation": "insert", "collection": "wf_publishes" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_wf_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_linkedin", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_slack": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_linkedin": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_wf_webhook", "n_extract", "n_slack", "n_linkedin", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_b", "name": "SITE_BASE_URL", "defaultValue": "https://example.com" },
+    { "id": "v_m", "name": "MARKETING_SLACK", "defaultValue": "#marketing" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
