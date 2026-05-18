@@ -1,0 +1,10 @@
+{
+  "id": "github-release-notes-auto",
+  "name": "GitHub Release Notes Auto",
+  "description": "Fires when a GitHub release is published, fetches the compare-diff between the previous tag and the new one, summarizes merged PRs with GPT-4o, and replaces the release body with cleaner notes. Announces the release on Slack #releases and posts a LinkedIn highlight for marketing.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["github", "release", "openai", "slack", "linkedin", "changelog"],
+  "version": "0.1.0"
+}
