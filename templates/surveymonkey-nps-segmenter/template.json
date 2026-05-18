@@ -1,0 +1,10 @@
+{
+  "id": "surveymonkey-nps-segmenter",
+  "name": "SurveyMonkey NPS Segmenter",
+  "description": "Captures a SurveyMonkey response, computes the NPS bucket (promoter, passive, or detractor) from the 0-10 score, and routes accordingly. Each branch tags the contact in Mailchimp and writes the score to HubSpot, while detractors also open an Intercom conversation for follow-up. Replaces the manual NPS export-import dance with a live segmentation pipeline.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["surveymonkey", "nps", "mailchimp", "hubspot", "intercom", "marketing"],
+  "version": "0.1.0"
+}
