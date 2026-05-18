@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ss_paid",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "substack.subscription.created",
+    "options": {
+      "path": "/webhooks/substack-paid-subscriber-welcome",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Substack-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ss_webhook",
+      "name": "Paid Subscription",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "substack-paid-subscriber-welcome", "responseMode": "onReceived" },
+      "webhookId": "substack-paid-subscriber-welcome-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Subscriber",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.email }}" },
+            { "name": "name", "value": "={{ $json.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mailchimp",
+      "name": "Add to Mailchimp Segment",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [480, -100],
+      "parameter": {},
+      "parameters": {
+        "resource": "member",
+        "operation": "upsert",
+        "list": "={{ $vars.MC_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "status": "subscribed",
+        "additionalFields": { "tags": "paid" }
+      },
+      "credentials": { "mailchimpApi": { "id": "mc-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Bonus PDF Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.AUTHOR_FROM_EMAIL }}",
+        "toEmail": "={{ $json.email }}",
+        "subject": "Welcome — your bonus is here",
+        "contentType": "text/html",
+        "content": "<p>Hi {{ $json.name }}, here's your bonus PDF: <a href=\"{{ $vars.BONUS_URL }}\">download</a>.</p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Log Conversion",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": { "operation": "insert", "collection": "substack_paid" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    },
+    {
+      "id": "n_slack_thanks",
+      "name": "Slack #conversions",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.CONV_SLACK }}",
+        "text": ":tada: New paid Substack subscriber: {{ $node['Extract Subscriber'].json.email }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_ss_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [[
+        { "node": "n_mailchimp", "type": "main", "index": 0 },
+        { "node": "n_sendgrid", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_mailchimp": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_mongo": { "main": [[{ "node": "n_slack_thanks", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ss_webhook", "n_extract", "n_mailchimp", "n_sendgrid", "n_mongo", "n_slack_thanks"]
+    }
+  ],
+  "variables": [
+    { "id": "v_l", "name": "MC_LIST_ID", "defaultValue": "" },
+    { "id": "v_f", "name": "AUTHOR_FROM_EMAIL", "defaultValue": "author@example.com" },
+    { "id": "v_b", "name": "BONUS_URL", "defaultValue": "https://example.com/bonus.pdf" },
+    { "id": "v_c", "name": "CONV_SLACK", "defaultValue": "#conversions" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

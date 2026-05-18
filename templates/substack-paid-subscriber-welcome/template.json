@@ -1,0 +1,10 @@
+{
+  "id": "substack-paid-subscriber-welcome",
+  "name": "Substack Paid Subscriber Welcome",
+  "description": "When Substack reports a paid subscription, the flow fans the new subscriber out to a Mailchimp paid-tier segment and a SendGrid welcome email containing the bonus PDF link, then writes the conversion to Mongo for retention reporting. Closes the loop between paywall and onboarding.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["substack", "mailchimp", "sendgrid", "marketing", "subscription", "webhook"],
+  "version": "0.1.0"
+}

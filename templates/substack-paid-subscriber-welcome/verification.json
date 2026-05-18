@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "substack-paid-subscriber-welcome",
+  "cases": [
+    {
+      "id": "paid-welcome",
+      "description": "Paid Substack subscriber gets segmented + emailed.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
