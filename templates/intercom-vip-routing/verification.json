@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "templateId": "intercom-vip-routing",
+  "cases": [
+    {
+      "id": "enterprise-customer-routed-vip",
+      "description": "Enterprise plan contact → Intercom assign+tag, Slack #vip-support ping, Mongo audit log.",
+      "triggerPayload": {
+        "type": "notification_event",
+        "topic": "conversation.user.created",
+        "data": {
+          "item": {
+            "id": "conv_12345",
+            "contacts": { "contacts": [{ "id": "contact_999" }] }
+          }
+        }
+      },
+      "fixtures": {
+        "intercom.contact.get": {
+          "status": 200,
+          "body": {
+            "id": "contact_999",
+            "email": "cto@bigcorp.example",
+            "custom_attributes": { "plan": "enterprise", "mrr": 8500 }
+          }
+        },
+        "intercom.conversation.update": { "status": 200, "body": { "id": "conv_12345", "assignee_id": "agent_007", "tags": ["vip"] } },
+        "slack.postMessage": { "status": 200, "body": { "ok": true, "channel": "#vip-support" } },
+        "mongo.insert": { "status": 200, "body": { "insertedId": "audit_abc" } }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_intercom_trigger",
+          "n_contact_get",
+          "n_if_vip",
+          "n_intercom_assign_tag",
+          "n_slack_vip",
+          "n_mongo_log"
+        ],
+        "variables": { "isVip": true, "plan": "enterprise" }
+      }
+    },
+    {
+      "id": "standard-customer-noop",
+      "description": "Free-tier contact below MRR floor → standard routing (NoOp), no VIP actions.",
+      "triggerPayload": {
+        "type": "notification_event",
+        "topic": "conversation.user.created",
+        "data": {
+          "item": {
+            "id": "conv_67890",
+            "contacts": { "contacts": [{ "id": "contact_111" }] }
+          }
+        }
+      },
+      "fixtures": {
+        "intercom.contact.get": {
+          "status": 200,
+          "body": {
+            "id": "contact_111",
+            "email": "user@small.example",
+            "custom_attributes": { "plan": "free", "mrr": 0 }
+          }
+        }
+      },
+      "expect": {
+        "finalStatus": "success",
+        "executedBlocks": [
+          "n_intercom_trigger",
+          "n_contact_get",
+          "n_if_vip",
+          "n_noop_standard"
+        ],
+        "variables": { "isVip": false, "plan": "free" }
+      }
+    }
+  ]
+}
