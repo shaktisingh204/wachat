@@ -1,0 +1,10 @@
+{
+  "id": "github-stale-pr-reminder",
+  "name": "GitHub Stale PR Reminder",
+  "description": "Every weekday at 10:00, lists open pull requests in a target repo, filters to ones idle more than 7 days, and DMs the PR author on Slack with a one-click \"Bump\" link. Stops PRs from rotting silently while keeping reviewers honest about turnaround time.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["github", "pull-request", "slack", "schedule", "developer", "reminders"],
+  "version": "0.1.0"
+}
