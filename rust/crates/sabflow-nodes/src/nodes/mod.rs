@@ -107,11 +107,13 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.4.2: SQL database family ─────────────────────────────────────────
-pub mod microsoft_sql;
-pub mod oracle;
-pub mod crate_db;
-pub mod quest_db;
+// ── Phase C.4.3: NoSQL / cache nodes ────────────────────────────────────────
+pub mod elasticsearch;
+pub mod couchbase;
+pub mod dynamo_db;
+pub mod rethink_db;
+pub mod ldap_api;
+pub mod surreal;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -212,14 +214,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.4.2 — SQL database family (MicrosoftSql + Oracle + CrateDB +
-    // QuestDB land as typed `NotImplemented` stubs because their drivers
-    // aren't in the workspace yet — see each module's header for details).
-    // mySql and postgres were shipped in earlier C.4 batches.
-    r.register(microsoft_sql::MicrosoftSqlNode);
-    r.register(oracle::OracleNode);
-    r.register(crate_db::CrateDbNode);
-    r.register(quest_db::QuestDbNode);
+    // Phase C.4.3 — NoSQL / cache (6 nodes)
+    r.register(elasticsearch::ElasticsearchNode);
+    r.register(couchbase::CouchbaseNode);
+    r.register(dynamo_db::DynamoDbNode);
+    r.register(rethink_db::RethinkDbNode);
+    r.register(ldap_api::LdapApiNode);
+    r.register(surreal::SurrealNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.
@@ -289,7 +290,8 @@ fn register_stubs(r: &mut NodeRegistry) {
         ("erpNext", "ERPNext", NodeCategory::Finance, "Open-source ERP"),
         ("editImage", "Edit Image", NodeCategory::Files, "Image manipulation"),
         ("egoi", "E-goi", NodeCategory::Marketing, "Multi-channel marketing"),
-        ("elastic", "Elasticsearch", NodeCategory::Database, "Search engine"),
+        // `elastic` → replaced by the fully-implemented `elasticsearch` node (Phase C.4.3).
+        ("elasticsearch", "Elasticsearch", NodeCategory::Database, "Search engine — REST API search/index/get/update/delete/count"),
         ("emailReadImap", "Email Read (IMAP)", NodeCategory::Communication, "Read emails via IMAP"),
         ("emailSend", "Send Email", NodeCategory::Communication, "Send via SMTP"),
         ("emelia", "Emelia", NodeCategory::Marketing, "Cold email outreach"),
