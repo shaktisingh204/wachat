@@ -178,9 +178,13 @@ async function runFlowInner(
   // blocks consume `userId` to mint Rust-BFF JWTs from the worker (which
   // has no Next.js cookie context).
   const selfFlowId = (flow._id?.toString?.() ?? flow.publicId ?? flow.name) as string;
-  const blockCtx = {
+  // blockCtx is rebuilt per-block inside the loop to carry the current
+  // block-level itemIndex. We define the stable parts here and spread them in.
+  const blockCtxBase = {
     userId: flow.userId,
     callerStack: [...(callerStack ?? []), selfFlowId],
+    // Thread executionId so executeBlock can emit per-item trace events.
+    executionId,
   };
 
   outer: while (hopCount < MAX_GROUP_HOPS) {
@@ -197,6 +201,10 @@ async function runFlowInner(
         currentGroupId === session.currentGroupId
           ? userInput
           : undefined;
+
+      // itemIndex is the 0-based position of the block within its group; used
+      // by the trace emitter to distinguish per-row events within a block.
+      const blockCtx = { ...blockCtxBase, itemIndex: i };
 
       const stepStartedAt = Date.now();
       let blockResult;
