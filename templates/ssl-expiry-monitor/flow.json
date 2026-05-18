@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] } }
+    },
+    {
+      "id": "n_load",
+      "name": "Load Domains",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [{ "name": "domains", "value": "={{ $vars.DOMAINS_CSV }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Domain",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_probe",
+      "name": "Probe Certificate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.ssllabs.com/api/v3/analyze?host={{ $json.domain }}"
+      }
+    },
+    {
+      "id": "n_if_expiring",
+      "name": "Expires < 30 Days?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ Math.floor((new Date($json.endpoints[0].details.cert.notAfter).getTime() - Date.now())/86400000) }}", "operation": "smaller", "value2": 30 }]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #infra",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -120],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channel": "#infra",
+        "text": "=SSL expiring soon: {{ $node['Probe Certificate'].json.host }}"
+      },
+      "credentials": { "slackApi": { "id": "slack-cred", "name": "Slack" } }
+    },
+    {
+      "id": "n_pd",
+      "name": "PagerDuty Page",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [1200, 120],
+      "parameters": { "resource": "incident", "operation": "create" },
+      "credentials": { "pagerDutyApi": { "id": "pd-cred", "name": "PagerDuty" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Healthy",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 240],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_load", "type": "main", "index": 0 }]] },
+    "n_load": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_probe", "type": "main", "index": 0 }]] },
+    "n_probe": { "main": [[{ "node": "n_if_expiring", "type": "main", "index": 0 }]] },
+    "n_if_expiring": {
+      "true": [[
+        { "node": "n_slack", "type": "main", "index": 0 },
+        { "node": "n_pd", "type": "main", "index": 0 }
+      ]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_load", "n_split", "n_probe", "n_if_expiring", "n_slack", "n_pd", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_doms", "name": "DOMAINS_CSV", "defaultValue": "example.com,api.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ssl-expiry-monitor",
+  "cases": [
+    {
+      "id": "daily",
+      "description": "Cron probes domains and routes expiring vs healthy.",
+      "triggerPayload": { "tick": "2026-05-19T06:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

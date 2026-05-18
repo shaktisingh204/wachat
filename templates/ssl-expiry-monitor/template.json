@@ -1,0 +1,10 @@
+{
+  "id": "ssl-expiry-monitor",
+  "name": "SSL Expiry Monitor",
+  "description": "Daily watch that fans out across a configured list of domains, checks each certificate's notAfter date via an HTTPS probe, and flags anything expiring within 30 days. Critical hits page on-call via PagerDuty and post a heads-up to Slack so renewal kicks off in time.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ssl", "monitoring", "pagerduty", "slack", "infra", "schedule"],
+  "version": "0.1.0"
+}
