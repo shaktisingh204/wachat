@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getExitById } from '@/app/actions/crm-exits.actions';
 import { ExitForm } from '../../new/exit-form';
 
@@ -14,9 +14,12 @@ export default async function ExitEditPage({ params }: PageProps) {
     if (!exit) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit exit`} />
+        <EntityDetailShell
+            title="Edit exit"
+            eyebrow="EXIT"
+            back={{ href: '/dashboard/crm/hr/exits', label: 'Exits' }}
+        >
             <ExitForm exit={{ ...(exit as any), _id: String((exit as any)._id ?? id) }} />
-        </div>
+        </EntityDetailShell>
     );
 }

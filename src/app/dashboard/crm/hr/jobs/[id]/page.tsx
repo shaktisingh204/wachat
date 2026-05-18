@@ -3,8 +3,6 @@ import {
   notFound,
   redirect } from 'next/navigation';
 import {
-    ArrowLeft,
-  Briefcase,
   ExternalLink,
   Pencil,
   } from 'lucide-react';
@@ -18,7 +16,7 @@ import {
 
 import Link from 'next/link';
 
-import { CrmPageHeader } from '@/app/dashboard/crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getJobById } from '@/app/actions/crm-jobs.actions';
@@ -80,33 +78,19 @@ export default async function JobDetailPage({
     const tags = Array.isArray(job.tags) ? job.tags : [];
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                breadcrumbs={[
-                    { label: 'HR', href: '/dashboard/crm/hr' },
-                    { label: 'Jobs', href: BASE },
-                    { label: job.title },
-                ]}
-                title={job.title}
-                subtitle={job.departmentName || 'Job detail'}
-                icon={Briefcase}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton variant="outline" asChild>
-                            <Link href={BASE}>
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back
-                            </Link>
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/${jobId}/edit`}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Edit
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-            />
+        <EntityDetailShell
+            title={job.title}
+            eyebrow="JOB"
+            back={{ href: BASE, label: 'Jobs' }}
+            actions={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/${jobId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit
+                    </Link>
+                </ZoruButton>
+            }
+        >
 
             {/* Summary card */}
             <ZoruCard className="p-6">
@@ -237,6 +221,6 @@ export default async function JobDetailPage({
                     </pre>
                 </ZoruCard>
             ) : null}
-        </div>
+        </EntityDetailShell>
     );
 }

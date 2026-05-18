@@ -2,13 +2,11 @@ import { ZoruBadge, ZoruButton, ZoruCard } from '@/components/zoruui';
 import {
   redirect } from 'next/navigation';
 import {
-    Gavel,
   PlusCircle,
   CheckCircle2,
   AlertTriangle,
   Scale,
   } from 'lucide-react';
-import { ArrowLeft } from 'lucide-react';
 
 /**
  * Disciplinary case detail page.
@@ -19,9 +17,7 @@ import { ArrowLeft } from 'lucide-react';
  * when the case is not found.
  */
 
-import Link from 'next/link';
-
-import { CrmPageHeader } from '../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getDisciplinaryCaseById } from '@/app/actions/crm-disciplinary.actions';
 import { getSession } from '@/app/actions/user.actions';
 import { HrActionButtons } from '../../_components/hr-action-buttons';
@@ -101,25 +97,18 @@ export default async function DisciplinaryCaseDetailPage({
     const statusVariant: StatusVariant = STATUS_VARIANT[status.toLowerCase()] ?? 'ghost';
 
     return (
-        <div className="flex w-full flex-col gap-6">
-            <CrmPageHeader
-                title={`Case #${shortId}`}
-                subtitle="Disciplinary case detail"
-                icon={Gavel}
-                actions={
-                    <div className="flex items-center gap-2">
-                        <Link href="/dashboard/crm/hr/disciplinary">
-                            <ZoruButton variant="outline">
-                                <ArrowLeft className="h-4 w-4" />
-                                Back
-                            </ZoruButton>
-                        </Link>
-                        <ZoruButton variant="outline" disabled>
-                            <PlusCircle className="h-4 w-4" />
-                            Add Hearing
-                        </ZoruButton>
-                        <HrActionButtons
-                            actions={[
+        <EntityDetailShell
+            title={`Case #${shortId}`}
+            eyebrow="DISCIPLINARY"
+            back={{ href: '/dashboard/crm/hr/disciplinary', label: 'Disciplinary' }}
+            actions={
+                <div className="flex items-center gap-2">
+                    <ZoruButton variant="outline" disabled>
+                        <PlusCircle className="h-4 w-4" />
+                        Add Hearing
+                    </ZoruButton>
+                    <HrActionButtons
+                        actions={[
                                 {
                                     key: 'close',
                                     kind: 'prompt',
@@ -172,7 +161,7 @@ export default async function DisciplinaryCaseDetailPage({
                         />
                     </div>
                 }
-            />
+            >
 
             <ZoruCard className="p-6">
                 <div className="mb-4 text-[14px] font-medium text-zoru-ink">Case Details</div>
@@ -349,6 +338,6 @@ export default async function DisciplinaryCaseDetailPage({
                     </div>
                 )}
             </ZoruCard>
-        </div>
+        </EntityDetailShell>
     );
 }

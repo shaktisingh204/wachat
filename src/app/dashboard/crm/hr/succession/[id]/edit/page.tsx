@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 
-import { CrmPageHeader } from '../../../../../crm/_components/crm-page-header';
+import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { getCrmSuccessionPlanById } from '@/app/actions/crm-succession.actions';
 import { SuccessionForm } from '../../new/succession-form';
 
@@ -14,9 +14,12 @@ export default async function SuccessionEditPage({ params }: PageProps) {
     if (!plan) notFound();
 
     return (
-        <div className="space-y-6">
-            <CrmPageHeader title={`Edit succession plan`} />
+        <EntityDetailShell
+            title="Edit succession plan"
+            eyebrow="SUCCESSION"
+            back={{ href: '/dashboard/crm/hr/succession', label: 'Succession' }}
+        >
             <SuccessionForm plan={{ ...(plan as any), _id: String((plan as any)._id ?? id) }} />
-        </div>
+        </EntityDetailShell>
     );
 }
