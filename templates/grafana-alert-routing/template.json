@@ -1,0 +1,10 @@
+{
+  "id": "grafana-alert-routing",
+  "name": "Grafana Alert Routing",
+  "description": "Receives Grafana alert webhooks and routes them by the `team` tag on the rule. Each branch posts to a per-team Slack channel and pages the matching PagerDuty service so infra, data, and application alerts go directly to the right responders without manual triage.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["grafana", "pagerduty", "slack", "routing", "ops", "webhook"],
+  "version": "0.1.0"
+}

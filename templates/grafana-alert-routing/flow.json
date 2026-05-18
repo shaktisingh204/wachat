@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_grafana_alert",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "grafana.alert",
+    "options": {
+      "path": "/webhooks/grafana-alert-routing",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Grafana-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_grafana_webhook",
+      "name": "Grafana Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "httpMethod": "POST", "path": "grafana-alert-routing", "responseMode": "onReceived" },
+      "webhookId": "grafana-alert-routing-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Tags",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "team", "value": "={{ $json.commonLabels.team }}" },
+            { "name": "alertname", "value": "={{ $json.commonLabels.alertname }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Team",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.team }}", "operation": "equal", "value2": "infra" }] }, "outputKey": "infra" },
+            { "conditions": { "string": [{ "value1": "={{ $json.team }}", "operation": "equal", "value2": "data" }] }, "outputKey": "data" },
+            { "conditions": { "string": [{ "value1": "={{ $json.team }}", "operation": "equal", "value2": "app" }] }, "outputKey": "app" }
+          ]
+        },
+        "fallbackOutput": "app"
+      }
+    },
+    {
+      "id": "n_infra",
+      "name": "Infra Channel + Page",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.INFRA_SLACK_CHANNEL }}",
+        "text": ":fire: Infra alert: {{ $json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_data",
+      "name": "Data Channel + Page",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.DATA_SLACK_CHANNEL }}",
+        "text": ":bar_chart: Data alert: {{ $json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_app",
+      "name": "App Channel + Page",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 200],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.APP_SLACK_CHANNEL }}",
+        "text": ":bug: App alert: {{ $json.alertname }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_grafana_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "infra": [[{ "node": "n_infra", "type": "main", "index": 0 }]],
+      "data": [[{ "node": "n_data", "type": "main", "index": 0 }]],
+      "app": [[{ "node": "n_app", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_grafana_webhook", "n_extract", "n_route", "n_infra", "n_data", "n_app"]
+    }
+  ],
+  "variables": [
+    { "id": "v_infra", "name": "INFRA_SLACK_CHANNEL", "defaultValue": "#infra-alerts" },
+    { "id": "v_data", "name": "DATA_SLACK_CHANNEL", "defaultValue": "#data-alerts" },
+    { "id": "v_app", "name": "APP_SLACK_CHANNEL", "defaultValue": "#app-alerts" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
