@@ -19,10 +19,14 @@ pub mod if_node;
 pub mod switch_node;
 pub mod merge_node;
 pub mod wait_node;
-pub mod code_node;
+pub mod code;
 pub mod schedule_trigger;
 pub mod webhook;
 pub mod noop_node;
+
+// ── Phase C.3.4: typed Logic / Transform nodes ──────────────────────────────
+pub mod filter;
+pub mod function_item;
 
 // ── Fully-implemented integration nodes ─────────────────────────────────────
 pub mod slack;
@@ -116,10 +120,13 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(switch_node::SwitchNode);
     r.register(merge_node::MergeNode);
     r.register(wait_node::WaitNode);
-    r.register(code_node::CodeNode);
+    r.register(code::CodeNode);
     r.register(schedule_trigger::ScheduleTriggerNode);
     r.register(webhook::WebhookNode);
     r.register(noop_node::NoOpNode);
+    // C.3.4 — Filter (real impl) + FunctionItem (typed-error stub).
+    r.register(filter::FilterNode);
+    r.register(function_item::FunctionItemNode);
     // Integrations (20)
     r.register(slack::SlackNode);
     r.register(discord::DiscordNode);
