@@ -102,10 +102,10 @@ pub mod my_sql;
 pub mod supabase;
 pub mod noco_db;
 
-// ── Phase C.3 — Top-30 Rust stub backfill (ItemLists trio) ─────────────────
-pub mod aggregate;
-pub mod split_out;
-pub mod summarize;
+// ── Phase C.3.6: item-manipulation transforms ───────────────────────────────
+pub mod remove_duplicates;
+pub mod sort;
+pub mod limit;
 
 use crate::{descriptor::NodeCategory, registry::NodeRegistry};
 
@@ -204,10 +204,10 @@ fn register_implemented(r: &mut NodeRegistry) {
     r.register(my_sql::MySqlNode);
     r.register(supabase::SupabaseNode);
     r.register(noco_db::NocoDbNode);
-    // Phase C.3.5 — ItemLists trio
-    r.register(aggregate::AggregateNode);
-    r.register(split_out::SplitOutNode);
-    r.register(summarize::SummarizeNode);
+    // Phase C.3.6 — item-manipulation transforms
+    r.register(remove_duplicates::RemoveDuplicatesNode);
+    r.register(sort::SortNode);
+    r.register(limit::LimitNode);
 }
 
 /// Register stubs only when the name isn't already populated by an implemented node.

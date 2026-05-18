@@ -1,13 +1,13 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T14:51:48Z",
+  "generatedAt": "2026-05-18T15:30:00Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
-    "totalNodes": 310,
-    "implementedCount": 80,
+    "totalNodes": 313,
+    "implementedCount": 83,
     "stubCount": 230,
     "referenceNode": "n8n-nodes-base.httpRequest",
-    "phase": "C.2.10"
+    "phase": "C.3.6"
   },
   "notes": [
     "Source of truth for which n8n nodes the SabFlow Rust crate ships as full implementations vs. registry-only stubs.",
@@ -1258,6 +1258,15 @@
       "implFile": null
     },
     {
+      "n8nType": "n8n-nodes-base.limit",
+      "name": "limit",
+      "displayName": "Limit",
+      "category": "Transform",
+      "description": "Keep only the first or last N items",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/limit.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.line",
       "name": "line",
       "displayName": "LINE",
@@ -2023,6 +2032,15 @@
       "implFile": "rust/crates/sabflow-nodes/src/nodes/redis_node.rs"
     },
     {
+      "n8nType": "n8n-nodes-base.removeDuplicates",
+      "name": "removeDuplicates",
+      "displayName": "Remove Duplicates",
+      "category": "Transform",
+      "description": "Drop duplicate items, keeping the first occurrence",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/remove_duplicates.rs"
+    },
+    {
       "n8nType": "n8n-nodes-base.renameKeys",
       "name": "renameKeys",
       "displayName": "Rename Keys",
@@ -2237,6 +2255,15 @@
       "description": "Cloud data warehouse",
       "isStub": true,
       "implFile": null
+    },
+    {
+      "n8nType": "n8n-nodes-base.sort",
+      "name": "sort",
+      "displayName": "Sort",
+      "category": "Transform",
+      "description": "Sort items by one or more key paths (stable)",
+      "isStub": false,
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/sort.rs"
     },
     {
       "n8nType": "n8n-nodes-base.splitInBatches",
