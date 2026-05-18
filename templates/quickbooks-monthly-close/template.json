@@ -1,0 +1,10 @@
+{
+  "id": "quickbooks-monthly-close",
+  "name": "QuickBooks Monthly Close",
+  "description": "Triggered on the first of each month, fetches the trial balance from QuickBooks, runs a variance check against expected ranges, and either alerts the controller when something looks off or posts a clean-close confirmation to Slack #finance-close. Reduces accountant lookup time during the close week.",
+  "category": "Finance",
+  "complexity": "advanced",
+  "authorName": "SabNode",
+  "tags": ["quickbooks", "finance", "slack", "sendgrid", "month-end", "variance"],
+  "version": "0.1.0"
+}
