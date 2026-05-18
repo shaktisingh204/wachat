@@ -1,0 +1,10 @@
+{
+  "id": "expense-approval-workflow",
+  "name": "Expense Approval Workflow",
+  "description": "Catches expense-submission webhooks and short-circuits anything under $100 to instant auto-approval with a Slack confirmation to the submitter. Anything larger fans out into a manager-approval Slack message, an Airtable pending row, and an email to the approving manager so nothing gets lost.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["expense", "approval", "slack", "airtable", "sendgrid", "finance"],
+  "version": "0.1.0"
+}
