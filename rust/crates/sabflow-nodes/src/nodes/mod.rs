@@ -106,6 +106,10 @@ pub fn register_all(r: &mut NodeRegistry) {
 
 fn register_implemented(r: &mut NodeRegistry) {
     // Core (10)
+    // `httpRequest` is the Phase C.2 reference implementation — see
+    // `nodes/http_request.rs`. It is fully implemented (not a stub) and
+    // mirrors `n8n-nodes-base.httpRequest` to parity. `docs/inventory/
+    // rust-stubs.json` records `isStub: false` for this entry.
     r.register(http_request::HttpRequestNode);
     r.register(set_node::SetNode);
     r.register(if_node::IfNode);

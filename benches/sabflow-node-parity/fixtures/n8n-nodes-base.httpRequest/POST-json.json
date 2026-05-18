@@ -1,0 +1,56 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "POST-json",
+  "description": "POST {\"k\":\"v\"} as application/json to ${HTTPBIN_BASE_URL}/post. httpbin echoes the parsed body back in `json`, the raw bytes in `data`, and the Content-Type in `headers`.",
+  "node": "n8n-nodes-base.httpRequest",
+  "env": {
+    "HTTPBIN_BASE_URL": "http://127.0.0.1:8080"
+  },
+  "params": {
+    "method": "POST",
+    "url": "${HTTPBIN_BASE_URL}/post",
+    "authentication": "none",
+    "sendQuery": false,
+    "sendHeaders": true,
+    "headers": {
+      "X-SabFlow-Test": "parity"
+    },
+    "sendBody": true,
+    "bodyContentType": "json",
+    "body": { "k": "v" },
+    "timeout": 10000,
+    "ignoreHttpStatusErrors": false,
+    "continueOnFail": false
+  },
+  "input": {
+    "items": [
+      { "json": {} }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "statusCode": 200,
+            "statusMessage": "OK",
+            "body": {
+              "json": { "k": "v" },
+              "headers": {
+                "Content-Type": "application/json",
+                "X-Sabflow-Test": "parity"
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].statusCode",
+    "branches[0].items[0].statusMessage",
+    "branches[0].items[0].body.json.k",
+    "branches[0].items[0].body.headers.Content-Type",
+    "branches[0].items[0].body.headers.X-Sabflow-Test"
+  ]
+}

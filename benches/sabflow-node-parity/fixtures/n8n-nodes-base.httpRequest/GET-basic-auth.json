@@ -1,0 +1,57 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "GET-basic-auth",
+  "description": "GET ${HTTPBIN_BASE_URL}/basic-auth/user/pass with Basic Auth. Credentials are supplied via the credentials map (matching the C.2 CredentialsMock shape), not inline params — confirms the credential-store path resolves correctly.",
+  "node": "n8n-nodes-base.httpRequest",
+  "env": {
+    "HTTPBIN_BASE_URL": "http://127.0.0.1:8080"
+  },
+  "credentials": {
+    "test-http-basic": {
+      "type": "httpBasicAuth",
+      "data": {
+        "username": "user",
+        "password": "pass"
+      }
+    }
+  },
+  "params": {
+    "method": "GET",
+    "url": "${HTTPBIN_BASE_URL}/basic-auth/user/pass",
+    "authentication": "basicAuth",
+    "credentialId": "test-http-basic",
+    "sendQuery": false,
+    "sendHeaders": false,
+    "sendBody": false,
+    "timeout": 10000,
+    "ignoreHttpStatusErrors": false,
+    "continueOnFail": false
+  },
+  "input": {
+    "items": [
+      { "json": {} }
+    ]
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "statusCode": 200,
+            "statusMessage": "OK",
+            "body": {
+              "authenticated": true,
+              "user": "user"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].statusCode",
+    "branches[0].items[0].statusMessage",
+    "branches[0].items[0].body.authenticated",
+    "branches[0].items[0].body.user"
+  ]
+}
