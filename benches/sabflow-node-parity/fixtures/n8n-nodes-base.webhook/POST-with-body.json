@@ -1,0 +1,57 @@
+{
+  "$schema": "https://sabflow.dev/schemas/node-parity-fixture.v1.json",
+  "name": "POST-with-body",
+  "description": "POST /webhook/signup with a JSON body and a header-auth check. Verifies that the configured headerAuth matches the inbound X-Webhook-Token header, and that the body lands intact on the downstream item.",
+  "node": "n8n-nodes-base.webhook",
+  "params": {
+    "httpMethod": "POST",
+    "path": "signup",
+    "authentication": "headerAuth",
+    "headerName": "X-Webhook-Token",
+    "headerValue": "shh-its-a-secret",
+    "responseMode": "responseNode"
+  },
+  "triggerData": {
+    "method": "POST",
+    "path": "signup",
+    "headers": {
+      "content-type": "application/json",
+      "x-webhook-token": "shh-its-a-secret"
+    },
+    "query": {},
+    "params": {},
+    "body": {
+      "email": "alice@example.com",
+      "plan": "pro"
+    }
+  },
+  "input": {
+    "items": []
+  },
+  "expected": {
+    "branches": [
+      {
+        "items": [
+          {
+            "method": "POST",
+            "path": "signup",
+            "body": {
+              "email": "alice@example.com",
+              "plan": "pro"
+            },
+            "headers": {
+              "content-type": "application/json",
+              "x-webhook-token": "shh-its-a-secret"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "expectedFields": [
+    "branches[0].items[0].method",
+    "branches[0].items[0].body.email",
+    "branches[0].items[0].body.plan",
+    "branches[0].items[0].headers.content-type"
+  ]
+}

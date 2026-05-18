@@ -1,13 +1,12 @@
 {
   "$schema": "https://sabflow.dev/schemas/rust-stubs-inventory.v1.json",
-  "generatedAt": "2026-05-18T14:51:48Z",
+  "generatedAt": "2026-05-18T15:25:28Z",
   "generator": "scripts/sabflow/gen-rust-stub-inventory.py",
   "summary": {
     "totalNodes": 310,
     "implementedCount": 80,
     "stubCount": 230,
-    "referenceNode": "n8n-nodes-base.httpRequest",
-    "phase": "C.2.10"
+    "phase": "C.3.1"
   },
   "notes": [
     "Source of truth for which n8n nodes the SabFlow Rust crate ships as full implementations vs. registry-only stubs.",
@@ -2650,7 +2649,7 @@
       "category": "Trigger",
       "description": "HTTP webhook trigger",
       "isStub": false,
-      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook_trigger.rs"
+      "implFile": "rust/crates/sabflow-nodes/src/nodes/webhook.rs"
     },
     {
       "n8nType": "n8n-nodes-base.wekan",
