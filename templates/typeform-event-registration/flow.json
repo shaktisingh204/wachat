@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_tf",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "typeform.form_response",
+    "options": {
+      "path": "/webhooks/typeform-event-registration",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Typeform-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "Typeform Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "typeform-event-registration",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "typeform-event-registration"
+    },
+    {
+      "id": "n_set",
+      "name": "Normalize Attendee",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.form_response.answers[0].email }}" },
+            { "name": "name", "value": "={{ $json.form_response.answers[1].text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mailchimp",
+      "name": "Mailchimp Tag",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [480, -240],
+      "parameters": { "resource": "memberTag", "operation": "create", "list": "={{ $vars.MAILCHIMP_LIST_ID }}" },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Attendee",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [480, -80],
+      "parameters": { "operation": "create", "application": "={{ $vars.AIRTABLE_BASE }}", "table": "attendees" },
+      "credentials": { "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable" } }
+    },
+    {
+      "id": "n_cal",
+      "name": "Google Calendar Invite",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1,
+      "position": [480, 80],
+      "parameters": { "resource": "event", "operation": "create" },
+      "credentials": { "googleCalendarOAuth2Api": { "id": "gcal-cred", "name": "Google Calendar" } }
+    },
+    {
+      "id": "n_email",
+      "name": "Confirmation Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, 240],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "events@example.com",
+        "toEmail": "={{ $json.email }}",
+        "subject": "You're registered",
+        "content": "See you at the event."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Audit",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [800, 0],
+      "parameters": { "operation": "insert", "collection": "event_registrations", "fields": "email,registeredAt" },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo" } }
+    }
+  ],
+  "connections": {
+    "n_trigger": { "main": [[{ "node": "n_set", "type": "main", "index": 0 }]] },
+    "n_set": {
+      "main": [[
+        { "node": "n_mailchimp", "type": "main", "index": 0 },
+        { "node": "n_airtable", "type": "main", "index": 0 },
+        { "node": "n_cal", "type": "main", "index": 0 },
+        { "node": "n_email", "type": "main", "index": 0 }
+      ]]
+    },
+    "n_mailchimp": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_cal": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] },
+    "n_email": { "main": [[{ "node": "n_mongo", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_trigger", "n_set", "n_mailchimp", "n_airtable", "n_cal", "n_email", "n_mongo"]
+    }
+  ],
+  "variables": [
+    { "id": "v_base", "name": "AIRTABLE_BASE", "defaultValue": "appXXXXX" },
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

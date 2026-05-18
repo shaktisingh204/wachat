@@ -1,0 +1,10 @@
+{
+  "id": "typeform-event-registration",
+  "name": "Typeform Event Registration",
+  "description": "Catches an event registration from Typeform, normalizes attendee fields, and fans out to four systems in parallel: Mailchimp audience tagging, Airtable attendee row, Google Calendar invite, and a SendGrid confirmation email. Everyone converges on a Mongo audit row for clean reporting.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["typeform", "events", "mailchimp", "airtable", "google-calendar", "sendgrid"],
+  "version": "0.1.0"
+}
