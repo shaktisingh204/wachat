@@ -1,0 +1,10 @@
+{
+  "id": "intercom-vip-routing",
+  "name": "Intercom VIP Routing",
+  "description": "When a new Intercom conversation opens, looks up the contact's plan and MRR, and — if the customer is Enterprise or above a configurable MRR floor — assigns the conversation to a senior agent, applies a `vip` tag, and pings #vip-support in Slack. Replaces a manual \"is this Enterprise?\" check by agents.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["intercom", "vip", "support", "routing", "slack"],
+  "version": "0.1.0"
+}

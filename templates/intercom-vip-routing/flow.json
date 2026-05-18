@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_intercom_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "intercom.conversation.user.created",
+    "options": {
+      "path": "/webhooks/intercom-vip-routing",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Intercom-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_intercom_trigger",
+      "name": "Intercom Conversation Opened",
+      "type": "n8n-nodes-base.intercomTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "event": "conversation.user.created"
+      },
+      "webhookId": "intercom-vip-routing-webhook",
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    },
+    {
+      "id": "n_contact_get",
+      "name": "Intercom Contact Lookup",
+      "type": "n8n-nodes-base.intercom",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "contact",
+        "operation": "get",
+        "contactId": "={{ $json.data.item.contacts.contacts[0].id }}"
+      },
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    },
+    {
+      "id": "n_if_vip",
+      "name": "Is VIP?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.custom_attributes.plan === 'enterprise' || Number($json.custom_attributes.mrr) > Number($vars.VIP_MRR) }}",
+              "value2": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_intercom_assign_tag",
+      "name": "Intercom Assign + Tag VIP",
+      "type": "n8n-nodes-base.intercom",
+      "typeVersion": 1,
+      "position": [720, -120],
+      "parameters": {
+        "resource": "conversation",
+        "operation": "update",
+        "conversationId": "={{ $node['Intercom Conversation Opened'].json.data.item.id }}",
+        "additionalFields": {
+          "assignee_id": "={{ $vars.SENIOR_AGENT_ID }}",
+          "tags": ["vip"]
+        }
+      },
+      "credentials": {
+        "intercomApi": { "id": "intercom-cred", "name": "Intercom API" }
+      }
+    },
+    {
+      "id": "n_slack_vip",
+      "name": "Slack #vip-support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.VIP_SLACK_CHANNEL }}",
+        "text": ":crown: *VIP conversation opened*\n*Contact:* {{ $node['Intercom Contact Lookup'].json.email }} ({{ $node['Intercom Contact Lookup'].json.custom_attributes.plan }}, MRR ${{ $node['Intercom Contact Lookup'].json.custom_attributes.mrr }})\n*Conversation:* https://app.intercom.com/a/inbox/_/inbox/conversation/{{ $node['Intercom Conversation Opened'].json.data.item.id }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "MongoDB VIP Audit Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, -60],
+      "parameters": {
+        "operation": "insert",
+        "collection": "vip_routing_audit",
+        "fields": "conversationId,contactId,plan,mrr,assignedTo,routedAt",
+        "options": {}
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_noop_standard",
+      "name": "Standard Routing (NoOp)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 160],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_intercom_trigger": {
+      "main": [[{ "node": "n_contact_get", "type": "main", "index": 0 }]]
+    },
+    "n_contact_get": {
+      "main": [[{ "node": "n_if_vip", "type": "main", "index": 0 }]]
+    },
+    "n_if_vip": {
+      "main": [
+        [
+          { "node": "n_intercom_assign_tag", "type": "main", "index": 0 },
+          { "node": "n_slack_vip", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "n_noop_standard", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_intercom_assign_tag": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_slack_vip": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_intercom_trigger", "n_contact_get", "n_if_vip"]
+    },
+    {
+      "id": "g_vip_actions",
+      "title": "VIP Actions",
+      "graphCoordinates": { "x": 720, "y": -60 },
+      "blockIds": ["n_intercom_assign_tag", "n_slack_vip", "n_mongo_log"]
+    },
+    {
+      "id": "g_standard",
+      "title": "Standard Routing",
+      "graphCoordinates": { "x": 720, "y": 160 },
+      "blockIds": ["n_noop_standard"]
+    }
+  ],
+  "variables": [
+    { "id": "v_vip_mrr", "name": "VIP_MRR", "defaultValue": "500" },
+    { "id": "v_senior_agent", "name": "SENIOR_AGENT_ID", "defaultValue": "" },
+    { "id": "v_vip_channel", "name": "VIP_SLACK_CHANNEL", "defaultValue": "#vip-support" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
