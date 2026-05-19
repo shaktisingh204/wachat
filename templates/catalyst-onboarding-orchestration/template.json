@@ -1,0 +1,10 @@
+{
+  "id": "catalyst-onboarding-orchestration",
+  "name": "Catalyst Onboarding Orchestration",
+  "description": "When Catalyst advances a customer to a new onboarding journey stage, fans out a SendGrid milestone email, a Slack notification to the CS team, and a Mongo log entry. Keeps onboarding momentum visible across email, chat, and analytics.",
+  "category": "Onboarding",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["catalyst", "onboarding", "sendgrid", "slack", "mongo", "cs"],
+  "version": "0.1.0"
+}

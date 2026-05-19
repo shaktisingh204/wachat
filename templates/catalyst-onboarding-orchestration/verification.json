@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "catalyst-onboarding-orchestration",
+  "cases": [
+    {
+      "id": "stage-advanced",
+      "description": "Catalyst advances a customer to a new stage; fan-out fires.",
+      "triggerPayload": {
+        "account": { "name": "Acme Corp" },
+        "contact": { "email": "champion@acme.example.com" },
+        "stage": { "name": "First Value" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
