@@ -1,0 +1,10 @@
+{
+  "id": "insurance-claim-status",
+  "name": "Insurance Claim Status",
+  "description": "Pulls claim statuses from Change Healthcare every morning, syncs the latest state into the EMR, and flags any rejected claims in Slack #revcycle. Removes the daily spreadsheet that revenue-cycle teams maintain by hand.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["health", "claims", "change-healthcare", "emr", "slack", "cron"],
+  "version": "0.1.0"
+}

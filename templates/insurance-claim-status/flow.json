@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] }
+      }
+    },
+    {
+      "id": "n_pull_claims",
+      "name": "Change Healthcare Pull",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.CHC_CLAIM_URL }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "chc-cred", "name": "Change Healthcare API" }
+      }
+    },
+    {
+      "id": "n_split_claims",
+      "name": "One Per Claim",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_emr_update",
+      "name": "Update Claim In EMR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EMR_CLAIM_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "claimId", "value": "={{ $json.claimId }}" },
+            { "name": "status", "value": "={{ $json.status }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_check_rejected",
+      "name": "Rejected Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.status }}", "operation": "equal", "value2": "rejected" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_revcycle",
+      "name": "Slack #revcycle",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_REVCYCLE_CHANNEL }}",
+        "text": ":warning: Claim {{ $json.claimId }} rejected — reason: {{ $json.reason }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_pull_claims", "type": "main", "index": 0 }]] },
+    "n_pull_claims": { "main": [[{ "node": "n_split_claims", "type": "main", "index": 0 }]] },
+    "n_split_claims": { "main": [[{ "node": "n_emr_update", "type": "main", "index": 0 }]] },
+    "n_emr_update": { "main": [[{ "node": "n_check_rejected", "type": "main", "index": 0 }]] },
+    "n_check_rejected": { "main": [[{ "node": "n_slack_revcycle", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Claims",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_daily",
+        "n_pull_claims",
+        "n_split_claims",
+        "n_emr_update",
+        "n_check_rejected",
+        "n_slack_revcycle"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_chc_url", "name": "CHC_CLAIM_URL", "defaultValue": "https://api.changehealthcare.com/claims" },
+    { "id": "v_emr_claim", "name": "EMR_CLAIM_URL", "defaultValue": "https://emr.example.com/claim" },
+    { "id": "v_slack_rev", "name": "SLACK_REVCYCLE_CHANNEL", "defaultValue": "#revcycle" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
