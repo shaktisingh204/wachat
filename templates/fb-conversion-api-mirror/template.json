@@ -1,0 +1,10 @@
+{
+  "id": "fb-conversion-api-mirror",
+  "name": "Meta CAPI Purchase Mirror",
+  "description": "On Shopify order.created, hashes customer identifiers and posts a server-side Purchase event to Meta's Conversions API, then logs the call to MongoDB. Recovers attribution iOS14 strips from the pixel.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "meta-capi", "ads", "attribution", "conversion-api"],
+  "version": "0.1.0"
+}
