@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_ht_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hightouch.sync_failed",
+    "options": {
+      "path": "/webhooks/hightouch-failed",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hightouch-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ht_trigger",
+      "name": "Hightouch Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hightouch-failed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "hightouch-failed-webhook"
+    },
+    {
+      "id": "n_extract_sync",
+      "name": "Extract Sync",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "syncId", "value": "={{ $json.sync.id }}" },
+            { "name": "syncName", "value": "={{ $json.sync.name }}" },
+            { "name": "errorMessage", "value": "={{ $json.error.message }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_run",
+      "name": "Fetch Sync Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.HT_API }}/syncs/{{ $json.syncId }}/runs/latest"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "ht-cred", "name": "Hightouch API" } }
+    },
+    {
+      "id": "n_format_msg",
+      "name": "Format Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "Hightouch sync {{ $json.syncName }} failed" },
+            { "name": "body", "value": "Error: {{ $json.errorMessage }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_data",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":zap: {{ $json.title }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_bug",
+      "name": "Linear Bug",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, 80],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_API_TEAM }}",
+        "title": "={{ $json.title }}",
+        "description": "={{ $json.body }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    }
+  ],
+  "connections": {
+    "n_ht_trigger": { "main": [[{ "node": "n_extract_sync", "type": "main", "index": 0 }]] },
+    "n_extract_sync": { "main": [[{ "node": "n_fetch_run", "type": "main", "index": 0 }]] },
+    "n_fetch_run": { "main": [[{ "node": "n_format_msg", "type": "main", "index": 0 }]] },
+    "n_format_msg": {
+      "main": [
+        [
+          { "node": "n_slack_data", "type": "main", "index": 0 },
+          { "node": "n_linear_bug", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Hightouch",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ht_trigger", "n_extract_sync", "n_fetch_run", "n_format_msg", "n_slack_data", "n_linear_bug"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ht", "name": "HT_API", "defaultValue": "https://api.hightouch.com" },
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" },
+    { "id": "v_team", "name": "LINEAR_API_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
