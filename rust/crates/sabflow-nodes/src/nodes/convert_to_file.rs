@@ -310,7 +310,7 @@ fn build_xml(items: &[Value]) -> NodeResult<String> {
     let mut root = Map::new();
     let inner: Vec<Value> = items
         .iter()
-        .filter(|v| v.is_object() || v.is_string() || v.is_number() || v.is_bool())
+        .filter(|v| v.is_object() || v.is_string() || v.is_number() || v.is_boolean())
         .cloned()
         .collect();
     root.insert("item".into(), Value::Array(inner));

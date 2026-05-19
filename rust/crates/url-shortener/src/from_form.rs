@@ -73,6 +73,14 @@ pub async fn create_short_url(
         tag_ids,
         expires_at,
         domain_id,
+        custom_slug: None,
+        click_limit: None,
+        password_hash: None,
+        utm_params: None,
+        split_targets: None,
+        activate_at: None,
+        pixel_ids: None,
+        health_status: None,
     };
     Ok(Json(store::create(&s.mongo, oid, body).await?))
 }

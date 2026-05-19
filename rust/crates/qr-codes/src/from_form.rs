@@ -65,6 +65,9 @@ pub async fn create_qr_code(
         config,
         tag_ids,
         is_dynamic,
+        style: None,
+        frame: None,
+        logo_data_uri: None,
     };
     Ok(Json(store::create(&s.mongo, oid, body).await?))
 }

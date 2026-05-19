@@ -130,7 +130,7 @@ where
     match f().await {
         Ok(value) => ItemResult::Ok(value),
         Err(err) => {
-            if ctx.continue_on_fail() {
+            if ctx.continue_on_fail {
                 // Audit hook for the C.1.8 dashboard.
                 ctx.metrics.incr_continue_on_fail();
                 ItemResult::ErrorItem(error_sentinel(index, &err))
