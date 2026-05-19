@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "elasticsearch-rollover",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron rolls ES alias when index exceeds 50GB.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T05:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
