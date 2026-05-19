@@ -1,0 +1,10 @@
+{
+  "id": "pinterest-product-feed",
+  "name": "Pinterest Product Feed Sync",
+  "description": "Each day pulls the Shopify product catalog and pushes each item into the Pinterest catalog through the Pinterest API. Keeps shopping ads in step with the active SKU set automatically.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "pinterest", "e-commerce", "catalog", "schedule"],
+  "version": "0.1.0"
+}
