@@ -1,0 +1,10 @@
+{
+  "id": "amazon-mws-inventory-sync",
+  "name": "Amazon MWS Inventory Sync",
+  "description": "Each day pulls current Shopify inventory levels and pushes them through the Amazon Selling Partner API to keep the Amazon listing in sync. Prevents oversells across two-channel sellers.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "amazon", "inventory", "e-commerce", "schedule"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "30 4 * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "30 4 * * *" }] }
+      }
+    },
+    {
+      "id": "n_shopify_levels",
+      "name": "Shopify Inventory Levels",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "inventoryLevel",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "shopifyOAuth2Api": { "id": "shopify-cred", "name": "Shopify OAuth2" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per SKU",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_map_sp",
+      "name": "Map to SP-API Patch",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sku", "value": "={{ $json.sku }}" }
+          ],
+          "number": [
+            { "name": "available", "value": "={{ $json.available }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_amazon_update",
+      "name": "Amazon SP-API Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://sellingpartnerapi-na.amazon.com/listings/2021-08-01/items/{{ $vars.AMAZON_SELLER_ID }}/{{ $json.sku }}?marketplaceIds={{ $vars.AMAZON_MARKETPLACE_ID }}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"productType\":\"PRODUCT\",\"patches\":[{\"op\":\"replace\",\"path\":\"/attributes/fulfillment_availability\",\"value\":[{\"fulfillment_channel_code\":\"DEFAULT\",\"quantity\":{{ $json.available }}}]}]}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-amz-access-token", "value": "={{ $vars.AMAZON_LWA_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "aggregate": "aggregateAllItemData", "options": {} }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_shopify_levels", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_levels": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_map_sp", "type": "main", "index": 0 }]]
+    },
+    "n_map_sp": {
+      "main": [[{ "node": "n_amazon_update", "type": "main", "index": 0 }]]
+    },
+    "n_amazon_update": {
+      "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_shopify_levels", "n_split", "n_map_sp", "n_amazon_update", "n_aggregate"]
+    }
+  ],
+  "variables": [
+    { "id": "v_seller", "name": "AMAZON_SELLER_ID", "defaultValue": "" },
+    { "id": "v_mkt", "name": "AMAZON_MARKETPLACE_ID", "defaultValue": "ATVPDKIKX0DER" },
+    { "id": "v_lwa", "name": "AMAZON_LWA_TOKEN", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
