@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_sl_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "salesloft.cadence_step",
+    "options": {
+      "path": "/webhooks/salesloft-step",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-SalesLoft-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_sl_trigger",
+      "name": "SalesLoft Step",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "salesloft-step",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "salesloft-step-webhook"
+    },
+    {
+      "id": "n_extract_step",
+      "name": "Extract Step",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "stepId", "value": "={{ $json.step.id }}" },
+            { "name": "prospectEmail", "value": "={{ $json.person.email }}" },
+            { "name": "stepBody", "value": "={{ $json.step.body }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot_lookup",
+      "name": "HubSpot Lookup",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "get",
+        "email": "={{ $json.prospectEmail }}"
+      },
+      "credentials": { "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" } }
+    },
+    {
+      "id": "n_gpt_rewrite",
+      "name": "GPT-4o Rewrite",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Rewrite this cadence step body so it is personalized to this prospect's industry, role, and company size." },
+            { "role": "user", "content": "Body: {{ $node['Extract Step'].json.stepBody }}\nProspect: {{ JSON.stringify($json.properties) }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_format_body",
+      "name": "Format Body",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "personalizedBody", "value": "={{ $json.message.content }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_push_back",
+      "name": "Push Back to SalesLoft",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.SALESLOFT_API }}/v2/cadence_steps/{{ $node['Extract Step'].json.stepId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "body", "value": "={{ $json.personalizedBody }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "salesloft-cred", "name": "SalesLoft API" } }
+    }
+  ],
+  "connections": {
+    "n_sl_trigger": { "main": [[{ "node": "n_extract_step", "type": "main", "index": 0 }]] },
+    "n_extract_step": { "main": [[{ "node": "n_hubspot_lookup", "type": "main", "index": 0 }]] },
+    "n_hubspot_lookup": { "main": [[{ "node": "n_gpt_rewrite", "type": "main", "index": 0 }]] },
+    "n_gpt_rewrite": { "main": [[{ "node": "n_format_body", "type": "main", "index": 0 }]] },
+    "n_format_body": { "main": [[{ "node": "n_push_back", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Step",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_sl_trigger", "n_extract_step", "n_hubspot_lookup", "n_gpt_rewrite", "n_format_body", "n_push_back"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sl", "name": "SALESLOFT_API", "defaultValue": "https://api.salesloft.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
