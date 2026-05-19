@@ -1,0 +1,10 @@
+{
+  "id": "medication-adherence-monitor",
+  "name": "Medication Adherence Monitor",
+  "description": "Runs daily, scans Mongo dose logs for patients who have missed more than two consecutive days, and fans out reminders across SMS, EMR flag, and caregiver email. Keeps adherence visible without manual chart review.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["health", "medication", "cron", "twilio", "sendgrid", "emr"],
+  "version": "0.1.0"
+}
