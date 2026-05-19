@@ -34,10 +34,12 @@ pub const DEFAULT_LIMIT: i64 = 20;
 /// the Rust BFF (clamped to keep large-result-set DoS attempts bounded).
 pub const MAX_LIMIT: i64 = 100;
 
-/// Allowed lower-case [`crm_extras_types::GrnStatus`] string values for
-/// list-filtering and update mutations. Mirrors the serde `lowercase`
+/// Allowed snake_case [`crm_extras_types::GrnStatus`] string values for
+/// list-filtering and update mutations. Mirrors the serde `snake_case`
 /// representation of the enum so wire values round-trip cleanly.
-pub const ALLOWED_STATUSES: &[&str] = &["draft", "inspected", "posted", "rejected"];
+pub const ALLOWED_STATUSES: &[&str] = &[
+    "draft", "received", "partial", "inspected", "qc_failed", "posted", "closed", "rejected",
+];
 
 /// `GET /v1/crm/grns` query string.
 ///
@@ -228,8 +230,12 @@ mod tests {
         // fails so the omission is caught at CI.
         for status in [
             crm_extras_types::GrnStatus::Draft,
+            crm_extras_types::GrnStatus::Received,
+            crm_extras_types::GrnStatus::Partial,
             crm_extras_types::GrnStatus::Inspected,
+            crm_extras_types::GrnStatus::QcFailed,
             crm_extras_types::GrnStatus::Posted,
+            crm_extras_types::GrnStatus::Closed,
             crm_extras_types::GrnStatus::Rejected,
         ] {
             let via_serde = serde_json::to_value(status).unwrap();

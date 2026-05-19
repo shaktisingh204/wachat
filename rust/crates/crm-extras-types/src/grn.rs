@@ -17,12 +17,22 @@ use crm_core::{Attachment, Audit, Identity, LineageRef};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "snake_case")]
 pub enum GrnStatus {
     #[default]
     Draft,
+    /// Stock received at warehouse, awaiting inspection.
+    Received,
+    /// Partially received (split shipment).
+    Partial,
+    /// Inspection complete and approved.
     Inspected,
+    /// Quality check failed on one or more lines.
+    QcFailed,
+    /// Accepted quantities posted to inventory ledger.
     Posted,
+    /// GRN fully settled — stock in, returns raised, no pending actions.
+    Closed,
     Rejected,
 }
 
