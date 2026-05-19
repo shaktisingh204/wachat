@@ -34,6 +34,15 @@ const nextConfig = {
     'express',
     'send',
   ],
+  // n8n workflow packages publish raw TS via the `import` export
+  // condition (`./src/index.ts`) with a compiled `dist/index.js` only on
+  // the `require` side. Turbopack/Next picks the ESM path and can't
+  // parse a `.ts` file inside node_modules — list these here so Next
+  // transpiles them as part of the build.
+  transpilePackages: [
+    '@n8n/tournament',
+    '@n8n/expression-runtime',
+  ],
   turbopack: {},
 
   typescript: {
