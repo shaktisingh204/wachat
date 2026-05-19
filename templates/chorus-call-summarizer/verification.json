@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "chorus-call-summarizer",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Chorus call summarized via GPT-4o into Salesforce note + Slack AE ping.",
+      "triggerPayload": {
+        "call": { "id": "c-001", "opportunity_id": "0061a000003abc", "host": { "slackId": "U123" } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
