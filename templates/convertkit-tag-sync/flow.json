@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_ck_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "convertkit.subscriber.added",
+    "options": {
+      "path": "/webhooks/convertkit-tag-sync",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-ConvertKit-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ck_trigger",
+      "name": "ConvertKit Subscriber Added",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "convertkit-tag-sync",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "convertkit-tag-sync"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Subscriber",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.subscriber.email_address }}" },
+            { "name": "firstName", "value": "={{ $json.subscriber.first_name }}" },
+            { "name": "tags", "value": "={{ ($json.subscriber.tags || []).map(t => t.name).join(',') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mc_upsert",
+      "name": "Upsert in Mailchimp",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "listGroup",
+        "operation": "upsert",
+        "list": "={{ $vars.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "status": "subscribed",
+          "tags": "={{ $json.tags.split(',') }}",
+          "FNAME": "={{ $json.firstName }}"
+        }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Sync to Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "ck_mc_sync",
+        "fields": "email,tags,syncedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_ck_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_mc_upsert", "type": "main", "index": 0 }]]
+    },
+    "n_mc_upsert": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_log": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ck_trigger", "n_extract", "n_mc_upsert", "n_mongo_log", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
