@@ -1,0 +1,10 @@
+{
+  "id": "docker-image-cleanup",
+  "name": "Docker Image Cleanup",
+  "description": "Once a week, lists untagged ECR images older than 30 days, prunes them in bulk, and reports the recovered storage to Slack. Stops the slow creep of dead layers without manual lifecycle policies.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["developer", "docker", "ecr", "aws", "cron", "cleanup"],
+  "version": "0.1.0"
+}
