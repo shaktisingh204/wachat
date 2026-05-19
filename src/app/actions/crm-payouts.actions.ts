@@ -1,5 +1,22 @@
 'use server';
 
+/**
+ * CRM Payout server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, reads and the create path delegate
+ *    to the Rust BFF (`/v1/crm/payouts`) via
+ *    `src/lib/rust-client/crm-payouts.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so existing pages keep
+ * working without changes.
+ *
+ * Note: `savePayout` currently only handles creates (no edit form in the
+ * legacy UI). The Rust `update` endpoint is available for when an edit
+ * flow is added later.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -9,12 +26,35 @@ import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
+import { crmPayoutsApi } from '@/lib/rust-client/crm-payouts';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 export async function getPayoutById(payoutId: string): Promise<WithId<CrmPayout> | null> {
     const session = await getSession();
     if (!session?.user) return null;
-    if (!ObjectId.isValid(payoutId)) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPayoutsApi.getById(payoutId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmPayout>) : null;
+        } catch (e) {
+            console.error('[getPayoutById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payout',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(payoutId)) return null;
     try {
         const { db } = await connectToDatabase();
         const payout = await db.collection<CrmPayout>('crm_payouts').findOne({
@@ -36,6 +76,25 @@ export async function getPayouts(
 ): Promise<{ payouts: WithId<CrmPayout>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { payouts: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const docs = await crmPayoutsApi.list({ page: page - 1, limit, q: query });
+            return {
+                payouts: JSON.parse(JSON.stringify(docs)) as WithId<CrmPayout>[],
+                total: docs.length,
+            };
+        } catch (e) {
+            console.error('[getPayouts] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payout',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -71,6 +130,46 @@ export async function savePayout(prevState: any, formData: FormData): Promise<{ 
 
     const guard = await requirePermission('crm_payout', 'create');
     if (!guard.ok) return { error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const vendorIdRaw = formData.get('vendorId') as string | null;
+            const amount = parseFloat(formData.get('amount') as string);
+            const paymentDate = formData.get('paymentDate') as string | null;
+
+            if (!vendorIdRaw || !amount || !paymentDate) {
+                throw new Error('missing required fields');
+            }
+
+            await crmPayoutsApi.create({
+                paymentNo: (formData.get('referenceNumber') as string | null) || '',
+                date: paymentDate,
+                vendorId: vendorIdRaw,
+                mode: ((formData.get('paymentMode') as string | null) || 'neft') as any,
+                bankAccountId: (formData.get('bankAccountId') as string | null) || '',
+                amount,
+                currency: (formData.get('currency') as string | null) || 'INR',
+                txnId: (formData.get('referenceNumber') as string | null) || undefined,
+                notes: (formData.get('notes') as string | null) || undefined,
+                fromKind: ((formData.get('fromKind') as string | null) === 'bill'
+                    ? 'bill'
+                    : undefined),
+                fromId: (formData.get('fromId') as string | null) || undefined,
+            });
+
+            revalidatePath('/dashboard/crm/purchases/payouts');
+            return { message: 'Payout recorded successfully.' };
+        } catch (e) {
+            console.error('[savePayout] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payout',
+                op: 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -204,13 +303,32 @@ export async function savePayout(prevState: any, formData: FormData): Promise<{ 
 }
 
 export async function deletePayout(payoutId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(payoutId)) return { success: false, error: 'Invalid ID.' };
-
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const guard = await requirePermission('crm_payout', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!payoutId) return { success: false, error: 'Invalid ID.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmPayoutsApi.delete(payoutId);
+            revalidatePath('/dashboard/crm/purchases/payouts');
+            return { success: true };
+        } catch (e) {
+            console.error('[deletePayout] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payout',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(payoutId)) return { success: false, error: 'Invalid ID.' };
 
     try {
         const { db } = await connectToDatabase();

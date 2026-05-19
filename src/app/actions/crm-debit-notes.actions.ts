@@ -1,5 +1,22 @@
 'use server';
 
+/**
+ * CRM Debit Note server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, reads and creates delegate to the
+ *    Rust BFF (`/v1/crm/debit-notes`) via
+ *    `src/lib/rust-client/crm-debit-notes.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so existing pages keep
+ * working without changes.
+ *
+ * `saveDebitNote` only supports create in the legacy path (no edit
+ * form exists today); the Rust path mirrors this — update is wired for
+ * when an edit form lands.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -9,6 +26,13 @@ import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
+import { crmDebitNotesApi } from '@/lib/rust-client/crm-debit-notes';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextDebitNoteNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastNote = await db.collection<CrmDebitNote>('crm_debit_notes')
@@ -42,6 +66,29 @@ export async function getDebitNotes(
 ): Promise<{ notes: WithId<CrmDebitNote>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { notes: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const docs = await crmDebitNotesApi.list({
+                page: page - 1,
+                limit,
+                q: query,
+            });
+            return {
+                notes: JSON.parse(JSON.stringify(docs)) as WithId<CrmDebitNote>[],
+                total: docs.length,
+            };
+        } catch (e) {
+            console.error('[getDebitNotes] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'debit_note',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -77,6 +124,56 @@ export async function saveDebitNote(prevState: any, formData: FormData): Promise
 
     const guard = await requirePermission('crm_debit_note', 'create');
     if (!guard.ok) return { error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const vendorIdRaw = formData.get('vendorId') as string | null;
+            const noteDate = formData.get('noteDate') as string | null;
+            const lineItemsRaw = formData.get('lineItems') as string | null;
+            const lineItems = JSON.parse(lineItemsRaw || '[]');
+            const total = lineItems.reduce(
+                (sum: number, item: any) => sum + item.qty * item.rate,
+                0,
+            );
+
+            if (!vendorIdRaw || !noteDate) {
+                // let validation in Mongo path handle the error message
+                throw new Error('missing required fields');
+            }
+
+            // Derive a noteNumber for the Rust payload — the Rust BFF
+            // auto-assigns if `dnNo` is empty, but we pre-fill to mirror
+            // the legacy "auto-increment" behaviour.
+            const noteNumber = (formData.get('noteNumber') as string | null) || '';
+
+            await crmDebitNotesApi.create({
+                dnNo: noteNumber,
+                date: noteDate,
+                vendorId: vendorIdRaw,
+                linkedBillId: (formData.get('fromId') as string | null) || undefined,
+                reason: ((formData.get('reason') as string | null) || 'other') as any,
+                currency: (formData.get('currency') as string | null) || 'INR',
+                items: lineItems,
+                totals: { subTotal: total, total },
+                refundMode: ((formData.get('refundMode') as string | null) || 'credit') as any,
+                notes: (formData.get('notes') as string | null) || undefined,
+                fromKind: (formData.get('fromKind') as string | null) || undefined,
+                fromId: (formData.get('fromId') as string | null) || undefined,
+            });
+
+            revalidatePath('/dashboard/crm/purchases/debit-notes');
+            return { message: 'Debit note saved successfully.' };
+        } catch (e) {
+            console.error('[saveDebitNote] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'debit_note',
+                op: 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -195,8 +292,24 @@ export async function saveDebitNote(prevState: any, formData: FormData): Promise
 export async function getDebitNoteById(noteId: string): Promise<WithId<CrmDebitNote> | null> {
     const session = await getSession();
     if (!session?.user) return null;
-    if (!ObjectId.isValid(noteId)) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmDebitNotesApi.getById(noteId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmDebitNote>) : null;
+        } catch (e) {
+            console.error('[getDebitNoteById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'debit_note',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(noteId)) return null;
     try {
         const { db } = await connectToDatabase();
         const note = await db.collection('crm_debit_notes').findOne({
@@ -212,13 +325,32 @@ export async function getDebitNoteById(noteId: string): Promise<WithId<CrmDebitN
 }
 
 export async function deleteDebitNote(noteId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(noteId)) return { success: false, error: 'Invalid ID.' };
-
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const guard = await requirePermission('crm_debit_note', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!noteId) return { success: false, error: 'Invalid ID.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmDebitNotesApi.delete(noteId);
+            revalidatePath('/dashboard/crm/purchases/debit-notes');
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteDebitNote] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'debit_note',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(noteId)) return { success: false, error: 'Invalid ID.' };
 
     try {
         const { db } = await connectToDatabase();

@@ -11,9 +11,12 @@
  *   - crm_store_orders
  *   - crm_store_abandoned_carts
  *
- * The Rust crate is not yet workspace-registered so every read/write goes
- * direct to Mongo. When the Rust BFF lands a routing flag will be added
- * here mirroring `crm-invoices.actions.ts` / `crm-coupons.actions.ts`.
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, actions delegate to the Rust BFF
+ *    (`/v1/crm/store`) via `src/lib/rust-client/crm-store.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths.
  *
  * All mutations are gated by `requirePermission('crm_store', …)`. The
  * `crm_store` key is NOT yet registered in `permission-modules.ts` —
@@ -32,6 +35,13 @@ import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { getErrorMessage } from '@/lib/utils';
+import { crmStoreApi } from '@/lib/rust-client/crm-store';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ──────────────────────────────────────────────────────────────────────── */
 /*  Shared helpers                                                           */
@@ -135,6 +145,23 @@ export async function getStorefrontList(): Promise<{
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return { items: [], error: 'Unauthorized.' };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmStoreApi.storefronts.list({ limit: 200 });
+            return { items: toJson(res.items) };
+        } catch (e) {
+            console.error('[getStorefrontList] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_storefront',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const docs = await db
@@ -153,10 +180,28 @@ export async function getStorefrontList(): Promise<{
 export async function getStorefrontById(
     id: string,
 ): Promise<Record<string, unknown> | null> {
-    if (!id || !ObjectId.isValid(id)) return null;
+    if (!id) return null;
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmStoreApi.storefronts.getById(id);
+            return doc ? toJson(doc) : null;
+        } catch (e) {
+            console.error('[getStorefrontById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_storefront',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db
@@ -182,12 +227,47 @@ export async function saveStorefront(
     const guard = await requirePermission('crm_store', action);
     if (!guard.ok) return { error: guard.error };
 
-    try {
-        const name = getString(formData, 'name');
-        const slug = getString(formData, 'slug');
-        if (!name) return { error: 'Storefront name is required.' };
-        if (!slug) return { error: 'Slug is required.' };
+    const name = getString(formData, 'name');
+    const slug = getString(formData, 'slug');
+    if (!name) return { error: 'Storefront name is required.' };
+    if (!slug) return { error: 'Slug is required.' };
 
+    if (useRustCrm()) {
+        try {
+            const payload = {
+                name,
+                slug,
+                domain: getString(formData, 'domain'),
+                currency: getString(formData, 'currency') ?? 'INR',
+                logoUrl: getString(formData, 'logoUrl'),
+            };
+
+            if (id) {
+                await crmStoreApi.storefronts.update(id, {
+                    ...payload,
+                    status: (getString(formData, 'status') ?? 'draft') as any,
+                });
+                revalidatePath('/dashboard/crm/store/storefronts');
+                revalidatePath(`/dashboard/crm/store/storefronts/${id}`);
+                return { message: 'Storefront updated.', id };
+            }
+
+            const res = await crmStoreApi.storefronts.create(payload);
+            revalidatePath('/dashboard/crm/store/storefronts');
+            return { message: 'Storefront created.', id: res.id };
+        } catch (e) {
+            console.error('[saveStorefront] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_storefront',
+                op: id ? 'update' : 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    try {
         const doc: Record<string, unknown> = {
             name,
             slug,
@@ -251,7 +331,26 @@ export async function deleteStorefront(
     if (!userId) return { ok: false, error: 'Unauthorized.' };
     const guard = await requirePermission('crm_store', 'delete');
     if (!guard.ok) return { ok: false, error: guard.error };
-    if (!id || !ObjectId.isValid(id)) {
+    if (!id) return { ok: false, error: 'Invalid storefront id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmStoreApi.storefronts.archive(id);
+            revalidatePath('/dashboard/crm/store/storefronts');
+            return { ok: true };
+        } catch (e) {
+            console.error('[deleteStorefront] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_storefront',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) {
         return { ok: false, error: 'Invalid storefront id.' };
     }
     try {
@@ -329,6 +428,23 @@ export async function getProductList(
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return { items: [], error: 'Unauthorized.' };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmStoreApi.products.list({ storefrontId, limit: 200 });
+            return { items: toJson(res.items) };
+        } catch (e) {
+            console.error('[getProductList] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_product',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Document> = { userId };
@@ -353,10 +469,28 @@ export async function getProductList(
 export async function getProductById(
     id: string,
 ): Promise<Record<string, unknown> | null> {
-    if (!id || !ObjectId.isValid(id)) return null;
+    if (!id) return null;
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmStoreApi.products.getById(id);
+            return doc ? toJson(doc) : null;
+        } catch (e) {
+            console.error('[getProductById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_product',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db
@@ -382,12 +516,54 @@ export async function saveProduct(
     const guard = await requirePermission('crm_store', action);
     if (!guard.ok) return { error: guard.error };
 
+    const storefrontIdRaw = getString(formData, 'storefrontId');
+    if (!storefrontIdRaw) return { error: 'Storefront is required.' };
+    const title = getString(formData, 'title');
+    if (!title) return { error: 'Title is required.' };
+
+    if (useRustCrm()) {
+        try {
+            const payload = {
+                storefrontId: storefrontIdRaw,
+                itemId: getString(formData, 'itemId') ?? '',
+                sku: getString(formData, 'sku') ?? '',
+                title,
+                description: getString(formData, 'description'),
+                price: getNumber(formData, 'price') ?? 0,
+                compareAtPrice: getNumber(formData, 'compareAtPrice'),
+                currency: getString(formData, 'currency') ?? 'INR',
+                inventoryTracked: getBoolean(formData, 'inventoryTracked'),
+            };
+
+            if (id) {
+                await crmStoreApi.products.update(id, {
+                    ...payload,
+                    status: (getString(formData, 'status') ?? 'draft') as any,
+                });
+                revalidatePath('/dashboard/crm/store/products');
+                revalidatePath(`/dashboard/crm/store/products/${id}`);
+                return { message: 'Product updated.', id };
+            }
+
+            const res = await crmStoreApi.products.create(payload);
+            revalidatePath('/dashboard/crm/store/products');
+            return { message: 'Product created.', id: res.id };
+        } catch (e) {
+            console.error('[saveProduct] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_product',
+                op: id ? 'update' : 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
-        const storefrontIdRaw = getString(formData, 'storefrontId');
         if (!storefrontIdRaw || !ObjectId.isValid(storefrontIdRaw)) {
             return { error: 'Storefront is required.' };
         }
-        const title = getString(formData, 'title');
         if (!title) return { error: 'Title is required.' };
 
         const itemId = getString(formData, 'itemId');
@@ -471,7 +647,26 @@ export async function deleteProduct(id: string): Promise<ActionResult> {
     if (!userId) return { ok: false, error: 'Unauthorized.' };
     const guard = await requirePermission('crm_store', 'delete');
     if (!guard.ok) return { ok: false, error: guard.error };
-    if (!id || !ObjectId.isValid(id)) {
+    if (!id) return { ok: false, error: 'Invalid product id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmStoreApi.products.archive(id);
+            revalidatePath('/dashboard/crm/store/products');
+            return { ok: true };
+        } catch (e) {
+            console.error('[deleteProduct] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_product',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) {
         return { ok: false, error: 'Invalid product id.' };
     }
     try {
@@ -1024,6 +1219,23 @@ export async function getStoreOrders(
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return { items: [], error: 'Unauthorized.' };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmStoreApi.orders.list({ storefrontId, limit: 200 });
+            return { items: toJson(res.items) };
+        } catch (e) {
+            console.error('[getStoreOrders] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_order',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Document> = { userId };
@@ -1047,10 +1259,28 @@ export async function getStoreOrders(
 export async function getStoreOrderById(
     id: string,
 ): Promise<Record<string, unknown> | null> {
-    if (!id || !ObjectId.isValid(id)) return null;
+    if (!id) return null;
     const session = await getSession();
     const userId = requireUserObjectId(session);
     if (!userId) return null;
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmStoreApi.orders.getById(id);
+            return doc ? toJson(doc) : null;
+        } catch (e) {
+            console.error('[getStoreOrderById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_order',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db
@@ -1105,14 +1335,50 @@ export async function markOrderPaid(id: string): Promise<ActionResult> {
     console.info('[crm-store] TODO: auto-create invoice on markOrderPaid', {
         orderId: id,
     });
+
+    if (useRustCrm()) {
+        try {
+            await crmStoreApi.orders.markPaid(id);
+            revalidatePath('/dashboard/crm/store/orders');
+            revalidatePath(`/dashboard/crm/store/orders/${id}`);
+            return { ok: true };
+        } catch (e) {
+            console.error('[markOrderPaid] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_order',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
     return transitionOrderStatus(id, 'paid', 'update');
 }
 
 export async function markOrderFulfilled(id: string): Promise<ActionResult> {
+    if (useRustCrm()) {
+        try {
+            await crmStoreApi.orders.markFulfilled(id);
+            revalidatePath('/dashboard/crm/store/orders');
+            revalidatePath(`/dashboard/crm/store/orders/${id}`);
+            return { ok: true };
+        } catch (e) {
+            console.error('[markOrderFulfilled] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_order',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
     return transitionOrderStatus(id, 'fulfilled', 'update');
 }
 
 export async function cancelOrder(id: string): Promise<ActionResult> {
+    // TODO: add Rust path when crm-store router exposes a cancel endpoint.
     return transitionOrderStatus(id, 'cancelled', 'update');
 }
 
@@ -1145,6 +1411,42 @@ export async function getAbandonedCarts(
         kpi: { total: 0, recovered: 0, recoveryRate: 0, lostLast7Days: 0 },
     };
     if (!userId) return { ...empty, error: 'Unauthorized.' };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmStoreApi.abandonedCarts.list({
+                storefrontId: filter.storefrontId,
+                limit: 200,
+            });
+            const items = res.items as unknown as Record<string, unknown>[];
+            const total = items.length;
+            const recovered = items.filter((c) => c.recovered === true).length;
+            const recoveryRate = total === 0 ? 0 : (recovered / total) * 100;
+            const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+            const lostLast7Days = items
+                .filter((c) => {
+                    if (c.recovered) return false;
+                    const ca = c.createdAt as string | undefined;
+                    if (!ca) return false;
+                    return new Date(ca).getTime() >= sevenDaysAgo;
+                })
+                .reduce((sum, c) => sum + Number(c.subtotal ?? 0), 0);
+            return {
+                items: toJson(items),
+                kpi: { total, recovered, recoveryRate, lostLast7Days },
+            };
+        } catch (e) {
+            console.error('[getAbandonedCarts] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'store_abandoned_cart',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const q: Filter<Document> = { userId };
@@ -1207,6 +1509,10 @@ export async function getAbandonedCarts(
  * emit a structured log line + write an audit-log entry and mark the
  * cart as `recovery_email_sent`. The mail worker will pick the cart up
  * in a later milestone.
+ *
+ * Mongo-only path — the Rust client exposes `markRecovered` but no
+ * recovery-email dispatch endpoint yet.
+ * TODO: add Rust path when crm-store router exposes a recovery-email endpoint.
  */
 export async function dispatchRecoveryEmail(
     cartId: string,
