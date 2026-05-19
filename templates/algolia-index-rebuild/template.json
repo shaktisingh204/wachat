@@ -1,0 +1,10 @@
+{
+  "id": "algolia-index-rebuild",
+  "name": "Algolia Index Rebuild",
+  "description": "Each night, pulls the latest catalog rows from Postgres, replaces the Algolia index in one atomic swap, and confirms in Slack. Keeps search fresh against the source of truth without manual reindex chores.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "algolia", "search", "postgres", "cron", "slack"],
+  "version": "0.1.0"
+}

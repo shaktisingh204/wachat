@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_nightly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 4 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_nightly",
+      "name": "Nightly 4am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_pg_pull",
+      "name": "Pull Catalog",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, sku, title, description, price, category FROM products WHERE is_published = true"
+      },
+      "credentials": { "postgres": { "id": "pg-cred", "name": "Catalog DB" } }
+    },
+    {
+      "id": "n_format_records",
+      "name": "Format Records",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "indexName", "value": "products_tmp" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_algolia_replace",
+      "name": "Algolia Replace Index",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ALGOLIA_API }}/1/indexes/{{ $json.indexName }}/operation",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "operation", "value": "replaceAllObjects" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "algolia-cred", "name": "Algolia Admin Key" } }
+    },
+    {
+      "id": "n_atomic_swap",
+      "name": "Atomic Swap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ALGOLIA_API }}/1/indexes/{{ $json.indexName }}/operation",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "operation", "value": "move" },
+            { "name": "destination", "value": "products" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "algolia-cred", "name": "Algolia Admin Key" } }
+    },
+    {
+      "id": "n_slack_confirm",
+      "name": "Slack Confirm",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DEVOPS_CHANNEL }}",
+        "text": ":mag: Algolia products index rebuilt and swapped.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_nightly": { "main": [[{ "node": "n_pg_pull", "type": "main", "index": 0 }]] },
+    "n_pg_pull": { "main": [[{ "node": "n_format_records", "type": "main", "index": 0 }]] },
+    "n_format_records": { "main": [[{ "node": "n_algolia_replace", "type": "main", "index": 0 }]] },
+    "n_algolia_replace": { "main": [[{ "node": "n_atomic_swap", "type": "main", "index": 0 }]] },
+    "n_atomic_swap": { "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Rebuild",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_nightly", "n_pg_pull", "n_format_records", "n_algolia_replace", "n_atomic_swap", "n_slack_confirm"]
+    }
+  ],
+  "variables": [
+    { "id": "v_algolia", "name": "ALGOLIA_API", "defaultValue": "https://APPID.algolia.net" },
+    { "id": "v_slack", "name": "SLACK_DEVOPS_CHANNEL", "defaultValue": "#devops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

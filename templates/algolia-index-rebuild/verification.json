@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "algolia-index-rebuild",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Nightly cron rebuilds Algolia index from Postgres and atomically swaps.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T04:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
