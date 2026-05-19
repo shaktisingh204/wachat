@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "telegram-broadcast-poll",
+  "cases": [
+    {
+      "id": "broadcast-sent",
+      "description": "Valid broadcast payload sends Telegram message and logs to Mongo.",
+      "triggerPayload": { "message": "Beta cohort 2 opens tomorrow — react ❤️ to opt in." },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
