@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_line_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "line.message.received",
+    "options": {
+      "path": "/webhooks/line-customer-care",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Line-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_line_trigger",
+      "name": "LINE Message Received",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "line-customer-care",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "line-customer-care"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "userId", "value": "={{ $json.events[0].source.userId }}" },
+            { "name": "body", "value": "={{ $json.events[0].message.text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_intent",
+      "name": "GPT-4o Intent",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Reply with one word: support or sales." },
+            { "role": "user", "content": "={{ $json.body }}" }
+          ]
+        },
+        "options": { "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Intent",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "intent", "value": "={{ $json.message.content.trim().toLowerCase() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Intent",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.intent }}", "operation": "equal", "value2": "sales" }] }, "outputKey": "sales" }
+          ]
+        },
+        "fallbackOutput": "support"
+      }
+    },
+    {
+      "id": "n_zendesk_ticket",
+      "name": "Zendesk Support Ticket",
+      "type": "n8n-nodes-base.zendesk",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "create",
+        "subject": "LINE: {{ $node['Extract Message'].json.body }}",
+        "description": "={{ $node['Extract Message'].json.body }}",
+        "additionalFields": {
+          "tags": ["line", "support"]
+        }
+      },
+      "credentials": {
+        "zendeskApi": { "id": "zendesk-cred", "name": "Zendesk API" }
+      }
+    },
+    {
+      "id": "n_sdr_slack",
+      "name": "SDR Slack Queue",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SDR_CHANNEL }}",
+        "text": ":dollar: New LINE sales lead {{ $node['Extract Message'].json.userId }}: \"{{ $node['Extract Message'].json.body }}\""
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_line_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_intent", "type": "main", "index": 0 }]]
+    },
+    "n_intent": {
+      "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]]
+    },
+    "n_parse": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "support": [[{ "node": "n_zendesk_ticket", "type": "main", "index": 0 }]],
+      "sales": [[{ "node": "n_sdr_slack", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_line_trigger", "n_extract", "n_intent", "n_parse", "n_route", "n_zendesk_ticket", "n_sdr_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sdr", "name": "SLACK_SDR_CHANNEL", "defaultValue": "#sdr-line" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
