@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_cz_risk",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "churnzero.risk",
+    "options": {
+      "path": "/webhooks/churnzero-risk",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-CZ-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "ChurnZero Risk",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "churnzero-risk",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "churnzero-risk-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Risk Signal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "accountName", "value": "={{ $json.account.name }}" },
+            { "name": "score", "value": "={{ $json.risk.score }}" },
+            { "name": "reason", "value": "={{ $json.risk.reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack CS Leadership",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":warning: At-risk: *{{ $json.accountName }}* (score {{ $json.score }}) — {{ $json.reason }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear",
+      "name": "Linear Playbook Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [480, 120],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_TEAM_ID }}",
+        "title": "Run save-play: {{ $json.accountName }}",
+        "description": "Reason: {{ $json.reason }}\nScore: {{ $json.score }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "mode": "combine", "combinationMode": "mergeByPosition" }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "RiskLog",
+        "fields": { "Account": "={{ $node['Extract Risk Signal'].json.accountName }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_linear", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_linear": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] },
+    "n_merge": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_slack", "n_linear", "n_merge", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#cs-leadership" },
+    { "id": "v_lin", "name": "LINEAR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
