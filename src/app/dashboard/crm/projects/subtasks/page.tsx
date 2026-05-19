@@ -59,6 +59,7 @@ import Link from 'next/link';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
@@ -303,18 +304,11 @@ export default function SubTasksPage() {
                         ].join(' ')}
                       >
                         <ZoruTableCell>
-                          <button
-                            type="button"
-                            className="text-left font-medium text-zoru-ink hover:underline"
-                            onClick={() => setEditTarget(r)}
-                          >
-                            {r.title || 'Untitled'}
-                          </button>
-                          {r.description ? (
-                            <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
-                              {r.description}
-                            </p>
-                          ) : null}
+                          <EntityRowLink
+                            href={`/dashboard/crm/projects/subtasks/${r._id}`}
+                            label={r.title || 'Untitled'}
+                            subtitle={r.description || undefined}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px]">
                           {r.taskId ? (

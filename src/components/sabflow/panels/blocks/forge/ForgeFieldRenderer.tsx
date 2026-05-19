@@ -21,6 +21,7 @@ import type {
 } from '@/lib/sabflow/forge/types';
 import { cn } from '@/lib/utils';
 import { useLoadOptions } from './useLoadOptions';
+import { ResourceLocatorField } from './ResourceLocatorField';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -224,6 +225,20 @@ export function ForgeFieldRenderer({
 
       case 'key-value-list':
         return <KeyValueListInput rows={asKvList(value)} onChange={onChange} />;
+
+      case 'resourceLocator':
+        if (!blockId) return null;
+        return (
+          <ResourceLocatorField
+            field={field}
+            value={value}
+            onChange={onChange}
+            blockId={blockId}
+            actionId={actionId}
+            credentialId={credentialId}
+            options={options ?? {}}
+          />
+        );
 
       default:
         return null;

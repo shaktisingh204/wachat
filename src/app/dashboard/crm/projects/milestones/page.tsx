@@ -62,6 +62,7 @@ import * as React from 'react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
@@ -295,18 +296,11 @@ export default function ProjectMilestonesPage() {
                         ].join(' ')}
                       >
                         <ZoruTableCell>
-                          <button
-                            type="button"
-                            className="text-left font-medium text-zoru-ink hover:underline"
-                            onClick={() => setEditTarget(r)}
-                          >
-                            {r.milestoneTitle || 'Untitled'}
-                          </button>
-                          {r.summary ? (
-                            <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
-                              {r.summary}
-                            </p>
-                          ) : null}
+                          <EntityRowLink
+                            href={`/dashboard/crm/projects/milestones/${r._id}`}
+                            label={r.milestoneTitle || 'Untitled'}
+                            subtitle={r.summary || undefined}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {r.projectId ? (

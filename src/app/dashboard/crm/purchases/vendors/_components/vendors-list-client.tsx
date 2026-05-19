@@ -54,6 +54,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
     deleteCrmVendor,
     getCrmVendors,
@@ -390,12 +391,11 @@ export function VendorsListClient() {
                                                 />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-medium text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/purchases/vendors/${id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {v.name}
-                                                </Link>
+                                                    label={v.name}
+                                                    subtitle={v.email || v.phone || undefined}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-[13px] text-zoru-ink">
                                                 {v.email || '—'}

@@ -23,6 +23,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { RfqListRow } from './types';
@@ -128,12 +129,11 @@ export function RfqTable({
                   />
                 </td>
                 <td className={`${cell} align-middle`}>
-                  <Link
+                  <EntityRowLink
                     href={`/dashboard/crm/purchases/rfqs/${r._id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                  >
-                    {r.title || '—'}
-                  </Link>
+                    label={r.title || '—'}
+                    subtitle={r.vendorsInvitedCount ? `${r.vendorsInvitedCount} vendor${r.vendorsInvitedCount === 1 ? '' : 's'} invited` : undefined}
+                  />
                 </td>
                 <td className={`${cell} align-middle text-zoru-ink-muted`}>
                   {r.scope || r.title || '—'}

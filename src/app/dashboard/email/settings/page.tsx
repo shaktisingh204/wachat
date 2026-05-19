@@ -31,7 +31,7 @@ import {
 import { useSearchParams,
   useRouter } from "next/navigation";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
+// Link imported below
 import { AlertCircle,
   Mail,
   FileText,
@@ -60,7 +60,7 @@ import { ModuleSidebar } from '@/components/wabasimplify/module-sidebar';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
+import { EmailSuiteLayout } from '@/components/email/layout';
 
 function PageSkeleton() {
     return (
@@ -466,7 +466,19 @@ function EmailSettingsPageContent() {
                     )}
 
                     {activeTab === 'templates' && (
-                        <EmailTemplatesManager />
+                        <ZoruCard>
+                            <ZoruCardHeader>
+                                <ZoruCardTitle>Templates moved</ZoruCardTitle>
+                                <ZoruCardDescription>
+                                    The template builder lives in its own section now.
+                                </ZoruCardDescription>
+                            </ZoruCardHeader>
+                            <ZoruCardContent>
+                                <ZoruButton asChild>
+                                    <Link href="/dashboard/email/templates">Open template library</Link>
+                                </ZoruButton>
+                            </ZoruCardContent>
+                        </ZoruCard>
                     )}
 
                     {activeTab === 'compliance' && (

@@ -55,6 +55,7 @@ import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
@@ -393,17 +394,11 @@ function IssuesTable({
             return (
               <ZoruTableRow key={r._id} className="border-zoru-line transition-colors">
                 <ZoruTableCell>
-                  <Link
+                  <EntityRowLink
                     href={`/dashboard/crm/projects/issues/${r._id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                  >
-                    {r.title}
-                  </Link>
-                  {r.description ? (
-                    <p className="mt-0.5 truncate text-[11.5px] text-zoru-ink-muted">
-                      {r.description}
-                    </p>
-                  ) : null}
+                    label={r.title}
+                    subtitle={r.description || undefined}
+                  />
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {r.projectId ? (

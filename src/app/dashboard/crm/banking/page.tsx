@@ -1,68 +1,132 @@
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ArrowUpRight,
-  Banknote,
-  Landmark,
-  RefreshCcw,
-  Repeat,
-  UserCircle } from 'lucide-react';
+    ArrowDownLeft,
+    ArrowUpRight,
+    Banknote,
+    CheckCircle2,
+    Landmark,
+    RefreshCcw,
+    Repeat,
+    UserCircle,
+    Wallet,
+} from 'lucide-react';
 
-/**
- * Banking module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/banking/all')` shim.
- */
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-import Link from 'next/link';
+import {
+    HubKpiGrid,
+    HubQuickLinkGrid,
+    HubRecentList,
+    type HubKpi,
+    type HubQuickLink,
+    type HubRecentRow,
+} from '../_components/hub-kpi-grid';
+import {
+    countByUser,
+    formatCurrency,
+    formatDate,
+    recentByUser,
+    startOfMonth,
+    sumByUser,
+} from '../_components/hub-data';
 
-interface NavTile {
-  href: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
+export const dynamic = 'force-dynamic';
+
+interface BankTxnDoc {
+    _id: string;
+    description?: string;
+    amount?: number;
+    type?: 'debit' | 'credit';
+    status?: string;
+    txnDate?: string;
+    createdAt?: string;
 }
 
-const tiles: NavTile[] = [
-  { href: '/dashboard/crm/banking/all', title: 'All Banking', description: 'Combined view of every bank account and transaction.', icon: Banknote },
-  { href: '/dashboard/crm/banking/bank-accounts', title: 'Bank Accounts', description: 'Company bank accounts and their balances.', icon: Landmark },
-  { href: '/dashboard/crm/banking/bank-transactions', title: 'Bank Transactions', description: 'Statement transactions imported from your banks.', icon: Repeat },
-  { href: '/dashboard/crm/banking/employee-accounts', title: 'Employee Accounts', description: 'Employee payout / reimbursement accounts.', icon: UserCircle },
-  { href: '/dashboard/crm/banking/reconciliation', title: 'Reconciliation', description: 'Match statement lines against booked entries.', icon: RefreshCcw },
+const QUICK_LINKS: HubQuickLink[] = [
+    { href: '/dashboard/crm/banking/all', title: 'All Banking', description: 'Combined view of every bank account and transaction.', icon: Banknote },
+    { href: '/dashboard/crm/banking/bank-accounts', title: 'Bank Accounts', description: 'Company bank accounts and their balances.', icon: Landmark },
+    { href: '/dashboard/crm/banking/bank-transactions', title: 'Bank Transactions', description: 'Statement transactions imported from your banks.', icon: Repeat },
+    { href: '/dashboard/crm/banking/employee-accounts', title: 'Employee Accounts', description: 'Employee payout / reimbursement accounts.', icon: UserCircle },
+    { href: '/dashboard/crm/banking/reconciliation', title: 'Reconciliation', description: 'Match statement lines against booked entries.', icon: RefreshCcw },
 ];
 
-export default function CrmBankingHubPage() {
-  return (
-    <div className="flex min-h-full flex-col gap-6 p-4 sm:p-6">
-      <ZoruPageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Banking</ZoruPageTitle>
-          <ZoruPageDescription>
-            Bank accounts, statements, and reconciliation against your books.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </ZoruPageHeader>
+export default async function CrmBankingHubPage() {
+    const monthStart = startOfMonth();
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tiles.map((tile) => {
-          const Icon = tile.icon;
-          return (
-            <Link key={tile.href} href={tile.href} className="group">
-              <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-                  <Icon className="h-[18px] w-[18px]" />
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[14px] font-medium text-zoru-ink">{tile.title}</p>
-                  <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
-                </div>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                  {tile.description}
-                </p>
-              </ZoruCard>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+    const [totalBalance, accountsCount, monthTxnCount, reconciledCount, totalTxnCount, recentTxns] = await Promise.all([
+        sumByUser('crm_bank_accounts', 'currentBalance'),
+        countByUser('crm_bank_accounts'),
+        countByUser('crm_bank_transactions', { txnDate: { $gte: monthStart } }),
+        countByUser('crm_bank_transactions', { status: 'reconciled' }),
+        countByUser('crm_bank_transactions'),
+        recentByUser<BankTxnDoc>('crm_bank_transactions', {
+            sortField: 'txnDate',
+            limit: 5,
+        }),
+    ]);
+
+    const reconciledPct = totalTxnCount > 0 ? Math.round((reconciledCount / totalTxnCount) * 100) : 0;
+
+    const kpis: HubKpi[] = [
+        {
+            label: 'Total Balance',
+            value: formatCurrency(totalBalance),
+            icon: Wallet,
+            hint: `Across ${accountsCount} account${accountsCount === 1 ? '' : 's'}`,
+            href: '/dashboard/crm/banking/bank-accounts',
+        },
+        {
+            label: 'Accounts',
+            value: accountsCount,
+            icon: Landmark,
+            href: '/dashboard/crm/banking/bank-accounts',
+        },
+        {
+            label: 'Txns This Month',
+            value: monthTxnCount.toLocaleString(),
+            icon: Repeat,
+            href: '/dashboard/crm/banking/bank-transactions',
+        },
+        {
+            label: 'Reconciled %',
+            value: `${reconciledPct}%`,
+            icon: CheckCircle2,
+            tone: reconciledPct >= 80 ? 'success' : reconciledPct >= 40 ? 'warning' : 'danger',
+            href: '/dashboard/crm/banking/reconciliation',
+        },
+    ];
+
+    const recentRows: HubRecentRow[] = recentTxns.map((tx) => ({
+        id: String(tx._id),
+        primary: tx.description || 'Bank transaction',
+        secondary: formatDate(tx.txnDate || tx.createdAt),
+        trailing: (
+            <span className={tx.type === 'credit' ? 'text-zoru-success-ink' : 'text-zoru-ink'}>
+                {tx.type === 'credit' ? (
+                    <ArrowDownLeft className="mr-1 inline h-3 w-3" />
+                ) : (
+                    <ArrowUpRight className="mr-1 inline h-3 w-3" />
+                )}
+                {formatCurrency(tx.amount ?? 0)}
+            </span>
+        ),
+        href: `/dashboard/crm/banking/bank-transactions/${tx._id}`,
+    }));
+
+    return (
+        <EntityListShell
+            title="Banking"
+            subtitle="Bank accounts, statements, and reconciliation against your books."
+        >
+            <div className="flex flex-col gap-6">
+                <HubKpiGrid kpis={kpis} />
+                <HubQuickLinkGrid links={QUICK_LINKS} />
+                <HubRecentList
+                    title="Recent transactions"
+                    rows={recentRows}
+                    emptyHint="No bank transactions yet."
+                    viewAllHref="/dashboard/crm/banking/bank-transactions"
+                />
+            </div>
+        </EntityListShell>
+    );
 }

@@ -56,6 +56,7 @@ import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-d
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 const CONTACTS_PER_PAGE = 15;
 
@@ -200,19 +201,13 @@ export default function CrmContactsPage() {
                             {contact.name?.charAt(0) ?? '?'}
                           </ZoruAvatarFallback>
                         </ZoruAvatar>
-                        <div>
-                          <Link
-                            href={`/dashboard/crm/contacts/${contact._id.toString()}`}
-                            className="text-[13px] font-medium text-zoru-ink hover:underline"
-                          >
-                            {contact.name}
-                          </Link>
-                          <p className="text-[11.5px] text-zoru-ink-muted">
-                            {t('crm.contacts.list.added', {
-                              date: new Date(contact.createdAt).toLocaleDateString(locale),
-                            })}
-                          </p>
-                        </div>
+                        <EntityRowLink
+                          href={`/dashboard/crm/contacts/${contact._id.toString()}`}
+                          label={contact.name}
+                          subtitle={t('crm.contacts.list.added', {
+                            date: new Date(contact.createdAt).toLocaleDateString(locale),
+                          })}
+                        />
                       </div>
                     </ZoruTableCell>
                     <ZoruTableCell>

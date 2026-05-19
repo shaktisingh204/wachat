@@ -25,8 +25,8 @@ import {
   actionDeleteEmailTemplate,
   actionListEmailTemplates,
   actionListLibraryEmailTemplates,
-  type EmailTemplateDoc,
 } from '@/app/actions/email/templates.actions';
+import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 import { TemplateGrid } from './template-grid';
 import { LibraryGallery } from './library-gallery';
 import { emptyDocument } from './builder/block-defaults';

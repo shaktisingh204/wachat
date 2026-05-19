@@ -29,6 +29,7 @@ import { Calendar, Trash2, Flag, Mail, Phone, MessageSquare } from 'lucide-react
 import { updateCrmTaskStatus, deleteCrmTask } from '@/app/actions/crm-tasks.actions';
 import type { WithId, CrmTask } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 const priorityConfig: Record<'High' | 'Medium' | 'Low', { variant: 'danger' | 'warning' | 'success'; label: string }> = {
     High: { variant: 'danger', label: 'High' },
@@ -113,10 +114,15 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                                 </ZoruSelect>
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <p className={cn("font-medium text-zoru-ink", task.status === 'Completed' && 'line-through text-zoru-ink-muted')}>
-                                                    {task.title}
-                                                </p>
-                                                <p className="text-xs text-zoru-ink-muted">{task.description}</p>
+                                                <EntityRowLink
+                                                    href={`/dashboard/crm/tasks/${task._id.toString()}`}
+                                                    label={
+                                                        <span className={cn(task.status === 'Completed' && 'line-through text-zoru-ink-muted')}>
+                                                            {task.title}
+                                                        </span>
+                                                    }
+                                                    subtitle={task.description || undefined}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell>
                                                  <ZoruTooltipProvider>

@@ -26,6 +26,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 
 /**
@@ -321,12 +322,10 @@ export function NoticesListClient(): React.JSX.Element {
                                     return (
                                         <tr key={n._id} className="hover:bg-zoru-surface">
                                             <td className="px-3 py-2">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/workspace/notices/${n._id}`}
-                                                    className="font-medium text-zoru-ink hover:underline"
-                                                >
-                                                    {n.heading}
-                                                </Link>
+                                                    label={n.heading}
+                                                />
                                             </td>
                                             <td className="px-3 py-2 capitalize text-zoru-ink-muted">
                                                 {n.notice_to}

@@ -14,6 +14,7 @@ import { ObjectId } from 'mongodb';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -210,12 +211,10 @@ export default async function DisciplinaryPage() {
                   return (
                     <ZoruTableRow key={idStr} className="border-zoru-line">
                       <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/hr/disciplinary/${idStr}`}
-                          className="hover:underline"
-                        >
-                          {caseNo}
-                        </Link>
+                          label={caseNo}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{employee}</ZoruTableCell>
                       <ZoruTableCell>

@@ -25,6 +25,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { BillDensity, BillListRow } from './types';
@@ -152,12 +153,11 @@ export function BillsTable({
                     />
                   </td>
                   <td className={`${cell} align-middle`}>
-                    <Link
+                    <EntityRowLink
                       href={`/dashboard/crm/purchases/expenses/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {bill.billNo || '—'}
-                    </Link>
+                      label={bill.billNo || '—'}
+                      subtitle={bill.vendorLabel || bill.vendorInvoiceNo || undefined}
+                    />
                   </td>
                   <td className={`${cell} align-middle text-zoru-ink-muted`}>
                     {bill.vendorInvoiceNo || '—'}

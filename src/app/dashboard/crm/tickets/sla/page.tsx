@@ -15,6 +15,7 @@ import { Plus,
   Timer } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import Link from 'next/link';
 
@@ -130,12 +131,10 @@ export default async function SlaPoliciesPage() {
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/tickets/sla/${id}`}
-                          className="hover:underline"
-                        >
-                          {s.name || 'Untitled SLA'}
-                        </Link>
+                          label={s.name || 'Untitled SLA'}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
                         {typeof firstResp === 'number' ? firstResp : '—'}

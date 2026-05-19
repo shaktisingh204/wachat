@@ -27,6 +27,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { ItemDensity, ItemListRow } from './types';
@@ -138,17 +139,11 @@ export function ItemsTable({
                     <ItemThumbnail src={item.thumbnail} alt={item.name} />
                   </td>
                   <td className={`${cell} align-middle`}>
-                    <Link
+                    <EntityRowLink
                       href={`/dashboard/crm/inventory/items/${id}`}
-                      className="font-medium text-zoru-ink hover:underline"
-                    >
-                      {item.name || '—'}
-                    </Link>
-                    {item.hsnSac ? (
-                      <div className="text-[10.5px] text-zoru-ink-muted">
-                        HSN {item.hsnSac}
-                      </div>
-                    ) : null}
+                      label={item.name || '—'}
+                      subtitle={item.sku ? `SKU ${item.sku}` : item.hsnSac ? `HSN ${item.hsnSac}` : undefined}
+                    />
                   </td>
                   <td className={`${cell} align-middle font-mono text-zoru-ink`}>
                     {item.sku || '—'}

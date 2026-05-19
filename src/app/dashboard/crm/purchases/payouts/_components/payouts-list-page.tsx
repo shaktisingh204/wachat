@@ -32,6 +32,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
@@ -183,12 +184,11 @@ export function PayoutsListPage() {
                                         return (
                                             <ZoruTableRow key={p._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${p._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {p.paymentNo}
-                                                    </Link>
+                                                        label={<span className="font-mono">{p.paymentNo}</span>}
+                                                        subtitle={p.vendorId || undefined}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {p.vendorId}

@@ -48,6 +48,7 @@ import { Plus, Truck } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteDeliveryChallanAction } from '@/app/actions/crm-delivery-challans.actions';
 import {
@@ -352,12 +353,11 @@ export function DeliveryListClient({
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/sales/delivery/${dc._id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {dc.challanNumber || '—'}
-                      </Link>
+                        label={dc.challanNumber || '—'}
+                        subtitle={fmtDate(dc.challanDate)}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[12.5px]">
                       {dc.accountId ? (

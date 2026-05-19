@@ -34,6 +34,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -447,12 +448,11 @@ export function RecurringInvoiceListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/sales/recurring-invoices/${id}`}
-                            className="font-medium text-zoru-ink hover:underline"
-                          >
-                            {inv.title || `Schedule ${id.slice(-6)}`}
-                          </Link>
+                            label={inv.title || `Schedule ${id.slice(-6)}`}
+                            subtitle={frequencyLabel(inv.frequency)}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px]">
                           {inv.customerId ? (

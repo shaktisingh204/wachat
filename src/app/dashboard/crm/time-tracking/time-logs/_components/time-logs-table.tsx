@@ -11,6 +11,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
   wsFormatDuration,
   type WsProjectTimeLog,
@@ -90,12 +91,10 @@ export function TimeLogsTable({
                 className="border-zoru-line transition-colors"
               >
                 <ZoruTableCell>
-                  <Link
+                  <EntityRowLink
                     href={`/dashboard/crm/time-tracking/time-logs/${log._id}`}
-                    className="text-[13px] text-zoru-ink hover:underline"
-                  >
-                    {log.memo || '—'}
-                  </Link>
+                    label={log.memo || '—'}
+                  />
                 </ZoruTableCell>
                 <ZoruTableCell>
                   {log.user_id ? (

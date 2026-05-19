@@ -38,6 +38,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { KbArticleDoc } from '@/app/actions/crm-knowledge-base.actions';
 
@@ -149,24 +150,26 @@ export function KbTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
-                                            href={`/dashboard/crm/tickets/knowledge-base/${id}`}
-                                            className="group flex items-center gap-2"
-                                        >
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                        <div className="flex items-center gap-2">
+                                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                                                 <BookOpen className="h-3.5 w-3.5" />
                                             </span>
-                                            <span className="min-w-0">
-                                                <span className="block max-w-[320px] truncate text-[13px] font-medium text-zoru-ink group-hover:underline">
-                                                    {a.title || 'Untitled'}
-                                                </span>
-                                                {a.slug ? (
-                                                    <span className="block max-w-[320px] truncate font-mono text-[11px] text-zoru-ink-muted">
-                                                        /{a.slug}
+                                            <EntityRowLink
+                                                href={`/dashboard/crm/tickets/knowledge-base/${id}`}
+                                                label={
+                                                    <span className="block max-w-[320px] truncate text-[13px]">
+                                                        {a.title || 'Untitled'}
                                                     </span>
-                                                ) : null}
-                                            </span>
-                                        </Link>
+                                                }
+                                                subtitle={
+                                                    a.slug ? (
+                                                        <span className="block max-w-[320px] truncate font-mono text-[11px]">
+                                                            /{a.slug}
+                                                        </span>
+                                                    ) : undefined
+                                                }
+                                            />
+                                        </div>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {a.category ? (

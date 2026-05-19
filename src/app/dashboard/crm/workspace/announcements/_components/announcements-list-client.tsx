@@ -22,6 +22,7 @@ import { Megaphone,
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill,
   type StatusTone } from '@/components/crm/status-pill';
 
@@ -280,12 +281,10 @@ export function AnnouncementsListClient({
                                     return (
                                         <tr key={a._id} className="hover:bg-zoru-surface">
                                             <td className="px-3 py-2">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/workspace/announcements/${a._id}`}
-                                                    className="font-medium text-zoru-ink hover:underline"
-                                                >
-                                                    {a.title}
-                                                </Link>
+                                                    label={a.title}
+                                                />
                                             </td>
                                             <td className="px-3 py-2 capitalize text-zoru-ink-muted">
                                                 {a.audience ?? '—'}

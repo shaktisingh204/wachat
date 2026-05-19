@@ -36,6 +36,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
@@ -424,12 +425,11 @@ export function RecurringExpensesListClient({
                       />
                     </td>
                     <td className="p-2 align-middle">
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {row.name || '—'}
-                      </Link>
+                        label={row.name || '—'}
+                        subtitle={row.vendor || undefined}
+                      />
                     </td>
                     <td className="p-2 align-middle text-zoru-ink-muted">
                       {row.vendor || '—'}

@@ -22,6 +22,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 
 /**
@@ -282,17 +283,11 @@ export function AwardsListClient(): React.JSX.Element {
                                     return (
                                         <tr key={a._id} className="hover:bg-zoru-surface">
                                             <td className="px-3 py-2">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/workspace/awards/${a._id}`}
-                                                    className="font-medium text-zoru-ink hover:underline"
-                                                >
-                                                    {a.title}
-                                                </Link>
-                                                {a.summary ? (
-                                                    <p className="text-[12px] text-zoru-ink-muted line-clamp-1">
-                                                        {a.summary}
-                                                    </p>
-                                                ) : null}
+                                                    label={a.title}
+                                                    subtitle={a.summary || undefined}
+                                                />
                                             </td>
                                             <td className="px-3 py-2 text-[18px]">
                                                 {a.icon || '🏆'}

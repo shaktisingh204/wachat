@@ -48,6 +48,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteGrnAction } from '@/app/actions/crm/grns.actions';
@@ -355,12 +356,11 @@ export function GrnListClient({
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <Link
+                                            <EntityRowLink
                                                 href={`/dashboard/crm/inventory/grn/${id}`}
-                                                className="font-medium text-zoru-ink hover:underline"
-                                            >
-                                                {grn.grnNo || id.slice(-6)}
-                                            </Link>
+                                                label={grn.grnNo || id.slice(-6)}
+                                                subtitle={grn.poId ? `PO ${grn.poId.slice(-6)}` : undefined}
+                                            />
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-[12.5px]">
                                             {grn.vendorId ? (

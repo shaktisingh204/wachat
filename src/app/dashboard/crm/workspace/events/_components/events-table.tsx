@@ -26,6 +26,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { StatusPill } from '@/components/crm/status-pill';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import {
     deriveStatus,
@@ -108,12 +109,10 @@ export function EventsTable({
                                     />
                                 </td>
                                 <td className="px-3 py-2">
-                                    <Link
+                                    <EntityRowLink
                                         href={`/dashboard/crm/workspace/events/${e._id}`}
-                                        className="font-medium text-zoru-ink hover:underline"
-                                    >
-                                        {e.event_name}
-                                    </Link>
+                                        label={e.event_name}
+                                    />
                                     {e.online_link ? (
                                         <a
                                             href={e.online_link}

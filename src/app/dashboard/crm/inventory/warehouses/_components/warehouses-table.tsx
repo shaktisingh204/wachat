@@ -37,6 +37,7 @@ import Link from 'next/link';
 
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import type { CrmWarehouse } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -177,12 +178,11 @@ function WarehouseRow({
                 {w.code || '—'}
             </ZoruTableCell>
             <ZoruTableCell>
-                <Link
+                <EntityRowLink
                     href={`/dashboard/crm/inventory/warehouses/${id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                >
-                    {w.name}
-                </Link>
+                    label={w.name}
+                    subtitle={w.code ? `Code ${w.code}` : undefined}
+                />
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px]">
                 <ZoruBadge variant="secondary">

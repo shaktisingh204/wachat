@@ -38,6 +38,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -448,12 +449,11 @@ export function ProformaListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/sales/proforma/${id}`}
-                            className="font-medium text-zoru-ink hover:underline"
-                          >
-                            {inv.proformaNumber}
-                          </Link>
+                            label={inv.proformaNumber}
+                            subtitle={fmtDate(inv.proformaDate)}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell>
                           {inv.accountId ? (

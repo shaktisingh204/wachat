@@ -40,6 +40,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { deleteExit, getExits } from '@/app/actions/crm-exits.actions';
@@ -233,12 +234,10 @@ export default function ExitsListPage() {
                                         return (
                                             <ZoruTableRow key={e._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${e._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {e.employeeName || e.employeeId || '—'}
-                                                    </Link>
+                                                        label={e.employeeName || e.employeeId || '—'}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="capitalize text-zoru-ink">
                                                     {pretty(String(e.type ?? '—'))}

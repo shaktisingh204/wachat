@@ -47,6 +47,7 @@ import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -548,19 +549,20 @@ export function SubscriptionListClient({
                           )}
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/sales/subscriptions/${id}`}
-                            className="font-medium text-zoru-ink hover:underline"
-                          >
-                            {firstItemId ? (
-                              <EntityPickerChip
-                                entity="item"
-                                id={firstItemId}
-                              />
-                            ) : (
-                              displayLabel(sub)
-                            )}
-                          </Link>
+                            label={
+                              firstItemId ? (
+                                <EntityPickerChip
+                                  entity="item"
+                                  id={firstItemId}
+                                />
+                              ) : (
+                                displayLabel(sub)
+                              )
+                            }
+                            subtitle={frequencyLabel(sub.frequency)}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                           {frequencyLabel(sub.frequency)}

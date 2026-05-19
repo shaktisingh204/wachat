@@ -40,6 +40,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { deleteAsset, getAssets } from '@/app/actions/crm-assets.actions';
@@ -229,12 +230,11 @@ export default function AssetsListPage() {
                                         return (
                                             <ZoruTableRow key={a._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${a._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {a.assetTag}
-                                                    </Link>
+                                                        label={a.assetTag}
+                                                        subtitle={a.name}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
                                                     {a.name}

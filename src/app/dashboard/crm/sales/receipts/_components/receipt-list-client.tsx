@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setPaymentReceiptStatus } from '@/app/actions/crm/payment-receipts.actions';
 import type { CrmPaymentReceiptDoc } from '@/lib/rust-client/crm-payment-receipts';
@@ -176,12 +177,11 @@ export function ReceiptListClient({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/sales/receipts/${id}`}
-                                            className="font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {r.receiptNo || id.slice(-6)}
-                                        </Link>
+                                            label={r.receiptNo || id.slice(-6)}
+                                            subtitle={fmtDate(r.date)}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {r.clientId ? (

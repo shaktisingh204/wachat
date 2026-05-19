@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmLead, WithId } from '@/lib/definitions';
 
@@ -151,22 +152,20 @@ export function LeadsTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/all-leads/${id}`}
-                                            className="group flex items-center gap-2"
-                                        >
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                                                <Sparkles className="h-3.5 w-3.5" />
-                                            </span>
-                                            <span className="min-w-0">
-                                                <span className="block truncate text-[13px] font-medium text-zoru-ink group-hover:underline">
-                                                    {lead.title || lead.contactName || 'Untitled'}
+                                            label={
+                                                <span className="flex items-center gap-2">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                                        <Sparkles className="h-3.5 w-3.5" />
+                                                    </span>
+                                                    <span className="block truncate text-[13px]">
+                                                        {lead.title || lead.contactName || 'Untitled'}
+                                                    </span>
                                                 </span>
-                                                <span className="block truncate text-[11.5px] text-zoru-ink-muted">
-                                                    {lead.contactName || '—'}
-                                                </span>
-                                            </span>
-                                        </Link>
+                                            }
+                                            subtitle={lead.contactName || undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-zoru-ink">
                                         {lead.company ? (

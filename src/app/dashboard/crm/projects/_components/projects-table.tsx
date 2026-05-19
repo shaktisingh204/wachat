@@ -24,6 +24,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { WsProject } from '@/lib/worksuite/project-types';
 
@@ -109,12 +110,10 @@ export function ProjectsTable({ rows, loading, onDelete }: ProjectsTableProps) {
                 ].join(' ')}
               >
                 <ZoruTableCell>
-                  <Link
+                  <EntityRowLink
                     href={`/dashboard/crm/projects/${p._id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                  >
-                    {p.name || p.projectName || 'Untitled'}
-                  </Link>
+                    label={p.name || p.projectName || 'Untitled'}
+                  />
                   {p.priority ? (
                     <span className="ml-2 inline-block">
                       <StatusPill

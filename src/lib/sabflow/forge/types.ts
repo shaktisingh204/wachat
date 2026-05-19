@@ -20,7 +20,8 @@ export type ForgeFieldType =
   | 'json'
   | 'code'
   | 'key-value-list'
-  | 'credential';
+  | 'credential'
+  | 'resourceLocator';
 
 /** A key/value pair as stored by `key-value-list` fields. */
 export type ForgeKeyValuePair = {
@@ -41,6 +42,52 @@ export type ForgeFieldValue =
 
 export type ForgeSelectOption = {
   label: string;
+  value: string;
+};
+
+/**
+ * One input mode of a `resourceLocator` field. Mirrors n8n's
+ * `INodePropertyMode`. A field declares 2–3 of these (typically list/id/url).
+ *
+ * `name` is the stable key persisted in `ResourceLocatorValue.mode`.
+ *
+ * `type` decides the renderer:
+ *   - `'list'`    → searchable dropdown driven by `field.loadOptions`
+ *   - `'string'`  → free-text input
+ *
+ * `extractValue` (string mode only): apply this regex to the typed value
+ * and use match group 1 as the resolved id. Used for URL pastes — e.g.
+ * `'discord.com/channels/[0-9]+/([0-9]+)'` pulls the channel id out of
+ * a full Discord URL.
+ *
+ * `validation` (string mode only): client-side regex check; if it fails
+ * the renderer shows `errorMessage`. Does not block submit on its own —
+ * callers can opt in to harder validation later.
+ *
+ * `searchListMethod` (list mode only): name of the search method. Today
+ * the field's `loadOptions` resolver is invoked directly regardless of
+ * mode; the name is recorded for parity with n8n's port pattern and for
+ * use by Phase 3's search-as-you-type plumbing.
+ */
+export type ForgeFieldMode = {
+  name: 'list' | 'id' | 'url' | 'string';
+  displayName: string;
+  type: 'list' | 'string';
+  placeholder?: string;
+  extractValue?: { type: 'regex'; regex: string };
+  validation?: { regex: string; errorMessage: string };
+  searchListMethod?: string;
+};
+
+/**
+ * The persisted shape of a `resourceLocator` field's value. `mode` records
+ * which input the user used so the renderer can rehydrate the right tab;
+ * `value` is the raw string (a list selection id, a typed id, or a URL).
+ * `extractValue` (helper in `./extractValue.ts`) normalises this into a
+ * plain string id before the action runs.
+ */
+export type ResourceLocatorValue = {
+  mode: 'list' | 'id' | 'url' | 'string';
   value: string;
 };
 
@@ -129,6 +176,13 @@ export type ForgeField = {
     show?: Record<string, unknown[]>;
     hide?: Record<string, unknown[]>;
   };
+  /**
+   * For `type: 'resourceLocator'` fields: the available input modes. The
+   * first entry is the default mode for newly-created fields. Renderer
+   * presents one tab per mode; the persisted value records which mode the
+   * user picked (see `ResourceLocatorValue`).
+   */
+  modes?: ForgeFieldMode[];
 };
 
 /* ── Action runtime ──────────────────────────────────────────────────────── */

@@ -37,6 +37,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setDebitNoteStatus } from '@/app/actions/crm/debit-notes.actions';
 import type { CrmDebitNoteDoc } from '@/lib/rust-client/crm-debit-notes';
@@ -175,12 +176,11 @@ export function DebitNoteListClient({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/purchases/debit-notes/${id}`}
-                                            className="font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {dn.dnNo || id.slice(-6)}
-                                        </Link>
+                                            label={dn.dnNo || id.slice(-6)}
+                                            subtitle={dn.linkedBillId ? `Bill ${dn.linkedBillId.slice(-6)}` : undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {dn.vendorId ? (

@@ -31,6 +31,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {
@@ -313,12 +314,11 @@ export function PortalListClient({ users }: PortalListClientProps) {
                         />
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/portal/${u._id}`}
-                          className="font-medium text-zoru-ink hover:underline"
-                        >
-                          {u.name || 'Unnamed user'}
-                        </Link>
+                          label={u.name || 'Unnamed user'}
+                          subtitle={u.email || undefined}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell>{u.email || '—'}</ZoruTableCell>
                       <ZoruTableCell>

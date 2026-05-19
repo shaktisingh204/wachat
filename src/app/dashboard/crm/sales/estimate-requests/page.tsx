@@ -30,6 +30,7 @@ import {
   } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
   getEstimateRequests,
   saveEstimateRequest,
@@ -216,12 +217,11 @@ export default function EstimateRequestsPage() {
                     }
                   >
                     <ZoruTableCell className="max-w-[320px] truncate text-zoru-ink">
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/sales/estimate-requests/${r._id}`}
-                        className="hover:underline"
-                      >
-                        {r.description}
-                      </Link>
+                        label={r.description}
+                        subtitle={r.status ? `Status: ${r.status}` : undefined}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-zoru-ink">
                       {r.requester_name || '—'}

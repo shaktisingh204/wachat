@@ -51,6 +51,7 @@ import {
 import type { HrContract } from '@/lib/hr-types';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {
   ContractsKpiStrip,
@@ -440,12 +441,11 @@ export default function ContractsPage() {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] font-medium text-foreground">
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/contracts/${row._id}`}
-                        className="hover:underline"
-                      >
-                        {row.title}
-                      </Link>
+                        label={row.title}
+                        subtitle={row.clientName || undefined}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-foreground">
                       {row.clientName || '—'}

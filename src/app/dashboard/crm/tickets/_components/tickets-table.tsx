@@ -44,6 +44,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmTicketDoc } from '@/lib/rust-client/crm-tickets';
 import type { TicketRequesterKind } from './tickets-filters';
@@ -174,24 +175,20 @@ export function TicketsTable({
                                         {ticketNumber(t)}
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
-                                            href={`/dashboard/crm/tickets/${id}`}
-                                            className="group flex items-center gap-2"
-                                        >
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                        <div className="flex items-center gap-2">
+                                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
                                                 <LifeBuoy className="h-3.5 w-3.5" />
                                             </span>
-                                            <span className="min-w-0">
-                                                <span className="block max-w-[280px] truncate text-[13px] font-medium text-zoru-ink group-hover:underline">
-                                                    {t.subject || 'Untitled'}
-                                                </span>
-                                                {t.category ? (
-                                                    <span className="block text-[11.5px] text-zoru-ink-muted">
-                                                        {t.category}
+                                            <EntityRowLink
+                                                href={`/dashboard/crm/tickets/${id}`}
+                                                label={
+                                                    <span className="block max-w-[280px] truncate text-[13px]">
+                                                        {t.subject || 'Untitled'}
                                                     </span>
-                                                ) : null}
-                                            </span>
-                                        </Link>
+                                                }
+                                                subtitle={t.category || undefined}
+                                            />
+                                        </div>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {t.requesterId ? (

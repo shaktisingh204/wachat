@@ -21,7 +21,7 @@ import {
   zoruToast,
 } from '@/components/zoruui';
 import { actionForkLibraryTemplate } from '@/app/actions/email/templates.actions';
-import type { EmailTemplateDoc } from '@/app/actions/email/templates.actions';
+import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
 export interface LibraryGalleryProps {
   templates: EmailTemplateDoc[];

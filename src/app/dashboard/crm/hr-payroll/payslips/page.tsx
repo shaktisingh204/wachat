@@ -26,6 +26,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { getPayslipsList } from '@/app/actions/crm-payslips.actions';
@@ -162,9 +163,11 @@ export default function PayslipsListPage() {
                                     return (
                                         <ZoruTableRow key={p._id} className="border-zoru-line">
                                             <ZoruTableCell className="font-medium text-zoru-ink">
-                                                <Link href={`${BASE}/${p._id}`} className="hover:underline">
-                                                    {p.employeeName ?? p.employeeId ?? '—'}
-                                                </Link>
+                                                <EntityRowLink
+                                                    href={`${BASE}/${p._id}`}
+                                                    label={p.employeeName ?? p.employeeId ?? '—'}
+                                                    subtitle={fmtPeriod(p.payPeriod)}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {fmtPeriod(p.payPeriod)}

@@ -19,6 +19,7 @@ import Papa from 'papaparse';
 import { format } from "date-fns";
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 type ReportData = {
     expiringIn30: any[];
@@ -52,7 +53,17 @@ const BatchTable = ({ title, batches }: { title: string, batches: any[] }) => (
                     {batches.length > 0 ? (
                         batches.map(item => (
                             <ZoruTableRow key={`${item.productId}-${item.batchId}`} className="border-border">
-                                <ZoruTableCell className="font-medium text-foreground">{item.productName}</ZoruTableCell>
+                                <ZoruTableCell className="font-medium text-foreground">
+                                    {item.productId ? (
+                                        <EntityRowLink
+                                            href={`/dashboard/crm/inventory/items/${item.productId}`}
+                                            label={item.productName}
+                                            subtitle={item.sku ? `SKU ${item.sku}` : undefined}
+                                        />
+                                    ) : (
+                                        item.productName
+                                    )}
+                                </ZoruTableCell>
                                 <ZoruTableCell className="font-mono text-[11.5px] text-foreground">{item.batchNumber}</ZoruTableCell>
                                 <ZoruTableCell className="text-foreground">{format(new Date(item.expiryDate), 'PPP')}</ZoruTableCell>
                                 <ZoruTableCell className="text-right font-semibold text-foreground">{item.stock}</ZoruTableCell>

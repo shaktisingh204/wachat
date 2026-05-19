@@ -14,6 +14,7 @@ import {
 import { Plus } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import Link from 'next/link';
 
@@ -126,12 +127,11 @@ export default async function SalesLoyaltyPage() {
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/sales/loyalty/${id}`}
-                          className="hover:underline"
-                        >
-                          {(p as any).name || 'Untitled program'}
-                        </Link>
+                          label={(p as any).name || 'Untitled program'}
+                          subtitle={tiersCount ? `${tiersCount} tier${tiersCount === 1 ? '' : 's'}` : undefined}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
                         {tiersCount}

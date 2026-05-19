@@ -44,6 +44,7 @@ import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import {
     deleteStockTransfer,
@@ -331,13 +332,11 @@ export function StockTransfersListClient() {
                                           return (
                                               <ZoruTableRow key={id}>
                                                   <ZoruTableCell>
-                                                      <Link
+                                                      <EntityRowLink
                                                           href={`${BASE}/${id}`}
-                                                          className="font-mono text-zoru-link hover:underline"
-                                                      >
-                                                          {r.transferNumber ||
-                                                              `ST-${id.slice(-6)}`}
-                                                      </Link>
+                                                          label={<span className="font-mono">{r.transferNumber || `ST-${id.slice(-6)}`}</span>}
+                                                          subtitle={lineCount ? `${lineCount} line${lineCount === 1 ? '' : 's'}` : undefined}
+                                                      />
                                                   </ZoruTableCell>
                                                   <ZoruTableCell>
                                                       {fmtDate(r.transferDate)}

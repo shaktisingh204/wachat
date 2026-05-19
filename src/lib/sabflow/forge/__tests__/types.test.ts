@@ -17,6 +17,8 @@ import {
   isFieldVisible,
   type ForgeField,
   type ForgeLoadOptionsContext,
+  type ForgeFieldMode,
+  type ResourceLocatorValue,
 } from '../types';
 
 test('ForgeField accepts loadOptionsDependsOn array', () => {
@@ -120,4 +122,57 @@ test('isFieldVisible: falls back to legacy showIf when displayOptions absent', (
 test('isFieldVisible: returns true when no rules declared', () => {
   const f: ForgeField = { id: 'x', label: 'X', type: 'text' };
   assert.equal(isFieldVisible(f, {}), true);
+});
+
+/* ── resourceLocator schema ────────────────────────────────────────────── */
+
+test('ForgeField accepts type: resourceLocator with 3 modes', () => {
+  const f: ForgeField = {
+    id: 'channel',
+    label: 'Channel',
+    type: 'resourceLocator',
+    modes: [
+      { name: 'list', displayName: 'From list', type: 'list' },
+      {
+        name: 'url',
+        displayName: 'By URL',
+        type: 'string',
+        extractValue: { type: 'regex', regex: 'channels/([0-9]+)' },
+      },
+      { name: 'id', displayName: 'By ID', type: 'string' },
+    ],
+    loadOptions: async () => [{ label: '#general', value: 'C01' }],
+  };
+  assert.equal(f.type, 'resourceLocator');
+  assert.equal(f.modes?.length, 3);
+  assert.equal(f.modes?.[1].extractValue?.type, 'regex');
+});
+
+test('ForgeFieldMode shape: list mode can declare searchListMethod', () => {
+  const m: ForgeFieldMode = {
+    name: 'list',
+    displayName: 'From list',
+    type: 'list',
+    searchListMethod: 'channelSearch',
+  };
+  assert.equal(m.searchListMethod, 'channelSearch');
+});
+
+test('ForgeFieldMode shape: string mode can declare validation', () => {
+  const m: ForgeFieldMode = {
+    name: 'url',
+    displayName: 'By URL',
+    type: 'string',
+    validation: {
+      regex: '^https?://',
+      errorMessage: 'Must be an http(s) URL',
+    },
+  };
+  assert.equal(m.validation?.errorMessage, 'Must be an http(s) URL');
+});
+
+test('ResourceLocatorValue carries mode + value', () => {
+  const v: ResourceLocatorValue = { mode: 'url', value: 'https://x/123' };
+  assert.equal(v.mode, 'url');
+  assert.equal(v.value, 'https://x/123');
 });

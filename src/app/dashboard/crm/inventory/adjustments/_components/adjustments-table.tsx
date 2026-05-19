@@ -37,6 +37,7 @@ import Link from 'next/link';
 
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -184,12 +185,11 @@ function AdjustmentRow({
                 />
             </ZoruTableCell>
             <ZoruTableCell>
-                <Link
+                <EntityRowLink
                     href={`/dashboard/crm/inventory/adjustments/${id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                >
-                    {num}
-                </Link>
+                    label={num}
+                    subtitle={a.reason ? String(a.reason) : undefined}
+                />
             </ZoruTableCell>
             <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                 {fmtDate(a.date)}

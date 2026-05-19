@@ -53,6 +53,7 @@ import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import type { EntityKey } from '@/lib/lookup-registry';
 
 export type HrFieldType =
@@ -628,11 +629,23 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
               ) : (
                 rows.map((row) => (
                   <ZoruTableRow key={row._id}>
-                    {columns.map((c) => (
-                      <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
-                        {c.render ? toNode(c.render(row)) : toNode(row[c.key])}
-                      </ZoruTableCell>
-                    ))}
+                    {columns.map((c, colIdx) => {
+                      const raw = c.render ? toNode(c.render(row)) : toNode(row[c.key]);
+                      const content =
+                        colIdx === 0 && basePath && rowLinksToDetail ? (
+                          <EntityRowLink
+                            href={`${basePath}/${row._id}`}
+                            label={raw}
+                          />
+                        ) : (
+                          raw
+                        );
+                      return (
+                        <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
+                          {content}
+                        </ZoruTableCell>
+                      );
+                    })}
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
                         {basePath && rowLinksToDetail ? (

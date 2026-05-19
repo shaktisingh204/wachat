@@ -29,6 +29,7 @@ import {
 import { FileSignature, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
@@ -456,17 +457,11 @@ export function ContractListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/sales/contracts/${id}`}
-                            className="font-medium text-zoru-ink hover:underline"
-                          >
-                            {c.title || 'Untitled contract'}
-                          </Link>
-                          {c.contractNo ? (
-                            <div className="text-[11.5px] text-zoru-ink-muted">
-                              {c.contractNo}
-                            </div>
-                          ) : null}
+                            label={c.title || 'Untitled contract'}
+                            subtitle={c.contractNo || undefined}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                           {c.partyName || '—'}

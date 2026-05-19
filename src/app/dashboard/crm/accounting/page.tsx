@@ -1,77 +1,126 @@
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ArrowUpRight,
-  BookOpen,
-  CalendarDays,
-  FileBarChart,
-  FileSpreadsheet,
-  LineChart,
-  Scale,
-  ScrollText,
-  TrendingUp,
-  Wallet,
-  } from 'lucide-react';
+    BookOpen,
+    CalendarDays,
+    DollarSign,
+    FileBarChart,
+    FileSpreadsheet,
+    LineChart,
+    Scale,
+    ScrollText,
+    TrendingDown,
+    TrendingUp,
+    Wallet,
+} from 'lucide-react';
 
-/**
- * Accounting module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/accounting/charts')` shim.
- */
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-import Link from 'next/link';
+import {
+    HubKpiGrid,
+    HubQuickLinkGrid,
+    HubRecentList,
+    type HubKpi,
+    type HubQuickLink,
+    type HubRecentRow,
+} from '../_components/hub-kpi-grid';
+import {
+    formatCurrency,
+    formatDate,
+    recentByUser,
+    startOfMonth,
+    sumByUser,
+} from '../_components/hub-data';
 
-interface NavTile {
-  href: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
+export const dynamic = 'force-dynamic';
+
+interface JournalDoc {
+    _id: string;
+    reference?: string;
+    description?: string;
+    amount?: number;
+    total?: number;
+    entryDate?: string;
+    createdAt?: string;
 }
 
-const tiles: NavTile[] = [
-  { href: '/dashboard/crm/accounting/charts', title: 'Chart of Accounts', description: 'Your accounting tree — every ledger account you post to.', icon: BookOpen },
-  { href: '/dashboard/crm/accounting/groups', title: 'Account Groups', description: 'Group accounts by category for cleaner reports.', icon: FileSpreadsheet },
-  { href: '/dashboard/crm/accounting/vouchers', title: 'Vouchers', description: 'Manual journal entries and accounting vouchers.', icon: ScrollText },
-  { href: '/dashboard/crm/accounting/day-book', title: 'Day Book', description: 'Chronological log of every accounting entry.', icon: CalendarDays },
-  { href: '/dashboard/crm/accounting/trial-balance', title: 'Trial Balance', description: 'Debit/credit summary across every account.', icon: Scale },
-  { href: '/dashboard/crm/accounting/pnl', title: 'Profit & Loss', description: 'Income vs expense over a period.', icon: TrendingUp },
-  { href: '/dashboard/crm/accounting/income-statement', title: 'Income Statement', description: 'Detailed P&L by account class.', icon: LineChart },
-  { href: '/dashboard/crm/accounting/balance-sheet', title: 'Balance Sheet', description: 'Assets, liabilities, and equity at a point in time.', icon: FileBarChart },
-  { href: '/dashboard/crm/accounting/cash-flow', title: 'Cash Flow', description: 'Cash movements across operating, investing, financing.', icon: Wallet },
+const QUICK_LINKS: HubQuickLink[] = [
+    { href: '/dashboard/crm/accounting/charts', title: 'Chart of Accounts', description: 'Your accounting tree — every ledger account you post to.', icon: BookOpen },
+    { href: '/dashboard/crm/accounting/groups', title: 'Account Groups', description: 'Group accounts by category for cleaner reports.', icon: FileSpreadsheet },
+    { href: '/dashboard/crm/accounting/vouchers', title: 'Vouchers', description: 'Manual journal entries and accounting vouchers.', icon: ScrollText },
+    { href: '/dashboard/crm/accounting/day-book', title: 'Day Book', description: 'Chronological log of every accounting entry.', icon: CalendarDays },
+    { href: '/dashboard/crm/accounting/trial-balance', title: 'Trial Balance', description: 'Debit/credit summary across every account.', icon: Scale },
+    { href: '/dashboard/crm/accounting/pnl', title: 'Profit & Loss', description: 'Income vs expense over a period.', icon: TrendingUp },
+    { href: '/dashboard/crm/accounting/income-statement', title: 'Income Statement', description: 'Detailed P&L by account class.', icon: LineChart },
+    { href: '/dashboard/crm/accounting/balance-sheet', title: 'Balance Sheet', description: 'Assets, liabilities, and equity at a point in time.', icon: FileBarChart },
+    { href: '/dashboard/crm/accounting/cash-flow', title: 'Cash Flow', description: 'Cash movements across operating, investing, financing.', icon: Wallet },
 ];
 
-export default function CrmAccountingHubPage() {
-  return (
-    <div className="flex min-h-full flex-col gap-6 p-4 sm:p-6">
-      <ZoruPageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Accounting</ZoruPageTitle>
-          <ZoruPageDescription>
-            Books, vouchers, and the four primary financial reports.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </ZoruPageHeader>
+export default async function CrmAccountingHubPage() {
+    const monthStart = startOfMonth();
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tiles.map((tile) => {
-          const Icon = tile.icon;
-          return (
-            <Link key={tile.href} href={tile.href} className="group">
-              <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-                  <Icon className="h-[18px] w-[18px]" />
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[14px] font-medium text-zoru-ink">{tile.title}</p>
-                  <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
-                </div>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                  {tile.description}
-                </p>
-              </ZoruCard>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+    const [revenueMtd, expensesMtd, paymentsReceived, arOutstanding, recentJournals] = await Promise.all([
+        sumByUser('crm_invoices', 'totalAmount', { invoiceDate: { $gte: monthStart } }),
+        sumByUser('crm_expenses', 'amount', { date: { $gte: monthStart } }),
+        sumByUser('crm_payment_receipts', 'amount', { receiptDate: { $gte: monthStart } }),
+        sumByUser('crm_invoices', 'balanceDue', { status: { $in: ['sent', 'partial', 'overdue'] } }),
+        recentByUser<JournalDoc>('crm_journal_vouchers', { sortField: 'entryDate', limit: 5 }),
+    ]);
+
+    const netPnL = revenueMtd - expensesMtd;
+
+    const kpis: HubKpi[] = [
+        {
+            label: 'Revenue (MTD)',
+            value: formatCurrency(revenueMtd),
+            icon: DollarSign,
+            tone: 'success',
+            href: '/dashboard/crm/accounting/pnl',
+        },
+        {
+            label: 'Expenses (MTD)',
+            value: formatCurrency(expensesMtd),
+            icon: TrendingDown,
+            href: '/dashboard/crm/accounting/pnl',
+        },
+        {
+            label: 'Net P&L (MTD)',
+            value: formatCurrency(netPnL),
+            icon: netPnL >= 0 ? TrendingUp : TrendingDown,
+            tone: netPnL >= 0 ? 'success' : 'danger',
+            hint: `Payments in: ${formatCurrency(paymentsReceived)}`,
+            href: '/dashboard/crm/accounting/income-statement',
+        },
+        {
+            label: 'AR Outstanding',
+            value: formatCurrency(arOutstanding),
+            icon: Wallet,
+            tone: arOutstanding > 0 ? 'warning' : 'default',
+            href: '/dashboard/crm/sales/invoices?status=overdue',
+        },
+    ];
+
+    const recentRows: HubRecentRow[] = recentJournals.map((j) => ({
+        id: String(j._id),
+        primary: j.reference || j.description || 'Journal voucher',
+        secondary: formatDate(j.entryDate || j.createdAt),
+        trailing: formatCurrency(j.total ?? j.amount ?? 0),
+        href: `/dashboard/crm/accounting/vouchers/${j._id}`,
+    }));
+
+    return (
+        <EntityListShell
+            title="Accounting"
+            subtitle="Books, vouchers, and the four primary financial reports."
+        >
+            <div className="flex flex-col gap-6">
+                <HubKpiGrid kpis={kpis} />
+                <HubQuickLinkGrid links={QUICK_LINKS} />
+                <HubRecentList
+                    title="Recent journal entries"
+                    rows={recentRows}
+                    emptyHint="No journal entries yet."
+                    viewAllHref="/dashboard/crm/accounting/day-book"
+                />
+            </div>
+        </EntityListShell>
+    );
 }

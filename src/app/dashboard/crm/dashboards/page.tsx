@@ -4,6 +4,7 @@ import {
 import { Plus } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import Link from 'next/link';
 
@@ -117,12 +118,10 @@ export default async function CustomDashboardsPage() {
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/dashboards/${id}`}
-                          className="hover:underline"
-                        >
-                          {d.title || 'Untitled dashboard'}
-                        </Link>
+                          label={d.title || 'Untitled dashboard'}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">{owner}</ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">

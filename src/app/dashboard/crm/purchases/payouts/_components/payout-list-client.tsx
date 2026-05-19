@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setPayoutStatus } from '@/app/actions/crm/payouts.actions';
 import type { CrmPayoutDoc } from '@/lib/rust-client/crm-payouts';
@@ -174,12 +175,11 @@ export function PayoutListClient({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/purchases/payouts/${id}`}
-                                            className="font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {p.paymentNo || id.slice(-6)}
-                                        </Link>
+                                            label={p.paymentNo || id.slice(-6)}
+                                            subtitle={refLabel !== '—' ? refLabel : undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {p.vendorId ? (

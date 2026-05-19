@@ -29,6 +29,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 
 /**
@@ -405,12 +406,10 @@ function KbInternalTable({
                         return (
                             <tr key={a._id} className="hover:bg-zoru-surface">
                                 <td className="px-3 py-2">
-                                    <Link
+                                    <EntityRowLink
                                         href={`/dashboard/crm/workspace/knowledge-base/${a._id}`}
-                                        className="font-medium text-zoru-ink hover:underline"
-                                    >
-                                        {a.title}
-                                    </Link>
+                                        label={a.title}
+                                    />
                                 </td>
                                 <td className="px-3 py-2">
                                     <ZoruBadge variant="ghost">{cat?.name ?? 'Uncategorized'}</ZoruBadge>

@@ -7,6 +7,8 @@ import { resolveDeep } from './resolveTokens';
 import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
 import { getForgeBlock } from '@/lib/sabflow/forge';
+import { extractValue, isResourceLocatorValue } from '@/lib/sabflow/forge/extractValue';
+import type { ForgeField } from '@/lib/sabflow/forge/types';
 import { getCredentialById } from '@/lib/sabflow/credentials/db';
 // Side-effect import: wires up the real AgentRunner + TranscriptPersister on
 // `agent-bridge.ts` so agent-* forge blocks can reach `@/lib/agents` and
@@ -529,6 +531,21 @@ async function executeForgeBlock(
     flow: ctx?.flow,
     currentNodeName: ctx?.currentNodeName,
   }) as Record<string, unknown>;
+
+  // Normalise any `resourceLocator` values to plain id strings BEFORE the
+  // action's `run()` sees them. Actions that pre-date Phase 2 read fields
+  // as `ctx.options.channel as string`; this guarantees that contract still
+  // holds even when the editor stored a `{ mode, value }` envelope. Plain
+  // strings (legacy fields) pass through unchanged.
+  const actionFields: ForgeField[] = action.fields ?? [];
+  for (const def of actionFields) {
+    if (def.type !== 'resourceLocator') continue;
+    const raw = resolvedOptions[def.id];
+    if (raw === undefined) continue;
+    if (typeof raw === 'string' || isResourceLocatorValue(raw)) {
+      resolvedOptions[def.id] = extractValue(raw as never, def.modes);
+    }
+  }
 
   // Resolve credential through SabFlow Connections when the block declares a
   // credentialType (new ports) — falling back to inline auth fields baked into

@@ -47,6 +47,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
@@ -349,12 +350,11 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                                 />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-medium text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`${BASE}/${h._id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {h.title || 'Untitled'}
-                                                </Link>
+                                                    label={h.title || 'Untitled'}
+                                                    subtitle={h.category || h.vendorCandidate || undefined}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {h.category || '—'}

@@ -55,6 +55,7 @@ import Link from 'next/link';
 
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {
   deleteSalesOrderAction,
@@ -384,12 +385,11 @@ export function SalesOrdersListClient({
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/sales/orders/${id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {order.soNo || '—'}
-                      </Link>
+                        label={order.soNo || '—'}
+                        subtitle={order.poNo ? `PO ${order.poNo}` : fmtDate(order.date)}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[12.5px]">
                       {order.clientId ? (

@@ -39,6 +39,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {
@@ -388,12 +389,11 @@ export function ServiceContractsListClient({
                         />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/service-contracts/${c._id}`}
-                          className="font-medium hover:underline"
-                        >
-                          {c.contractNo || '—'}
-                        </Link>
+                          label={c.contractNo || '—'}
+                          subtitle={c.customerName || undefined}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
                         {c.customerName || c.customerId || '—'}

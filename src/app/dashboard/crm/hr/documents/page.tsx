@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -245,12 +246,10 @@ export default function DocumentsListPage() {
                                         return (
                                             <ZoruTableRow key={d._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${d._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {d.name}
-                                                    </Link>
+                                                        label={d.name}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="capitalize text-zoru-ink">
                                                     {categoryLabel(d.category)}

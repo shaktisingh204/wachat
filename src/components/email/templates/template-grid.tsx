@@ -20,7 +20,7 @@ import {
   ZoruCardTitle,
   ZoruEmptyState,
 } from '@/components/zoruui';
-import type { EmailTemplateDoc } from '@/app/actions/email/templates.actions';
+import type { EmailTemplateDoc } from '@/lib/rust-client/email-templates';
 
 function relativeTime(iso?: string): string {
   if (!iso) return '';

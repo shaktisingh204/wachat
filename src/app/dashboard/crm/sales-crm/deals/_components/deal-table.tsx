@@ -19,6 +19,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { DealListRow } from './types';
@@ -118,12 +119,11 @@ export function DealTable({
                   />
                 </td>
                 <td className={`${cell} align-middle`}>
-                  <Link
+                  <EntityRowLink
                     href={`/dashboard/crm/sales-crm/deals/${d._id}`}
-                    className="font-medium text-zoru-ink hover:underline"
-                  >
-                    {d.name || 'Untitled deal'}
-                  </Link>
+                    label={d.name || 'Untitled deal'}
+                    subtitle={d.stage || undefined}
+                  />
                 </td>
                 <td className={`${cell} align-middle`}>
                   {d.accountId ? (

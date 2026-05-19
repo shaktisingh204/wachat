@@ -14,6 +14,7 @@ import {
 import { Plus } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import Link from 'next/link';
 
@@ -149,12 +150,10 @@ export default async function SalesCouponsPage() {
                   return (
                     <ZoruTableRow key={id} className="border-zoru-line">
                       <ZoruTableCell className="text-zoru-ink">
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/sales/coupons/${id}`}
-                          className="hover:underline"
-                        >
-                          {(c as any).code || 'Untitled coupon'}
-                        </Link>
+                          label={(c as any).code || 'Untitled coupon'}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-zoru-ink">
                         {(c as any).type || '—'}

@@ -43,6 +43,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -203,12 +204,10 @@ export default function TimesheetsListPage(): React.JSX.Element {
                                         return (
                                             <ZoruTableRow key={t._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${t._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {t.employeeName || t.employeeId}
-                                                    </Link>
+                                                        label={t.employeeName || t.employeeId}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-zoru-ink">
                                                     {fmtDate(t.weekStartDate)} → {fmtDate(t.weekEndDate)}

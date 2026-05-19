@@ -27,6 +27,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { CrmProductionOrderDoc } from '@/app/actions/crm-production-orders.actions';
@@ -127,12 +128,11 @@ export function PoTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/inventory/production-orders/${o._id}`}
-                                            className="font-mono text-[13px] font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {o.orderNo || o._id.slice(-6)}
-                                        </Link>
+                                            label={<span className="font-mono">{o.orderNo || o._id.slice(-6)}</span>}
+                                            subtitle={o.finishedGoodName || undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {o.bomRef || o.bomId || '—'}

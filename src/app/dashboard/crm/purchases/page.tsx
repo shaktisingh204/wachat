@@ -1,80 +1,128 @@
-import { ZoruCard, ZoruPageDescription, ZoruPageHeader, ZoruPageHeading, ZoruPageTitle } from '@/components/zoruui';
 import {
-  ArrowUpRight,
-  Banknote,
-  Briefcase,
-  ClipboardList,
-  Coins,
-  FileMinus,
-  HandCoins,
-  Receipt,
-  Repeat,
-  ShoppingBag,
-  Store,
-  TrendingDown,
-  } from 'lucide-react';
+    Banknote,
+    Briefcase,
+    ClipboardList,
+    Coins,
+    DollarSign,
+    FileMinus,
+    HandCoins,
+    Receipt,
+    Repeat,
+    ShoppingBag,
+    Store,
+    TrendingDown,
+} from 'lucide-react';
 
-/**
- * Purchases module overview — tile grid linking every sub-feature.
- *
- * Was a `redirect('/dashboard/crm/purchases/vendors')` shim.
- */
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 
-import Link from 'next/link';
+import {
+    HubKpiGrid,
+    HubQuickLinkGrid,
+    HubRecentList,
+    type HubKpi,
+    type HubQuickLink,
+    type HubRecentRow,
+} from '../_components/hub-kpi-grid';
+import {
+    countByUser,
+    formatCurrency,
+    formatDate,
+    recentByUser,
+    startOfMonth,
+    sumByUser,
+} from '../_components/hub-data';
 
-interface NavTile {
-  href: string;
-  title: string;
-  description: string;
-  icon: React.ComponentType<{ className?: string }>;
+export const dynamic = 'force-dynamic';
+
+interface PurchaseOrderDoc {
+    _id: string;
+    orderNumber?: string;
+    vendorName?: string;
+    totalAmount?: number;
+    status?: string;
+    orderDate?: string;
+    createdAt?: string;
 }
 
-const tiles: NavTile[] = [
-  { href: '/dashboard/crm/purchases/vendors', title: 'Vendors', description: 'Suppliers you buy goods and services from.', icon: Store },
-  { href: '/dashboard/crm/purchases/leads', title: 'Vendor Leads', description: 'Prospective vendors you are evaluating.', icon: TrendingDown },
-  { href: '/dashboard/crm/purchases/rfqs', title: 'RFQs', description: 'Requests-for-quote sent to vendors.', icon: ClipboardList },
-  { href: '/dashboard/crm/purchases/vendor-bids', title: 'Vendor Bids', description: 'Bids received from vendors in response to RFQs.', icon: HandCoins },
-  { href: '/dashboard/crm/purchases/orders', title: 'Purchase Orders', description: 'Confirmed orders placed with vendors.', icon: ShoppingBag },
-  { href: '/dashboard/crm/purchases/expenses', title: 'Expenses', description: 'Day-to-day operational spending.', icon: Coins },
-  { href: '/dashboard/crm/purchases/recurring-expenses', title: 'Recurring Expenses', description: 'Subscriptions, rent, and other repeating bills.', icon: Repeat },
-  { href: '/dashboard/crm/purchases/payouts', title: 'Payouts', description: 'Money paid out to vendors and contractors.', icon: Banknote },
-  { href: '/dashboard/crm/purchases/debit-notes', title: 'Debit Notes', description: 'Adjustments and returns to vendors.', icon: FileMinus },
-  { href: '/dashboard/crm/purchases/hire', title: 'Hire', description: 'Contractor and short-term hire arrangements.', icon: Briefcase },
+const QUICK_LINKS: HubQuickLink[] = [
+    { href: '/dashboard/crm/purchases/vendors', title: 'Vendors', description: 'Suppliers you buy goods and services from.', icon: Store },
+    { href: '/dashboard/crm/purchases/leads', title: 'Vendor Leads', description: 'Prospective vendors you are evaluating.', icon: TrendingDown },
+    { href: '/dashboard/crm/purchases/rfqs', title: 'RFQs', description: 'Requests-for-quote sent to vendors.', icon: ClipboardList },
+    { href: '/dashboard/crm/purchases/vendor-bids', title: 'Vendor Bids', description: 'Bids received from vendors in response to RFQs.', icon: HandCoins },
+    { href: '/dashboard/crm/purchases/orders', title: 'Purchase Orders', description: 'Confirmed orders placed with vendors.', icon: ShoppingBag },
+    { href: '/dashboard/crm/purchases/expenses', title: 'Expenses', description: 'Day-to-day operational spending.', icon: Coins },
+    { href: '/dashboard/crm/purchases/recurring-expenses', title: 'Recurring Expenses', description: 'Subscriptions, rent, and other repeating bills.', icon: Repeat },
+    { href: '/dashboard/crm/purchases/payouts', title: 'Payouts', description: 'Money paid out to vendors and contractors.', icon: Banknote },
+    { href: '/dashboard/crm/purchases/debit-notes', title: 'Debit Notes', description: 'Adjustments and returns to vendors.', icon: FileMinus },
+    { href: '/dashboard/crm/purchases/hire', title: 'Hire', description: 'Contractor and short-term hire arrangements.', icon: Briefcase },
 ];
 
-export default function CrmPurchasesHubPage() {
-  return (
-    <div className="flex min-h-full flex-col gap-6 p-4 sm:p-6">
-      <ZoruPageHeader>
-        <ZoruPageHeading>
-          <ZoruPageTitle>Purchases</ZoruPageTitle>
-          <ZoruPageDescription>
-            Vendors, purchase orders, expenses, and supplier payments.
-          </ZoruPageDescription>
-        </ZoruPageHeading>
-      </ZoruPageHeader>
+export default async function CrmPurchasesHubPage() {
+    const monthStart = startOfMonth();
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {tiles.map((tile) => {
-          const Icon = tile.icon;
-          return (
-            <Link key={tile.href} href={tile.href} className="group">
-              <ZoruCard className="h-full p-5 transition-shadow group-hover:shadow-[var(--zoru-shadow-md)]">
-                <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-[var(--zoru-radius)] bg-zoru-surface-2 text-zoru-ink">
-                  <Icon className="h-[18px] w-[18px]" />
-                </div>
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-[14px] font-medium text-zoru-ink">{tile.title}</p>
-                  <ArrowUpRight className="h-4 w-4 text-zoru-ink-muted transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-zoru-ink" />
-                </div>
-                <p className="mt-1 text-[12.5px] leading-relaxed text-zoru-ink-muted">
-                  {tile.description}
-                </p>
-              </ZoruCard>
-            </Link>
-          );
-        })}
-      </div>
-    </div>
-  );
+    const [openPOs, monthSpend, pendingBills, vendorCount, recentPOs] = await Promise.all([
+        countByUser('crm_purchase_orders', { status: { $in: ['draft', 'sent', 'confirmed', 'partial'] } }),
+        sumByUser('crm_purchase_orders', 'totalAmount', { orderDate: { $gte: monthStart } }),
+        countByUser('crm_expenses', { status: { $in: ['pending', 'unpaid'] } }),
+        countByUser('crm_vendors'),
+        recentByUser<PurchaseOrderDoc>('crm_purchase_orders', {
+            sortField: 'orderDate',
+            limit: 5,
+        }),
+    ]);
+
+    const kpis: HubKpi[] = [
+        {
+            label: 'Open POs',
+            value: openPOs,
+            icon: ShoppingBag,
+            tone: openPOs > 0 ? 'warning' : 'default',
+            href: '/dashboard/crm/purchases/orders?status=open',
+        },
+        {
+            label: 'Spend (MTD)',
+            value: formatCurrency(monthSpend),
+            icon: DollarSign,
+            href: '/dashboard/crm/purchases/orders',
+        },
+        {
+            label: 'Pending Bills',
+            value: pendingBills,
+            icon: Receipt,
+            tone: pendingBills > 0 ? 'warning' : 'default',
+            href: '/dashboard/crm/purchases/expenses?status=unpaid',
+        },
+        {
+            label: 'Vendors',
+            value: vendorCount.toLocaleString(),
+            icon: Store,
+            href: '/dashboard/crm/purchases/vendors',
+        },
+    ];
+
+    const recentRows: HubRecentRow[] = recentPOs.map((po) => ({
+        id: String(po._id),
+        primary: po.orderNumber || 'Purchase order',
+        secondary: po.vendorName || po.status || '',
+        trailing: formatCurrency(po.totalAmount ?? 0),
+        href: `/dashboard/crm/purchases/orders/${po._id}`,
+    }));
+
+    return (
+        <EntityListShell
+            title="Purchases"
+            subtitle="Vendors, purchase orders, expenses, and supplier payments."
+        >
+            <div className="flex flex-col gap-6">
+                <HubKpiGrid kpis={kpis} />
+                <HubQuickLinkGrid links={QUICK_LINKS} />
+                <HubRecentList
+                    title="Recent purchase orders"
+                    rows={recentRows}
+                    emptyHint="No purchase orders yet."
+                    viewAllHref="/dashboard/crm/purchases/orders"
+                />
+            </div>
+        </EntityListShell>
+    );
 }

@@ -48,6 +48,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 import { useT } from '@/lib/i18n/client';
 
@@ -208,17 +209,11 @@ export default function DepartmentsListPage() {
                                         return (
                                             <ZoruTableRow key={d._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${d._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {d.name}
-                                                    </Link>
-                                                    {d.description ? (
-                                                        <div className="text-[11.5px] text-zoru-ink-muted">
-                                                            {d.description}
-                                                        </div>
-                                                    ) : null}
+                                                        label={d.name}
+                                                        subtitle={d.description || undefined}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {d.code ?? '—'}

@@ -95,3 +95,110 @@ test('credential omitted when not supplied', () => {
   });
   assert.equal(ctx.credential, undefined);
 });
+
+/* ── resourceLocator auto-extraction ────────────────────────────────────── */
+
+const rlBlock: ForgeBlock = {
+  id: 'rl_block',
+  name: 'RL Block',
+  description: 'fixture',
+  category: 'Integration',
+  fields: [
+    {
+      id: 'channel',
+      label: 'Channel',
+      type: 'resourceLocator',
+      modes: [
+        { name: 'list', displayName: 'From list', type: 'list' },
+        {
+          name: 'url',
+          displayName: 'By URL',
+          type: 'string',
+          extractValue: { type: 'regex', regex: 'archives/([A-Z0-9]+)' },
+        },
+        { name: 'id', displayName: 'By ID', type: 'string' },
+      ],
+    },
+    {
+      id: 'property',
+      label: 'Property',
+      type: 'select',
+      loadOptionsDependsOn: ['channel'],
+      loadOptions: async () => [],
+    },
+  ],
+};
+
+test('getNodeParameter auto-extracts resourceLocator url-mode value', () => {
+  const ctx = buildLoadOptionsContext({
+    block: rlBlock,
+    options: {
+      channel: { mode: 'url', value: 'https://app.slack.com/archives/C0123ABC' },
+    },
+  });
+  // Sibling resolver should see the plain id, not the URL envelope.
+  assert.equal(ctx.getNodeParameter?.('channel'), 'C0123ABC');
+});
+
+test('getNodeParameter auto-extracts list-mode (value already an id)', () => {
+  const ctx = buildLoadOptionsContext({
+    block: rlBlock,
+    options: { channel: { mode: 'list', value: 'C99' } },
+  });
+  assert.equal(ctx.getNodeParameter?.('channel'), 'C99');
+});
+
+test('options snapshot still contains the raw envelope (for editor rehydration)', () => {
+  const channel = { mode: 'url' as const, value: 'https://app.slack.com/archives/C9' };
+  const ctx = buildLoadOptionsContext({
+    block: rlBlock,
+    options: { channel },
+  });
+  assert.deepEqual(ctx.options.channel, channel);
+});
+
+test('legacy plain-string field value still passes through unchanged', () => {
+  const ctx = buildLoadOptionsContext({
+    block: blockStub,
+    options: { databaseId: 'plain_id' },
+  });
+  assert.equal(ctx.getNodeParameter?.('databaseId'), 'plain_id');
+});
+
+test('resourceLocator declared at the action level (not block level)', () => {
+  const multiAction: ForgeBlock = {
+    id: 'multi',
+    name: 'Multi',
+    description: 'fixture',
+    category: 'Integration',
+    actions: [
+      {
+        id: 'send',
+        label: 'Send',
+        fields: [
+          {
+            id: 'channel',
+            label: 'Channel',
+            type: 'resourceLocator',
+            modes: [
+              {
+                name: 'url',
+                displayName: 'URL',
+                type: 'string',
+                extractValue: { type: 'regex', regex: '/([A-Z0-9]+)$' },
+              },
+              { name: 'id', displayName: 'ID', type: 'string' },
+            ],
+          },
+        ],
+        run: async () => ({}),
+      },
+    ],
+  };
+  const ctx = buildLoadOptionsContext({
+    block: multiAction,
+    actionId: 'send',
+    options: { channel: { mode: 'url', value: 'https://x/y/Z9' } },
+  });
+  assert.equal(ctx.getNodeParameter?.('channel'), 'Z9');
+});

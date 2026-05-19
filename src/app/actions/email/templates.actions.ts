@@ -130,5 +130,8 @@ export async function actionForkLibraryTemplate(
   }
 }
 
-// Re-export types for client components.
-export type { EmailTemplateDoc, PageResponse, RenderResult };
+// Types intentionally NOT re-exported from this file.
+// Server-action files ('use server') can only have async-function exports
+// at runtime; even `export type { … }` gets emitted into the generated
+// actions shim and fails the build. Import types directly from
+// `@/lib/rust-client/email-templates` instead.

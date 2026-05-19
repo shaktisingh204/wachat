@@ -34,6 +34,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import type { CrmBomDoc } from '@/app/actions/crm-bom.actions';
@@ -160,12 +161,11 @@ export function BomTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/inventory/bom/${id}`}
-                                            className="font-mono text-[13px] font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {bom.bomNo || id.slice(-6)}
-                                        </Link>
+                                            label={<span className="font-mono">{bom.bomNo || id.slice(-6)}</span>}
+                                            subtitle={bom.finishedGoodName || undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {fgId ? (

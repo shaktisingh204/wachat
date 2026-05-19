@@ -45,6 +45,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { EntityKey } from '@/lib/lookup-registry';
 import type { CrmTask } from '@/lib/definitions';
@@ -199,24 +200,20 @@ export function TasksTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/tasks/${id}`}
-                                            className="group flex items-center gap-2"
-                                        >
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                                                <CheckSquare className="h-3.5 w-3.5" />
-                                            </span>
-                                            <span className="min-w-0">
-                                                <span className="block truncate text-[13px] font-medium text-zoru-ink group-hover:underline">
-                                                    {task.title || 'Untitled task'}
-                                                </span>
-                                                {task.description ? (
-                                                    <span className="block truncate text-[11.5px] text-zoru-ink-muted">
-                                                        {task.description}
+                                            label={
+                                                <span className="flex items-center gap-2">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                                        <CheckSquare className="h-3.5 w-3.5" />
                                                     </span>
-                                                ) : null}
-                                            </span>
-                                        </Link>
+                                                    <span className="block truncate text-[13px]">
+                                                        {task.title || 'Untitled task'}
+                                                    </span>
+                                                </span>
+                                            }
+                                            subtitle={task.description || undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                                         <ZoruBadge variant="secondary">

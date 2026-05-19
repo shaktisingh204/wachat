@@ -27,6 +27,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 
 /**
@@ -429,12 +430,10 @@ function DiscussionsTable({
                         return (
                             <tr key={d._id} className="hover:bg-zoru-surface">
                                 <td className="px-3 py-2">
-                                    <Link
+                                    <EntityRowLink
                                         href={`/dashboard/crm/workspace/discussions/${d._id}`}
-                                        className="font-medium text-zoru-ink hover:underline"
-                                    >
-                                        {d.title}
-                                    </Link>
+                                        label={d.title}
+                                    />
                                 </td>
                                 <td className="px-3 py-2">
                                     <ZoruBadge variant="ghost">{cat?.name ?? 'Uncategorized'}</ZoruBadge>

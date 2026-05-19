@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import type { CrmContact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -185,24 +186,20 @@ export function ContactsTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/sales-crm/contacts/${id}`}
-                                            className="group flex items-center gap-2"
-                                        >
-                                            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
-                                                <UserCircle2 className="h-3.5 w-3.5" />
-                                            </span>
-                                            <span className="min-w-0">
-                                                <span className="block truncate text-[13px] font-medium text-zoru-ink group-hover:underline">
-                                                    {name}
-                                                </span>
-                                                {contact.accountId ? (
-                                                    <span className="block truncate text-[11.5px] text-zoru-ink-muted">
-                                                        Linked account
+                                            label={
+                                                <span className="flex items-center gap-2">
+                                                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+                                                        <UserCircle2 className="h-3.5 w-3.5" />
                                                     </span>
-                                                ) : null}
-                                            </span>
-                                        </Link>
+                                                    <span className="block truncate text-[13px]">
+                                                        {name}
+                                                    </span>
+                                                </span>
+                                            }
+                                            subtitle={contact.accountId ? 'Linked account' : undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
                                         {contact.email ? (

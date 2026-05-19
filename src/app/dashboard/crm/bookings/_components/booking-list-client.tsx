@@ -44,6 +44,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteBookingAction } from '@/app/actions/crm/bookings.actions';
@@ -465,12 +466,10 @@ export function BookingListClient({
                         <EntityPickerChip entity="client" id={b.customerId} />
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/bookings/${id}`}
-                          className="font-medium text-zoru-ink hover:underline"
-                        >
-                          {bookingLabel(b)}
-                        </Link>
+                          label={bookingLabel(b)}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                         {fmtDateTime(b.slotStart)}

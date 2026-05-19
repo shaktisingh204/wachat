@@ -29,6 +29,7 @@ import {
 import { FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { deleteProposal } from '@/app/actions/worksuite/proposals.actions';
@@ -463,12 +464,11 @@ export function ProposalListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell>
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/sales/proposals/${id}`}
-                            className="font-medium text-zoru-ink hover:underline"
-                          >
-                            {p.proposal_number}
-                          </Link>
+                            label={p.proposal_number}
+                            subtitle={p.title || undefined}
+                          />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink">
                           <Link

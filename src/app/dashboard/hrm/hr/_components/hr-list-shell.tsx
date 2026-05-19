@@ -20,6 +20,7 @@ import {
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill,
   statusToTone,
   type StatusTone } from '@/components/crm/status-pill';
@@ -356,21 +357,33 @@ export function HrListShell<T>({
                               onCheckedChange={() => toggleOne(id)}
                             />
                           </ZoruTableCell>
-                          {columns.map((c) => (
-                            <ZoruTableCell
-                              key={c.key}
-                              className={
-                                (c.numeric ? 'tabular-nums text-right ' : '') +
-                                'text-[13px] text-zoru-ink'
-                              }
-                            >
-                              {c.render
-                                ? c.render(row)
-                                : ((row as Record<string, unknown>)[c.key] as
-                                    | React.ReactNode
-                                    | undefined) ?? '—'}
-                            </ZoruTableCell>
-                          ))}
+                          {columns.map((c, colIdx) => {
+                            const raw = c.render
+                              ? c.render(row)
+                              : ((row as Record<string, unknown>)[c.key] as
+                                  | React.ReactNode
+                                  | undefined) ?? '—';
+                            const content =
+                              colIdx === 0 && detailHref
+                                ? (
+                                    <EntityRowLink
+                                      href={detailHref(row)}
+                                      label={raw}
+                                    />
+                                  )
+                                : raw;
+                            return (
+                              <ZoruTableCell
+                                key={c.key}
+                                className={
+                                  (c.numeric ? 'tabular-nums text-right ' : '') +
+                                  'text-[13px] text-zoru-ink'
+                                }
+                              >
+                                {content}
+                              </ZoruTableCell>
+                            );
+                          })}
                           <ZoruTableCell className="text-right">
                             <div className="flex justify-end gap-1">
                               <ZoruButton variant="ghost" size="sm" asChild>

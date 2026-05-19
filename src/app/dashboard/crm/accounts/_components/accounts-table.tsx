@@ -36,6 +36,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 import type { CrmAccount } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -153,16 +154,18 @@ export function AccountsTable({
                                             />
                                         </ZoruTableCell>
                                         <ZoruTableCell>
-                                            <Link
+                                            <EntityRowLink
                                                 href={`/dashboard/crm/accounts/${id}`}
-                                                className="flex items-center gap-2 text-[13px] font-medium text-zoru-ink hover:underline"
-                                            >
-                                                <Building
-                                                    className="h-4 w-4 text-zoru-ink-muted"
-                                                    strokeWidth={1.75}
-                                                />
-                                                {account.name}
-                                            </Link>
+                                                label={
+                                                    <span className="flex items-center gap-2">
+                                                        <Building
+                                                            className="h-4 w-4 text-zoru-ink-muted"
+                                                            strokeWidth={1.75}
+                                                        />
+                                                        {account.name}
+                                                    </span>
+                                                }
+                                            />
                                             {account.website ? (
                                                 <a
                                                     href={account.website}

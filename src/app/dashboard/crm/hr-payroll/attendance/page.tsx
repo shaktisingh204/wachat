@@ -33,6 +33,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { getCrmAttendance } from '@/app/actions/crm-hr.actions';
@@ -231,12 +232,10 @@ export default function AttendanceListPage(): React.JSX.Element {
                                     return (
                                         <ZoruTableRow key={r._id} className="border-zoru-line">
                                             <ZoruTableCell className="font-medium text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`${BASE}/${r._id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {r.employeeName}
-                                                </Link>
+                                                    label={r.employeeName}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {r.departmentId ?? '—'}

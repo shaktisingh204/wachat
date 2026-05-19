@@ -38,6 +38,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import { deleteOffer, getOffers } from '@/app/actions/crm-offers.actions';
@@ -229,12 +230,11 @@ export default function OffersListPage() {
                                         return (
                                             <ZoruTableRow key={o._id} className="border-zoru-line">
                                                 <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                    <EntityRowLink
                                                         href={`${BASE}/${o._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {o.candidateName || o.candidateId}
-                                                    </Link>
+                                                        label={o.candidateName || o.candidateId}
+                                                        subtitle={o.jobTitle || undefined}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-zoru-ink">
                                                     {o.jobTitle || o.jobId || '—'}

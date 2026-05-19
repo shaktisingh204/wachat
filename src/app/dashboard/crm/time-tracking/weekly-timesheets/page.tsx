@@ -64,6 +64,7 @@ import Link from 'next/link';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
@@ -311,16 +312,16 @@ export default function WeeklyTimesheetsPage() {
                     >
                       <ZoruTableCell>
                         {r.user_id ? (
-                          <Link
+                          <EntityRowLink
                             href={`/dashboard/crm/time-tracking/weekly-timesheets/${r._id}`}
-                            className="hover:underline"
-                          >
-                            <EntityPickerChip
-                              entity="user"
-                              id={String(r.user_id)}
-                              fallback="—"
-                            />
-                          </Link>
+                            label={
+                              <EntityPickerChip
+                                entity="user"
+                                id={String(r.user_id)}
+                                fallback="—"
+                              />
+                            }
+                          />
                         ) : (
                           <span className="text-[12px] text-zoru-ink-muted">—</span>
                         )}

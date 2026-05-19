@@ -41,6 +41,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setCreditNoteStatus } from '@/app/actions/crm/credit-notes.actions';
 import type { CrmCreditNoteDoc } from '@/lib/rust-client/crm-credit-notes';
@@ -179,12 +180,11 @@ export function CreditNoteListClient({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/sales/credit-notes/${id}`}
-                                            className="font-medium text-zoru-ink hover:underline"
-                                        >
-                                            {cn.cnNo || id.slice(-6)}
-                                        </Link>
+                                            label={cn.cnNo || id.slice(-6)}
+                                            subtitle={fmtDate(cn.date)}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                                         {cn.clientId ? (
