@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_pm_template",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "postmark.template.version_published",
+    "options": {
+      "path": "/webhooks/postmark-template",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-PM-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Postmark Template Version",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "postmark-template",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "postmark-template-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Template",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "templateId", "value": "={{ $json.template.id }}" },
+            { "name": "alias", "value": "={{ $json.template.alias }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_render",
+      "name": "Postmark Render",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.POSTMARK_URL }}/email/withTemplate",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "TemplateAlias", "value": "={{ $json.alias }}" },
+            { "name": "From", "value": "={{ $vars.FROM_EMAIL }}" },
+            { "name": "To", "value": "={{ $vars.QA_LIST }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "postmark-cred", "name": "Postmark Header Auth" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable QA Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "EmailQA",
+        "fields": { "Alias": "={{ $node['Extract Template'].json.alias }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Marketing",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":email: Template *{{ $node['Extract Template'].json.alias }}* sent to QA"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_render", "type": "main", "index": 0 }]] },
+    "n_render": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] },
+    "n_log": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_render", "n_log", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pm", "name": "POSTMARK_URL", "defaultValue": "https://api.postmarkapp.com" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "no-reply@example.com" },
+    { "id": "v_qa", "name": "QA_LIST", "defaultValue": "qa@example.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#marketing" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

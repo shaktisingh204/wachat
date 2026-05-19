@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "postmark-template-test",
+  "cases": [
+    {
+      "id": "version-published",
+      "description": "Postmark template version webhook sends test email to QA list.",
+      "triggerPayload": {
+        "template": { "id": 1, "alias": "welcome-v3" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

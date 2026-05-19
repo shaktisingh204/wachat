@@ -1,0 +1,10 @@
+{
+  "id": "postmark-template-test",
+  "name": "Postmark Template Test",
+  "description": "Each time a Postmark template version is published, sends the rendered email to the QA distribution list so writers can preview before going live. Catches broken merge tags early.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["postmark", "email", "qa", "marketing", "template"],
+  "version": "0.1.0"
+}
