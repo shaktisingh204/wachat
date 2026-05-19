@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "emailoctopus-list-import",
+  "cases": [
+    {
+      "id": "import",
+      "description": "CSV upload fans out per row into EmailOctopus subscribers.",
+      "triggerPayload": { "file_url": "https://files.example.com/list.csv" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

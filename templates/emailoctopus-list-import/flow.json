@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_csv_upload",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "csv.uploaded",
+    "options": {
+      "path": "/webhooks/csv-upload",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Form-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "CSV Upload",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "csv-upload",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "csv-upload-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract CSV Url",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "csvUrl", "value": "={{ $json.file_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch",
+      "name": "Fetch CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.csvUrl }}"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Rows",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_create_sub",
+      "name": "EmailOctopus Subscriber Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EOCTO_URL }}/lists/{{ $vars.EOCTO_LIST_ID }}/contacts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "email_address", "value": "={{ $json.email }}" },
+            { "name": "fields", "value": "={{ { FirstName: $json.first_name } }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "eocto-cred", "name": "EmailOctopus Header Auth" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_fetch", "type": "main", "index": 0 }]] },
+    "n_fetch": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_create_sub", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_fetch", "n_split", "n_create_sub"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "EOCTO_URL", "defaultValue": "https://emailoctopus.com/api/1.6" },
+    { "id": "v_list", "name": "EOCTO_LIST_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

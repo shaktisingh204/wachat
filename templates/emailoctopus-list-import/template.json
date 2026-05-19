@@ -1,0 +1,10 @@
+{
+  "id": "emailoctopus-list-import",
+  "name": "EmailOctopus List Import",
+  "description": "When a CSV is uploaded to the import inbox, splits it row-by-row and creates subscribers in EmailOctopus. Replaces the manual paste-into-dashboard workflow for new list onboarding.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["emailoctopus", "csv", "import", "subscribers", "marketing"],
+  "version": "0.1.0"
+}
