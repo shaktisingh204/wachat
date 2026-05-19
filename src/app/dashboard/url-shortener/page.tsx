@@ -77,10 +77,13 @@ import {
   Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
+  Activity,
+  MessageSquare,
   } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
+import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
 import { DatePicker } from '@/components/ui/date-picker';
 import Link from 'next/link';
 
@@ -281,6 +284,7 @@ export default function UrlShortenerPage() {
   const [pageSize, setPageSize] = useState(25);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isBulkDeleting, startBulkDelete] = useTransition();
+  const [notesPanel, setNotesPanel] = useState<{ id: string } | null>(null);
 
   const fetchUrls = useCallback(() => {
     startLoadingTransition(async () => {
@@ -513,6 +517,14 @@ export default function UrlShortenerPage() {
         open={!!selectedUrlForQr}
         onOpenChange={(open) => !open && setSelectedUrlForQr(null)}
       />
+      {notesPanel ? (
+        <CommentsNotesPanel
+          entityId={notesPanel.id}
+          entityType="url"
+          open={!!notesPanel}
+          onOpenChange={(v) => { if (!v) setNotesPanel(null); }}
+        />
+      ) : null}
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
@@ -737,6 +749,7 @@ export default function UrlShortenerPage() {
                   <th className="px-2 py-3">Short URL</th>
                   <th className="px-5 py-3">Destination</th>
                   <th className="px-5 py-3">Status</th>
+                  <th className="px-5 py-3">Health</th>
                   <th className="px-5 py-3">Clicks</th>
                   <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
@@ -744,7 +757,7 @@ export default function UrlShortenerPage() {
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan={6} className="px-5 py-4">
+                    <td colSpan={7} className="px-5 py-4">
                       <ZoruSkeleton className="h-10 w-full" />
                     </td>
                   </tr>
@@ -829,6 +842,26 @@ export default function UrlShortenerPage() {
                             </div>
                           ) : null}
                         </td>
+                        <td className="px-5 py-3">
+                          {url.healthStatus ? (
+                            <span
+                              className={cn(
+                                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10.5px]',
+                                url.healthStatus === 'ok' &&
+                                  'border-zoru-success/40 bg-zoru-success/10 text-zoru-success-ink',
+                                url.healthStatus === 'dead' &&
+                                  'border-zoru-danger/40 bg-zoru-danger/10 text-zoru-danger-ink',
+                                url.healthStatus === 'unknown' &&
+                                  'border-zoru-line bg-zoru-surface-2 text-zoru-ink-muted',
+                              )}
+                            >
+                              <Activity className="h-2.5 w-2.5" />
+                              {url.healthStatus === 'ok' ? 'Up' : url.healthStatus === 'dead' ? 'Down' : 'Unknown'}
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-zoru-ink-muted/50">—</span>
+                          )}
+                        </td>
                         <td className="px-5 py-3 text-zoru-ink">{url.clickCount || 0}</td>
                         <td className="px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
@@ -847,6 +880,14 @@ export default function UrlShortenerPage() {
                             >
                               <QrCode className="h-3.5 w-3.5" />
                             </button>
+                            <button
+                              type="button"
+                              onClick={() => setNotesPanel({ id })}
+                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                              aria-label="Notes & Comments"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
+                            </button>
                             <DeleteButton urlId={id} onDeleted={fetchUrls} />
                           </div>
                         </td>
@@ -855,7 +896,7 @@ export default function UrlShortenerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-zoru-ink-muted">
+                    <td colSpan={7} className="px-5 py-12 text-center text-zoru-ink-muted">
                       {urls.length === 0
                         ? 'No links created yet.'
                         : 'No links match your filters.'}

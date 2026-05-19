@@ -47,6 +47,7 @@ import {
   Download,
   Eye,
   LoaderCircle,
+  MessageSquare,
   QrCode,
   Search,
   Trash2,
@@ -59,6 +60,7 @@ import { deleteManyQrCodes,
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
+import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
 import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 
 export const dynamic = 'force-dynamic';
@@ -169,6 +171,7 @@ export default function QrCodeMakerPage() {
     config: any;
     logoDataUri?: string;
   } | null>(null);
+  const [notesPanel, setNotesPanel] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -233,7 +236,11 @@ export default function QrCodeMakerPage() {
     const last7 = qrCodes.filter(
       (q: any) => q.createdAt && now - new Date(q.createdAt).getTime() <= 7 * 24 * 60 * 60 * 1000,
     ).length;
-    return { total, dynamic, staticCount, last7 };
+    const totalScans = qrCodes.reduce(
+      (sum: number, q: any) => sum + (q.shortUrl?.clickCount || 0),
+      0,
+    );
+    return { total, dynamic, staticCount, last7, totalScans };
   }, [qrCodes]);
 
   const toggleSelect = (id: string) => {
@@ -360,6 +367,14 @@ export default function QrCodeMakerPage() {
         open={!!previewData}
         onOpenChange={(open) => !open && setPreviewData(null)}
       />
+      {notesPanel ? (
+        <CommentsNotesPanel
+          entityId={notesPanel.id}
+          entityType="qr"
+          open={!!notesPanel}
+          onOpenChange={(v) => { if (!v) setNotesPanel(null); }}
+        />
+      ) : null}
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
@@ -394,7 +409,7 @@ export default function QrCodeMakerPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatCard label="Total QR Codes" value={stats.total} />
           <StatCard label="Dynamic" value={stats.dynamic} hint="Editable short-URL backed" />
-          <StatCard label="Static" value={stats.staticCount} />
+          <StatCard label="Total Scans" value={stats.totalScans.toLocaleString()} hint="Dynamic QR only" />
           <StatCard label="Last 7 days" value={stats.last7} />
         </div>
 
@@ -525,6 +540,7 @@ export default function QrCodeMakerPage() {
                   <th className="px-2 py-3">Name</th>
                   <th className="px-5 py-3">Type</th>
                   <th className="px-5 py-3">Data / Link</th>
+                  <th className="px-5 py-3">Scans</th>
                   <th className="px-5 py-3">Created</th>
                   <th className="px-5 py-3 text-right">Actions</th>
                 </tr>
@@ -532,7 +548,7 @@ export default function QrCodeMakerPage() {
               <tbody>
                 {isRefetching && pageSlice.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-5 py-4">
+                    <td colSpan={7} className="px-5 py-4">
                       <ZoruSkeleton className="h-10 w-full" />
                     </td>
                   </tr>
@@ -629,9 +645,18 @@ export default function QrCodeMakerPage() {
                           )}
                         </td>
                         <td className="px-5 py-3 text-zoru-ink">
+                          {isDynamic ? (
+                            <span className="text-[13px]">
+                              {(code.shortUrl?.clickCount || 0).toLocaleString()}
+                            </span>
+                          ) : (
+                            <span className="text-[11px] text-zoru-ink-muted/50">—</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-3 text-zoru-ink">
                           {code.createdAt ? new Date(code.createdAt).toLocaleDateString() : '—'}
                         </td>
-                        <td className="min-w-[92px] px-5 py-3 text-right">
+                        <td className="min-w-[108px] px-5 py-3 text-right">
                           <div className="inline-flex items-center gap-1">
                             <button
                               type="button"
@@ -640,6 +665,14 @@ export default function QrCodeMakerPage() {
                               aria-label="View QR"
                             >
                               <Eye className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setNotesPanel({ id })}
+                              className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-ink"
+                              aria-label="Notes & Comments"
+                            >
+                              <MessageSquare className="h-3.5 w-3.5" />
                             </button>
                             <ZoruAlertDialog>
                               <ZoruAlertDialogTrigger asChild>
@@ -671,7 +704,7 @@ export default function QrCodeMakerPage() {
                   })
                 ) : (
                   <tr>
-                    <td colSpan={6} className="px-5 py-12 text-center text-zoru-ink-muted">
+                    <td colSpan={7} className="px-5 py-12 text-center text-zoru-ink-muted">
                       {qrCodes.length === 0
                         ? 'No QR codes saved yet. Use the generator above to create one.'
                         : 'No QR codes match your filters.'}
