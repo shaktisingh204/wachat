@@ -21,13 +21,49 @@ use serde_json::{Map, Value};
 const QR_COLL: &str = "qr_codes";
 const SHORT_URL_COLL: &str = "short_urls";
 
+// ---------------------------------------------------------------------------
+// Extended visual-style / frame structs
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QrGradient {
+    pub r#type: String,
+    pub color_start: String,
+    pub color_end: String,
+    pub rotation: Option<i32>,
+}
+
+#[derive(Debug, Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QrStyle {
+    pub dot_type: Option<String>,
+    pub corner_square_type: Option<String>,
+    pub corner_dot_type: Option<String>,
+    pub gradient: Option<QrGradient>,
+}
+
+#[derive(Debug, Deserialize, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct QrFrame {
+    pub template: String,
+    pub text: String,
+    pub text_color: Option<String>,
+    pub bg_color: Option<String>,
+}
+
 /// Body for `POST /v1/qr-codes`. Mirrors the legacy `FormData` fields the
 /// Next.js server action parsed.
+///
+/// `data_type` now also accepts: `"vcard"` | `"calendar"` | `"geo"` |
+/// `"app_download"` | `"social"` (in addition to the original 6 types).
+/// The Rust layer stores them as-is — sub-field validation is client-side.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CreateBody {
     pub name: String,
-    /// One of: `url` | `text` | `email` | `phone` | `sms` | `wifi`.
+    /// One of: `url` | `text` | `email` | `phone` | `sms` | `wifi` |
+    ///         `vcard` | `calendar` | `geo` | `app_download` | `social`.
     pub data_type: String,
     /// Free-form payload object — passed through verbatim. For `url` types
     /// this carries `{ url: "..." }`.
@@ -38,6 +74,15 @@ pub struct CreateBody {
     pub tag_ids: Vec<String>,
     #[serde(default)]
     pub is_dynamic: bool,
+    /// Extended dot/corner/gradient styling.
+    #[serde(default)]
+    pub style: Option<QrStyle>,
+    /// Frame template, text, and colours.
+    #[serde(default)]
+    pub frame: Option<QrFrame>,
+    /// Base-64 data URI of the logo to embed inside the QR code.
+    #[serde(default)]
+    pub logo_data_uri: Option<String>,
 }
 
 /// Result envelope for create. Matches the legacy server-action contract:
@@ -165,6 +210,35 @@ pub async fn create(
     };
     if let Some(sid) = short_url_id {
         qr_doc.insert("shortUrlId", sid);
+    }
+    if let Some(style) = &body.style {
+        let mut style_doc = Document::new();
+        if let Some(v) = &style.dot_type { style_doc.insert("dotType", v.as_str()); }
+        if let Some(v) = &style.corner_square_type { style_doc.insert("cornerSquareType", v.as_str()); }
+        if let Some(v) = &style.corner_dot_type { style_doc.insert("cornerDotType", v.as_str()); }
+        if let Some(grad) = &style.gradient {
+            let mut g = Document::new();
+            g.insert("type", grad.r#type.as_str());
+            g.insert("colorStart", grad.color_start.as_str());
+            g.insert("colorEnd", grad.color_end.as_str());
+            if let Some(rot) = grad.rotation { g.insert("rotation", rot); }
+            style_doc.insert("gradient", g);
+        }
+        qr_doc.insert("style", style_doc);
+    }
+    if let Some(frame) = &body.frame {
+        let mut frame_doc = doc! {
+            "template": frame.template.as_str(),
+            "text": frame.text.as_str(),
+        };
+        if let Some(v) = &frame.text_color { frame_doc.insert("textColor", v.as_str()); }
+        if let Some(v) = &frame.bg_color { frame_doc.insert("bgColor", v.as_str()); }
+        qr_doc.insert("frame", frame_doc);
+    }
+    if let Some(logo) = &body.logo_data_uri {
+        if !logo.is_empty() {
+            qr_doc.insert("logoDataUri", logo.as_str());
+        }
     }
 
     qr_coll
@@ -339,6 +413,172 @@ pub async fn delete_one(
         success: true,
         error: None,
     })
+}
+
+/// Fetch a single QR code by id (user-scoped).
+pub async fn get_one(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    id: &str,
+) -> Result<Option<Value>> {
+    let oid = match ObjectId::parse_str(id) {
+        Ok(o) => o,
+        Err(_) => return Ok(None),
+    };
+    let coll = mongo.collection::<Document>(QR_COLL);
+    let res = coll
+        .find_one(doc! { "_id": oid, "userId": user_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(res.map(doc_to_json))
+}
+
+/// Patch-update a QR code with the provided JSON fields ($set only).
+/// Returns true if the document was found; false if not found / wrong user.
+pub async fn update(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    id: &str,
+    fields: serde_json::Value,
+) -> Result<bool> {
+    let oid = match ObjectId::parse_str(id) {
+        Ok(o) => o,
+        Err(_) => return Ok(false),
+    };
+    // Convert the JSON patch to a BSON document.
+    let set_doc = match fields.as_object() {
+        Some(m) if !m.is_empty() => {
+            let mut d = Document::new();
+            for (k, v) in m {
+                d.insert(k, json_to_bson(v));
+            }
+            d
+        }
+        _ => return Ok(false),
+    };
+    let coll = mongo.collection::<Document>(QR_COLL);
+    let res = coll
+        .update_one(
+            doc! { "_id": oid, "userId": user_oid },
+            doc! { "$set": set_doc },
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(res.matched_count > 0)
+}
+
+/// Retrieve scan stats for a QR code by looking up its linked short URL.
+pub async fn get_scan_stats(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    qr_id: &str,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(qr_id) {
+        Ok(o) => o,
+        Err(_) => return Err(ApiError::BadRequest("Invalid QR code ID.".to_owned())),
+    };
+
+    let qr_coll = mongo.collection::<Document>(QR_COLL);
+    let short_coll = mongo.collection::<Document>(SHORT_URL_COLL);
+
+    let qr_doc = qr_coll
+        .find_one(doc! { "_id": oid, "userId": user_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let Some(qr) = qr_doc else {
+        return Err(ApiError::NotFound("QR code not found.".to_owned()));
+    };
+
+    let short_url_oid = match qr.get_object_id("shortUrlId") {
+        Ok(s) => s,
+        Err(_) => {
+            // Not a dynamic QR — return zero stats.
+            let mut m = Map::new();
+            m.insert("clickCount".to_owned(), Value::Number(0.into()));
+            m.insert("deviceTypes".to_owned(), Value::Array(Vec::new()));
+            m.insert("browsers".to_owned(), Value::Array(Vec::new()));
+            m.insert("os".to_owned(), Value::Array(Vec::new()));
+            return Ok(Value::Object(m));
+        }
+    };
+
+    let short_doc = short_coll
+        .find_one(doc! { "_id": short_url_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let Some(sd) = short_doc else {
+        let mut m = Map::new();
+        m.insert("clickCount".to_owned(), Value::Number(0.into()));
+        m.insert("deviceTypes".to_owned(), Value::Array(Vec::new()));
+        m.insert("browsers".to_owned(), Value::Array(Vec::new()));
+        m.insert("os".to_owned(), Value::Array(Vec::new()));
+        return Ok(Value::Object(m));
+    };
+
+    let click_count = sd.get_i64("clickCount").unwrap_or(0);
+
+    // Aggregate device breakdown from the short URL's analytics array.
+    let short_id_str = short_url_oid.to_hex();
+    let dt_pipeline = vec![
+        doc! { "$match": { "_id": short_url_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.deviceType", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "type": "$_id", "count": 1 } },
+    ];
+    let br_pipeline = vec![
+        doc! { "$match": { "_id": short_url_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.browser", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "browser": "$_id", "count": 1 } },
+    ];
+    let os_pipeline = vec![
+        doc! { "$match": { "_id": short_url_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.os", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "os": "$_id", "count": 1 } },
+    ];
+
+    let _ = short_id_str; // suppress unused warning
+    let dt_docs: Vec<Document> = short_coll
+        .aggregate(dt_pipeline)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let br_docs: Vec<Document> = short_coll
+        .aggregate(br_pipeline)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    let os_docs: Vec<Document> = short_coll
+        .aggregate(os_pipeline)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?
+        .try_collect()
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    let mut result = Map::new();
+    result.insert("clickCount".to_owned(), Value::Number(click_count.into()));
+    result.insert(
+        "deviceTypes".to_owned(),
+        Value::Array(dt_docs.into_iter().map(doc_to_json).collect()),
+    );
+    result.insert(
+        "browsers".to_owned(),
+        Value::Array(br_docs.into_iter().map(doc_to_json).collect()),
+    );
+    result.insert(
+        "os".to_owned(),
+        Value::Array(os_docs.into_iter().map(doc_to_json).collect()),
+    );
+    Ok(Value::Object(result))
 }
 
 // ---------------------------------------------------------------------------

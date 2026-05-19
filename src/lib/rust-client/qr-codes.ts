@@ -44,6 +44,14 @@ export interface QrCodeCreateBody {
     config: Record<string, unknown>;
     tagIds?: string[];
     isDynamic?: boolean;
+    style?: {
+        dotType?: string;
+        cornerSquareType?: string;
+        cornerDotType?: string;
+        gradient?: { type: string; colorStart: string; colorEnd: string; rotation?: number };
+    };
+    frame?: { template: string; text: string; textColor?: string; bgColor?: string };
+    logoDataUri?: string;
 }
 
 /** Body for `POST /v1/qr-codes/delete-many`. */
@@ -75,6 +83,21 @@ export interface QrCodeDeleteManyResult {
 /** Result of `DELETE /v1/qr-codes/{id}`. */
 export interface QrCodeDeleteOneResult {
     success: boolean;
+    error?: string;
+}
+
+export interface QrCodeUpdateBody {
+    name?: string;
+    config?: Record<string, unknown>;
+    style?: Record<string, unknown>;
+    frame?: Record<string, unknown> | null;
+    logoDataUri?: string | null;
+    tagIds?: string[];
+}
+
+export interface QrScanStatsResult {
+    clickCount: number;
+    uniqueClicks?: number;
     error?: string;
 }
 
@@ -117,6 +140,18 @@ export const qrCodesApi = {
         rustAdminFetch<{ count: number }>(`${BASE}/admin/count-global`, {
             method: 'POST',
         }),
+
+    getOne: <T = unknown>(id: string) =>
+        rustFetch<T | null>(`${BASE}/${encodeURIComponent(id)}`),
+
+    update: (id: string, body: QrCodeUpdateBody) =>
+        rustFetch<{ success: boolean; error?: string }>(`${BASE}/${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+        }),
+
+    getScanStats: (id: string) =>
+        rustFetch<QrScanStatsResult>(`${BASE}/${encodeURIComponent(id)}/stats`),
 };
 
 export type QrCodesApi = typeof qrCodesApi;

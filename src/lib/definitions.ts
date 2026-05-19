@@ -2883,6 +2883,35 @@ export type ProductSet = {
     filter?: any;
 };
 
+export type AnalyticsEntry = {
+    timestamp: Date;
+    referrer?: string;
+    referrerDomain?: string;
+    userAgent?: string;
+    ip?: string;
+    geo?: { country?: string; region?: string; city?: string };
+    device?: { os?: string; browser?: string; deviceType?: 'desktop' | 'mobile' | 'tablet' };
+};
+
+export type UtmParams = {
+    source?: string;
+    medium?: string;
+    campaign?: string;
+    term?: string;
+    content?: string;
+};
+
+export type SplitTarget = {
+    url: string;
+    weight: number;
+};
+
+export type PixelIds = {
+    facebook?: string;
+    google?: string;
+    tiktok?: string;
+};
+
 export type ShortUrl = {
     _id: ObjectId;
     userId: ObjectId;
@@ -2890,22 +2919,43 @@ export type ShortUrl = {
     originalUrl: string;
     shortCode: string;
     clickCount: number;
-    analytics: {
-        timestamp: Date;
-        referrer?: string;
-        userAgent?: string;
-        ip?: string;
-    }[];
+    analytics: AnalyticsEntry[];
     tagIds?: string[];
     createdAt: Date;
     expiresAt?: Date | null;
+    clickLimit?: number;
+    passwordHash?: string;
+    utmParams?: UtmParams;
+    splitTargets?: SplitTarget[];
+    activateAt?: Date | null;
+    pixelIds?: PixelIds;
+    healthStatus?: 'ok' | 'dead' | 'unknown';
+    healthCheckedAt?: Date;
+    status?: 'active' | 'inactive' | 'archived' | 'scheduled';
+    customSlug?: string;
 };
+
+export type QrStyle = {
+    dotType?: 'square' | 'dots' | 'rounded' | 'classy' | 'classy-rounded' | 'extra-rounded';
+    cornerSquareType?: string;
+    cornerDotType?: string;
+    gradient?: { type: 'linear' | 'radial'; colorStart: string; colorEnd: string; rotation?: number };
+};
+
+export type QrFrame = {
+    template: 'simple' | 'rounded' | 'banner';
+    text: string;
+    textColor?: string;
+    bgColor?: string;
+};
+
+export type QrDataType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi' | 'vcard' | 'calendar' | 'geo' | 'app_download' | 'social';
 
 export type QrCode = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
-    dataType: 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
+    dataType: QrDataType;
     data: any;
     config: {
         color: string;
@@ -2913,6 +2963,8 @@ export type QrCode = {
         eccLevel: string;
         size: number;
     };
+    style?: QrStyle;
+    frame?: QrFrame;
     logoDataUri?: string;
     shortUrlId?: ObjectId;
     tagIds?: string[];
@@ -3813,3 +3865,70 @@ export type CrmSavedView = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export type BioLink = {
+    label: string;
+    shortUrlId: string;
+    order: number;
+};
+
+export type BioPage = {
+    _id: ObjectId;
+    userId: ObjectId;
+    slug: string;
+    title: string;
+    bio?: string;
+    avatarUrl?: string;
+    links: BioLink[];
+    theme?: string;
+    createdAt: Date;
+};
+
+export type QrCampaign = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    qrCodeIds: ObjectId[];
+    startDate?: Date;
+    endDate?: Date;
+    createdAt: Date;
+};
+
+export type UrlCollection = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    color?: string;
+    linkIds: ObjectId[];
+    createdAt: Date;
+};
+
+export type UrlWebhook = {
+    _id: ObjectId;
+    userId: ObjectId;
+    url: string;
+    secret?: string;
+    events: ('click' | 'first_click' | 'expired' | 'dead')[];
+    active: boolean;
+    createdAt: Date;
+};
+
+export type QrBrandKit = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    color?: string;
+    bgColor?: string;
+    logoDataUri?: string;
+    style?: QrStyle;
+    createdAt: Date;
+};
+
+export type AnalyticsTimeline = { date: string; count: number }[];
+export type AnalyticsGeo = { country: string; count: number }[];
+export type AnalyticsDevices = {
+    deviceTypes: { type: string; count: number }[];
+    browsers: { browser: string; count: number }[];
+    os: { os: string; count: number }[];
+};
+export type AnalyticsReferrers = { domain: string; count: number }[];

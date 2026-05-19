@@ -81,3 +81,34 @@ export async function deleteQrCode(id: string): Promise<{ success: boolean; erro
         return { success: false, error: 'Failed to delete QR code.' };
     }
 }
+
+export async function getQrCodeById(id: string): Promise<QrCodeWithShortUrl | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+    try {
+        return await rustClient.qrCodes.getOne<QrCodeWithShortUrl>(id);
+    } catch { return null; }
+}
+
+export async function updateQrCode(
+    id: string,
+    body: import('@/lib/rust-client/qr-codes').QrCodeUpdateBody,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    try {
+        const result = await rustClient.qrCodes.update(id, body);
+        revalidatePath('/dashboard/qr-code-maker');
+        return result;
+    } catch (e: any) {
+        return { success: false, error: e?.message || 'Failed to update.' };
+    }
+}
+
+export async function getQrScanStats(id: string) {
+    const session = await getSession();
+    if (!session?.user) return null;
+    try {
+        return await rustClient.qrCodes.getScanStats(id);
+    } catch { return null; }
+}

@@ -28,6 +28,13 @@ export interface CreateShortUrlBody {
     expiresAt?: string | null;
     /** `null`, `"none"`, or a custom-domain `_id` string. */
     domainId?: string | null;
+    customSlug?: string;
+    clickLimit?: number;
+    passwordHash?: string;
+    utmParams?: { source?: string; medium?: string; campaign?: string; term?: string; content?: string };
+    splitTargets?: { url: string; weight: number }[];
+    activateAt?: string | null;
+    pixelIds?: { facebook?: string; google?: string; tiktok?: string };
 }
 
 export interface BulkCreateShortUrlsBody {
@@ -101,6 +108,45 @@ export interface DeleteDomainResult {
 export interface TrackClickResult {
     originalUrl?: string | null;
     error?: string;
+}
+
+export interface UpdateShortUrlBody {
+    originalUrl?: string;
+    expiresAt?: string | null;
+    clickLimit?: number | null;
+    tagIds?: string[];
+    utmParams?: { source?: string; medium?: string; campaign?: string; term?: string; content?: string } | null;
+    splitTargets?: { url: string; weight: number }[] | null;
+    pixelIds?: { facebook?: string; google?: string; tiktok?: string } | null;
+}
+
+export interface VerifyPasswordBody {
+    shortCode: string;
+    passwordHash: string;
+}
+
+export interface VerifyPasswordResult {
+    valid: boolean;
+    originalUrl?: string;
+    error?: string;
+}
+
+export interface AnalyticsTimelineResult {
+    data: { date: string; count: number }[];
+}
+
+export interface AnalyticsGeoResult {
+    data: { country: string; count: number }[];
+}
+
+export interface AnalyticsDevicesResult {
+    deviceTypes: { type: string; count: number }[];
+    browsers: { browser: string; count: number }[];
+    os: { os: string; count: number }[];
+}
+
+export interface AnalyticsReferrersResult {
+    data: { domain: string; count: number }[];
 }
 
 // ---------------------------------------------------------------------------
@@ -201,6 +247,30 @@ export const urlShortenerApi = {
             method: 'POST',
             body: JSON.stringify(body),
         }),
+
+    updateOne: (id: string, body: UpdateShortUrlBody) =>
+        rustFetch<{ success: boolean; error?: string }>(`${BASE}/${encodeURIComponent(id)}`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+        }),
+
+    verifyPassword: (body: VerifyPasswordBody) =>
+        rustPublicFetch<VerifyPasswordResult>(`${BASE}/verify-password`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
+
+    getAnalyticsTimeline: (id: string, days = 30) =>
+        rustFetch<AnalyticsTimelineResult>(`${BASE}/${encodeURIComponent(id)}/analytics/timeline?days=${days}`),
+
+    getAnalyticsGeo: (id: string) =>
+        rustFetch<AnalyticsGeoResult>(`${BASE}/${encodeURIComponent(id)}/analytics/geo`),
+
+    getAnalyticsDevices: (id: string) =>
+        rustFetch<AnalyticsDevicesResult>(`${BASE}/${encodeURIComponent(id)}/analytics/devices`),
+
+    getAnalyticsReferrers: (id: string) =>
+        rustFetch<AnalyticsReferrersResult>(`${BASE}/${encodeURIComponent(id)}/analytics/referrers`),
 };
 
 export type UrlShortenerApi = typeof urlShortenerApi;
