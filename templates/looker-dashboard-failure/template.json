@@ -1,0 +1,10 @@
+{
+  "id": "looker-dashboard-failure",
+  "name": "Looker Dashboard Failure",
+  "description": "Receives Looker schedule-failed webhooks and routes the dashboard name and failure reason to Slack #data. Keeps everyone informed when overnight delivery breaks before stakeholders ask why their report is empty.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ops", "looker", "bi", "slack", "webhook", "schedule"],
+  "version": "0.1.0"
+}
