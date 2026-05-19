@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_shopify_inv",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.inventory.adjust",
+    "options": {
+      "path": "/webhooks/shopify-inv-adjust",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Shopify Inventory",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "shopify-inv-adjust",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "shopify-inv-adjust-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Item",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sku", "value": "={{ $json.sku }}" },
+            { "name": "available", "value": "={{ $json.available }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup",
+      "name": "Odoo Lookup Product",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ODOO_URL }}/web/dataset/call_kw/product.product/search?domain=[['default_code','=','{{ $json.sku }}']]"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "odoo-cred", "name": "Odoo Header Auth" } }
+    },
+    {
+      "id": "n_route",
+      "name": "Product Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [{ "value1": "={{ $json.length }}", "operation": "larger", "value2": 0 }]
+        }
+      }
+    },
+    {
+      "id": "n_update_qty",
+      "name": "Odoo Update Quantity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ODOO_URL }}/web/dataset/call_kw/stock.change.product.qty/create",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "product_id", "value": "={{ $json[0] }}" },
+            { "name": "new_quantity", "value": "={{ $node['Extract Item'].json.available }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "odoo-cred", "name": "Odoo Header Auth" } }
+    },
+    {
+      "id": "n_missing",
+      "name": "Missing SKU NoOp",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup", "type": "main", "index": 0 }]] },
+    "n_lookup": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "true": [[{ "node": "n_update_qty", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_missing", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup", "n_route", "n_update_qty", "n_missing"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "ODOO_URL", "defaultValue": "https://erp.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

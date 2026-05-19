@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "odoo-stock-adjust",
+  "cases": [
+    {
+      "id": "stock-adjust",
+      "description": "Shopify inventory adjustment updates Odoo product quantity.",
+      "triggerPayload": { "sku": "SKU-001", "available": 42 },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
