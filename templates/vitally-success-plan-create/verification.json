@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "templateId": "vitally-success-plan-create",
+  "cases": [
+    {
+      "id": "closed-won",
+      "description": "ClosedWon opportunity triggers Vitally plan + CSM Slack.",
+      "triggerPayload": {
+        "opportunity": {
+          "account_id": "acc_1",
+          "account_name": "Acme Corp",
+          "amount": 50000,
+          "csm_slack_id": "U123"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "id": "vitally-success-plan-create",
+  "name": "Vitally Success Plan Create",
+  "description": "When a Salesforce opportunity flips to closed-won, creates a Vitally success plan and DMs the CSM in Slack with a kickoff checklist. Removes the manual handoff that delays onboarding.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["salesforce", "vitally", "success-plan", "slack", "csm", "crm"],
+  "version": "0.1.0"
+}
