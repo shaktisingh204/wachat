@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "omnisend-loyalty-tier",
+  "cases": [
+    {
+      "id": "tier-set",
+      "description": "Order webhook fetches customer LTV, computes loyalty tier, and tags Omnisend.",
+      "triggerPayload": {
+        "customer": { "id": 9001, "email": "loyal@example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
