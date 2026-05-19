@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Mondays 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1" }] } }
+    },
+    {
+      "id": "n_toggl",
+      "name": "Toggl Summary Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TOGGL_REPORT_URL }}"
+      },
+      "credentials": { "httpBasicAuth": { "id": "toggl-cred", "name": "Toggl Basic" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Per User",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Utilization",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "user", "value": "={{ $json.user }}" },
+            { "name": "billable", "value": "={{ $json.billable_hours }}" },
+            { "name": "total", "value": "={{ $json.total_hours }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Utilization Row",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Utilization",
+        "fields": {
+          "User": "={{ $json.user }}",
+          "Billable": "={{ $json.billable }}",
+          "Total": "={{ $json.total }}"
+        }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ops Digest",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":bar_chart: Utilization for {{ $json.user }}: {{ $json.billable }} billable / {{ $json.total }} total"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_toggl", "type": "main", "index": 0 }]] },
+    "n_toggl": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_airtable", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_toggl", "n_split", "n_extract", "n_airtable", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "TOGGL_REPORT_URL", "defaultValue": "https://api.track.toggl.com/reports/api/v3/workspace/000/summary/time_entries" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
