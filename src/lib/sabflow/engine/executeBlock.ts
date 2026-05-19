@@ -1,8 +1,9 @@
-import type { Block, Edge } from '@/lib/sabflow/types';
+import type { Block, Edge, SabFlowDoc } from '@/lib/sabflow/types';
 import type { OutgoingMessage } from './types';
 import type { Condition } from './evaluateCondition';
 import { evaluateCondition } from './evaluateCondition';
 import { substituteVariables } from './substituteVariables';
+import { resolveDeep } from './resolveTokens';
 import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
 import { getForgeBlock } from '@/lib/sabflow/forge';
@@ -25,6 +26,13 @@ export type BlockExecutionResult = {
   updatedVariables?: Record<string, string>;
   /** True when the block needs a user reply before execution can continue. */
   requiresInput?: boolean;
+  /**
+   * Raw outputs produced by a forge block's `run()` — the bag stashed into
+   * `nodeOutputs` by `executeFlow` so the NEXT block can reference this
+   * block's output as `{{ $node["<DisplayName>"].json.<key> }}`. Mirrors
+   * n8n's per-node output stream.
+   */
+  forgeOutputs?: Record<string, unknown>;
   /**
    * When the block errored and `onError` is set to 'continueErrorOutput', this
    * carries the error edge's destination so `executeFlow` can jump to it.
@@ -68,6 +76,18 @@ export type ExecuteBlockContext = {
   callerStack?: string[];
   executionId?: string;
   itemIndex?: number;
+  /**
+   * Upstream node outputs keyed by display name, populated by `executeFlow`
+   * after each preceding block finishes. Forge blocks' string options are
+   * resolved through `resolveDeep` with this map, so any field referencing
+   * `{{ $node["<DisplayName>"].json.<key> }}` resolves to the actual value
+   * produced by that upstream block (n8n parity).
+   */
+  nodeOutputs?: Record<string, unknown>;
+  /** Display name of the currently-executing block (the n8n "$node.name"). */
+  currentNodeName?: string;
+  /** Flow doc passed through so the expression engine can expose `$workflow`. */
+  flow?: SabFlowDoc;
 };
 
 /**
@@ -495,10 +515,20 @@ async function executeForgeBlock(
     };
   }
 
-  const resolvedOptions = substituteInValue(block.options ?? {}, variables) as Record<
-    string,
-    unknown
-  >;
+  // Forge blocks support the full advanced expression engine (n8n-compatible):
+  //   {{ $node["Webhook"].json.email }}      → upstream block output
+  //   {{ $json.foo }}, {{ $now.toFormat() }} → current-item + Luxon helpers
+  //   {{ $vars.bar }} / bare {{ bar }}       → flow variables (legacy)
+  // Plain `{{ varName }}` references still resolve through the same engine
+  // because `resolveDeep` short-circuits to `substituteVariables` when no
+  // advanced tokens are present, preserving back-compat with every existing
+  // forge block that uses bare-identifier templating.
+  const resolvedOptions = resolveDeep(block.options ?? {}, {
+    variables,
+    nodeOutputs: ctx?.nodeOutputs,
+    flow: ctx?.flow,
+    currentNodeName: ctx?.currentNodeName,
+  }) as Record<string, unknown>;
 
   // Resolve credential through SabFlow Connections when the block declares a
   // credentialType (new ports) — falling back to inline auth fields baked into
@@ -525,15 +555,18 @@ async function executeForgeBlock(
   if (outcome.kind === 'ok') {
     const result = outcome.value;
     const updates = result?.outputs;
+    // The raw outputs bag is also handed back to executeFlow so it can be
+    // exposed to downstream blocks as `$node["<DisplayName>"].json.<key>`.
+    const forgeOutputs = updates ?? {};
     if (updates && Object.keys(updates).length) {
       const merged: Record<string, string> = { ...variables };
       for (const [k, v] of Object.entries(updates)) {
         merged[k] =
           typeof v === 'string' ? v : v === undefined || v === null ? '' : JSON.stringify(v);
       }
-      return { messages: [], updatedVariables: merged };
+      return { messages: [], updatedVariables: merged, forgeOutputs };
     }
-    return { messages: [] };
+    return { messages: [], forgeOutputs };
   }
 
   return buildErrorSignal(block, edges, outcome.error, outcome.strategy);

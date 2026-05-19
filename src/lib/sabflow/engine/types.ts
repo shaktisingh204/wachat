@@ -4,6 +4,14 @@ export type SessionState = {
   currentBlockIndex: number;
   variables: Record<string, string>;
   history: ExecutionStep[];
+  /**
+   * Per-node output bag persisted across pause/resume boundaries so that
+   * `{{ $node["<DisplayName>"].json.<key> }}` references stay resolvable
+   * after a flow waits on user input and then continues. Keyed by display
+   * name (see `nodeOutputs/nodeNames.ts`). Optional for back-compat with
+   * sessions persisted before n8n-style cross-block references shipped.
+   */
+  nodeOutputs?: Record<string, { json: unknown }>;
 };
 
 export type ExecutionStep = {

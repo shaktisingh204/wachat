@@ -5058,6 +5058,49 @@ dependencies = [
 ]
 
 [[package]]
+name = "email-journey-worker"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bson",
+ "chrono",
+ "email-types",
+ "futures",
+ "mongodb",
+ "rand 0.8.6",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "wachat-queue",
+]
+
+[[package]]
+name = "email-journeys"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "email-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "wachat-queue",
+]
+
+[[package]]
 name = "email-reports"
 version = "0.1.0"
 dependencies = [
@@ -8397,8 +8440,11 @@ dependencies = [
  "email-audience",
  "email-campaigns",
  "email-deliverability",
+ "email-events",
  "email-inbound",
  "email-inbox",
+ "email-journeys",
+ "email-reports",
  "email-templates",
  "email-webhooks",
  "facebook-flow",

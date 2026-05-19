@@ -7,7 +7,7 @@
 //! tracked on the config row (lastFailedAt + failureCount) by the
 //! `deliver` helper.
 
-use bson::{Document, doc, oid::ObjectId};
+use bson::{Document, doc};
 use email_webhooks::deliver::{WebhookConfigRecord, deliver};
 use futures::TryStreamExt;
 use sabnode_db::mongo::MongoHandle;
@@ -118,14 +118,3 @@ fn doc_to_record(d: &Document, tenant_id: &str) -> Option<WebhookConfigRecord> {
     })
 }
 
-/// Helper used by the handlers: pair the inserted `EmailEvent`
-/// documents with their kind strings for [`fanout`].
-pub fn extract_kind(doc: &Document) -> Option<String> {
-    doc.get_str("kind").ok().map(|s| s.to_owned())
-}
-
-/// Helper: cast an [`ObjectId`] back to hex for inclusion in the
-/// outbound payload.
-pub fn oid_hex(oid: &ObjectId) -> String {
-    oid.to_hex()
-}

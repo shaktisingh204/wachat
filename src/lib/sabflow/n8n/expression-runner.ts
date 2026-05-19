@@ -42,6 +42,13 @@ export type ExpressionContext = {
   flow?: SabFlowDoc;
   /** Override the "current node" in `$node` — defaults to a synthetic stub. */
   currentNodeName?: string;
+  /**
+   * Upstream node outputs keyed by display name. Powers
+   * `{{ $node["Webhook"].json.email }}` and `{{ $node.Webhook.json.email }}`
+   * references. Each value should already be in the shape
+   * `{ json: { ... } }` so member access works the way n8n authors expect.
+   */
+  nodeOutputs?: Record<string, unknown>;
 };
 
 /* ── Internal data-proxy builder ────────────────────────────────────────── */
@@ -92,7 +99,15 @@ function buildProxyData(ctx: ExpressionContext): IWorkflowDataProxyData {
     $workflow: ctx.flow
       ? { id: ctx.flow._id?.toString() ?? ctx.flow.name, name: ctx.flow.name, active: ctx.flow.status === 'PUBLISHED' }
       : { id: 'sabflow.preview', name: 'sabflow', active: false },
-    $node: { name: stubNode.name },
+    // `$node` maps upstream display name → its output payload. The legacy
+    // engine treats it as a plain object so `$node["Webhook"].json.x` and
+    // `$node.Webhook.json.x` both reduce to ordinary property lookups.
+    // The synthetic `name` field is kept for back-compat with templates
+    // that read `$node.name` directly.
+    $node: {
+      ...(ctx.nodeOutputs ?? {}),
+      name: stubNode.name,
+    } as IWorkflowDataProxyData['$node'],
     $item: () => stubConnectionData,
     $items: () => items,
     $runIndex: 0,

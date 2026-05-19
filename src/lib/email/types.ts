@@ -37,12 +37,24 @@ export type EmailFilterLeaf = {
   value?: unknown;
 };
 
+export type FilterCombinator = 'AND' | 'OR';
+
+export type EmailFilterNode = EmailFilterLeaf | EmailFilterGroup;
+
 export type EmailFilterGroup = {
-  combinator: 'AND' | 'OR';
-  filters: Array<EmailFilterLeaf | EmailFilterGroup>;
+  combinator: FilterCombinator;
+  filters: Array<EmailFilterNode>;
 };
 
 export type EmailFilterTree = EmailFilterGroup;
+
+export type EmailSubscriberStatus =
+  | 'subscribed'
+  | 'unsubscribed'
+  | 'pending'
+  | 'bounced'
+  | 'complained'
+  | 'archived';
 
 // -----------------------------------------------------------------------------
 // Segments — saved dynamic audience filters

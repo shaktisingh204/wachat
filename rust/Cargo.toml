@@ -280,8 +280,8 @@ members = [
     "crates/email-webhooks",
     "crates/email-events",
     "crates/email-reports",
-    # "crates/email-journeys",        # agent in progress
-    # "crates/email-journey-worker",  # agent in progress
+    "crates/email-journeys",
+    "crates/email-journey-worker",
 ]
 
 [workspace.package]

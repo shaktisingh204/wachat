@@ -115,18 +115,17 @@ fn ts_from_rfc3339(s: &str) -> DateTime<Utc> {
         .unwrap_or_else(|_| Utc::now())
 }
 
-fn insert_and_fanout(
+async fn insert_and_fanout(
     state: &EmailEventsState,
     tenant_id: &str,
     provider: &'static str,
     events: Vec<NormalizedEvent>,
-) -> impl std::future::Future<Output = Result<IngestAck>> + use<> {
+) -> Result<IngestAck> {
     let mongo = state.mongo.clone();
     let http = state.http.clone();
     let tenant_oid = ObjectId::parse_str(tenant_id).ok();
     let tenant_id = tenant_id.to_owned();
-    async move {
-        let now = Utc::now();
+    let now = Utc::now();
         let mut accepted: u64 = 0;
         let mut skipped: u64 = 0;
         let mut docs: Vec<Document> = Vec::with_capacity(events.len());
@@ -224,7 +223,7 @@ fn insert_and_fanout(
         if !docs.is_empty() {
             mongo
                 .collection::<Document>(EVENTS_COLL)
-                .insert_many(&docs)
+                .insert_many(docs)
                 .await
                 .map_err(|e| {
                     ApiError::Internal(anyhow::Error::new(e).context("email_events.insert_many"))
@@ -263,7 +262,6 @@ fn insert_and_fanout(
         fanout(&mongo, &http, &tenant_id, fanout_payloads).await;
 
         Ok(IngestAck { accepted, skipped })
-    }
 }
 
 // ===========================================================================
@@ -695,7 +693,7 @@ async fn record_tracking_event(
     if let Err(e) = state
         .mongo
         .collection::<Document>(EVENTS_COLL)
-        .insert_one(&d)
+        .insert_one(d.clone())
         .await
     {
         warn!(?e, "tracking insert failed");

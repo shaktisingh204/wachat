@@ -275,7 +275,7 @@ export async function saveAnnouncement(
 
     const guard = await requirePermission(
         'crm_announcement',
-        isEditing ? 'update' : 'create',
+        isEditing ? 'edit' : 'create',
     );
     if (!guard.ok) return { error: guard.error };
 

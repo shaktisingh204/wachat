@@ -74,6 +74,9 @@ use email_deliverability::EmailDeliverabilityState;
 use email_api::EmailApiState;
 use email_webhooks::EmailWebhooksState;
 use email_campaigns::EmailCampaignsState;
+use email_events::EmailEventsState;
+use email_reports::EmailReportsState;
+use email_journeys::EmailJourneysState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -159,6 +162,9 @@ pub struct AppState {
     pub email_api: EmailApiState,
     pub email_webhooks: EmailWebhooksState,
     pub email_campaigns: EmailCampaignsState,
+    pub email_events: EmailEventsState,
+    pub email_reports: EmailReportsState,
+    pub email_journeys: EmailJourneysState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -236,6 +242,9 @@ impl AppState {
         email_api: EmailApiState,
         email_webhooks: EmailWebhooksState,
         email_campaigns: EmailCampaignsState,
+        email_events: EmailEventsState,
+        email_reports: EmailReportsState,
+        email_journeys: EmailJourneysState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -311,6 +320,9 @@ impl AppState {
             email_api,
             email_webhooks,
             email_campaigns,
+            email_events,
+            email_reports,
+            email_journeys,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -753,5 +765,23 @@ impl FromRef<AppState> for EmailWebhooksState {
 impl FromRef<AppState> for EmailCampaignsState {
     fn from_ref(s: &AppState) -> Self {
         s.email_campaigns.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailEventsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_events.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailReportsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_reports.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailJourneysState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_journeys.clone()
     }
 }

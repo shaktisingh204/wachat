@@ -1552,7 +1552,8 @@ pub async fn get_history(
     match doc {
         None => Ok(Value::Array(vec![])),
         Some(d) => {
-            let history = d.get_array("history").unwrap_or(&vec![]);
+            let empty: Vec<bson::Bson> = Vec::new();
+            let history = d.get_array("history").unwrap_or(&empty);
             let items: Vec<Value> = history
                 .iter()
                 .map(|b| bson_to_json(b.clone()))

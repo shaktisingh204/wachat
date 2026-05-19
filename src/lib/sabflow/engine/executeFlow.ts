@@ -2,6 +2,7 @@ import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { SessionState, ExecutionResult, InputRequest } from './types';
 import type { OutgoingMessage } from './types';
 import { executeBlock } from './executeBlock';
+import { buildBlockNameMap } from '@/lib/sabflow/nodeOutputs/nodeNames';
 import { acquireRunSlot } from '@/lib/sabflow/execution/concurrency';
 import { loadEnvVars } from '@/lib/sabflow/envVars/db';
 import { publishTraceEvent } from '@/lib/sabflow/execution/traceBus';
@@ -180,11 +181,34 @@ async function runFlowInner(
   const selfFlowId = (flow._id?.toString?.() ?? flow.publicId ?? flow.name) as string;
   // blockCtx is rebuilt per-block inside the loop to carry the current
   // block-level itemIndex. We define the stable parts here and spread them in.
+  // Display-name map → used both to attribute outputs to a `$node["..."]` key
+  // AND to tell forge blocks what their own display name is for diagnostics.
+  // Names are stable across renders provided block ids don't change.
+  const blockNameMap = buildBlockNameMap(flow.groups);
+  // Per-block outputs accumulator. After each block completes, its raw
+  // `outputs` bag (returned by the forge action's `run()`) is stashed here
+  // under `{ json: <outputs> }` so the next block's expression engine can
+  // resolve `{{ $node["<DisplayName>"].json.<key> }}`.
+  const nodeOutputs: Record<string, { json: unknown }> = {};
+  // Seed from any previously-recorded outputs in the session — restored across
+  // pauses (waiting on user input) so chained references keep working when
+  // the flow resumes.
+  if (session.nodeOutputs && typeof session.nodeOutputs === 'object') {
+    for (const [k, v] of Object.entries(session.nodeOutputs as Record<string, unknown>)) {
+      if (v && typeof v === 'object' && 'json' in (v as object)) {
+        nodeOutputs[k] = v as { json: unknown };
+      }
+    }
+  }
+
   const blockCtxBase = {
     userId: flow.userId,
     callerStack: [...(callerStack ?? []), selfFlowId],
     // Thread executionId so executeBlock can emit per-item trace events.
     executionId,
+    // Threaded into the forge executor so expressions like
+    // `{{ $node["Webhook"].json.email }}` resolve to the real upstream value.
+    flow,
   };
 
   outer: while (hopCount < MAX_GROUP_HOPS) {
@@ -204,7 +228,14 @@ async function runFlowInner(
 
       // itemIndex is the 0-based position of the block within its group; used
       // by the trace emitter to distinguish per-row events within a block.
-      const blockCtx = { ...blockCtxBase, itemIndex: i };
+      // currentNodeName + nodeOutputs are threaded per block so each forge
+      // run sees the latest upstream-output map.
+      const blockCtx = {
+        ...blockCtxBase,
+        itemIndex: i,
+        nodeOutputs,
+        currentNodeName: blockNameMap.get(block.id) ?? block.id,
+      };
 
       const stepStartedAt = Date.now();
       let blockResult;
@@ -297,6 +328,15 @@ async function runFlowInner(
 
       // Accumulate messages from this block
       messages.push(...blockResult.messages);
+
+      // Stash this block's raw outputs under its display name so the NEXT
+      // block can reference them as `{{ $node["<DisplayName>"].json.<key> }}`.
+      // Mirrors n8n's per-node output stream. Skipped when the block
+      // returned no outputs (UI-only bubble blocks etc.).
+      if (blockResult.forgeOutputs && Object.keys(blockResult.forgeOutputs).length) {
+        const displayName = blockNameMap.get(block.id) ?? block.id;
+        nodeOutputs[displayName] = { json: blockResult.forgeOutputs };
+      }
 
       // Merge variable updates
       if (blockResult.updatedVariables) {

@@ -110,14 +110,12 @@ export function AnnouncementForm({
     );
     const [pendingDeptId, setPendingDeptId] = useState<string>('');
     const [pendingDeptName, setPendingDeptName] = useState<string>('');
-    const [attachments, setAttachments] = useState<AttachmentRow[]>(
-        Array.isArray(
-            (announcement as { attachments?: AttachmentRow[] } | null | undefined)
-                ?.attachments,
-        )
-            ? (announcement as { attachments: AttachmentRow[] }).attachments
-            : [],
-    );
+    const [attachments, setAttachments] = useState<AttachmentRow[]>(() => {
+        const raw = (
+            announcement as unknown as { attachments?: AttachmentRow[] } | null
+        )?.attachments;
+        return Array.isArray(raw) ? raw : [];
+    });
 
     const audienceIdsCsv = useMemo(
         () => departments.map((d) => d.id).join(', '),

@@ -413,6 +413,17 @@ async fn run() -> anyhow::Result<()> {
         mongo: mongo.clone(),
         bull: wachat_queue::BullProducer::new(redis.clone()),
     };
+    let email_events_state = email_events::EmailEventsState {
+        mongo: mongo.clone(),
+        http: reqwest::Client::new(),
+    };
+    let email_reports_state = email_reports::EmailReportsState {
+        mongo: mongo.clone(),
+    };
+    let email_journeys_state = email_journeys::EmailJourneysState {
+        mongo: mongo.clone(),
+        bull: wachat_queue::BullProducer::new(redis.clone()),
+    };
 
     let state = AppState::new(
         mongo,
@@ -486,6 +497,9 @@ async fn run() -> anyhow::Result<()> {
         email_api_state,
         email_webhooks_state,
         email_campaigns_state,
+        email_events_state,
+        email_reports_state,
+        email_journeys_state,
     );
     let app = router::build(state.clone());
 

@@ -233,6 +233,9 @@ email-deliverability = { path = "../email-deliverability" }
 email-api = { path = "../email-api" }
 email-webhooks = { path = "../email-webhooks" }
 email-campaigns = { path = "../email-campaigns" }
+email-events = { path = "../email-events" }
+email-reports = { path = "../email-reports" }
+email-journeys = { path = "../email-journeys" }
 reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 
 axum = "0.8"

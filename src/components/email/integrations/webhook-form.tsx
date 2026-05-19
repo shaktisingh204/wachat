@@ -1,0 +1,218 @@
+'use client';
+
+import { useCallback, useEffect, useState, useTransition } from 'react';
+import { Check, Copy } from 'lucide-react';
+import {
+  ZoruButton,
+  ZoruCheckbox,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+  zoruToast,
+} from '@/components/zoruui';
+import {
+  actionCreateEmailWebhook,
+  actionUpdateEmailWebhook,
+  type EmailWebhookDoc,
+  type EmailWebhookEvent,
+} from '@/app/actions/email/integrations.actions';
+
+interface WebhookFormProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  /** Edit mode if provided. */
+  webhook?: EmailWebhookDoc | null;
+  onSaved: () => void;
+}
+
+const AVAILABLE_EVENTS: { value: EmailWebhookEvent; label: string }[] = [
+  { value: 'message.sent', label: 'message.sent' },
+  { value: 'message.delivered', label: 'message.delivered' },
+  { value: 'message.opened', label: 'message.opened' },
+  { value: 'message.clicked', label: 'message.clicked' },
+  { value: 'message.bounced', label: 'message.bounced' },
+  { value: 'message.complained', label: 'message.complained' },
+  { value: 'message.unsubscribed', label: 'message.unsubscribed' },
+  { value: 'campaign.completed', label: 'campaign.completed' },
+  { value: 'journey.step.completed', label: 'journey.step.completed' },
+];
+
+export function WebhookForm({ open, onOpenChange, webhook, onSaved }: WebhookFormProps) {
+  const [name, setName] = useState('');
+  const [url, setUrl] = useState('');
+  const [events, setEvents] = useState<EmailWebhookEvent[]>([]);
+  const [active, setActive] = useState(true);
+  const [copied, setCopied] = useState(false);
+  const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    if (!open) return;
+    setName(webhook?.name ?? '');
+    setUrl(webhook?.url ?? '');
+    setEvents(webhook?.events ?? []);
+    setActive(webhook?.active ?? true);
+    setCopied(false);
+  }, [open, webhook]);
+
+  const toggleEvent = (ev: EmailWebhookEvent) => {
+    setEvents((prev) => (prev.includes(ev) ? prev.filter((e) => e !== ev) : [...prev, ev]));
+  };
+
+  const handleSave = () => {
+    if (!url.trim()) {
+      zoruToast({ title: 'URL is required', variant: 'destructive' });
+      return;
+    }
+    if (events.length === 0) {
+      zoruToast({ title: 'Pick at least one event', variant: 'destructive' });
+      return;
+    }
+    startTransition(async () => {
+      const result = webhook
+        ? await actionUpdateEmailWebhook(webhook._id, {
+            name: name.trim() || undefined,
+            url: url.trim(),
+            events,
+            active,
+          })
+        : await actionCreateEmailWebhook({
+            name: name.trim() || undefined,
+            url: url.trim(),
+            events,
+            active,
+          });
+      if (!result.ok) {
+        zoruToast({ title: 'Save failed', description: result.error, variant: 'destructive' });
+        return;
+      }
+      zoruToast({ title: webhook ? 'Webhook updated' : 'Webhook created' });
+      onSaved();
+      onOpenChange(false);
+    });
+  };
+
+  const handleCopySecret = useCallback(async () => {
+    if (!webhook?.signingSecret) return;
+    try {
+      await navigator.clipboard.writeText(webhook.signingSecret);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      zoruToast({ title: 'Copy failed', variant: 'destructive' });
+    }
+  }, [webhook?.signingSecret]);
+
+  return (
+    <ZoruDialog open={open} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-lg">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle>
+            {webhook ? 'Edit webhook' : 'New webhook'}
+          </ZoruDialogTitle>
+          <ZoruDialogDescription>
+            SabNode will POST signed JSON payloads to this URL on each subscribed event.
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+
+        <div className="space-y-4">
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="hook-name">Name (optional)</ZoruLabel>
+            <ZoruInput
+              id="hook-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Customer.io sync"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <ZoruLabel htmlFor="hook-url">Endpoint URL</ZoruLabel>
+            <ZoruInput
+              id="hook-url"
+              type="url"
+              inputMode="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://example.com/webhooks/sabnode-email"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <ZoruLabel>Events</ZoruLabel>
+            <div className="grid grid-cols-2 gap-2">
+              {AVAILABLE_EVENTS.map((ev) => {
+                const checked = events.includes(ev.value);
+                const inputId = `event-${ev.value}`;
+                return (
+                  <label
+                    key={ev.value}
+                    htmlFor={inputId}
+                    className="flex cursor-pointer items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-2 py-1.5 text-xs hover:bg-zoru-surface-2"
+                  >
+                    <ZoruCheckbox
+                      id={inputId}
+                      checked={checked}
+                      onCheckedChange={() => toggleEvent(ev.value)}
+                    />
+                    <span className="font-mono text-zoru-ink">{ev.label}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface px-3 py-2">
+            <div>
+              <ZoruLabel htmlFor="hook-active">Active</ZoruLabel>
+              <p className="text-xs text-zoru-ink-muted">
+                Inactive webhooks receive no deliveries.
+              </p>
+            </div>
+            <ZoruSwitch
+              id="hook-active"
+              checked={active}
+              onCheckedChange={setActive}
+            />
+          </div>
+
+          {webhook?.signingSecret ? (
+            <div className="space-y-1.5">
+              <ZoruLabel>Signing secret</ZoruLabel>
+              <div className="flex items-center gap-2 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface-2 p-2">
+                <code className="flex-1 truncate text-xs text-zoru-ink">
+                  {webhook.signingSecret}
+                </code>
+                <ZoruButton
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCopySecret}
+                >
+                  {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {copied ? 'Copied' : 'Copy'}
+                </ZoruButton>
+              </div>
+              <p className="text-xs text-zoru-ink-muted">
+                Use this secret to verify the <code>X-SabNode-Signature</code> header.
+              </p>
+            </div>
+          ) : null}
+        </div>
+
+        <ZoruDialogFooter>
+          <ZoruButton variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </ZoruButton>
+          <ZoruButton onClick={handleSave} disabled={pending}>
+            {webhook ? 'Save changes' : 'Create webhook'}
+          </ZoruButton>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </ZoruDialog>
+  );
+}

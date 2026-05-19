@@ -9,7 +9,7 @@
  * consistent with hand-written block panels.
  */
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type { ChangeEvent, KeyboardEvent } from 'react';
 import { LuPlus, LuX } from 'react-icons/lu';
 
@@ -20,6 +20,7 @@ import type {
   ForgeSelectOption,
 } from '@/lib/sabflow/forge/types';
 import { cn } from '@/lib/utils';
+import { useLoadOptions } from './useLoadOptions';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -294,49 +295,13 @@ function DynamicSelect({
   credentialId,
   options,
 }: DynamicSelectProps) {
-  const [remote, setRemote] = useState<ForgeSelectOption[] | null>(null);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    setLoading(true);
-    setError(null);
-
-    fetch('/api/sabflow/load-options', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        blockId,
-        fieldId: field.id,
-        actionId,
-        credentialId,
-        options,
-      }),
-    })
-      .then(async (res) => {
-        const json = (await res.json().catch(() => ({}))) as {
-          options?: ForgeSelectOption[];
-          error?: string;
-        };
-        if (!res.ok) throw new Error(json.error ?? `Failed (${res.status})`);
-        if (!cancelled) setRemote(Array.isArray(json.options) ? json.options : []);
-      })
-      .catch((err: unknown) => {
-        if (cancelled) return;
-        setError(err instanceof Error ? err.message : 'Failed to load options');
-        setRemote(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-    // Re-fetch when credential, action, or block changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [blockId, actionId, credentialId, field.id]);
+  const { items: remote, loading, error } = useLoadOptions({
+    blockId,
+    actionId,
+    field,
+    options,
+    credentialId,
+  });
 
   const merged = useMemo<ForgeSelectOption[]>(() => {
     const out: ForgeSelectOption[] = [];

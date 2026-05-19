@@ -1,24 +1,17 @@
-'use client';
+import { Suspense } from 'react';
 
-import { ZoruPageHeader, ZoruPageHeading, ZoruPageTitle, ZoruPageDescription } from '@/components/zoruui';
-import {
-  EmailLayout } from '@/components/wabasimplify/email-new/email-layout';
-import { EmailSuiteLayout } from '@/components/wabasimplify/email-suite-layout';
-
-import React from 'react';
+import { ZoruSkeleton } from '@/components/zoruui';
+import { EmailSuiteLayout } from '@/components/email/layout';
+import { EmailInboxClient } from '@/components/email/inbox';
 
 export default function EmailInboxPage() {
-    return (
-        <EmailSuiteLayout>
-            <div className="h-full flex flex-col gap-4">
-                <ZoruPageHeader>
-                    <ZoruPageHeading>
-                        <ZoruPageTitle>Inbox</ZoruPageTitle>
-                        <ZoruPageDescription>Manage your conversations.</ZoruPageDescription>
-                    </ZoruPageHeading>
-                </ZoruPageHeader>
-                <EmailLayout />
-            </div>
-        </EmailSuiteLayout>
-    );
+  return (
+    <EmailSuiteLayout>
+      <Suspense
+        fallback={<ZoruSkeleton className="h-[640px] w-full rounded-[var(--zoru-radius-lg)]" />}
+      >
+        <EmailInboxClient />
+      </Suspense>
+    </EmailSuiteLayout>
+  );
 }

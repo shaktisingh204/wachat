@@ -225,6 +225,9 @@ pub fn build(state: AppState) -> Router {
     let email_api = email_api::router::<AppState>();
     let email_webhooks = email_webhooks::router::<AppState>();
     let email_campaigns = email_campaigns::router::<AppState>();
+    let email_events = email_events::router::<AppState>();
+    let email_reports = email_reports::router::<AppState>();
+    let email_journeys = email_journeys::router::<AppState>();
 
     Router::new()
         .merge(routes::health::router())
@@ -422,6 +425,9 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/email/api-keys", email_api)
         .nest("/v1/email/webhooks", email_webhooks)
         .nest("/v1/email/campaigns", email_campaigns)
+        .nest("/v1/email/events", email_events)
+        .nest("/v1/email/reports", email_reports)
+        .nest("/v1/email/journeys", email_journeys)
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
         // (SabflowWebhooksState) is not yet wired into AppState — public
         // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].

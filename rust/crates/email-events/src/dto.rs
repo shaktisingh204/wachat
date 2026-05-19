@@ -153,8 +153,8 @@ pub struct SesMail {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub enum PostmarkBatch {
-    One(PostmarkEvent),
     Many(Vec<PostmarkEvent>),
+    One(PostmarkEvent),
 }
 
 #[derive(Debug, Clone, Deserialize)]
