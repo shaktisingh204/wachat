@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "trello-to-asana-mirror",
+  "cases": [
+    {
+      "id": "card-mirrored",
+      "description": "A new Trello card webhook fires, the card is mirrored into Asana, and the PM channel gets a Slack confirmation.",
+      "triggerPayload": {
+        "action": {
+          "type": "createCard",
+          "data": {
+            "card": { "id": "trello-card-001", "name": "Draft launch checklist", "desc": "Outline blockers and owners." },
+            "list": { "name": "Backlog" }
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
