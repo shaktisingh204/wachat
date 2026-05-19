@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "docker-image-cleanup",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Weekly cron prunes untagged ECR images >30d.",
+      "triggerPayload": { "scheduledFor": "2026-05-17T03:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

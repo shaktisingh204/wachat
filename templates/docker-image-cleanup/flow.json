@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 3 * * 0", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Weekly Sunday 3am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "weeks", "weeksInterval": 1 }] } }
+    },
+    {
+      "id": "n_list_untagged",
+      "name": "List Untagged Images",
+      "type": "n8n-nodes-base.awsLambda",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "function": "={{ $vars.LAMBDA_LIST_UNTAGGED }}",
+        "payload": "{ \"olderThanDays\": 30 }"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS Account" } }
+    },
+    {
+      "id": "n_split_images",
+      "name": "One Per Image",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 25 }
+    },
+    {
+      "id": "n_delete_batch",
+      "name": "Batch Delete ECR",
+      "type": "n8n-nodes-base.awsLambda",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "function": "={{ $vars.LAMBDA_DELETE_IMAGES }}",
+        "payload": "={{ JSON.stringify($json) }}"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS Account" } }
+    },
+    {
+      "id": "n_slack_summary",
+      "name": "Slack #devops Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DEVOPS_CHANNEL }}",
+        "text": ":broom: Pruned {{ $json.deletedCount }} untagged ECR images, reclaimed {{ $json.reclaimedBytes }} bytes.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_list_untagged", "type": "main", "index": 0 }]] },
+    "n_list_untagged": { "main": [[{ "node": "n_split_images", "type": "main", "index": 0 }]] },
+    "n_split_images": { "main": [[{ "node": "n_delete_batch", "type": "main", "index": 0 }]] },
+    "n_delete_batch": { "main": [[{ "node": "n_slack_summary", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Cleanup",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_list_untagged", "n_split_images", "n_delete_batch", "n_slack_summary"]
+    }
+  ],
+  "variables": [
+    { "id": "v_lambda_list", "name": "LAMBDA_LIST_UNTAGGED", "defaultValue": "ecr-list-untagged" },
+    { "id": "v_lambda_delete", "name": "LAMBDA_DELETE_IMAGES", "defaultValue": "ecr-delete-images" },
+    { "id": "v_slack", "name": "SLACK_DEVOPS_CHANNEL", "defaultValue": "#devops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
