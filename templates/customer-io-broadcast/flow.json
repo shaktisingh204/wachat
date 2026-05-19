@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 14 * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 14 * * *" }] }
+      }
+    },
+    {
+      "id": "n_signups",
+      "name": "Fetch Today's Signups",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "users",
+        "query": "={\"createdAt\":{\"$gte\":\"{{ new Date(new Date().setHours(0,0,0,0)).toISOString() }}\"}}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_count",
+      "name": "Count Signups",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "aggregate": "aggregateAllItemData", "options": {} }
+    },
+    {
+      "id": "n_if_any",
+      "name": "Any Signups?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.items.length }}", "operation": "larger", "value2": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_trigger_broadcast",
+      "name": "Trigger CIO Broadcast",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.customer.io/v1/api/campaigns/{{ $vars.CIO_BROADCAST_ID }}/triggers",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"ids\":{{ JSON.stringify($json.items.map(i => i.email)) }}}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.CIO_APP_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_skip",
+      "name": "Skip Quiet Day",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "no signups today" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_signups", "type": "main", "index": 0 }]]
+    },
+    "n_signups": {
+      "main": [[{ "node": "n_count", "type": "main", "index": 0 }]]
+    },
+    "n_count": {
+      "main": [[{ "node": "n_if_any", "type": "main", "index": 0 }]]
+    },
+    "n_if_any": {
+      "true": [[{ "node": "n_trigger_broadcast", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_skip", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_signups", "n_count", "n_if_any", "n_trigger_broadcast", "n_skip"]
+    }
+  ],
+  "variables": [
+    { "id": "v_id", "name": "CIO_BROADCAST_ID", "defaultValue": "" },
+    { "id": "v_key", "name": "CIO_APP_KEY", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
