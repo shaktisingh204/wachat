@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "smartsheet-row-to-airtable",
+  "cases": [
+    {
+      "id": "row-mirrored",
+      "description": "A Smartsheet row.added webhook results in a mirrored Airtable record.",
+      "triggerPayload": {
+        "events": [{ "rowId": 99001, "sheetId": 12345 }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
