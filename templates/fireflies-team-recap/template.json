@@ -1,0 +1,10 @@
+{
+  "id": "fireflies-team-recap",
+  "name": "Fireflies Team Recap",
+  "description": "Receives Fireflies recording.completed webhooks, pulls the AI summary, and emails a polished team recap via SendGrid to the attendee list. Removes the post-meeting follow-up drafting work.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "fireflies", "sendgrid", "meeting", "recap", "webhook"],
+  "version": "0.1.0"
+}
