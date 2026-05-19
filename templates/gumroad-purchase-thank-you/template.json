@@ -1,0 +1,10 @@
+{
+  "id": "gumroad-purchase-thank-you",
+  "name": "Gumroad Purchase Thank You",
+  "description": "When Gumroad reports a sale, sends a personalized thank-you email through SendGrid and pings the #sales channel with the order details. Closes the post-purchase loop instantly.",
+  "category": "Sales",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["gumroad", "sendgrid", "slack", "thank-you", "sales"],
+  "version": "0.1.0"
+}

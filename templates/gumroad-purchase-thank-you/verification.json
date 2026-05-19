@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gumroad-purchase-thank-you",
+  "cases": [
+    {
+      "id": "sale",
+      "description": "Gumroad sale sends thank-you + Slack ping.",
+      "triggerPayload": { "email": "buyer@example.com", "product_name": "Templates Pack", "price": "29.00" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
