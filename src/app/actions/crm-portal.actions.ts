@@ -96,11 +96,19 @@ export async function updatePortalUser(
   try {
     const name = (formData.get('name') as string || '').trim();
     const email = (formData.get('email') as string || '').trim();
+    const phone = (formData.get('phone') as string || '').trim();
     const portalType = (formData.get('portalType') as string || 'customer').trim();
+    const role = (formData.get('role') as string || '').trim();
     const capabilitiesRaw = (formData.get('capabilities') as string || '').trim();
     const linkedEntityId = (formData.get('linkedEntityId') as string || '').trim();
+    const linkedEntityName = (formData.get('linkedEntityName') as string || '').trim();
     const notes = (formData.get('notes') as string || '').trim();
     const status = (formData.get('status') as string || 'pending').trim();
+    const brandColor = (formData.get('brandColor') as string || '').trim();
+    const welcomeMessage = (formData.get('welcomeMessage') as string || '').trim();
+    const logoFileId = (formData.get('logoFileId') as string || '').trim();
+    const logoFileUrl = (formData.get('logoFileUrl') as string || '').trim();
+    const logoFileName = (formData.get('logoFileName') as string || '').trim();
 
     if (!name) {
       return { error: 'Full name is required.' };
@@ -108,13 +116,16 @@ export async function updatePortalUser(
     if (!email || !email.includes('@')) {
       return { error: 'A valid email address is required.' };
     }
+    if (brandColor && !/^#[0-9a-fA-F]{6}$/.test(brandColor)) {
+      return { error: 'Brand colour must be a 6-digit hex code.' };
+    }
 
     let capabilities: string[] | undefined;
     if (capabilitiesRaw) {
       try {
         const parsed = JSON.parse(capabilitiesRaw);
         if (Array.isArray(parsed)) {
-          capabilities = parsed;
+          capabilities = parsed.filter((c: unknown): c is string => typeof c === 'string');
         }
       } catch {
         // ignore
@@ -126,11 +137,26 @@ export async function updatePortalUser(
     const setDoc: Record<string, any> = {
       name,
       email,
+      phone,
       portalType,
       notes,
       status,
+      welcomeMessage,
       updatedAt: new Date(),
     };
+
+    if (role) setDoc.role = role;
+    if (brandColor) setDoc.brandColor = brandColor;
+    if (linkedEntityName) setDoc.linkedEntityName = linkedEntityName;
+    if (logoFileId) {
+      setDoc.logoFileId = logoFileId;
+      setDoc.logoFileUrl = logoFileUrl;
+      setDoc.logoFileName = logoFileName;
+    } else {
+      setDoc.logoFileId = null;
+      setDoc.logoFileUrl = null;
+      setDoc.logoFileName = null;
+    }
 
     if (capabilities) setDoc.capabilities = capabilities;
     if (linkedEntityId && ObjectId.isValid(linkedEntityId)) {

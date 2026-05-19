@@ -850,20 +850,38 @@ pub async fn report(
 
     if let Some(d) = cache {
         let resp = ReportResponse {
-            sent: d.get_i64("sent").unwrap_or(0).max(0) as u64,
-            delivered: d.get_i64("delivered").unwrap_or(0).max(0) as u64,
-            opens: d.get_i64("opens").unwrap_or(0).max(0) as u64,
-            unique_opens: d.get_i64("uniqueOpens").unwrap_or(0).max(0) as u64,
-            clicks: d.get_i64("clicks").unwrap_or(0).max(0) as u64,
-            unique_clicks: d.get_i64("uniqueClicks").unwrap_or(0).max(0) as u64,
-            bounces: d.get_i64("bounces").unwrap_or(0).max(0) as u64,
-            complaints: d.get_i64("complaints").unwrap_or(0).max(0) as u64,
-            unsubscribes: d.get_i64("unsubscribes").unwrap_or(0).max(0) as u64,
+            sent: read_counter(&d, "sent"),
+            delivered: read_counter(&d, "delivered"),
+            opens: read_counter(&d, "opens"),
+            unique_opens: read_counter(&d, "uniqueOpens"),
+            clicks: read_counter(&d, "clicks"),
+            unique_clicks: read_counter(&d, "uniqueClicks"),
+            bounces: read_counter(&d, "bounces"),
+            complaints: read_counter(&d, "complaints"),
+            unsubscribes: read_counter(&d, "unsubscribes"),
             raw: doc_to_json(d).ok(),
         };
         Ok(Json(resp))
     } else {
         Ok(Json(ReportResponse::default()))
+    }
+}
+
+/// Read a numeric counter from a Mongo doc, tolerating both `i32` and
+/// `i64` BSON shapes (reports cache may be written by either Rust or TS
+/// rollup workers).
+fn read_counter(d: &Document, key: &str) -> u64 {
+    match d.get(key) {
+        Some(Bson::Int32(i)) => (*i).max(0) as u64,
+        Some(Bson::Int64(i)) => (*i).max(0) as u64,
+        Some(Bson::Double(f)) => {
+            if *f < 0.0 {
+                0
+            } else {
+                *f as u64
+            }
+        }
+        _ => 0,
     }
 }
 

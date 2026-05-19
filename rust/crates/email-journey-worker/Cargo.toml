@@ -1,0 +1,58 @@
+# Phase — BullMQ consumer for the SabNode email **journey** engine.
+#
+# Drains the `"email-journey"` queue produced by `email-journeys` (HTTP),
+# trigger-listener polling, and the scheduler tick. Job kinds:
+#
+#   * `journey-tick`        — process a single node for a single run
+#   * `journey-enroll-bulk` — create runs in bulk + tick entry node
+#
+# When a `journey-tick` hits an `email` node it pushes a `journey-step`
+# job onto the `email-send` queue drained by `email-sender`, keeping the
+# send concerns isolated.
+
+[package]
+name = "email-journey-worker"
+version = "0.1.0"
+edition = "2024"
+description = "BullMQ consumer + scheduler + trigger listener for the SabNode email journey engine. Drains `email-journey`, processes nodes (trigger/email/wait/condition/action/split/exit), hands email steps to the `email-send` queue, and bulk-enrols subscribers when triggers fire."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_journey_worker"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — `full` for signal / time / macros / sync.
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serde + JSON for BullMQ payloads.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo + BSON.
+mongodb = "3.2"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Wall clock for `nextStepAt` etc.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Error plumbing + structured logging.
+anyhow = "1"
+thiserror = "2"
+tracing = "0.1"
+
+# Pseudo-random splits.
+rand = "0.8"
+
+# Sibling crates — shared error envelope, Mongo + Redis handles, the
+# BullMQ producer + consumer, and the shared domain types.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-queue = { path = "../wachat-queue" }
+email-types = { path = "../email-types" }
+
+[lints]
+workspace = true

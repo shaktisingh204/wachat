@@ -1,9 +1,7 @@
 'use client';
 
-import { ZoruSkeleton, cn } from '@/components/zoruui';
-import { cn as _zoruCn, use, useEffect, useState, useTransition } from 'react';
-
-void _zoruCn;
+import { ZoruSkeleton } from '@/components/zoruui';
+import { use, useEffect, useState, useTransition } from 'react';
 
 import { getProposalTemplateById } from '@/app/actions/worksuite/proposals.actions';
 import {
@@ -12,7 +10,7 @@ import {
   type TemplateEditorInitial,
 } from '../_components/template-editor';
 
-export default function EditProposalTemplatePage(props: {
+export default function ProposalTemplateDetailPage(props: {
   params: Promise<{ templateId: string }>;
 }) {
   const { templateId } = use(props.params);

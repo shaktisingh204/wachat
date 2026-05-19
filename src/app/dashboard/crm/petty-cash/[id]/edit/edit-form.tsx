@@ -1,92 +1,324 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCardContent, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+/**
+ * <PettyCashEditForm> — deepened edit form per CRM_PAGE_REDESIGN_PLAN
+ * §3.3.2.
+ *
+ * Sectioned cards (no tabs — zoruui has no tab primitive):
+ *   1. Identification — float name, branch picker, currency
+ *   2. Custody & approvals — custodian (employee), approver (user),
+ *      approval workflow status
+ *   3. Balances — opening, current (read-only), reconcile date readout
+ *   4. Policy document — single SabFiles attachment (charter / policy
+ *      PDF)
+ *   5. Notes
+ *
+ * Backward compatible: `approverId`, `approverName`, `currency`,
+ * `policyFileId/Url/Name` are written when present; legacy floats load
+ * fine. The action is extended additively in
+ * `crm-petty-cash.actions.ts::updatePettyCashFloat`.
+ */
+
+import * as React from 'react';
 import {
-  useActionState } from 'react';
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCardHeader,
+    ZoruCardTitle,
+    ZoruInput,
+    ZoruLabel,
+    ZoruTextarea,
+} from '@/components/zoruui';
+import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { LoaderCircle,
-  Save } from 'lucide-react';
+import { FileText, LoaderCircle, Save, X } from 'lucide-react';
+import Link from 'next/link';
 
 import { updatePettyCashFloat } from '@/app/actions/crm-petty-cash.actions';
-
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+
+type FloatStatus = 'active' | 'paused' | 'closed';
+
+interface PettyCashFloat {
+    _id?: string;
+    name?: string;
+    branchId?: string;
+    branchName?: string;
+    custodianId?: string;
+    custodianName?: string;
+    approverId?: string;
+    approverName?: string;
+    openingBalance?: number;
+    currentBalance?: number;
+    balance?: number;
+    currency?: string;
+    notes?: string;
+    status?: FloatStatus;
+    lastReconciledAt?: string;
+    policyFileId?: string;
+    policyFileUrl?: string;
+    policyFileName?: string;
+}
+
+const STATUS_OPTIONS: ReadonlyArray<{ value: FloatStatus; label: string }> = [
+    { value: 'active', label: 'Active' },
+    { value: 'paused', label: 'Paused' },
+    { value: 'closed', label: 'Closed' },
+];
 
 function SubmitButton() {
     const { pending } = useFormStatus();
     return (
         <ZoruButton type="submit" disabled={pending} className="gap-1">
-            {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save
+            {pending ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+                <Save className="h-4 w-4" />
+            )}
+            Save changes
         </ZoruButton>
     );
 }
 
-export function PettyCashEditForm({ float }: { float: Record<string, any> }) {
-    const [state, action] = useActionState(updatePettyCashFloat as any, {
-        message: '',
-        error: '',
-    } as any);
-
-    return (
-        <ZoruCard>
-            <ZoruCardContent className="p-6">
-                <form action={action} className="grid gap-4 md:grid-cols-2">
-                    <input type="hidden" name="floatId" value={String(float._id ?? '')} />
-                    <Field name="name" label="Name" defaultValue={float.name} required />
-                    <div>
-                        <ZoruLabel>Branch</ZoruLabel>
-                        <EntityFormField
-                            entity="branch"
-                            name="branchId"
-                            dualWriteName="branchName"
-                            initialId={float.branchId ?? null}
-                            initialLabel={float.branchName ?? ''}
-                            placeholder="Select branch…"
-                        />
-                    </div>
-                    <div>
-                        <ZoruLabel>Custodian</ZoruLabel>
-                        <EntityFormField
-                            entity="employee"
-                            name="custodianId"
-                            dualWriteName="custodianName"
-                            initialId={float.custodianId ?? null}
-                            initialLabel={float.custodianName ?? ''}
-                            placeholder="Select custodian…"
-                        />
-                    </div>
-                    <Field name="openingBalance" label="Opening balance" type="number" defaultValue={float.openingBalance} />
-                    <Field name="currentBalance" label="Current balance" type="number" defaultValue={float.currentBalance} />
-                    <Field name="currency" label="Currency" defaultValue={float.currency} />
-                    <div className="md:col-span-2">
-                        <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
-                        <ZoruTextarea id="notes" name="notes" defaultValue={float.notes ?? ''} rows={3} />
-                    </div>
-                    <div className="md:col-span-2 flex items-center justify-between gap-3">
-                        <div className="text-sm">
-                            {state?.error ? <span className="text-zoru-danger-ink">{state.error}</span> : state?.message ? <span className="text-zoru-success-ink">{state.message}</span> : null}
-                        </div>
-                        <SubmitButton />
-                    </div>
-                </form>
-            </ZoruCardContent>
-        </ZoruCard>
+export function PettyCashEditForm({ float }: { float: PettyCashFloat }) {
+    const [state, action] = useActionState(
+        updatePettyCashFloat as unknown as (
+            prev: { message?: string; error?: string },
+            fd: FormData,
+        ) => Promise<{ message?: string; error?: string }>,
+        { message: '', error: '' },
     );
-}
 
-function Field({ name, label, defaultValue, required, type = 'text' }: { name: string; label: string; defaultValue?: any; required?: boolean; type?: string }) {
+    const floatId = String(float._id ?? '');
+    const [status, setStatus] = React.useState<FloatStatus>(
+        (float.status as FloatStatus) ?? 'active',
+    );
+    const [policy, setPolicy] = React.useState<SabFilePick | null>(
+        float.policyFileId
+            ? {
+                  id: float.policyFileId,
+                  url: float.policyFileUrl ?? '',
+                  name: float.policyFileName ?? 'policy',
+              }
+            : null,
+    );
+
+    const currentBalance = float.balance ?? float.currentBalance ?? 0;
+
+    useEffect(() => {
+        if (state?.message) {
+            window.location.href = `/dashboard/crm/petty-cash/${floatId}`;
+        }
+    }, [state, floatId]);
+
     return (
-        <div>
-            <ZoruLabel htmlFor={name}>
-                {label} {required ? <span className="text-zoru-danger-ink">*</span> : null}
-            </ZoruLabel>
-            <ZoruInput
-                id={name}
-                name={name}
-                type={type}
-                defaultValue={defaultValue ?? ''}
-                required={required}
-            />
-        </div>
+        <form action={action} className="space-y-6">
+            <input type="hidden" name="id" value={floatId} />
+            <input type="hidden" name="status" value={status} />
+            <input type="hidden" name="policyFileId" value={policy?.id ?? ''} />
+            <input type="hidden" name="policyFileUrl" value={policy?.url ?? ''} />
+            <input type="hidden" name="policyFileName" value={policy?.name ?? ''} />
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Identification</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="name">
+                                Float name <span className="text-zoru-danger-ink">*</span>
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="name"
+                                name="name"
+                                defaultValue={float.name ?? ''}
+                                required
+                                minLength={2}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Branch</ZoruLabel>
+                            <EntityFormField
+                                entity="branch"
+                                name="branchId"
+                                dualWriteName="branchName"
+                                initialId={float.branchId ?? null}
+                                initialLabel={float.branchName ?? ''}
+                                placeholder="Select branch…"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="currency">Currency</ZoruLabel>
+                            <ZoruInput
+                                id="currency"
+                                name="currency"
+                                defaultValue={float.currency ?? 'INR'}
+                                maxLength={6}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Status</ZoruLabel>
+                            <select
+                                value={status}
+                                onChange={(e) => setStatus(e.target.value as FloatStatus)}
+                                className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                            >
+                                {STATUS_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Custody & approvals</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-2">
+                            <ZoruLabel>Custodian</ZoruLabel>
+                            <EntityFormField
+                                entity="employee"
+                                name="custodianId"
+                                dualWriteName="custodianName"
+                                initialId={float.custodianId ?? null}
+                                initialLabel={float.custodianName ?? ''}
+                                placeholder="Select custodian…"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Approver</ZoruLabel>
+                            <EntityFormField
+                                entity="user"
+                                name="approverId"
+                                dualWriteName="approverName"
+                                initialId={float.approverId ?? null}
+                                initialLabel={float.approverName ?? ''}
+                                placeholder="Select approver…"
+                            />
+                        </div>
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Balances</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        <div className="space-y-2">
+                            <ZoruLabel htmlFor="openingBalance">Opening balance</ZoruLabel>
+                            <ZoruInput
+                                id="openingBalance"
+                                name="openingBalance"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                defaultValue={float.openingBalance ?? 0}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Current balance</ZoruLabel>
+                            <ZoruInput
+                                value={currentBalance}
+                                readOnly
+                                aria-readonly
+                                className="bg-zoru-surface-2/40"
+                            />
+                            <p className="text-[11px] text-zoru-ink-muted">
+                                Adjusted via top-ups, vouchers and reconciliation.
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <ZoruLabel>Last reconciled</ZoruLabel>
+                            <ZoruInput
+                                value={
+                                    float.lastReconciledAt
+                                        ? new Date(float.lastReconciledAt).toLocaleDateString()
+                                        : '—'
+                                }
+                                readOnly
+                                aria-readonly
+                                className="bg-zoru-surface-2/40"
+                            />
+                        </div>
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Policy document</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="flex flex-wrap items-center gap-2">
+                        <SabFilePickerButton
+                            accept="document"
+                            onPick={(pick) => setPolicy(pick)}
+                        >
+                            {policy ? 'Replace document' : 'Attach document'}
+                        </SabFilePickerButton>
+                        {policy ? (
+                            <span className="inline-flex items-center gap-2 rounded-md border border-zoru-line bg-zoru-surface-2/40 px-2 py-1 text-[12.5px] text-zoru-ink">
+                                <FileText className="h-3.5 w-3.5 text-zoru-ink-muted" />
+                                <span className="max-w-[220px] truncate">{policy.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => setPolicy(null)}
+                                    aria-label="Remove document"
+                                    className="rounded p-0.5 text-zoru-ink-muted hover:bg-zoru-surface-2 hover:text-zoru-danger-ink"
+                                >
+                                    <X className="h-3 w-3" />
+                                </button>
+                            </span>
+                        ) : (
+                            <span className="text-[12px] text-zoru-ink-muted">
+                                Pick from your SabFiles library or upload a new file.
+                            </span>
+                        )}
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <ZoruCard>
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Notes</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <ZoruTextarea
+                        id="notes"
+                        name="notes"
+                        defaultValue={float.notes ?? ''}
+                        rows={4}
+                        placeholder="Operating context, withdrawal rules, escalation contacts."
+                    />
+                </ZoruCardContent>
+            </ZoruCard>
+
+            <div className="sticky bottom-0 z-10 -mx-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-2 py-3">
+                <div className="text-sm">
+                    {state?.error ? (
+                        <span className="text-zoru-danger-ink">{state.error}</span>
+                    ) : state?.message ? (
+                        <span className="text-zoru-success-ink">{state.message}</span>
+                    ) : null}
+                </div>
+                <div className="flex items-center gap-2">
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={`/dashboard/crm/petty-cash/${floatId}`}>Cancel</Link>
+                    </ZoruButton>
+                    <SubmitButton />
+                </div>
+            </div>
+        </form>
     );
 }

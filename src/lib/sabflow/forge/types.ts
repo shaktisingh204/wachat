@@ -61,6 +61,21 @@ export type ForgeLoadOptionsContext = {
   credential?: Record<string, string>;
   /** Current snapshot of other field values — useful when one dropdown depends on another. */
   options: Record<string, unknown>;
+  /**
+   * Read a field value off the current node. Mirrors n8n's
+   * `ILoadOptionsFunctions.getNodeParameter`. Returns `fallback` when the
+   * field is absent. Resolvers should prefer this over poking `ctx.options`
+   * directly so resourceLocator values get auto-extracted in Phase 2.
+   */
+  getNodeParameter?: (name: string, fallback?: unknown) => unknown;
+  /**
+   * Same as `getNodeParameter` but reads the *currently-editing* value from
+   * the editor (may be unsaved). For load-options requests these are the
+   * same source; the distinction exists to match n8n's signature.
+   */
+  getCurrentNodeParameter?: (name: string, fallback?: unknown) => unknown;
+  /** Minimal node identity exposed for diagnostics + provider call attribution. */
+  getNode?: () => { id: string; name: string };
 };
 
 /** Async resolver that returns dropdown options at runtime. */
@@ -96,6 +111,24 @@ export type ForgeField = {
    * client.
    */
   loadOptions?: ForgeLoadOptions;
+  /**
+   * Field names whose value affects this field's options. When any listed
+   * field changes in the editor, the renderer re-fetches this field's
+   * options. Mirrors n8n's `typeOptions.loadOptionsDependsOn`.
+   */
+  loadOptionsDependsOn?: string[];
+  /**
+   * Conditionally show/hide the field based on other fields' values.
+   * Mirrors n8n's `displayOptions`. Semantics:
+   *   • `show`: ALL listed fields must equal one of the allowed values
+   *   • `hide`: if ANY listed field equals one of the allowed values, hide
+   * `hide` takes precedence over `show`. When `displayOptions` is present,
+   * the legacy `showIf` rule is ignored.
+   */
+  displayOptions?: {
+    show?: Record<string, unknown[]>;
+    hide?: Record<string, unknown[]>;
+  };
 };
 
 /* ── Action runtime ──────────────────────────────────────────────────────── */
@@ -202,6 +235,20 @@ export const isFieldVisible = (
   field: ForgeField,
   values: Record<string, unknown>,
 ): boolean => {
+  if (field.displayOptions) {
+    const { show, hide } = field.displayOptions;
+    if (hide) {
+      for (const [k, allowed] of Object.entries(hide)) {
+        if (allowed.some((v) => v === values[k])) return false;
+      }
+    }
+    if (show) {
+      for (const [k, allowed] of Object.entries(show)) {
+        if (!allowed.some((v) => v === values[k])) return false;
+      }
+    }
+    return true;
+  }
   if (!field.showIf) return true;
   return values[field.showIf.field] === field.showIf.equals;
 };

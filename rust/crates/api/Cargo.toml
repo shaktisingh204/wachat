@@ -225,6 +225,16 @@ facebook-flow = { path = "../facebook-flow" }
 sabflow-engine = { path = "../sabflow-engine" }
 sabflow-engine-runtime = { path = "../sabflow-engine-runtime" }
 
+email-audience = { path = "../email-audience" }
+email-templates = { path = "../email-templates" }
+email-inbox = { path = "../email-inbox" }
+email-inbound = { path = "../email-inbound" }
+email-deliverability = { path = "../email-deliverability" }
+email-api = { path = "../email-api" }
+email-webhooks = { path = "../email-webhooks" }
+email-campaigns = { path = "../email-campaigns" }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
+
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 tower = "0.5"

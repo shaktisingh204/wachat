@@ -188,12 +188,26 @@ export async function saveCareersPageConfig(_prev: any, formData: FormData) {
 export async function getOnboardingTemplates() {
   return hrList<HrOnboardingTemplate>('hr_onboarding_templates');
 }
+export async function getOnboardingTemplateById(id: string) {
+  return hrGetById<HrOnboardingTemplate>('hr_onboarding_templates', id);
+}
 export async function saveOnboardingTemplate(_prev: any, formData: FormData) {
+  // Strip ephemeral row-level picker fields — only the consolidated
+  // `tasks` JSON should reach the DB.
+  const fd = new FormData();
+  for (const [k, v] of formData.entries()) {
+    if (k.startsWith('__taskAssignee-')) continue;
+    fd.append(k, v);
+  }
   return genericSave(
     'hr_onboarding_templates',
     '/dashboard/hrm/hr/onboarding',
-    formData,
-    { jsonKeys: ['tasks'] },
+    fd,
+    {
+      jsonKeys: ['tasks', 'documents'],
+      idFields: ['department', 'mentorId', 'buddyId'],
+      numericKeys: ['estimatedDays'],
+    },
   );
 }
 export async function deleteOnboardingTemplate(id: string) {

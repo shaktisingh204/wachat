@@ -1,18 +1,28 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
-  useRouter } from 'next/navigation';
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { useRouter } from 'next/navigation';
 import { useFormStatus } from 'react-dom';
 import {
-    ArrowLeft,
+  ArrowLeft,
+  ArrowRight,
   LoaderCircle,
   Paperclip,
   Plus,
   Save,
   Trash2,
   X,
-  } from 'lucide-react';
+} from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 
 /**
@@ -21,9 +31,13 @@ import { v4 as uuidv4 } from 'uuid';
  * Wired to `saveStockTransfer` via `useActionState`. Line items are a
  * true repeater (one row per item) and post as
  * `lineItems[i][itemId|quantity|unit]` so the server-side parser picks
- * them up unchanged.
+ * them up unchanged. Attachments come from SabFiles only.
  *
- * Attachments come from SabFiles only — never an external URL paste.
+ * Deepened (§3.3.2):
+ *  - Sectioned form (Route · Items · Approval · Logistics · Attachments).
+ *  - Linked-entity pickers for warehouse / item / requester / approver / receiver.
+ *  - Approval workflow gates (Draft → Requested → Approved → InTransit → Received).
+ *  - Reason dropdown + carrier / tracking number on the logistics card.
  */
 
 import * as React from 'react';
@@ -48,6 +62,7 @@ interface LineRow {
     itemName: string;
     quantity: number;
     unit: string;
+    availableQty?: number;
 }
 
 interface StockTransferFormProps {
@@ -57,11 +72,13 @@ interface StockTransferFormProps {
 type SaveState = { message?: string; error?: string; transferId?: string };
 const initialState: SaveState = {};
 
-const STATUS_OPTIONS: { value: CrmStockTransferStatus; label: string }[] = [
-    { value: 'Draft', label: 'Draft' },
-    { value: 'InTransit', label: 'In Transit' },
-    { value: 'Received', label: 'Received' },
-    { value: 'Cancelled', label: 'Cancelled' },
+const REASON_OPTIONS: { value: string; label: string }[] = [
+    { value: 'rebalance', label: 'Rebalance stock' },
+    { value: 'restock', label: 'Restock destination' },
+    { value: 'return', label: 'Return to supplier / origin' },
+    { value: 'damaged', label: 'Damaged goods recall' },
+    { value: 'project', label: 'Project allocation' },
+    { value: 'other', label: 'Other' },
 ];
 
 function emptyRow(): LineRow {
@@ -80,6 +97,12 @@ function toDateInput(value: unknown): string {
     return Number.isNaN(d.getTime())
         ? new Date().toISOString().slice(0, 10)
         : d.toISOString().slice(0, 10);
+}
+
+function toOptionalDateInput(value: unknown): string {
+    if (!value) return '';
+    const d = new Date(value as string);
+    return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -137,12 +160,30 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
     >(initial?.attachments ?? []);
     const [saveAndNew, setSaveAndNew] = React.useState(false);
 
+    const [requesterId, setRequesterId] = React.useState<string>(
+        initial?.requesterId ? String(initial.requesterId) : '',
+    );
+    const [requesterName, setRequesterName] = React.useState<string>(
+        initial?.requesterName ?? '',
+    );
+    const [approverId, setApproverId] = React.useState<string>(
+        initial?.approverId ? String(initial.approverId) : '',
+    );
+    const [approverName, setApproverName] = React.useState<string>(
+        initial?.approverName ?? '',
+    );
+    const [receivedById, setReceivedById] = React.useState<string>(
+        initial?.receivedById ? String(initial.receivedById) : '',
+    );
+    const [receivedByName, setReceivedByName] = React.useState<string>(
+        initial?.receivedByName ?? '',
+    );
+
     React.useEffect(() => {
         if (state?.message) {
             toast({ title: 'Saved', description: state.message });
             if (saveAndNew) {
                 setSaveAndNew(false);
-                // Reset to a blank form.
                 router.push(`${BASE}/new`);
                 router.refresh();
                 return;
@@ -183,121 +224,172 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
         !!toWarehouseId &&
         fromWarehouseId === toWarehouseId;
 
+    const totalUnits = lines.reduce(
+        (sum, l) => sum + (Number.isFinite(l.quantity) ? l.quantity : 0),
+        0,
+    );
+
     return (
-        <ZoruCard className="p-6">
-            <form action={formAction} className="flex flex-col gap-6">
-                {isEditing ? (
-                    <input
-                        type="hidden"
-                        name="transferId"
-                        value={String(initial!._id)}
-                    />
-                ) : null}
+        <form action={formAction} className="flex w-full flex-col gap-5">
+            {isEditing ? (
+                <input
+                    type="hidden"
+                    name="transferId"
+                    value={String(initial!._id)}
+                />
+            ) : null}
+            <input
+                type="hidden"
+                name="requesterName"
+                value={requesterName}
+            />
+            <input
+                type="hidden"
+                name="approverName"
+                value={approverName}
+            />
+            <input
+                type="hidden"
+                name="receivedByName"
+                value={receivedByName}
+            />
 
-                {/* Row 1: From + To + Date */}
-                <div className="grid gap-4 sm:grid-cols-3">
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="fromWarehouseId">
-                            From warehouse *
-                        </ZoruLabel>
-                        <EntityFormField
-                            entity="warehouse"
-                            name="fromWarehouseId"
-                            initialId={fromWarehouseId || null}
-                            initialLabel={fromWarehouseName}
-                            required
-                            placeholder="Source warehouse…"
-                            onChange={(id, hydrated) => {
-                                setFromWarehouseId(id ?? '');
-                                setFromWarehouseName(
-                                    hydrated?.chip.primary ?? fromWarehouseName,
-                                );
-                            }}
-                        />
-                        <input
-                            type="hidden"
-                            name="fromWarehouseName"
-                            value={fromWarehouseName}
-                        />
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="toWarehouseId">
-                            To warehouse *
-                        </ZoruLabel>
-                        <EntityFormField
-                            entity="warehouse"
-                            name="toWarehouseId"
-                            initialId={toWarehouseId || null}
-                            initialLabel={toWarehouseName}
-                            required
-                            placeholder="Destination warehouse…"
-                            onChange={(id, hydrated) => {
-                                setToWarehouseId(id ?? '');
-                                setToWarehouseName(
-                                    hydrated?.chip.primary ?? toWarehouseName,
-                                );
-                            }}
-                        />
-                        <input
-                            type="hidden"
-                            name="toWarehouseName"
-                            value={toWarehouseName}
-                        />
-                        {warehousesMatch ? (
-                            <p
-                                role="alert"
-                                className="text-[11.5px] text-zoru-danger-ink"
-                            >
-                                Source and destination must differ.
-                            </p>
-                        ) : null}
-                    </div>
-                    <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="transferDate">Transfer date *</ZoruLabel>
-                        <ZoruInput
-                            id="transferDate"
-                            name="transferDate"
-                            type="date"
-                            required
-                            defaultValue={toDateInput(initial?.transferDate)}
-                        />
-                    </div>
-                </div>
-
-                {/* Status */}
-                <div className="space-y-1.5 sm:max-w-xs">
-                    <ZoruLabel htmlFor="status">Status</ZoruLabel>
-                    <EnumFormField
-                        enumName="stockTransferStatus"
-                        name="status"
-                        initialId={
-                            (initial?.status &&
-                            initial.status !== 'archived'
-                                ? initial.status
-                                : 'Draft') as CrmStockTransferStatus
-                        }
-                    />
-                </div>
-
-                {/* Line items */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <ZoruLabel>Line items *</ZoruLabel>
-                            <p className="text-[11.5px] text-zoru-ink-muted">
-                                One row per SKU being moved.
-                            </p>
+            {/* ── Route ───────────────────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Route</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent className="flex flex-col gap-4">
+                    <div className="grid items-end gap-4 sm:grid-cols-[1fr_auto_1fr]">
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="fromWarehouseId">
+                                From warehouse *
+                            </ZoruLabel>
+                            <EntityFormField
+                                entity="warehouse"
+                                name="fromWarehouseId"
+                                initialId={fromWarehouseId || null}
+                                initialLabel={fromWarehouseName}
+                                required
+                                placeholder="Source warehouse…"
+                                onChange={(id, hydrated) => {
+                                    setFromWarehouseId(id ?? '');
+                                    setFromWarehouseName(
+                                        hydrated?.chip.primary ??
+                                            fromWarehouseName,
+                                    );
+                                }}
+                            />
+                            <input
+                                type="hidden"
+                                name="fromWarehouseName"
+                                value={fromWarehouseName}
+                            />
                         </div>
-                        <ZoruButton
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={addRow}
-                        >
-                            <Plus className="mr-1.5 h-3.5 w-3.5" /> Add line
-                        </ZoruButton>
+                        <div className="hidden pb-2 text-zoru-ink-muted sm:block">
+                            <ArrowRight className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="toWarehouseId">
+                                To warehouse *
+                            </ZoruLabel>
+                            <EntityFormField
+                                entity="warehouse"
+                                name="toWarehouseId"
+                                initialId={toWarehouseId || null}
+                                initialLabel={toWarehouseName}
+                                required
+                                placeholder="Destination warehouse…"
+                                onChange={(id, hydrated) => {
+                                    setToWarehouseId(id ?? '');
+                                    setToWarehouseName(
+                                        hydrated?.chip.primary ??
+                                            toWarehouseName,
+                                    );
+                                }}
+                            />
+                            <input
+                                type="hidden"
+                                name="toWarehouseName"
+                                value={toWarehouseName}
+                            />
+                        </div>
                     </div>
+                    {warehousesMatch ? (
+                        <p
+                            role="alert"
+                            className="text-[11.5px] text-zoru-danger-ink"
+                        >
+                            Source and destination must differ.
+                        </p>
+                    ) : null}
+                    <div className="grid gap-4 sm:grid-cols-3">
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="transferDate">
+                                Transfer date *
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="transferDate"
+                                name="transferDate"
+                                type="date"
+                                required
+                                defaultValue={toDateInput(initial?.transferDate)}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="expectedDate">
+                                Expected at destination
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="expectedDate"
+                                name="expectedDate"
+                                type="date"
+                                defaultValue={toOptionalDateInput(
+                                    initial?.expectedDate,
+                                )}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="reason">Reason</ZoruLabel>
+                            <select
+                                id="reason"
+                                name="reason"
+                                defaultValue={(initial?.reason as string) ?? 'rebalance'}
+                                className="h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                            >
+                                {REASON_OPTIONS.map((opt) => (
+                                    <option key={opt.value} value={opt.value}>
+                                        {opt.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
 
+            {/* ── Line items ──────────────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                    <div>
+                        <ZoruCardTitle>Items</ZoruCardTitle>
+                        <p className="text-[12px] text-zoru-ink-muted">
+                            One row per SKU being moved. Total units:{' '}
+                            <span className="font-mono tabular-nums text-zoru-ink">
+                                {totalUnits.toLocaleString()}
+                            </span>
+                        </p>
+                    </div>
+                    <ZoruButton
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={addRow}
+                    >
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> Add item
+                    </ZoruButton>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <div className="overflow-x-auto rounded-md border border-zoru-line">
                         <table className="w-full text-[13px]">
                             <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
@@ -333,7 +425,8 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                                             l.rowId === row.rowId
                                                                 ? {
                                                                       ...l,
-                                                                      itemId: id ?? '',
+                                                                      itemId:
+                                                                          id ?? '',
                                                                       itemName:
                                                                           hydrated?.chip
                                                                               .primary ??
@@ -389,7 +482,9 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                                 type="button"
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => removeRow(row.rowId)}
+                                                onClick={() =>
+                                                    removeRow(row.rowId)
+                                                }
                                                 disabled={lines.length === 1}
                                                 aria-label="Remove line"
                                             >
@@ -401,39 +496,161 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                             </tbody>
                         </table>
                     </div>
-                </div>
+                </ZoruCardContent>
+            </ZoruCard>
 
-                {/* Attachments */}
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <ZoruLabel>Attachments</ZoruLabel>
-                            <p className="text-[11.5px] text-zoru-ink-muted">
-                                Add docs or images from your SabFiles library.
-                            </p>
+            {/* ── Approval workflow ───────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Approval workflow</ZoruCardTitle>
+                    <p className="text-[12px] text-zoru-ink-muted">
+                        Draft → Requested → Approved → In transit → Received.
+                    </p>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="status">Status</ZoruLabel>
+                            <EnumFormField
+                                enumName="stockTransferStatus"
+                                name="status"
+                                initialId={
+                                    (initial?.status &&
+                                    initial.status !== 'archived'
+                                        ? initial.status
+                                        : 'Draft') as CrmStockTransferStatus
+                                }
+                            />
                         </div>
-                        <SabFilePickerButton
-                            onPick={(pick) => {
-                                setAttachments((prev) =>
-                                    prev.some((a) => a.id === pick.id)
-                                        ? prev
-                                        : [
-                                              ...prev,
-                                              {
-                                                  id: pick.id,
-                                                  url: pick.url,
-                                                  name: pick.name,
-                                                  mime: pick.mime,
-                                                  size: pick.size,
-                                              },
-                                          ],
-                                );
-                            }}
-                        >
-                            <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Add file
-                        </SabFilePickerButton>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="requesterId">Requester</ZoruLabel>
+                            <EntityFormField
+                                entity="employee"
+                                name="requesterId"
+                                initialId={requesterId || null}
+                                initialLabel={requesterName}
+                                placeholder="Who requested the transfer?"
+                                onChange={(id, hydrated) => {
+                                    setRequesterId(id ?? '');
+                                    setRequesterName(
+                                        hydrated?.chip.primary ?? '',
+                                    );
+                                }}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="approverId">Approver</ZoruLabel>
+                            <EntityFormField
+                                entity="employee"
+                                name="approverId"
+                                initialId={approverId || null}
+                                initialLabel={approverName}
+                                placeholder="Who signs off?"
+                                onChange={(id, hydrated) => {
+                                    setApproverId(id ?? '');
+                                    setApproverName(
+                                        hydrated?.chip.primary ?? '',
+                                    );
+                                }}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="receivedById">
+                                Received by
+                            </ZoruLabel>
+                            <EntityFormField
+                                entity="employee"
+                                name="receivedById"
+                                initialId={receivedById || null}
+                                initialLabel={receivedByName}
+                                placeholder="Receiver at destination"
+                                onChange={(id, hydrated) => {
+                                    setReceivedById(id ?? '');
+                                    setReceivedByName(
+                                        hydrated?.chip.primary ?? '',
+                                    );
+                                }}
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="receivedDate">
+                                Received date
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="receivedDate"
+                                name="receivedDate"
+                                type="date"
+                                defaultValue={toOptionalDateInput(
+                                    initial?.receivedDate,
+                                )}
+                            />
+                        </div>
                     </div>
+                </ZoruCardContent>
+            </ZoruCard>
 
+            {/* ── Logistics ───────────────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Logistics</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="carrier">Carrier</ZoruLabel>
+                            <ZoruInput
+                                id="carrier"
+                                name="carrier"
+                                defaultValue={initial?.carrier ?? ''}
+                                placeholder="Carrier / freight provider"
+                            />
+                        </div>
+                        <div className="space-y-1.5">
+                            <ZoruLabel htmlFor="trackingNumber">
+                                Tracking number
+                            </ZoruLabel>
+                            <ZoruInput
+                                id="trackingNumber"
+                                name="trackingNumber"
+                                defaultValue={initial?.trackingNumber ?? ''}
+                                placeholder="e.g. 1Z999AA10123456784"
+                            />
+                        </div>
+                    </div>
+                </ZoruCardContent>
+            </ZoruCard>
+
+            {/* ── Attachments ─────────────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader className="flex flex-row items-center justify-between gap-2">
+                    <div>
+                        <ZoruCardTitle>Attachments</ZoruCardTitle>
+                        <p className="text-[12px] text-zoru-ink-muted">
+                            Picking slips, delivery photos, signed receipts.
+                        </p>
+                    </div>
+                    <SabFilePickerButton
+                        onPick={(pick) => {
+                            setAttachments((prev) =>
+                                prev.some((a) => a.id === pick.id)
+                                    ? prev
+                                    : [
+                                          ...prev,
+                                          {
+                                              id: pick.id,
+                                              url: pick.url,
+                                              name: pick.name,
+                                              mime: pick.mime,
+                                              size: pick.size,
+                                          },
+                                      ],
+                            );
+                        }}
+                    >
+                        <Paperclip className="mr-1.5 h-3.5 w-3.5" /> Add file
+                    </SabFilePickerButton>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     {attachments.length > 0 ? (
                         <ul className="flex flex-col gap-1.5">
                             {attachments.map((a, idx) => (
@@ -444,17 +661,15 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                     <span className="truncate text-zoru-ink">
                                         {a.name}
                                     </span>
-                                    <span className="flex items-center gap-1">
-                                        <ZoruButton
-                                            type="button"
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => removeAttachment(a.id)}
-                                            aria-label={`Remove ${a.name}`}
-                                        >
-                                            <X className="h-3.5 w-3.5" />
-                                        </ZoruButton>
-                                    </span>
+                                    <ZoruButton
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={() => removeAttachment(a.id)}
+                                        aria-label={`Remove ${a.name}`}
+                                    >
+                                        <X className="h-3.5 w-3.5" />
+                                    </ZoruButton>
                                     <input
                                         type="hidden"
                                         name={`attachments[${idx}][id]`}
@@ -487,12 +702,20 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                                 </li>
                             ))}
                         </ul>
-                    ) : null}
-                </div>
+                    ) : (
+                        <p className="rounded-md border border-dashed border-zoru-line bg-zoru-surface-2 px-3 py-3 text-center text-[12px] text-zoru-ink-muted">
+                            No attachments yet.
+                        </p>
+                    )}
+                </ZoruCardContent>
+            </ZoruCard>
 
-                {/* Notes */}
-                <div className="space-y-1.5">
-                    <ZoruLabel htmlFor="notes">Notes</ZoruLabel>
+            {/* ── Notes ───────────────────────────────────────────── */}
+            <ZoruCard className="p-0">
+                <ZoruCardHeader>
+                    <ZoruCardTitle>Notes</ZoruCardTitle>
+                </ZoruCardHeader>
+                <ZoruCardContent>
                     <ZoruTextarea
                         id="notes"
                         name="notes"
@@ -500,32 +723,32 @@ export function StockTransferForm({ initial }: StockTransferFormProps) {
                         placeholder="Context, carrier, receiver instructions…"
                         defaultValue={initial?.notes ?? ''}
                     />
-                </div>
+                </ZoruCardContent>
+            </ZoruCard>
 
-                {/* Sticky footer */}
-                <div className="sticky bottom-0 -mx-6 -mb-6 mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-6 py-3">
-                    <ZoruButton variant="ghost" asChild>
-                        <Link href={BASE}>
-                            <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
-                        </Link>
-                    </ZoruButton>
-                    <div className="flex items-center gap-2">
-                        {!isEditing ? (
-                            <ZoruButton
-                                type="submit"
-                                variant="outline"
-                                onClick={() => setSaveAndNew(true)}
-                            >
-                                Save & New
-                            </ZoruButton>
-                        ) : null}
-                        <SubmitButton
-                            label={isEditing ? 'Save changes' : 'Create transfer'}
-                        />
-                    </div>
+            {/* ── Sticky footer ───────────────────────────────────── */}
+            <div className="sticky bottom-0 -mx-4 -mb-4 mt-1 flex flex-wrap items-center justify-between gap-2 border-t border-zoru-line bg-zoru-bg px-4 py-3 md:-mx-6 md:px-6">
+                <ZoruButton variant="ghost" asChild>
+                    <Link href={BASE}>
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Cancel
+                    </Link>
+                </ZoruButton>
+                <div className="flex items-center gap-2">
+                    {!isEditing ? (
+                        <ZoruButton
+                            type="submit"
+                            variant="outline"
+                            onClick={() => setSaveAndNew(true)}
+                        >
+                            Save & New
+                        </ZoruButton>
+                    ) : null}
+                    <SubmitButton
+                        label={isEditing ? 'Save changes' : 'Create transfer'}
+                    />
                 </div>
-            </form>
-        </ZoruCard>
+            </div>
+        </form>
     );
 }
 

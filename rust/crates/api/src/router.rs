@@ -217,6 +217,15 @@ pub fn build(state: AppState) -> Router {
     let telegram_settings_router = telegram_settings::router::<AppState>();
     let telegram_webhooks_router = telegram_webhooks::router::<AppState>();
 
+    let email_audience = email_audience::router::<AppState>();
+    let email_templates = email_templates::router::<AppState>();
+    let email_inbox = email_inbox::router::<AppState>();
+    let email_inbound = email_inbound::router::<AppState>();
+    let email_deliverability = email_deliverability::router::<AppState>();
+    let email_api = email_api::router::<AppState>();
+    let email_webhooks = email_webhooks::router::<AppState>();
+    let email_campaigns = email_campaigns::router::<AppState>();
+
     Router::new()
         .merge(routes::health::router())
         .merge(wachat_webhook)
@@ -405,6 +414,14 @@ pub fn build(state: AppState) -> Router {
         .nest("/v1/telegram/webhooks", telegram_webhooks_router)
         .nest("/v1/sabflow", sabflow_engine::router::<AppState>())
         .nest("/v1/sabflow", sabflow_engine_runtime::router::<AppState>())
+        .nest("/v1/email/audience", email_audience)
+        .nest("/v1/email/templates", email_templates)
+        .nest("/v1/email/inbox", email_inbox)
+        .nest("/v1/email/inbound", email_inbound)
+        .nest("/v1/email/deliverability", email_deliverability)
+        .nest("/v1/email/api-keys", email_api)
+        .nest("/v1/email/webhooks", email_webhooks)
+        .nest("/v1/email/campaigns", email_campaigns)
         // sabflow_webhooks::router mounts at /v1/sabflow/webhook but its state
         // (SabflowWebhooksState) is not yet wired into AppState — public
         // webhook URL is served by Next.js at /api/sabflow/webhook/[webhookId].

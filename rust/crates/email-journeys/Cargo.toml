@@ -1,0 +1,41 @@
+# Phase — axum router for the SabNode email **journeys** HTTP surface.
+#
+# Owns CRUD + lifecycle transitions for `email_journeys` and per-run
+# observability over `email_journey_runs`. Manual enrol pushes a
+# `journey-tick` job onto the BullMQ `email-journey` queue drained by
+# the sibling `email-journey-worker` crate.
+#
+# Mounted under `/v1/email/journeys` by the orchestrating `api` crate.
+
+[package]
+name = "email-journeys"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabNode email journeys surface (`/v1/email/journeys/*`). Owns CRUD, validate + activate / pause / clone, run inspection, report rollups, manual enrol + prebuilt templates. Enqueues onto BullMQ `email-journey`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_journeys"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+email-types = { path = "../email-types" }
+wachat-queue = { path = "../wachat-queue" }
+
+[lints]
+workspace = true

@@ -362,6 +362,8 @@ export async function saveStockTransfer(
             'Draft';
         const allowedStatus: CrmStockTransferStatus[] = [
             'Draft',
+            'Requested',
+            'Approved',
             'InTransit',
             'Received',
             'Cancelled',
@@ -376,6 +378,23 @@ export async function saveStockTransfer(
         const toName =
             (formData.get('toWarehouseName') as string | null) || undefined;
 
+        const asOptionalObjectId = (raw: FormDataEntryValue | null) => {
+            if (raw == null) return undefined;
+            const s = String(raw).trim();
+            return s && ObjectId.isValid(s) ? new ObjectId(s) : undefined;
+        };
+        const asOptionalString = (raw: FormDataEntryValue | null) => {
+            if (raw == null) return undefined;
+            const s = String(raw).trim();
+            return s.length > 0 ? s : undefined;
+        };
+        const asOptionalDate = (raw: FormDataEntryValue | null) => {
+            const s = asOptionalString(raw);
+            if (!s) return undefined;
+            const d = new Date(s);
+            return Number.isNaN(d.getTime()) ? undefined : d;
+        };
+
         const baseDoc: Partial<CrmStockTransfer> = {
             userId,
             fromWarehouseId: new ObjectId(fromWarehouseRaw),
@@ -387,6 +406,17 @@ export async function saveStockTransfer(
             status,
             notes,
             attachments,
+            requesterId: asOptionalObjectId(formData.get('requesterId')),
+            requesterName: asOptionalString(formData.get('requesterName')),
+            approverId: asOptionalObjectId(formData.get('approverId')),
+            approverName: asOptionalString(formData.get('approverName')),
+            receivedById: asOptionalObjectId(formData.get('receivedById')),
+            receivedByName: asOptionalString(formData.get('receivedByName')),
+            expectedDate: asOptionalDate(formData.get('expectedDate')),
+            receivedDate: asOptionalDate(formData.get('receivedDate')),
+            reason: asOptionalString(formData.get('reason')),
+            carrier: asOptionalString(formData.get('carrier')),
+            trackingNumber: asOptionalString(formData.get('trackingNumber')),
             updatedAt: new Date(),
         };
 

@@ -17,6 +17,7 @@ pub mod events;
 pub mod forms;
 pub mod inbox;
 pub mod journey;
+pub mod reports;
 pub mod segment;
 pub mod settings;
 pub mod template;
@@ -41,6 +42,9 @@ pub use inbox::{
 pub use journey::{
     EmailJourney, EmailJourneyEdge, EmailJourneyNode, EmailJourneyRun, EmailJourneyStatus,
     EmailJourneyTriggerKind, EmailJourneyNodeType,
+};
+pub use reports::{
+    EmailReportBucket, EmailReportMetrics, EmailReportScope, EmailReportsCache,
 };
 pub use segment::{EmailFilterGroup, EmailFilterLeaf, EmailFilterOp, EmailFilterTree, EmailSegment};
 pub use settings::EmailSenderProvider;

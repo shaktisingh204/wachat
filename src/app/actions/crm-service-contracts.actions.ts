@@ -67,35 +67,109 @@ export async function updateServiceContract(
     const { db } = await connectToDatabase();
 
     const contractNo = ((formData.get('contractNo') as string | null) || '').trim();
+    const title = (formData.get('title') as string | null) || '';
+    const customerId = (formData.get('customerId') as string | null) || '';
     const customerName = (formData.get('customerName') as string) || '';
+    const contactId = (formData.get('contactId') as string | null) || '';
+    const contactName = (formData.get('contactName') as string | null) || '';
     const assetName = (formData.get('assetName') as string) || '';
     const coverage = (formData.get('coverage') as string) || '';
     const frequency = (formData.get('frequency') as string) || '';
     const periodStart = (formData.get('periodStart') as string | null) || '';
     const periodEnd = (formData.get('periodEnd') as string | null) || '';
     const billingAmount = parseFloat((formData.get('billingAmount') as string) || '0');
+    const billing = (formData.get('billing') as string | null) || '';
+    const currency = ((formData.get('currency') as string | null) || 'INR').trim().toUpperCase();
+    const technicianId = (formData.get('technicianId') as string | null) || '';
     const technician = (formData.get('technician') as string) || '';
+    const accountManagerId = (formData.get('accountManagerId') as string | null) || '';
+    const accountManagerName = (formData.get('accountManagerName') as string | null) || '';
+    const autoRenewRaw = (formData.get('autoRenew') as string | null) || '';
+    const autoRenew = autoRenewRaw === 'true' || autoRenewRaw === 'on';
+    const renewalNoticeDaysRaw = (formData.get('renewalNoticeDays') as string | null) || '';
+    const renewalNoticeDays = renewalNoticeDaysRaw ? parseInt(renewalNoticeDaysRaw, 10) || 0 : 0;
+    const nextRenewalAt = (formData.get('nextRenewalAt') as string | null) || '';
+    const terms = (formData.get('terms') as string | null) || '';
+    const documentsRaw = (formData.get('documents') as string | null) || '';
     const notes = (formData.get('notes') as string) || '';
     const status = (formData.get('status') as string) || 'active';
 
     if (!contractNo) {
       return { error: 'Contract number is required.' };
     }
+    if (billingAmount < 0) {
+      return { error: 'Contract value cannot be negative.' };
+    }
+    if (renewalNoticeDays < 0 || renewalNoticeDays > 365) {
+      return { error: 'Renewal notice must be between 0 and 365 days.' };
+    }
+    if (periodStart && periodEnd) {
+      const s = new Date(periodStart).getTime();
+      const e = new Date(periodEnd).getTime();
+      if (Number.isFinite(s) && Number.isFinite(e) && e < s) {
+        return { error: 'End date must be after the start date.' };
+      }
+    }
+
+    type DocAttachment = { id: string; url: string; name: string };
+    let documents: DocAttachment[] = [];
+    if (documentsRaw) {
+      try {
+        const parsed = JSON.parse(documentsRaw);
+        if (Array.isArray(parsed)) {
+          documents = parsed
+            .filter((d: unknown): d is Record<string, unknown> => !!d && typeof d === 'object')
+            .map((d: Record<string, unknown>) => ({
+              id: typeof d.id === 'string' ? d.id : '',
+              url: typeof d.url === 'string' ? d.url : '',
+              name: typeof d.name === 'string' ? d.name : 'document',
+            }))
+            .filter((d) => d.id);
+        }
+      } catch {
+        /* ignore malformed documents */
+      }
+    }
 
     const setDoc: Record<string, any> = {
       contractNo,
+      title,
       customerName,
+      contactName,
       assetName,
       coverage,
       frequency,
       billingAmount,
+      billing,
+      currency,
       technician,
+      accountManagerName,
+      autoRenew,
+      renewalNoticeDays,
+      terms,
+      documents,
       status,
       notes,
       updatedAt: new Date(),
     };
+    if (customerId && ObjectId.isValid(customerId)) {
+      setDoc.customerId = new ObjectId(customerId);
+    }
+    if (contactId && ObjectId.isValid(contactId)) {
+      setDoc.contactId = new ObjectId(contactId);
+    }
+    if (technicianId && ObjectId.isValid(technicianId)) {
+      setDoc.technicianId = new ObjectId(technicianId);
+    }
+    if (accountManagerId && ObjectId.isValid(accountManagerId)) {
+      setDoc.accountManagerId = new ObjectId(accountManagerId);
+    }
     if (periodStart) setDoc.periodStart = new Date(periodStart);
     if (periodEnd) setDoc.periodEnd = new Date(periodEnd);
+    if (nextRenewalAt) {
+      const d = new Date(nextRenewalAt);
+      if (!Number.isNaN(d.getTime())) setDoc.nextRenewalAt = d;
+    }
 
     const result = await db.collection('crm_service_contracts').updateOne(
       {

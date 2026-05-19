@@ -1,0 +1,54 @@
+# Provider-webhook ingest + tracking pixel/click + outbound webhook
+# fan-out for the SabNode email-suite.
+#
+# Mount under `/v1/email/events` from the `api` crate:
+#   .nest("/v1/email/events", email_events::router::<AppState>())
+#
+# Note: the tracking pixel + tracking redirect sub-tree is **public**
+# (no JWT). Provider webhooks authenticate via per-tenant token in the
+# URL path matched against `email_settings.providerSecrets.<provider>`.
+[package]
+name = "email-events"
+version = "0.1.0"
+edition = "2024"
+description = "Provider webhook ingest (Sendgrid, Mailgun, SES SNS, Postmark, Brevo), tracking pixel + click redirect, and outbound webhook fan-out for the SabNode email-suite."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_events"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "form"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+futures = "0.3"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Outbound delivery to subscriber webhook URLs.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Signed tracking-token codec — HMAC-SHA256 + url-safe base64.
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+email-types = { path = "../email-types" }
+email-webhooks = { path = "../email-webhooks" }
+
+[lints]
+workspace = true

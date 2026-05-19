@@ -27,9 +27,9 @@ import { getCredentialById } from '@/lib/sabflow/credentials/db';
 // Side-effect import: registers every forge block in the in-memory registry.
 import '@/lib/sabflow/forge';
 import { getForgeBlock } from '@/lib/sabflow/forge/registry';
+import { buildLoadOptionsContext } from './buildContext';
 import type {
   ForgeField,
-  ForgeLoadOptionsContext,
   ForgeSelectOption,
 } from '@/lib/sabflow/forge/types';
 
@@ -112,6 +112,14 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const block = getForgeBlock(body.blockId);
+  if (!block) {
+    return NextResponse.json(
+      { error: `Block not found: ${body.blockId}` },
+      { status: 404 },
+    );
+  }
+
   const field = findField(body.blockId, body.fieldId, body.actionId);
   if (!field) {
     return NextResponse.json(
@@ -140,10 +148,12 @@ export async function POST(req: NextRequest) {
     credential = cred.data;
   }
 
-  const ctx: ForgeLoadOptionsContext = {
-    credential,
+  const ctx = buildLoadOptionsContext({
+    block,
+    actionId: body.actionId,
     options: body.options,
-  };
+    credential,
+  });
 
   try {
     const options: ForgeSelectOption[] = await field.loadOptions(ctx);

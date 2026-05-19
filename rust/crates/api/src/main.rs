@@ -396,6 +396,24 @@ async fn run() -> anyhow::Result<()> {
         auth.clone(),
     );
 
+    // Email suite — Mongo-only for all crates except webhooks (also needs a
+    // shared reqwest client so connection pooling holds across deliveries)
+    // and campaigns (also needs a BullMQ producer to enqueue onto the
+    // `"email-send"` queue drained by `email-sender`).
+    let email_audience_state = email_audience::EmailAudienceState { mongo: mongo.clone() };
+    let email_templates_state = email_templates::EmailTemplatesState { mongo: mongo.clone() };
+    let email_inbox_state = email_inbox::EmailInboxState { mongo: mongo.clone() };
+    let email_inbound_state = email_inbound::EmailInboundState { mongo: mongo.clone() };
+    let email_deliverability_state =
+        email_deliverability::EmailDeliverabilityState::new(mongo.clone());
+    let email_api_state = email_api::EmailApiState::new(mongo.clone());
+    let email_webhooks_state =
+        email_webhooks::EmailWebhooksState::new(mongo.clone(), reqwest::Client::new());
+    let email_campaigns_state = email_campaigns::EmailCampaignsState {
+        mongo: mongo.clone(),
+        bull: wachat_queue::BullProducer::new(redis.clone()),
+    };
+
     let state = AppState::new(
         mongo,
         redis,
@@ -460,6 +478,14 @@ async fn run() -> anyhow::Result<()> {
         telegram_settings_state,
         telegram_webhooks_state,
         sabflow_state,
+        email_audience_state,
+        email_templates_state,
+        email_inbox_state,
+        email_inbound_state,
+        email_deliverability_state,
+        email_api_state,
+        email_webhooks_state,
+        email_campaigns_state,
     );
     let app = router::build(state.clone());
 

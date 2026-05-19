@@ -195,7 +195,42 @@ function readPayload(formData: FormData): {
             ? (audienceRaw as CrmAnnouncementAudience)
             : undefined;
 
-    const payload: CrmAnnouncementCreateInput = {
+    // Optional attachments JSON — additive; the Rust DTO accepts unknown
+    // fields silently, and detail pages that don't expect attachments
+    // simply ignore them.
+    const attachmentsRaw = asString(formData.get('attachments'));
+    let attachments: CrmAnnouncementAttachment[] | undefined;
+    if (attachmentsRaw) {
+        try {
+            const parsed: unknown = JSON.parse(attachmentsRaw);
+            if (Array.isArray(parsed)) {
+                attachments = parsed
+                    .filter(
+                        (a): a is Record<string, unknown> =>
+                            !!a && typeof a === 'object',
+                    )
+                    .map((a) => ({
+                        id: String(a.id ?? ''),
+                        url: String(a.url ?? ''),
+                        name: String(a.name ?? ''),
+                        mime: a.mime != null ? String(a.mime) : undefined,
+                        size:
+                            typeof a.size === 'number'
+                                ? a.size
+                                : a.size != null
+                                  ? Number(a.size)
+                                  : undefined,
+                    }))
+                    .filter((a) => a.id && a.url);
+            }
+        } catch {
+            /* swallow invalid JSON — keep payload otherwise valid */
+        }
+    }
+
+    const payload: CrmAnnouncementCreateInput & {
+        attachments?: CrmAnnouncementAttachment[];
+    } = {
         title,
         body,
         audienceIds: asStringList(formData.get('audienceIds')),
@@ -210,9 +245,18 @@ function readPayload(formData: FormData): {
         ...(priority ? { priority } : {}),
         ...(audience ? { audience } : {}),
         ...(status ? { status } : {}),
+        ...(attachments && attachments.length > 0 ? { attachments } : {}),
     };
 
     return { payload };
+}
+
+export interface CrmAnnouncementAttachment {
+    id: string;
+    url: string;
+    name: string;
+    mime?: string;
+    size?: number;
 }
 
 /**
@@ -240,7 +284,8 @@ export async function saveAnnouncement(
 
     try {
         if (isEditing) {
-            const patch: CrmAnnouncementUpdateInput = payload;
+            const patch: CrmAnnouncementUpdateInput =
+                payload as CrmAnnouncementUpdateInput;
             const updated = await crmAnnouncementsApi.update(
                 announcementId!,
                 patch,

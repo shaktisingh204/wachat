@@ -8,6 +8,7 @@ import {
  */
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getSession } from '@/app/actions/user.actions';
 
 import { getStockTransferById } from '@/app/actions/crm-stock-transfers.actions';
@@ -37,6 +38,14 @@ export default async function EditStockTransferPage({ params }: PageProps) {
             eyebrow="STOCK TRANSFER"
             title={`Edit ${number}`}
             back={{ href: `${BASE}/${id}`, label: 'Back to transfer' }}
+            rightRail={
+                <EntityAuditTimeline
+                    entityKind="stock_transfer"
+                    entityId={String(id)}
+                    title="Activity"
+                    limit={25}
+                />
+            }
         >
             <StockTransferForm initial={transfer} />
         </EntityDetailShell>

@@ -142,7 +142,80 @@ function readPayload(formData: FormData): {
             ? (statusRaw as CrmExitStatus)
             : undefined;
 
-    const payload: CrmExitCreateInput = {
+    // Settlement breakdown — display-only on the form but persisted so the
+    // detail page can show the same calculator state. Each is optional; an
+    // empty string or non-numeric value collapses to `undefined`.
+    const asOptionalNumber = (raw: FormDataEntryValue | null): number | undefined => {
+        const s = asString(raw);
+        if (!s) return undefined;
+        const n = Number(s);
+        return Number.isFinite(n) ? n : undefined;
+    };
+
+    // Documents JSON list (additive) — sourced from SabFiles.
+    const documentsRaw = asString(formData.get('documents'));
+    let documents:
+        | {
+              id: string;
+              url: string;
+              name: string;
+              mime?: string;
+              size?: number;
+          }[]
+        | undefined;
+    if (documentsRaw) {
+        try {
+            const parsed: unknown = JSON.parse(documentsRaw);
+            if (Array.isArray(parsed)) {
+                documents = parsed
+                    .filter(
+                        (a): a is Record<string, unknown> =>
+                            !!a && typeof a === 'object',
+                    )
+                    .map((a) => ({
+                        id: String(a.id ?? ''),
+                        url: String(a.url ?? ''),
+                        name: String(a.name ?? ''),
+                        mime: a.mime != null ? String(a.mime) : undefined,
+                        size:
+                            typeof a.size === 'number'
+                                ? a.size
+                                : a.size != null
+                                  ? Number(a.size)
+                                  : undefined,
+                    }))
+                    .filter((a) => a.id && a.url);
+            }
+        } catch {
+            /* swallow invalid JSON */
+        }
+    }
+
+    const reportingManagerId = asString(formData.get('reportingManagerId'));
+    const reportingManagerName = asString(
+        formData.get('reportingManagerName'),
+    );
+
+    const grossPay = asOptionalNumber(formData.get('grossPay'));
+    const bonuses = asOptionalNumber(formData.get('bonuses'));
+    const deductions = asOptionalNumber(formData.get('deductions'));
+    const settlementAmount =
+        grossPay !== undefined || bonuses !== undefined || deductions !== undefined
+            ? (grossPay ?? 0) + (bonuses ?? 0) - (deductions ?? 0)
+            : undefined;
+
+    // Extension fields are additive on the Rust DTO — the crate ignores
+    // unknown keys, so we widen the payload type here without bumping the
+    // canonical `CrmExitCreateInput`.
+    const payload: CrmExitCreateInput & {
+        reportingManagerId?: string;
+        reportingManagerName?: string;
+        grossPay?: number;
+        bonuses?: number;
+        deductions?: number;
+        settlementAmount?: number;
+        documents?: typeof documents;
+    } = {
         employeeName,
         employeeId,
         type: type ?? 'resignation',
@@ -156,6 +229,13 @@ function readPayload(formData: FormData): {
         exitInterviewNotes: asString(formData.get('exitInterviewNotes')),
         reason: asString(formData.get('reason')),
         notes: asString(formData.get('notes')),
+        ...(reportingManagerId ? { reportingManagerId } : {}),
+        ...(reportingManagerName ? { reportingManagerName } : {}),
+        ...(grossPay !== undefined ? { grossPay } : {}),
+        ...(bonuses !== undefined ? { bonuses } : {}),
+        ...(deductions !== undefined ? { deductions } : {}),
+        ...(settlementAmount !== undefined ? { settlementAmount } : {}),
+        ...(documents && documents.length > 0 ? { documents } : {}),
     };
 
     return { payload, status };

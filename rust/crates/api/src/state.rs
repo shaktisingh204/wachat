@@ -66,6 +66,14 @@ use telegram_settings::TelegramSettingsState;
 use telegram_webhooks::{BotApiClient as TelegramWebhooksBotApi, TelegramWebhooksState};
 use sabflow_engine::SabflowEngineState;
 use sabflow_engine_runtime::SabflowRuntimeState;
+use email_audience::EmailAudienceState;
+use email_templates::EmailTemplatesState;
+use email_inbox::EmailInboxState;
+use email_inbound::EmailInboundState;
+use email_deliverability::EmailDeliverabilityState;
+use email_api::EmailApiState;
+use email_webhooks::EmailWebhooksState;
+use email_campaigns::EmailCampaignsState;
 use wachat_projects::WachatProjectsState;
 use wachat_public_api::{ApiKeyVerifier, PublicApiState};
 use wachat_send_router::WachatSendState;
@@ -143,6 +151,14 @@ pub struct AppState {
     pub telegram_webhooks: TelegramWebhooksState,
     pub sabflow: SabflowEngineState,
     pub sabflow_runtime: SabflowRuntimeState,
+    pub email_audience: EmailAudienceState,
+    pub email_templates: EmailTemplatesState,
+    pub email_inbox: EmailInboxState,
+    pub email_inbound: EmailInboundState,
+    pub email_deliverability: EmailDeliverabilityState,
+    pub email_api: EmailApiState,
+    pub email_webhooks: EmailWebhooksState,
+    pub email_campaigns: EmailCampaignsState,
     pub ready: Arc<AtomicBool>,
 }
 
@@ -212,6 +228,14 @@ impl AppState {
         telegram_settings: TelegramSettingsState,
         telegram_webhooks: TelegramWebhooksState,
         sabflow: SabflowEngineState,
+        email_audience: EmailAudienceState,
+        email_templates: EmailTemplatesState,
+        email_inbox: EmailInboxState,
+        email_inbound: EmailInboundState,
+        email_deliverability: EmailDeliverabilityState,
+        email_api: EmailApiState,
+        email_webhooks: EmailWebhooksState,
+        email_campaigns: EmailCampaignsState,
     ) -> Self {
         Self {
             started_at: Utc::now(),
@@ -279,6 +303,14 @@ impl AppState {
             telegram_webhooks,
             sabflow,
             sabflow_runtime: SabflowRuntimeState::new(),
+            email_audience,
+            email_templates,
+            email_inbox,
+            email_inbound,
+            email_deliverability,
+            email_api,
+            email_webhooks,
+            email_campaigns,
             ready: Arc::new(AtomicBool::new(false)),
         }
     }
@@ -673,5 +705,53 @@ impl FromRef<AppState> for SabflowEngineState {
 impl FromRef<AppState> for SabflowRuntimeState {
     fn from_ref(s: &AppState) -> Self {
         s.sabflow_runtime.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailAudienceState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_audience.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailTemplatesState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_templates.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailInboxState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_inbox.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailInboundState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_inbound.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailDeliverabilityState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_deliverability.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailApiState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_api.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailWebhooksState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_webhooks.clone()
+    }
+}
+
+impl FromRef<AppState> for EmailCampaignsState {
+    fn from_ref(s: &AppState) -> Self {
+        s.email_campaigns.clone()
     }
 }

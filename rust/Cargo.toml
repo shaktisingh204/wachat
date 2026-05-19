@@ -275,6 +275,13 @@ members = [
     "crates/email-templates",
     "crates/email-inbox",
     "crates/email-inbound",
+    "crates/email-deliverability",
+    "crates/email-api",
+    "crates/email-webhooks",
+    "crates/email-events",
+    "crates/email-reports",
+    # "crates/email-journeys",        # agent in progress
+    # "crates/email-journey-worker",  # agent in progress
 ]
 
 [workspace.package]

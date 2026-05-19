@@ -1,0 +1,45 @@
+# Pre-aggregated email-suite reports — HTTP read API + aggregator
+# function reused by the `email-reports-worker` binary.
+#
+# Mount under `/v1/email/reports` from the `api` crate:
+#   .nest("/v1/email/reports", email_reports::router::<AppState>())
+[package]
+name = "email-reports"
+version = "0.1.0"
+edition = "2024"
+description = "Pre-aggregated reports CRUD + aggregator function for the SabNode email-suite. Backed by `email_reports_cache` with live $facet fallback over `email_events`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_reports"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+futures = "0.3"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+base64 = "0.22"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+email-types = { path = "../email-types" }
+
+[lints]
+workspace = true

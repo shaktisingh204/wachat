@@ -73,33 +73,65 @@ export async function updatePettyCashFloat(
     return { error: 'Invalid float ID.' };
   }
 
+  const name = (formData.get('name') as string | null)?.trim() ?? '';
+  const branchId = (formData.get('branchId') as string | null) ?? '';
   const branchName = (formData.get('branchName') as string | null) ?? '';
+  const custodianId = (formData.get('custodianId') as string | null) ?? '';
   const custodianName = (formData.get('custodianName') as string | null) ?? '';
+  const approverId = (formData.get('approverId') as string | null) ?? '';
+  const approverName = (formData.get('approverName') as string | null) ?? '';
+  const currency = ((formData.get('currency') as string | null) ?? 'INR').trim().toUpperCase();
   const openingBalance = parseFloat((formData.get('openingBalance') as string | null) ?? '0') || 0;
   const notes = (formData.get('notes') as string | null) ?? '';
   const status = (formData.get('status') as string | null) ?? 'active';
+  const policyFileId = (formData.get('policyFileId') as string | null) ?? '';
+  const policyFileUrl = (formData.get('policyFileUrl') as string | null) ?? '';
+  const policyFileName = (formData.get('policyFileName') as string | null) ?? '';
 
-  if (!branchName.trim()) {
-    return { error: 'Branch name is required.' };
+  if (!name) {
+    return { error: 'Float name is required.' };
+  }
+  if (openingBalance < 0) {
+    return { error: 'Opening balance cannot be negative.' };
   }
 
   try {
     const { db } = await connectToDatabase();
+    const setDoc: Record<string, unknown> = {
+      name,
+      branchName,
+      custodianName,
+      approverName,
+      currency,
+      openingBalance,
+      notes,
+      status,
+      updatedAt: new Date(),
+    };
+    if (branchId && ObjectId.isValid(branchId)) {
+      setDoc.branchId = new ObjectId(branchId);
+    }
+    if (custodianId && ObjectId.isValid(custodianId)) {
+      setDoc.custodianId = new ObjectId(custodianId);
+    }
+    if (approverId && ObjectId.isValid(approverId)) {
+      setDoc.approverId = new ObjectId(approverId);
+    }
+    if (policyFileId) {
+      setDoc.policyFileId = policyFileId;
+      setDoc.policyFileUrl = policyFileUrl;
+      setDoc.policyFileName = policyFileName;
+    } else {
+      setDoc.policyFileId = null;
+      setDoc.policyFileUrl = null;
+      setDoc.policyFileName = null;
+    }
     const result = await db.collection('crm_petty_cash_floats').updateOne(
       {
         _id: new ObjectId(id),
         userId: new ObjectId(session.user._id as string),
       },
-      {
-        $set: {
-          branchName,
-          custodianName,
-          openingBalance,
-          notes,
-          status,
-          updatedAt: new Date(),
-        },
-      },
+      { $set: setDoc },
     );
 
     if (result.matchedCount === 0) {
