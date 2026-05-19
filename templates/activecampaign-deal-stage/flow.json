@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_ac_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "activecampaign.deal.stage_changed",
+    "options": {
+      "path": "/webhooks/activecampaign-deal-stage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-AC-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ac_trigger",
+      "name": "AC Deal Stage Changed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "activecampaign-deal-stage",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "activecampaign-deal-stage"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Deal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.deal.title }}" },
+            { "name": "stage", "value": "={{ $json.deal.stage_title }}" },
+            { "name": "value", "value": "={{ $json.deal.value }}" },
+            { "name": "owner", "value": "={{ $json.deal.owner_email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_map_stage",
+      "name": "Map to Pipedrive Stage",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "pdStage", "value": "={{ ({Qualified:1, Demo:2, Proposal:3, ClosedWon:4, ClosedLost:5})[$json.stage] || 1 }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pipedrive_upsert",
+      "name": "Pipedrive Deal Upsert",
+      "type": "n8n-nodes-base.pipedrive",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "deal",
+        "operation": "create",
+        "title": "={{ $node['Extract Deal'].json.title }}",
+        "additionalFields": {
+          "stage_id": "={{ $node['Map to Pipedrive Stage'].json.pdStage }}",
+          "value": "={{ $node['Extract Deal'].json.value }}",
+          "currency": "USD"
+        }
+      },
+      "credentials": {
+        "pipedriveApi": { "id": "pipedrive-cred", "name": "Pipedrive API" }
+      }
+    },
+    {
+      "id": "n_if_won",
+      "name": "Closed Won?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $node['Extract Deal'].json.stage }}", "operation": "equal", "value2": "ClosedWon" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_won",
+      "name": "Celebrate Won",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_REVENUE_CHANNEL }}",
+        "text": ":moneybag: *{{ $node['Extract Deal'].json.title }}* won — ${{ $node['Extract Deal'].json.value }} by {{ $node['Extract Deal'].json.owner }}."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_log_other",
+      "name": "Log Stage Change",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1200, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "stage mirrored" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_ac_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_map_stage", "type": "main", "index": 0 }]]
+    },
+    "n_map_stage": {
+      "main": [[{ "node": "n_pipedrive_upsert", "type": "main", "index": 0 }]]
+    },
+    "n_pipedrive_upsert": {
+      "main": [[{ "node": "n_if_won", "type": "main", "index": 0 }]]
+    },
+    "n_if_won": {
+      "true": [[{ "node": "n_slack_won", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_log_other", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ac_trigger", "n_extract", "n_map_stage", "n_pipedrive_upsert", "n_if_won", "n_slack_won", "n_log_other"]
+    }
+  ],
+  "variables": [
+    { "id": "v_revenue", "name": "SLACK_REVENUE_CHANNEL", "defaultValue": "#revenue" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
