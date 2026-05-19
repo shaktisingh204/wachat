@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_mongo_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "mongo.change",
+    "options": {
+      "path": "/webhooks/mongo-change",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Mongo-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_mongo_trigger",
+      "name": "Mongo Change Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mongo-change",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "mongo-change-webhook"
+    },
+    {
+      "id": "n_extract_event",
+      "name": "Extract Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "op", "value": "={{ $json.operationType }}" },
+            { "name": "docId", "value": "={{ $json.documentKey._id }}" },
+            { "name": "indexName", "value": "={{ $json.ns.coll }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route_op",
+      "name": "Route by Op",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.op }}", "operation": "equal", "value2": "delete" }] }, "outputKey": "delete" }
+          ]
+        },
+        "fallbackOutput": "upsert"
+      }
+    },
+    {
+      "id": "n_meili_upsert",
+      "name": "Meilisearch Upsert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -80],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MEILI_API }}/indexes/{{ $json.indexName }}/documents",
+        "sendBody": true,
+        "bodyContentType": "json"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "meili-cred", "name": "Meilisearch Admin" } }
+    },
+    {
+      "id": "n_meili_delete",
+      "name": "Meilisearch Delete",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 80],
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $vars.MEILI_API }}/indexes/{{ $json.indexName }}/documents/{{ $json.docId }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "meili-cred", "name": "Meilisearch Admin" } }
+    },
+    {
+      "id": "n_metrics",
+      "name": "Increment Metric",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.METRICS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "meili.sync" },
+            { "name": "op", "value": "={{ $json.op }}" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_mongo_trigger": { "main": [[{ "node": "n_extract_event", "type": "main", "index": 0 }]] },
+    "n_extract_event": { "main": [[{ "node": "n_route_op", "type": "main", "index": 0 }]] },
+    "n_route_op": {
+      "upsert": [[{ "node": "n_meili_upsert", "type": "main", "index": 0 }]],
+      "delete": [[{ "node": "n_meili_delete", "type": "main", "index": 0 }]]
+    },
+    "n_meili_upsert": { "main": [[{ "node": "n_metrics", "type": "main", "index": 0 }]] },
+    "n_meili_delete": { "main": [[{ "node": "n_metrics", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Sync",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_mongo_trigger", "n_extract_event", "n_route_op", "n_meili_upsert", "n_meili_delete", "n_metrics"]
+    }
+  ],
+  "variables": [
+    { "id": "v_meili", "name": "MEILI_API", "defaultValue": "https://meili.example.com" },
+    { "id": "v_metrics", "name": "METRICS_URL", "defaultValue": "https://metrics.example.com/incr" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
