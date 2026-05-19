@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "github-action-workflow-stats",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron pulls Actions usage, snapshots Airtable, posts Slack digest.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T07:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
