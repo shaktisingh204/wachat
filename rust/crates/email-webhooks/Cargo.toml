@@ -1,0 +1,54 @@
+# Email outbound webhooks — delivers `email_events` to customer URLs.
+#
+# Sister to `developer-webhooks` but scoped to the email-suite: writes
+# the `email_webhook_configs` collection and ships events with an
+# HMAC-SHA256 signature header so subscribers can verify authenticity.
+#
+# Mount under `/v1/email/webhooks` from the `api` crate:
+#   .nest("/v1/email/webhooks", email_webhooks::router::<AppState>())
+[package]
+name = "email-webhooks"
+version = "0.1.0"
+edition = "2024"
+description = "Outbound webhook control plane + delivery helper for the SabNode email-suite. CRUDs `email_webhook_configs` and signs deliveries with HMAC-SHA256."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_webhooks"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+futures = "0.3"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# HTTP client used by `deliver::deliver`. rustls keeps the dependency
+# graph free of OpenSSL.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Signature scheme: HMAC-SHA256 of `{unix_ts}.{body_json}`, hex.
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+
+# Random secret generation.
+rand = "0.8"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

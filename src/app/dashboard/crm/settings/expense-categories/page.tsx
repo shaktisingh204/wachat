@@ -16,11 +16,9 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
-  ZoruPopover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
@@ -36,74 +34,10 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { cn } from '@/components/zoruui/lib/cn';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import {
-  Edit,
-  LoaderCircle,
-  Plus,
-  Search,
-  Trash2,
-  Plane,
-  Car,
-  Bus,
-  Train,
-  Ship,
-  Bike,
-  Fuel,
-  UtensilsCrossed,
-  Coffee,
-  Pizza,
-  ShoppingCart,
-  ShoppingBag,
-  Gift,
-  Receipt,
-  CreditCard,
-  Wallet,
-  Banknote,
-  PiggyBank,
-  Briefcase,
-  Building2,
-  Home,
-  Hotel,
-  Bed,
-  Lightbulb,
-  Wifi,
-  Phone,
-  Smartphone,
-  Laptop,
-  Monitor,
-  Printer,
-  Wrench,
-  HardHat,
-  Hammer,
-  Package,
-  Truck,
-  Stethoscope,
-  Pill,
-  HeartPulse,
-  GraduationCap,
-  BookOpen,
-  Newspaper,
-  Megaphone,
-  Sparkles,
-  Camera,
-  Music,
-  Film,
-  Gamepad2,
-  Dumbbell,
-  Trees,
-  PawPrint,
-  Baby,
-  Users,
-  UserRound,
-  Tag,
-  Star,
-  Bookmark,
-  CircleDot,
-} from 'lucide-react';
+import { Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 /**
  * Expense Categories — settings-style list (§1D.4 specialized: settings list).
@@ -121,6 +55,7 @@ import {
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import {
@@ -128,17 +63,11 @@ import {
     getExpenseCategories,
     saveExpenseCategory,
 } from '@/app/actions/crm-expense-categories.actions';
-import { getCrmChartOfAccounts } from '@/app/actions/crm-accounting.actions';
 import type { CrmExpenseCategoryDoc } from '@/lib/rust-client/crm-expense-categories';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 
 type Category = CrmExpenseCategoryDoc;
-
-interface CoaRow {
-    _id: string;
-    name?: string;
-}
 
 type BoolFilter = 'all' | 'true' | 'false';
 type StatusFilter = 'all' | 'active' | 'archived';
@@ -148,127 +77,6 @@ const saveInitialState: {
     error?: string;
     id?: string;
 } = {};
-
-/* ─── Icon picker ───────────────────────────────────────────── */
-
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-    plane: Plane, car: Car, bus: Bus, train: Train, ship: Ship, bike: Bike, fuel: Fuel,
-    truck: Truck, package: Package,
-    'utensils-crossed': UtensilsCrossed, coffee: Coffee, pizza: Pizza,
-    'shopping-cart': ShoppingCart, 'shopping-bag': ShoppingBag, gift: Gift,
-    receipt: Receipt, 'credit-card': CreditCard, wallet: Wallet, banknote: Banknote, 'piggy-bank': PiggyBank,
-    briefcase: Briefcase, building: Building2, home: Home, hotel: Hotel, bed: Bed,
-    lightbulb: Lightbulb, wifi: Wifi, phone: Phone, smartphone: Smartphone,
-    laptop: Laptop, monitor: Monitor, printer: Printer,
-    wrench: Wrench, 'hard-hat': HardHat, hammer: Hammer,
-    stethoscope: Stethoscope, pill: Pill, 'heart-pulse': HeartPulse,
-    'graduation-cap': GraduationCap, 'book-open': BookOpen, newspaper: Newspaper,
-    megaphone: Megaphone, sparkles: Sparkles, camera: Camera, music: Music, film: Film,
-    gamepad: Gamepad2, dumbbell: Dumbbell, trees: Trees, 'paw-print': PawPrint, baby: Baby,
-    users: Users, user: UserRound, tag: Tag, star: Star, bookmark: Bookmark,
-};
-
-function IconPicker({
-    value,
-    onChange,
-    color,
-}: {
-    value: string;
-    onChange: (next: string) => void;
-    color?: string;
-}) {
-    const [open, setOpen] = React.useState(false);
-    const [query, setQuery] = React.useState('');
-
-    const entries = React.useMemo(() => {
-        const q = query.trim().toLowerCase();
-        const all = Object.entries(ICONS);
-        if (!q) return all;
-        return all.filter(([name]) => name.toLowerCase().includes(q));
-    }, [query]);
-
-    const Selected = value && ICONS[value] ? ICONS[value] : CircleDot;
-    const swatchColor = color || 'currentColor';
-
-    return (
-        <ZoruPopover open={open} onOpenChange={setOpen}>
-            <ZoruPopoverTrigger asChild>
-                <button
-                    type="button"
-                    aria-label={`Pick an icon (current: ${value || 'none'})`}
-                    className={cn(
-                        'inline-flex w-full items-center gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-2 py-1.5 text-sm text-zoru-ink transition-colors hover:border-zoru-line-strong',
-                        'focus-visible:outline-none',
-                    )}
-                >
-                    <span
-                        className="inline-flex h-7 w-7 items-center justify-center rounded-[6px] border border-zoru-line bg-zoru-surface"
-                        style={{ color: swatchColor }}
-                    >
-                        <Selected className="h-4 w-4" />
-                    </span>
-                    <span className="font-mono text-xs text-zoru-ink-muted">
-                        {value || 'choose icon…'}
-                    </span>
-                </button>
-            </ZoruPopoverTrigger>
-            <ZoruPopoverContent align="start" className="w-72 space-y-2 p-2">
-                <div className="relative">
-                    <Search className="pointer-events-none absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
-                    <ZoruInput
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Search icons…"
-                        className="h-8 pl-7 text-xs"
-                    />
-                </div>
-                <div className="grid max-h-56 grid-cols-7 gap-1 overflow-y-auto">
-                    {entries.map(([name, Icon]) => {
-                        const active = value === name;
-                        return (
-                            <button
-                                key={name}
-                                type="button"
-                                aria-label={name}
-                                title={name}
-                                onClick={() => {
-                                    onChange(name);
-                                    setOpen(false);
-                                }}
-                                className={cn(
-                                    'inline-flex h-8 w-8 items-center justify-center rounded-[var(--zoru-radius-sm)] border border-transparent text-zoru-ink-muted transition-colors',
-                                    'hover:border-zoru-line hover:bg-zoru-surface-2 hover:text-zoru-ink',
-                                    active && 'border-zoru-ink bg-zoru-surface-2 text-zoru-ink',
-                                )}
-                                style={active && color ? { color } : undefined}
-                            >
-                                <Icon className="h-4 w-4" />
-                            </button>
-                        );
-                    })}
-                    {entries.length === 0 ? (
-                        <div className="col-span-7 py-4 text-center text-xs text-zoru-ink-muted">
-                            No icons match.
-                        </div>
-                    ) : null}
-                </div>
-                <div className="flex items-center justify-between border-t border-zoru-line pt-2">
-                    <button
-                        type="button"
-                        onClick={() => {
-                            onChange('');
-                            setOpen(false);
-                        }}
-                        className="text-xs text-zoru-ink-muted hover:text-zoru-ink"
-                    >
-                        Clear
-                    </button>
-                    <span className="text-[11px] text-zoru-ink-muted">{entries.length} icons</span>
-                </div>
-            </ZoruPopoverContent>
-        </ZoruPopover>
-    );
-}
 
 /* ─── Submit button ─────────────────────────────────────────── */
 
@@ -290,14 +98,12 @@ function ExpenseCategoryDialog({
     onSave,
     initialData,
     parents,
-    accounts,
 }: {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSave: () => void;
     initialData: Category | null;
     parents: Category[];
-    accounts: CoaRow[];
 }) {
     const isEditing = !!initialData;
     const [state, formAction] = useActionState(saveExpenseCategory, saveInitialState);
@@ -425,35 +231,14 @@ function ExpenseCategoryDialog({
                         </div>
 
                         <div className="space-y-2 sm:col-span-2">
-                            <ZoruLabel htmlFor="defaultAccountId">Default GL account</ZoruLabel>
-                            {accounts.length > 0 ? (
-                                /* TODO 1E.sweep: dynamic list — needs EntityKey */
-                                <ZoruSelect
-                                    value={defaultAccountId || 'none'}
-                                    onValueChange={(v) =>
-                                        setDefaultAccountId(v === 'none' ? '' : v)
-                                    }
-                                >
-                                    <ZoruSelectTrigger id="defaultAccountId">
-                                        <ZoruSelectValue placeholder="Pick a GL account…" />
-                                    </ZoruSelectTrigger>
-                                    <ZoruSelectContent>
-                                        <ZoruSelectItem value="none">None</ZoruSelectItem>
-                                        {accounts.map((a) => (
-                                            <ZoruSelectItem key={a._id} value={a._id}>
-                                                {a.name ?? a._id}
-                                            </ZoruSelectItem>
-                                        ))}
-                                    </ZoruSelectContent>
-                                </ZoruSelect>
-                            ) : (
-                                <ZoruInput
-                                    id="defaultAccountIdInput"
-                                    value={defaultAccountId}
-                                    onChange={(e) => setDefaultAccountId(e.target.value)}
-                                    placeholder="Paste a Chart-of-Accounts ObjectId"
-                                />
-                            )}
+                            <ZoruLabel>Default GL account</ZoruLabel>
+                            <EntityFormField
+                                entity="account"
+                                name="__defaultAccountId_picker"
+                                initialId={defaultAccountId || null}
+                                onChange={(id) => setDefaultAccountId(id ?? '')}
+                                placeholder="Pick a GL account…"
+                            />
                             <p className="text-xs text-muted-foreground">
                                 Posts to this account when an expense in this category is
                                 booked.
@@ -511,7 +296,7 @@ function ExpenseCategoryDialog({
 
                         <div className="space-y-2">
                             <ZoruLabel>Icon</ZoruLabel>
-                            <IconPicker value={icon} onChange={setIcon} color={color} />
+                            <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
                         </div>
 
                         <div className="flex items-center justify-between rounded-md border border-border p-3">
@@ -573,7 +358,6 @@ function ExpenseCategoryDialog({
 
 export default function ExpenseCategoriesPage() {
     const [categories, setCategories] = React.useState<Category[]>([]);
-    const [accounts, setAccounts] = React.useState<CoaRow[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [editing, setEditing] = React.useState<Category | null>(null);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
@@ -595,33 +379,6 @@ export default function ExpenseCategoriesPage() {
     React.useEffect(() => {
         void refresh();
     }, [refresh]);
-
-    // CoA list is lazy — only fetched once for the dialog. If the action
-    // fails (e.g. permission), we fall back to a plain ObjectId text input.
-    React.useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const list = (await getCrmChartOfAccounts()) as Array<{
-                    _id: string;
-                    name?: string;
-                }>;
-                if (!cancelled) {
-                    setAccounts(
-                        list.map((a) => ({
-                            _id: String(a._id),
-                            name: a.name,
-                        })),
-                    );
-                }
-            } catch {
-                /* CoA optional */
-            }
-        })();
-        return () => {
-            cancelled = true;
-        };
-    }, []);
 
     const parentNameById = React.useMemo(() => {
         const m = new Map<string, string>();
@@ -687,7 +444,6 @@ export default function ExpenseCategoriesPage() {
                 onSave={refresh}
                 initialData={editing}
                 parents={categories}
-                accounts={accounts}
             />
 
             <EntityListShell

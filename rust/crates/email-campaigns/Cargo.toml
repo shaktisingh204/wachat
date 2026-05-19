@@ -1,0 +1,42 @@
+# Phase 3 — axum router for the SabNode email **campaigns** HTTP surface.
+#
+# Owns CRUD + lifecycle transitions for `email_campaigns` and enqueues
+# send / test-send jobs onto the BullMQ `email-send` queue. The Rust
+# `email-sender` worker drains that queue and performs the actual SMTP /
+# provider I/O.
+#
+# Mounted under `/v1/email/campaigns` by the orchestrating `api` crate.
+
+[package]
+name = "email-campaigns"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabNode email campaigns surface (`/v1/email/campaigns/*`). Owns CRUD, draft → schedule → send lifecycle, test-send, pause/resume/cancel, preview, and report read-through. Enqueues onto BullMQ `email-send`."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_campaigns"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tracing = "0.1"
+anyhow = "1"
+regex = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+email-types = { path = "../email-types" }
+wachat-queue = { path = "../wachat-queue" }
+
+[lints]
+workspace = true

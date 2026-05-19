@@ -86,13 +86,13 @@ export function VendorBidFilters(props: VendorBidFiltersProps) {
         </div>
 
         <div className="space-y-1">
-          <ZoruLabel htmlFor="_filter_rfq">Linked RFQ id</ZoruLabel>
-          <ZoruInput
-            id="_filter_rfq"
-            value={rfqIdFilter}
-            onChange={(e) => onRfqIdChange(e.target.value)}
-            placeholder="24-char hex"
-            className="font-mono text-[12.5px]"
+          <ZoruLabel>Linked RFQ</ZoruLabel>
+          <EntityFormField
+            entity="rfq"
+            name="_filter_rfq"
+            initialId={rfqIdFilter || null}
+            onChange={(id) => onRfqIdChange(id ?? '')}
+            placeholder="Any RFQ"
           />
         </div>
 

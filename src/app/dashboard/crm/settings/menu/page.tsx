@@ -18,6 +18,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSwitch,
@@ -70,6 +71,11 @@ export default function MenuSettingsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [icon, setIcon] = useState<string>(editing?.icon ?? '');
+
+  React.useEffect(() => {
+    setIcon(editing?.icon ?? '');
+  }, [editing]);
   const [saveState, saveAction, isSaving] = useActionState(saveMenu, {
     message: '',
     error: '',
@@ -312,13 +318,9 @@ export default function MenuSettingsPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="icon">Icon (lucide name)</ZoruLabel>
-              <ZoruInput
-                id="icon"
-                name="icon"
-                defaultValue={editing?.icon || ''}
-                placeholder="Users"
-              />
+              <ZoruLabel>Icon</ZoruLabel>
+              <input type="hidden" name="icon" value={icon} />
+              <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
               <ZoruLabel htmlFor="position">Position</ZoruLabel>

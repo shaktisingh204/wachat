@@ -22,6 +22,7 @@ import type { CrmForm } from '@/lib/definitions';
 
 import { Search, Plus, ClipboardList, Eye, Edit, Trash2 } from 'lucide-react';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 import { useDebouncedCallback } from 'use-debounce';
 import { formatDistanceToNow } from 'date-fns';
@@ -126,7 +127,13 @@ export default function CrmFormsPage() {
                         <ZoruTableBody>
                             {forms.map((form) => (
                                 <ZoruTableRow key={form._id.toString()} className="border-border">
-                                    <ZoruTableCell className="font-medium text-foreground">{form.name}</ZoruTableCell>
+                                    <ZoruTableCell className="font-medium text-foreground">
+                                        <EntityRowLink
+                                            href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/submissions`}
+                                            label={form.name}
+                                            subtitle={`${form.submissionCount || 0} submission${(form.submissionCount || 0) === 1 ? '' : 's'}`}
+                                        />
+                                    </ZoruTableCell>
                                     <ZoruTableCell className="text-foreground">{form.submissionCount || 0}</ZoruTableCell>
                                     <ZoruTableCell><ZoruBadge variant="success">Published</ZoruBadge></ZoruTableCell>
                                     <ZoruTableCell className="text-foreground">{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</ZoruTableCell>

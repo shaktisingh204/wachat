@@ -12,6 +12,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCheckbox,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogFooter,
@@ -219,22 +220,8 @@ function ShiftDialog({
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <ZoruLabel htmlFor="color-trigger">Color</ZoruLabel>
-                            <div className="flex items-center gap-2">
-                                <input
-                                    id="color-trigger"
-                                    type="color"
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    className="h-9 w-12 cursor-pointer rounded-md border border-zoru-line bg-transparent p-1"
-                                    aria-label="Pick shift color"
-                                />
-                                <ZoruInput
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                    placeholder="#EAB308"
-                                />
-                            </div>
+                            <ZoruLabel>Color</ZoruLabel>
+                            <ZoruColorPicker value={color} onChange={setColor} />
                         </div>
                         <div className="space-y-1.5">
                             <ZoruLabel htmlFor="startTime">Start time *</ZoruLabel>

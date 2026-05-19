@@ -18,6 +18,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
   ZoruTable,
@@ -78,6 +79,11 @@ export default function CustomModulesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [icon, setIcon] = useState<string>(editing?.icon ?? '');
+
+  React.useEffect(() => {
+    setIcon(editing?.icon ?? '');
+  }, [editing]);
   const [saveState, saveAction, isSaving] = useActionState(saveCustomModule, {
     message: '',
     error: '',
@@ -366,13 +372,9 @@ export default function CustomModulesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="icon">Icon name (lucide)</ZoruLabel>
-              <ZoruInput
-                id="icon"
-                name="icon"
-                defaultValue={editing?.icon || ''}
-                placeholder="Layers"
-              />
+              <ZoruLabel>Icon</ZoruLabel>
+              <input type="hidden" name="icon" value={icon} />
+              <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
               <ZoruLabel htmlFor="table">Table / collection</ZoruLabel>

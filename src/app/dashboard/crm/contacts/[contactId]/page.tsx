@@ -43,7 +43,9 @@ import {
   LifeBuoy,
   Receipt,
   Paperclip,
+  Pencil,
   } from 'lucide-react';
+import Link from 'next/link';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -150,6 +152,14 @@ export default function CrmContactDetailPage() {
         eyebrow="CONTACT"
         title={contact.name}
         back={{ href: '/dashboard/crm/contacts', label: 'Contacts' }}
+        actions={
+          <Link href={`/dashboard/crm/contacts/${contactId}/edit`}>
+            <ZoruButton variant="outline" size="sm">
+              <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
+              Edit
+            </ZoruButton>
+          </Link>
+        }
       >
       <div className="flex w-full flex-col gap-6">
 

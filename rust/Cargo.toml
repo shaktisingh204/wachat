@@ -268,6 +268,13 @@ members = [
     "crates/crm-document-templates",
     "crates/crm-task-categories",
     "crates/crm-task-tags",
+    "crates/email-types",
+    "crates/email-audience",
+    "crates/email-campaigns",
+    "crates/email-sender",
+    "crates/email-templates",
+    "crates/email-inbox",
+    "crates/email-inbound",
 ]
 
 [workspace.package]

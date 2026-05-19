@@ -19,8 +19,7 @@ import { LoaderCircle,
  *
  * Layout:
  *   1. Header — GRN number, vendor / warehouse (via <EntityFormField>),
- *      receipt date, optional linked PO id (plain text input — the
- *      `purchaseOrder` EntityKey is not registered).
+ *      receipt date, optional linked PO (via <EntityFormField entity="purchaseOrder">).
  *   2. Line Items — editable rows (item via <EntityFormField>,
  *      ordered / received / accepted / rejected quantities, optional
  *      batch + expiry + serial numbers).
@@ -295,15 +294,28 @@ export function GrnForm({ initial, seed }: GrnFormProps) {
             </div>
           </div>
           <div className="md:col-span-2">
-            <ZoruLabel htmlFor="poId">Linked Purchase Order</ZoruLabel>
-            <ZoruInput
-              id="poId"
-              name="poId"
-              defaultValue={initial?.poId ?? seed?.poId ?? ''}
-              placeholder="Optional — paste a 24-char PO ObjectId"
-              className="mt-1.5"
-              readOnly={editing || !!seed?.poId}
-            />
+            <ZoruLabel>Linked Purchase Order</ZoruLabel>
+            <div className="mt-1.5">
+              {editing || seed?.poId ? (
+                <input
+                  type="hidden"
+                  name="poId"
+                  value={initial?.poId ?? seed?.poId ?? ''}
+                />
+              ) : (
+                <EntityFormField
+                  entity="purchaseOrder"
+                  name="poId"
+                  initialId={initial?.poId ?? seed?.poId ?? null}
+                  placeholder="Pick a Purchase Order…"
+                />
+              )}
+              {(editing || seed?.poId) && (initial?.poId || seed?.poId) ? (
+                <p className="text-[12px] text-zoru-ink">
+                  Linked: <span className="font-mono">{initial?.poId ?? seed?.poId}</span>
+                </p>
+              ) : null}
+            </div>
             <p className="mt-1 text-[11px] text-zoru-ink-muted">
               {editing
                 ? 'The PO link is set at create time and is not editable here.'

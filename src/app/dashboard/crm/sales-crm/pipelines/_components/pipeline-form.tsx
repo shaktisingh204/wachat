@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruCheckbox, ZoruColorPicker, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,
@@ -83,6 +83,7 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
         initialData?.status ?? 'active',
     );
     const [isDefault, setIsDefault] = useState<boolean>(!!initialData?.isDefault);
+    const [accentColor, setAccentColor] = useState<string>(initialData?.color ?? '#3B82F6');
     const [stages, setStages] = useState<PipelineUiStage[]>(() => {
         if (initialData?.stages?.length) return initialData.stages;
         return DEFAULT_STAGES;
@@ -179,13 +180,9 @@ export function PipelineForm({ initialData }: PipelineFormProps) {
                         />
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="color">Accent color</ZoruLabel>
-                        <ZoruInput
-                            id="color"
-                            name="color"
-                            placeholder="#3B82F6"
-                            defaultValue={initialData?.color ?? ''}
-                        />
+                        <ZoruLabel>Accent color</ZoruLabel>
+                        <input type="hidden" name="color" value={accentColor} />
+                        <ZoruColorPicker value={accentColor} onChange={setAccentColor} />
                     </div>
                 </div>
 

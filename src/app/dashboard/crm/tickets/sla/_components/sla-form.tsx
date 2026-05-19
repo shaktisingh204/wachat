@@ -10,6 +10,7 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   useActionState,
   useEffect,
@@ -214,13 +215,12 @@ export function SlaForm({ initialData }: SlaFormProps) {
             />
           </div>
           <div className="space-y-1.5">
-            <ZoruLabel htmlFor="escalateTo">Escalate to (user ID)</ZoruLabel>
-            <ZoruInput
-              id="escalateTo"
+            <ZoruLabel>Escalate to</ZoruLabel>
+            <EntityFormField
+              entity="user"
               name="escalateTo"
-              placeholder="ObjectId of an agent or manager"
-              defaultValue={initialData?.escalateTo ?? ''}
-              className="font-mono"
+              initialId={initialData?.escalateTo ?? null}
+              placeholder="Pick an agent or manager…"
             />
           </div>
         </div>

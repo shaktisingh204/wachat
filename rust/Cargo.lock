@@ -141,6 +141,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "argon2"
+version = "0.5.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c3610892ee6e0cbce8ae2700349fcf8f98adb0dbfbee85aec3c9179d29cc072"
+dependencies = [
+ "base64ct",
+ "blake2",
+ "cpufeatures 0.2.17",
+ "password-hash",
+]
+
+[[package]]
 name = "assert-json-diff"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -816,6 +828,15 @@ dependencies = [
  "radium",
  "tap",
  "wyz",
+]
+
+[[package]]
+name = "blake2"
+version = "0.10.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46502ad458c9a52b69d4d4d32775c788b7a1b85e8bc9d482d92250fc0e3f8efe"
+dependencies = [
+ "digest 0.10.7",
 ]
 
 [[package]]
@@ -4876,6 +4897,70 @@ dependencies = [
 ]
 
 [[package]]
+name = "email-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "argon2",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "rand 0.8.6",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "email-audience"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "email-types",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "email-deliverability"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "base64",
+ "bson",
+ "chrono",
+ "futures",
+ "hickory-resolver 0.24.4",
+ "mongodb",
+ "rand 0.8.6",
+ "rsa",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "email-encoding"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4883,6 +4968,99 @@ checksum = "9298e6504d9b9e780ed3f7dfd43a61be8cd0e09eb07f7706a945b0072b6670b6"
 dependencies = [
  "base64",
  "memchr",
+]
+
+[[package]]
+name = "email-inbound"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "base64",
+ "bson",
+ "chrono",
+ "futures",
+ "mail-parser",
+ "mongodb",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "email-inbox"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "email-templates"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "mongodb",
+ "mrml",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "email-types"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "email-webhooks"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "bson",
+ "chrono",
+ "futures",
+ "hex",
+ "hmac 0.12.1",
+ "mongodb",
+ "rand 0.8.6",
+ "reqwest",
+ "sabnode-auth",
+ "sabnode-common",
+ "sabnode-db",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tokio",
+ "tracing",
 ]
 
 [[package]]
@@ -4907,6 +5085,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a1e6a265c649f3f5979b601d26f1d05ada116434c87741c9493cb56218f76cbc"
 dependencies = [
  "heck",
+ "proc-macro2",
+ "quote",
+ "syn",
+]
+
+[[package]]
+name = "enum_dispatch"
+version = "0.3.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa18ce2bc66555b3218614519ac839ddb759a7d6720732f979ef8d13be147ecd"
+dependencies = [
+ "once_cell",
  "proc-macro2",
  "quote",
  "syn",
@@ -5606,6 +5796,12 @@ dependencies = [
  "quote",
  "syn",
 ]
+
+[[package]]
+name = "htmlparser"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "48ce8546b993eaf241d69ded33b1be6d205dd9857ec879d9d18bd05d3676e144"
 
 [[package]]
 name = "http"
@@ -6548,6 +6744,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "mrml"
+version = "5.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8f2d4de127b05e0abf5bfe406ca8c766bb16e9150b040ff1525bccc20ee7c132"
+dependencies = [
+ "enum-as-inner",
+ "enum_dispatch",
+ "htmlparser",
+ "indexmap 2.14.0",
+ "itertools 0.14.0",
+ "rustc-hash",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+]
+
+[[package]]
 name = "multer"
 version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6888,6 +7101,17 @@ dependencies = [
  "regex-syntax",
  "structmeta",
  "syn",
+]
+
+[[package]]
+name = "password-hash"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "346f04948ba92c43e8469c1ee6736c7563d71012b17d40745260fe106aac2166"
+dependencies = [
+ "base64ct",
+ "rand_core 0.6.4",
+ "subtle",
 ]
 
 [[package]]

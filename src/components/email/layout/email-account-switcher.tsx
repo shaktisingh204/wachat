@@ -1,0 +1,60 @@
+'use client';
+
+import { PlusCircle } from 'lucide-react';
+import {
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from '@/components/zoruui';
+import type { WithId, EmailSettings } from '@/lib/definitions';
+
+interface EmailAccountSwitcherProps {
+  accounts: WithId<EmailSettings>[];
+  activeAccount: WithId<EmailSettings>;
+  onChange: (next: string) => void;
+}
+
+export function EmailAccountSwitcher({
+  accounts,
+  activeAccount,
+  onChange,
+}: EmailAccountSwitcherProps) {
+  return (
+    <div className="px-2">
+      <ZoruSelect value={activeAccount._id.toString()} onValueChange={onChange}>
+        <ZoruSelectTrigger className="w-full">
+          <ZoruSelectValue placeholder="Select account" />
+        </ZoruSelectTrigger>
+        <ZoruSelectContent className="max-w-[300px]">
+          <ZoruSelectItem value="back_to_list" className="font-medium text-zoru-ink-muted mb-1">
+            ← All accounts
+          </ZoruSelectItem>
+
+          <div className="max-h-[220px] overflow-y-auto">
+            {accounts.map((acc) => (
+              <ZoruSelectItem key={acc._id.toString()} value={acc._id.toString()}>
+                <div className="flex flex-col items-start text-left overflow-hidden">
+                  <span className="font-semibold text-sm truncate w-full">
+                    {acc.fromName || 'Account'}
+                  </span>
+                  <span className="text-xs text-zoru-ink-muted truncate w-full">
+                    {acc.fromEmail}
+                  </span>
+                </div>
+              </ZoruSelectItem>
+            ))}
+          </div>
+
+          <div className="h-px bg-zoru-line my-1" />
+          <ZoruSelectItem value="connect_new" className="text-primary focus:text-primary font-medium py-3">
+            <div className="flex items-center gap-2 font-semibold">
+              <PlusCircle className="h-4 w-4" /> Connect a new account
+            </div>
+          </ZoruSelectItem>
+        </ZoruSelectContent>
+      </ZoruSelect>
+    </div>
+  );
+}

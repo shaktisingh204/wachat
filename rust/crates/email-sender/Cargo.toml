@@ -1,0 +1,75 @@
+# Phase 3 (worker) — BullMQ consumer + provider adapters for the
+# SabNode email send pipeline.
+#
+# Drains the BullMQ `email-send` queue produced by `email-campaigns`
+# (and, eventually, `email-journeys`). Supports three job kinds:
+#
+#   * `test-send`     — small set of inboxes for QA
+#   * `start-campaign` — fan-out: resolves recipients, chunks 1k, enqueues
+#                       child `deliver` jobs
+#   * `deliver`       — per-chunk render + send + event-recording
+#
+# Provider adapters: SMTP (lettre), Sendgrid, Mailgun, SES (stub),
+# Postmark, Brevo. Factory selects per-tenant from `email_settings`.
+
+[package]
+name = "email-sender"
+version = "0.1.0"
+edition = "2024"
+description = "BullMQ consumer + provider adapters for the SabNode email send pipeline. Drains `email-send`, renders campaigns with per-subscriber merge tags + brand kit, and dispatches via SMTP/Sendgrid/Mailgun/SES/Postmark/Brevo."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_sender"
+path = "src/lib.rs"
+
+[dependencies]
+# Async runtime — `tokio` "full" pulls signal + time + macros which the
+# worker binary will need when it lands.
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serde + JSON for BullMQ payloads.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# Mongo + BSON for the campaign / subscriber / event collections.
+mongodb = "3.2"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Provider HTTP (Sendgrid / Mailgun / Postmark / Brevo). reqwest with
+# rustls so we don't pull native OpenSSL into the Vercel build.
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "multipart"] }
+
+# SMTP transport for the `smtp` provider.
+lettre = { version = "0.11", default-features = false, features = ["tokio1-rustls-tls", "smtp-transport", "builder"] }
+
+# Error plumbing + structured logging.
+anyhow = "1"
+thiserror = "2"
+tracing = "0.1"
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Crypto for signed tracking tokens (HMAC-SHA256).
+hmac = "0.12"
+sha2 = "0.10"
+base64 = "0.22"
+
+# URL escaping for click-wrap URLs.
+urlencoding = "2"
+
+# Templating (regex-driven; mirrors the renderer in email-campaigns).
+regex = "1"
+
+# Sibling crates — shared error envelope, Mongo + Redis handles, the
+# BullMQ producer (used to fan out child `deliver` jobs from the
+# `start-campaign` job), and the shared domain types.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+wachat-queue = { path = "../wachat-queue" }
+email-types = { path = "../email-types" }
+
+[lints]
+workspace = true

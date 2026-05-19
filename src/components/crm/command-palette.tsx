@@ -99,13 +99,17 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   // there is no detail page, so the fallback just routes to settings.
   enum: () => `/dashboard/crm/settings`,
   invoice: (id) => `/dashboard/crm/sales/invoices/${id}`,
+  issue: (id) => `/dashboard/crm/projects/issues/${id}`,
   jobTitle: () => `/dashboard/crm/settings`,
   language: () => `/dashboard/crm/settings`,
   lead: (id) => `/dashboard/crm/leads/${id}`,
   leadSource: () => `/dashboard/crm/settings`,
   pipeline: () => `/dashboard/crm/sales-crm/pipelines`,
   project: (id) => `/dashboard/crm/projects/${id}`,
+  purchaseOrder: (id) => `/dashboard/crm/purchases/orders/${id}`,
   quotation: (id) => `/dashboard/crm/sales/quotations/${id}`,
+  rfq: (id) => `/dashboard/crm/purchases/rfqs/${id}`,
+  sla: () => `/dashboard/crm/tickets/sla`,
   salutation: () => `/dashboard/crm/settings`,
   stage: () => `/dashboard/crm/sales-crm/pipelines`,
   state: () => `/dashboard/crm/settings`,
@@ -118,9 +122,12 @@ const entityHref: Record<EntityKey, (id: string) => string> = {
   location: () => `/dashboard/crm/settings`,
   vendorType: () => `/dashboard/crm/settings`,
   // No detail route for tasks yet — fall back to the tasks list.
+  subtask: (id) => `/dashboard/crm/projects/subtasks/${id}`,
   task: () => `/dashboard/crm/sales-crm/tasks`,
   asset: (id) => `/dashboard/hrm/hr/assets/${id}`,
+  ticket: (id) => `/dashboard/crm/tickets/${id}`,
   ticketGroup: () => `/dashboard/crm/tickets/groups`,
+  vendorBill: (id) => `/dashboard/crm/purchases/expenses/${id}`,
 };
 
 const entityLabel: Record<EntityKey, string> = {
@@ -143,14 +150,18 @@ const entityLabel: Record<EntityKey, string> = {
   designation: 'Designations',
   enum: 'Options',
   invoice: 'Invoices',
+  issue: 'Issues',
   jobTitle: 'Job Titles',
   language: 'Languages',
   lead: 'Leads',
   leadSource: 'Lead Sources',
   pipeline: 'Pipelines',
   project: 'Projects',
+  purchaseOrder: 'Purchase Orders',
   quotation: 'Quotations',
+  rfq: 'RFQs',
   salutation: 'Salutations',
+  sla: 'SLAs',
   stage: 'Stages',
   state: 'States',
   tag: 'Tags',
@@ -161,9 +172,12 @@ const entityLabel: Record<EntityKey, string> = {
   industry: 'Industries',
   location: 'Locations',
   vendorType: 'Vendor Types',
+  subtask: 'Subtasks',
   task: 'Tasks',
   asset: 'Assets',
+  ticket: 'Tickets',
   ticketGroup: 'Ticket Groups',
+  vendorBill: 'Vendor Bills',
 };
 
 const ENTITY_ORDER: EntityKey[] = [
@@ -186,6 +200,9 @@ const ENTITY_ORDER: EntityKey[] = [
   'lead',
   'task',
   'project',
+  // Purchases
+  'purchaseOrder',
+  'vendorBill',
   // Operational reference
   'department',
   'designation',
@@ -594,13 +611,17 @@ function emptyResults(): Record<EntityKey, LookupItem[]> {
     department: [],
     designation: [],
     invoice: [],
+    issue: [],
     jobTitle: [],
     language: [],
     lead: [],
     leadSource: [],
     pipeline: [],
     project: [],
+    purchaseOrder: [],
     quotation: [],
+    rfq: [],
+    sla: [],
     salutation: [],
     stage: [],
     state: [],
@@ -612,9 +633,12 @@ function emptyResults(): Record<EntityKey, LookupItem[]> {
     industry: [],
     location: [],
     vendorType: [],
+    subtask: [],
     task: [],
     asset: [],
+    ticket: [],
     ticketGroup: [],
+    vendorBill: [],
   };
 }
 

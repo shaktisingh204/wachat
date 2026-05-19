@@ -3,6 +3,7 @@
 import {
   ZoruBadge,
   ZoruButton,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogClose,
   ZoruDialogContent,
@@ -63,6 +64,11 @@ export default function DiscussionCategoriesPage() {
     const [open, setOpen] = React.useState(false);
     const [editing, setEditing] = React.useState<CategoryRow | null>(null);
     const [deleteId, setDeleteId] = React.useState<string | null>(null);
+    const [color, setColor] = React.useState<string>(editing?.color ?? '#3b82f6');
+
+    React.useEffect(() => {
+        setColor(editing?.color ?? '#3b82f6');
+    }, [editing]);
 
     const refresh = React.useCallback(() => {
         startTransition(async () => {
@@ -138,14 +144,11 @@ export default function DiscussionCategoriesPage() {
                                 </div>
                                 <div className="grid gap-3 md:grid-cols-2">
                                     <div>
-                                        <ZoruLabel htmlFor="color">Colour</ZoruLabel>
-                                        <ZoruInput
-                                            id="color"
-                                            name="color"
-                                            type="color"
-                                            defaultValue={editing?.color ?? '#3b82f6'}
-                                            className="mt-1.5 h-10 w-full"
-                                        />
+                                        <ZoruLabel>Colour</ZoruLabel>
+                                        <input type="hidden" name="color" value={color} />
+                                        <div className="mt-1.5">
+                                            <ZoruColorPicker value={color} onChange={setColor} />
+                                        </div>
                                     </div>
                                     <div>
                                         <ZoruLabel htmlFor="parent">Parent</ZoruLabel>

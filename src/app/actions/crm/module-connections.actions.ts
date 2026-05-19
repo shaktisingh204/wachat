@@ -14,6 +14,25 @@ import type {
 const COLLECTION = 'crm_module_connections';
 const BASE_ROUTE = '/dashboard/crm/settings/integrations';
 
+/**
+ * Convenience action: returns the storage binding so client uploaders
+ * (SabFilePicker on CRM pages) can preselect the configured root folder.
+ * Shape mirrors `CrmStorageBinding` from the server lib.
+ */
+export async function getCrmStorageDefaults(): Promise<{
+  rootFolderId: string | null;
+  rootFolderName?: string;
+  autoOrganize: boolean;
+} | null> {
+  const c = await getCrmModuleConnection('storage');
+  if (!c || c.status !== 'connected') return null;
+  return {
+    rootFolderId: (c.config.rootFolderId as string | null) ?? null,
+    rootFolderName: c.config.rootFolderName as string | undefined,
+    autoOrganize: Boolean(c.config.autoOrganize),
+  };
+}
+
 function toDTO(
   doc: CrmModuleConnection | (Omit<CrmModuleConnection, '_id'> & { _id: ObjectId }),
 ): CrmModuleConnectionDTO {

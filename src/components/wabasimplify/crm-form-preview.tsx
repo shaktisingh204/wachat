@@ -88,6 +88,25 @@ export function CrmFormPreview({ settings }: CrmFormPreviewProps) {
                             case 'acceptance': return <div className="flex items-center gap-2 pt-2"><ZoruCheckbox id={`preview-${field.id}`} disabled /><ZoruLabel htmlFor={`preview-${field.id}`} className="font-normal">{field.defaultValue || 'I agree to the terms.'}</ZoruLabel></div>;
                             case 'radio': return <ZoruRadioGroup defaultValue={field.defaultValue} className="flex flex-col gap-2 pt-2">{fieldOptions.map(opt => <div key={opt} className="flex items-center space-x-2"><ZoruRadioGroupItem value={opt} id={`preview-${field.id}-${opt}`} disabled /><ZoruLabel htmlFor={`preview-${field.id}-${opt}`} className="font-normal">{opt}</ZoruLabel></div>)}</ZoruRadioGroup>
                             case 'file': return <ZoruInput {...commonProps} type="file" />;
+                            case 'phone': return <ZoruInput {...commonProps} type="tel" placeholder={field.placeholder || '+1 555 123 4567'} />;
+                            case 'address': return (
+                                <div className="grid grid-cols-2 gap-2">
+                                    <ZoruInput className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 1" disabled />
+                                    <ZoruInput className={cn('col-span-2 form-field-preview', sizeClasses)} placeholder="Address line 2" disabled />
+                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="City" disabled />
+                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="State" disabled />
+                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="ZIP" disabled />
+                                    <ZoruInput className={cn('form-field-preview', sizeClasses)} placeholder="Country" disabled />
+                                </div>
+                            );
+                            case 'rating': return (
+                                <div className="flex items-center gap-1" aria-label="Star rating preview">
+                                    {Array.from({ length: field.maxRating || 5 }).map((_, i) => (
+                                        <LucideIcons.Star key={i} className="h-5 w-5 text-muted-foreground" />
+                                    ))}
+                                </div>
+                            );
+                            case 'signature': return <ZoruInput {...commonProps} placeholder={field.placeholder || 'Type your name as signature'} />;
                             default: return <ZoruInput {...commonProps} type={field.type} />;
                         }
                     };

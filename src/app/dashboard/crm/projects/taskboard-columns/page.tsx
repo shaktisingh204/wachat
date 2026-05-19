@@ -12,6 +12,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -318,23 +319,10 @@ export default function TaskboardColumnsPage() {
             </div>
 
             <div>
-              <ZoruLabel htmlFor="labelColor" className="text-zoru-ink">
-                Label colour (hex)
-              </ZoruLabel>
-              <div className="flex items-center gap-2">
-                <ZoruInput
-                  id="labelColor"
-                  name="labelColor"
-                  defaultValue={editing?.labelColor || DEFAULT_COLOR}
-                  placeholder="#7c3aed"
-                  onChange={(e) => setColorPreview(e.target.value)}
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
-                <span
-                  className="inline-block h-8 w-8 shrink-0 rounded-lg border border-zoru-line"
-                  style={{ backgroundColor: colorPreview }}
-                  aria-label="Colour preview"
-                />
+              <ZoruLabel className="text-zoru-ink">Label colour</ZoruLabel>
+              <input type="hidden" name="labelColor" value={colorPreview} />
+              <div className="mt-1.5">
+                <ZoruColorPicker value={colorPreview} onChange={setColorPreview} />
               </div>
             </div>
 

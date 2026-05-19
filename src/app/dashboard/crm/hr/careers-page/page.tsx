@@ -7,6 +7,7 @@ import {
   ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
+  ZoruColorPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -56,6 +57,7 @@ export default function CareersPageConfigPage() {
   const { toast } = useZoruToast();
   const [config, setConfig] = useState<ConfigDoc>(null);
   const [logoUrl, setLogoUrl] = useState('');
+  const [primaryColor, setPrimaryColor] = useState('#E11D48');
   const [isLoading, startLoading] = useTransition();
   const [saveState, saveFormAction, isSaving] = useActionState(
     saveCareersPageConfig,
@@ -76,6 +78,11 @@ export default function CareersPageConfigPage() {
           next && (next as any).logoUrl != null
             ? String((next as any).logoUrl)
             : '',
+        );
+        setPrimaryColor(
+          next && (next as any).primaryColor != null && String((next as any).primaryColor).trim().length > 0
+            ? String((next as any).primaryColor)
+            : '#E11D48',
         );
       } catch (e) {
         console.error('Failed to load careers page config:', e);
@@ -146,13 +153,9 @@ export default function CareersPageConfigPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="primaryColor">Primary colour</ZoruLabel>
-                <ZoruInput
-                  id="primaryColor"
-                  name="primaryColor"
-                  defaultValue={value('primaryColor')}
-                  placeholder="#E11D48"
-                />
+                <ZoruLabel>Primary colour</ZoruLabel>
+                <input type="hidden" name="primaryColor" value={primaryColor} />
+                <ZoruColorPicker value={primaryColor} onChange={setPrimaryColor} />
               </div>
               <div className="md:col-span-2">
                 <ZoruLabel htmlFor="logoUrl">Logo</ZoruLabel>

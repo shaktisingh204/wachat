@@ -21,6 +21,7 @@ import { useEffect, useMemo, useState, useTransition } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 
 import {
   getPurposeConsents,
@@ -190,16 +191,14 @@ export default function LeadConsentPage() {
       <ZoruCard>
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[240px] flex-1">
-            <ZoruLabel htmlFor="lead-id" className="text-foreground">
-              Lead ID
-            </ZoruLabel>
+            <ZoruLabel className="text-foreground">Lead</ZoruLabel>
             <div className="mt-1.5">
-              <ZoruInput
-                id="lead-id"
-                value={leadId}
-                onChange={(e) => setLeadId(e.target.value)}
-                placeholder="Paste a lead _id"
-                className="h-10 rounded-lg border-border bg-card text-[13px]"
+              <EntityFormField
+                entity="lead"
+                name="__lead_picker"
+                initialId={leadId || null}
+                onChange={(id) => setLeadId(id ?? '')}
+                placeholder="Pick a lead…"
               />
             </div>
           </div>

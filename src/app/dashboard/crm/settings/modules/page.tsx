@@ -18,6 +18,7 @@ import {
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSwitch,
@@ -63,6 +64,11 @@ export default function ModulesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [icon, setIcon] = useState<string>(editing?.icon ?? '');
+
+  React.useEffect(() => {
+    setIcon(editing?.icon ?? '');
+  }, [editing]);
   const [saveState, saveAction, isSaving] = useActionState(saveModule, {
     message: '',
     error: '',
@@ -275,13 +281,9 @@ export default function ModulesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="icon">Icon name (lucide)</ZoruLabel>
-              <ZoruInput
-                id="icon"
-                name="icon"
-                defaultValue={editing?.icon || ''}
-                placeholder="Users"
-              />
+              <ZoruLabel>Icon</ZoruLabel>
+              <input type="hidden" name="icon" value={icon} />
+              <ZoruIconPicker value={icon} onChange={setIcon} />
             </div>
             <div>
               <ZoruLabel htmlFor="description">Description</ZoruLabel>

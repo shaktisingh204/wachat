@@ -4,6 +4,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruColorPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -280,15 +281,9 @@ export default function LeaveTypesPage() {
               {/* color */}
               <div>
                 <ZoruLabel className="text-zoru-ink">Color</ZoruLabel>
-                <div className="mt-1.5 flex items-center gap-2">
-                  <input
-                    type="color"
-                    name="color"
-                    value={color}
-                    onChange={(e) => setColor(e.target.value)}
-                    className="h-10 w-12 cursor-pointer rounded-lg border border-zoru-line bg-zoru-bg p-1"
-                  />
-                  <span className="text-[13px] text-zoru-ink-muted">{color}</span>
+                <input type="hidden" name="color" value={color} />
+                <div className="mt-1.5">
+                  <ZoruColorPicker value={color} onChange={setColor} />
                 </div>
               </div>
 

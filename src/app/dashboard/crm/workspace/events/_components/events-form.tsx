@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { ZoruColorPicker, ZoruInput, ZoruLabel, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect } from 'react';
@@ -51,6 +51,7 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
         message: '',
         error: '',
     } as { message?: string; error?: string });
+    const [labelColor, setLabelColor] = React.useState<string>(event?.label_color ?? '#e11d48');
 
     useEffect(() => {
         if (state?.message) {
@@ -111,14 +112,11 @@ export function EventsForm({ mode, event, initialDate }: EventsFormProps): React
                                 />
                             </div>
                             <div>
-                                <ZoruLabel htmlFor="label_color">Label colour</ZoruLabel>
-                                <ZoruInput
-                                    id="label_color"
-                                    name="label_color"
-                                    type="color"
-                                    defaultValue={event?.label_color ?? '#e11d48'}
-                                    className="mt-1.5 h-10 w-full"
-                                />
+                                <ZoruLabel>Label colour</ZoruLabel>
+                                <input type="hidden" name="label_color" value={labelColor} />
+                                <div className="mt-1.5">
+                                    <ZoruColorPicker value={labelColor} onChange={setLabelColor} />
+                                </div>
                             </div>
                         </div>
                     ),

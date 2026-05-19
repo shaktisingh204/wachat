@@ -1,0 +1,64 @@
+# email-inbound — axum router for inbound email provider webhooks.
+#
+# Receives parsed inbound mail from Mailgun / SES SNS / generic SMTP
+# relays, MIME-parses the payload, threads it into `email_threads` +
+# `email_messages`, and updates the inbox unread counter.
+#
+# The endpoints are intentionally *unauthenticated by JWT* — providers
+# don't carry a SabNode bearer token. Tenant resolution + auth happens
+# via a per-tenant `inboundSecret` stored on `email_settings`, passed in
+# the path (`/v1/email/inbound/mailgun/{token}`) or as a `?token=` query.
+[package]
+name = "email-inbound"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router that accepts inbound email webhooks (Mailgun / SES SNS / raw MIME), parses MIME, and threads messages into the SabNode email inbox."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_inbound"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers. `form` brings the
+# Form extractor used by the Mailgun handler.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "form"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack used across the workspace.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId construction.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `lastMessageAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver wrappers.
+mongodb = "3.2"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# RFC-822 / MIME parsing for the SES SNS + raw routes (Mailgun pre-parses
+# the body for us so we don't strictly need MIME parsing for that path,
+# but the same parser handles the `body-mime` field when Mailgun includes
+# it).
+mail-parser = "0.10"
+
+# Base64 — SES delivers raw MIME as base64 inside the SNS `content`
+# field when the rule action uses `Encoding = BASE64`.
+base64 = "0.22"
+
+# Sibling crates — shared error envelope, Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

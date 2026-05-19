@@ -1,0 +1,37 @@
+# Phase 1 — axum router for the SabNode email **audience** HTTP surface.
+#
+# Owns the Mongo I/O for `email_lists`, `email_subscribers`, `email_segments`,
+# and the segment-evaluator (filter-tree → Mongo aggregation). Mounted under
+# `/v1/email/audience` by the orchestrating `api` crate.
+
+[package]
+name = "email-audience"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabNode email audience surface (`/v1/email/audience/*`). Lists, subscribers, segments, tags, custom fields, import."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_audience"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query", "multipart"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+bson = { version = "2.13", features = ["chrono-0_4"] }
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+mongodb = "3.2"
+futures = "0.3"
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+email-types = { path = "../email-types" }
+
+[lints]
+workspace = true

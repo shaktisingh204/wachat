@@ -32,6 +32,7 @@ export type EntityKey =
   | 'enum'        // Catalogued named-enum picker — pass filter.enumName (see src/data/reference/crm-enums.ts)
   | 'industry'    // Industry classification (static enum) + inline-create
   | 'invoice'     // CRM Invoice (`crm_invoices`)
+  | 'issue'       // CRM Project Issue (`crm_issues`)
   | 'item'        // CRM Product / Item (`crm_products`)
   | 'jobTitle'    // Job title taxonomy (static + inline-create)
   | 'language'    // Static ISO 639-1 language list
@@ -40,18 +41,24 @@ export type EntityKey =
   | 'location'    // Country/state/city location lookup (TODO collection)
   | 'pipeline'    // Sales pipeline (embedded on `users.crmPipelines`)
   | 'project'     // CRM Project (`crm_projects`)
+  | 'purchaseOrder' // CRM Purchase Order (`crm_purchase_orders`)
   | 'quotation'   // CRM Quotation (`crm_quotations`)
+  | 'rfq'         // CRM Request-for-Quote (`crm_rfqs`)
   | 'salutation'  // Salutation list (Mr/Mrs/Dr/...) (static + inline-create)
+  | 'sla'         // Ticket SLA rule (`crm_slas`)
   | 'stage'       // Pipeline stage (embedded on `users.crmPipelines[].stages`)
   | 'state'       // Static state/region list (src/data/reference/states.ts)
+  | 'subtask'     // CRM Project Subtask (`crm_subtasks`)
   | 'tag'         // Cross-entity tag (collection TBD — see action TODO)
   | 'task'        // CRM Task (`crm_tasks`)
   | 'taxRate'     // Tax rate (`crm_taxes`)
+  | 'ticket'      // CRM Support Ticket (`crm_tickets`)
   | 'ticketGroup' // Support ticket group (`crm_ticket_groups`)
   | 'timezone'    // IANA timezone list (runtime via Intl)
   | 'unit'        // Unit of measure (PCS/KG/L/HRS/...) + inline-create
   | 'user'        // Platform user (`users`)
   | 'vendor'      // CRM Vendor (`crm_vendors`)
+  | 'vendorBill'  // Vendor bill / purchase invoice (`crm_bills`)
   | 'vendorType'  // Vendor classification (goods/services/both) + inline-create
   | 'warehouse';  // Stock location (`crm_warehouses`)
 
@@ -83,6 +90,7 @@ export const ENTITY_KEYS = [
   'enum',
   'industry',
   'invoice',
+  'issue',
   'item',
   'jobTitle',
   'language',
@@ -91,18 +99,24 @@ export const ENTITY_KEYS = [
   'location',
   'pipeline',
   'project',
+  'purchaseOrder',
   'quotation',
+  'rfq',
   'salutation',
+  'sla',
   'stage',
   'state',
+  'subtask',
   'tag',
   'task',
   'taxRate',
+  'ticket',
   'ticketGroup',
   'timezone',
   'unit',
   'user',
   'vendor',
+  'vendorBill',
   'vendorType',
   'warehouse',
 ] as const satisfies readonly EntityKey[];

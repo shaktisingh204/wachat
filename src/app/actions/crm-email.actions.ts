@@ -7,6 +7,11 @@ import { getSession } from '@/app/actions/user.actions';
 import type { EmailSettings, CrmContact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { getTransporter } from '@/lib/email-service';
+import {
+  formatSmtpFromHeader,
+  getCrmSmtpBinding,
+  isCrmEmailEventEnabled,
+} from '@/lib/crm/module-connections.server';
 
 export async function saveCrmEmailSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
@@ -87,8 +92,18 @@ export async function sendCrmEmail(prevState: any, formData: FormData): Promise<
 
         const transporter = await getTransporter();
 
+        // Prefer the CRM ↔ SMTP connection (set via the wizard at
+        // /dashboard/crm/settings/integrations/smtp). Fall back to the
+        // legacy email_settings document if no binding exists yet.
+        const smtpBinding = await getCrmSmtpBinding(session.user._id);
+        const fromHeader = smtpBinding
+            ? formatSmtpFromHeader(smtpBinding)
+            : `"${settings.fromName}" <${settings.fromEmail}>`;
+        const replyTo = smtpBinding?.replyTo;
+
         await transporter.sendMail({
-            from: `"${settings.fromName}" <${settings.fromEmail}>`,
+            from: fromHeader,
+            ...(replyTo ? { replyTo } : {}),
             to,
             subject: interpolatedSubject,
             html: interpolatedBody,

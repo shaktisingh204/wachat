@@ -11,6 +11,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 
+import { EntityFormField } from '@/components/crm/entity-form-field';
+
 import { markTds194qDeducted } from '@/app/actions/crm-india-tds194q.actions';
 
 export function RecordDeductionButton({
@@ -73,17 +75,16 @@ export function RecordDeductionButton({
             onSubmit={onSubmit}
             className="flex flex-col gap-2 rounded-md border border-border bg-card p-2"
         >
-            <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
-                Bill id
-                <input
-                    type="text"
-                    value={billId}
-                    onChange={(e) => setBillId(e.target.value)}
-                    placeholder="ObjectId"
-                    className="h-8 rounded-md border border-border bg-background px-2 text-[12.5px] text-foreground"
-                    autoFocus
+            <div className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
+                Bill
+                <EntityFormField
+                    entity="vendorBill"
+                    name="__bill_picker"
+                    initialId={billId || null}
+                    onChange={(id) => setBillId(id ?? '')}
+                    placeholder="Pick a vendor bill…"
                 />
-            </label>
+            </div>
             <label className="flex flex-col gap-1 text-[11px] uppercase tracking-wide text-muted-foreground">
                 Amount (INR)
                 <input

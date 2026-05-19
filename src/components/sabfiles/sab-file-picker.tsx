@@ -46,12 +46,14 @@ import {
  */
 
 import * as React from 'react';
+import { usePathname } from 'next/navigation';
 
 import {
     confirmUpload,
     getLibrary,
     presignUpload,
 } from '@/app/actions/sabfiles.actions';
+import { getCrmStorageDefaults } from '@/app/actions/crm/module-connections.actions';
 import type {
     SabfilesCategory,
     SabfilesNode,
@@ -84,6 +86,14 @@ export interface SabFilePickerProps {
     maxSize?: number;
     /** Optional title override. */
     title?: string;
+    /**
+     * Override the SabFiles parent folder for uploads. When omitted and
+     * the picker is rendered under `/dashboard/crm/*`, the CRM ↔ Storage
+     * binding (configured at `/dashboard/crm/settings/integrations/storage`)
+     * is auto-applied as the upload destination. Pass `null` to force
+     * the root regardless of binding.
+     */
+    defaultParentId?: string | null;
 }
 
 type Mode = 'library' | 'upload';
@@ -143,7 +153,36 @@ export function SabFilePicker({
     allowUpload = true,
     maxSize = 200 * 1024 * 1024,
     title = 'Pick a file',
+    defaultParentId,
 }: SabFilePickerProps) {
+    const pathname = usePathname();
+    // Auto-resolve the CRM storage binding when the picker opens on a
+    // CRM route and the caller hasn't already pinned a parent. The
+    // binding is set via the wizard at
+    // `/dashboard/crm/settings/integrations/storage`.
+    const [resolvedParentId, setResolvedParentId] = React.useState<
+        string | null
+    >(defaultParentId ?? null);
+    React.useEffect(() => {
+        if (defaultParentId !== undefined) {
+            setResolvedParentId(defaultParentId);
+            return;
+        }
+        if (!open) return;
+        const onCrmRoute = (pathname ?? '').startsWith('/dashboard/crm');
+        if (!onCrmRoute) {
+            setResolvedParentId(null);
+            return;
+        }
+        let cancelled = false;
+        void getCrmStorageDefaults().then((b) => {
+            if (cancelled) return;
+            setResolvedParentId(b?.rootFolderId ?? null);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [defaultParentId, open, pathname]);
     const [mode, setMode] = React.useState<Mode>('library');
     const [category, setCategory] = React.useState<SabfilesCategory>(
         accept === 'all' ? 'all' : (accept as SabfilesCategory),
@@ -268,7 +307,7 @@ export function SabFilePicker({
                 name: file.name,
                 size: file.size,
                 mime: file.type || undefined,
-                parent_id: null,
+                parent_id: resolvedParentId,
             });
             if ('error' in presign) {
                 failTask(presign.error);
@@ -312,7 +351,7 @@ export function SabFilePicker({
                 name: file.name,
                 size: file.size,
                 mime: file.type || undefined,
-                parent_id: null,
+                parent_id: resolvedParentId,
             });
             if ('error' in confirmed) {
                 failTask(confirmed.error);
@@ -340,7 +379,8 @@ export function SabFilePicker({
             // matches what the user sees.
             setRefreshTick((n) => n + 1);
         },
-        [],
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        [resolvedParentId],
     );
 
     const onConfirmPick = React.useCallback(() => {

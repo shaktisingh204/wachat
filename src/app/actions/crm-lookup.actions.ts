@@ -965,6 +965,110 @@ const registry: LookupRegistry = {
     }),
   }),
 
+  purchaseOrder: makeMongoLookup({
+    collection: 'crm_purchase_orders',
+    searchableFields: ['poNo', 'vendorName', 'notes'],
+    rawFields: ['poNo', 'date', 'vendorId', 'vendorName', 'currency',
+                'totals', 'status', 'expectedDelivery'],
+    sort: { date: -1, createdAt: -1 },
+    toChip: (doc) => {
+      const totalRaw = doc?.totals?.total;
+      const totalNum = typeof totalRaw === 'number' ? totalRaw : Number(totalRaw ?? NaN);
+      const total = Number.isFinite(totalNum)
+        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: doc.currency || 'INR', maximumFractionDigits: 0 }).format(totalNum)
+        : undefined;
+      return {
+        primary: doc.poNo || 'PO',
+        secondary: doc.vendorName || undefined,
+        tertiary: total,
+      };
+    },
+  }),
+
+  issue: makeMongoLookup({
+    collection: 'crm_issues',
+    searchableFields: ['title', 'description', 'labels'],
+    rawFields: ['title', 'projectId', 'milestoneId', 'assigneeId',
+                'issueType', 'priority', 'status', 'dueDate'],
+    sort: { createdAt: -1 },
+    toChip: (doc) => ({
+      primary: doc.title || 'Issue',
+      secondary: doc.status || undefined,
+      tertiary: doc.priority || doc.issueType || undefined,
+    }),
+  }),
+
+  subtask: makeMongoLookup({
+    collection: 'crm_subtasks',
+    searchableFields: ['title', 'description'],
+    rawFields: ['title', 'parentId', 'parentKind', 'assigneeId',
+                'status', 'dueDate'],
+    sort: { order: 1, createdAt: -1 },
+    toChip: (doc) => ({
+      primary: doc.title || 'Subtask',
+      secondary: doc.status || undefined,
+      tertiary: doc.parentKind || undefined,
+    }),
+  }),
+
+  ticket: makeMongoLookup({
+    collection: 'crm_tickets',
+    searchableFields: ['subject', 'category'],
+    rawFields: ['subject', 'requesterId', 'assigneeId', 'channel',
+                'category', 'priority', 'status', 'dueBy'],
+    sort: { 'audit.createdAt': -1, _id: -1 },
+    toChip: (doc) => ({
+      primary: doc.subject || 'Ticket',
+      secondary: doc.status || undefined,
+      tertiary: doc.priority || doc.channel || undefined,
+    }),
+  }),
+
+  rfq: makeMongoLookup({
+    collection: 'crm_rfqs',
+    searchableFields: ['title', 'terms'],
+    rawFields: ['title', 'requiredBy', 'deadline', 'status', 'vendorsInvited'],
+    sort: { createdAt: -1 },
+    toChip: (doc) => ({
+      primary: doc.title || 'RFQ',
+      secondary: doc.status || undefined,
+      tertiary: doc.deadline ? new Date(doc.deadline).toLocaleDateString() : undefined,
+    }),
+  }),
+
+  sla: makeMongoLookup({
+    collection: 'crm_slas',
+    searchableFields: ['name', 'priority', 'severity', 'channel'],
+    rawFields: ['name', 'priority', 'severity', 'channel',
+                'firstResponseMinutes', 'resolutionMinutes'],
+    sort: { name: 1 },
+    toChip: (doc) => ({
+      primary: doc.name || 'SLA',
+      secondary: doc.priority || undefined,
+      tertiary: doc.channel || doc.severity || undefined,
+    }),
+  }),
+
+  vendorBill: makeMongoLookup({
+    collection: 'crm_bills',
+    searchableFields: ['billNo', 'vendorInvoiceNo', 'vendorName', 'reference'],
+    rawFields: ['billNo', 'vendorInvoiceNo', 'vendorId', 'vendorName',
+                'billDate', 'dueDate', 'status', 'currency', 'total', 'totals'],
+    sort: { billDate: -1, createdAt: -1 },
+    toChip: (doc) => {
+      const totalRaw = doc?.totals?.total ?? doc?.total;
+      const totalNum = typeof totalRaw === 'number' ? totalRaw : Number(totalRaw ?? NaN);
+      const total = Number.isFinite(totalNum)
+        ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: doc.currency || 'INR', maximumFractionDigits: 0 }).format(totalNum)
+        : undefined;
+      return {
+        primary: doc.billNo || doc.vendorInvoiceNo || 'Bill',
+        secondary: doc.vendorName || undefined,
+        tertiary: total,
+      };
+    },
+  }),
+
   brand: makeMongoLookup({
     collection: 'crm_brands',
     searchableFields: ['name', 'description'],

@@ -1,6 +1,8 @@
 'use client';
 
 import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { Paperclip, X } from 'lucide-react';
 /**
  * Section sub-cards for `<PurchaseOrderForm>`. Hoisted out so the form
  * file stays under the 600-line cap. Each section is presentational —
@@ -272,6 +274,7 @@ export function NotesSection({
   onStatusChange,
   statusOptions,
 }: NotesSectionProps) {
+  const [attachment, setAttachment] = React.useState<SabFilePick | null>(null);
   return (
     <ZoruCard className="p-6">
       <h3 className="mb-4 text-[13px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
@@ -312,16 +315,34 @@ export function NotesSection({
           </div>
         </div>
         <div>
-          <ZoruLabel htmlFor="attachmentsFileId">Attachments</ZoruLabel>
-          <ZoruInput
-            id="attachmentsFileId"
-            name="attachmentsFileId"
-            placeholder="Paste a SabFile id"
-            className="mt-1.5"
-          />
-          {/* TODO 1D.3: wire <SabFilePickerButton/> for PO attachments */}
+          <ZoruLabel>Attachments</ZoruLabel>
+          <input type="hidden" name="attachmentsFileId" value={attachment?.id ?? ''} />
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <SabFilePickerButton
+              accept="all"
+              onPick={(p) => setAttachment(p)}
+              variant="outline"
+              className="h-9 gap-1.5 text-xs"
+            >
+              <Paperclip className="h-3.5 w-3.5" />
+              {attachment ? 'Replace file' : 'Attach file'}
+            </SabFilePickerButton>
+            {attachment ? (
+              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface px-2 py-1 text-xs text-zoru-ink">
+                <span className="max-w-[180px] truncate">{attachment.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setAttachment(null)}
+                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  aria-label="Remove attachment"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : null}
+          </div>
           <p className="mt-1 text-[11px] text-zoru-ink-muted">
-            Use a SabFile id. Picker integration is queued.
+            Pick from your SabFiles library or upload a new file.
           </p>
         </div>
       </div>

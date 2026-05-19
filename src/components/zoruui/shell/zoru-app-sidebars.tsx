@@ -669,18 +669,24 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
 
   /* ─────────────────────────────  CRM  ──────────────────────────────
    *
-   * Comprehensive IA covering every list page under
-   * `/dashboard/crm`. Detail (`[id]`) and edit pages are reached
-   * from their parent list — they don't appear here. New-record
-   * routes (slash-new) are only surfaced where the new flow is the
-   * primary entry (rare); otherwise they live behind the list page.
+   * Ten-workspace IA per CRM_PAGE_REDESIGN_PLAN §3.1.1:
+   *   1. Overview          6. Inventory
+   *   2. Sales Pipeline    7. Accounting & Banking
+   *   3. Customers         8. Operations
+   *   4. Billing           9. Workplace
+   *   5. Procurement      10. Admin
+   *
+   * Every list page under `/dashboard/crm` lives in exactly one
+   * workspace. Detail (`[id]`) and edit pages are reached from their
+   * parent list. Three confirmed duplicate routes are intentionally
+   * omitted (see "Critical rules" in the redesign plan).
    */
   {
     prefix: "/dashboard/crm",
     heading: "CRM",
     caption: "Sales, finance, projects & ops",
     build: (p) => [
-      /* ─── Overview ─── */
+      /* ─── 1. Overview ─── */
       {
         id: "crm-overview",
         label: "Overview",
@@ -694,17 +700,20 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── Sales-CRM (pipeline-driven lead/deal management) ─── */
+      /* ─── 2. Sales Pipeline ─── */
       {
-        id: "crm-sales-crm",
-        label: "Sales CRM",
+        id: "crm-sales-pipeline",
+        label: "Sales Pipeline",
         items: [
-          leaf("sales-crm-home", "Pipeline", "/dashboard/crm/sales-crm", TrendingUp, p, { exact: true }),
+          leaf("pipeline-home", "Pipeline home", "/dashboard/crm/sales-crm", TrendingUp, p, { exact: true }),
           leaf("all-leads", "Leads", "/dashboard/crm/sales-crm/all-leads", Target, p),
+          leaf("lead-board", "Lead board", "/dashboard/crm/sales-crm/leads", Kanban, p),
           leaf("leads-summary", "Leads summary", "/dashboard/crm/sales-crm/leads-summary", PieChart, p),
-          leaf("sales-leads", "Lead board", "/dashboard/crm/sales-crm/leads", Target, p),
-          leaf("sales-contacts", "Contacts", "/dashboard/crm/sales-crm/contacts", Users, p),
+          leaf("leads-master", "Leads (master)", "/dashboard/crm/leads", Target, p),
+          leaf("sales-pipeline-contacts", "Contacts (pipeline)", "/dashboard/crm/sales-crm/contacts", Users, p),
           leaf("sales-deals", "Deals", "/dashboard/crm/sales-crm/deals", Trophy, p),
+          leaf("deals-master", "Deals (master)", "/dashboard/crm/deals", Trophy, p),
+          leaf("conversions", "Conversions", "/dashboard/crm/conversions", TrendingUp, p),
           leaf("sales-tasks", "Tasks", "/dashboard/crm/sales-crm/tasks", Check, p),
           leaf("sales-pipelines", "Pipelines", "/dashboard/crm/sales-crm/pipelines", GitBranch, p),
           leaf("all-pipelines", "All pipelines", "/dashboard/crm/sales-crm/all-pipelines", Layers, p, { adminOnly: true }),
@@ -712,34 +721,43 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("statuses", "Statuses", "/dashboard/crm/sales-crm/statuses", Flag, p, { adminOnly: true }),
           leaf("sources", "Sources", "/dashboard/crm/sales-crm/sources", Compass, p, { adminOnly: true }),
           leaf("categories", "Categories", "/dashboard/crm/sales-crm/categories", FolderOpen, p, { adminOnly: true }),
-          leaf("sales-products", "Products", "/dashboard/crm/sales-crm/products", Package, p),
-          leaf("sales-automations", "Automations", "/dashboard/crm/sales-crm/automations", Workflow, p),
-          leaf("sales-forms", "Forms", "/dashboard/crm/sales-crm/forms", FileText, p),
+          leaf("sales-products", "Products (sales-CRM)", "/dashboard/crm/sales-crm/products", Package, p),
+          leaf("sales-automations", "Automations (sales-CRM)", "/dashboard/crm/sales-crm/automations", Workflow, p),
+          leaf("sales-forms", "Forms (sales-CRM)", "/dashboard/crm/sales-crm/forms", FileText, p),
           leaf("sales-custom-forms", "Custom forms", "/dashboard/crm/sales-crm/custom-forms", FileSpreadsheet, p),
           leaf("sales-notes", "Notes", "/dashboard/crm/sales-crm/notes", FileText, p),
           leaf("sales-consent", "Consent", "/dashboard/crm/sales-crm/consent", ShieldCheck, p, { adminOnly: true }),
           leaf("sales-agents", "Agents", "/dashboard/crm/sales-crm/agents", UserCheck, p, { adminOnly: true }),
-          leaf("client-perf", "Client performance", "/dashboard/crm/sales-crm/client-performance-report", BarChart3, p),
-          leaf("lead-source", "Lead source report", "/dashboard/crm/sales-crm/lead-source-report", PieChart, p),
-          leaf("team-sales", "Team sales report", "/dashboard/crm/sales-crm/team-sales-report", BarChart3, p),
-          leaf("sales-settings", "Settings", "/dashboard/crm/sales-crm/settings", Settings, p, { adminOnly: true }),
+          leaf("client-perf", "Client performance report", "/dashboard/crm/sales-crm/client-performance-report", BarChart3, p),
+          leaf("lead-source-report", "Lead source report", "/dashboard/crm/sales-crm/lead-source-report", PieChart, p),
+          leaf("team-sales-report", "Team sales report", "/dashboard/crm/sales-crm/team-sales-report", BarChart3, p),
+          leaf("auto-leads", "Auto-leads setup", "/dashboard/crm/auto-leads-setup", Wand2, p, { adminOnly: true }),
+          leaf("sales-crm-settings", "Sales-CRM settings", "/dashboard/crm/sales-crm/settings", Settings, p, { adminOnly: true }),
         ],
       },
 
-      /* ─── Sales (billing & order flow) ─── */
+      /* ─── 3. Customers ─── */
       {
-        id: "crm-sales",
-        label: "Sales",
+        id: "crm-customers",
+        label: "Customers",
         items: [
-          leaf("sales-home", "Sales", "/dashboard/crm/sales", CircleDollarSign, p, { exact: true }),
-          leaf("accounts", "Clients / Prospects", "/dashboard/crm/accounts", Building2, p),
           leaf("contacts", "Contacts", "/dashboard/crm/contacts", Users, p),
-          leaf("sales-contacts2", "Sales contacts", "/dashboard/crm/sales/contacts", Contact, p),
-          leaf("clients", "Client master", "/dashboard/crm/sales/clients", Building, p, { exact: true }),
+          leaf("accounts", "Accounts / Clients", "/dashboard/crm/accounts", Building2, p),
+          leaf("clients-master", "Client master", "/dashboard/crm/sales/clients", Building, p, { exact: true }),
           leaf("clients-cats", "Client categories", "/dashboard/crm/sales/clients/categories", FolderOpen, p),
           leaf("clients-contacts", "Client contacts", "/dashboard/crm/sales/clients/contacts", Users, p),
           leaf("clients-docs", "Client documents", "/dashboard/crm/sales/clients/documents", Files, p),
           leaf("clients-notes", "Client notes", "/dashboard/crm/sales/clients/notes", FileText, p),
+          leaf("portal", "Portal", "/dashboard/crm/portal", Globe, p),
+        ],
+      },
+
+      /* ─── 4. Billing ─── */
+      {
+        id: "crm-billing",
+        label: "Billing",
+        items: [
+          leaf("sales-home", "Sales / Billing home", "/dashboard/crm/sales", CircleDollarSign, p, { exact: true }),
           leaf("quotations", "Quotations", "/dashboard/crm/sales/quotations", FileText, p),
           leaf("proforma", "Proforma", "/dashboard/crm/sales/proforma", FileSpreadsheet, p),
           leaf("orders", "Sales orders", "/dashboard/crm/sales/orders", ShoppingCart, p),
@@ -751,7 +769,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("payments", "Payments", "/dashboard/crm/sales/payments", CreditCard, p),
           leaf("credit-notes", "Credit notes", "/dashboard/crm/sales/credit-notes", FileText, p),
           leaf("subscriptions", "Subscriptions", "/dashboard/crm/sales/subscriptions", Repeat, p),
-          leaf("sales-contracts", "Contracts", "/dashboard/crm/sales/contracts", FileText, p),
+          leaf("sales-contracts", "Contracts (sales)", "/dashboard/crm/sales/contracts", FileText, p),
           leaf("proposals", "Proposals", "/dashboard/crm/sales/proposals", FileText, p),
           leaf("proposals-templates", "Proposal templates", "/dashboard/crm/sales/proposals/templates", FileSpreadsheet, p),
           leaf("estimates-templates", "Estimate templates", "/dashboard/crm/sales/estimates-templates", FileSpreadsheet, p),
@@ -760,25 +778,20 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("loyalty", "Loyalty", "/dashboard/crm/sales/loyalty", Star, p),
           leaf("gift-cards", "Gift cards", "/dashboard/crm/sales/gift-cards", Tag, p),
           leaf("promotions", "Promotions", "/dashboard/crm/sales/promotions", Megaphone, p),
-          leaf("sales-pipelines2", "Pipelines", "/dashboard/crm/sales/pipelines", GitBranch, p),
-          leaf("sales-forms2", "Forms", "/dashboard/crm/sales/forms", FileText, p),
-          leaf("products", "Products", "/dashboard/crm/products", ShoppingBag, p),
-          leaf("contracts", "Contracts (master)", "/dashboard/crm/contracts", FileText, p, { exact: true }),
+          leaf("products-master", "Products (master)", "/dashboard/crm/products", ShoppingBag, p),
+          leaf("contracts-master", "Contracts (master)", "/dashboard/crm/contracts", FileText, p, { exact: true }),
           leaf("contracts-renewals", "Contract renewals", "/dashboard/crm/contracts/renewals", RotateCw, p),
           leaf("contracts-templates", "Contract templates", "/dashboard/crm/contracts/templates", FileSpreadsheet, p),
           leaf("contracts-types", "Contract types", "/dashboard/crm/contracts/types", Tags, p),
-          leaf("deals", "Deals", "/dashboard/crm/deals", Trophy, p),
-          leaf("leads", "Leads (master)", "/dashboard/crm/leads", Target, p),
-          leaf("conversions", "Conversions", "/dashboard/crm/conversions", TrendingUp, p),
         ],
       },
 
-      /* ─── Purchases ─── */
+      /* ─── 5. Procurement ─── */
       {
-        id: "crm-purchases",
-        label: "Purchases",
+        id: "crm-procurement",
+        label: "Procurement",
         items: [
-          leaf("purchases-home", "Purchases", "/dashboard/crm/purchases", ShoppingCart, p, { exact: true }),
+          leaf("purchases-home", "Purchases home", "/dashboard/crm/purchases", ShoppingCart, p, { exact: true }),
           leaf("vendors", "Vendors", "/dashboard/crm/purchases/vendors", Building, p),
           leaf("expenses", "Purchases & expenses", "/dashboard/crm/purchases/expenses", Receipt, p),
           leaf("purchase-orders", "Purchase orders", "/dashboard/crm/purchases/orders", ShoppingBag, p),
@@ -792,7 +805,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── Inventory ─── */
+      /* ─── 6. Inventory ─── */
       {
         id: "crm-inventory",
         label: "Inventory",
@@ -814,10 +827,10 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         ],
       },
 
-      /* ─── Accounting ─── */
+      /* ─── 7. Accounting & Banking ─── */
       {
         id: "crm-accounting",
-        label: "Accounting",
+        label: "Accounting & Banking",
         items: [
           leaf("accounting-home", "Accounting", "/dashboard/crm/accounting", Wallet, p, { exact: true, adminOnly: true }),
           leaf("acc-groups", "Account groups", "/dashboard/crm/accounting/groups", Layers, p, { adminOnly: true }),
@@ -829,64 +842,24 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("acc-income", "Income statement", "/dashboard/crm/accounting/income-statement", DollarSign, p, { adminOnly: true }),
           leaf("acc-day-book", "Day book", "/dashboard/crm/accounting/day-book", BookOpen, p, { adminOnly: true }),
           leaf("acc-cash-flow", "Cash flow", "/dashboard/crm/accounting/cash-flow", TrendingUp, p, { adminOnly: true }),
-        ],
-      },
-
-      /* ─── Banking & Payments ─── */
-      {
-        id: "crm-banking",
-        label: "Banking & Payments",
-        items: [
           leaf("banking-home", "Banking", "/dashboard/crm/banking", CreditCard, p, { exact: true, adminOnly: true }),
           leaf("banking-all", "All accounts", "/dashboard/crm/banking/all", Wallet, p, { adminOnly: true }),
           leaf("bank-accounts", "Bank accounts", "/dashboard/crm/banking/bank-accounts", Building, p, { adminOnly: true }),
           leaf("emp-accounts", "Employee accounts", "/dashboard/crm/banking/employee-accounts", Users, p, { adminOnly: true }),
           leaf("bank-txns", "Bank transactions", "/dashboard/crm/banking/bank-transactions", ArrowDown, p, { adminOnly: true }),
           leaf("reconciliation", "Reconciliation", "/dashboard/crm/banking/reconciliation", CheckCircle2, p, { adminOnly: true }),
+          leaf("loans", "Loans", "/dashboard/crm/loans", Coins, p),
+          leaf("budgets", "Budgets", "/dashboard/crm/budgets", PieChart, p),
+          leaf("petty-cash", "Petty cash", "/dashboard/crm/petty-cash", Wallet, p),
+          leaf("fixed-assets", "Fixed assets", "/dashboard/crm/fixed-assets", HardDrive, p),
+          leaf("eway-bills", "Tax E-way bills", "/dashboard/crm/tax/eway-bills", Truck, p, { adminOnly: true }),
         ],
       },
 
-      /* ─── Tickets & Knowledge Base ─── */
+      /* ─── 8. Operations ─── */
       {
-        id: "crm-tickets",
-        label: "Tickets & KB",
-        items: [
-          leaf("tickets", "Tickets", "/dashboard/crm/tickets", Ticket, p, { exact: true }),
-          leaf("tickets-groups", "Groups", "/dashboard/crm/tickets/groups", Users, p, { adminOnly: true }),
-          leaf("tickets-agent-groups", "Agent groups", "/dashboard/crm/tickets/agent-groups", UserCog, p, { adminOnly: true }),
-          leaf("tickets-channels", "Channels", "/dashboard/crm/tickets/channels", Inbox, p, { adminOnly: true }),
-          leaf("tickets-types", "Types", "/dashboard/crm/tickets/types", Tags, p, { adminOnly: true }),
-          leaf("tickets-tags", "Tags", "/dashboard/crm/tickets/tags", Tag, p, { adminOnly: true }),
-          leaf("tickets-sla", "SLA", "/dashboard/crm/tickets/sla", AlertTriangle, p, { adminOnly: true }),
-          leaf("tickets-custom-forms", "Custom forms", "/dashboard/crm/tickets/custom-forms", FileSpreadsheet, p, { adminOnly: true }),
-          leaf("tickets-reply-templates", "Reply templates", "/dashboard/crm/tickets/reply-templates", MessageSquare, p, { adminOnly: true }),
-          leaf("tickets-kb", "Knowledge base", "/dashboard/crm/tickets/knowledge-base", BookOpen, p),
-        ],
-      },
-
-      /* ─── Workspace & Collaboration ─── */
-      {
-        id: "crm-workspace",
-        label: "Workspace",
-        items: [
-          leaf("workspace-home", "Workspace", "/dashboard/crm/workspace", Briefcase, p, { exact: true }),
-          leaf("discussions", "Discussions", "/dashboard/crm/workspace/discussions", MessagesSquare, p),
-          leaf("discussions-cats", "Discussion categories", "/dashboard/crm/workspace/discussions/categories", FolderOpen, p),
-          leaf("events", "Events", "/dashboard/crm/workspace/events", Calendar, p),
-          leaf("events-calendar", "Events calendar", "/dashboard/crm/workspace/events/calendar", Calendar, p),
-          leaf("notices", "Notices", "/dashboard/crm/workspace/notices", Megaphone, p),
-          leaf("sticky-notes", "Sticky notes", "/dashboard/crm/workspace/sticky-notes", FileText, p),
-          leaf("workspace-kb", "Knowledge base", "/dashboard/crm/workspace/knowledge-base", BookOpen, p),
-          leaf("workspace-kb-cats", "KB categories", "/dashboard/crm/workspace/knowledge-base/categories", FolderOpen, p),
-          leaf("awards", "Awards", "/dashboard/crm/workspace/awards", Trophy, p),
-          leaf("appreciations", "Appreciations", "/dashboard/crm/workspace/awards/appreciations", Heart, p),
-        ],
-      },
-
-      /* ─── Projects & Tasks ─── */
-      {
-        id: "crm-projects",
-        label: "Projects & Tasks",
+        id: "crm-operations",
+        label: "Operations",
         items: [
           {
             ...leaf("projects", "Projects", "/dashboard/crm/projects", ListChecks, p, { exact: true }),
@@ -906,119 +879,51 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
             ],
           },
           leaf("tasks", "Tasks", "/dashboard/crm/tasks", Check, p),
-        ],
-      },
-
-      /* ─── Time Tracking ─── */
-      {
-        id: "crm-time",
-        label: "Time tracking",
-        items: [
           leaf("time-home", "Time tracking", "/dashboard/crm/time-tracking", Timer, p, { exact: true }),
           leaf("time-logs", "Time logs", "/dashboard/crm/time-tracking/time-logs", Clock, p),
           leaf("weekly-ts", "Weekly timesheets", "/dashboard/crm/time-tracking/weekly-timesheets", Calendar, p),
-          leaf("time-reports", "Reports", "/dashboard/crm/time-tracking/reports", BarChart3, p, { adminOnly: true }),
-          leaf("time-settings", "Settings", "/dashboard/crm/time-tracking/settings", Settings, p, { adminOnly: true }),
-        ],
-      },
-
-      /* ─── Reports ─── */
-      {
-        id: "crm-reports",
-        label: "Reports",
-        items: [
-          leaf("reports-home", "Reports", "/dashboard/crm/reports", BarChart3, p, { exact: true, adminOnly: true }),
-          leaf("gstr-1", "GSTR-1", "/dashboard/crm/reports/gstr-1", FileSpreadsheet, p, { adminOnly: true }),
-          leaf("gstr-2b", "GSTR-2B", "/dashboard/crm/reports/gstr-2b", FileSpreadsheet, p, { adminOnly: true }),
-          leaf("top-clients", "Top clients", "/dashboard/crm/reports/top-clients", Trophy, p, { adminOnly: true }),
-          leaf("top-products", "Top products", "/dashboard/crm/reports/top-products", Star, p, { adminOnly: true }),
-          leaf("sales-deals", "Sales deals", "/dashboard/crm/reports/sales-deals", TrendingUp, p, { adminOnly: true }),
-          leaf("invoice-aging", "Invoice aging", "/dashboard/crm/reports/invoice-aging", Clock, p, { adminOnly: true }),
-          leaf("payment-report", "Payment report", "/dashboard/crm/reports/payment-report", CreditCard, p, { adminOnly: true }),
-          leaf("leads-conversion", "Leads conversion", "/dashboard/crm/reports/leads-conversion", Filter, p, { adminOnly: true }),
-          leaf("late-report", "Late report", "/dashboard/crm/reports/late-report", AlertTriangle, p, { adminOnly: true }),
-          leaf("overdue-tasks", "Overdue tasks", "/dashboard/crm/reports/overdue-tasks", AlertTriangle, p),
-          leaf("task-report", "Task report", "/dashboard/crm/reports/task-report", ListChecks, p, { adminOnly: true }),
-          leaf("ticket-report", "Ticket report", "/dashboard/crm/reports/ticket-report", Ticket, p, { adminOnly: true }),
-          leaf("project-status", "Project status", "/dashboard/crm/reports/project-status-report", Flag, p, { adminOnly: true }),
-          leaf("agent-performance", "Agent performance", "/dashboard/crm/reports/agent-performance", Gauge, p, { adminOnly: true }),
-          leaf("attendance-rep", "Attendance", "/dashboard/crm/reports/attendance-report", UserCheck, p, { adminOnly: true }),
-          leaf("leave-rep", "Leave", "/dashboard/crm/reports/leave-report", Calendar, p, { adminOnly: true }),
-          leaf("leave-balance-rep", "Leave balance", "/dashboard/crm/reports/leave-balance-report", PieChart, p),
-          leaf("birthday", "Birthday / anniversary", "/dashboard/crm/reports/birthday-anniversary", Heart, p),
-          leaf("income-rep", "Income", "/dashboard/crm/reports/income", DollarSign, p, { adminOnly: true }),
-          leaf("expense-rep", "Expense", "/dashboard/crm/reports/expense", Receipt, p, { adminOnly: true }),
-          leaf("profit-loss", "Profit & Loss", "/dashboard/crm/reports/profit-loss", BarChart3, p, { adminOnly: true }),
-          leaf("tax", "Tax", "/dashboard/crm/reports/tax", Percent, p, { adminOnly: true }),
-        ],
-      },
-
-      /* ─── Cross-cutting / Misc ─── */
-      {
-        id: "crm-cross",
-        label: "Cross-cutting",
-        items: [
-          leaf("loans", "Loans", "/dashboard/crm/loans", Coins, p),
-          leaf("budgets", "Budgets", "/dashboard/crm/budgets", PieChart, p),
-          leaf("petty-cash", "Petty cash", "/dashboard/crm/petty-cash", Wallet, p),
+          leaf("time-reports", "Time reports", "/dashboard/crm/time-tracking/reports", BarChart3, p, { adminOnly: true }),
+          leaf("time-settings", "Time settings", "/dashboard/crm/time-tracking/settings", Settings, p, { adminOnly: true }),
           leaf("bookings", "Bookings", "/dashboard/crm/bookings", Calendar, p),
-          leaf("fixed-assets", "Fixed assets", "/dashboard/crm/fixed-assets", HardDrive, p),
           leaf("service-contracts", "Service contracts", "/dashboard/crm/service-contracts", FileText, p),
-          leaf("portal", "Portal", "/dashboard/crm/portal", Globe, p),
-          leaf("dashboards", "Dashboards", "/dashboard/crm/dashboards", LayoutGrid, p),
-          leaf("files", "Files", "/dashboard/crm/files", Files, p),
-          leaf("files-folders", "File folders", "/dashboard/crm/files/folders", FolderOpen, p),
-          leaf("audit-log", "Audit log", "/dashboard/crm/audit-log", FileSearch, p, { adminOnly: true }),
-          leaf("activity-x", "Activity", "/dashboard/crm/activity", Activity, p),
-          leaf("notifications-x", "Notifications", "/dashboard/crm/notifications", Bell, p),
-          leaf("search-x", "Search", "/dashboard/crm/search", Search, p),
+          leaf("tickets", "Tickets", "/dashboard/crm/tickets", Ticket, p, { exact: true }),
+          leaf("tickets-groups", "Ticket groups", "/dashboard/crm/tickets/groups", Users, p, { adminOnly: true }),
+          leaf("tickets-agent-groups", "Agent groups", "/dashboard/crm/tickets/agent-groups", UserCog, p, { adminOnly: true }),
+          leaf("tickets-channels", "Channels", "/dashboard/crm/tickets/channels", Inbox, p, { adminOnly: true }),
+          leaf("tickets-types", "Ticket types", "/dashboard/crm/tickets/types", Tags, p, { adminOnly: true }),
+          leaf("tickets-tags", "Ticket tags", "/dashboard/crm/tickets/tags", Tag, p, { adminOnly: true }),
+          leaf("tickets-sla", "SLA", "/dashboard/crm/tickets/sla", AlertTriangle, p, { adminOnly: true }),
+          leaf("tickets-custom-forms", "Ticket custom forms", "/dashboard/crm/tickets/custom-forms", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("tickets-reply-templates", "Reply templates", "/dashboard/crm/tickets/reply-templates", MessageSquare, p, { adminOnly: true }),
+          leaf("tickets-kb", "Ticket knowledge base", "/dashboard/crm/tickets/knowledge-base", BookOpen, p),
+        ],
+      },
+
+      /* ─── 9. Workplace ─── */
+      {
+        id: "crm-workplace",
+        label: "Workplace",
+        items: [
+          leaf("workspace-home", "Workspace", "/dashboard/crm/workspace", Briefcase, p, { exact: true }),
+          leaf("discussions", "Discussions", "/dashboard/crm/workspace/discussions", MessagesSquare, p),
+          leaf("discussions-cats", "Discussion categories", "/dashboard/crm/workspace/discussions/categories", FolderOpen, p),
+          leaf("events", "Events", "/dashboard/crm/workspace/events", Calendar, p),
+          leaf("events-calendar", "Events calendar", "/dashboard/crm/workspace/events/calendar", Calendar, p),
+          leaf("notices", "Notices", "/dashboard/crm/workspace/notices", Megaphone, p),
+          leaf("sticky-notes", "Sticky notes", "/dashboard/crm/workspace/sticky-notes", FileText, p),
+          leaf("workspace-kb", "Workspace KB", "/dashboard/crm/workspace/knowledge-base", BookOpen, p),
+          leaf("workspace-kb-cats", "KB categories", "/dashboard/crm/workspace/knowledge-base/categories", FolderOpen, p),
+          leaf("awards", "Awards", "/dashboard/crm/workspace/awards", Trophy, p),
+          leaf("appreciations", "Appreciations", "/dashboard/crm/workspace/awards/appreciations", Heart, p),
           leaf("messages", "Messages", "/dashboard/crm/messages", MessageSquare, p),
           leaf("email", "Email", "/dashboard/crm/email", Mail, p),
-          leaf("analytics", "Analytics", "/dashboard/crm/analytics", PieChart, p),
-          leaf("automations", "Automations", "/dashboard/crm/automations", Workflow, p),
-          leaf("automations-docs", "Automations docs", "/dashboard/crm/automations/docs", BookOpen, p, { adminOnly: true }),
-          leaf("auto-leads", "Auto-leads setup", "/dashboard/crm/auto-leads-setup", Wand2, p, { adminOnly: true }),
-          leaf("setup", "Setup", "/dashboard/crm/setup", Sparkles, p, { adminOnly: true }),
         ],
       },
 
-      /* ─── Team ─── */
+      /* ─── 10. Admin ─── */
       {
-        id: "crm-team",
-        label: "Team",
-        items: [
-          leaf("team-home", "Team", "/dashboard/crm/team", Users, p, { exact: true }),
-          leaf("manage-users", "Manage users", "/dashboard/crm/team/manage-users", UserCog, p, { adminOnly: true }),
-          leaf("manage-roles", "Manage roles", "/dashboard/crm/team/manage-roles", Shield, p, { adminOnly: true }),
-          leaf("team-chat", "Team chat", "/dashboard/crm/team/team-chat", MessagesSquare, p),
-        ],
-      },
-
-      /* ─── Integrations ─── */
-      {
-        id: "crm-integrations",
-        label: "Integrations",
-        items: [
-          leaf("integrations", "All integrations", "/dashboard/crm/integrations", Puzzle, p, { exact: true, adminOnly: true }),
-          leaf("int-settings", "Integrations settings", "/dashboard/crm/settings/integrations", Plug, p, { exact: true, adminOnly: true }),
-          leaf("int-email-notif", "Email notifications", "/dashboard/crm/settings/integrations/email-notifications", Mail, p, { adminOnly: true }),
-          leaf("int-fb-ads", "Facebook ads", "/dashboard/crm/settings/integrations/facebook-ads", Megaphone, p, { adminOnly: true }),
-          leaf("int-gcal", "Google Calendar", "/dashboard/crm/settings/integrations/google-calendar", Calendar, p, { adminOnly: true }),
-          leaf("int-msg-settings", "Message settings", "/dashboard/crm/settings/integrations/message-settings", MessageSquare, p, { adminOnly: true }),
-          leaf("int-push", "Push notifications", "/dashboard/crm/settings/integrations/push-notifications", Bell, p, { adminOnly: true }),
-          leaf("int-qbooks", "QuickBooks", "/dashboard/crm/settings/integrations/quickbooks", Wallet, p, { adminOnly: true }),
-          leaf("int-slack", "Slack", "/dashboard/crm/settings/integrations/slack", MessagesSquare, p, { adminOnly: true }),
-          leaf("int-smtp", "SMTP", "/dashboard/crm/settings/integrations/smtp", Mail, p, { adminOnly: true }),
-          leaf("int-social", "Social auth", "/dashboard/crm/settings/integrations/social-auth", Key, p, { adminOnly: true }),
-          leaf("int-storage", "Storage", "/dashboard/crm/settings/integrations/storage", HardDrive, p, { adminOnly: true }),
-          leaf("int-ticket-email", "Ticket email", "/dashboard/crm/settings/integrations/ticket-email", Mail, p, { adminOnly: true }),
-        ],
-      },
-
-      /* ─── Settings ─── */
-      {
-        id: "crm-settings",
-        label: "Settings",
+        id: "crm-admin",
+        label: "Admin",
         items: [
           leaf("settings-home", "Settings", "/dashboard/crm/settings", Settings, p, { exact: true, adminOnly: true }),
           leaf("company-profile", "Company profile", "/dashboard/crm/settings/company-profile", Building, p, { adminOnly: true }),
@@ -1041,7 +946,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("attendance-settings", "Attendance settings", "/dashboard/crm/settings/attendance-settings", UserCheck, p, { adminOnly: true }),
           leaf("project-settings", "Project settings", "/dashboard/crm/settings/project-settings", ListChecks, p, { adminOnly: true }),
           leaf("task-settings", "Task settings", "/dashboard/crm/settings/task-settings", Check, p, { adminOnly: true }),
-          leaf("promotions-settings", "Promotions", "/dashboard/crm/settings/promotions", Megaphone, p, { adminOnly: true }),
+          leaf("promotions-settings", "Promotions settings", "/dashboard/crm/settings/promotions", Megaphone, p, { adminOnly: true }),
           leaf("public-payment", "Public payment", "/dashboard/crm/settings/public-payment", CreditCard, p, { adminOnly: true }),
           leaf("payment-gateways", "Payment gateways", "/dashboard/crm/settings/payment-gateways", CreditCard, p, { adminOnly: true }),
           leaf("offline-payment", "Offline payment methods", "/dashboard/crm/settings/offline-payment-methods", Wallet, p, { adminOnly: true }),
@@ -1059,6 +964,56 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("module-menu", "Module menu", "/dashboard/crm/settings/menu", Layers, p, { adminOnly: true }),
           leaf("modules", "Modules", "/dashboard/crm/settings/modules", Puzzle, p, { adminOnly: true }),
           leaf("invitations", "Invitations", "/dashboard/crm/settings/invitations", UserPlus, p, { adminOnly: true }),
+          leaf("team-home", "Team", "/dashboard/crm/team", Users, p, { exact: true }),
+          leaf("manage-users", "Manage users", "/dashboard/crm/team/manage-users", UserCog, p, { adminOnly: true }),
+          leaf("manage-roles", "Manage roles", "/dashboard/crm/team/manage-roles", Shield, p, { adminOnly: true }),
+          leaf("team-chat", "Team chat", "/dashboard/crm/team/team-chat", MessagesSquare, p),
+          leaf("integrations", "All integrations", "/dashboard/crm/integrations", Puzzle, p, { exact: true, adminOnly: true }),
+          leaf("int-settings", "Integrations settings", "/dashboard/crm/settings/integrations", Plug, p, { exact: true, adminOnly: true }),
+          leaf("int-email-notif", "Email notifications", "/dashboard/crm/settings/integrations/email-notifications", Mail, p, { adminOnly: true }),
+          leaf("int-fb-ads", "Facebook ads", "/dashboard/crm/settings/integrations/facebook-ads", Megaphone, p, { adminOnly: true }),
+          leaf("int-gcal", "Google Calendar", "/dashboard/crm/settings/integrations/google-calendar", Calendar, p, { adminOnly: true }),
+          leaf("int-msg-settings", "Message settings", "/dashboard/crm/settings/integrations/message-settings", MessageSquare, p, { adminOnly: true }),
+          leaf("int-push", "Push notifications", "/dashboard/crm/settings/integrations/push-notifications", Bell, p, { adminOnly: true }),
+          leaf("int-qbooks", "QuickBooks", "/dashboard/crm/settings/integrations/quickbooks", Wallet, p, { adminOnly: true }),
+          leaf("int-slack", "Slack", "/dashboard/crm/settings/integrations/slack", MessagesSquare, p, { adminOnly: true }),
+          leaf("int-smtp", "SMTP", "/dashboard/crm/settings/integrations/smtp", Mail, p, { adminOnly: true }),
+          leaf("int-social", "Social auth", "/dashboard/crm/settings/integrations/social-auth", Key, p, { adminOnly: true }),
+          leaf("int-storage", "Storage", "/dashboard/crm/settings/integrations/storage", HardDrive, p, { adminOnly: true }),
+          leaf("int-ticket-email", "Ticket email", "/dashboard/crm/settings/integrations/ticket-email", Mail, p, { adminOnly: true }),
+          /* Reports — full sub-reports list (admin-facing analytics) */
+          leaf("reports-home", "Reports", "/dashboard/crm/reports", BarChart3, p, { exact: true, adminOnly: true }),
+          leaf("gstr-1", "GSTR-1", "/dashboard/crm/reports/gstr-1", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("gstr-2b", "GSTR-2B", "/dashboard/crm/reports/gstr-2b", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("top-clients", "Top clients", "/dashboard/crm/reports/top-clients", Trophy, p, { adminOnly: true }),
+          leaf("top-products", "Top products", "/dashboard/crm/reports/top-products", Star, p, { adminOnly: true }),
+          leaf("sales-deals-rep", "Sales deals", "/dashboard/crm/reports/sales-deals", TrendingUp, p, { adminOnly: true }),
+          leaf("invoice-aging", "Invoice aging", "/dashboard/crm/reports/invoice-aging", Clock, p, { adminOnly: true }),
+          leaf("payment-report", "Payment report", "/dashboard/crm/reports/payment-report", CreditCard, p, { adminOnly: true }),
+          leaf("leads-conversion", "Leads conversion", "/dashboard/crm/reports/leads-conversion", Filter, p, { adminOnly: true }),
+          leaf("late-report", "Late report", "/dashboard/crm/reports/late-report", AlertTriangle, p, { adminOnly: true }),
+          leaf("overdue-tasks", "Overdue tasks", "/dashboard/crm/reports/overdue-tasks", AlertTriangle, p),
+          leaf("task-report", "Task report", "/dashboard/crm/reports/task-report", ListChecks, p, { adminOnly: true }),
+          leaf("ticket-report", "Ticket report", "/dashboard/crm/reports/ticket-report", Ticket, p, { adminOnly: true }),
+          leaf("project-status", "Project status", "/dashboard/crm/reports/project-status-report", Flag, p, { adminOnly: true }),
+          leaf("agent-performance", "Agent performance", "/dashboard/crm/reports/agent-performance", Gauge, p, { adminOnly: true }),
+          leaf("attendance-rep", "Attendance", "/dashboard/crm/reports/attendance-report", UserCheck, p, { adminOnly: true }),
+          leaf("leave-rep", "Leave", "/dashboard/crm/reports/leave-report", Calendar, p, { adminOnly: true }),
+          leaf("leave-balance-rep", "Leave balance", "/dashboard/crm/reports/leave-balance-report", PieChart, p),
+          leaf("birthday", "Birthday / anniversary", "/dashboard/crm/reports/birthday-anniversary", Heart, p),
+          leaf("income-rep", "Income", "/dashboard/crm/reports/income", DollarSign, p, { adminOnly: true }),
+          leaf("expense-rep", "Expense", "/dashboard/crm/reports/expense", Receipt, p, { adminOnly: true }),
+          leaf("profit-loss-rep", "Profit & Loss", "/dashboard/crm/reports/profit-loss", BarChart3, p, { adminOnly: true }),
+          leaf("tax-rep", "Tax", "/dashboard/crm/reports/tax", Percent, p, { adminOnly: true }),
+          /* Cross-cutting admin tooling */
+          leaf("audit-log", "Audit log", "/dashboard/crm/audit-log", FileSearch, p, { adminOnly: true }),
+          leaf("setup", "Setup", "/dashboard/crm/setup", Sparkles, p, { adminOnly: true }),
+          leaf("automations", "Automations master", "/dashboard/crm/automations", Workflow, p),
+          leaf("automations-docs", "Automations docs", "/dashboard/crm/automations/docs", BookOpen, p, { adminOnly: true }),
+          leaf("analytics", "Analytics", "/dashboard/crm/analytics", PieChart, p),
+          leaf("dashboards", "Dashboards", "/dashboard/crm/dashboards", LayoutGrid, p),
+          leaf("files", "Files", "/dashboard/crm/files", Files, p),
+          leaf("files-folders", "File folders", "/dashboard/crm/files/folders", FolderOpen, p),
         ],
       },
     ],

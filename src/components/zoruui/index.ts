@@ -356,6 +356,11 @@ export {
   ZoruColorPicker,
   type ZoruColorPickerProps,
 } from "./color-picker";
+export {
+  ZoruIconPicker,
+  ZORU_ICONS,
+  type ZoruIconPickerProps,
+} from "./icon-picker";
 
 // Marketing & landing primitives
 export {

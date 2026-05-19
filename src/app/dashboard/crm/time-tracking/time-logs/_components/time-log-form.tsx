@@ -33,6 +33,8 @@ import { ArrowLeft,
  * one-click flow.
  */
 
+import { EntityFormField } from '@/components/crm/entity-form-field';
+
 import { saveTimeLog } from '@/app/actions/crm-time-logs.actions';
 import type {
     CrmTimeLogDoc,
@@ -224,21 +226,36 @@ export function TimeLogForm({ initialData }: TimeLogFormProps) {
                         </ZoruSelect>
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="entityId">Entity id</ZoruLabel>
-                        <ZoruInput
-                            id="entityId"
-                            name="entityId"
-                            placeholder="ObjectId"
-                            defaultValue={initialData?.entityId ?? ''}
-                        />
+                        <ZoruLabel>Entity</ZoruLabel>
+                        {(() => {
+                            const ENTITY_BY_KIND: Record<
+                                CrmTimeLogEntityKind,
+                                { entity: 'task' | 'subtask' | 'issue' | 'ticket'; label: string }
+                            > = {
+                                task: { entity: 'task', label: 'Pick a task…' },
+                                project_task: { entity: 'subtask', label: 'Pick a subtask…' },
+                                issue: { entity: 'issue', label: 'Pick an issue…' },
+                                ticket: { entity: 'ticket', label: 'Pick a ticket…' },
+                            };
+                            const cfg = ENTITY_BY_KIND[entityKind as CrmTimeLogEntityKind];
+                            return (
+                                <EntityFormField
+                                    key={entityKind}
+                                    entity={cfg.entity}
+                                    name="entityId"
+                                    initialId={initialData?.entityId ?? null}
+                                    placeholder={cfg.label}
+                                />
+                            );
+                        })()}
                     </div>
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="projectId">Project id</ZoruLabel>
-                        <ZoruInput
-                            id="projectId"
+                        <ZoruLabel>Project</ZoruLabel>
+                        <EntityFormField
+                            entity="project"
                             name="projectId"
-                            placeholder="Optional"
-                            defaultValue={initialData?.projectId ?? ''}
+                            initialId={initialData?.projectId ?? null}
+                            placeholder="Pick a project…"
                         />
                     </div>
                 </div>

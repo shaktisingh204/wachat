@@ -235,28 +235,35 @@ export function VendorBidForm({ initial }: VendorBidFormProps) {
             </p>
           </div>
           <div>
-            <ZoruLabel htmlFor="rfqId">
-              Related RFQ id <span className="text-zoru-danger-ink">*</span>
+            <ZoruLabel>
+              Related RFQ <span className="text-zoru-danger-ink">*</span>
             </ZoruLabel>
-            <ZoruInput
-              id="rfqId"
-              value={rfqId}
-              onChange={(e) => setRfqId(e.target.value)}
-              required={!editing}
-              readOnly={editing}
-              placeholder="24-char hex id of the parent RFQ"
-              className="mt-1.5 font-mono text-[12.5px]"
-            />
+            <div className="mt-1.5">
+              {editing ? (
+                <>
+                  <input type="hidden" value={rfqId} />
+                  <ZoruInput
+                    value={rfqId}
+                    readOnly
+                    className="font-mono text-[12.5px]"
+                  />
+                </>
+              ) : (
+                <EntityFormField
+                  entity="rfq"
+                  name="__rfqId_picker"
+                  initialId={rfqId || null}
+                  onChange={(id) => setRfqId(id ?? '')}
+                  required
+                  placeholder="Pick an RFQ…"
+                />
+              )}
+            </div>
             {editing ? (
               <p className="mt-1 text-[11px] text-zoru-ink-muted">
                 The RFQ parent is immutable — withdraw + resubmit instead.
               </p>
-            ) : (
-              <p className="mt-1 text-[11px] text-zoru-ink-muted">
-                RFQ isn't a registered lookup entity yet — paste the id from
-                the RFQ detail page.
-              </p>
-            )}
+            ) : null}
           </div>
           <div>
             <ZoruLabel>Currency</ZoruLabel>

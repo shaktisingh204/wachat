@@ -1,6 +1,8 @@
 'use client';
 
 import { ZoruCard, ZoruInput, ZoruLabel, ZoruTextarea } from '@/components/zoruui';
+import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
+import { Image as ImageIcon, X } from 'lucide-react';
 /**
  * Section sub-cards for `<InvoiceForm>`. Hoisted out so the form file
  * stays under the 600-line cap. Each section is presentational —
@@ -307,17 +309,33 @@ export function BankSection({
           />
         </div>
         <div className="md:col-span-2">
-          <ZoruLabel htmlFor="qrImageFileId">QR image (SabFile id)</ZoruLabel>
-          <ZoruInput
-            id="qrImageFileId"
-            value={qrImageFileId}
-            onChange={(e) => onQrImageFileId(e.target.value)}
-            className="mt-1.5"
-            placeholder="Paste a SabFile id"
-          />
+          <ZoruLabel>QR image</ZoruLabel>
+          <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            <SabFilePickerButton
+              accept="image"
+              onPick={(p: SabFilePick) => onQrImageFileId(p.id)}
+              variant="outline"
+              className="h-9 gap-1.5 text-xs"
+            >
+              <ImageIcon className="h-3.5 w-3.5" />
+              {qrImageFileId ? 'Replace image' : 'Pick QR image'}
+            </SabFilePickerButton>
+            {qrImageFileId ? (
+              <div className="flex items-center gap-1 rounded-[var(--zoru-radius)] bg-zoru-surface px-2 py-1 text-xs text-zoru-ink">
+                <span className="max-w-[200px] truncate font-mono">{qrImageFileId}</span>
+                <button
+                  type="button"
+                  onClick={() => onQrImageFileId('')}
+                  className="text-zoru-ink-muted hover:text-zoru-ink"
+                  aria-label="Clear QR image"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ) : null}
+          </div>
           <p className="mt-1 text-[11px] text-zoru-ink-muted">
-            {/* TODO 1D.3: wire <SabFilePickerButton/> for QR image upload */}
-            Use a SabFile id. Picker integration is queued.
+            Pick from your SabFiles library or upload a new image.
           </p>
         </div>
       </div>

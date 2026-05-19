@@ -186,6 +186,14 @@ pub struct ProcessWebhookBody {
     pub adset_id: Option<String>,
     #[serde(default)]
     pub campaign_id: Option<String>,
+    /// CRM ↔ Facebook ads binding override — pipeline slug/ObjectId hex
+    /// from `/dashboard/crm/settings/integrations/facebook-ads`. When
+    /// present, takes precedence over the form's `defaultRouting`.
+    #[serde(default)]
+    pub crm_pipeline: Option<String>,
+    /// CRM stage override (paired with `crm_pipeline`).
+    #[serde(default)]
+    pub crm_stage: Option<String>,
 }
 
 /// Single entry in the activity log collection.

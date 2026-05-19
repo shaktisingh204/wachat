@@ -1,0 +1,53 @@
+# Email API — tenant API key management for the SabNode email-suite.
+#
+# Mounts under `/v1/email/api-keys` from the `api` crate. Owns the
+# `email_api_keys` collection:
+#
+#   * GET    /          — list keys (prefix + name + scopes; never raw)
+#   * POST   /          — mint a new key (raw value returned exactly once)
+#   * PATCH  /{id}      — rename / re-scope
+#   * DELETE /{id}      — revoke
+#
+# The argon2 hash stored at rest is verified by `verify::verify_api_key`,
+# which other email crates call as middleware to authenticate inbound
+# tenant traffic against `sn_email_*` keys.
+[package]
+name = "email-api"
+version = "0.1.0"
+edition = "2024"
+description = "Tenant API key CRUD + verification for the SabNode email-suite (`/v1/email/api-keys`)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_api"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+futures = "0.3"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Argon2id hashing — raw key shown once, hash persisted.
+argon2 = "0.5"
+
+# Random plaintext generation.
+rand = "0.8"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

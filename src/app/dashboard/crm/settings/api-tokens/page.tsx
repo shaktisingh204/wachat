@@ -54,6 +54,7 @@ import {
     revokeApiToken,
     type CrmApiTokenRow,
 } from '@/app/actions/crm-api-tokens.actions';
+import { RowDrawer } from '@/components/crm/row-drawer';
 
 function formatDate(iso: string | null): string {
     if (!iso) return '—';
@@ -173,12 +174,33 @@ export default function CrmApiTokensPage() {
                             rows.map((row) => (
                                 <ZoruTableRow key={row._id}>
                                     <ZoruTableCell className="font-medium">
-                                        {row.name}
-                                        {row.revoked && (
-                                            <ZoruBadge variant="danger" className="ml-2">
-                                                revoked
-                                            </ZoruBadge>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            <RowDrawer
+                                                label={row.name}
+                                                subtitle={`Prefix ${row.prefix}…`}
+                                                title={`API Token · ${row.name}`}
+                                                description="Read-only token details. Edit form coming in Batch 4."
+                                            >
+                                                <div className="space-y-3 text-sm">
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Prefix</div>
+                                                        <div className="font-mono">{row.prefix}…</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Scopes</div>
+                                                        <div>{row.scopes.length} scope{row.scopes.length === 1 ? '' : 's'}</div>
+                                                    </div>
+                                                    <p className="text-muted-foreground text-xs">
+                                                        Edit form coming in Batch 4.
+                                                    </p>
+                                                </div>
+                                            </RowDrawer>
+                                            {row.revoked && (
+                                                <ZoruBadge variant="danger">
+                                                    revoked
+                                                </ZoruBadge>
+                                            )}
+                                        </div>
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-mono text-xs">
                                         {row.prefix}…

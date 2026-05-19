@@ -24,6 +24,7 @@ import { ArrowLeft,
  */
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 
 import { saveVendorBid } from '@/app/actions/crm-vendor-bids-v2.actions';
@@ -196,15 +197,25 @@ export function VendorBidForm({ initialData }: VendorBidFormProps) {
 
                 <div className="grid gap-4 sm:grid-cols-2">
                     <div className="space-y-1.5">
-                        <ZoruLabel htmlFor="rfqId">RFQ id *</ZoruLabel>
-                        <ZoruInput
-                            id="rfqId"
-                            name="rfqId"
-                            required={!isEditing}
-                            placeholder="RFQ id this bid responds to"
-                            defaultValue={initialData?.rfqId ?? ''}
-                            disabled={isEditing}
-                        />
+                        <ZoruLabel>RFQ *</ZoruLabel>
+                        {isEditing ? (
+                            <>
+                                <input type="hidden" name="rfqId" value={initialData?.rfqId ?? ''} />
+                                <ZoruInput
+                                    value={initialData?.rfqId ?? ''}
+                                    readOnly
+                                    className="font-mono text-[12.5px]"
+                                />
+                            </>
+                        ) : (
+                            <EntityFormField
+                                entity="rfq"
+                                name="rfqId"
+                                initialId={initialData?.rfqId ?? null}
+                                required
+                                placeholder="Pick an RFQ this bid responds to…"
+                            />
+                        )}
                     </div>
                     <div className="space-y-1.5">
                         <ZoruLabel htmlFor="vendorId">Vendor id *</ZoruLabel>

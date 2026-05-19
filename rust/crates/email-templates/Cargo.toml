@@ -1,0 +1,64 @@
+# Email-suite rebuild — Phase 2 (Templates).
+#
+# This crate is the HTTP front door + render engine for the new
+# Mailchimp-parity email app. It owns:
+#
+#   * Mongo CRUD for `email_templates`, `email_template_blocks`,
+#     `email_brand_kits`.
+#   * Server-side render of `builderJson` (block tree) → MJML → HTML
+#     via the `mrml` crate.
+#
+# The Next.js side talks to this through the `api` crate, which nests
+# `router::<S>()` under `/v1/email/templates`.
+#
+# Note: this crate is intentionally NOT added to `rust/Cargo.toml`'s
+# `members` array here — the orchestrating agent will wire that up.
+[package]
+name = "email-templates"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router + MJML render engine for the SabNode email-suite rebuild. Owns email_templates, email_template_blocks and email_brand_kits CRUD plus builderJson → MJML → HTML rendering."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_templates"
+path = "src/lib.rs"
+
+[dependencies]
+# Axum HTTP — same feature union as sibling routers so the api crate
+# resolves a single set of cargo features at build time.
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+# Standard serialization stack.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# BSON ObjectId / Document on the wire and at rest.
+bson = { version = "2.13", features = ["chrono-0_4"] }
+
+# Wall-clock for `createdAt` / `updatedAt`.
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# Mongo driver + futures combinators for cursor draining.
+mongodb = "3.2"
+futures = "0.3"
+
+# Tracing for handler-level spans.
+tracing = "0.1"
+
+# Error plumbing — anyhow funnels into `ApiError::Internal`.
+anyhow = "1"
+
+# MJML → HTML render. The new builder JSON is walked into MJML strings
+# and handed to `mrml` for the final HTML output.
+mrml = "5"
+
+# Sibling crates — shared error envelope, JWT extractor, Mongo handle.
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

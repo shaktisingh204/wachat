@@ -21,12 +21,15 @@ export async function POST(request: NextRequest, props: { params: Promise<{ form
 
     try {
         const result = await handleFormSubmission(formId, formData);
-        
+
         if (!result.success) {
             return NextResponse.json({ error: result.error || 'Submission failed.' }, { status: 400, headers: corsHeaders });
         }
 
-        return NextResponse.json({ success: true, message: result.message }, { headers: corsHeaders });
+        return NextResponse.json(
+            { success: true, message: result.message, redirectUrl: result.redirectUrl },
+            { headers: corsHeaders },
+        );
 
     } catch (e: any) {
         console.error("CRM Form Submission API Error:", e);

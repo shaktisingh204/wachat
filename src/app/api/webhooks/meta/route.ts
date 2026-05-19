@@ -12,6 +12,7 @@ import {
     processMessengerWebhook,
 } from '@/lib/webhook-processor';
 import { handlePaymentConfigurationUpdate } from '@/app/actions/whatsapp-pay.actions';
+import { shouldForwardFbLeadToCrm } from '@/lib/crm/module-connections.server';
 
 const LOG_PREFIX = '[META WEBHOOK]';
 
@@ -205,9 +206,31 @@ async function processWebhookInline(db: Db, project: any, payload: any) {
                     }
                     if (change.field === 'leadgen' && change.value?.leadgen_id) {
                         const tenantId = String(project.userId);
+                        // CRM ↔ Facebook ads binding decides which lead forms
+                        // flow into the CRM. Empty binding = forward all
+                        // (legacy behavior); configured binding = filter to
+                        // chosen forms and pass routing hints.
                         promises.push(
-                            forwardLeadGenToRust(tenantId, entry.id, change.value).catch(e =>
-                                console.error(`${LOG_PREFIX} LeadGen error:`, e.message))
+                            (async () => {
+                                const gate = await shouldForwardFbLeadToCrm(
+                                    tenantId,
+                                    String(change.value.form_id ?? ''),
+                                );
+                                if (!gate.forward) {
+                                    console.log(
+                                        `${LOG_PREFIX} LeadGen skipped — form ${change.value.form_id} not in CRM binding for tenant ${tenantId}`,
+                                    );
+                                    return;
+                                }
+                                await forwardLeadGenToRust(
+                                    tenantId,
+                                    entry.id,
+                                    change.value,
+                                    gate.routing,
+                                );
+                            })().catch((e) =>
+                                console.error(`${LOG_PREFIX} LeadGen error:`, e.message),
+                            ),
                         );
                     }
                 }
@@ -219,7 +242,12 @@ async function processWebhookInline(db: Db, project: any, payload: any) {
 
 /* ── LeadGen → Rust BFF forwarding ─────────────────────────────── */
 
-async function forwardLeadGenToRust(tenantId: string, pageId: string, value: any) {
+async function forwardLeadGenToRust(
+    tenantId: string,
+    pageId: string,
+    value: any,
+    routing?: { pipeline?: string; stage?: string },
+) {
     const { issueRustJwt } = await import('@/lib/jwt-for-rust');
     const rustBase = process.env.RUST_API_URL || 'http://localhost:8080';
     const token = await issueRustJwt({ userId: tenantId, tenantId, roles: [] });
@@ -236,6 +264,10 @@ async function forwardLeadGenToRust(tenantId: string, pageId: string, value: any
             adId: value.ad_id ?? null,
             adsetId: value.adset_id ?? null,
             campaignId: value.campaign_id ?? null,
+            // CRM routing hints from the facebook-ads binding. The Rust
+            // BFF can use these to seed pipeline/stage on the new lead.
+            ...(routing?.pipeline ? { crmPipeline: routing.pipeline } : {}),
+            ...(routing?.stage ? { crmStage: routing.stage } : {}),
         }),
     });
     if (!res.ok) {

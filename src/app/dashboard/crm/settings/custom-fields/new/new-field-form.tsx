@@ -52,6 +52,7 @@ const ENTITY_LABELS: Record<EntityKey, string> = {
   enum: 'Named enum option',
   industry: 'Industry',
   invoice: 'Invoice',
+  issue: 'Issue',
   item: 'Item / Product',
   jobTitle: 'Job Title',
   language: 'Language',
@@ -60,7 +61,10 @@ const ENTITY_LABELS: Record<EntityKey, string> = {
   location: 'Location',
   pipeline: 'Pipeline',
   project: 'Project',
+  purchaseOrder: 'Purchase Order',
   quotation: 'Quotation',
+  rfq: 'RFQ',
+  sla: 'SLA',
   salutation: 'Salutation',
   stage: 'Pipeline Stage',
   state: 'State / Region',
@@ -73,9 +77,12 @@ const ENTITY_LABELS: Record<EntityKey, string> = {
   brand: 'Brand',
   unit: 'Unit of Measure',
   vendorType: 'Vendor Type',
+  subtask: 'Subtask',
   task: 'Task',
   asset: 'Asset',
+  ticket: 'Ticket',
   ticketGroup: 'Ticket Group',
+  vendorBill: 'Vendor Bill',
 };
 
 type GroupRow = WsCustomFieldGroup & { _id: string };

@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruColorPicker, ZoruInput, ZoruLabel, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useEffect,
@@ -40,6 +40,7 @@ export function DepartmentForm({ initial }: Props) {
   const editing = !!initial?._id;
 
   const [active, setActive] = React.useState<boolean>(initial?.active !== false);
+  const [color, setColor] = React.useState<string>(initial?.color ?? '#F59E0B');
 
   useEffect(() => {
     if (state?.message) {
@@ -98,14 +99,11 @@ export function DepartmentForm({ initial }: Props) {
             />
           </div>
           <div>
-            <ZoruLabel htmlFor="color">Color</ZoruLabel>
-            <ZoruInput
-              id="color"
-              name="color"
-              defaultValue={initial?.color ?? ''}
-              className="mt-1.5"
-              placeholder="amber-500"
-            />
+            <ZoruLabel>Color</ZoruLabel>
+            <input type="hidden" name="color" value={color} />
+            <div className="mt-1.5">
+              <ZoruColorPicker value={color} onChange={setColor} />
+            </div>
           </div>
           <div className="md:col-span-2">
             <ZoruLabel htmlFor="description">Description</ZoruLabel>

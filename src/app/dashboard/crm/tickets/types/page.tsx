@@ -11,6 +11,7 @@ import {
   ZoruAlertDialogTitle,
   ZoruButton,
   ZoruCard,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -223,23 +224,10 @@ export default function TicketTypesPage() {
               />
             </div>
             <div>
-              <ZoruLabel htmlFor="color" className="text-zoru-ink">
-                Colour
-              </ZoruLabel>
-              <div className="mt-1.5 flex items-center gap-2">
-                <span
-                  className="inline-block h-9 w-9 rounded-lg border border-zoru-line"
-                  style={{ backgroundColor: color || '#6B7280' }}
-                  aria-label="Colour preview"
-                />
-                <ZoruInput
-                  id="color"
-                  name="color"
-                  value={color}
-                  onChange={(e) => setColor(e.target.value)}
-                  placeholder="#6B7280"
-                  className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
-                />
+              <ZoruLabel className="text-zoru-ink">Colour</ZoruLabel>
+              <input type="hidden" name="color" value={color} />
+              <div className="mt-1.5">
+                <ZoruColorPicker value={color} onChange={setColor} />
               </div>
             </div>
             <ZoruDialogFooter className="gap-2">

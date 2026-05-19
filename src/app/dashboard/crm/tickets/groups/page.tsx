@@ -10,11 +10,13 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogFooter,
   ZoruDialogHeader,
   ZoruDialogTitle,
+  ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -32,6 +34,7 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
+import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
@@ -114,12 +117,24 @@ function TicketGroupDialog({
   const [status, setStatus] = React.useState<CrmTicketGroupStatus>(
     initialData?.status ?? 'active',
   );
+  const [defaultAssigneeId, setDefaultAssigneeId] = React.useState<string>(
+    initialData?.defaultAssigneeId ?? '',
+  );
+  const [defaultSlaId, setDefaultSlaId] = React.useState<string>(
+    initialData?.defaultSlaId ?? '',
+  );
+  const [color, setColor] = React.useState<string>(initialData?.color ?? '#0EA5E9');
+  const [icon, setIcon] = React.useState<string>(initialData?.icon ?? '');
 
   React.useEffect(() => {
     if (!isOpen) return;
     setIsActive(initialData?.isActive ?? true);
     setParentGroupId(initialData?.parentGroupId ?? '');
     setStatus(initialData?.status ?? 'active');
+    setDefaultAssigneeId(initialData?.defaultAssigneeId ?? '');
+    setDefaultSlaId(initialData?.defaultSlaId ?? '');
+    setColor(initialData?.color ?? '#0EA5E9');
+    setIcon(initialData?.icon ?? '');
   }, [initialData, isOpen]);
 
   React.useEffect(() => {
@@ -160,6 +175,10 @@ function TicketGroupDialog({
             value={isActive ? 'true' : 'false'}
           />
           <input type="hidden" name="parentGroupId" value={parentGroupId} />
+          <input type="hidden" name="defaultAssigneeId" value={defaultAssigneeId} />
+          <input type="hidden" name="defaultSlaId" value={defaultSlaId} />
+          <input type="hidden" name="color" value={color} />
+          <input type="hidden" name="icon" value={icon} />
           {isEditing ? (
             <input type="hidden" name="status" value={status} />
           ) : null}
@@ -217,49 +236,35 @@ function TicketGroupDialog({
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="defaultAssigneeId">
-                  Default assignee (user ID)
-                </ZoruLabel>
-                <ZoruInput
-                  id="defaultAssigneeId"
-                  name="defaultAssigneeId"
-                  placeholder="ObjectId, e.g. 64f8…"
-                  defaultValue={initialData?.defaultAssigneeId ?? ''}
+                <ZoruLabel>Default assignee</ZoruLabel>
+                <EntityFormField
+                  entity="user"
+                  name="__defaultAssigneeId_picker"
+                  initialId={defaultAssigneeId || null}
+                  onChange={(id) => setDefaultAssigneeId(id ?? '')}
+                  placeholder="Pick a user…"
                 />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="defaultSlaId">
-                  Default SLA (ObjectId)
-                </ZoruLabel>
-                <ZoruInput
-                  id="defaultSlaId"
-                  name="defaultSlaId"
-                  placeholder="ObjectId, e.g. 64f8…"
-                  defaultValue={initialData?.defaultSlaId ?? ''}
+                <ZoruLabel>Default SLA</ZoruLabel>
+                <EntityFormField
+                  entity="sla"
+                  name="__defaultSlaId_picker"
+                  initialId={defaultSlaId || null}
+                  onChange={(id) => setDefaultSlaId(id ?? '')}
+                  placeholder="Pick an SLA…"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <ZoruLabel htmlFor="color">Color</ZoruLabel>
-                <ZoruInput
-                  id="color"
-                  name="color"
-                  type="text"
-                  placeholder="#0EA5E9"
-                  defaultValue={initialData?.color ?? ''}
-                  className="font-mono"
-                />
+                <ZoruLabel>Color</ZoruLabel>
+                <ZoruColorPicker value={color} onChange={setColor} />
               </div>
               <div className="space-y-2">
-                <ZoruLabel htmlFor="icon">Icon</ZoruLabel>
-                <ZoruInput
-                  id="icon"
-                  name="icon"
-                  placeholder="lucide name, e.g. life-buoy"
-                  defaultValue={initialData?.icon ?? ''}
-                />
+                <ZoruLabel>Icon</ZoruLabel>
+                <ZoruIconPicker value={icon} onChange={setIcon} color={color} />
               </div>
             </div>
 

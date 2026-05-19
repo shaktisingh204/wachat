@@ -153,8 +153,22 @@ pub async fn process_webhook(
     let lead_name = if lead_name.is_empty() { "Lead".to_owned() } else { lead_name };
 
     // --- 6. Resolve routing (campaign rules, first match wins) ---
-    let (pipeline_id_str, stage_str, assigned_to_str) =
+    let (mut pipeline_id_str, mut stage_str, assigned_to_str) =
         resolve_routing(&form_config, body.campaign_id.as_deref(), body.adset_id.as_deref());
+
+    // CRM ↔ Facebook ads binding overrides take precedence so the
+    // tenant's CRM integration settings drive routing rather than the
+    // form's `defaultRouting`. Non-empty hints from the wizard win.
+    if let Some(p) = body.crm_pipeline.as_deref() {
+        if !p.is_empty() {
+            pipeline_id_str = p.to_owned();
+        }
+    }
+    if let Some(s) = body.crm_stage.as_deref() {
+        if !s.is_empty() {
+            stage_str = s.to_owned();
+        }
+    }
 
     let pipeline_oid = ObjectId::parse_str(&pipeline_id_str).ok();
     let assigned_oid = ObjectId::parse_str(&assigned_to_str).ok();

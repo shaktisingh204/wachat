@@ -4,6 +4,7 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCheckbox,
+  ZoruColorPicker,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -399,14 +400,9 @@ export function CustomFieldForm({
                         updateOption(idx, { value: e.target.value })
                       }
                     />
-                    <ZoruInput
-                      type="color"
+                    <ZoruColorPicker
                       value={opt.color || '#999999'}
-                      onChange={(e) =>
-                        updateOption(idx, { color: e.target.value })
-                      }
-                      className="h-9 cursor-pointer p-1"
-                      aria-label="Option color"
+                      onChange={(c) => updateOption(idx, { color: c })}
                     />
                     <ZoruButton
                       type="button"

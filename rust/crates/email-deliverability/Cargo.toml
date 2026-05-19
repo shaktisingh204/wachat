@@ -1,0 +1,60 @@
+# Email deliverability — DNS / DKIM / warmup / placement / score.
+#
+# This crate is the HTTP control plane for the SabNode email-suite
+# deliverability surface that the legacy `/dashboard/email/verification`
+# and `/dashboard/email/deliverability/**` pages live on. It owns:
+#
+#   * Live DNS lookups (SPF / DKIM / DMARC / MX / BIMI) with a basic
+#     syntax check and a 0–100 score rollup.
+#   * DKIM keypair generation + selector rotation (active / pending /
+#     rotating).
+#   * Sender warmup schedules — start / pause / resume / cancel.
+#   * Placement-test scaffolding (intent recording; the real seedlist
+#     integration lands in a later phase).
+#   * Deliverability score endpoint that combines DNS validity with
+#     bounce / complaint rates pulled from `email_events`.
+#
+# Mount under `/v1/email/deliverability` from the `api` crate:
+#   .nest("/v1/email/deliverability", email_deliverability::router::<AppState>())
+[package]
+name = "email-deliverability"
+version = "0.1.0"
+edition = "2024"
+description = "Axum router for the SabNode email deliverability surface (DNS check, DKIM rotation, warmup, placement, score)."
+license = "UNLICENSED"
+publish = false
+
+[lib]
+name = "email_deliverability"
+path = "src/lib.rs"
+
+[dependencies]
+axum = { version = "0.8", default-features = false, features = ["json", "http1", "tokio", "macros", "query"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+bson = { version = "2", features = ["chrono-0_4"] }
+mongodb = "3.2"
+futures = "0.3"
+
+chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
+
+# DNS resolution for SPF / DKIM / DMARC / MX / BIMI lookups.
+hickory-resolver = "0.24"
+
+# DKIM keypair generation.
+rsa = { version = "0.9", features = ["pem"] }
+rand = "0.8"
+base64 = "0.22"
+
+tracing = "0.1"
+anyhow = "1"
+
+sabnode-common = { path = "../common" }
+sabnode-auth = { path = "../auth" }
+sabnode-db = { path = "../db" }
+
+[lints]
+workspace = true

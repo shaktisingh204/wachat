@@ -1593,9 +1593,43 @@ export type WhatsAppWidgetSettings = {
     }
 };
 
+export type FormFieldValidation = {
+    minLength?: number;
+    maxLength?: number;
+    min?: number;
+    max?: number;
+    pattern?: string;
+    errorMessage?: string;
+    requireIf?: {
+        fieldId: string;
+        operator: 'equals' | 'notEquals' | 'isFilled';
+        value?: string;
+    };
+};
+
 export type FormField = {
     id: string;
-    type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html' | 'acceptance';
+    type:
+        | 'text'
+        | 'email'
+        | 'textarea'
+        | 'url'
+        | 'tel'
+        | 'radio'
+        | 'checkbox'
+        | 'select'
+        | 'number'
+        | 'date'
+        | 'time'
+        | 'file'
+        | 'password'
+        | 'hidden'
+        | 'html'
+        | 'acceptance'
+        | 'phone'
+        | 'address'
+        | 'rating'
+        | 'signature';
     label: string;
     placeholder?: string;
     required?: boolean;
@@ -1610,6 +1644,14 @@ export type FormField = {
     maxFileSize?: number;
     allowedFileTypes?: string;
     htmlContent?: string;
+    validation?: FormFieldValidation;
+    maxRating?: number;
+};
+
+export type FormPage = {
+    id: string;
+    title: string;
+    fields: FormField[];
 };
 
 export type WebsiteBlock = {

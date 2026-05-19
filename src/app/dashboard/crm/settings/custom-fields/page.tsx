@@ -11,6 +11,7 @@ import {
   ZoruAlertDialogTitle,
   ZoruButton,
   ZoruCheckbox,
+  ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogFooter,
@@ -210,14 +211,9 @@ function OptionsRepeater({
                                     update(idx, { value: e.target.value })
                                 }
                             />
-                            <ZoruInput
-                                type="color"
+                            <ZoruColorPicker
                                 value={opt.color || '#999999'}
-                                onChange={(e) =>
-                                    update(idx, { color: e.target.value })
-                                }
-                                className="h-9 cursor-pointer p-1"
-                                aria-label="Option color"
+                                onChange={(c) => update(idx, { color: c })}
                             />
                             <ZoruButton
                                 type="button"
