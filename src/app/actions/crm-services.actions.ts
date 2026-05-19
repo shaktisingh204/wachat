@@ -179,6 +179,147 @@ export async function saveContract(_prev: any, formData: FormData) {
     numericKeys: ['value'],
   });
 }
+
+/**
+ * Richer contract update path used by the full-page edit form. Accepts
+ * the same scalar fields as `saveContract` plus JSON-encoded
+ * `attachmentsJson` (SabFiles node ids + names) and `signersJson`
+ * (counter-party recipients). Falls through to a Mongo `$set` so
+ * arrays survive the round trip (`formToObject` would otherwise drop
+ * them to a single string).
+ */
+export async function updateContractWithDetails(
+  _prev: any,
+  formData: FormData,
+): Promise<FormState> {
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied.' };
+
+  const guard = await requirePermission('crm_contract', 'edit');
+  if (!guard.ok) return { error: guard.error };
+
+  const id = (formData.get('_id') as string | null) ?? '';
+  if (!id || !ObjectId.isValid(id)) return { error: 'Invalid contract id.' };
+
+  const title = ((formData.get('title') as string | null) ?? '').trim();
+  if (!title) return { error: 'Title is required.' };
+
+  const status = (formData.get('status') as string | null) ?? 'draft';
+  const clientId = (formData.get('clientId') as string | null) ?? '';
+  const clientName = (formData.get('clientName') as string | null) ?? '';
+  const currency = (formData.get('currency') as string | null) ?? 'INR';
+  const value = formData.get('value');
+  const startDate = (formData.get('startDate') as string | null) ?? '';
+  const endDate = (formData.get('endDate') as string | null) ?? '';
+  const body = (formData.get('body') as string | null) ?? '';
+  const notes = (formData.get('notes') as string | null) ?? '';
+  const autoRenew = formData.get('autoRenew') === 'on';
+  const renewalNoticeDaysRaw = formData.get('renewalNoticeDays');
+  const esignProvider =
+    (formData.get('esignProvider') as string | null) ?? 'internal';
+  const attachmentsJson =
+    (formData.get('attachmentsJson') as string | null) ?? '[]';
+  const signersJson = (formData.get('signersJson') as string | null) ?? '[]';
+
+  if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+    return { error: 'End date cannot be before start date.' };
+  }
+
+  type AttachmentInput = { id?: unknown; name?: unknown };
+  type SignerInput = {
+    name?: unknown;
+    email?: unknown;
+    role?: unknown;
+    order?: unknown;
+  };
+
+  let attachments: { id: string; name: string }[] = [];
+  let signers: { name?: string; email: string; role?: string; order?: number }[] = [];
+  try {
+    const parsedAttachments = JSON.parse(attachmentsJson) as unknown;
+    if (Array.isArray(parsedAttachments)) {
+      attachments = parsedAttachments
+        .filter((a: unknown): a is AttachmentInput => Boolean(a) && typeof a === 'object')
+        .map((a) => ({
+          id: typeof a.id === 'string' ? a.id : '',
+          name: typeof a.name === 'string' ? a.name : '',
+        }))
+        .filter((a) => Boolean(a.id));
+    }
+    const parsedSigners = JSON.parse(signersJson) as unknown;
+    if (Array.isArray(parsedSigners)) {
+      signers = parsedSigners
+        .filter((s: unknown): s is SignerInput => Boolean(s) && typeof s === 'object')
+        .map((s, idx) => ({
+          name: typeof s.name === 'string' ? s.name : undefined,
+          email: typeof s.email === 'string' ? s.email : '',
+          role: typeof s.role === 'string' ? s.role : undefined,
+          order: typeof s.order === 'number' ? s.order : idx,
+        }))
+        .filter((s) => Boolean(s.email));
+    }
+  } catch {
+    return { error: 'Invalid attachments or signers payload.' };
+  }
+
+  const $set: Record<string, unknown> = {
+    title,
+    status,
+    currency,
+    body,
+    notes,
+    autoRenew,
+    esignProvider,
+    attachments: attachments.map((a) => a.id),
+    attachmentNames: attachments.map((a) => a.name),
+    signers,
+    updatedAt: new Date(),
+  };
+  if (clientName) $set.clientName = clientName;
+  if (clientId && ObjectId.isValid(clientId)) {
+    $set.clientId = new ObjectId(clientId);
+  }
+  if (typeof value === 'string' && value !== '') {
+    const v = parseFloat(value);
+    if (!isNaN(v)) $set.value = v;
+  }
+  if (startDate) $set.startDate = new Date(startDate);
+  if (endDate) $set.endDate = new Date(endDate);
+  if (typeof renewalNoticeDaysRaw === 'string' && renewalNoticeDaysRaw !== '') {
+    const days = parseInt(renewalNoticeDaysRaw, 10);
+    if (!isNaN(days)) $set.renewalNoticeDays = days;
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db
+      .collection('crm_contracts')
+      .updateOne(
+        { _id: new ObjectId(id), userId: new ObjectId(user._id as string) },
+        { $set },
+      );
+    if (result.matchedCount === 0) return { error: 'Contract not found.' };
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(user._id),
+        actorId: String(user._id),
+        action: 'update',
+        entityKind: 'contract',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidatePath('/dashboard/crm/contracts');
+    revalidatePath(`/dashboard/crm/contracts/${id}`);
+    return { message: 'Contract updated successfully.', id };
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Failed to update contract.';
+    return { error: message };
+  }
+}
 export async function deleteContract(id: string) {
   const r = await hrDelete('crm_contracts', id);
   revalidatePath('/dashboard/crm/contracts');

@@ -631,8 +631,26 @@ export async function getWsIssues() {
   return hrList<WsIssue>('crm_issues');
 }
 export async function saveWsIssue(_prev: any, formData: FormData) {
-  return genericSave('crm_issues', '/dashboard/crm/projects/issues', formData, {
+  // Normalise picker field names (reporterId / assigneeId from the new
+  // sectioned form) onto the legacy column names the doc stores under.
+  const fd = new FormData();
+  for (const [k, v] of formData.entries()) {
+    // Drop ephemeral subtask-row picker fields — only the consolidated
+    // `subtasks` JSON should reach the DB.
+    if (k.startsWith('__subtaskAssignee-')) continue;
+    fd.append(k, v);
+  }
+  if (!fd.get('reporterUserId') && fd.get('reporterId')) {
+    fd.set('reporterUserId', String(fd.get('reporterId') ?? ''));
+  }
+  if (!fd.get('assigneeUserId') && fd.get('assigneeId')) {
+    fd.set('assigneeUserId', String(fd.get('assigneeId') ?? ''));
+  }
+  return genericSave('crm_issues', '/dashboard/crm/projects/issues', fd, {
     idFields: ['projectId', 'reporterUserId', 'assigneeUserId'],
+    dateFields: ['dueDate'],
+    numericKeys: ['estimatedHours'],
+    jsonKeys: ['subtasks', 'attachments'],
   });
 }
 export async function deleteWsIssue(id: string) {

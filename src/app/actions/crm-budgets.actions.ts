@@ -112,36 +112,110 @@ export async function updateBudget(
     const { db } = await connectToDatabase();
 
     const budgetHead = (formData.get('budgetHead') as string | null) || '';
+    const budgetHeadId = (formData.get('budgetHeadId') as string | null) || '';
+    const budgetHeadType = (formData.get('budgetHeadType') as string | null) || '';
     const period = (formData.get('period') as string | null) || '';
     const scenario = (formData.get('scenario') as string | null) || 'base';
     const planAmountRaw = formData.get('planAmount') as string | null;
     const planAmount = planAmountRaw ? parseFloat(planAmountRaw) : 0;
     const alertAtRaw = formData.get('alertAt') as string | null;
     const alertAt = alertAtRaw ? parseInt(alertAtRaw, 10) : 0;
+    const ownerId = (formData.get('ownerId') as string | null) || '';
     const ownerName = (formData.get('ownerName') as string | null) || '';
+    const approverId = (formData.get('approverId') as string | null) || '';
+    const approverName = (formData.get('approverName') as string | null) || '';
     const notes = (formData.get('notes') as string | null) || '';
     const status = (formData.get('status') as string | null) || 'draft';
+    const lockedRaw = (formData.get('locked') as string | null) || '';
+    const locked = lockedRaw === 'true' || lockedRaw === 'on';
+    const allocationsRaw = (formData.get('allocations') as string | null) || '';
+    const documentFileId = (formData.get('documentFileId') as string | null) || '';
+    const documentFileUrl = (formData.get('documentFileUrl') as string | null) || '';
+    const documentFileName = (formData.get('documentFileName') as string | null) || '';
 
     if (!budgetHead) return { error: 'Budget Head is required.' };
+    if (planAmount < 0) return { error: 'Plan amount cannot be negative.' };
+    if (alertAt < 0 || alertAt > 100) {
+      return { error: 'Alert threshold must be between 0 and 100.' };
+    }
+
+    type AllocationLine = {
+      id?: string;
+      departmentId?: string | null;
+      departmentLabel?: string;
+      period?: string;
+      amount?: number;
+      note?: string;
+    };
+
+    let allocations: AllocationLine[] = [];
+    if (allocationsRaw) {
+      try {
+        const parsed = JSON.parse(allocationsRaw);
+        if (Array.isArray(parsed)) {
+          allocations = parsed
+            .filter((row: unknown): row is Record<string, unknown> => !!row && typeof row === 'object')
+            .map((row: Record<string, unknown>) => ({
+              id: typeof row.id === 'string' ? row.id : undefined,
+              departmentId:
+                typeof row.departmentId === 'string' && row.departmentId.length > 0
+                  ? row.departmentId
+                  : null,
+              departmentLabel:
+                typeof row.departmentLabel === 'string' ? row.departmentLabel : '',
+              period: typeof row.period === 'string' ? row.period : '',
+              amount:
+                typeof row.amount === 'number' && Number.isFinite(row.amount)
+                  ? row.amount
+                  : 0,
+              note: typeof row.note === 'string' ? row.note : '',
+            }));
+        }
+      } catch {
+        /* ignore malformed allocations payload */
+      }
+    }
+
+    const setDoc: Record<string, unknown> = {
+      budgetHead,
+      period,
+      scenario,
+      planAmount,
+      alertAt,
+      ownerName,
+      notes,
+      status,
+      locked,
+      allocations,
+      updatedAt: new Date(),
+    };
+    if (budgetHeadType) setDoc.budgetHeadType = budgetHeadType;
+    if (budgetHeadId && ObjectId.isValid(budgetHeadId)) {
+      setDoc.budgetHeadId = new ObjectId(budgetHeadId);
+    }
+    if (ownerId && ObjectId.isValid(ownerId)) {
+      setDoc.ownerId = new ObjectId(ownerId);
+    }
+    if (approverId && ObjectId.isValid(approverId)) {
+      setDoc.approverId = new ObjectId(approverId);
+    }
+    if (approverName) setDoc.approverName = approverName;
+    if (documentFileId) {
+      setDoc.documentFileId = documentFileId;
+      setDoc.documentFileUrl = documentFileUrl;
+      setDoc.documentFileName = documentFileName;
+    } else {
+      setDoc.documentFileId = null;
+      setDoc.documentFileUrl = null;
+      setDoc.documentFileName = null;
+    }
 
     const result = await db.collection('crm_budgets').updateOne(
       {
         _id: new ObjectId(id),
         userId: new ObjectId(session.user._id as string),
       },
-      {
-        $set: {
-          budgetHead,
-          period,
-          scenario,
-          planAmount,
-          alertAt,
-          ownerName,
-          notes,
-          status,
-          updatedAt: new Date(),
-        },
-      } as any,
+      { $set: setDoc } as any,
     );
 
     if (result.matchedCount === 0) {

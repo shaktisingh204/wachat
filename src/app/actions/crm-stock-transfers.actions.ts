@@ -26,10 +26,20 @@ import { requirePermission } from '@/lib/rbac-server';
 
 export type CrmStockTransferStatus =
     | 'Draft'
+    | 'Requested'
+    | 'Approved'
     | 'InTransit'
     | 'Received'
     | 'Cancelled'
     | 'archived';
+
+export type CrmStockTransferReason =
+    | 'rebalance'
+    | 'restock'
+    | 'return'
+    | 'damaged'
+    | 'project'
+    | 'other';
 
 export interface CrmStockTransferLineItem {
     itemId: ObjectId;
@@ -60,6 +70,17 @@ export interface CrmStockTransfer {
     notes?: string;
     attachments?: CrmStockTransferAttachment[];
     archived?: boolean;
+    requesterId?: ObjectId | string;
+    requesterName?: string;
+    approverId?: ObjectId | string;
+    approverName?: string;
+    receivedById?: ObjectId | string;
+    receivedByName?: string;
+    expectedDate?: Date;
+    receivedDate?: Date;
+    reason?: CrmStockTransferReason | string;
+    carrier?: string;
+    trackingNumber?: string;
     createdAt: Date;
     updatedAt: Date;
 }

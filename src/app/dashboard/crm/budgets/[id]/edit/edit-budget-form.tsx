@@ -39,7 +39,6 @@ import Link from 'next/link';
 
 import { updateBudget } from '@/app/actions/crm-budgets.actions';
 
-import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { SabFilePickerButton, type SabFilePick } from '@/components/sabfiles';
 import type { EntityKey } from '@/lib/lookup-registry';
@@ -222,14 +221,6 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
     }
 
     return (
-        <EntityDetailShell
-            eyebrow="BUDGET"
-            title="Edit budget"
-            back={{
-                href: `/dashboard/crm/budgets/${budgetId}`,
-                label: 'Back to budget',
-            }}
-        >
             <form action={formAction} ref={formRef} className="space-y-6">
                 <input type="hidden" name="id" value={budgetId} />
                 <input
@@ -653,6 +644,5 @@ export function EditBudgetForm({ budget, budgetId }: Props) {
                     <SubmitButton />
                 </div>
             </form>
-        </EntityDetailShell>
     );
 }

@@ -380,16 +380,52 @@ export interface WsTaskboardColumn extends WsBase {
 export type WsIssueStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type WsIssuePriority = WsProjectPriority;
 
+export type WsIssueSeverity =
+  | 'trivial'
+  | 'minor'
+  | 'major'
+  | 'critical'
+  | 'blocker';
+export type WsIssueType =
+  | 'bug'
+  | 'feature'
+  | 'improvement'
+  | 'task'
+  | 'epic';
+
+export interface WsIssueSubtask {
+  id: string;
+  title: string;
+  assigneeId?: string;
+  assigneeName?: string;
+  status: string;
+  dueDate?: string;
+}
+
+export interface WsIssueAttachment {
+  id: string;
+  url: string;
+  name: string;
+  mime?: string;
+  size?: number;
+}
+
 export interface WsIssue extends WsBase {
   projectId?: ObjectId | string;
   title: string;
   description?: string;
   status: WsIssueStatus;
   priority?: WsIssuePriority;
+  severity?: WsIssueSeverity;
+  issueType?: WsIssueType;
   reporterUserId?: ObjectId | string;
   reporterName?: string;
   assigneeUserId?: ObjectId | string;
   assigneeName?: string;
+  dueDate?: Date | string;
+  estimatedHours?: number;
+  subtasks?: WsIssueSubtask[];
+  attachments?: WsIssueAttachment[];
 }
 
 /* ═══════════════════════════════════════════════════════════════════
