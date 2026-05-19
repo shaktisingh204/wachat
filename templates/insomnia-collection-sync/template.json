@@ -1,0 +1,10 @@
+{
+  "id": "insomnia-collection-sync",
+  "name": "Insomnia Collection Sync",
+  "description": "Receives Insomnia collection-updated webhooks and mirrors the latest export to a versioned S3 backup bucket. Gives the API team a recoverable history without trusting only the in-app cloud sync.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["developer", "insomnia", "api", "s3", "backup", "sync"],
+  "version": "0.1.0"
+}
