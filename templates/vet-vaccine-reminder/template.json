@@ -1,0 +1,10 @@
+{
+  "id": "vet-vaccine-reminder",
+  "name": "Vet Vaccine Reminder",
+  "description": "Each morning, scans the pet roster in Mongo for upcoming vaccination due dates and texts the owner with a friendly reminder. Drops missed-vaccine no-shows without growing the front desk's workload.",
+  "category": "Health",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["health", "vet", "vaccine", "twilio", "cron", "mongo"],
+  "version": "0.1.0"
+}

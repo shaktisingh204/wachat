@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_mongo_pets",
+      "name": "Find Pets Due Vaccinations",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "pets",
+        "query": "{ \"vaccine_due_days\": { \"$lte\": 14 } }"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "Mongo Vet" } }
+    },
+    {
+      "id": "n_split_pets",
+      "name": "One Per Pet",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_format_msg",
+      "name": "Format Reminder",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "msg", "value": "Hi {{ $json.ownerName }} — {{ $json.petName }} is due for the {{ $json.vaccine }} vaccine. Call us to book." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sms_owner",
+      "name": "SMS Owner",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "={{ $vars.TWILIO_FROM_NUMBER }}",
+        "to": "={{ $json.ownerPhone }}",
+        "message": "={{ $json.msg }}"
+      },
+      "credentials": { "twilioApi": { "id": "twilio-cred", "name": "Twilio API" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_mongo_pets", "type": "main", "index": 0 }]] },
+    "n_mongo_pets": { "main": [[{ "node": "n_split_pets", "type": "main", "index": 0 }]] },
+    "n_split_pets": { "main": [[{ "node": "n_format_msg", "type": "main", "index": 0 }]] },
+    "n_format_msg": { "main": [[{ "node": "n_sms_owner", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Vaccine",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_mongo_pets", "n_split_pets", "n_format_msg", "n_sms_owner"]
+    }
+  ],
+  "variables": [
+    { "id": "v_twilio_from", "name": "TWILIO_FROM_NUMBER", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

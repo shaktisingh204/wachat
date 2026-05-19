@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "vet-vaccine-reminder",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron texts vaccine reminders to owners of due pets.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
