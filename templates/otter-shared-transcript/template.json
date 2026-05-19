@@ -1,0 +1,10 @@
+{
+  "id": "otter-shared-transcript",
+  "name": "Otter Shared Transcript",
+  "description": "Listens for Otter transcript.ready webhooks, checks if the transcript is shared with the team, and when shared, posts the link to Slack #meeting-notes. Keeps recorded conversations from getting lost in personal Otter accounts.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "otter", "slack", "transcript", "meeting", "webhook"],
+  "version": "0.1.0"
+}
