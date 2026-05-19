@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_deploy_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.deploy",
+    "options": {
+      "path": "/webhooks/deploy",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_deploy_trigger",
+      "name": "Deploy Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "deploy",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "deploy-webhook"
+    },
+    {
+      "id": "n_fetch_repo_schema",
+      "name": "Fetch Repo Schema",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.REPO_SCHEMA_URL }}"
+      }
+    },
+    {
+      "id": "n_fetch_live_schema",
+      "name": "Fetch Live Schema",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TYPESENSE_API }}/collections/{{ $vars.COLLECTION_NAME }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "typesense-cred", "name": "Typesense Admin" } }
+    },
+    {
+      "id": "n_diff_check",
+      "name": "Schemas Differ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ JSON.stringify($json.repoSchema) }}", "operation": "notEqual", "value2": "={{ JSON.stringify($json.liveSchema) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_apply_alter",
+      "name": "Apply Schema Alter",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.TYPESENSE_API }}/collections/{{ $vars.COLLECTION_NAME }}",
+        "sendBody": true,
+        "bodyContentType": "json"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "typesense-cred", "name": "Typesense Admin" } }
+    },
+    {
+      "id": "n_slack_confirm",
+      "name": "Slack Confirm",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DEVOPS_CHANNEL }}",
+        "text": ":pencil2: Typesense schema for {{ $vars.COLLECTION_NAME }} migrated.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_deploy_trigger": { "main": [[{ "node": "n_fetch_repo_schema", "type": "main", "index": 0 }]] },
+    "n_fetch_repo_schema": { "main": [[{ "node": "n_fetch_live_schema", "type": "main", "index": 0 }]] },
+    "n_fetch_live_schema": { "main": [[{ "node": "n_diff_check", "type": "main", "index": 0 }]] },
+    "n_diff_check": { "main": [[{ "node": "n_apply_alter", "type": "main", "index": 0 }]] },
+    "n_apply_alter": { "main": [[{ "node": "n_slack_confirm", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Migrate",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_deploy_trigger", "n_fetch_repo_schema", "n_fetch_live_schema", "n_diff_check", "n_apply_alter", "n_slack_confirm"]
+    }
+  ],
+  "variables": [
+    { "id": "v_repo_schema", "name": "REPO_SCHEMA_URL", "defaultValue": "https://raw.githubusercontent.com/example/api/main/typesense.json" },
+    { "id": "v_typesense", "name": "TYPESENSE_API", "defaultValue": "https://search.example.com" },
+    { "id": "v_coll", "name": "COLLECTION_NAME", "defaultValue": "products" },
+    { "id": "v_slack", "name": "SLACK_DEVOPS_CHANNEL", "defaultValue": "#devops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
