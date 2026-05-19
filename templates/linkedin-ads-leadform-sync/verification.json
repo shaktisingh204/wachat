@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "templateId": "linkedin-ads-leadform-sync",
+  "cases": [
+    {
+      "id": "li-lead-synced",
+      "description": "LinkedIn lead form submission upserts HubSpot and pings Slack.",
+      "triggerPayload": {
+        "campaignId": "C-9001",
+        "formResponse": {
+          "answers": [
+            { "questionId": "email", "rawAnswer": "lead@example.com" },
+            { "questionId": "firstName", "rawAnswer": "Avery" },
+            { "questionId": "lastName", "rawAnswer": "Stone" },
+            { "questionId": "company", "rawAnswer": "Stone Co" }
+          ]
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
