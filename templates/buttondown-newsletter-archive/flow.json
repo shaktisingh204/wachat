@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_bd_send",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "buttondown.email.sent",
+    "options": {
+      "path": "/webhooks/buttondown-sent",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-BD-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Buttondown Send",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "buttondown-sent",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "buttondown-sent-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Issue",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "issueId", "value": "={{ $json.email.id }}" },
+            { "name": "subject", "value": "={{ $json.email.subject }}" },
+            { "name": "url", "value": "={{ $json.email.permalink }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch",
+      "name": "Fetch Rendered HTML",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.url }}"
+      }
+    },
+    {
+      "id": "n_r2",
+      "name": "R2 Upload",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.R2_BUCKET }}",
+        "fileName": "buttondown/{{ $node['Extract Issue'].json.issueId }}.html"
+      },
+      "credentials": { "aws": { "id": "r2-cred", "name": "Cloudflare R2 (S3-compatible)" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Archive Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "NewsletterArchive",
+        "fields": { "Subject": "={{ $node['Extract Issue'].json.subject }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_fetch", "type": "main", "index": 0 }]] },
+    "n_fetch": { "main": [[{ "node": "n_r2", "type": "main", "index": 0 }]] },
+    "n_r2": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_fetch", "n_r2", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_r2", "name": "R2_BUCKET", "defaultValue": "sabnode-newsletters" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
