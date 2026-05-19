@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_airflow_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "airflow.dag_failed",
+    "options": {
+      "path": "/webhooks/airflow-failed",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Airflow-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_airflow_trigger",
+      "name": "Airflow Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "airflow-failed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "airflow-failed-webhook"
+    },
+    {
+      "id": "n_extract_dag",
+      "name": "Extract DAG Run",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "dagId", "value": "={{ $json.dag_id }}" },
+            { "name": "runId", "value": "={{ $json.run_id }}" },
+            { "name": "taskId", "value": "={{ $json.task_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_logs",
+      "name": "Fetch Task Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.AIRFLOW_URL }}/api/v1/dags/{{ $json.dagId }}/dagRuns/{{ $json.runId }}/taskInstances/{{ $json.taskId }}/logs/1"
+      },
+      "credentials": { "httpBasicAuth": { "id": "airflow-cred", "name": "Airflow Basic" } }
+    },
+    {
+      "id": "n_truncate_logs",
+      "name": "Truncate Logs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "logSnippet", "value": "={{ $json.logs.slice(-1500) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_data",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":x: Airflow {{ $json.dagId }}/{{ $json.taskId }} failed.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_bug",
+      "name": "Linear Bug",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [960, 80],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_API_TEAM }}",
+        "title": "Airflow failure {{ $json.dagId }}/{{ $json.taskId }}",
+        "description": "Run {{ $json.runId }} failed.\nLogs:\n{{ $json.logSnippet }}"
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    }
+  ],
+  "connections": {
+    "n_airflow_trigger": { "main": [[{ "node": "n_extract_dag", "type": "main", "index": 0 }]] },
+    "n_extract_dag": { "main": [[{ "node": "n_fetch_logs", "type": "main", "index": 0 }]] },
+    "n_fetch_logs": { "main": [[{ "node": "n_truncate_logs", "type": "main", "index": 0 }]] },
+    "n_truncate_logs": {
+      "main": [
+        [
+          { "node": "n_slack_data", "type": "main", "index": 0 },
+          { "node": "n_linear_bug", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "DAG",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_airflow_trigger", "n_extract_dag", "n_fetch_logs", "n_truncate_logs", "n_slack_data", "n_linear_bug"]
+    }
+  ],
+  "variables": [
+    { "id": "v_airflow", "name": "AIRFLOW_URL", "defaultValue": "https://airflow.example.com" },
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" },
+    { "id": "v_team", "name": "LINEAR_API_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
