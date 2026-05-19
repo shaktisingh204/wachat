@@ -1,0 +1,10 @@
+{
+  "id": "maxio-quote-create",
+  "name": "Maxio Quote Create",
+  "description": "When a Salesforce opportunity reaches quoting stage, generates a Maxio quote with the matching line items and emails the AE a link. Replaces the manual finance-side quote build.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["maxio", "salesforce", "quote", "sendgrid", "finance", "sales-ops"],
+  "version": "0.1.0"
+}

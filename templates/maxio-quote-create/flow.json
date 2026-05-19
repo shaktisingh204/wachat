@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sf_opp",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "salesforce.opportunity.quote_stage",
+    "options": {
+      "path": "/webhooks/sf-opp-quote",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-SF-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Salesforce Opp Quote",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sf-opp-quote",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "sf-opp-quote-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Opp Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "oppId", "value": "={{ $json.opportunity.id }}" },
+            { "name": "accountId", "value": "={{ $json.opportunity.maxio_account_id }}" },
+            { "name": "aeEmail", "value": "={{ $json.opportunity.ae_email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup_products",
+      "name": "Resolve Maxio Products",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.MAXIO_PRODUCTS_URL }}"
+      }
+    },
+    {
+      "id": "n_create_quote",
+      "name": "Maxio Quote Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MAXIO_QUOTES_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "accountId", "value": "={{ $node['Extract Opp Fields'].json.accountId }}" },
+            { "name": "opportunityRef", "value": "={{ $node['Extract Opp Fields'].json.oppId }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "maxio-cred", "name": "Maxio Header Auth" } }
+    },
+    {
+      "id": "n_capture",
+      "name": "Capture Quote URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "quoteUrl", "value": "={{ $json.url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email_ae",
+      "name": "Email AE",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Opp Fields'].json.aeEmail }}",
+        "subject": "Quote ready — opp {{ $node['Extract Opp Fields'].json.oppId }}",
+        "contentType": "text/html",
+        "content": "<a href=\"{{ $json.quoteUrl }}\">Open quote in Maxio</a>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup_products", "type": "main", "index": 0 }]] },
+    "n_lookup_products": { "main": [[{ "node": "n_create_quote", "type": "main", "index": 0 }]] },
+    "n_create_quote": { "main": [[{ "node": "n_capture", "type": "main", "index": 0 }]] },
+    "n_capture": { "main": [[{ "node": "n_email_ae", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup_products", "n_create_quote", "n_capture", "n_email_ae"]
+    }
+  ],
+  "variables": [
+    { "id": "v_prods", "name": "MAXIO_PRODUCTS_URL", "defaultValue": "https://api.maxio.com/products" },
+    { "id": "v_quotes", "name": "MAXIO_QUOTES_URL", "defaultValue": "https://api.maxio.com/quotes" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "deal-desk@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
