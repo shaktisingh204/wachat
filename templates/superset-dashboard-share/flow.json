@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Weekly Monday 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "weeks", "weeksInterval": 1 }] } }
+    },
+    {
+      "id": "n_superset_auth",
+      "name": "Superset Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SUPERSET_URL }}/api/v1/security/login",
+        "sendBody": true,
+        "bodyContentType": "json"
+      }
+    },
+    {
+      "id": "n_export_pdf",
+      "name": "Export Dashboard PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SUPERSET_URL }}/api/v1/dashboard/{{ $vars.DASHBOARD_ID }}/export/pdf"
+      }
+    },
+    {
+      "id": "n_build_email",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Weekly Superset Dashboard" },
+            { "name": "html", "value": "<p>Latest dashboard PDF attached.</p>" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Send via SendGrid",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.RECIPIENTS }}",
+        "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
+        "content": "={{ $json.html }}"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_superset_auth", "type": "main", "index": 0 }]] },
+    "n_superset_auth": { "main": [[{ "node": "n_export_pdf", "type": "main", "index": 0 }]] },
+    "n_export_pdf": { "main": [[{ "node": "n_build_email", "type": "main", "index": 0 }]] },
+    "n_build_email": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Share",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_superset_auth", "n_export_pdf", "n_build_email", "n_sendgrid"]
+    }
+  ],
+  "variables": [
+    { "id": "v_superset", "name": "SUPERSET_URL", "defaultValue": "https://superset.example.com" },
+    { "id": "v_dash", "name": "DASHBOARD_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "reports@example.com" },
+    { "id": "v_recip", "name": "RECIPIENTS", "defaultValue": "leadership@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
