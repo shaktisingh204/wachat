@@ -1938,6 +1938,57 @@ const freshdeskProvider: OAuthProvider = {
 };
 PROVIDERS.set(freshdeskProvider.id, freshdeskProvider);
 
+/* ── Shopify (per-shop subdomain) ───────────────────────────────────────── */
+
+function shopifyBase(shop: string): string {
+  // Shopify shops use the .myshopify.com suffix even when a custom domain is
+  // configured for storefront — the admin OAuth endpoints stay on the
+  // canonical *.myshopify.com host.
+  return `https://${encodeURIComponent(shop)}.myshopify.com`;
+}
+
+const shopifyProvider: OAuthProvider = {
+  id: 'shopify',
+  label: 'Shopify',
+  defaultScopes: [
+    'read_products',
+    'write_products',
+    'read_orders',
+    'read_customers',
+  ],
+  requiresSubdomain: true,
+  buildAuthorizeUrl({ config, state, scopes, subdomain }) {
+    if (!subdomain) throw new Error('Shopify OAuth requires a shop subdomain');
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      scope: (scopes ?? shopifyProvider.defaultScopes).join(','),
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `${shopifyBase(subdomain)}/admin/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config, subdomain }) => {
+    if (!subdomain) throw new Error('Shopify token exchange requires shop subdomain');
+    return tokenRequest({
+      url: `${shopifyBase(subdomain)}/admin/oauth/access_token`,
+      body: {
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        code,
+      },
+    });
+  },
+  async refreshAccessToken() {
+    // Shopify offline-access tokens are long-lived; rotation is via the
+    // dedicated session-token API which isn't part of the standard OAuth
+    // refresh dance.  Re-authorise the shop to rotate.
+    throw new Error(
+      'Shopify offline access tokens are long-lived — re-authorise the shop to rotate.',
+    );
+  },
+};
+PROVIDERS.set(shopifyProvider.id, shopifyProvider);
+
 /* ── Shared token-endpoint helper ───────────────────────────────────────── */
 
 async function tokenRequest(opts: {

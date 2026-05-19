@@ -59,6 +59,7 @@ export const OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE: Readonly<Record<string, string>
   twitter: 'twitter',
   airtable: 'airtable',
   zendesk: 'zendesk',
+  shopify: 'shopify',
 };
 
 /** Pretty label for a provider id, used in the Connect button. */
@@ -109,6 +110,7 @@ export const OAUTH_PROVIDER_LABEL: Readonly<Record<string, string>> = {
   airtable: 'Airtable',
   zendesk: 'Zendesk',
   freshdesk: 'Freshdesk',
+  shopify: 'Shopify',
 };
 
 /** Brand-tinted ring color for the Connect CTA per provider. */
@@ -159,6 +161,7 @@ export const OAUTH_PROVIDER_ACCENT: Readonly<Record<string, string>> = {
   airtable: 'from-yellow-400/15 to-pink-500/15',
   zendesk: 'from-emerald-500/15 to-zinc-600/15',
   freshdesk: 'from-green-500/15 to-teal-400/15',
+  shopify: 'from-emerald-500/15 to-lime-400/15',
 };
 
 /**
@@ -169,18 +172,21 @@ export const OAUTH_PROVIDER_ACCENT: Readonly<Record<string, string>> = {
 export const OAUTH_PROVIDER_REQUIRES_SUBDOMAIN: ReadonlySet<string> = new Set([
   'zendesk',
   'freshdesk',
+  'shopify',
 ]);
 
 /** Per-provider subdomain hint shown in the UI input placeholder. */
 export const OAUTH_PROVIDER_SUBDOMAIN_HINT: Readonly<Record<string, string>> = {
   zendesk: 'mycompany',
   freshdesk: 'mycompany',
+  shopify: 'myshop',
 };
 
 /** Per-provider subdomain suffix label, e.g. ".zendesk.com". */
 export const OAUTH_PROVIDER_SUBDOMAIN_SUFFIX: Readonly<Record<string, string>> = {
   zendesk: '.zendesk.com',
   freshdesk: '.freshdesk.com',
+  shopify: '.myshopify.com',
 };
 
 export function getOAuthProviderIdForCredentialType(
