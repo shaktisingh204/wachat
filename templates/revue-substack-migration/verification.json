@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "revue-substack-migration",
+  "cases": [
+    {
+      "id": "migrate",
+      "description": "Revue export migrates subscribers into Substack.",
+      "triggerPayload": { "export": { "url": "https://revue.example.com/export.csv" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

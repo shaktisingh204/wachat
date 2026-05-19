@@ -1,0 +1,10 @@
+{
+  "id": "revue-substack-migration",
+  "name": "Revue to Substack Migration",
+  "description": "Takes a Revue subscriber export, splits the file by row, and registers each address with Substack via the publisher API. Smooths the platform migration.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["revue", "substack", "migration", "subscribers", "marketing", "csv"],
+  "version": "0.1.0"
+}
