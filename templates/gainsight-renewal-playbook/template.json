@@ -1,0 +1,10 @@
+{
+  "id": "gainsight-renewal-playbook",
+  "name": "Gainsight Renewal Playbook",
+  "description": "Routes Gainsight renewal-risk alerts to one of three playbooks based on severity. High-risk pages the CS leader, medium notifies the CSM, low logs a heads-up so renewal motions match the actual customer signal.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gainsight", "renewal", "csm", "playbook", "crm", "risk"],
+  "version": "0.1.0"
+}

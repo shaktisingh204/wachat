@@ -1,0 +1,144 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_gainsight_risk",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "gainsight.risk.alert",
+    "options": {
+      "path": "/webhooks/gainsight-risk",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Gainsight-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Gainsight Risk Alert",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gainsight-risk",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "gainsight-risk-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Risk",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "accountId", "value": "={{ $json.account.id }}" },
+            { "name": "accountName", "value": "={{ $json.account.name }}" },
+            { "name": "severity", "value": "={{ $json.risk.severity }}" },
+            { "name": "csm", "value": "={{ $json.account.csm_email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Severity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "high" }] }, "outputKey": "high" },
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "medium" }] }, "outputKey": "medium" },
+            { "conditions": { "string": [{ "value1": "={{ $json.severity }}", "operation": "equal", "value2": "low" }] }, "outputKey": "low" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_high_page",
+      "name": "Page CS Leader",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [720, -120],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Renewal risk HIGH — {{ $json.accountName }}",
+        "serviceId": "={{ $vars.PAGERDUTY_CS_SERVICE }}",
+        "urgency": "high"
+      },
+      "credentials": { "pagerDutyApi": { "id": "pagerduty-cred", "name": "PagerDuty API" } }
+    },
+    {
+      "id": "n_medium_csm",
+      "name": "Email CSM",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.csm }}",
+        "subject": "Renewal risk MEDIUM — {{ $json.accountName }}",
+        "contentType": "text/plain",
+        "content": "Open the Gainsight playbook for {{ $json.accountName }} this week."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_low_log",
+      "name": "Log Low-Risk Heads-Up",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 120],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "RenewalSignals",
+        "fields": {
+          "Account": "={{ $json.accountName }}",
+          "Severity": "low"
+        }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "high": [[{ "node": "n_high_page", "type": "main", "index": 0 }]],
+      "medium": [[{ "node": "n_medium_csm", "type": "main", "index": 0 }]],
+      "low": [[{ "node": "n_low_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_route", "n_high_page", "n_medium_csm", "n_low_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pd", "name": "PAGERDUTY_CS_SERVICE", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "cs@example.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
