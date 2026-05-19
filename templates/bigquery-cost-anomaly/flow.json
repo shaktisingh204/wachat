@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 6 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 6am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_bq_today",
+      "name": "BQ Slot Usage (Today)",
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 1,
+      "position": [240, -80],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT SUM(total_slot_ms) AS slot_ms FROM `region-us`.INFORMATION_SCHEMA.JOBS WHERE creation_time >= TIMESTAMP_SUB(CURRENT_TIMESTAMP(), INTERVAL 1 DAY)"
+      },
+      "credentials": { "googleApi": { "id": "gcp-cred", "name": "GCP Service Account" } }
+    },
+    {
+      "id": "n_bq_avg",
+      "name": "BQ Slot Usage (7d avg)",
+      "type": "n8n-nodes-base.googleBigQuery",
+      "typeVersion": 1,
+      "position": [240, 80],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT AVG(daily_slot_ms) AS avg_slot_ms FROM (SELECT DATE(creation_time) AS d, SUM(total_slot_ms) AS daily_slot_ms FROM `region-us`.INFORMATION_SCHEMA.JOBS GROUP BY d ORDER BY d DESC LIMIT 7)"
+      },
+      "credentials": { "googleApi": { "id": "gcp-cred", "name": "GCP Service Account" } }
+    },
+    {
+      "id": "n_compute_ratio",
+      "name": "Compute Ratio",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "ratio", "value": "={{ $node['BQ Slot Usage (Today)'].json.slot_ms / $node['BQ Slot Usage (7d avg)'].json.avg_slot_ms }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_anomaly_check",
+      "name": "Anomaly > 1.5x?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.ratio }}", "operation": "larger", "value2": 1.5 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_data",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":money_with_wings: BigQuery slot usage anomaly: ratio={{ $json.ratio }} vs 7d avg.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": {
+      "main": [
+        [
+          { "node": "n_bq_today", "type": "main", "index": 0 },
+          { "node": "n_bq_avg", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_bq_today": { "main": [[{ "node": "n_compute_ratio", "type": "main", "index": 0 }]] },
+    "n_bq_avg": { "main": [[{ "node": "n_compute_ratio", "type": "main", "index": 0 }]] },
+    "n_compute_ratio": { "main": [[{ "node": "n_anomaly_check", "type": "main", "index": 0 }]] },
+    "n_anomaly_check": { "main": [[{ "node": "n_slack_data", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Anomaly",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_bq_today", "n_bq_avg", "n_compute_ratio", "n_anomaly_check", "n_slack_data"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

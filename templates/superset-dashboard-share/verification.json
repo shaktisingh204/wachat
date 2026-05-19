@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "superset-dashboard-share",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Weekly cron exports Superset dashboard PDF and emails leadership.",
+      "triggerPayload": { "scheduledFor": "2026-05-18T07:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

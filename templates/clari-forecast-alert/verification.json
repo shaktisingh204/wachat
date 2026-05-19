@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "clari-forecast-alert",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron alerts Slack when Clari commit shifts more than 10%.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T07:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

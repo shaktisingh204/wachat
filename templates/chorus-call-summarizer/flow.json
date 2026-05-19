@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_chorus_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "chorus.call_completed",
+    "options": {
+      "path": "/webhooks/chorus-call",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Chorus-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_chorus_trigger",
+      "name": "Chorus Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chorus-call",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "chorus-call-webhook"
+    },
+    {
+      "id": "n_extract_call",
+      "name": "Extract Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "callId", "value": "={{ $json.call.id }}" },
+            { "name": "opportunityId", "value": "={{ $json.call.opportunity_id }}" },
+            { "name": "aeSlackId", "value": "={{ $json.call.host.slackId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_transcript",
+      "name": "Fetch Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.CHORUS_API }}/v1/calls/{{ $json.callId }}/transcript"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "chorus-cred", "name": "Chorus API" } }
+    },
+    {
+      "id": "n_gpt_summary",
+      "name": "GPT-4o Summary",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Produce a 5-bullet summary of this sales call: outcome, pain, competitor, next step, blockers." },
+            { "role": "user", "content": "{{ $json.transcript }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_sfdc_note",
+      "name": "Salesforce Note",
+      "type": "n8n-nodes-base.salesforce",
+      "typeVersion": 1,
+      "position": [960, -80],
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "subject": "Chorus call summary",
+        "whatId": "={{ $node['Extract Call'].json.opportunityId }}",
+        "description": "={{ $json.message.content }}"
+      },
+      "credentials": { "salesforceOAuth2Api": { "id": "sfdc-cred", "name": "Salesforce OAuth2" } }
+    },
+    {
+      "id": "n_slack_ae",
+      "name": "Slack DM AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Call'].json.aeSlackId }}",
+        "text": ":memo: Chorus summary written to Salesforce for call {{ $node['Extract Call'].json.callId }}.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_chorus_trigger": { "main": [[{ "node": "n_extract_call", "type": "main", "index": 0 }]] },
+    "n_extract_call": { "main": [[{ "node": "n_fetch_transcript", "type": "main", "index": 0 }]] },
+    "n_fetch_transcript": { "main": [[{ "node": "n_gpt_summary", "type": "main", "index": 0 }]] },
+    "n_gpt_summary": {
+      "main": [
+        [
+          { "node": "n_sfdc_note", "type": "main", "index": 0 },
+          { "node": "n_slack_ae", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Summary",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_chorus_trigger", "n_extract_call", "n_fetch_transcript", "n_gpt_summary", "n_sfdc_note", "n_slack_ae"]
+    }
+  ],
+  "variables": [
+    { "id": "v_chorus", "name": "CHORUS_API", "defaultValue": "https://api.chorus.ai" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

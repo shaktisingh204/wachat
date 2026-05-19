@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "postman-monitor-failure",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Postman failure posts Slack and opens Linear issue.",
+      "triggerPayload": {
+        "monitor": { "name": "checkout-api" },
+        "collection": { "name": "Checkout" },
+        "run": { "id": "abc123", "stats": { "failures": 3 } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

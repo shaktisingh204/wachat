@@ -1,0 +1,10 @@
+{
+  "id": "artifactory-package-promote",
+  "name": "Artifactory Package Promote",
+  "description": "Listens for GitHub release-tag webhooks and promotes the matching Artifactory packages from the staging repo into prod. Removes the manual JFrog promote step from every release cut.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "artifactory", "jfrog", "github", "release", "promote"],
+  "version": "0.1.0"
+}

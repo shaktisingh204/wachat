@@ -1,0 +1,10 @@
+{
+  "id": "swagger-doc-publish",
+  "name": "Swagger Doc Publish",
+  "description": "Every push that touches openapi.yaml regenerates static API docs with Redocly and ships them to the public S3 bucket behind the docs CDN. Keeps the public API reference always synced with the spec on main.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["developer", "openapi", "swagger", "redocly", "github", "s3"],
+  "version": "0.1.0"
+}

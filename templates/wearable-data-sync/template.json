@@ -1,0 +1,10 @@
+{
+  "id": "wearable-data-sync",
+  "name": "Wearable Data Sync",
+  "description": "Receives Fitbit webhooks, detects heart-rate anomalies, and fans out to Slack #clinical, the EMR, and an SMS to the patient. Keeps the care team in the loop the moment continuous vitals drift out of range.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["health", "fitbit", "wearable", "slack", "twilio", "emr"],
+  "version": "0.1.0"
+}

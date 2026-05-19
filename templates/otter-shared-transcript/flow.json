@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_otter_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "otter.transcript_ready",
+    "options": {
+      "path": "/webhooks/otter-transcript",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Otter-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_otter_trigger",
+      "name": "Otter Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "otter-transcript",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "otter-transcript-webhook"
+    },
+    {
+      "id": "n_extract_transcript",
+      "name": "Extract Transcript",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "transcriptId", "value": "={{ $json.transcript.id }}" },
+            { "name": "shareUrl", "value": "={{ $json.transcript.shareUrl }}" },
+            { "name": "scope", "value": "={{ $json.transcript.scope }}" },
+            { "name": "title", "value": "={{ $json.transcript.title }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_meta",
+      "name": "Fetch Transcript Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.OTTER_API }}/v1/transcripts/{{ $json.transcriptId }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "otter-cred", "name": "Otter API" } }
+    },
+    {
+      "id": "n_shared_check",
+      "name": "Shared with Team?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.scope }}", "operation": "equal", "value2": "team" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_format_msg",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "msg", "value": "*{{ $json.title }}* — <{{ $json.shareUrl }}|open transcript>" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_notes",
+      "name": "Slack #meeting-notes",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_NOTES_CHANNEL }}",
+        "text": ":speech_balloon: {{ $json.msg }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_otter_trigger": { "main": [[{ "node": "n_extract_transcript", "type": "main", "index": 0 }]] },
+    "n_extract_transcript": { "main": [[{ "node": "n_fetch_meta", "type": "main", "index": 0 }]] },
+    "n_fetch_meta": { "main": [[{ "node": "n_shared_check", "type": "main", "index": 0 }]] },
+    "n_shared_check": { "main": [[{ "node": "n_format_msg", "type": "main", "index": 0 }]] },
+    "n_format_msg": { "main": [[{ "node": "n_slack_notes", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Transcript",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_otter_trigger", "n_extract_transcript", "n_fetch_meta", "n_shared_check", "n_format_msg", "n_slack_notes"]
+    }
+  ],
+  "variables": [
+    { "id": "v_otter", "name": "OTTER_API", "defaultValue": "https://api.otter.ai" },
+    { "id": "v_slack", "name": "SLACK_NOTES_CHANNEL", "defaultValue": "#meeting-notes" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

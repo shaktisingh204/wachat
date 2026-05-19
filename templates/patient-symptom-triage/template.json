@@ -1,0 +1,10 @@
+{
+  "id": "patient-symptom-triage",
+  "name": "Patient Symptom Triage",
+  "description": "Receives patient symptom intake from a web form, asks GPT-4o to classify urgency as emergency, urgent, or routine, and routes the case down the matching escalation path. Eliminates manual nurse review for low-acuity cases while making sure emergencies page on-call immediately.",
+  "category": "Health",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["health", "triage", "openai", "twilio", "emr", "switch"],
+  "version": "0.1.0"
+}

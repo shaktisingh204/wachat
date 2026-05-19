@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_pull_current",
+      "name": "Pull Clari Commit",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.CLARI_API }}/forecast/commit"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "clari-cred", "name": "Clari API" } }
+    },
+    {
+      "id": "n_load_yesterday",
+      "name": "Load Yesterday Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.SNAPSHOT_STORE }}/clari/commit/yesterday"
+      }
+    },
+    {
+      "id": "n_compute_shift",
+      "name": "Compute % Shift",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "shiftPct", "value": "={{ Math.abs($node['Pull Clari Commit'].json.commit - $node['Load Yesterday Snapshot'].json.commit) / $node['Load Yesterday Snapshot'].json.commit * 100 }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shift_check",
+      "name": "Shift > 10%?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.shiftPct }}", "operation": "larger", "value2": 10 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_lead",
+      "name": "Slack sales-leadership",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SALES_LEAD_CHANNEL }}",
+        "text": ":chart_with_downwards_trend: Clari commit shifted {{ $json.shiftPct }}% day-over-day.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_pull_current", "type": "main", "index": 0 }]] },
+    "n_pull_current": { "main": [[{ "node": "n_load_yesterday", "type": "main", "index": 0 }]] },
+    "n_load_yesterday": { "main": [[{ "node": "n_compute_shift", "type": "main", "index": 0 }]] },
+    "n_compute_shift": { "main": [[{ "node": "n_shift_check", "type": "main", "index": 0 }]] },
+    "n_shift_check": { "main": [[{ "node": "n_slack_lead", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Forecast",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_pull_current", "n_load_yesterday", "n_compute_shift", "n_shift_check", "n_slack_lead"]
+    }
+  ],
+  "variables": [
+    { "id": "v_clari", "name": "CLARI_API", "defaultValue": "https://api.clari.com" },
+    { "id": "v_store", "name": "SNAPSHOT_STORE", "defaultValue": "https://snapshots.example.com" },
+    { "id": "v_slack", "name": "SLACK_SALES_LEAD_CHANNEL", "defaultValue": "#sales-leadership" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

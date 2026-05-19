@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_outreach_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "outreach.reply",
+    "options": {
+      "path": "/webhooks/outreach-reply",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Outreach-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_outreach_trigger",
+      "name": "Outreach Reply",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "outreach-reply",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "outreach-reply-webhook"
+    },
+    {
+      "id": "n_extract_reply",
+      "name": "Extract Reply",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "prospectEmail", "value": "={{ $json.prospect.email }}" },
+            { "name": "aeSlackId", "value": "={{ $json.owner.slackId }}" },
+            { "name": "sequenceId", "value": "={{ $json.sequenceId }}" },
+            { "name": "body", "value": "={{ $json.body }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_sentiment",
+      "name": "GPT Sentiment",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return strict JSON {sentiment:'positive'|'neutral'|'negative'} based on the reply." },
+            { "role": "user", "content": "{{ $json.body }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Sentiment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sentiment", "value": "={{ JSON.parse($json.message.content).sentiment }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route Sentiment",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.sentiment }}", "operation": "equal", "value2": "positive" }] }, "outputKey": "positive" }
+          ]
+        },
+        "fallbackOutput": "other"
+      }
+    },
+    {
+      "id": "n_pause_seq",
+      "name": "Pause Outreach Sequence",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -80],
+      "parameters": {
+        "method": "PATCH",
+        "url": "={{ $vars.OUTREACH_API }}/api/v2/sequenceStates/{{ $node['Extract Reply'].json.sequenceId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "state", "value": "paused" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "outreach-cred", "name": "Outreach API" } }
+    },
+    {
+      "id": "n_slack_dm",
+      "name": "Slack DM AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Reply'].json.aeSlackId }}",
+        "text": ":handshake: Positive reply from {{ $node['Extract Reply'].json.prospectEmail }} — sequence paused.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_log_other",
+      "name": "Log Non-Positive",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 80],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.METRICS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "outreach.reply.nonpositive" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_outreach_trigger": { "main": [[{ "node": "n_extract_reply", "type": "main", "index": 0 }]] },
+    "n_extract_reply": { "main": [[{ "node": "n_gpt_sentiment", "type": "main", "index": 0 }]] },
+    "n_gpt_sentiment": { "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]] },
+    "n_parse": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "positive": [[{ "node": "n_pause_seq", "type": "main", "index": 0 }]],
+      "other": [[{ "node": "n_log_other", "type": "main", "index": 0 }]]
+    },
+    "n_pause_seq": { "main": [[{ "node": "n_slack_dm", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Reply",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_outreach_trigger", "n_extract_reply", "n_gpt_sentiment", "n_parse", "n_route", "n_pause_seq", "n_slack_dm", "n_log_other"]
+    }
+  ],
+  "variables": [
+    { "id": "v_outreach", "name": "OUTREACH_API", "defaultValue": "https://api.outreach.io" },
+    { "id": "v_metrics", "name": "METRICS_URL", "defaultValue": "https://metrics.example.com/incr" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

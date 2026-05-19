@@ -1,0 +1,10 @@
+{
+  "id": "salesloft-cadence-step",
+  "name": "SalesLoft Cadence Step Personalization",
+  "description": "Listens for SalesLoft cadence.step webhooks, enriches the prospect with HubSpot data, asks GPT-4o to rewrite the step body for the specific buyer context, and pushes the personalized step back to SalesLoft.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sales", "salesloft", "openai", "hubspot", "personalization", "webhook"],
+  "version": "0.1.0"
+}

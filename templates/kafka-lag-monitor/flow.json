@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_hourly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 * * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_hourly",
+      "name": "Hourly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] } }
+    },
+    {
+      "id": "n_list_groups",
+      "name": "List Consumer Groups",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.KAFKA_ADMIN_URL }}/consumer-groups"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "kafka-cred", "name": "Kafka Admin" } }
+    },
+    {
+      "id": "n_split_groups",
+      "name": "One Per Group",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_get_lag",
+      "name": "Get Group Lag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.KAFKA_ADMIN_URL }}/consumer-groups/{{ $json.groupId }}/lag"
+      }
+    },
+    {
+      "id": "n_lag_check",
+      "name": "Lag > Threshold?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.totalLag }}", "operation": "larger", "value2": "={{ Number($vars.LAG_THRESHOLD) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_lag",
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":warning: Kafka group *{{ $json.groupId }}* lag={{ $json.totalLag }}.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_pagerduty",
+      "name": "Page On-Call",
+      "type": "n8n-nodes-base.pagerDuty",
+      "typeVersion": 1,
+      "position": [1200, 80],
+      "parameters": {
+        "resource": "incident",
+        "operation": "create",
+        "title": "Kafka lag on {{ $json.groupId }}",
+        "serviceId": "={{ $vars.PD_SERVICE_ID }}",
+        "urgency": "high"
+      },
+      "credentials": { "pagerDutyApi": { "id": "pd-cred", "name": "PagerDuty" } }
+    }
+  ],
+  "connections": {
+    "n_cron_hourly": { "main": [[{ "node": "n_list_groups", "type": "main", "index": 0 }]] },
+    "n_list_groups": { "main": [[{ "node": "n_split_groups", "type": "main", "index": 0 }]] },
+    "n_split_groups": { "main": [[{ "node": "n_get_lag", "type": "main", "index": 0 }]] },
+    "n_get_lag": { "main": [[{ "node": "n_lag_check", "type": "main", "index": 0 }]] },
+    "n_lag_check": {
+      "main": [
+        [
+          { "node": "n_slack_lag", "type": "main", "index": 0 },
+          { "node": "n_pagerduty", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Lag",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_hourly", "n_list_groups", "n_split_groups", "n_get_lag", "n_lag_check", "n_slack_lag", "n_pagerduty"]
+    }
+  ],
+  "variables": [
+    { "id": "v_kafka", "name": "KAFKA_ADMIN_URL", "defaultValue": "https://kafka-admin.example.com" },
+    { "id": "v_thresh", "name": "LAG_THRESHOLD", "defaultValue": "10000" },
+    { "id": "v_slack", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops" },
+    { "id": "v_pd", "name": "PD_SERVICE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

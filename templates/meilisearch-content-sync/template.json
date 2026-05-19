@@ -1,0 +1,10 @@
+{
+  "id": "meilisearch-content-sync",
+  "name": "Meilisearch Content Sync",
+  "description": "Receives Mongo change-stream webhooks and upserts the affected document into the Meilisearch index in near real time. Keeps the search index hot without nightly batch jobs.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "meilisearch", "search", "mongo", "sync", "webhook"],
+  "version": "0.1.0"
+}

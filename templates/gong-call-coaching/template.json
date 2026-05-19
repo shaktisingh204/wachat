@@ -1,0 +1,10 @@
+{
+  "id": "gong-call-coaching",
+  "name": "Gong Call Coaching",
+  "description": "When a Gong call finishes processing, fetches the transcript, asks GPT-4o to produce three concrete coaching tips, and emails them to the AE via SendGrid. Removes the manager-as-bottleneck step from post-call coaching.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sales", "gong", "openai", "coaching", "sendgrid", "webhook"],
+  "version": "0.1.0"
+}

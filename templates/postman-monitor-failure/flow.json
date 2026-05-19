@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_postman_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "postman.monitor_failed",
+    "options": {
+      "path": "/webhooks/postman-failed",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Postman-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_postman_trigger",
+      "name": "Postman Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "postman-failed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "postman-failed-webhook"
+    },
+    {
+      "id": "n_extract_run",
+      "name": "Extract Failure",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "monitorName", "value": "={{ $json.monitor.name }}" },
+            { "name": "collection", "value": "={{ $json.collection.name }}" },
+            { "name": "runId", "value": "={{ $json.run.id }}" },
+            { "name": "errorCount", "value": "={{ $json.run.stats.failures }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_logs",
+      "name": "Fetch Run Logs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.POSTMAN_API }}/monitors/{{ $json.monitorName }}/runs/{{ $json.runId }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "postman-cred", "name": "Postman API" } }
+    },
+    {
+      "id": "n_slack_qa",
+      "name": "Slack #qa",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_QA_CHANNEL }}",
+        "text": ":rotating_light: Postman monitor *{{ $json.monitorName }}* failed ({{ $json.errorCount }} errors).",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_issue",
+      "name": "Linear Bug",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 80],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_API_TEAM }}",
+        "title": "Postman monitor {{ $json.monitorName }} failed",
+        "description": "Run {{ $json.runId }} reported {{ $json.errorCount }} failures."
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    }
+  ],
+  "connections": {
+    "n_postman_trigger": { "main": [[{ "node": "n_extract_run", "type": "main", "index": 0 }]] },
+    "n_extract_run": { "main": [[{ "node": "n_fetch_logs", "type": "main", "index": 0 }]] },
+    "n_fetch_logs": {
+      "main": [
+        [
+          { "node": "n_slack_qa", "type": "main", "index": 0 },
+          { "node": "n_linear_issue", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Failure",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_postman_trigger", "n_extract_run", "n_fetch_logs", "n_slack_qa", "n_linear_issue"]
+    }
+  ],
+  "variables": [
+    { "id": "v_postman", "name": "POSTMAN_API", "defaultValue": "https://api.getpostman.com" },
+    { "id": "v_slack_qa", "name": "SLACK_QA_CHANNEL", "defaultValue": "#qa" },
+    { "id": "v_linear_team", "name": "LINEAR_API_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "templateId": "outreach-sequence-pause",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Outreach reply is classified, sequence is paused on positive, AE is DM'd.",
+      "triggerPayload": {
+        "prospect": { "email": "buyer@acme.com" },
+        "owner": { "slackId": "U123" },
+        "sequenceId": "seq-001",
+        "body": "Yes, let's do a demo next week."
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "avoma-meeting-action-items",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Avoma meeting summary fans out one Asana task per action item.",
+      "triggerPayload": { "meeting": { "id": "m-001", "title": "Pricing review" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

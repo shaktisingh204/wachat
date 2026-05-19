@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "otter-shared-transcript",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Team-shared Otter transcript posts to Slack #meeting-notes.",
+      "triggerPayload": {
+        "transcript": { "id": "t-001", "shareUrl": "https://otter.ai/x/abc", "scope": "team", "title": "Customer call" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

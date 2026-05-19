@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "circleback-meeting-snippets",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Circleback summary is filed as a Notion page.",
+      "triggerPayload": {
+        "meeting": { "id": "m-001", "title": "Roadmap sync", "occurredAt": "2026-05-19T10:00:00Z" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
