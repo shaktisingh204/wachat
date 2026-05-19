@@ -1,0 +1,10 @@
+{
+  "id": "freshdesk-aging-ticket",
+  "name": "Freshdesk Aging Ticket Alert",
+  "description": "Each morning sweeps Freshdesk for open tickets idle longer than 48 hours and flags them in Slack to the support leads channel. Prevents aging tickets from silently slipping past SLA.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["freshdesk", "slack", "support", "sla", "monitoring"],
+  "version": "0.1.0"
+}
