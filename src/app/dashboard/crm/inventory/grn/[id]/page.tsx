@@ -23,9 +23,8 @@ import {
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { statusToTone } from '@/components/crm/status-pill';
-import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { getGrn } from '@/app/actions/crm/grns.actions';
