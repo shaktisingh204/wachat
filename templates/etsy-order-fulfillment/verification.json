@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "etsy-order-fulfillment",
+  "cases": [
+    {
+      "id": "order-shipped",
+      "description": "Etsy order generates a ShipStation label and posts tracking back to Etsy.",
+      "triggerPayload": {
+        "receipt_id": 5550001,
+        "shop_id": 4040,
+        "name": "Jamie K",
+        "first_line": "123 Pine St",
+        "city": "Portland",
+        "zip": "97201",
+        "country_iso": "US"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
