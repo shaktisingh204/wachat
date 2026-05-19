@@ -1,0 +1,10 @@
+{
+  "id": "threads-bsky-cross-post",
+  "name": "Webflow CMS to Bluesky Cross-Post",
+  "description": "Listens for a Webflow CMS post.published webhook and cross-posts the headline plus link as a Bluesky post via the AT Protocol. Pushes blog drops onto the federated network without manual reposting.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["webflow", "bluesky", "atproto", "marketing", "cross-post"],
+  "version": "0.1.0"
+}
