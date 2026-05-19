@@ -1,0 +1,10 @@
+{
+  "id": "snowflake-credit-alert",
+  "name": "Snowflake Credit Alert",
+  "description": "Pulls Snowflake credit usage daily, compares against the monthly budget, and pings Slack #finance the moment burn-rate threatens the cap. Gives finance a heads-up well before the warehouse pauses.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["finance", "snowflake", "budget", "slack", "cron", "warehouse"],
+  "version": "0.1.0"
+}
