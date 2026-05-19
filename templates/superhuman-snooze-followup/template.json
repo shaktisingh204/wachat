@@ -1,0 +1,10 @@
+{
+  "id": "superhuman-snooze-followup",
+  "name": "Superhuman Snooze Followup",
+  "description": "When a Superhuman reminder fires (snoozed email returned), nudges the rep in Slack #sales-followup so the thread doesn't drop. Keeps follow-ups tight.",
+  "category": "Sales",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["superhuman", "email", "slack", "followup", "sales"],
+  "version": "0.1.0"
+}

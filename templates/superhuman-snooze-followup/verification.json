@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "superhuman-snooze-followup",
+  "cases": [
+    {
+      "id": "reminder",
+      "description": "Superhuman snooze reminder nudges sales rep in Slack.",
+      "triggerPayload": {
+        "email": {
+          "subject": "Re: Pricing",
+          "from": "prospect@acme.example.com",
+          "url": "https://mail.superhuman.com/m/123"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
