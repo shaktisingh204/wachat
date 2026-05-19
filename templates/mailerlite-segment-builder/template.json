@@ -1,0 +1,10 @@
+{
+  "id": "mailerlite-segment-builder",
+  "name": "Mailerlite Segment Builder",
+  "description": "Each morning, pulls Mailerlite group sizes and engagement rates into an Airtable dashboard, then posts the digest to Slack. Helps growth pick the next send target without opening the dashboard.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["mailerlite", "airtable", "segments", "slack", "marketing", "digest"],
+  "version": "0.1.0"
+}
