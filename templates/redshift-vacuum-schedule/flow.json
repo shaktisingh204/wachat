@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 2 * * 0", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Weekly Sunday 2am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "weeks", "weeksInterval": 1 }] } }
+    },
+    {
+      "id": "n_list_tables",
+      "name": "List Heavy Tables",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tables", "value": "events,orders,sessions" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_split_tables",
+      "name": "One Per Table",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_vacuum",
+      "name": "Redshift VACUUM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.REDSHIFT_DATA_API }}/v1/statement",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "Sql", "value": "VACUUM FULL {{ $json.table }};" }
+          ]
+        }
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS Data API" } }
+    },
+    {
+      "id": "n_slack_data",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":broom: Redshift VACUUM complete for {{ $json.table }}.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_list_tables", "type": "main", "index": 0 }]] },
+    "n_list_tables": { "main": [[{ "node": "n_split_tables", "type": "main", "index": 0 }]] },
+    "n_split_tables": { "main": [[{ "node": "n_vacuum", "type": "main", "index": 0 }]] },
+    "n_vacuum": { "main": [[{ "node": "n_slack_data", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Vacuum",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_list_tables", "n_split_tables", "n_vacuum", "n_slack_data"]
+    }
+  ],
+  "variables": [
+    { "id": "v_rs", "name": "REDSHIFT_DATA_API", "defaultValue": "https://redshift-data.us-east-1.amazonaws.com" },
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
