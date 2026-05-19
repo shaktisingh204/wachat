@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "patient-symptom-triage",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Patient symptom intake reaches GPT-4o triage and walks every escalation branch structurally.",
+      "triggerPayload": {
+        "patientId": "pt-001",
+        "phone": "+15555550100",
+        "chiefComplaint": "chest pain",
+        "notes": "radiating left arm",
+        "vitals": { "hr": 130, "bp": "160/100" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
