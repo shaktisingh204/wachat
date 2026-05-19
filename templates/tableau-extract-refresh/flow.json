@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_tableau_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "tableau.extract_refresh_failed",
+    "options": {
+      "path": "/webhooks/tableau-failed",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Tableau-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_tableau_trigger",
+      "name": "Tableau Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tableau-failed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "tableau-failed-webhook"
+    },
+    {
+      "id": "n_extract_event",
+      "name": "Extract Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "datasourceId", "value": "={{ $json.resource_luid }}" },
+            { "name": "datasourceName", "value": "={{ $json.resource_name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_detail",
+      "name": "Fetch Datasource",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.TABLEAU_URL }}/api/3.19/sites/{{ $vars.SITE_ID }}/datasources/{{ $json.datasourceId }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "tableau-cred", "name": "Tableau API" } }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "msg", "value": "Tableau extract refresh failed for *{{ $json.datasourceName }}*." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_bi",
+      "name": "Slack #bi",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_BI_CHANNEL }}",
+        "text": ":bar_chart: {{ $json.msg }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_tableau_trigger": { "main": [[{ "node": "n_extract_event", "type": "main", "index": 0 }]] },
+    "n_extract_event": { "main": [[{ "node": "n_fetch_detail", "type": "main", "index": 0 }]] },
+    "n_fetch_detail": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_slack_bi", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Refresh",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_tableau_trigger", "n_extract_event", "n_fetch_detail", "n_format", "n_slack_bi"]
+    }
+  ],
+  "variables": [
+    { "id": "v_tableau", "name": "TABLEAU_URL", "defaultValue": "https://tableau.example.com" },
+    { "id": "v_site", "name": "SITE_ID", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_BI_CHANNEL", "defaultValue": "#bi" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

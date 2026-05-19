@@ -1,0 +1,10 @@
+{
+  "id": "tableau-extract-refresh",
+  "name": "Tableau Extract Refresh Watch",
+  "description": "Subscribes to Tableau extract.refresh.failed webhooks and posts the failing data source and error to Slack #bi. Keeps BI users from chasing stale extracts the next morning.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ops", "tableau", "bi", "slack", "webhook", "refresh"],
+  "version": "0.1.0"
+}
