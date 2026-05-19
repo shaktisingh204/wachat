@@ -5,8 +5,18 @@
  * provider is a five-method object plus an entry in `PROVIDERS`.
  */
 
+import { createHash, randomBytes } from 'crypto';
 import type { OAuthProvider, OAuthTokens } from './types';
 import { OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE } from './credential-type-map';
+
+/** PKCE helper — RFC 7636 S256 challenge derived from a 64-byte verifier. */
+function pkcePair(): { codeVerifier: string; codeChallenge: string } {
+  const codeVerifier = randomBytes(64).toString('base64url');
+  const codeChallenge = createHash('sha256')
+    .update(codeVerifier)
+    .digest('base64url');
+  return { codeVerifier, codeChallenge };
+}
 
 export { OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE } from './credential-type-map';
 
@@ -1737,6 +1747,196 @@ const twitchProvider: OAuthProvider = {
     }),
 };
 PROVIDERS.set(twitchProvider.id, twitchProvider);
+
+/* ── Twitter / X (PKCE) ─────────────────────────────────────────────────── */
+
+const twitterProvider: OAuthProvider = {
+  id: 'twitter',
+  label: 'Twitter / X',
+  defaultScopes: ['tweet.read', 'users.read', 'offline.access'],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const { codeVerifier, codeChallenge } = pkcePair();
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      scope: (scopes ?? twitterProvider.defaultScopes).join(' '),
+      state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+    });
+    return {
+      url: `https://twitter.com/i/oauth2/authorize?${params.toString()}`,
+      codeVerifier,
+    };
+  },
+  exchangeCode: ({ code, config, codeVerifier }) =>
+    tokenRequest({
+      url: 'https://api.twitter.com/2/oauth2/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+        code_verifier: codeVerifier ?? '',
+        client_id: config.clientId,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://api.twitter.com/2/oauth2/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(twitterProvider.id, twitterProvider);
+
+/* ── Airtable (PKCE) ────────────────────────────────────────────────────── */
+
+const airtableProvider: OAuthProvider = {
+  id: 'airtable',
+  label: 'Airtable',
+  defaultScopes: [
+    'data.records:read',
+    'data.records:write',
+    'schema.bases:read',
+  ],
+  buildAuthorizeUrl({ config, state, scopes }) {
+    const { codeVerifier, codeChallenge } = pkcePair();
+    const params = new URLSearchParams({
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      response_type: 'code',
+      scope: (scopes ?? airtableProvider.defaultScopes).join(' '),
+      state,
+      code_challenge: codeChallenge,
+      code_challenge_method: 'S256',
+    });
+    return {
+      url: `https://airtable.com/oauth2/v1/authorize?${params.toString()}`,
+      codeVerifier,
+    };
+  },
+  exchangeCode: ({ code, config, codeVerifier }) =>
+    tokenRequest({
+      url: 'https://airtable.com/oauth2/v1/token',
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        redirect_uri: config.redirectUri,
+        code_verifier: codeVerifier ?? '',
+        client_id: config.clientId,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+  refreshAccessToken: ({ refreshToken, config }) =>
+    tokenRequest({
+      url: 'https://airtable.com/oauth2/v1/token',
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+      },
+      basicAuth: { clientId: config.clientId, clientSecret: config.clientSecret },
+    }),
+};
+PROVIDERS.set(airtableProvider.id, airtableProvider);
+
+/* ── Zendesk (per-tenant subdomain) ─────────────────────────────────────── */
+
+function zendeskBase(subdomain: string): string {
+  return `https://${encodeURIComponent(subdomain)}.zendesk.com`;
+}
+
+const zendeskProvider: OAuthProvider = {
+  id: 'zendesk',
+  label: 'Zendesk',
+  defaultScopes: ['read', 'write'],
+  requiresSubdomain: true,
+  buildAuthorizeUrl({ config, state, scopes, subdomain }) {
+    if (!subdomain) throw new Error('Zendesk OAuth requires a workspace subdomain');
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      scope: (scopes ?? zendeskProvider.defaultScopes).join(' '),
+      state,
+    });
+    return `${zendeskBase(subdomain)}/oauth/authorizations/new?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config, subdomain }) => {
+    if (!subdomain) throw new Error('Zendesk token exchange requires subdomain on state');
+    return tokenRequest({
+      url: `${zendeskBase(subdomain)}/oauth/tokens`,
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+        scope: 'read write',
+      },
+    });
+  },
+  async refreshAccessToken() {
+    throw new Error(
+      'Zendesk OAuth tokens do not expire — re-authorise to rotate.',
+    );
+  },
+};
+PROVIDERS.set(zendeskProvider.id, zendeskProvider);
+
+/* ── Freshdesk (per-tenant subdomain) ───────────────────────────────────── */
+
+function freshdeskBase(subdomain: string): string {
+  return `https://${encodeURIComponent(subdomain)}.freshdesk.com`;
+}
+
+const freshdeskProvider: OAuthProvider = {
+  id: 'freshdesk',
+  label: 'Freshdesk',
+  defaultScopes: [],
+  requiresSubdomain: true,
+  buildAuthorizeUrl({ config, state, subdomain }) {
+    if (!subdomain) throw new Error('Freshdesk OAuth requires a workspace subdomain');
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: config.clientId,
+      redirect_uri: config.redirectUri,
+      state,
+    });
+    return `${freshdeskBase(subdomain)}/oauth/authorize?${params.toString()}`;
+  },
+  exchangeCode: ({ code, config, subdomain }) => {
+    if (!subdomain) throw new Error('Freshdesk token exchange requires subdomain on state');
+    return tokenRequest({
+      url: `${freshdeskBase(subdomain)}/oauth/token`,
+      body: {
+        grant_type: 'authorization_code',
+        code,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+        redirect_uri: config.redirectUri,
+      },
+    });
+  },
+  refreshAccessToken: ({ refreshToken, config, subdomain }) => {
+    if (!subdomain) throw new Error('Freshdesk token refresh requires subdomain');
+    return tokenRequest({
+      url: `${freshdeskBase(subdomain)}/oauth/token`,
+      body: {
+        grant_type: 'refresh_token',
+        refresh_token: refreshToken,
+        client_id: config.clientId,
+        client_secret: config.clientSecret,
+      },
+    });
+  },
+};
+PROVIDERS.set(freshdeskProvider.id, freshdeskProvider);
 
 /* ── Shared token-endpoint helper ───────────────────────────────────────── */
 

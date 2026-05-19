@@ -8,8 +8,13 @@
   "lastVerified": "2026-05-17",
   "status": "verified",
   "auth": {
-    "type": "bearer",
-    "credentialType": "x_twitter"
+    "type": "oauth2",
+    "provider": "twitter",
+    "credentialType": "twitter",
+    "fallback": {
+      "type": "bearer",
+      "credentialType": "x_twitter"
+    }
   },
   "baseUrl": "https://api.twitter.com/2",
   "endpoints": [
@@ -19,7 +24,12 @@
       "method": "GET",
       "path": "/users/me",
       "fields": [
-        { "id": "user.fields", "label": "User fields", "type": "text", "in": "query" }
+        {
+          "id": "user.fields",
+          "label": "User fields",
+          "type": "text",
+          "in": "query"
+        }
       ]
     },
     {
@@ -28,10 +38,31 @@
       "method": "POST",
       "path": "/tweets",
       "fields": [
-        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" },
-        { "id": "reply", "label": "Reply", "type": "json", "in": "body" },
-        { "id": "media", "label": "Media", "type": "json", "in": "body" },
-        { "id": "poll", "label": "Poll", "type": "json", "in": "body" }
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "textarea",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "reply",
+          "label": "Reply",
+          "type": "json",
+          "in": "body"
+        },
+        {
+          "id": "media",
+          "label": "Media",
+          "type": "json",
+          "in": "body"
+        },
+        {
+          "id": "poll",
+          "label": "Poll",
+          "type": "json",
+          "in": "body"
+        }
       ]
     },
     {
@@ -40,7 +71,13 @@
       "method": "DELETE",
       "path": "/tweets/{id}",
       "fields": [
-        { "id": "id", "label": "Tweet ID", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "id",
+          "label": "Tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -49,9 +86,25 @@
       "method": "GET",
       "path": "/tweets/{id}",
       "fields": [
-        { "id": "id", "label": "Tweet ID", "type": "text", "required": true, "in": "path" },
-        { "id": "expansions", "label": "Expansions", "type": "text", "in": "query" },
-        { "id": "tweet.fields", "label": "Tweet fields", "type": "text", "in": "query" }
+        {
+          "id": "id",
+          "label": "Tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "expansions",
+          "label": "Expansions",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "tweet.fields",
+          "label": "Tweet fields",
+          "type": "text",
+          "in": "query"
+        }
       ]
     },
     {
@@ -60,9 +113,26 @@
       "method": "GET",
       "path": "/users/{id}/tweets",
       "fields": [
-        { "id": "id", "label": "User ID", "type": "text", "required": true, "in": "path" },
-        { "id": "max_results", "label": "Max results", "type": "number", "defaultValue": 10, "in": "query" },
-        { "id": "pagination_token", "label": "Pagination token", "type": "text", "in": "query" }
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "max_results",
+          "label": "Max results",
+          "type": "number",
+          "defaultValue": 10,
+          "in": "query"
+        },
+        {
+          "id": "pagination_token",
+          "label": "Pagination token",
+          "type": "text",
+          "in": "query"
+        }
       ]
     },
     {
@@ -71,8 +141,20 @@
       "method": "POST",
       "path": "/users/{id}/likes",
       "fields": [
-        { "id": "id", "label": "User ID", "type": "text", "required": true, "in": "path" },
-        { "id": "tweet_id", "label": "Tweet ID", "type": "text", "required": true, "in": "body" }
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tweet_id",
+          "label": "Tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        }
       ]
     },
     {
@@ -81,8 +163,20 @@
       "method": "DELETE",
       "path": "/users/{id}/likes/{tweet_id}",
       "fields": [
-        { "id": "id", "label": "User ID", "type": "text", "required": true, "in": "path" },
-        { "id": "tweet_id", "label": "Tweet ID", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tweet_id",
+          "label": "Tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -91,8 +185,20 @@
       "method": "POST",
       "path": "/users/{id}/retweets",
       "fields": [
-        { "id": "id", "label": "User ID", "type": "text", "required": true, "in": "path" },
-        { "id": "tweet_id", "label": "Tweet ID", "type": "text", "required": true, "in": "body" }
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "tweet_id",
+          "label": "Tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        }
       ]
     },
     {
@@ -101,8 +207,20 @@
       "method": "DELETE",
       "path": "/users/{id}/retweets/{source_tweet_id}",
       "fields": [
-        { "id": "id", "label": "User ID", "type": "text", "required": true, "in": "path" },
-        { "id": "source_tweet_id", "label": "Source tweet ID", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "id",
+          "label": "User ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "source_tweet_id",
+          "label": "Source tweet ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -111,8 +229,20 @@
       "method": "POST",
       "path": "/users/{id}/following",
       "fields": [
-        { "id": "id", "label": "User ID (source)", "type": "text", "required": true, "in": "path" },
-        { "id": "target_user_id", "label": "Target user ID", "type": "text", "required": true, "in": "body" }
+        {
+          "id": "id",
+          "label": "User ID (source)",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "target_user_id",
+          "label": "Target user ID",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        }
       ]
     },
     {
@@ -121,8 +251,20 @@
       "method": "DELETE",
       "path": "/users/{source_user_id}/following/{target_user_id}",
       "fields": [
-        { "id": "source_user_id", "label": "Source user ID", "type": "text", "required": true, "in": "path" },
-        { "id": "target_user_id", "label": "Target user ID", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "source_user_id",
+          "label": "Source user ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "target_user_id",
+          "label": "Target user ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -131,10 +273,32 @@
       "method": "GET",
       "path": "/tweets/search/recent",
       "fields": [
-        { "id": "query", "label": "Query", "type": "text", "required": true, "in": "query" },
-        { "id": "max_results", "label": "Max results", "type": "number", "defaultValue": 10, "in": "query" },
-        { "id": "start_time", "label": "Start time (ISO8601)", "type": "text", "in": "query" },
-        { "id": "end_time", "label": "End time (ISO8601)", "type": "text", "in": "query" }
+        {
+          "id": "query",
+          "label": "Query",
+          "type": "text",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "id": "max_results",
+          "label": "Max results",
+          "type": "number",
+          "defaultValue": 10,
+          "in": "query"
+        },
+        {
+          "id": "start_time",
+          "label": "Start time (ISO8601)",
+          "type": "text",
+          "in": "query"
+        },
+        {
+          "id": "end_time",
+          "label": "End time (ISO8601)",
+          "type": "text",
+          "in": "query"
+        }
       ]
     },
     {
@@ -143,9 +307,26 @@
       "method": "POST",
       "path": "/dm_conversations/with/{participant_id}/messages",
       "fields": [
-        { "id": "participant_id", "label": "Participant ID", "type": "text", "required": true, "in": "path" },
-        { "id": "text", "label": "Text", "type": "textarea", "required": true, "in": "body" },
-        { "id": "media", "label": "Media", "type": "json", "in": "body" }
+        {
+          "id": "participant_id",
+          "label": "Participant ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        },
+        {
+          "id": "text",
+          "label": "Text",
+          "type": "textarea",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "media",
+          "label": "Media",
+          "type": "json",
+          "in": "body"
+        }
       ]
     }
   ]

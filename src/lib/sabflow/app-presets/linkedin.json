@@ -8,8 +8,13 @@
   "lastVerified": "2026-05-17",
   "status": "verified",
   "auth": {
-    "type": "bearer",
-    "credentialType": "linkedin"
+    "type": "oauth2",
+    "provider": "linkedin",
+    "credentialType": "linkedin",
+    "fallback": {
+      "type": "bearer",
+      "credentialType": "linkedin"
+    }
   },
   "baseUrl": "https://api.linkedin.com/v2",
   "endpoints": [
@@ -19,7 +24,13 @@
       "method": "GET",
       "path": "/me",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        }
       ]
     },
     {
@@ -28,11 +39,41 @@
       "method": "POST",
       "path": "/ugcPosts",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "author", "label": "Author URN", "type": "text", "required": true, "in": "body" },
-        { "id": "lifecycleState", "label": "Lifecycle state", "type": "text", "defaultValue": "PUBLISHED", "in": "body" },
-        { "id": "specificContent", "label": "Specific content", "type": "json", "required": true, "in": "body" },
-        { "id": "visibility", "label": "Visibility", "type": "json", "required": true, "in": "body" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "author",
+          "label": "Author URN",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "lifecycleState",
+          "label": "Lifecycle state",
+          "type": "text",
+          "defaultValue": "PUBLISHED",
+          "in": "body"
+        },
+        {
+          "id": "specificContent",
+          "label": "Specific content",
+          "type": "json",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "visibility",
+          "label": "Visibility",
+          "type": "json",
+          "required": true,
+          "in": "body"
+        }
       ]
     },
     {
@@ -41,8 +82,20 @@
       "method": "DELETE",
       "path": "/ugcPosts/{share_urn}",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "share_urn", "label": "Share URN", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "share_urn",
+          "label": "Share URN",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -51,9 +104,27 @@
       "method": "GET",
       "path": "/posts",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "author", "label": "Author URN", "type": "text", "required": true, "in": "query" },
-        { "id": "q", "label": "Query type", "type": "text", "defaultValue": "author", "in": "query" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "author",
+          "label": "Author URN",
+          "type": "text",
+          "required": true,
+          "in": "query"
+        },
+        {
+          "id": "q",
+          "label": "Query type",
+          "type": "text",
+          "defaultValue": "author",
+          "in": "query"
+        }
       ]
     },
     {
@@ -62,10 +133,33 @@
       "method": "POST",
       "path": "/shares",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "owner", "label": "Owner URN", "type": "text", "required": true, "in": "body" },
-        { "id": "text", "label": "Text { text }", "type": "json", "required": true, "in": "body" },
-        { "id": "distribution", "label": "Distribution", "type": "json", "in": "body" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "owner",
+          "label": "Owner URN",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "text",
+          "label": "Text { text }",
+          "type": "json",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "distribution",
+          "label": "Distribution",
+          "type": "json",
+          "in": "body"
+        }
       ]
     },
     {
@@ -74,10 +168,34 @@
       "method": "GET",
       "path": "/organizationalEntityAcls",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "q", "label": "Query type", "type": "text", "defaultValue": "roleAssignee", "in": "query" },
-        { "id": "role", "label": "Role", "type": "text", "defaultValue": "ADMINISTRATOR", "in": "query" },
-        { "id": "projection", "label": "Projection", "type": "text", "defaultValue": "(elements*(organizationalTarget~(localizedName)))", "in": "query" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "q",
+          "label": "Query type",
+          "type": "text",
+          "defaultValue": "roleAssignee",
+          "in": "query"
+        },
+        {
+          "id": "role",
+          "label": "Role",
+          "type": "text",
+          "defaultValue": "ADMINISTRATOR",
+          "in": "query"
+        },
+        {
+          "id": "projection",
+          "label": "Projection",
+          "type": "text",
+          "defaultValue": "(elements*(organizationalTarget~(localizedName)))",
+          "in": "query"
+        }
       ]
     },
     {
@@ -86,8 +204,20 @@
       "method": "GET",
       "path": "/organizations/{id}",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "id", "label": "Organization ID", "type": "text", "required": true, "in": "path" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "id",
+          "label": "Organization ID",
+          "type": "text",
+          "required": true,
+          "in": "path"
+        }
       ]
     },
     {
@@ -96,11 +226,41 @@
       "method": "POST",
       "path": "/ugcPosts",
       "fields": [
-        { "id": "X-Restli-Protocol-Version", "label": "X-Restli-Protocol-Version", "type": "text", "defaultValue": "2.0.0", "in": "header" },
-        { "id": "author", "label": "Author (organization URN)", "type": "text", "required": true, "in": "body" },
-        { "id": "lifecycleState", "label": "Lifecycle state", "type": "text", "defaultValue": "PUBLISHED", "in": "body" },
-        { "id": "specificContent", "label": "Specific content", "type": "json", "required": true, "in": "body" },
-        { "id": "visibility", "label": "Visibility", "type": "json", "required": true, "in": "body" }
+        {
+          "id": "X-Restli-Protocol-Version",
+          "label": "X-Restli-Protocol-Version",
+          "type": "text",
+          "defaultValue": "2.0.0",
+          "in": "header"
+        },
+        {
+          "id": "author",
+          "label": "Author (organization URN)",
+          "type": "text",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "lifecycleState",
+          "label": "Lifecycle state",
+          "type": "text",
+          "defaultValue": "PUBLISHED",
+          "in": "body"
+        },
+        {
+          "id": "specificContent",
+          "label": "Specific content",
+          "type": "json",
+          "required": true,
+          "in": "body"
+        },
+        {
+          "id": "visibility",
+          "label": "Visibility",
+          "type": "json",
+          "required": true,
+          "in": "body"
+        }
       ]
     }
   ]

@@ -55,6 +55,10 @@ export const OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE: Readonly<Record<string, string>
   bitbucket: 'bitbucket',
   paypal: 'paypal',
   zoho_crm: 'zoho',
+  // Batch 5 — PKCE + subdomain providers
+  twitter: 'twitter',
+  airtable: 'airtable',
+  zendesk: 'zendesk',
 };
 
 /** Pretty label for a provider id, used in the Connect button. */
@@ -101,6 +105,10 @@ export const OAUTH_PROVIDER_LABEL: Readonly<Record<string, string>> = {
   helpscout: 'Help Scout',
   front: 'Front',
   twitch: 'Twitch',
+  twitter: 'X (Twitter)',
+  airtable: 'Airtable',
+  zendesk: 'Zendesk',
+  freshdesk: 'Freshdesk',
 };
 
 /** Brand-tinted ring color for the Connect CTA per provider. */
@@ -147,6 +155,32 @@ export const OAUTH_PROVIDER_ACCENT: Readonly<Record<string, string>> = {
   helpscout: 'from-blue-500/15 to-violet-500/15',
   front: 'from-violet-500/15 to-fuchsia-500/15',
   twitch: 'from-violet-500/15 to-purple-600/15',
+  twitter: 'from-sky-500/15 to-zinc-700/15',
+  airtable: 'from-yellow-400/15 to-pink-500/15',
+  zendesk: 'from-emerald-500/15 to-zinc-600/15',
+  freshdesk: 'from-green-500/15 to-teal-400/15',
+};
+
+/**
+ * Providers that need the user to supply a workspace subdomain before we
+ * can build the authorise URL.  Kept in sync with `OAuthProvider.requiresSubdomain`
+ * in providers.ts.
+ */
+export const OAUTH_PROVIDER_REQUIRES_SUBDOMAIN: ReadonlySet<string> = new Set([
+  'zendesk',
+  'freshdesk',
+]);
+
+/** Per-provider subdomain hint shown in the UI input placeholder. */
+export const OAUTH_PROVIDER_SUBDOMAIN_HINT: Readonly<Record<string, string>> = {
+  zendesk: 'mycompany',
+  freshdesk: 'mycompany',
+};
+
+/** Per-provider subdomain suffix label, e.g. ".zendesk.com". */
+export const OAUTH_PROVIDER_SUBDOMAIN_SUFFIX: Readonly<Record<string, string>> = {
+  zendesk: '.zendesk.com',
+  freshdesk: '.freshdesk.com',
 };
 
 export function getOAuthProviderIdForCredentialType(

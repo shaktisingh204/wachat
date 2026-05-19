@@ -53,13 +53,20 @@ export async function GET(req: NextRequest) {
   }
 
   try {
-    const tokens = await provider.exchangeCode({ code, config });
+    const tokens = await provider.exchangeCode({
+      code,
+      config,
+      codeVerifier: stateEntry.codeVerifier,
+      subdomain: stateEntry.subdomain,
+    });
     const persisted = await persistOAuthCredential({
       userId: stateEntry.userId,
       providerId: stateEntry.providerId,
       credentialId: stateEntry.credentialId,
       label: stateEntry.label,
       scopes: stateEntry.scopes ?? provider.defaultScopes,
+      subdomain: stateEntry.subdomain,
+      credentialType: stateEntry.credentialType,
       tokens,
     });
     console.log(
@@ -118,16 +125,19 @@ async function persistOAuthCredential(opts: {
   credentialId?: string;
   label?: string;
   scopes: string[];
+  subdomain?: string;
+  credentialType?: string;
   tokens: OAuthTokens;
 }): Promise<{ credentialId: string; created: boolean }> {
   const { db } = await connectToDatabase();
   const col = db.collection('sabflow_credentials');
 
-  // Map provider id → CredentialType slug.  Google OAuth credentials are
-  // categorised as "google_sheets" by default since that's the most-likely
-  // first use case; users can rebind via the credential editor.
+  // Map provider id → CredentialType slug.  If the dialog passed an explicit
+  // credentialType (the user picked one in the picker) honour it; otherwise
+  // fall back to the per-provider default.
   const credentialType: CredentialType =
-    opts.providerId === 'google' ? 'google_sheets' : ('oauth_generic' as CredentialType);
+    (opts.credentialType as CredentialType | undefined) ??
+    (opts.providerId === 'google' ? 'google_sheets' : ('oauth_generic' as CredentialType));
 
   const tokenBag: Record<string, string> = {
     oauthProvider: opts.providerId,
@@ -137,6 +147,7 @@ async function persistOAuthCredential(opts: {
     scope: opts.tokens.scope ?? opts.scopes.join(' '),
     tokenType: opts.tokens.tokenType ?? 'Bearer',
     idToken: opts.tokens.idToken ?? '',
+    subdomain: opts.subdomain ?? '',
   };
 
   const now = new Date();
