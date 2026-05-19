@@ -1,0 +1,10 @@
+{
+  "id": "kafka-lag-monitor",
+  "name": "Kafka Lag Monitor",
+  "description": "Polls Kafka consumer-group lag every hour, evaluates each group against its lag threshold, and pages on-call via Slack and PagerDuty when any group falls behind. Lets the streaming team react before consumers drift hopelessly behind.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "kafka", "streaming", "pagerduty", "slack", "cron"],
+  "version": "0.1.0"
+}
