@@ -1,0 +1,10 @@
+{
+  "id": "convertkit-tag-sync",
+  "name": "ConvertKit to Mailchimp Tag Sync",
+  "description": "When a subscriber is added in ConvertKit, mirrors their tags into the matching Mailchimp audience. Keeps both ESPs in step for teams that run different campaigns out of each.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["convertkit", "mailchimp", "marketing", "sync", "tags"],
+  "version": "0.1.0"
+}
