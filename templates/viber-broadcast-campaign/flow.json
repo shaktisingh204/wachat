@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 10 * * *",
+      "timezone": "Europe/Sofia",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily 10am Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 10 * * *" }] }
+      }
+    },
+    {
+      "id": "n_mc_members",
+      "name": "Mailchimp Opt-In Audience",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "listGroup",
+        "operation": "getAll",
+        "list": "={{ $vars.MAILCHIMP_LIST_ID }}",
+        "filters": { "status": "subscribed" }
+      },
+      "credentials": {
+        "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Contact",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_viber_send",
+      "name": "Send Viber Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://chatapi.viber.com/pa/send_message",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"receiver\":\"{{ $json.merge_fields.PHONE }}\",\"type\":\"text\",\"text\":\"{{ $vars.VIBER_MESSAGE }}\",\"sender\":{\"name\":\"{{ $vars.VIBER_SENDER }}\"}}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-Viber-Auth-Token", "value": "={{ $vars.VIBER_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Log Send",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "viber_broadcasts",
+        "fields": "phone,status,sentAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Final Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "aggregate": "aggregateAllItemData", "options": {} }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_mc_members", "type": "main", "index": 0 }]]
+    },
+    "n_mc_members": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_viber_send", "type": "main", "index": 0 }]]
+    },
+    "n_viber_send": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_log": {
+      "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_mc_members", "n_split", "n_viber_send", "n_mongo_log", "n_aggregate"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" },
+    { "id": "v_token", "name": "VIBER_TOKEN", "defaultValue": "" },
+    { "id": "v_sender", "name": "VIBER_SENDER", "defaultValue": "SabNode" },
+    { "id": "v_msg", "name": "VIBER_MESSAGE", "defaultValue": "Hello from SabNode 👋" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

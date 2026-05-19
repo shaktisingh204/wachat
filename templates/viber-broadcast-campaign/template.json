@@ -1,0 +1,10 @@
+{
+  "id": "viber-broadcast-campaign",
+  "name": "Viber Broadcast Campaign",
+  "description": "Each day pulls the opted-in Mailchimp audience and pushes a Viber broadcast to each contact, then logs the result in MongoDB. Lets growth teams run daily Viber waves without manual exports.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["viber", "mailchimp", "mongodb", "marketing", "broadcast"],
+  "version": "0.1.0"
+}
