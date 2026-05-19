@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "fivetran-sync-fail",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Fivetran error webhook fans out to Slack and Linear after dedupe.",
+      "triggerPayload": {
+        "data": { "connector_id": "c-001", "connector_name": "salesforce_prod", "reason": "auth_expired" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
