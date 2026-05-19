@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_snow_usage",
+      "name": "Snowflake Credits Used",
+      "type": "n8n-nodes-base.snowflake",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT SUM(CREDITS_USED) AS credits FROM SNOWFLAKE.ACCOUNT_USAGE.WAREHOUSE_METERING_HISTORY WHERE START_TIME >= DATE_TRUNC('month', CURRENT_DATE())"
+      },
+      "credentials": { "snowflake": { "id": "snow-cred", "name": "Snowflake" } }
+    },
+    {
+      "id": "n_compute_burn",
+      "name": "Compute Burn %",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "creditsUsed", "value": "={{ $json.credits }}" },
+            { "name": "burnPct", "value": "={{ ($json.credits / Number($vars.MONTHLY_CREDIT_BUDGET)) * 100 }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_budget_check",
+      "name": "Burn > 80%?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.burnPct }}", "operation": "larger", "value2": 80 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_format_msg",
+      "name": "Format Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "alert", "value": "Snowflake burn={{ $json.burnPct }}% ({{ $json.creditsUsed }} credits month-to-date)." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_finance",
+      "name": "Slack #finance",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_FINANCE_CHANNEL }}",
+        "text": ":snowflake: {{ $json.alert }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_snow_usage", "type": "main", "index": 0 }]] },
+    "n_snow_usage": { "main": [[{ "node": "n_compute_burn", "type": "main", "index": 0 }]] },
+    "n_compute_burn": { "main": [[{ "node": "n_budget_check", "type": "main", "index": 0 }]] },
+    "n_budget_check": { "main": [[{ "node": "n_format_msg", "type": "main", "index": 0 }]] },
+    "n_format_msg": { "main": [[{ "node": "n_slack_finance", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Credit",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_snow_usage", "n_compute_burn", "n_budget_check", "n_format_msg", "n_slack_finance"]
+    }
+  ],
+  "variables": [
+    { "id": "v_budget", "name": "MONTHLY_CREDIT_BUDGET", "defaultValue": "5000" },
+    { "id": "v_slack", "name": "SLACK_FINANCE_CHANNEL", "defaultValue": "#finance" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
