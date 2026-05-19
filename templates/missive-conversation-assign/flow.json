@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_missive_new",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "missive.conversation.new",
+    "options": {
+      "path": "/webhooks/missive-new",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Missive-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Missive New Conversation",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "missive-new",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "missive-new-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Conversation",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "conversationId", "value": "={{ $json.conversation.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pull_loads",
+      "name": "Pull Agent Loads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.MISSIVE_URL }}/v1/teams/{{ $vars.MISSIVE_TEAM_ID }}/agents?include=load"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "missive-cred", "name": "Missive Header Auth" } }
+    },
+    {
+      "id": "n_pick",
+      "name": "Pick Lightest Agent",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "agentId", "value": "={{ $json.sort((a,b) => a.load - b.load)[0].id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_assign",
+      "name": "Missive Assign",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MISSIVE_URL }}/v1/conversations/{{ $node['Extract Conversation'].json.conversationId }}/assignees",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "user_id", "value": "={{ $json.agentId }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "missive-cred", "name": "Missive Header Auth" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Audit",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":inbox_tray: Assigned conv {{ $node['Extract Conversation'].json.conversationId }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_pull_loads", "type": "main", "index": 0 }]] },
+    "n_pull_loads": { "main": [[{ "node": "n_pick", "type": "main", "index": 0 }]] },
+    "n_pick": { "main": [[{ "node": "n_assign", "type": "main", "index": 0 }]] },
+    "n_assign": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_pull_loads", "n_pick", "n_assign", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "MISSIVE_URL", "defaultValue": "https://public.missiveapp.com" },
+    { "id": "v_team", "name": "MISSIVE_TEAM_ID", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#support-ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
