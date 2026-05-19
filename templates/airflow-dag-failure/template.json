@@ -1,0 +1,10 @@
+{
+  "id": "airflow-dag-failure",
+  "name": "Airflow DAG Failure",
+  "description": "Listens for Airflow dag_failed callbacks, fetches the failing task logs, and routes them to both Slack and a Linear bug for the data engineering team. Removes the daily ritual of scraping the scheduler UI for failures.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "airflow", "data", "slack", "linear", "webhook"],
+  "version": "0.1.0"
+}
