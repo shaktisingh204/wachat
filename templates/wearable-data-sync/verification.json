@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "wearable-data-sync",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Fitbit anomaly fans out to Slack, EMR, and patient SMS.",
+      "triggerPayload": { "userId": "pt-001", "heartRate": 145 },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
