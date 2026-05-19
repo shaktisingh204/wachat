@@ -1,0 +1,10 @@
+{
+  "id": "clari-forecast-alert",
+  "name": "Clari Forecast Alert",
+  "description": "Each morning, pulls the current Clari commit number and compares it to yesterday's snapshot. If the commit shifts by more than 10%, it pings Slack #sales-leadership so leaders can intervene mid-quarter.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sales", "clari", "forecast", "slack", "cron", "leadership"],
+  "version": "0.1.0"
+}
