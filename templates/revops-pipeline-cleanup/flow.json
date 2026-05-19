@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Mondays 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * 1" }] } }
+    },
+    {
+      "id": "n_query",
+      "name": "HubSpot Stale Deals",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "deal",
+        "operation": "getAll",
+        "filtersUi": {
+          "filterValues": [
+            { "propertyName": "hs_lastmodifieddate", "operator": "LT", "value": "={{ Date.now() - 30 * 24 * 60 * 60 * 1000 }}" }
+          ]
+        }
+      },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Deal",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract AE",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "dealName", "value": "={{ $json.properties.dealname }}" },
+            { "name": "aeSlackId", "value": "={{ $json.properties.hubspot_owner_slack }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_ae",
+      "name": "DM AE",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $json.aeSlackId }}",
+        "text": ":broom: Stale deal — please update *{{ $json.dealName }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Digest",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 100],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "PipelineHygiene",
+        "fields": { "Deal": "={{ $json.dealName }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_query", "type": "main", "index": 0 }]] },
+    "n_query": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_slack_ae", "type": "main", "index": 0 },
+          { "node": "n_airtable", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_query", "n_split", "n_extract", "n_slack_ae", "n_airtable"]
+    }
+  ],
+  "variables": [
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

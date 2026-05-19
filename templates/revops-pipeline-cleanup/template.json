@@ -1,0 +1,10 @@
+{
+  "id": "revops-pipeline-cleanup",
+  "name": "RevOps Pipeline Cleanup",
+  "description": "Once a week, finds HubSpot deals that haven't had activity in 30+ days, DMs each AE the list, and writes a digest to Airtable for the RevOps team. Keeps the pipeline forecast honest.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hubspot", "revops", "slack", "airtable", "pipeline-hygiene", "sales"],
+  "version": "0.1.0"
+}
