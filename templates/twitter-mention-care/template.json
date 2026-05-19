@@ -1,0 +1,10 @@
+{
+  "id": "twitter-mention-care",
+  "name": "Twitter Mention Care Router",
+  "description": "When the brand is mentioned on X/Twitter, runs the tweet through OpenAI to classify love vs complaint and routes each branch — complaints to support, love to growth — into Slack. Stops the social inbox from being a single noisy stream.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["twitter", "openai", "slack", "marketing", "social-care"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "twitter-mention-care",
+  "cases": [
+    {
+      "id": "complaint-routed",
+      "description": "A Twitter mention is tone-classified and routed to support or growth Slack.",
+      "triggerPayload": {
+        "tweet_id": "tw-9001",
+        "user": { "screen_name": "anna" },
+        "text": "your update broke everything I'm so frustrated"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
