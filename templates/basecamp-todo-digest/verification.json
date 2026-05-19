@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "basecamp-todo-digest",
+  "cases": [
+    {
+      "id": "morning-digest",
+      "description": "Scheduled cron pulls today's Basecamp todos and emails the digest.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T08:00:00-04:00" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
