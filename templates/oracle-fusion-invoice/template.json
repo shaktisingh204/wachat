@@ -1,0 +1,10 @@
+{
+  "id": "oracle-fusion-invoice",
+  "name": "Oracle Fusion Invoice",
+  "description": "When Stripe marks an invoice as paid, books a matching AR receipt into Oracle Fusion Financials and notifies the AR team. Closes the Stripe-to-ERP reconciliation gap.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["stripe", "oracle-fusion", "ar", "invoice", "finance", "erp"],
+  "version": "0.1.0"
+}

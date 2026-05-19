@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_stripe_paid",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "stripe.invoice.paid",
+    "options": {
+      "path": "/webhooks/stripe-invoice-paid",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Stripe-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Stripe Invoice Paid",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "stripe-invoice-paid",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "stripe-invoice-paid-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Invoice",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "invoiceId", "value": "={{ $json.data.object.id }}" },
+            { "name": "amount", "value": "={{ $json.data.object.amount_paid }}" },
+            { "name": "currency", "value": "={{ $json.data.object.currency }}" },
+            { "name": "customer", "value": "={{ $json.data.object.customer }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup",
+      "name": "Lookup Oracle Customer",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ORACLE_URL }}/fscmRestApi/resources/11.13.18.05/receivablesCustomerAccounts?q=AccountNumber={{ $json.customer }}"
+      },
+      "credentials": { "httpBasicAuth": { "id": "oracle-cred", "name": "Oracle Basic" } }
+    },
+    {
+      "id": "n_create_receipt",
+      "name": "Oracle AR Receipt Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ORACLE_URL }}/fscmRestApi/resources/11.13.18.05/standardReceipts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "ReceiptNumber", "value": "={{ $node['Extract Invoice'].json.invoiceId }}" },
+            { "name": "Amount", "value": "={{ $node['Extract Invoice'].json.amount }}" }
+          ]
+        }
+      },
+      "credentials": { "httpBasicAuth": { "id": "oracle-cred", "name": "Oracle Basic" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Reconciliation Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "OracleAR",
+        "fields": { "Invoice": "={{ $node['Extract Invoice'].json.invoiceId }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #ar",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":receipt: Oracle receipt booked for {{ $node['Extract Invoice'].json.invoiceId }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup", "type": "main", "index": 0 }]] },
+    "n_lookup": { "main": [[{ "node": "n_create_receipt", "type": "main", "index": 0 }]] },
+    "n_create_receipt": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] },
+    "n_log": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup", "n_create_receipt", "n_log", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_oracle", "name": "ORACLE_URL", "defaultValue": "https://example.fa.us6.oraclecloud.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#ar" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
