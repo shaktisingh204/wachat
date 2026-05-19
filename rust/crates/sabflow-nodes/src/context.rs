@@ -198,6 +198,10 @@ pub struct ExecutionContext {
     /// Optional bridge so the `Wait` node can park execution on a webhook /
     /// scheduled-resume — populated by the engine.
     pub wait_resumer: Option<Arc<dyn WaitResumer>>,
+    /// Whether this node should swallow per-item errors (n8n continueOnFail).
+    pub continue_on_fail: bool,
+    /// Shared execution metrics (audit counters for C.1.8 dashboard).
+    pub metrics: Arc<NodeMetrics>,
 }
 
 /// Alias matching the public name used in the PLAN-sabflow-coverage.md C.2
@@ -218,6 +222,8 @@ impl ExecutionContext {
             caller_stack: Vec::new(),
             sub_flow_invoker: None,
             wait_resumer: None,
+            continue_on_fail: false,
+            metrics: Arc::new(NodeMetrics::default()),
         }
     }
     pub fn with_mongo(mut self, m: sabnode_db::mongo::MongoHandle) -> Self {
@@ -255,12 +261,6 @@ impl ExecutionContext {
     pub fn with_continue_on_fail(mut self, on: bool) -> Self {
         self.continue_on_fail = on;
         self
-    }
-
-    /// n8n parity: `IExecuteFunctions.continueOnFail()`. Returns whether
-    /// the currently dispatched node should swallow per-item failures.
-    pub fn continue_on_fail(&self) -> bool {
-        self.continue_on_fail
     }
 
     /// Look up a credential by id — error if missing.

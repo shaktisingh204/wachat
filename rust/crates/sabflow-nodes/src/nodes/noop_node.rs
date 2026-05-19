@@ -1,5 +1,6 @@
 //! NoOp node — passes items through unchanged.
 
+use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
@@ -11,6 +12,7 @@ use crate::{
 
 pub struct NoOpNode;
 
+#[async_trait]
 impl Node for NoOpNode {
     fn descriptor(&self) -> NodeDescriptor {
         NodeDescriptor::new("noOp", "No Operation", "Pass items through unchanged", NodeCategory::Logic)
@@ -22,6 +24,6 @@ impl Node for NoOpNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::from_items(input.items))
+        Ok(NodeOutput::single(input.items))
     }
 }
