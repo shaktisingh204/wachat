@@ -1,0 +1,10 @@
+{
+  "id": "google-ads-offline-conv",
+  "name": "Google Ads Offline Conversion",
+  "description": "When HubSpot reports a closed-won deal, uploads an offline conversion to Google Ads against the original gclid and notifies the paid-search team in Slack. Closes the loop between CRM revenue and Google Ads.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["google-ads", "hubspot", "slack", "ads", "offline-conversion"],
+  "version": "0.1.0"
+}
