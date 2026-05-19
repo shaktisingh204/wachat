@@ -1,0 +1,10 @@
+{
+  "id": "dbt-cloud-job-watch",
+  "name": "dbt Cloud Job Watch",
+  "description": "Receives dbt Cloud job-completed webhooks, switches on result status, and routes success, warning, and error events to their own follow-up actions in Slack and Linear. Replaces the manual run-results triage email.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "dbt", "data", "slack", "linear", "switch"],
+  "version": "0.1.0"
+}

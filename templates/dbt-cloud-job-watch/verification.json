@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "dbt-cloud-job-watch",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "dbt Cloud webhook routes by run status to Slack/Linear branches.",
+      "triggerPayload": {
+        "data": { "jobName": "daily_marts", "runId": 4567, "runStatus": "success" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
