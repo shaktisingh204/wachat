@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cb_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "circleback.summary_ready",
+    "options": {
+      "path": "/webhooks/circleback-summary",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-CB-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_cb_trigger",
+      "name": "Circleback Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "circleback-summary",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "circleback-summary-webhook"
+    },
+    {
+      "id": "n_extract_meeting",
+      "name": "Extract Meeting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "meetingId", "value": "={{ $json.meeting.id }}" },
+            { "name": "title", "value": "={{ $json.meeting.title }}" },
+            { "name": "occurredAt", "value": "={{ $json.meeting.occurredAt }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_snippets",
+      "name": "Fetch Snippets",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.CB_API }}/v1/meetings/{{ $json.meetingId }}/snippets"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "cb-cred", "name": "Circleback API" } }
+    },
+    {
+      "id": "n_format_body",
+      "name": "Format Notion Body",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "pageBody", "value": "={{ JSON.stringify($json.snippets) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_notion_page",
+      "name": "Notion Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_DB_ID }}",
+        "title": "={{ $node['Extract Meeting'].json.title }}",
+        "additionalFields": {
+          "properties": "occurredAt={{ $node['Extract Meeting'].json.occurredAt }}"
+        }
+      },
+      "credentials": { "notionApi": { "id": "notion-cred", "name": "Notion API" } }
+    },
+    {
+      "id": "n_metrics",
+      "name": "Increment Metric",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.METRICS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "circleback.notion.filed" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_cb_trigger": { "main": [[{ "node": "n_extract_meeting", "type": "main", "index": 0 }]] },
+    "n_extract_meeting": { "main": [[{ "node": "n_fetch_snippets", "type": "main", "index": 0 }]] },
+    "n_fetch_snippets": { "main": [[{ "node": "n_format_body", "type": "main", "index": 0 }]] },
+    "n_format_body": { "main": [[{ "node": "n_notion_page", "type": "main", "index": 0 }]] },
+    "n_notion_page": { "main": [[{ "node": "n_metrics", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Snippets",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cb_trigger", "n_extract_meeting", "n_fetch_snippets", "n_format_body", "n_notion_page", "n_metrics"]
+    }
+  ],
+  "variables": [
+    { "id": "v_cb", "name": "CB_API", "defaultValue": "https://api.circleback.ai" },
+    { "id": "v_notion", "name": "NOTION_DB_ID", "defaultValue": "" },
+    { "id": "v_metrics", "name": "METRICS_URL", "defaultValue": "https://metrics.example.com/incr" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "circleback-meeting-snippets",
+  "name": "Circleback Meeting Snippets",
+  "description": "Listens for Circleback summary.ready webhooks, fetches the structured snippets, and files them as a fresh Notion page under the team's meeting log database. Keeps every recap searchable in the same place.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "circleback", "notion", "meeting", "summary", "webhook"],
+  "version": "0.1.0"
+}
