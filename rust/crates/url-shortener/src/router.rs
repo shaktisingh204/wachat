@@ -4,12 +4,13 @@ use std::sync::Arc;
 
 use axum::{
     Json, Router,
-    extract::{FromRef, Multipart, Path, State},
+    extract::{FromRef, Multipart, Path, Query, State},
     routing::{delete as axum_delete, get, post},
 };
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::Result;
 use sabnode_db::bson_helpers::oid_from_str;
+use serde::Deserialize;
 
 use crate::{
     from_form,
@@ -39,6 +40,16 @@ where
         .route("/count", get(count_user))
         .route("/admin/count-global", post(count_global))
         .route("/{id}", get(get_one).delete(delete_one))
+        // Analytics sub-routes — must come before /{id} catch-all in declaration
+        // but Axum route matching is exact-then-parameterised so order here is fine.
+        .route("/{id}/analytics/timeline", get(analytics_timeline))
+        .route("/{id}/analytics/geo", get(analytics_geo))
+        .route("/{id}/analytics/devices", get(analytics_devices))
+        .route("/{id}/analytics/referrers", get(analytics_referrers))
+        // Password verification — public (caller provides the hash to compare).
+        .route("/verify-password", post(verify_password_handler))
+        // Admin helpers.
+        .route("/admin/activate-scheduled", post(activate_scheduled_handler))
         // Custom domains live on the user doc but are exposed here.
         .route("/domains", get(list_domains).post(add_domain))
         .route("/domains/{domain_id}/verify", post(verify_domain))
@@ -209,4 +220,107 @@ async fn delete_domain(
     Ok(Json(
         store::delete_domain(&s.mongo, oid, &domain_id).await?,
     ))
+}
+
+// ---------------------------------------------------------------------------
+// Analytics handlers
+// ---------------------------------------------------------------------------
+
+#[derive(Deserialize)]
+struct DaysQuery {
+    #[serde(default = "default_days")]
+    days: i64,
+}
+
+fn default_days() -> i64 {
+    30
+}
+
+async fn analytics_timeline(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+    Query(q): Query<DaysQuery>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(
+        store::get_analytics_timeline(&s.mongo, oid, &id, q.days).await?,
+    ))
+}
+
+async fn analytics_geo(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(store::get_analytics_geo(&s.mongo, oid, &id).await?))
+}
+
+async fn analytics_devices(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(
+        store::get_analytics_devices(&s.mongo, oid, &id).await?,
+    ))
+}
+
+async fn analytics_referrers(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(
+        store::get_analytics_referrers(&s.mongo, oid, &id).await?,
+    ))
+}
+
+// ---------------------------------------------------------------------------
+// Password verification handler
+// ---------------------------------------------------------------------------
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct VerifyPasswordBody {
+    short_code: String,
+    password_hash: String,
+}
+
+#[derive(serde::Serialize)]
+struct VerifyPasswordResult {
+    valid: bool,
+}
+
+async fn verify_password_handler(
+    State(s): State<UrlShortenerState>,
+    Json(body): Json<VerifyPasswordBody>,
+) -> Result<Json<VerifyPasswordResult>> {
+    let valid = store::verify_link_password(&s.mongo, &body.short_code, &body.password_hash).await?;
+    Ok(Json(VerifyPasswordResult { valid }))
+}
+
+// ---------------------------------------------------------------------------
+// Admin: activate scheduled links
+// ---------------------------------------------------------------------------
+
+#[derive(serde::Serialize)]
+struct ActivateScheduledResult {
+    activated: u64,
+}
+
+async fn activate_scheduled_handler(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+) -> Result<Json<ActivateScheduledResult>> {
+    if !user.roles.iter().any(|r| r == "admin") {
+        return Err(sabnode_common::ApiError::Forbidden(
+            "admin role required".to_owned(),
+        ));
+    }
+    let activated = store::activate_scheduled_links(&s.mongo).await?;
+    Ok(Json(ActivateScheduledResult { activated }))
 }

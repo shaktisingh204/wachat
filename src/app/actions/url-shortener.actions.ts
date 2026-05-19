@@ -219,3 +219,76 @@ export async function deleteCustomDomain(
         return { success: false, error: 'Failed to delete domain.' };
     }
 }
+
+export async function updateShortUrl(
+    id: string,
+    body: import('@/lib/rust-client/url-shortener').UpdateShortUrlBody,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const result = await rustClient.urlShortener.updateOne(id, body);
+        revalidatePath('/dashboard/url-shortener');
+        revalidatePath(`/dashboard/url-shortener/${id}`);
+        return result;
+    } catch (e) {
+        return { success: false, error: rustErr(e) };
+    }
+}
+
+export async function getShortUrlAnalyticsTimeline(
+    id: string, days = 30,
+): Promise<{ date: string; count: number }[]> {
+    if (!ObjectId.isValid(id)) return [];
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const r = await rustClient.urlShortener.getAnalyticsTimeline(id, days);
+        return r.data;
+    } catch { return []; }
+}
+
+export async function getShortUrlAnalyticsGeo(
+    id: string,
+): Promise<{ country: string; count: number }[]> {
+    if (!ObjectId.isValid(id)) return [];
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const r = await rustClient.urlShortener.getAnalyticsGeo(id);
+        return r.data;
+    } catch { return []; }
+}
+
+export async function getShortUrlAnalyticsDevices(id: string) {
+    if (!ObjectId.isValid(id)) return null;
+    const session = await getSession();
+    if (!session?.user) return null;
+    try {
+        return await rustClient.urlShortener.getAnalyticsDevices(id);
+    } catch { return null; }
+}
+
+export async function getShortUrlAnalyticsReferrers(
+    id: string,
+): Promise<{ domain: string; count: number }[]> {
+    if (!ObjectId.isValid(id)) return [];
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const r = await rustClient.urlShortener.getAnalyticsReferrers(id);
+        return r.data;
+    } catch { return []; }
+}
+
+export async function verifyLinkPassword(
+    shortCode: string, password: string,
+): Promise<{ valid: boolean; originalUrl?: string; error?: string }> {
+    try {
+        const result = await rustClient.urlShortener.verifyPassword({ shortCode, passwordHash: password });
+        return result;
+    } catch (e) {
+        return { valid: false, error: rustErr(e) };
+    }
+}

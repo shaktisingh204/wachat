@@ -35,7 +35,9 @@ where
         .route("/admin/count-global", post(count_global))
         // Multipart entrypoint — Server Action forwards FormData here.
         .route("/from-form/create", post(crate::from_form::create_qr_code))
-        .route("/{id}", axum::routing::delete(delete_qr_code))
+        // Stats must come before the parameterised /{id} route so Axum sees it.
+        .route("/{id}/stats", get(scan_stats))
+        .route("/{id}", get(get_one).patch(update_one).delete(delete_qr_code))
 }
 
 #[derive(serde::Serialize)]
@@ -97,4 +99,33 @@ async fn delete_many(
 ) -> Result<Json<DeleteManyResult>> {
     let oid = oid_from_str(&user.user_id)?;
     Ok(Json(store::delete_many(&s.mongo, oid, &body.ids).await?))
+}
+
+async fn get_one(
+    user: AuthUser,
+    State(s): State<QrCodesState>,
+    Path(id): Path<String>,
+) -> Result<Json<Option<Value>>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(store::get_one(&s.mongo, oid, &id).await?))
+}
+
+async fn update_one(
+    user: AuthUser,
+    State(s): State<QrCodesState>,
+    Path(id): Path<String>,
+    Json(fields): Json<Value>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    let matched = store::update(&s.mongo, oid, &id, fields).await?;
+    Ok(Json(serde_json::json!({ "success": matched })))
+}
+
+async fn scan_stats(
+    user: AuthUser,
+    State(s): State<QrCodesState>,
+    Path(id): Path<String>,
+) -> Result<Json<Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(store::get_scan_stats(&s.mongo, oid, &id).await?))
 }

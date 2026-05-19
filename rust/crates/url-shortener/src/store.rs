@@ -10,7 +10,7 @@
 //! - `users`      — `customDomains[]` lives on the user doc.
 
 use bson::{Bson, DateTime as BsonDateTime, Document, doc, oid::ObjectId};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, Duration, Utc};
 use futures::TryStreamExt;
 use sabnode_common::{ApiError, Result};
 use sabnode_db::mongo::MongoHandle;
@@ -23,6 +23,36 @@ const USERS_COLL: &str = "users";
 // ---------------------------------------------------------------------------
 // Bodies / responses
 // ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Extended structs for new fields
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UtmParams {
+    pub source: Option<String>,
+    pub medium: Option<String>,
+    pub campaign: Option<String>,
+    pub term: Option<String>,
+    pub content: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SplitTarget {
+    pub url: String,
+    /// Weights must sum to 100.
+    pub weight: i32,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PixelIds {
+    pub facebook: Option<String>,
+    pub google: Option<String>,
+    pub tiktok: Option<String>,
+}
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -38,6 +68,27 @@ pub struct CreateBody {
     /// May be `"none"` from the form — coerced to None.
     #[serde(default)]
     pub domain_id: Option<String>,
+    /// User-chosen back-half for the short URL.
+    #[serde(default)]
+    pub custom_slug: Option<String>,
+    /// Deactivate the link after this many clicks.
+    #[serde(default)]
+    pub click_limit: Option<i64>,
+    /// Pre-hashed password (bcrypt hash; caller is responsible for hashing).
+    #[serde(default)]
+    pub password_hash: Option<String>,
+    #[serde(default)]
+    pub utm_params: Option<UtmParams>,
+    #[serde(default)]
+    pub split_targets: Option<Vec<SplitTarget>>,
+    /// ISO-8601 — scheduled activation datetime.
+    #[serde(default)]
+    pub activate_at: Option<String>,
+    #[serde(default)]
+    pub pixel_ids: Option<PixelIds>,
+    /// Link health status: "ok" | "dead" | "unknown". Defaults to "unknown".
+    #[serde(default)]
+    pub health_status: Option<String>,
 }
 
 #[derive(Debug, Serialize)]
@@ -212,9 +263,15 @@ pub async fn create(
         .filter(|s| !s.is_empty() && *s != "none")
         .map(str::to_owned);
 
-    let short_code = match body.alias.as_deref() {
-        Some(a) if !a.is_empty() => a.to_owned(),
-        _ => generate_short_code(7),
+    // custom_slug takes priority over alias, then alias, then generated.
+    let short_code = match body
+        .custom_slug
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .or_else(|| body.alias.as_deref().filter(|s| !s.is_empty()))
+    {
+        Some(slug) => slug.to_owned(),
+        None => generate_short_code(7),
     };
 
     let coll = mongo.collection::<Document>(SHORT_URL_COLL);
@@ -231,11 +288,30 @@ pub async fn create(
         .map_err(internal)?
         .is_some()
     {
+        // Use a specific message when a custom_slug was requested.
+        let msg = if body.custom_slug.as_deref().filter(|s| !s.is_empty()).is_some() {
+            "Slug already in use."
+        } else {
+            "This custom alias is already in use."
+        };
         return Ok(CreateResult {
-            error: Some("This custom alias is already in use.".to_owned()),
+            error: Some(msg.to_owned()),
             ..Default::default()
         });
     }
+
+    // Determine status — "scheduled" when activateAt is provided, else "active".
+    let initial_status = if body.activate_at.as_deref().filter(|s| !s.is_empty()).is_some() {
+        "scheduled"
+    } else {
+        "active"
+    };
+
+    let health = body
+        .health_status
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .unwrap_or("unknown");
 
     let mut new_doc = doc! {
         "userId": user_oid,
@@ -250,6 +326,8 @@ pub async fn create(
                 .map(|s| Bson::String(s.clone()))
                 .collect()
         ),
+        "status": initial_status,
+        "healthStatus": health,
         "createdAt": BsonDateTime::from_chrono(Utc::now()),
     };
     if let Some(d) = domain_id {
@@ -259,6 +337,47 @@ pub async fn create(
         if let Some(dt) = parse_iso(exp) {
             new_doc.insert("expiresAt", BsonDateTime::from_chrono(dt));
         }
+    }
+    if let Some(limit) = body.click_limit {
+        new_doc.insert("clickLimit", limit);
+    }
+    if let Some(ph) = body.password_hash.as_deref() {
+        if !ph.is_empty() {
+            new_doc.insert("passwordHash", ph);
+        }
+    }
+    if let Some(utm) = &body.utm_params {
+        let mut utm_doc = Document::new();
+        if let Some(v) = &utm.source { utm_doc.insert("source", v); }
+        if let Some(v) = &utm.medium { utm_doc.insert("medium", v); }
+        if let Some(v) = &utm.campaign { utm_doc.insert("campaign", v); }
+        if let Some(v) = &utm.term { utm_doc.insert("term", v); }
+        if let Some(v) = &utm.content { utm_doc.insert("content", v); }
+        new_doc.insert("utmParams", utm_doc);
+    }
+    if let Some(targets) = &body.split_targets {
+        let bson_targets: Vec<Bson> = targets
+            .iter()
+            .map(|t| {
+                Bson::Document(doc! {
+                    "url": &t.url,
+                    "weight": t.weight,
+                })
+            })
+            .collect();
+        new_doc.insert("splitTargets", Bson::Array(bson_targets));
+    }
+    if let Some(act) = body.activate_at.as_deref().filter(|s| !s.is_empty()) {
+        if let Some(dt) = parse_iso(act) {
+            new_doc.insert("activateAt", BsonDateTime::from_chrono(dt));
+        }
+    }
+    if let Some(pixels) = &body.pixel_ids {
+        let mut px_doc = Document::new();
+        if let Some(v) = &pixels.facebook { px_doc.insert("facebook", v); }
+        if let Some(v) = &pixels.google { px_doc.insert("google", v); }
+        if let Some(v) = &pixels.tiktok { px_doc.insert("tiktok", v); }
+        new_doc.insert("pixelIds", px_doc);
     }
 
     let res = match coll.insert_one(&new_doc).await {
@@ -709,9 +828,37 @@ pub async fn track_click(
     let mut analytic = doc! { "timestamp": BsonDateTime::from_chrono(Utc::now()) };
     if let Some(ua) = q.user_agent.as_deref() {
         analytic.insert("userAgent", ua);
+
+        // Device breakdown — os, browser, deviceType.
+        let (os, browser, device_type) = parse_device_from_ua(ua);
+        analytic.insert("device", doc! {
+            "os": os,
+            "browser": browser,
+            "deviceType": device_type,
+        });
+    } else {
+        // Always include a device subdoc so aggregation projections work.
+        analytic.insert("device", doc! {
+            "os": Bson::Null,
+            "browser": Bson::Null,
+            "deviceType": "desktop",
+        });
     }
+    // Geo placeholder — country will be populated externally (Phase 2 MaxMind).
+    analytic.insert("geo", doc! {
+        "country": Bson::Null,
+        "region": Bson::Null,
+        "city": Bson::Null,
+    });
     if let Some(rf) = q.referrer.as_deref() {
         analytic.insert("referrer", rf);
+        let domain = extract_referrer_domain(rf);
+        match domain {
+            Some(d) => analytic.insert("referrerDomain", d),
+            None => analytic.insert("referrerDomain", Bson::Null),
+        };
+    } else {
+        analytic.insert("referrerDomain", Bson::Null);
     }
     if let Some(ip) = q.ip.as_deref() {
         analytic.insert("ip", ip);
@@ -958,6 +1105,237 @@ pub async fn delete_domain(
 }
 
 // ---------------------------------------------------------------------------
+// ANALYTICS AGGREGATION
+// ---------------------------------------------------------------------------
+
+pub async fn get_analytics_timeline(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+    days: i64,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Err(ApiError::BadRequest("Invalid link ID.".to_owned())),
+    };
+    let since = Utc::now() - Duration::days(days);
+    let since_bson = BsonDateTime::from_chrono(since);
+
+    let pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$match": { "analytics.timestamp": { "$gte": since_bson } } },
+        doc! {
+            "$group": {
+                "_id": {
+                    "$dateToString": {
+                        "format": "%Y-%m-%d",
+                        "date": "$analytics.timestamp",
+                    }
+                },
+                "count": { "$sum": 1_i64 },
+            }
+        },
+        doc! { "$sort": { "_id": 1 } },
+        doc! { "$project": { "_id": 0, "date": "$_id", "count": 1 } },
+    ];
+
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let cursor = coll.aggregate(pipeline).await.map_err(internal)?;
+    let docs: Vec<Document> = cursor.try_collect().await.map_err(internal)?;
+    Ok(Value::Array(docs.into_iter().map(doc_to_json).collect()))
+}
+
+pub async fn get_analytics_geo(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Err(ApiError::BadRequest("Invalid link ID.".to_owned())),
+    };
+    let pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! {
+            "$group": {
+                "_id": "$analytics.geo.country",
+                "count": { "$sum": 1_i64 },
+            }
+        },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "country": "$_id", "count": 1 } },
+    ];
+
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let cursor = coll.aggregate(pipeline).await.map_err(internal)?;
+    let docs: Vec<Document> = cursor.try_collect().await.map_err(internal)?;
+    Ok(Value::Array(docs.into_iter().map(doc_to_json).collect()))
+}
+
+pub async fn get_analytics_devices(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Err(ApiError::BadRequest("Invalid link ID.".to_owned())),
+    };
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+
+    let device_type_pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.deviceType", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "type": "$_id", "count": 1 } },
+    ];
+    let browser_pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.browser", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "browser": "$_id", "count": 1 } },
+    ];
+    let os_pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! { "$group": { "_id": "$analytics.device.os", "count": { "$sum": 1_i64 } } },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "os": "$_id", "count": 1 } },
+    ];
+
+    let dt_docs: Vec<Document> = coll
+        .aggregate(device_type_pipeline)
+        .await
+        .map_err(internal)?
+        .try_collect()
+        .await
+        .map_err(internal)?;
+    let br_docs: Vec<Document> = coll
+        .aggregate(browser_pipeline)
+        .await
+        .map_err(internal)?
+        .try_collect()
+        .await
+        .map_err(internal)?;
+    let os_docs: Vec<Document> = coll
+        .aggregate(os_pipeline)
+        .await
+        .map_err(internal)?
+        .try_collect()
+        .await
+        .map_err(internal)?;
+
+    let mut result = Map::new();
+    result.insert(
+        "deviceTypes".to_owned(),
+        Value::Array(dt_docs.into_iter().map(doc_to_json).collect()),
+    );
+    result.insert(
+        "browsers".to_owned(),
+        Value::Array(br_docs.into_iter().map(doc_to_json).collect()),
+    );
+    result.insert(
+        "os".to_owned(),
+        Value::Array(os_docs.into_iter().map(doc_to_json).collect()),
+    );
+    Ok(Value::Object(result))
+}
+
+pub async fn get_analytics_referrers(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Err(ApiError::BadRequest("Invalid link ID.".to_owned())),
+    };
+    let pipeline = vec![
+        doc! { "$match": { "_id": oid, "userId": user_oid } },
+        doc! { "$unwind": "$analytics" },
+        doc! {
+            "$group": {
+                "_id": "$analytics.referrerDomain",
+                "count": { "$sum": 1_i64 },
+            }
+        },
+        doc! { "$sort": { "count": -1 } },
+        doc! { "$project": { "_id": 0, "domain": "$_id", "count": 1 } },
+    ];
+
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let cursor = coll.aggregate(pipeline).await.map_err(internal)?;
+    let docs: Vec<Document> = cursor.try_collect().await.map_err(internal)?;
+    Ok(Value::Array(docs.into_iter().map(doc_to_json).collect()))
+}
+
+// ---------------------------------------------------------------------------
+// PASSWORD VERIFICATION
+// ---------------------------------------------------------------------------
+
+pub async fn verify_link_password(
+    mongo: &MongoHandle,
+    short_code: &str,
+    password_hash: &str,
+) -> Result<bool> {
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let doc = coll
+        .find_one(doc! { "shortCode": short_code })
+        .await
+        .map_err(internal)?;
+    let Some(d) = doc else { return Ok(false) };
+    Ok(d.get_str("passwordHash").ok() == Some(password_hash))
+}
+
+// ---------------------------------------------------------------------------
+// HEALTH STATUS
+// ---------------------------------------------------------------------------
+
+pub async fn update_health_status(
+    mongo: &MongoHandle,
+    link_id: &str,
+    status: &str,
+) -> Result<bool> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Ok(false),
+    };
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let res = coll
+        .update_one(
+            doc! { "_id": oid },
+            doc! { "$set": { "healthStatus": status } },
+        )
+        .await
+        .map_err(internal)?;
+    Ok(res.matched_count > 0)
+}
+
+// ---------------------------------------------------------------------------
+// SCHEDULED ACTIVATION
+// ---------------------------------------------------------------------------
+
+pub async fn activate_scheduled_links(mongo: &MongoHandle) -> Result<u64> {
+    let now_bson = BsonDateTime::from_chrono(Utc::now());
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let res = coll
+        .update_many(
+            doc! {
+                "status": "scheduled",
+                "activateAt": { "$lte": now_bson },
+            },
+            doc! { "$set": { "status": "active" } },
+        )
+        .await
+        .map_err(internal)?;
+    Ok(res.modified_count)
+}
+
+// ---------------------------------------------------------------------------
 // Defaults / validators / helpers
 // ---------------------------------------------------------------------------
 
@@ -974,6 +1352,64 @@ impl Default for CreateResult {
 
 fn internal(e: impl Into<anyhow::Error>) -> ApiError {
     ApiError::Internal(e.into())
+}
+
+/// Simple UA string parser — no external crates.
+/// Returns `(os, browser, device_type)`.
+pub(crate) fn parse_device_from_ua(ua: &str) -> (String, String, &'static str) {
+    // deviceType
+    let device_type = if ua.contains("iPad") || ua.contains("Tablet") {
+        "tablet"
+    } else if ua.contains("Mobile") || ua.contains("Android") {
+        "mobile"
+    } else {
+        "desktop"
+    };
+
+    // browser — precedence: Chrome > Firefox > Safari > Edge > OPR
+    let browser = if ua.contains("Chrome") {
+        "Chrome"
+    } else if ua.contains("Firefox") {
+        "Firefox"
+    } else if ua.contains("Safari") {
+        "Safari"
+    } else if ua.contains("Edge") {
+        "Edge"
+    } else if ua.contains("OPR") {
+        "Opera"
+    } else {
+        "Unknown"
+    };
+
+    // os
+    let os = if ua.contains("Windows") {
+        "Windows"
+    } else if ua.contains("Mac OS X") {
+        "macOS"
+    } else if ua.contains("Android") {
+        "Android"
+    } else if ua.contains("iPhone") {
+        "iOS"
+    } else if ua.contains("iPad") {
+        "iOS"
+    } else if ua.contains("Linux") {
+        "Linux"
+    } else {
+        "Unknown"
+    };
+
+    (os.to_owned(), browser.to_owned(), device_type)
+}
+
+/// Extract the hostname from a referrer URL string, e.g. `"https://google.com/search"` → `"google.com"`.
+fn extract_referrer_domain(referrer: &str) -> Option<String> {
+    // Look for "://" then take everything up to the next "/".
+    let after_scheme = referrer.find("://").map(|i| &referrer[i + 3..])?;
+    let host = after_scheme
+        .split('/')
+        .next()
+        .filter(|s| !s.is_empty())?;
+    Some(host.to_owned())
 }
 
 fn is_valid_url(s: &str) -> bool {
