@@ -1,0 +1,10 @@
+{
+  "id": "medium-mirror-publish",
+  "name": "Medium Mirror Publish",
+  "description": "When Ghost publishes a new post, mirrors it to Medium via the Medium API and links back to the canonical URL. Extends reach without duplicating SEO equity.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ghost", "medium", "cross-publish", "blog", "marketing"],
+  "version": "0.1.0"
+}

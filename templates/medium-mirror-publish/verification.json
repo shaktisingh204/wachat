@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "medium-mirror-publish",
+  "cases": [
+    {
+      "id": "publish",
+      "description": "Ghost post.published mirrors story to Medium.",
+      "triggerPayload": {
+        "post": {
+          "current": {
+            "title": "Hello world",
+            "html": "<p>Hi</p>",
+            "url": "https://blog.example.com/hello"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
