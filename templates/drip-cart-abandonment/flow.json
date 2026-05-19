@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_drip_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "drip.cart.abandoned",
+    "options": {
+      "path": "/webhooks/drip-cart-abandonment",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Drip-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_drip_trigger",
+      "name": "Drip Cart Abandoned",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "drip-cart-abandonment",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "drip-cart-abandonment"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Cart",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.subscriber.email }}" },
+            { "name": "firstName", "value": "={{ $json.subscriber.first_name }}" },
+            { "name": "cartUrl", "value": "={{ $json.event.properties.cart_url }}" },
+            { "name": "value", "value": "={{ $json.event.properties.cart_total }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "SendGrid Recovery",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.RECOVERY_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Cart'].json.email }}",
+        "subject": "You left something behind",
+        "contentType": "text/html",
+        "content": "<p>Hi {{ $node['Extract Cart'].json.firstName }}, your cart (${{ $node['Extract Cart'].json.value }}) is waiting:</p><p><a href=\"{{ $node['Extract Cart'].json.cartUrl }}\">Resume checkout</a></p>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_GROWTH_CHANNEL }}",
+        "text": ":shopping_trolley: Cart abandonment for {{ $node['Extract Cart'].json.email }} — $${{ $node['Extract Cart'].json.value }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Fan-Out",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "mode": "append" }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo Recovery Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "cart_recoveries",
+        "fields": "email,value,recoveredAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    }
+  ],
+  "connections": {
+    "n_drip_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_sendgrid", "type": "main", "index": 0 },
+          { "node": "n_slack", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_sendgrid": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]]
+    },
+    "n_slack": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]]
+    },
+    "n_merge": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_drip_trigger", "n_extract", "n_sendgrid", "n_slack", "n_merge", "n_mongo_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "RECOVERY_FROM_EMAIL", "defaultValue": "recover@example.com" },
+    { "id": "v_growth", "name": "SLACK_GROWTH_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
