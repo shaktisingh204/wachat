@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 2 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 2am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_list_vms",
+      "name": "List vSphere VMs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.VSPHERE_API }}/rest/vcenter/vm",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "vsphere-cred", "name": "vSphere Token" } }
+    },
+    {
+      "id": "n_split_vm",
+      "name": "One Per VM",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_take_snapshot",
+      "name": "Take Snapshot",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.VSPHERE_API }}/rest/vcenter/vm/{{ $json.vm }}/snapshot",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "daily-{{ $now }}" },
+            { "name": "memory", "value": "false" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_list_old",
+      "name": "List Snapshots ≥14d",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.VSPHERE_API }}/rest/vcenter/vm/{{ $json.vm }}/snapshot?olderThanDays=14"
+      }
+    },
+    {
+      "id": "n_prune",
+      "name": "Prune Old Snapshots",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $vars.VSPHERE_API }}/rest/vcenter/vm/{{ $json.vm }}/snapshot/{{ $json.snapshotId }}"
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_list_vms", "type": "main", "index": 0 }]] },
+    "n_list_vms": { "main": [[{ "node": "n_split_vm", "type": "main", "index": 0 }]] },
+    "n_split_vm": { "main": [[{ "node": "n_take_snapshot", "type": "main", "index": 0 }]] },
+    "n_take_snapshot": { "main": [[{ "node": "n_list_old", "type": "main", "index": 0 }]] },
+    "n_list_old": { "main": [[{ "node": "n_prune", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Snapshot",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_list_vms", "n_split_vm", "n_take_snapshot", "n_list_old", "n_prune"]
+    }
+  ],
+  "variables": [
+    { "id": "v_vsphere", "name": "VSPHERE_API", "defaultValue": "https://vcenter.example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
