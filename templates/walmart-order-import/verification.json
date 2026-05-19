@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "templateId": "walmart-order-import",
+  "cases": [
+    {
+      "id": "order-mirrored",
+      "description": "Walmart order webhook creates a mirror Shopify order and links the pair in Mongo.",
+      "triggerPayload": {
+        "purchaseOrderId": "WM-PO-001",
+        "shippingInfo": {
+          "email": "walmart.buyer@example.com",
+          "postalAddress": {
+            "name": "Casey Wu",
+            "address1": "742 Evergreen Terrace",
+            "city": "Springfield",
+            "state": "IL",
+            "postalCode": "62704"
+          }
+        },
+        "orderLines": {
+          "orderLine": [
+            { "item": { "sku": "SKU-1" }, "orderLineQuantity": { "amount": 1 }, "charges": { "charge": [{ "chargeAmount": { "amount": 19.99 } }] } }
+          ]
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
