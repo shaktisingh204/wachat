@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 5 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 5am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_index_stats",
+      "name": "ES Index Stats",
+      "type": "n8n-nodes-base.elasticsearch",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "getIndex",
+        "indexId": "logs-write"
+      },
+      "credentials": { "elasticsearchApi": { "id": "es-cred", "name": "Elasticsearch" } }
+    },
+    {
+      "id": "n_size_check",
+      "name": "Size > 50GB?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.primaries.store.size_in_bytes }}", "operation": "larger", "value2": 53687091200 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_rollover",
+      "name": "Rollover Alias",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ES_URL }}/logs-write/_rollover",
+        "sendBody": true,
+        "bodyContentType": "json"
+      },
+      "credentials": { "httpBasicAuth": { "id": "es-basic", "name": "ES Basic" } }
+    },
+    {
+      "id": "n_update_alias",
+      "name": "Update Write Alias",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ES_URL }}/_aliases",
+        "sendBody": true,
+        "bodyContentType": "json"
+      },
+      "credentials": { "httpBasicAuth": { "id": "es-basic", "name": "ES Basic" } }
+    },
+    {
+      "id": "n_slack_ops",
+      "name": "Slack #ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":card_index_dividers: ES logs index rolled over.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_index_stats", "type": "main", "index": 0 }]] },
+    "n_index_stats": { "main": [[{ "node": "n_size_check", "type": "main", "index": 0 }]] },
+    "n_size_check": { "main": [[{ "node": "n_rollover", "type": "main", "index": 0 }]] },
+    "n_rollover": { "main": [[{ "node": "n_update_alias", "type": "main", "index": 0 }]] },
+    "n_update_alias": { "main": [[{ "node": "n_slack_ops", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Rollover",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_index_stats", "n_size_check", "n_rollover", "n_update_alias", "n_slack_ops"]
+    }
+  ],
+  "variables": [
+    { "id": "v_es", "name": "ES_URL", "defaultValue": "https://es.example.com" },
+    { "id": "v_slack", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
