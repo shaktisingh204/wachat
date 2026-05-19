@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "metabase-snapshot-email",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Weekly cron exports Metabase PNG and emails it via SendGrid.",
+      "triggerPayload": { "scheduledFor": "2026-05-18T08:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
