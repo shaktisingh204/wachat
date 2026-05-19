@@ -263,7 +263,6 @@ export default function AttendanceListPage(): React.JSX.Element {
                         </ZoruTableBody>
                     </ZoruTable>
                 </div>
-            </EntityListShell>
 
             <p className="text-[12px] text-zoru-ink-muted">
                 <CalendarCheck className="-mt-0.5 mr-1 inline h-3.5 w-3.5" />
