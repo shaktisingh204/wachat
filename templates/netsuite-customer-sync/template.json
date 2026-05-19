@@ -1,0 +1,10 @@
+{
+  "id": "netsuite-customer-sync",
+  "name": "NetSuite Customer Sync",
+  "description": "Mirrors new HubSpot companies into NetSuite as customer records and writes back the NetSuite internal id. Keeps CRM and ERP aligned without a nightly batch job.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["hubspot", "netsuite", "customer", "sync", "erp", "finance"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_hs_company",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hubspot.company.created",
+    "options": {
+      "path": "/webhooks/hs-company-created",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HS-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "HubSpot Company Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hs-company-created",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "hs-company-created-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Company",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "companyId", "value": "={{ $json.company.id }}" },
+            { "name": "companyName", "value": "={{ $json.company.name }}" },
+            { "name": "domain", "value": "={{ $json.company.domain }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_netsuite_create",
+      "name": "NetSuite Customer Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.NETSUITE_REST_URL }}/customer",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "companyName", "value": "={{ $json.companyName }}" },
+            { "name": "url", "value": "={{ $json.domain }}" }
+          ]
+        }
+      },
+      "credentials": { "oAuth1Api": { "id": "netsuite-cred", "name": "NetSuite OAuth1" } }
+    },
+    {
+      "id": "n_capture",
+      "name": "Capture NetSuite Id",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [{ "name": "netsuiteId", "value": "={{ $json.id }}" }]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot_writeback",
+      "name": "HubSpot Write-back",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "company",
+        "operation": "update",
+        "companyId": "={{ $node['Extract Company'].json.companyId }}",
+        "additionalFields": {
+          "customProperties": {
+            "property": [{ "name": "netsuite_internal_id", "value": "={{ $json.netsuiteId }}" }]
+          }
+        }
+      },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Confirmation",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":white_check_mark: NetSuite customer created for {{ $node['Extract Company'].json.companyName }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_netsuite_create", "type": "main", "index": 0 }]] },
+    "n_netsuite_create": { "main": [[{ "node": "n_capture", "type": "main", "index": 0 }]] },
+    "n_capture": { "main": [[{ "node": "n_hubspot_writeback", "type": "main", "index": 0 }]] },
+    "n_hubspot_writeback": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_netsuite_create", "n_capture", "n_hubspot_writeback", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "NETSUITE_REST_URL", "defaultValue": "https://accountid.suitetalk.api.netsuite.com/services/rest/record/v1" },
+    { "id": "v_ch", "name": "SLACK_CHANNEL", "defaultValue": "#finance-ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
