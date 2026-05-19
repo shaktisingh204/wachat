@@ -1,0 +1,232 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+  ZoruBadge,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbPage,
+  ZoruBreadcrumbSeparator,
+  ZoruButton,
+  ZoruCard,
+  ZoruInput,
+  ZoruLabel,
+  ZoruPageDescription,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import { Plus, Trash2, Megaphone } from 'lucide-react';
+
+const STORAGE_KEY = 'qr-campaigns';
+
+type Campaign = {
+  id: string;
+  name: string;
+  description: string;
+  qrCodeIds: string[];
+  startDate: string;
+  endDate: string;
+  createdAt: string;
+};
+
+export default function QrCampaignsPage() {
+  const { toast } = useZoruToast();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [showForm, setShowForm] = useState(false);
+
+  const [formName, setFormName] = useState('');
+  const [formDescription, setFormDescription] = useState('');
+  const [formStartDate, setFormStartDate] = useState('');
+  const [formEndDate, setFormEndDate] = useState('');
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      setCampaigns(raw ? JSON.parse(raw) : []);
+    } catch { /* ignore */ }
+  }, []);
+
+  const persist = (next: Campaign[]) => {
+    setCampaigns(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  };
+
+  const resetForm = () => {
+    setFormName('');
+    setFormDescription('');
+    setFormStartDate('');
+    setFormEndDate('');
+    setShowForm(false);
+  };
+
+  const handleCreate = () => {
+    if (!formName.trim()) {
+      toast({ title: 'Name required', description: 'Please enter a campaign name.', variant: 'destructive' });
+      return;
+    }
+    const next: Campaign = {
+      id: crypto.randomUUID(),
+      name: formName.trim(),
+      description: formDescription.trim(),
+      qrCodeIds: [],
+      startDate: formStartDate,
+      endDate: formEndDate,
+      createdAt: new Date().toISOString(),
+    };
+    persist([next, ...campaigns]);
+    resetForm();
+    toast({ title: 'Campaign created' });
+  };
+
+  const handleDelete = (id: string) => {
+    persist(campaigns.filter((c) => c.id !== id));
+    toast({ title: 'Campaign deleted' });
+  };
+
+  const formatDate = (d: string) => (d ? new Date(d).toLocaleDateString() : null);
+
+  return (
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard">Home</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/qr-code-maker">QR Code Maker</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Campaigns</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <ZoruPageHeader>
+          <ZoruPageHeading>
+            <ZoruPageTitle>Campaigns</ZoruPageTitle>
+            <ZoruPageDescription>
+              Group QR codes together for unified analytics.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+        </ZoruPageHeader>
+        <ZoruButton size="sm" onClick={() => setShowForm((v) => !v)}>
+          <Plus className="h-3.5 w-3.5" />
+          New Campaign
+        </ZoruButton>
+      </div>
+
+      {showForm ? (
+        <ZoruCard className="p-5 space-y-4">
+          <h3 className="text-[14px] text-zoru-ink">Create Campaign</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Name</ZoruLabel>
+              <ZoruInput
+                placeholder="e.g., Summer 2026"
+                value={formName}
+                onChange={(e) => setFormName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Description (Optional)</ZoruLabel>
+              <ZoruTextarea
+                placeholder="What is this campaign about?"
+                value={formDescription}
+                rows={1}
+                onChange={(e) => setFormDescription(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Start Date (Optional)</ZoruLabel>
+              <input
+                type="date"
+                value={formStartDate}
+                onChange={(e) => setFormStartDate(e.target.value)}
+                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink focus:outline-none focus:border-zoru-ink"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">End Date (Optional)</ZoruLabel>
+              <input
+                type="date"
+                value={formEndDate}
+                onChange={(e) => setFormEndDate(e.target.value)}
+                className="flex h-9 w-full rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink focus:outline-none focus:border-zoru-ink"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 pt-1">
+            <ZoruButton size="sm" onClick={handleCreate}>Create</ZoruButton>
+            <ZoruButton size="sm" variant="ghost" onClick={resetForm}>Cancel</ZoruButton>
+          </div>
+        </ZoruCard>
+      ) : null}
+
+      {campaigns.length === 0 && !showForm ? (
+        <ZoruCard className="p-10 text-center">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-zoru-surface-2 text-zoru-ink-muted">
+            <Megaphone className="h-5 w-5" />
+          </div>
+          <p className="text-sm text-zoru-ink">No campaigns yet</p>
+          <p className="mt-1 text-xs text-zoru-ink-muted">
+            Group your QR codes into campaigns to track performance together.
+          </p>
+          <ZoruButton size="sm" className="mt-4" onClick={() => setShowForm(true)}>
+            <Plus className="h-3.5 w-3.5" />
+            Create your first campaign
+          </ZoruButton>
+        </ZoruCard>
+      ) : campaigns.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {campaigns.map((c) => {
+            const start = formatDate(c.startDate);
+            const end = formatDate(c.endDate);
+            return (
+              <ZoruCard key={c.id} className="p-5 flex flex-col gap-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <p className="text-[14px] font-medium text-zoru-ink truncate">{c.name}</p>
+                    {c.description ? (
+                      <p className="mt-0.5 text-[12px] text-zoru-ink-muted line-clamp-2">{c.description}</p>
+                    ) : null}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(c.id)}
+                    className="rounded p-1.5 text-zoru-ink-muted hover:bg-zoru-danger/10 hover:text-zoru-danger-ink shrink-0"
+                    aria-label="Delete campaign"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <ZoruBadge variant="outline" className="text-[11px]">
+                    {c.qrCodeIds.length} QR code{c.qrCodeIds.length !== 1 ? 's' : ''}
+                  </ZoruBadge>
+                  {start || end ? (
+                    <ZoruBadge variant="ghost" className="text-[11px]">
+                      {start ?? '…'} → {end ?? '…'}
+                    </ZoruBadge>
+                  ) : null}
+                </div>
+
+                <ZoruButton size="sm" variant="outline" className="mt-auto w-full">
+                  View
+                </ZoruButton>
+              </ZoruCard>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
