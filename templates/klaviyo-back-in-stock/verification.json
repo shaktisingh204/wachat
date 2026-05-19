@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "klaviyo-back-in-stock",
+  "cases": [
+    {
+      "id": "restock-fires-flow",
+      "description": "Shopify reports available > 0; Klaviyo flow fires and Slack #growth is notified.",
+      "triggerPayload": {
+        "inventory_item_id": "INV-001",
+        "location_id": 555,
+        "available": 12
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
