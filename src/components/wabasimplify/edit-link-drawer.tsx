@@ -1,0 +1,136 @@
+'use client';
+
+import { useState, useTransition } from 'react';
+import { updateShortUrl } from '@/app/actions/url-shortener.actions';
+import {
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  useZoruToast,
+} from '@/components/zoruui';
+import type { WithId } from 'mongodb';
+import type { ShortUrl } from '@/lib/definitions';
+import { Settings, LoaderCircle } from 'lucide-react';
+
+interface EditLinkDrawerProps {
+  shortUrl: WithId<ShortUrl>;
+}
+
+export function EditLinkDrawer({ shortUrl }: EditLinkDrawerProps) {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const { toast } = useZoruToast();
+
+  const [originalUrl, setOriginalUrl] = useState(shortUrl.originalUrl);
+  const [expiresAt, setExpiresAt] = useState(
+    shortUrl.expiresAt ? new Date(shortUrl.expiresAt).toISOString().slice(0, 16) : '',
+  );
+  const [clickLimit, setClickLimit] = useState(shortUrl.clickLimit?.toString() ?? '');
+  const [utmSource, setUtmSource] = useState(shortUrl.utmParams?.source ?? '');
+  const [utmMedium, setUtmMedium] = useState(shortUrl.utmParams?.medium ?? '');
+  const [utmCampaign, setUtmCampaign] = useState(shortUrl.utmParams?.campaign ?? '');
+
+  const handleSave = () => {
+    startTransition(async () => {
+      const body: Parameters<typeof updateShortUrl>[1] = { originalUrl };
+      if (expiresAt) body.expiresAt = new Date(expiresAt).toISOString();
+      else body.expiresAt = null;
+      if (clickLimit) body.clickLimit = Number(clickLimit);
+      else body.clickLimit = null;
+      if (utmSource || utmMedium || utmCampaign) {
+        body.utmParams = {
+          source: utmSource || undefined,
+          medium: utmMedium || undefined,
+          campaign: utmCampaign || undefined,
+        };
+      }
+      const result = await updateShortUrl(shortUrl._id.toString(), body);
+      if (result.success) {
+        toast({ title: 'Link updated', variant: 'success' });
+        setOpen(false);
+      } else {
+        toast({ title: result.error ?? 'Failed to update', variant: 'destructive' });
+      }
+    });
+  };
+
+  return (
+    <>
+      <ZoruButton variant="outline" size="sm" onClick={() => setOpen(true)}>
+        <Settings className="h-3.5 w-3.5" />
+        Edit
+      </ZoruButton>
+      <ZoruDialog open={open} onOpenChange={setOpen}>
+        <ZoruDialogContent className="max-w-md">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>Edit Link</ZoruDialogTitle>
+          </ZoruDialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Destination URL</ZoruLabel>
+              <ZoruInput
+                value={originalUrl}
+                onChange={(e) => setOriginalUrl(e.target.value)}
+                placeholder="https://..."
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Expiry Date</ZoruLabel>
+              <ZoruInput
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Click Limit</ZoruLabel>
+              <ZoruInput
+                type="number"
+                min={1}
+                value={clickLimit}
+                onChange={(e) => setClickLimit(e.target.value)}
+                placeholder="Unlimited"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">UTM Source / Medium / Campaign</ZoruLabel>
+              <div className="grid grid-cols-3 gap-2">
+                <ZoruInput
+                  value={utmSource}
+                  onChange={(e) => setUtmSource(e.target.value)}
+                  placeholder="Source"
+                  className="text-[12px]"
+                />
+                <ZoruInput
+                  value={utmMedium}
+                  onChange={(e) => setUtmMedium(e.target.value)}
+                  placeholder="Medium"
+                  className="text-[12px]"
+                />
+                <ZoruInput
+                  value={utmCampaign}
+                  onChange={(e) => setUtmCampaign(e.target.value)}
+                  placeholder="Campaign"
+                  className="text-[12px]"
+                />
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <ZoruButton variant="outline" size="sm" onClick={() => setOpen(false)}>
+              Cancel
+            </ZoruButton>
+            <ZoruButton size="sm" onClick={handleSave} disabled={isPending || !originalUrl}>
+              {isPending ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
+              Save Changes
+            </ZoruButton>
+          </div>
+        </ZoruDialogContent>
+      </ZoruDialog>
+    </>
+  );
+}

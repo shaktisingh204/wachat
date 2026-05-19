@@ -40,6 +40,7 @@ import {
   useTransition } from 'react';
 import {
   AlertCircle,
+  BarChart2,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -51,6 +52,7 @@ import {
   QrCode,
   Search,
   Trash2,
+  Upload,
   } from 'lucide-react';
 import Link from 'next/link';
 import { getSession } from '@/app/actions/index';
@@ -61,6 +63,9 @@ import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
+import { EditQrDialog } from '@/components/wabasimplify/edit-qr-dialog';
+import { QrScanStatsModal } from '@/components/wabasimplify/qr-scan-stats-modal';
+import { BulkQrImportDialog } from '@/components/wabasimplify/bulk-qr-import-dialog';
 import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
 
 export const dynamic = 'force-dynamic';
@@ -172,6 +177,8 @@ export default function QrCodeMakerPage() {
     logoDataUri?: string;
   } | null>(null);
   const [notesPanel, setNotesPanel] = useState<{ id: string } | null>(null);
+  const [scanStatsModal, setScanStatsModal] = useState<{ id: string; name: string; isDynamic: boolean } | null>(null);
+  const [bulkImportOpen, setBulkImportOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -375,6 +382,22 @@ export default function QrCodeMakerPage() {
           onOpenChange={(v) => { if (!v) setNotesPanel(null); }}
         />
       ) : null}
+      {/* Bulk import dialog */}
+      <BulkQrImportDialog
+        open={bulkImportOpen}
+        onOpenChange={setBulkImportOpen}
+        onComplete={() => { setBulkImportOpen(false); fetchQrCodes(); }}
+      />
+      {/* Scan stats modal */}
+      {scanStatsModal && (
+        <QrScanStatsModal
+          qrCodeId={scanStatsModal.id}
+          qrName={scanStatsModal.name}
+          isDynamic={scanStatsModal.isDynamic}
+          open={!!scanStatsModal}
+          onOpenChange={(v) => { if (!v) setScanStatsModal(null); }}
+        />
+      )}
       <div className="flex min-h-full flex-col gap-6">
         {breadcrumbs}
 
@@ -401,6 +424,14 @@ export default function QrCodeMakerPage() {
             >
               <Download className="h-3.5 w-3.5" />
               Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              onClick={() => setBulkImportOpen(true)}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              Bulk Import
             </ZoruButton>
           </div>
         </div>
@@ -674,6 +705,26 @@ export default function QrCodeMakerPage() {
                             >
                               <MessageSquare className="h-3.5 w-3.5" />
                             </button>
+                            {/* Edit button */}
+                            <EditQrDialog
+                              qrCode={code}
+                              onComplete={fetchQrCodes}
+                            />
+                            {/* Scan stats button (only for dynamic QR codes) */}
+                            {code.shortUrl && (
+                              <ZoruButton
+                                variant="ghost"
+                                size="icon-sm"
+                                title="View Scan Stats"
+                                onClick={() => setScanStatsModal({
+                                  id,
+                                  name: code.name,
+                                  isDynamic: true,
+                                })}
+                              >
+                                <BarChart2 className="h-3.5 w-3.5" />
+                              </ZoruButton>
+                            )}
                             <ZoruAlertDialog>
                               <ZoruAlertDialogTrigger asChild>
                                 <button

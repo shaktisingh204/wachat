@@ -108,6 +108,10 @@ export interface DeleteDomainResult {
 export interface TrackClickResult {
     originalUrl?: string | null;
     error?: string;
+    passwordHash?: string | null;
+    utmParams?: Record<string, string> | null;
+    splitTargets?: { url: string; weight: number }[] | null;
+    isExpired?: boolean | null;
 }
 
 export interface UpdateShortUrlBody {

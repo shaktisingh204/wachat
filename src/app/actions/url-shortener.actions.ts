@@ -90,7 +90,13 @@ export async function getShortUrls(): Promise<{
 export async function trackClickAndGetUrl(
     shortCode: string,
     hostname: string | null,
-): Promise<{ originalUrl: string | null; error?: string }> {
+): Promise<{
+    originalUrl: string | null;
+    error?: string;
+    passwordHash?: string | null;
+    utmParams?: Record<string, string> | null;
+    isExpired?: boolean | null;
+}> {
     try {
         const headerList = await headers();
         const result = await rustClient.urlShortener.resolveRedirect({
@@ -103,6 +109,9 @@ export async function trackClickAndGetUrl(
         return {
             originalUrl: result.originalUrl ?? null,
             error: result.error,
+            passwordHash: result.passwordHash,
+            utmParams: result.utmParams as Record<string, string> | null,
+            isExpired: result.isExpired,
         };
     } catch (e) {
         console.error('Error tracking click:', e);

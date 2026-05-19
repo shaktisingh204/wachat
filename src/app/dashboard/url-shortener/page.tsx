@@ -39,6 +39,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSkeleton,
+  ZoruSwitch,
   cn,
   useZoruToast,
 } from '@/components/zoruui';
@@ -79,6 +80,9 @@ import {
   ChevronRight,
   Activity,
   MessageSquare,
+  ChevronDown,
+  Plus,
+  X,
   } from 'lucide-react';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
@@ -273,6 +277,11 @@ export default function UrlShortenerPage() {
   const [createTagIds, setCreateTagIds] = useState<string[]>([]);
   const [expiresAt, setExpiresAt] = useState<Date | undefined>();
   const [createDomainId, setCreateDomainId] = useState<string>('none');
+  const [splitEnabled, setSplitEnabled] = useState(false);
+  const [splitTargets, setSplitTargets] = useState<{ url: string; weight: number }[]>([
+    { url: '', weight: 50 },
+    { url: '', weight: 50 },
+  ]);
 
   // Feature state: search, filters, sort, selection, pagination, copy-feedback
   const [search, setSearch] = useState('');
@@ -308,6 +317,8 @@ export default function UrlShortenerPage() {
       setCreateTagIds([]);
       setExpiresAt(undefined);
       setCreateDomainId('none');
+      setSplitEnabled(false);
+      setSplitTargets([{ url: '', weight: 50 }, { url: '', weight: 50 }]);
       fetchUrls();
     }
     if (state.error) {
@@ -629,6 +640,173 @@ export default function UrlShortenerPage() {
                 </div>
               </div>
             </div>
+
+            {/* Advanced Options */}
+            <details className="group px-5 pb-1">
+              <summary className="cursor-pointer list-none flex items-center gap-1.5 text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink py-1 select-none w-fit">
+                <ChevronDown className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+                Advanced Options
+              </summary>
+              <div className="mt-3 space-y-4 pb-2">
+
+                {/* A. Click Limit */}
+                <div className="space-y-1.5">
+                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">
+                    Click Limit <span className="text-zoru-ink-muted/60">(optional)</span>
+                  </ZoruLabel>
+                  <ZoruInput
+                    type="number"
+                    name="clickLimit"
+                    min={1}
+                    placeholder="e.g. 500 — deactivates after N clicks"
+                    className="text-[13px]"
+                  />
+                </div>
+
+                {/* B. Password Protection */}
+                <div className="space-y-1.5">
+                  <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Password Protection</ZoruLabel>
+                  <ZoruInput
+                    type="password"
+                    name="passwordHash"
+                    placeholder="Leave blank for no password"
+                    autoComplete="new-password"
+                    className="text-[13px]"
+                  />
+                  <p className="text-[11px] text-zoru-ink-muted/60">Visitors must enter this password before being redirected.</p>
+                </div>
+
+                {/* C. UTM Parameters */}
+                <details className="group/utm">
+                  <summary className="cursor-pointer text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink list-none flex items-center gap-1.5 select-none">
+                    <ChevronRight className="h-3 w-3 transition-transform group-open/utm:rotate-90" />
+                    UTM Parameters
+                  </summary>
+                  <div className="mt-2 grid grid-cols-2 gap-2 pl-4">
+                    {[
+                      { name: 'utmSource', label: 'Source', placeholder: 'google' },
+                      { name: 'utmMedium', label: 'Medium', placeholder: 'cpc' },
+                      { name: 'utmCampaign', label: 'Campaign', placeholder: 'spring_sale' },
+                      { name: 'utmTerm', label: 'Term', placeholder: 'running+shoes' },
+                      { name: 'utmContent', label: 'Content', placeholder: 'logolink' },
+                    ].map((f) => (
+                      <div key={f.name} className="space-y-1">
+                        <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">{f.label}</ZoruLabel>
+                        <ZoruInput name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
+                      </div>
+                    ))}
+                  </div>
+                </details>
+
+                {/* D. Retargeting Pixels */}
+                <details className="group/pixels">
+                  <summary className="cursor-pointer text-[12.5px] text-zoru-ink-muted hover:text-zoru-ink list-none flex items-center gap-1.5 select-none">
+                    <ChevronRight className="h-3 w-3 transition-transform group-open/pixels:rotate-90" />
+                    Retargeting Pixels
+                  </summary>
+                  <div className="mt-2 space-y-2 pl-4">
+                    {[
+                      { name: 'pixelFacebook', label: 'Meta Pixel ID', placeholder: '1234567890123' },
+                      { name: 'pixelGoogle', label: 'Google Tag ID', placeholder: 'G-XXXXXXXXXX' },
+                      { name: 'pixelTiktok', label: 'TikTok Pixel ID', placeholder: 'CXXXXXXXXXXXXXXX' },
+                    ].map((f) => (
+                      <div key={f.name} className="space-y-1">
+                        <ZoruLabel className="text-[11.5px] text-zoru-ink-muted">{f.label}</ZoruLabel>
+                        <ZoruInput name={f.name} placeholder={f.placeholder} className="text-[12px] h-7" />
+                      </div>
+                    ))}
+                  </div>
+                </details>
+
+                {/* E. A/B Split Targets */}
+                <div className="space-y-3">
+                  <input
+                    type="hidden"
+                    name="splitTargets"
+                    value={splitEnabled ? JSON.stringify(splitTargets) : ''}
+                  />
+                  <div className="flex items-center gap-2">
+                    <ZoruSwitch
+                      id="splitEnabled"
+                      checked={splitEnabled}
+                      onCheckedChange={setSplitEnabled}
+                    />
+                    <ZoruLabel htmlFor="splitEnabled" className="text-[12.5px] text-zoru-ink-muted cursor-pointer">
+                      Enable A/B Split Testing
+                    </ZoruLabel>
+                  </div>
+                  {splitEnabled ? (
+                    <div className="space-y-2 pl-1">
+                      {splitTargets.map((target, i) => {
+                        const totalWeight = splitTargets.reduce((s, t) => s + (t.weight || 0), 0);
+                        return (
+                          <div key={i} className="flex items-center gap-2">
+                            <ZoruInput
+                              value={target.url}
+                              onChange={(e) => {
+                                const next = [...splitTargets];
+                                next[i] = { ...next[i], url: e.target.value };
+                                setSplitTargets(next);
+                              }}
+                              placeholder={`Variant ${i + 1} URL`}
+                              className="text-[12px] flex-1"
+                            />
+                            <ZoruInput
+                              type="number"
+                              min={1}
+                              max={100}
+                              value={target.weight}
+                              onChange={(e) => {
+                                const next = [...splitTargets];
+                                next[i] = { ...next[i], weight: Number(e.target.value) };
+                                setSplitTargets(next);
+                              }}
+                              className="text-[12px] w-20"
+                            />
+                            <span className="text-[11px] text-zoru-ink-muted">%</span>
+                            {splitTargets.length > 2 ? (
+                              <button
+                                type="button"
+                                onClick={() => setSplitTargets(splitTargets.filter((_, idx) => idx !== i))}
+                                className="rounded p-1 text-zoru-ink-muted hover:text-zoru-danger-ink hover:bg-zoru-danger/10"
+                                aria-label="Remove variant"
+                              >
+                                <X className="h-3.5 w-3.5" />
+                              </button>
+                            ) : (
+                              <span className="w-[26px]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                      <div className="flex items-center justify-between pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setSplitTargets([...splitTargets, { url: '', weight: 0 }])}
+                          className="inline-flex items-center gap-1 text-[12px] text-zoru-ink-muted hover:text-zoru-ink"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          Add variant
+                        </button>
+                        <span
+                          className={cn(
+                            'text-[11.5px]',
+                            splitTargets.reduce((s, t) => s + (t.weight || 0), 0) === 100
+                              ? 'text-zoru-success-ink'
+                              : 'text-zoru-danger-ink',
+                          )}
+                        >
+                          Weight total: {splitTargets.reduce((s, t) => s + (t.weight || 0), 0)}%
+                          {splitTargets.reduce((s, t) => s + (t.weight || 0), 0) !== 100 ? ' (must equal 100)' : ''}
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+              </div>
+            </details>
+
             <div className="flex items-center justify-between border-t border-zoru-line bg-zoru-surface-2 px-5 py-3 rounded-b-[var(--zoru-radius-lg)]">
               <SubmitButton />
               <BulkImportDialog onImportComplete={fetchUrls} />

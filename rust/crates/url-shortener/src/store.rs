@@ -181,6 +181,14 @@ pub struct TrackClickResult {
     pub original_url: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub error: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub password_hash: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub utm_params: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub split_targets: Option<serde_json::Value>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub is_expired: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -801,25 +809,120 @@ pub async fn track_click(
         return Ok(TrackClickResult {
             original_url: None,
             error: Some("URL not found.".to_owned()),
+            password_hash: None,
+            utm_params: None,
+            split_targets: None,
+            is_expired: None,
         });
     };
 
+    // Check expiresAt
     if let Ok(exp) = doc.get_datetime("expiresAt") {
         if exp.to_chrono() < Utc::now() {
             return Ok(TrackClickResult {
                 original_url: None,
-                error: Some("This link has expired.".to_owned()),
+                error: None,
+                password_hash: None,
+                utm_params: None,
+                split_targets: None,
+                is_expired: Some(true),
             });
         }
     }
 
-    let original_url = doc.get_str("originalUrl").unwrap_or("").to_owned();
+    // Check clickLimit
+    let click_count = doc.get_i64("clickCount").unwrap_or(0);
+    if let Ok(limit) = doc.get_i64("clickLimit") {
+        if click_count >= limit {
+            return Ok(TrackClickResult {
+                original_url: None,
+                error: None,
+                password_hash: None,
+                utm_params: None,
+                split_targets: None,
+                is_expired: Some(true),
+            });
+        }
+    }
+
+    // Check activateAt
+    if let Ok(activate) = doc.get_datetime("activateAt") {
+        if activate.to_chrono() > Utc::now() {
+            return Ok(TrackClickResult {
+                original_url: None,
+                error: Some("Link not yet active.".to_owned()),
+                password_hash: None,
+                utm_params: None,
+                split_targets: None,
+                is_expired: None,
+            });
+        }
+    }
+
+    // Check password protection
+    if let Ok(ph) = doc.get_str("passwordHash") {
+        if !ph.is_empty() {
+            return Ok(TrackClickResult {
+                original_url: None,
+                error: None,
+                password_hash: Some(ph.to_owned()),
+                utm_params: None,
+                split_targets: None,
+                is_expired: None,
+            });
+        }
+    }
+
+    // Extract utmParams from doc
+    let utm_params = doc.get_document("utmParams").ok().map(|utm_doc| {
+        bson_to_json(Bson::Document(utm_doc.clone()))
+    });
+
+    // Handle splitTargets — weighted random selection
+    let chosen_url: Option<String> = if let Ok(targets) = doc.get_array("splitTargets") {
+        if !targets.is_empty() {
+            let rand_val = (ObjectId::new().bytes()[0] as u32) * 100 / 256;
+            let mut cumulative: u32 = 0;
+            let mut selected: Option<String> = None;
+            for t in targets {
+                if let Some(td) = t.as_document() {
+                    let weight = td.get_i32("weight").unwrap_or(0) as u32;
+                    cumulative += weight;
+                    if cumulative > rand_val && selected.is_none() {
+                        selected = td.get_str("url").ok().map(str::to_owned);
+                    }
+                }
+            }
+            // fallback to last target if rand_val exceeded all cumulative
+            if selected.is_none() {
+                if let Some(last) = targets.last() {
+                    if let Some(td) = last.as_document() {
+                        selected = td.get_str("url").ok().map(str::to_owned);
+                    }
+                }
+            }
+            selected
+        } else {
+            None
+        }
+    } else {
+        None
+    };
+
+    let original_url = chosen_url.unwrap_or_else(|| {
+        doc.get_str("originalUrl").unwrap_or("").to_owned()
+    });
+
     let id = match doc.get_object_id("_id") {
         Ok(o) => o,
         Err(_) => {
             return Ok(TrackClickResult {
                 original_url: Some(original_url),
                 error: None,
+                password_hash: None,
+                utm_params,
+                split_targets: None,
+                is_expired: None,
             });
         }
     };
@@ -887,6 +990,10 @@ pub async fn track_click(
     Ok(TrackClickResult {
         original_url: Some(original_url),
         error: None,
+        password_hash: None,
+        utm_params,
+        split_targets: None,
+        is_expired: None,
     })
 }
 
