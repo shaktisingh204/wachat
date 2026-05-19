@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_ff_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "fireflies.recording_completed",
+    "options": {
+      "path": "/webhooks/fireflies-recording",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-FF-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ff_trigger",
+      "name": "Fireflies Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fireflies-recording",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "fireflies-recording-webhook"
+    },
+    {
+      "id": "n_extract_rec",
+      "name": "Extract Recording",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "recordingId", "value": "={{ $json.recording.id }}" },
+            { "name": "title", "value": "={{ $json.recording.title }}" },
+            { "name": "attendees", "value": "={{ ($json.recording.attendees || []).map(a => a.email).join(',') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_summary",
+      "name": "Fetch AI Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.FF_API }}/graphql?query=transcript({{ $json.recordingId }})"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "ff-cred", "name": "Fireflies API" } }
+    },
+    {
+      "id": "n_build_html",
+      "name": "Build Recap HTML",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Recap: {{ $node['Extract Recording'].json.title }}" },
+            { "name": "html", "value": "<h2>{{ $node['Extract Recording'].json.title }}</h2><p>{{ $json.summary }}</p>" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Email Team Recap",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Recording'].json.attendees }}",
+        "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
+        "content": "={{ $json.html }}"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_metrics",
+      "name": "Increment Metric",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.METRICS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "fireflies.recap.sent" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_ff_trigger": { "main": [[{ "node": "n_extract_rec", "type": "main", "index": 0 }]] },
+    "n_extract_rec": { "main": [[{ "node": "n_fetch_summary", "type": "main", "index": 0 }]] },
+    "n_fetch_summary": { "main": [[{ "node": "n_build_html", "type": "main", "index": 0 }]] },
+    "n_build_html": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_metrics", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Recap",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ff_trigger", "n_extract_rec", "n_fetch_summary", "n_build_html", "n_sendgrid", "n_metrics"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ff", "name": "FF_API", "defaultValue": "https://api.fireflies.ai" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "recaps@example.com" },
+    { "id": "v_metrics", "name": "METRICS_URL", "defaultValue": "https://metrics.example.com/incr" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

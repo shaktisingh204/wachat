@@ -1,0 +1,10 @@
+{
+  "id": "metabase-snapshot-email",
+  "name": "Metabase Snapshot Email",
+  "description": "Once a week, exports a Metabase question as a PNG snapshot and emails the image to a stakeholder distribution list via SendGrid. Gives execs a glanceable view without a Metabase login.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["marketing", "metabase", "sendgrid", "report", "cron", "email"],
+  "version": "0.1.0"
+}

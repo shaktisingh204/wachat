@@ -1,0 +1,10 @@
+{
+  "id": "fivetran-sync-fail",
+  "name": "Fivetran Sync Fail",
+  "description": "Subscribes to Fivetran connector.error webhooks, captures the connector and destination details, and routes the failure to Slack #data plus a Linear bug for follow-up. Lets analytics engineers stop watching the Fivetran dashboard for issues.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "fivetran", "etl", "slack", "linear", "webhook"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_fitbit_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "fitbit.heart_rate",
+    "options": {
+      "path": "/webhooks/fitbit",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Fitbit-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_fitbit_trigger",
+      "name": "Fitbit Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fitbit-heart-rate",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "fitbit-hr-webhook"
+    },
+    {
+      "id": "n_extract_reading",
+      "name": "Extract Vitals",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "patientId", "value": "={{ $json.userId }}" },
+            { "name": "heartRate", "value": "={{ $json.heartRate }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_anomaly_check",
+      "name": "Anomaly Filter",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.heartRate }}", "operation": "larger", "value2": 130 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_clinical",
+      "name": "Slack #clinical",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -120],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CLINICAL_CHANNEL }}",
+        "text": ":heart: Patient {{ $json.patientId }} HR={{ $json.heartRate }} bpm — anomaly.",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_emr_log",
+      "name": "EMR Vitals Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EMR_VITALS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "patientId", "value": "={{ $json.patientId }}" },
+            { "name": "metric", "value": "heart_rate" },
+            { "name": "value", "value": "={{ $json.heartRate }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_patient_sms",
+      "name": "Patient SMS",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "={{ $vars.TWILIO_FROM_NUMBER }}",
+        "to": "={{ $vars.PATIENT_PHONE }}",
+        "message": "Your heart rate spiked to {{ $json.heartRate }} bpm. Please sit, breathe, and contact your care team."
+      },
+      "credentials": {
+        "twilioApi": { "id": "twilio-cred", "name": "Twilio API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_fitbit_trigger": {
+      "main": [[{ "node": "n_extract_reading", "type": "main", "index": 0 }]]
+    },
+    "n_extract_reading": {
+      "main": [[{ "node": "n_anomaly_check", "type": "main", "index": 0 }]]
+    },
+    "n_anomaly_check": {
+      "main": [
+        [
+          { "node": "n_slack_clinical", "type": "main", "index": 0 },
+          { "node": "n_emr_log", "type": "main", "index": 0 },
+          { "node": "n_patient_sms", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Wearable",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_fitbit_trigger",
+        "n_extract_reading",
+        "n_anomaly_check",
+        "n_slack_clinical",
+        "n_emr_log",
+        "n_patient_sms"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack_clinical", "name": "SLACK_CLINICAL_CHANNEL", "defaultValue": "#clinical" },
+    { "id": "v_emr_vitals", "name": "EMR_VITALS_URL", "defaultValue": "https://emr.example.com/vitals" },
+    { "id": "v_twilio_from", "name": "TWILIO_FROM_NUMBER", "defaultValue": "" },
+    { "id": "v_patient_phone", "name": "PATIENT_PHONE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

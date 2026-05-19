@@ -1,0 +1,10 @@
+{
+  "id": "superset-dashboard-share",
+  "name": "Superset Dashboard Share",
+  "description": "Once a week, exports a Superset dashboard as a PDF and emails it to management via SendGrid. Saves leadership the click while keeping reports inside the company perimeter.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["marketing", "superset", "sendgrid", "report", "cron", "pdf"],
+  "version": "0.1.0"
+}

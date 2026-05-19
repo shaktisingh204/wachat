@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "artifactory-package-promote",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Release tag promotes Artifactory packages from staging to prod.",
+      "triggerPayload": {
+        "release": { "tag_name": "v1.2.3" },
+        "repository": { "name": "checkout-svc" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

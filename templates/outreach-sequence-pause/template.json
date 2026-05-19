@@ -1,0 +1,10 @@
+{
+  "id": "outreach-sequence-pause",
+  "name": "Outreach Sequence Pause",
+  "description": "Listens for Outreach reply webhooks, uses GPT-4o to classify the reply sentiment, and pauses the sequence with a Slack DM to the AE when the reply is positive. Stops the embarrassment of auto-emailing a prospect that already said yes.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sales", "outreach", "openai", "slack", "sequence", "webhook"],
+  "version": "0.1.0"
+}

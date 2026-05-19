@@ -1,0 +1,10 @@
+{
+  "id": "bigquery-cost-anomaly",
+  "name": "BigQuery Cost Anomaly",
+  "description": "Each morning, pulls BigQuery slot-second usage, compares the last day to the rolling 7-day average, and alerts Slack #data when usage spikes more than 50%. Catches runaway dbt jobs before the monthly bill arrives.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "bigquery", "cost", "anomaly", "slack", "cron"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_ins_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "insomnia.collection_updated",
+    "options": {
+      "path": "/webhooks/insomnia-updated",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Insomnia-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_ins_trigger",
+      "name": "Insomnia Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "insomnia-updated",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "insomnia-updated-webhook"
+    },
+    {
+      "id": "n_extract_collection",
+      "name": "Extract Collection",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "collectionId", "value": "={{ $json.collection.id }}" },
+            { "name": "name", "value": "={{ $json.collection.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_export",
+      "name": "Fetch Export JSON",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.INSOMNIA_API }}/collections/{{ $json.collectionId }}/export"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "insomnia-cred", "name": "Insomnia API" } }
+    },
+    {
+      "id": "n_versioned_key",
+      "name": "Build Versioned Key",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "s3Key", "value": "insomnia/{{ $json.name }}/{{ $now }}.json" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_s3_put",
+      "name": "S3 Upload",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.BACKUP_BUCKET }}",
+        "fileName": "={{ $json.s3Key }}"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS Backups" } }
+    }
+  ],
+  "connections": {
+    "n_ins_trigger": { "main": [[{ "node": "n_extract_collection", "type": "main", "index": 0 }]] },
+    "n_extract_collection": { "main": [[{ "node": "n_fetch_export", "type": "main", "index": 0 }]] },
+    "n_fetch_export": { "main": [[{ "node": "n_versioned_key", "type": "main", "index": 0 }]] },
+    "n_versioned_key": { "main": [[{ "node": "n_s3_put", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Sync",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_ins_trigger", "n_extract_collection", "n_fetch_export", "n_versioned_key", "n_s3_put"]
+    }
+  ],
+  "variables": [
+    { "id": "v_ins", "name": "INSOMNIA_API", "defaultValue": "https://api.insomnia.rest" },
+    { "id": "v_backup", "name": "BACKUP_BUCKET", "defaultValue": "example-api-backups" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

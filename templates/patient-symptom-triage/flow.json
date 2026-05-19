@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_form_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "patient.symptom_form_submitted",
+    "options": {
+      "path": "/webhooks/patient-symptom-triage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Form-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_form_trigger",
+      "name": "Patient Symptom Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "patient-symptom-triage",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "patient-symptom-triage-webhook"
+    },
+    {
+      "id": "n_extract_intake",
+      "name": "Extract Intake Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "patientId", "value": "={{ $json.patientId }}" },
+            { "name": "patientPhone", "value": "={{ $json.phone }}" },
+            { "name": "chiefComplaint", "value": "={{ $json.chiefComplaint }}" },
+            { "name": "symptomNotes", "value": "={{ $json.notes }}" },
+            { "name": "vitals", "value": "={{ JSON.stringify($json.vitals) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gpt_triage",
+      "name": "GPT-4o Triage Classify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "You are a clinical triage assistant. Classify acuity as one of: emergency, urgent, routine. Return strict JSON: { acuity: 'emergency'|'urgent'|'routine', reason: string }." },
+            { "role": "user", "content": "Chief complaint: {{ $json.chiefComplaint }}\nNotes: {{ $json.symptomNotes }}\nVitals: {{ $json.vitals }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_acuity",
+      "name": "Parse Acuity",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "acuity", "value": "={{ JSON.parse($json.message.content).acuity }}" },
+            { "name": "reason", "value": "={{ JSON.parse($json.message.content).reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route_acuity",
+      "name": "Route by Acuity",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.acuity }}", "operation": "equal", "value2": "emergency" }] }, "outputKey": "emergency" },
+            { "conditions": { "string": [{ "value1": "={{ $json.acuity }}", "operation": "equal", "value2": "urgent" }] }, "outputKey": "urgent" }
+          ]
+        },
+        "fallbackOutput": "routine"
+      }
+    },
+    {
+      "id": "n_emergency_sms",
+      "name": "Emergency SMS to Patient",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [1200, -180],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "={{ $vars.TWILIO_FROM_NUMBER }}",
+        "to": "={{ $node['Extract Intake Fields'].json.patientPhone }}",
+        "message": "URGENT: Please call 911 or proceed to the nearest ER. Reason: {{ $node['Parse Acuity'].json.reason }}"
+      },
+      "credentials": {
+        "twilioApi": { "id": "twilio-cred", "name": "Twilio API" }
+      }
+    },
+    {
+      "id": "n_emergency_emr",
+      "name": "Emergency EMR Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1440, -180],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EMR_ALERT_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "patientId", "value": "={{ $node['Extract Intake Fields'].json.patientId }}" },
+            { "name": "severity", "value": "emergency" },
+            { "name": "reason", "value": "={{ $node['Parse Acuity'].json.reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_urgent_book",
+      "name": "Book Urgent Appointment ≤24h",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EMR_BOOK_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "patientId", "value": "={{ $node['Extract Intake Fields'].json.patientId }}" },
+            { "name": "window", "value": "24h" },
+            { "name": "reason", "value": "={{ $node['Parse Acuity'].json.reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_routine_queue",
+      "name": "Routine Nurse Review Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 180],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.NURSE_QUEUE_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "patientId", "value": "={{ $node['Extract Intake Fields'].json.patientId }}" },
+            { "name": "complaint", "value": "={{ $node['Extract Intake Fields'].json.chiefComplaint }}" }
+          ]
+        }
+      }
+    }
+  ],
+  "connections": {
+    "n_form_trigger": {
+      "main": [[{ "node": "n_extract_intake", "type": "main", "index": 0 }]]
+    },
+    "n_extract_intake": {
+      "main": [[{ "node": "n_gpt_triage", "type": "main", "index": 0 }]]
+    },
+    "n_gpt_triage": {
+      "main": [[{ "node": "n_parse_acuity", "type": "main", "index": 0 }]]
+    },
+    "n_parse_acuity": {
+      "main": [[{ "node": "n_route_acuity", "type": "main", "index": 0 }]]
+    },
+    "n_route_acuity": {
+      "emergency": [[{ "node": "n_emergency_sms", "type": "main", "index": 0 }]],
+      "urgent": [[{ "node": "n_urgent_book", "type": "main", "index": 0 }]],
+      "routine": [[{ "node": "n_routine_queue", "type": "main", "index": 0 }]]
+    },
+    "n_emergency_sms": {
+      "main": [[{ "node": "n_emergency_emr", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Triage",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_form_trigger",
+        "n_extract_intake",
+        "n_gpt_triage",
+        "n_parse_acuity",
+        "n_route_acuity",
+        "n_emergency_sms",
+        "n_emergency_emr",
+        "n_urgent_book",
+        "n_routine_queue"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_twilio_from", "name": "TWILIO_FROM_NUMBER", "defaultValue": "" },
+    { "id": "v_emr_alert", "name": "EMR_ALERT_URL", "defaultValue": "https://emr.example.com/alert" },
+    { "id": "v_emr_book", "name": "EMR_BOOK_URL", "defaultValue": "https://emr.example.com/book" },
+    { "id": "v_nurse_queue", "name": "NURSE_QUEUE_URL", "defaultValue": "https://emr.example.com/nurse-queue" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

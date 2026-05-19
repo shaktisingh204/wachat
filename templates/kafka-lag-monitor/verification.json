@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "kafka-lag-monitor",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Hourly cron alerts on Kafka consumer lag above threshold.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T13:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

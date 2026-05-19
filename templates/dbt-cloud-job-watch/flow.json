@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_dbt_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "dbt.job_completed",
+    "options": {
+      "path": "/webhooks/dbt-job",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Authorization",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_dbt_trigger",
+      "name": "dbt Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "dbt-job",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "dbt-job-webhook"
+    },
+    {
+      "id": "n_extract_run",
+      "name": "Extract Run",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "jobName", "value": "={{ $json.data.jobName }}" },
+            { "name": "runId", "value": "={{ $json.data.runId }}" },
+            { "name": "status", "value": "={{ $json.data.runStatus }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route_status",
+      "name": "Route by Status",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.status }}", "operation": "equal", "value2": "success" }] }, "outputKey": "success" },
+            { "conditions": { "string": [{ "value1": "={{ $json.status }}", "operation": "equal", "value2": "warn" }] }, "outputKey": "warn" }
+          ]
+        },
+        "fallbackOutput": "error"
+      }
+    },
+    {
+      "id": "n_slack_success",
+      "name": "Slack Success",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -180],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":white_check_mark: dbt job {{ $json.jobName }} succeeded.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_slack_warn",
+      "name": "Slack Warn",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":warning: dbt job {{ $json.jobName }} warned.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_error",
+      "name": "Linear Bug",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 180],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_API_TEAM }}",
+        "title": "dbt job failure: {{ $json.jobName }}",
+        "description": "Run {{ $json.runId }} failed."
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    }
+  ],
+  "connections": {
+    "n_dbt_trigger": { "main": [[{ "node": "n_extract_run", "type": "main", "index": 0 }]] },
+    "n_extract_run": { "main": [[{ "node": "n_route_status", "type": "main", "index": 0 }]] },
+    "n_route_status": {
+      "success": [[{ "node": "n_slack_success", "type": "main", "index": 0 }]],
+      "warn": [[{ "node": "n_slack_warn", "type": "main", "index": 0 }]],
+      "error": [[{ "node": "n_linear_error", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "dbt",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_dbt_trigger", "n_extract_run", "n_route_status", "n_slack_success", "n_slack_warn", "n_linear_error"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" },
+    { "id": "v_team", "name": "LINEAR_API_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

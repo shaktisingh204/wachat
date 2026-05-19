@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_looker_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "looker.schedule_failed",
+    "options": {
+      "path": "/webhooks/looker-failed",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Looker-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_looker_trigger",
+      "name": "Looker Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "looker-failed",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "looker-failed-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Schedule",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "dashboardId", "value": "={{ $json.dashboard_id }}" },
+            { "name": "dashboardName", "value": "={{ $json.dashboard_name }}" },
+            { "name": "reason", "value": "={{ $json.failure_reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_dashboard",
+      "name": "Fetch Dashboard Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.LOOKER_URL }}/api/4.0/dashboards/{{ $json.dashboardId }}"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "looker-cred", "name": "Looker API" } }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "msg", "value": "Looker dashboard *{{ $json.dashboardName }}* failed: {{ $json.reason }}." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_data",
+      "name": "Slack #data",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DATA_CHANNEL }}",
+        "text": ":bar_chart: {{ $json.msg }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_looker_trigger": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_fetch_dashboard", "type": "main", "index": 0 }]] },
+    "n_fetch_dashboard": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_slack_data", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Looker",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_looker_trigger", "n_extract", "n_fetch_dashboard", "n_format", "n_slack_data"]
+    }
+  ],
+  "variables": [
+    { "id": "v_looker", "name": "LOOKER_URL", "defaultValue": "https://looker.example.com" },
+    { "id": "v_slack", "name": "SLACK_DATA_CHANNEL", "defaultValue": "#data" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

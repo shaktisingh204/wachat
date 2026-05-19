@@ -1,0 +1,10 @@
+{
+  "id": "elasticsearch-rollover",
+  "name": "Elasticsearch Rollover",
+  "description": "Each morning, checks the size of the active Elasticsearch index, rolls over to a new write index when it grows past 50 GB, and points the alias at the fresh segment. Keeps log indices fast without breaking writers.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "elasticsearch", "rollover", "logs", "cron", "alias"],
+  "version": "0.1.0"
+}

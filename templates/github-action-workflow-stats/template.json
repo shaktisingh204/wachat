@@ -1,0 +1,10 @@
+{
+  "id": "github-action-workflow-stats",
+  "name": "GitHub Actions Usage Digest",
+  "description": "Each morning, pulls GitHub Actions usage minutes per workflow, snapshots them to Airtable for trend tracking, and posts a one-line digest to Slack #devops. Helps spot runaway pipelines before they burn the monthly minute cap.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "github", "actions", "airtable", "slack", "cron"],
+  "version": "0.1.0"
+}

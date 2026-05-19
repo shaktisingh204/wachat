@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_weekly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * 1", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_weekly",
+      "name": "Weekly Monday 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "weeks", "weeksInterval": 1 }] } }
+    },
+    {
+      "id": "n_metabase_auth",
+      "name": "Metabase Auth",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.METABASE_URL }}/api/session",
+        "sendBody": true,
+        "bodyContentType": "json"
+      }
+    },
+    {
+      "id": "n_export_png",
+      "name": "Export Question PNG",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.METABASE_URL }}/api/card/{{ $vars.METABASE_CARD_ID }}/png"
+      }
+    },
+    {
+      "id": "n_build_email",
+      "name": "Build Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Weekly Metabase Snapshot" },
+            { "name": "html", "value": "<p>Latest weekly snapshot attached.</p>" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Send via SendGrid",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.RECIPIENTS }}",
+        "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
+        "content": "={{ $json.html }}"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    }
+  ],
+  "connections": {
+    "n_cron_weekly": { "main": [[{ "node": "n_metabase_auth", "type": "main", "index": 0 }]] },
+    "n_metabase_auth": { "main": [[{ "node": "n_export_png", "type": "main", "index": 0 }]] },
+    "n_export_png": { "main": [[{ "node": "n_build_email", "type": "main", "index": 0 }]] },
+    "n_build_email": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Snapshot",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_weekly", "n_metabase_auth", "n_export_png", "n_build_email", "n_sendgrid"]
+    }
+  ],
+  "variables": [
+    { "id": "v_meta", "name": "METABASE_URL", "defaultValue": "https://metabase.example.com" },
+    { "id": "v_card", "name": "METABASE_CARD_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "reports@example.com" },
+    { "id": "v_recip", "name": "RECIPIENTS", "defaultValue": "execs@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

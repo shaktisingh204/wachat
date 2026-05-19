@@ -1,0 +1,10 @@
+{
+  "id": "hightouch-reverse-etl-fail",
+  "name": "Hightouch Reverse ETL Fail",
+  "description": "Listens for Hightouch sync.failed events, pulls the recent error context, and routes a Slack notice plus a Linear bug. Stops Hightouch failures from silently halting downstream customer-facing tools.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "hightouch", "reverse-etl", "slack", "linear", "webhook"],
+  "version": "0.1.0"
+}

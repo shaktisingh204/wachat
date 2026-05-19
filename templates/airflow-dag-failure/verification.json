@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "airflow-dag-failure",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Airflow DAG failure fans logs out to Slack and Linear.",
+      "triggerPayload": { "dag_id": "core_etl", "run_id": "manual__001", "task_id": "extract" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

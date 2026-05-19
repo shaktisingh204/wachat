@@ -1,0 +1,10 @@
+{
+  "id": "chorus-call-summarizer",
+  "name": "Chorus Call Summarizer",
+  "description": "Subscribes to Chorus call.completed webhooks, pulls the transcript, asks GPT-4o for a tight summary, and writes the result back as a Salesforce note plus a Slack ping to the AE. Eliminates manual call-recap typing.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sales", "chorus", "openai", "salesforce", "slack", "webhook"],
+  "version": "0.1.0"
+}

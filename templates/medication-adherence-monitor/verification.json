@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "medication-adherence-monitor",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron finds missed-dose patients and fans out SMS/EMR/email reminders.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T09:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

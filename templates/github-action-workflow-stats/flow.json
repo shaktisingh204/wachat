@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 7am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] } }
+    },
+    {
+      "id": "n_gh_usage",
+      "name": "GitHub Actions Usage",
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "repository",
+        "operation": "getActionsUsage",
+        "owner": "={{ $vars.GH_OWNER }}",
+        "repository": "={{ $vars.GH_REPO }}"
+      },
+      "credentials": { "githubApi": { "id": "github-cred", "name": "GitHub API" } }
+    },
+    {
+      "id": "n_format_digest",
+      "name": "Format Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "summary", "value": "Used {{ $json.total_minutes_used }} minutes today across {{ $json.workflow_count }} workflows." },
+            { "name": "totalMinutes", "value": "={{ $json.total_minutes_used }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_airtable_snapshot",
+      "name": "Airtable Snapshot",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 1,
+      "position": [720, -80],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "actions_usage",
+        "fields": "date,total_minutes,workflow_count"
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_slack_devops",
+      "name": "Slack #devops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, 80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_DEVOPS_CHANNEL }}",
+        "text": ":chart_with_upwards_trend: {{ $json.summary }}",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": { "main": [[{ "node": "n_gh_usage", "type": "main", "index": 0 }]] },
+    "n_gh_usage": { "main": [[{ "node": "n_format_digest", "type": "main", "index": 0 }]] },
+    "n_format_digest": {
+      "main": [
+        [
+          { "node": "n_airtable_snapshot", "type": "main", "index": 0 },
+          { "node": "n_slack_devops", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Digest",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron_daily", "n_gh_usage", "n_format_digest", "n_airtable_snapshot", "n_slack_devops"]
+    }
+  ],
+  "variables": [
+    { "id": "v_gh_owner", "name": "GH_OWNER", "defaultValue": "" },
+    { "id": "v_gh_repo", "name": "GH_REPO", "defaultValue": "" },
+    { "id": "v_airtable", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_DEVOPS_CHANNEL", "defaultValue": "#devops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

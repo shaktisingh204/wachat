@@ -1,0 +1,10 @@
+{
+  "id": "vmware-vm-snapshot-policy",
+  "name": "VMware VM Snapshot Policy",
+  "description": "Each day, walks the vSphere inventory, takes a fresh snapshot of every tracked VM, and prunes any snapshot older than 14 days. Keeps backups current without the storage drift of forgotten snapshots.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "vmware", "vsphere", "snapshot", "cron", "backup"],
+  "version": "0.1.0"
+}

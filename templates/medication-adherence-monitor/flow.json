@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_cron_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron_daily",
+      "name": "Daily 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] }
+      }
+    },
+    {
+      "id": "n_mongo_missed",
+      "name": "Find Missed-Dose Patients",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "operation": "find",
+        "collection": "dose_logs",
+        "query": "{ \"missed_consecutive_days\": { \"$gt\": 2 } }"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "Mongo EMR" }
+      }
+    },
+    {
+      "id": "n_split_patients",
+      "name": "One Per Patient",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_sms_reminder",
+      "name": "SMS Patient Reminder",
+      "type": "n8n-nodes-base.twilio",
+      "typeVersion": 1,
+      "position": [720, -120],
+      "parameters": {
+        "resource": "sms",
+        "operation": "send",
+        "from": "={{ $vars.TWILIO_FROM_NUMBER }}",
+        "to": "={{ $json.phone }}",
+        "message": "Reminder: please take your prescribed dose of {{ $json.medication }}."
+      },
+      "credentials": {
+        "twilioApi": { "id": "twilio-cred", "name": "Twilio API" }
+      }
+    },
+    {
+      "id": "n_emr_flag",
+      "name": "Flag In EMR",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.EMR_FLAG_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "patientId", "value": "={{ $json.patientId }}" },
+            { "name": "flag", "value": "missed_doses" },
+            { "name": "days", "value": "={{ $json.missed_consecutive_days }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_caregiver_email",
+      "name": "Email Caregiver",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [720, 120],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.CARE_FROM_EMAIL }}",
+        "toEmail": "={{ $json.caregiverEmail }}",
+        "subject": "Adherence alert for {{ $json.patientName }}",
+        "contentType": "text/plain",
+        "content": "{{ $json.patientName }} has missed {{ $json.missed_consecutive_days }} consecutive doses of {{ $json.medication }}."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_cron_daily": {
+      "main": [[{ "node": "n_mongo_missed", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_missed": {
+      "main": [[{ "node": "n_split_patients", "type": "main", "index": 0 }]]
+    },
+    "n_split_patients": {
+      "main": [
+        [
+          { "node": "n_sms_reminder", "type": "main", "index": 0 },
+          { "node": "n_emr_flag", "type": "main", "index": 0 },
+          { "node": "n_caregiver_email", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Adherence",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": [
+        "n_cron_daily",
+        "n_mongo_missed",
+        "n_split_patients",
+        "n_sms_reminder",
+        "n_emr_flag",
+        "n_caregiver_email"
+      ]
+    }
+  ],
+  "variables": [
+    { "id": "v_twilio_from", "name": "TWILIO_FROM_NUMBER", "defaultValue": "" },
+    { "id": "v_emr_flag", "name": "EMR_FLAG_URL", "defaultValue": "https://emr.example.com/flag" },
+    { "id": "v_care_from", "name": "CARE_FROM_EMAIL", "defaultValue": "care@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
