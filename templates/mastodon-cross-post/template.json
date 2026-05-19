@@ -1,0 +1,10 @@
+{
+  "id": "mastodon-cross-post",
+  "name": "Mastodon Cross-Post",
+  "description": "When a tweet is posted on Twitter, mirrors the same text into a Mastodon instance via the Mastodon API. Lets brands keep a Mastodon presence alive without a manual second post.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["twitter", "mastodon", "marketing", "cross-post", "social"],
+  "version": "0.1.0"
+}

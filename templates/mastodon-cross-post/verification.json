@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mastodon-cross-post",
+  "cases": [
+    {
+      "id": "cross-posted",
+      "description": "A tweet is mirrored to Mastodon.",
+      "triggerPayload": {
+        "id": "tw-9001",
+        "text": "We just shipped a thing — go check the changelog."
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

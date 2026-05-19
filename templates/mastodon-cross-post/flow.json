@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_tw_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "twitter.post.created",
+    "options": {
+      "path": "/webhooks/mastodon-cross-post",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Tw-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_tw_trigger",
+      "name": "Twitter Post Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mastodon-cross-post",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "mastodon-cross-post"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Tweet",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "text", "value": "={{ $json.text }}" },
+            { "name": "tweetId", "value": "={{ $json.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_truncate",
+      "name": "Fit Mastodon Limit",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "status", "value": "={{ ($json.text || '').slice(0, 500) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mastodon_post",
+      "name": "Post to Mastodon",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $vars.MASTODON_DOMAIN }}/api/v1/statuses",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "status", "value": "={{ $json.status }}" },
+            { "name": "visibility", "value": "public" }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.MASTODON_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true,\"mastodonId\":\"{{ $json.id }}\"}" }
+    }
+  ],
+  "connections": {
+    "n_tw_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_truncate", "type": "main", "index": 0 }]]
+    },
+    "n_truncate": {
+      "main": [[{ "node": "n_mastodon_post", "type": "main", "index": 0 }]]
+    },
+    "n_mastodon_post": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_tw_trigger", "n_extract", "n_truncate", "n_mastodon_post", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_domain", "name": "MASTODON_DOMAIN", "defaultValue": "mastodon.social" },
+    { "id": "v_token", "name": "MASTODON_TOKEN", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
