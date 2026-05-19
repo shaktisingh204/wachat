@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_avoma_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "avoma.meeting_summary",
+    "options": {
+      "path": "/webhooks/avoma-summary",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Avoma-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_avoma_trigger",
+      "name": "Avoma Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "avoma-summary",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "avoma-summary-webhook"
+    },
+    {
+      "id": "n_extract_meeting",
+      "name": "Extract Meeting",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "meetingId", "value": "={{ $json.meeting.id }}" },
+            { "name": "title", "value": "={{ $json.meeting.title }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_actions",
+      "name": "Fetch Action Items",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.AVOMA_API }}/v1/meetings/{{ $json.meetingId }}/action_items"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "avoma-cred", "name": "Avoma API" } }
+    },
+    {
+      "id": "n_split_actions",
+      "name": "One Per Action Item",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_resolve_owner",
+      "name": "Resolve Owner",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "asanaAssignee", "value": "={{ $json.assignee_email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_asana_task",
+      "name": "Asana Task",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "task",
+        "operation": "create",
+        "name": "={{ $json.action_item }}",
+        "projectId": "={{ $vars.ASANA_PROJECT_ID }}",
+        "additionalFields": {
+          "assignee": "={{ $json.asanaAssignee }}",
+          "notes": "From Avoma meeting: {{ $node['Extract Meeting'].json.title }}"
+        }
+      },
+      "credentials": { "asanaApi": { "id": "asana-cred", "name": "Asana API" } }
+    }
+  ],
+  "connections": {
+    "n_avoma_trigger": { "main": [[{ "node": "n_extract_meeting", "type": "main", "index": 0 }]] },
+    "n_extract_meeting": { "main": [[{ "node": "n_fetch_actions", "type": "main", "index": 0 }]] },
+    "n_fetch_actions": { "main": [[{ "node": "n_split_actions", "type": "main", "index": 0 }]] },
+    "n_split_actions": { "main": [[{ "node": "n_resolve_owner", "type": "main", "index": 0 }]] },
+    "n_resolve_owner": { "main": [[{ "node": "n_asana_task", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Actions",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_avoma_trigger", "n_extract_meeting", "n_fetch_actions", "n_split_actions", "n_resolve_owner", "n_asana_task"]
+    }
+  ],
+  "variables": [
+    { "id": "v_avoma", "name": "AVOMA_API", "defaultValue": "https://api.avoma.com" },
+    { "id": "v_asana", "name": "ASANA_PROJECT_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "avoma-meeting-action-items",
+  "name": "Avoma Meeting Action Items",
+  "description": "Receives Avoma meeting.summary webhooks, splits the extracted action items, and creates one Asana task per item with the assignee inferred from the meeting attendees. Lifts post-meeting bookkeeping off teams entirely.",
+  "category": "AI",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ai", "avoma", "asana", "meeting", "action-items", "webhook"],
+  "version": "0.1.0"
+}
