@@ -16,7 +16,7 @@ export default function VerifyLinkPage({ params }: { params: { shortCode: string
     setError(null);
     startTransition(async () => {
       const result = await verifyLinkPassword(shortCode, password);
-      if (result.success && result.originalUrl) {
+      if (result.valid && result.originalUrl) {
         window.location.href = result.originalUrl;
       } else {
         setError('Incorrect password');

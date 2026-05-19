@@ -35,6 +35,7 @@ import { GeoHeatmap } from '@/components/wabasimplify/geo-heatmap';
 import { DeviceBreakdownChart } from '@/components/wabasimplify/device-breakdown-chart';
 import { ReferrerTable } from '@/components/wabasimplify/referrer-table';
 import { AnalyticsTabsShell } from '@/components/wabasimplify/analytics-tabs-shell';
+import { EditLinkDrawer } from '@/components/wabasimplify/edit-link-drawer';
 
 export const dynamic = 'force-dynamic';
 
@@ -213,9 +214,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
                 <Settings className="h-4 w-4 text-zoru-ink-muted" />
                 <span className="text-[13px] text-zoru-ink">Link Details</span>
               </div>
-              <ZoruButton variant="outline" size="sm" disabled>
-                Edit
-              </ZoruButton>
+              <EditLinkDrawer shortUrl={shortUrl} />
             </div>
             <dl className="space-y-3 text-[13px]">
               <div className="grid grid-cols-[160px_1fr] gap-2">

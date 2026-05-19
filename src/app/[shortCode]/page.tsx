@@ -19,6 +19,7 @@ export default async function ShortUrlRedirectPage({ params }: PageProps) {
         'portfolio', 'web', 'embed', 'setup', 'pending-approval', 'pricing',
         'about-us', 'contact', 'careers', 'blog', 'terms-and-conditions',
         'privacy-policy', 'forgot-password', 'admin-login',
+        'r', 'dl', 'expired', 'verify',
         // Public files and Next.js internal paths
         'favicon.ico', 'robots.txt', 'site.webmanifest', 'layout.tsx', 'page.tsx',
         'globals.css', 'opengraph-image.png', 'twitter-image.png', '_next'
@@ -41,11 +42,44 @@ export default async function ShortUrlRedirectPage({ params }: PageProps) {
     // Otherwise, it's a custom domain link (lookupHost = requestHost).
     const lookupHost = (mainAppHost && requestHost === mainAppHost) ? null : requestHost;
 
-    const { originalUrl, error } = await trackClickAndGetUrl(shortCode, lookupHost);
+    const { originalUrl, error, passwordHash, utmParams, isExpired } =
+        await trackClickAndGetUrl(shortCode, lookupHost);
+
+    if (isExpired) {
+        redirect('/expired');
+    }
 
     if (error || !originalUrl) {
+        if (passwordHash) {
+            redirect(`/verify/${shortCode}`);
+        }
         notFound();
     }
 
-    redirect(originalUrl);
+    if (passwordHash) {
+        redirect(`/verify/${shortCode}`);
+    }
+
+    let finalUrl = originalUrl;
+    if (utmParams && Object.keys(utmParams).length > 0) {
+        try {
+            const u = new URL(originalUrl);
+            const map: Record<string, string> = {
+                source: 'utm_source',
+                medium: 'utm_medium',
+                campaign: 'utm_campaign',
+                term: 'utm_term',
+                content: 'utm_content',
+            };
+            for (const [key, param] of Object.entries(map)) {
+                const val = utmParams[key];
+                if (val) u.searchParams.set(param, val);
+            }
+            finalUrl = u.toString();
+        } catch {
+            // malformed URL — redirect to original unchanged
+        }
+    }
+
+    redirect(finalUrl);
 }

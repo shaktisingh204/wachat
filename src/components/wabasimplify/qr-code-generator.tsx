@@ -25,6 +25,7 @@ import {
 import {
   useState,
   useRef,
+  useEffect,
   useTransition } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
@@ -187,7 +188,17 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
     const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('png');
     const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
 
+    const [brandKits, setBrandKits] = useState<{ id: string; name: string; color?: string; bgColor?: string; logoDataUri?: string }[]>([]);
+    const [showBrandKits, setShowBrandKits] = useState(false);
+
     const qrWrapperRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem('qr-brand-kits');
+            if (stored) setBrandKits(JSON.parse(stored));
+        } catch {}
+    }, []);
 
     const getQrValue = () => {
         switch (dataType) {
@@ -577,6 +588,44 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                     <TabsTrigger value="branding">Logo & Branding</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="colors" className="space-y-4 mt-4">
+                                    {brandKits.length > 0 && (
+                                        <div className="space-y-1.5">
+                                            <div className="flex items-center justify-between">
+                                                <ZoruLabel className="text-[12.5px] text-zoru-ink-muted">Brand Kit</ZoruLabel>
+                                                <ZoruButton
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="xs"
+                                                    onClick={() => setShowBrandKits((v) => !v)}
+                                                >
+                                                    {showBrandKits ? 'Hide' : 'Apply Kit'}
+                                                </ZoruButton>
+                                            </div>
+                                            {showBrandKits && (
+                                                <div className="flex flex-wrap gap-2">
+                                                    {brandKits.map((kit) => (
+                                                        <button
+                                                            key={kit.id}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (kit.color) setDotColor(kit.color);
+                                                                if (kit.bgColor) setBgColor(kit.bgColor);
+                                                                if (kit.logoDataUri) setLogoDataUri(kit.logoDataUri);
+                                                                setShowBrandKits(false);
+                                                            }}
+                                                            className="flex items-center gap-1.5 rounded-md border border-zoru-border bg-zinc-900 px-2 py-1 text-[11.5px] text-zoru-ink hover:bg-zinc-800 transition-colors"
+                                                        >
+                                                            <span
+                                                                className="h-3 w-3 rounded-sm border border-white/10 flex-shrink-0"
+                                                                style={{ backgroundColor: kit.color ?? '#000000' }}
+                                                            />
+                                                            {kit.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         {!useGradient && (
                                             <div className="space-y-2">
