@@ -1,0 +1,10 @@
+{
+  "id": "redshift-vacuum-schedule",
+  "name": "Redshift Vacuum Schedule",
+  "description": "Once a week, asks the Redshift Data API to run VACUUM on the heavy fact tables and confirms successful completion in Slack #data. Keeps query performance steady without a humans-in-the-loop maintenance window.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ops", "redshift", "vacuum", "data", "slack", "cron"],
+  "version": "0.1.0"
+}
