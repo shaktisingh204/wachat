@@ -1,0 +1,10 @@
+{
+  "id": "basecamp-pings-digest",
+  "name": "Basecamp Pings Digest",
+  "description": "Each morning, pulls unread Basecamp pings for the user and sends them as a single Slack DM summary. Keeps cross-tool conversations from being missed.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["basecamp", "slack", "digest", "ops", "morning"],
+  "version": "0.1.0"
+}

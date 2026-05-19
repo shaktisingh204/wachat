@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 8 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 08:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * *" }] } }
+    },
+    {
+      "id": "n_pull",
+      "name": "Basecamp Pings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.BASECAMP_URL }}/my/pings.json?unread=1"
+      },
+      "credentials": { "oAuth2Api": { "id": "basecamp-cred", "name": "Basecamp OAuth2" } }
+    },
+    {
+      "id": "n_count",
+      "name": "Count Pings",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "count", "value": "={{ $json.length }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Digest",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "digest", "value": "You have {{ $json.count }} unread pings — open Basecamp to review." }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack DM Summary",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_USER_ID }}",
+        "text": ":mailbox_with_mail: {{ $json.digest }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_pull", "type": "main", "index": 0 }]] },
+    "n_pull": { "main": [[{ "node": "n_count", "type": "main", "index": 0 }]] },
+    "n_count": { "main": [[{ "node": "n_format", "type": "main", "index": 0 }]] },
+    "n_format": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_pull", "n_count", "n_format", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_bc", "name": "BASECAMP_URL", "defaultValue": "https://3.basecampapi.com/account/" },
+    { "id": "v_su", "name": "SLACK_USER_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

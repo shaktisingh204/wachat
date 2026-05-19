@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "basecamp-pings-digest",
+  "cases": [
+    {
+      "id": "morning-digest",
+      "description": "Daily cron sends Basecamp pings digest via Slack DM.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
