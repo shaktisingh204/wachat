@@ -1,0 +1,10 @@
+{
+  "id": "rocketchat-status-update",
+  "name": "Rocket.Chat Standup Status",
+  "description": "Captures a daily standup status submission from a form webhook and posts it into a Rocket.Chat channel. Replaces dragging humans into a synchronous standup with a clean async log.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["rocket-chat", "standup", "status", "internal-tools", "async"],
+  "version": "0.1.0"
+}
