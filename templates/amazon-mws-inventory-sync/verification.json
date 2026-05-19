@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "amazon-mws-inventory-sync",
+  "cases": [
+    {
+      "id": "inventory-pushed",
+      "description": "Daily cron syncs Shopify inventory levels to Amazon SP-API.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T04:30:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
