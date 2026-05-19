@@ -1,0 +1,10 @@
+{
+  "id": "typesense-schema-migrate",
+  "name": "Typesense Schema Migrate",
+  "description": "On every deploy webhook, compares the Typesense collection schema with the spec checked into the repo and applies a safe schema migration when they diverge. Avoids breaking searches on the morning after a deploy.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "typesense", "search", "github", "deploy", "schema"],
+  "version": "0.1.0"
+}

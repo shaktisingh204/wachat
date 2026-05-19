@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "typesense-schema-migrate",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Deploy webhook checks Typesense schema and applies an alter when needed.",
+      "triggerPayload": { "deployment": { "sha": "abc123" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
