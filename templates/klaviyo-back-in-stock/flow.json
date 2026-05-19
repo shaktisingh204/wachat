@@ -1,0 +1,143 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_shopify_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.inventory_levels.update",
+    "options": {
+      "path": "/webhooks/klaviyo-back-in-stock",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Inventory Update",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "klaviyo-back-in-stock",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "klaviyo-back-in-stock"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Inventory",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sku", "value": "={{ $json.inventory_item_id }}" },
+            { "name": "locationId", "value": "={{ $json.location_id }}" }
+          ],
+          "number": [
+            { "name": "available", "value": "={{ $json.available }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_restocked",
+      "name": "Available > 0?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.available }}", "operation": "larger", "value2": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_klaviyo_event",
+      "name": "Trigger Klaviyo Flow",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "https://a.klaviyo.com/api/events/",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"data\":{\"type\":\"event\",\"attributes\":{\"profile\":{\"data\":{\"type\":\"profile\",\"attributes\":{\"properties\":{\"sku\":\"{{ $node['Extract Inventory'].json.sku }}\"}}}},\"metric\":{\"data\":{\"type\":\"metric\",\"attributes\":{\"name\":\"Back In Stock\"}}}}}}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Klaviyo-API-Key {{ $vars.KLAVIYO_KEY }}" },
+            { "name": "revision", "value": "2024-02-15" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_growth",
+      "name": "Slack #growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_GROWTH_CHANNEL }}",
+        "text": ":package: SKU `{{ $node['Extract Inventory'].json.sku }}` is back in stock — Klaviyo flow fired."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_ignore",
+      "name": "Ignore Decrement",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "stock decrement — no action" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_restocked", "type": "main", "index": 0 }]]
+    },
+    "n_restocked": {
+      "true": [[{ "node": "n_klaviyo_event", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_ignore", "type": "main", "index": 0 }]]
+    },
+    "n_klaviyo_event": {
+      "main": [[{ "node": "n_slack_growth", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_shopify_trigger", "n_extract", "n_restocked", "n_klaviyo_event", "n_slack_growth", "n_ignore"]
+    }
+  ],
+  "variables": [
+    { "id": "v_key", "name": "KLAVIYO_KEY", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_GROWTH_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
