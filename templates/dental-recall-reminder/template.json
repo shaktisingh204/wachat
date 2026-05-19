@@ -1,0 +1,10 @@
+{
+  "id": "dental-recall-reminder",
+  "name": "Dental Recall Reminder",
+  "description": "Runs every morning, finds patients due for a six-month dental recall, and sends both SMS and email reminders in one pass. Keeps the recall book full without a front-desk dial-down.",
+  "category": "Health",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["health", "dental", "recall", "twilio", "sendgrid", "cron"],
+  "version": "0.1.0"
+}
