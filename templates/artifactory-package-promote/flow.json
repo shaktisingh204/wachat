@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_release_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.release_published",
+    "options": {
+      "path": "/webhooks/release-promote",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_release_trigger",
+      "name": "GitHub Release Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "release-promote",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "release-promote-webhook"
+    },
+    {
+      "id": "n_extract_tag",
+      "name": "Extract Tag",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tag", "value": "={{ $json.release.tag_name }}" },
+            { "name": "repo", "value": "={{ $json.repository.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_list_packages",
+      "name": "List Staging Packages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ARTIFACTORY_URL }}/api/search/gavc?g={{ $json.repo }}&v={{ $json.tag }}&repos=staging-local"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "artifactory-cred", "name": "Artifactory Token" }
+      }
+    },
+    {
+      "id": "n_split_artifacts",
+      "name": "One Per Artifact",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_promote",
+      "name": "Promote to Prod",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.ARTIFACTORY_URL }}/api/copy/staging-local/{{ $json.path }}?to=/prod-local/{{ $json.path }}"
+      },
+      "credentials": {
+        "httpHeaderAuth": { "id": "artifactory-cred", "name": "Artifactory Token" }
+      }
+    },
+    {
+      "id": "n_slack_notify",
+      "name": "Slack #releases",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_RELEASES_CHANNEL }}",
+        "text": ":rocket: Promoted {{ $json.repo }} {{ $json.tag }} to prod.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_release_trigger": { "main": [[{ "node": "n_extract_tag", "type": "main", "index": 0 }]] },
+    "n_extract_tag": { "main": [[{ "node": "n_list_packages", "type": "main", "index": 0 }]] },
+    "n_list_packages": { "main": [[{ "node": "n_split_artifacts", "type": "main", "index": 0 }]] },
+    "n_split_artifacts": { "main": [[{ "node": "n_promote", "type": "main", "index": 0 }]] },
+    "n_promote": { "main": [[{ "node": "n_slack_notify", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Promote",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_release_trigger", "n_extract_tag", "n_list_packages", "n_split_artifacts", "n_promote", "n_slack_notify"]
+    }
+  ],
+  "variables": [
+    { "id": "v_art", "name": "ARTIFACTORY_URL", "defaultValue": "https://artifactory.example.com" },
+    { "id": "v_slack", "name": "SLACK_RELEASES_CHANNEL", "defaultValue": "#releases" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
