@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "signal-stop-keyword",
+  "cases": [
+    {
+      "id": "stop-keyword",
+      "description": "Inbound STOP marks contact opted-out and sends confirmation.",
+      "triggerPayload": {
+        "source": "+15551230000",
+        "message": "STOP",
+        "profile": { "email": "user@example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

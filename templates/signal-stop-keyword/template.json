@@ -1,0 +1,10 @@
+{
+  "id": "signal-stop-keyword",
+  "name": "Signal STOP Keyword Handler",
+  "description": "Listens for Signal inbound messages and when the body matches STOP, marks the contact opted-out in MongoDB and sends a SendGrid confirmation email. Keeps compliance trivial for SMS-style flows on Signal.",
+  "category": "Support",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["signal", "mongodb", "sendgrid", "compliance", "opt-out"],
+  "version": "0.1.0"
+}
