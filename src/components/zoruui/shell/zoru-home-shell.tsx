@@ -15,9 +15,15 @@ import {
 
 import { cn } from "../lib/cn";
 import { ZoruAppRail, type ZoruAppRailItem } from "./zoru-app-rail";
-import { ZoruAppSidebar, type ZoruSidebarGroup } from "./zoru-app-sidebar";
+import {
+  ZoruAppSidebar,
+  type ZoruSidebarGroup,
+  type ZoruSidebarLeaf,
+} from "./zoru-app-sidebar";
 import { ZORU_APPS } from "./zoru-apps";
 import { findAppSidebarConfig } from "./zoru-app-sidebars";
+import { useProject } from "@/context/project-context";
+import { isElevatedRole } from "@/lib/rbac";
 import { ZoruHeader } from "./zoru-header";
 import { ZoruInput } from "../input";
 import { ZoruKbd } from "../kbd";
@@ -145,10 +151,34 @@ function ZoruHomeShellContent({
     [pathname],
   );
 
-  const autoGroups: ZoruSidebarGroup[] = React.useMemo(
+  // Tenant-admin gating mirrors Worksuite parity: the inviting account
+  // (project owner) sees admin-only menu entries; invited team members do
+  // not. `isOwner` is the SabNode owner flag; `ADMIN_ROLE_ID` covers users
+  // promoted to the elevated tenant-admin role within the workspace.
+  const { effectivePermissions } = useProject();
+  const isAdmin =
+    Boolean(effectivePermissions?.isOwner) ||
+    isElevatedRole(effectivePermissions?.role);
+
+  const autoGroupsRaw: ZoruSidebarGroup[] = React.useMemo(
     () => (activeAppConfig ? activeAppConfig.build(pathname ?? "") : []),
     [activeAppConfig, pathname],
   );
+
+  const autoGroups: ZoruSidebarGroup[] = React.useMemo(() => {
+    if (isAdmin) return autoGroupsRaw;
+    const stripAdmin = (items: ZoruSidebarLeaf[]): ZoruSidebarLeaf[] =>
+      items
+        .filter((it) => !it.adminOnly)
+        .map((it) =>
+          it.children
+            ? { ...it, children: stripAdmin(it.children) }
+            : it,
+        );
+    return autoGroupsRaw
+      .map((g) => ({ ...g, items: stripAdmin(g.items) }))
+      .filter((g) => g.items.length > 0);
+  }, [autoGroupsRaw, isAdmin]);
 
   const defaultSidebarGroups: ZoruSidebarGroup[] =
     autoGroups.length > 0

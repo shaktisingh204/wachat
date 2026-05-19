@@ -1,200 +1,240 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-  } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import * as React from 'react';
+import Link from 'next/link';
+import { Folder, HardDrive, Sparkles, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 
-import { EnumFormField } from '@/components/crm/enum-form-field';
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruRadioCard,
+  ZoruRadioGroup,
+  ZoruSkeleton,
+  ZoruSwitch,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  getStorageSetting,
-  saveStorageSetting,
-} from '@/app/actions/worksuite/integrations.actions';
-import type {
-  WsStorageSetting,
-  WsStorageDriver,
-} from '@/lib/worksuite/integrations-types';
+  ModuleConnectionWizard,
+  type ModuleWizardStep,
+} from '@/components/crm/module-connection-wizard';
 
-type Doc = (WsStorageSetting & { _id: unknown }) | null;
+import { listNodes } from '@/app/actions/sabfiles.actions';
 
-export default function StorageIntegrationPage() {
-  const { toast } = useZoruToast();
-  const [doc, setDoc] = useState<Doc>(null);
-  const [driver, setDriver] = useState<WsStorageDriver>('local');
-  const [, startLoading] = useTransition();
-  const [saveState, saveFormAction, isSaving] = useActionState(
-    saveStorageSetting,
-    { message: '', error: '' } as {
-      message?: string;
-      error?: string;
-      id?: string;
-    },
-  );
+type StorageDraft = {
+  rootFolderId: string | null;
+  rootFolderName: string;
+  autoOrganize: boolean;
+};
 
-  const refresh = useCallback(() => {
-    startLoading(async () => {
-      const d = (await getStorageSetting()) as Doc;
-      setDoc(d);
-      setDriver((d?.storage_driver as WsStorageDriver) || 'local');
-    });
+const DEFAULT_DRAFT: StorageDraft = {
+  rootFolderId: null,
+  rootFolderName: 'My files (root)',
+  autoOrganize: true,
+};
+
+function FolderPicker({
+  draft,
+  setDraft,
+}: {
+  draft: StorageDraft;
+  setDraft: (next: Partial<StorageDraft>) => void;
+}) {
+  const [folders, setFolders] = React.useState<
+    { id: string; name: string }[] | null
+  >(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await listNodes({ parent: null });
+      if (cancelled) return;
+      const list = (res.nodes ?? [])
+        .filter((n) => n.type === 'folder' && !n.trashed)
+        .map((n) => ({ id: n.id, name: n.name }));
+      setFolders([{ id: '__root__', name: 'My files (root)' }, ...list]);
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
+  if (!folders) {
+    return (
+      <div className="space-y-2">
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+        <ZoruSkeleton className="h-12 w-full" />
+      </div>
+    );
+  }
 
-  useEffect(() => {
-    if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
-      refresh();
-    }
-    if (saveState?.error)
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
-  }, [saveState, toast, refresh]);
+  return (
+    <ZoruRadioGroup
+      value={draft.rootFolderId ?? '__root__'}
+      onValueChange={(val) => {
+        const match = folders.find((f) => f.id === val);
+        setDraft({
+          rootFolderId: val === '__root__' ? null : val,
+          rootFolderName: match?.name ?? 'My files (root)',
+        });
+      }}
+      className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1"
+    >
+      {folders.map((f) => (
+        <ZoruRadioCard
+          key={f.id}
+          value={f.id}
+          icon={<Folder className="h-4 w-4 text-zoru-ink-muted" />}
+          label={f.name}
+        />
+      ))}
+    </ZoruRadioGroup>
+  );
+}
 
-  const v = (k: keyof WsStorageSetting) => {
-    const val = doc ? (doc as any)[k] : undefined;
-    return val == null ? '' : String(val);
-  };
-
-  const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
+export default function StorageIntegrationPage() {
+  const steps = React.useMemo<ModuleWizardStep<StorageDraft>[]>(
+    () => [
+      {
+        id: 'intro',
+        title: 'Welcome',
+        description:
+          'The CRM stores invoices, quote PDFs, contract files, and lead attachments in SabFiles — your tenant-scoped R2 file library.',
+        render: () => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { icon: HardDrive, title: 'One backend', body: 'Reuses SabFiles’ R2-backed storage. No extra credentials.' },
+              { icon: Sparkles, title: 'Auto-organized', body: 'CRM uploads land in dated subfolders inside the folder you pick.' },
+              { icon: CheckCircle2, title: 'Shareable', body: 'Share-link controls and download gating come from SabFiles.' },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
+              >
+                <p.icon className="h-5 w-5 text-zoru-ink" />
+                <p className="mt-2 text-sm font-medium text-zoru-ink">
+                  {p.title}
+                </p>
+                <p className="mt-1 text-xs text-zoru-ink-muted">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        ),
+      },
+      {
+        id: 'folder',
+        title: 'Pick a root folder',
+        description:
+          'New CRM uploads will land inside this folder. You can change it later.',
+        render: ({ draft, setDraft }) => (
+          <FolderPicker draft={draft} setDraft={setDraft} />
+        ),
+      },
+      {
+        id: 'options',
+        title: 'Options',
+        description: 'Fine-tune how files are organized.',
+        render: ({ draft, setDraft }) => (
+          <div className="space-y-3">
+            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+              <ZoruSwitch
+                checked={draft.autoOrganize}
+                onCheckedChange={(v) => setDraft({ autoOrganize: v })}
+                className="mt-1"
+              />
+              <div>
+                <ZoruLabel className="text-sm">Auto-organize uploads</ZoruLabel>
+                <p className="text-xs text-zoru-ink-muted">
+                  Place files into <code>YYYY/MM/&lt;module&gt;/</code>{' '}
+                  subfolders so they don&apos;t crowd the root.
+                </p>
+              </div>
+            </label>
+          </div>
+        ),
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        description: 'Confirm your storage binding.',
+        render: ({ draft }) => (
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Root folder</dt>
+              <dd className="mt-0.5 font-medium">{draft.rootFolderName}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Auto-organize</dt>
+              <dd className="mt-0.5 font-medium">
+                {draft.autoOrganize ? 'On' : 'Off'}
+              </dd>
+            </div>
+          </dl>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <EntityListShell
       title="Storage"
-      subtitle="Choose where uploaded files are stored."
+      subtitle="Bind the CRM to SabFiles as its file backend."
     >
-
-      <ZoruCard className="p-6">
-        {!doc && !id ? (
-          <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
-          </div>
-        ) : null}
-
-        <form action={saveFormAction} className="space-y-4">
-          {id ? <input type="hidden" name="_id" value={id} /> : null}
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <ZoruLabel htmlFor="storage_driver">Storage Driver</ZoruLabel>
-              <div className="mt-1.5">
-                <EnumFormField
-                  name="storage_driver"
-                  enumName="storageDriver"
-                  initialId={driver}
-                  onChange={(id) => setDriver((id ?? 'local') as WsStorageDriver)}
-                  placeholder="Select driver"
-                />
-              </div>
-            </div>
-
-            {driver === 's3' && (
-              <>
+      <ModuleConnectionWizard<StorageDraft>
+        moduleKey="storage"
+        title="Storage"
+        subtitle="Where CRM uploads (invoices, contracts, lead attachments) are stored."
+        icon={HardDrive}
+        targetModuleLabel="SabFiles"
+        defaultDraft={DEFAULT_DRAFT}
+        steps={steps}
+        manageView={({ connection, onReconnect }) => (
+          <ZoruCard>
+            <ZoruCardContent className="p-6 space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <div>
-                  <ZoruLabel htmlFor="aws_access_key">AWS Access Key</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="aws_access_key"
-                      name="aws_access_key"
-                      defaultValue={v('aws_access_key')}
-                    />
-                  </div>
+                  <p className="text-sm text-zoru-ink-muted">Root folder</p>
+                  <p className="mt-0.5 text-sm font-medium flex items-center gap-1.5">
+                    <Folder className="h-4 w-4 text-zoru-ink-muted" />
+                    {connection.config.rootFolderName ?? 'My files (root)'}
+                  </p>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="aws_secret">AWS Secret</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="aws_secret"
-                      name="aws_secret"
-                      type="password"
-                      defaultValue={v('aws_secret')}
-                    />
-                  </div>
+                  <p className="text-sm text-zoru-ink-muted">Auto-organize</p>
+                  <ZoruBadge
+                    variant={connection.config.autoOrganize ? 'default' : 'outline'}
+                  >
+                    {connection.config.autoOrganize ? 'On' : 'Off'}
+                  </ZoruBadge>
                 </div>
                 <div>
-                  <ZoruLabel htmlFor="aws_region">AWS Region</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="aws_region"
-                      name="aws_region"
-                      defaultValue={v('aws_region')}
-                      placeholder="us-east-1"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <ZoruLabel htmlFor="aws_bucket">AWS Bucket</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="aws_bucket"
-                      name="aws_bucket"
-                      defaultValue={v('aws_bucket')}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {driver === 'google-drive' && (
-              <>
-                <div>
-                  <ZoruLabel htmlFor="gd_client_id">Google Drive Client ID</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="gd_client_id"
-                      name="gd_client_id"
-                      defaultValue={v('gd_client_id')}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <ZoruLabel htmlFor="gd_client_secret">Google Drive Client Secret</ZoruLabel>
-                  <div className="mt-1.5">
-                    <ZoruInput
-                      id="gd_client_secret"
-                      name="gd_client_secret"
-                      type="password"
-                      defaultValue={v('gd_client_secret')}
-                    />
-                  </div>
-                </div>
-              </>
-            )}
-
-            {driver === 'azure' && (
-              <div className="md:col-span-2">
-                <ZoruLabel htmlFor="azure_account">Azure Account</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="azure_account"
-                    name="azure_account"
-                    defaultValue={v('azure_account')}
-                  />
+                  <p className="text-sm text-zoru-ink-muted">Connected at</p>
+                  <p className="mt-0.5 text-sm font-medium">
+                    {connection.connectedAt
+                      ? new Date(connection.connectedAt).toLocaleString()
+                      : '—'}
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <ZoruButton type="submit" disabled={isSaving}>
-              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              Save
-            </ZoruButton>
-          </div>
-        </form>
-      </ZoruCard>
+              <div className="flex justify-end gap-2">
+                <ZoruButton variant="outline" asChild>
+                  <Link href="/dashboard/sabfiles">
+                    Open SabFiles
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </ZoruButton>
+                <ZoruButton variant="ghost" onClick={onReconnect}>
+                  Edit
+                </ZoruButton>
+              </div>
+            </ZoruCardContent>
+          </ZoruCard>
+        )}
+      />
     </EntityListShell>
   );
 }

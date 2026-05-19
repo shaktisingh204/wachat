@@ -1,146 +1,189 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruSkeleton, ZoruSwitch, useZoruToast } from '@/components/zoruui';
+import * as React from 'react';
+import Link from 'next/link';
 import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-  } from 'react';
-import { LoaderCircle } from 'lucide-react';
+  Bell,
+  Mail,
+  ArrowUpRight,
+  FileText,
+  Receipt,
+  Ticket,
+  UserPlus,
+  CalendarClock,
+} from 'lucide-react';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruSwitch,
+  ZoruBadge,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  getEmailNotificationSetting,
-  saveEmailNotificationSetting,
-} from '@/app/actions/worksuite/integrations.actions';
-import {
-  WS_EMAIL_NOTIFICATION_KEYS,
-  type WsEmailNotificationSetting,
-} from '@/lib/worksuite/integrations-types';
+  ModuleConnectionWizard,
+  type ModuleWizardStep,
+} from '@/components/crm/module-connection-wizard';
 
-type Doc = (WsEmailNotificationSetting & { _id: unknown }) | null;
+type EventKey =
+  | 'invoice.created'
+  | 'invoice.paid'
+  | 'quote.sent'
+  | 'lead.assigned'
+  | 'ticket.replied'
+  | 'task.due';
 
-type ToggleKey = (typeof WS_EMAIL_NOTIFICATION_KEYS)[number]['key'];
+const EVENT_CATALOG: { key: EventKey; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { key: 'invoice.created', label: 'Invoice created', icon: Receipt },
+  { key: 'invoice.paid', label: 'Invoice paid', icon: Receipt },
+  { key: 'quote.sent', label: 'Quote sent', icon: FileText },
+  { key: 'lead.assigned', label: 'Lead assigned', icon: UserPlus },
+  { key: 'ticket.replied', label: 'Ticket replied', icon: Ticket },
+  { key: 'task.due', label: 'Task due', icon: CalendarClock },
+];
 
-export default function EmailNotificationsIntegrationPage() {
-  const { toast } = useZoruToast();
-  const [doc, setDoc] = useState<Doc>(null);
-  const [values, setValues] = useState<Record<ToggleKey, boolean>>(
-    () =>
-      WS_EMAIL_NOTIFICATION_KEYS.reduce(
-        (acc, row) => {
-          acc[row.key] = false;
-          return acc;
+type NotifDraft = {
+  events: Record<EventKey, boolean>;
+};
+
+const DEFAULT_DRAFT: NotifDraft = {
+  events: {
+    'invoice.created': true,
+    'invoice.paid': true,
+    'quote.sent': true,
+    'lead.assigned': true,
+    'ticket.replied': false,
+    'task.due': false,
+  },
+};
+
+export default function EmailNotificationsPage() {
+  const steps = React.useMemo<ModuleWizardStep<NotifDraft>[]>(
+    () => [
+      {
+        id: 'intro',
+        title: 'Welcome',
+        description:
+          'CRM events fire transactional emails through the SabNode Email module. Pick which events should trigger emails.',
+        render: () => (
+          <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4 text-sm text-zoru-ink-muted">
+            Templates and sender identity come from the Email module. Click any
+            event in the next step to enable/disable it.
+          </div>
+        ),
+      },
+      {
+        id: 'events',
+        title: 'Choose events',
+        description:
+          'Toggle the events that should send an email when they happen.',
+        render: ({ draft, setDraft }) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {EVENT_CATALOG.map((ev) => {
+              const on = draft.events[ev.key];
+              return (
+                <label
+                  key={ev.key}
+                  className="flex items-center gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3 cursor-pointer"
+                >
+                  <ev.icon className="h-4 w-4 text-zoru-ink-muted" />
+                  <span className="flex-1 text-sm">{ev.label}</span>
+                  <ZoruSwitch
+                    checked={on}
+                    onCheckedChange={(v) =>
+                      setDraft({
+                        events: { ...draft.events, [ev.key]: v },
+                      })
+                    }
+                  />
+                </label>
+              );
+            })}
+          </div>
+        ),
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        render: ({ draft }) => {
+          const on = EVENT_CATALOG.filter((e) => draft.events[e.key]);
+          return (
+            <div className="space-y-3">
+              <p className="text-sm text-zoru-ink-muted">
+                {on.length} of {EVENT_CATALOG.length} events will fire emails.
+              </p>
+              <div className="flex flex-wrap gap-1.5">
+                {on.map((e) => (
+                  <ZoruBadge key={e.key} variant="outline">
+                    {e.label}
+                  </ZoruBadge>
+                ))}
+              </div>
+            </div>
+          );
         },
-        {} as Record<ToggleKey, boolean>,
-      ),
+      },
+    ],
+    [],
   );
-  const [, startLoading] = useTransition();
-  const [saveState, saveFormAction, isSaving] = useActionState(
-    saveEmailNotificationSetting,
-    { message: '', error: '' } as {
-      message?: string;
-      error?: string;
-      id?: string;
-    },
-  );
-
-  const refresh = useCallback(() => {
-    startLoading(async () => {
-      const d = (await getEmailNotificationSetting()) as Doc;
-      setDoc(d);
-      if (d) {
-        setValues((prev) => {
-          const next = { ...prev };
-          for (const row of WS_EMAIL_NOTIFICATION_KEYS) {
-            next[row.key] = Boolean((d as any)[row.key]);
-          }
-          return next;
-        });
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  useEffect(() => {
-    if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
-      refresh();
-    }
-    if (saveState?.error)
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
-  }, [saveState, toast, refresh]);
-
-  const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
-
-  const setValue = (key: ToggleKey, next: boolean) => {
-    setValues((prev) => ({ ...prev, [key]: next }));
-  };
 
   return (
     <EntityListShell
-      title="Email Notifications"
-      subtitle="Per-event email delivery toggles."
+      title="Email notifications"
+      subtitle="CRM event → email via the SabNode Email module."
     >
-
-      <ZoruCard className="p-6">
-        {!doc && !id ? (
-          <div className="space-y-3">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
-          </div>
-        ) : null}
-
-        <form action={saveFormAction} className="space-y-4">
-          {id ? <input type="hidden" name="_id" value={id} /> : null}
-          {WS_EMAIL_NOTIFICATION_KEYS.map((row) => (
-            <input
-              key={`hidden-${row.key}`}
-              type="hidden"
-              name={row.key}
-              value={values[row.key] ? 'true' : 'false'}
-            />
-          ))}
-
-          <div className="divide-y divide-zoru-line rounded-lg border border-zoru-line bg-zoru-bg">
-            {WS_EMAIL_NOTIFICATION_KEYS.map((row) => (
-              <div
-                key={row.key}
-                className="flex items-center justify-between gap-4 px-4 py-3"
-              >
-                <div className="min-w-0">
-                  <div className="text-[13px] text-zoru-ink">{row.label}</div>
-                  <div className="text-[12px] text-zoru-ink-muted">
-                    {row.description}
+      <ModuleConnectionWizard<NotifDraft>
+        moduleKey="email-notifications"
+        title="Email notifications"
+        subtitle="Pick which CRM events should send transactional emails."
+        icon={Bell}
+        targetModuleLabel="Email module"
+        defaultDraft={DEFAULT_DRAFT}
+        steps={steps}
+        manageView={({ connection, onReconnect }) => {
+          const events = (connection.config.events ?? {}) as Record<
+            EventKey,
+            boolean
+          >;
+          const on = EVENT_CATALOG.filter((e) => events[e.key]);
+          return (
+            <ZoruCard>
+              <ZoruCardContent className="p-6 space-y-4">
+                <div>
+                  <p className="text-sm text-zoru-ink-muted">
+                    Enabled events
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    {on.length === 0 ? (
+                      <span className="text-sm text-zoru-ink-muted">None</span>
+                    ) : (
+                      on.map((e) => (
+                        <ZoruBadge key={e.key} variant="outline">
+                          <e.icon className="h-3 w-3" />
+                          {e.label}
+                        </ZoruBadge>
+                      ))
+                    )}
                   </div>
                 </div>
-                <ZoruSwitch
-                  checked={values[row.key]}
-                  onCheckedChange={(n) => setValue(row.key, n)}
-                  aria-label={row.label}
-                />
-              </div>
-            ))}
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <ZoruButton type="submit" disabled={isSaving}>
-              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              Save
-            </ZoruButton>
-          </div>
-        </form>
-      </ZoruCard>
+                <div className="flex justify-end gap-2">
+                  <ZoruButton variant="outline" asChild>
+                    <Link href="/dashboard/email/templates">
+                      <Mail className="h-4 w-4" />
+                      Edit templates
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </ZoruButton>
+                  <ZoruButton variant="ghost" onClick={onReconnect}>
+                    Edit
+                  </ZoruButton>
+                </div>
+              </ZoruCardContent>
+            </ZoruCard>
+          );
+        }}
+      />
     </EntityListShell>
   );
 }

@@ -1,219 +1,196 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, useZoruToast } from '@/components/zoruui';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-  } from 'react';
-import { LoaderCircle,
-  Play } from 'lucide-react';
+import * as React from 'react';
+import Link from 'next/link';
+import { Mail, Send, ShieldCheck, ArrowUpRight, AlertTriangle } from 'lucide-react';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  getSmtpSetting,
-  saveSmtpSetting,
-  testSmtp,
-} from '@/app/actions/worksuite/integrations.actions';
-import type { WsSmtpSetting } from '@/lib/worksuite/integrations-types';
+  ModuleConnectionWizard,
+  type ModuleWizardStep,
+} from '@/components/crm/module-connection-wizard';
 
-type Doc = (WsSmtpSetting & { _id: unknown }) | null;
+type SmtpDraft = {
+  fromAddress: string;
+  fromName: string;
+  replyTo: string;
+};
+
+const DEFAULT_DRAFT: SmtpDraft = {
+  fromAddress: '',
+  fromName: '',
+  replyTo: '',
+};
 
 export default function SmtpIntegrationPage() {
-  const { toast } = useZoruToast();
-  const [doc, setDoc] = useState<Doc>(null);
-  const [, startLoading] = useTransition();
-  const [isTesting, startTesting] = useTransition();
-  const [saveState, saveFormAction, isSaving] = useActionState(saveSmtpSetting, {
-    message: '',
-    error: '',
-  } as { message?: string; error?: string; id?: string });
-
-  const refresh = useCallback(() => {
-    startLoading(async () => {
-      const d = (await getSmtpSetting()) as Doc;
-      setDoc(d);
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  useEffect(() => {
-    if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
-      refresh();
-    }
-    if (saveState?.error)
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
-  }, [saveState, toast, refresh]);
-
-  const v = (k: keyof WsSmtpSetting) => {
-    const val = doc ? (doc as any)[k] : undefined;
-    return val == null ? '' : String(val);
-  };
-
-  const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
-
-  const onTest = () => {
-    startTesting(async () => {
-      const res = await testSmtp();
-      if (res.message) toast({ title: 'SMTP', description: res.message });
-      else if (res.error)
-        toast({
-          title: 'Error',
-          description: res.error,
-          variant: 'destructive',
-        });
-    });
-  };
+  const steps = React.useMemo<ModuleWizardStep<SmtpDraft>[]>(
+    () => [
+      {
+        id: 'intro',
+        title: 'Welcome',
+        description:
+          'Outbound CRM emails (invoices, quotes, ticket replies) are sent through the SabNode Email module — no separate SMTP credentials needed here.',
+        render: () => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { icon: ShieldCheck, title: 'Already authenticated', body: 'Reuses the SMTP / sender config from your Email module.' },
+              { icon: Send, title: 'Single deliverability lane', body: 'Bounces, suppressions, and warmup stay coordinated.' },
+              { icon: Mail, title: 'Threaded replies', body: 'Replies arrive in the Email module inbox you already use.' },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
+              >
+                <p.icon className="h-5 w-5 text-zoru-ink" />
+                <p className="mt-2 text-sm font-medium text-zoru-ink">
+                  {p.title}
+                </p>
+                <p className="mt-1 text-xs text-zoru-ink-muted">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        ),
+      },
+      {
+        id: 'identity',
+        title: 'Sender identity',
+        description:
+          'Used as the From: header on CRM emails. Make sure the address is verified inside the Email module.',
+        render: ({ draft, setDraft }) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <ZoruLabel htmlFor="fromName">Display name</ZoruLabel>
+              <ZoruInput
+                id="fromName"
+                value={draft.fromName}
+                onChange={(e) => setDraft({ fromName: e.target.value })}
+                placeholder="Acme Sales"
+              />
+            </div>
+            <div>
+              <ZoruLabel htmlFor="fromAddress">From address</ZoruLabel>
+              <ZoruInput
+                id="fromAddress"
+                type="email"
+                value={draft.fromAddress}
+                onChange={(e) => setDraft({ fromAddress: e.target.value })}
+                placeholder="sales@acme.com"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <ZoruLabel htmlFor="replyTo">Reply-to (optional)</ZoruLabel>
+              <ZoruInput
+                id="replyTo"
+                type="email"
+                value={draft.replyTo}
+                onChange={(e) => setDraft({ replyTo: e.target.value })}
+                placeholder="support@acme.com"
+              />
+            </div>
+            <div className="md:col-span-2 flex items-start gap-2 rounded-[var(--zoru-radius)] border border-amber-500/30 bg-amber-500/5 p-3 text-xs text-amber-700">
+              <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
+              <p>
+                If this address isn&apos;t verified in the Email module, sends
+                will fail. Verify it first under{' '}
+                <Link
+                  href="/dashboard/email/settings"
+                  className="underline font-medium"
+                >
+                  Email → Settings
+                </Link>
+                .
+              </p>
+            </div>
+          </div>
+        ),
+        validate: (d) => {
+          if (!d.fromAddress || !/^.+@.+\..+$/.test(d.fromAddress)) {
+            return 'A valid From: address is required.';
+          }
+          return null;
+        },
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        render: ({ draft }) => (
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">From</dt>
+              <dd className="mt-0.5 font-medium">
+                {draft.fromName ? `${draft.fromName} <${draft.fromAddress}>` : draft.fromAddress}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Reply-to</dt>
+              <dd className="mt-0.5 font-medium">{draft.replyTo || '—'}</dd>
+            </div>
+          </dl>
+        ),
+      },
+    ],
+    [],
+  );
 
   return (
     <EntityListShell
       title="SMTP"
-      subtitle="Outbound email server for transactional email."
+      subtitle="Route CRM emails through the SabNode Email module."
     >
-
-      <ZoruCard className="p-6">
-        <div className="mb-4 flex items-center gap-2">
-          <ZoruBadge variant={doc?.verified ? 'success' : 'ghost'}>
-            {doc?.verified ? 'Verified' : 'Unverified'}
-          </ZoruBadge>
-        </div>
-
-        {!doc && !id ? (
-          <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
-          </div>
-        ) : null}
-
-        <form action={saveFormAction} className="space-y-4">
-          {id ? <input type="hidden" name="_id" value={id} /> : null}
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <ZoruLabel htmlFor="mail_driver">Mail Driver</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="mail_driver"
-                  name="mail_driver"
-                  defaultValue={v('mail_driver') || 'smtp'}
-                  placeholder="smtp"
-                />
+      <ModuleConnectionWizard<SmtpDraft>
+        moduleKey="smtp"
+        title="SMTP"
+        subtitle="The CRM sends transactional emails via the SabNode Email module."
+        icon={Mail}
+        targetModuleLabel="Email module"
+        defaultDraft={DEFAULT_DRAFT}
+        steps={steps}
+        manageView={({ connection, onReconnect }) => (
+          <ZoruCard>
+            <ZoruCardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">From</p>
+                  <p className="mt-0.5 font-medium">
+                    {connection.config.fromName
+                      ? `${connection.config.fromName} <${connection.config.fromAddress}>`
+                      : connection.config.fromAddress}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">Reply-to</p>
+                  <p className="mt-0.5 font-medium">
+                    {connection.config.replyTo || '—'}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">Status</p>
+                  <ZoruBadge>{connection.status}</ZoruBadge>
+                </div>
               </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="encryption">Encryption</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="encryption"
-                  name="encryption"
-                  defaultValue={v('encryption')}
-                  placeholder="tls / ssl"
-                />
+              <div className="flex justify-end gap-2">
+                <ZoruButton variant="outline" asChild>
+                  <Link href="/dashboard/email/settings">
+                    Open Email settings
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </ZoruButton>
+                <ZoruButton variant="ghost" onClick={onReconnect}>
+                  Edit
+                </ZoruButton>
               </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="host">Host</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="host"
-                  name="host"
-                  defaultValue={v('host')}
-                  placeholder="smtp.example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="port">Port</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="port"
-                  name="port"
-                  defaultValue={v('port')}
-                  placeholder="587"
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="username">Username</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="username"
-                  name="username"
-                  defaultValue={v('username')}
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="password">Password</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="password"
-                  name="password"
-                  type="password"
-                  defaultValue={v('password')}
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="from_email">From Email</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="from_email"
-                  name="from_email"
-                  type="email"
-                  defaultValue={v('from_email')}
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="from_name">From Name</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="from_name"
-                  name="from_name"
-                  defaultValue={v('from_name')}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-end gap-2 pt-2">
-            <ZoruButton
-              type="button"
-              onClick={onTest}
-              disabled={isTesting}
-            >
-              {isTesting ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="h-4 w-4" />
-              )}
-              Test
-            </ZoruButton>
-            <ZoruButton type="submit" disabled={isSaving}>
-              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              Save
-            </ZoruButton>
-          </div>
-        </form>
-      </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
+        )}
+      />
     </EntityListShell>
   );
 }

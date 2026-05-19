@@ -27,7 +27,6 @@ import {
   useRef,
   useEffect,
   useTransition } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   LoaderCircle,
   QrCode,
@@ -49,6 +48,8 @@ import {
   Share2,
   ChevronDown,
   ChevronUp,
+  Palette,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { SabFilePickerButton } from '@/components/sabfiles';
 import { useToast } from '@/hooks/use-toast';
@@ -185,6 +186,7 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
 
     const [styleOpen, setStyleOpen] = useState(false);
     const [frameOpen, setFrameOpen] = useState(false);
+    const [designSection, setDesignSection] = useState<'colors' | 'branding'>('colors');
     const [downloadFormat, setDownloadFormat] = useState<DownloadFormat>('png');
     const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
 
@@ -582,12 +584,39 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                         <div className="space-y-4">
                             <ZoruLabel className="text-base">Design Customization</ZoruLabel>
 
-                            <Tabs defaultValue="colors" className="w-full">
-                                <TabsList className="w-full justify-start">
-                                    <TabsTrigger value="colors">Colors</TabsTrigger>
-                                    <TabsTrigger value="branding">Logo & Branding</TabsTrigger>
-                                </TabsList>
-                                <TabsContent value="colors" className="space-y-4 mt-4">
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <nav
+                                    aria-label="Design customization sections"
+                                    className="sm:w-44 flex-shrink-0 flex sm:flex-col gap-1 p-1 rounded-md border border-zoru-line bg-zoru-surface-2/40 sm:self-start"
+                                >
+                                    {[
+                                        { id: 'colors' as const, label: 'Colors', icon: Palette },
+                                        { id: 'branding' as const, label: 'Logo & Branding', icon: ImageIcon },
+                                    ].map((item) => {
+                                        const Icon = item.icon;
+                                        const isActive = designSection === item.id;
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                type="button"
+                                                onClick={() => setDesignSection(item.id)}
+                                                aria-current={isActive ? 'true' : undefined}
+                                                className={cn(
+                                                    'flex items-center gap-2 px-3 py-2 text-[12.5px] rounded-md transition-colors text-left flex-1 sm:flex-none',
+                                                    isActive
+                                                        ? 'bg-zoru-bg text-zoru-ink shadow-sm border border-zoru-line'
+                                                        : 'text-zoru-ink-muted hover:bg-zoru-bg hover:text-zoru-ink border border-transparent',
+                                                )}
+                                            >
+                                                <Icon className="h-3.5 w-3.5 flex-shrink-0" />
+                                                {item.label}
+                                            </button>
+                                        );
+                                    })}
+                                </nav>
+                                <div className="flex-1 min-w-0">
+                                {designSection === 'colors' && (
+                                <div className="space-y-4">
                                     {brandKits.length > 0 && (
                                         <div className="space-y-1.5">
                                             <div className="flex items-center justify-between">
@@ -667,8 +696,10 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                         </ZoruSelect>
                                         <p className="text-xs text-muted-foreground">Higher correction allowed more damage/logo obstruction.</p>
                                     </div>
-                                </TabsContent>
-                                <TabsContent value="branding" className="space-y-4 mt-4">
+                                </div>
+                                )}
+                                {designSection === 'branding' && (
+                                <div className="space-y-4">
                                     <div className="space-y-2">
                                         <ZoruLabel>Upload Logo (Center Image)</ZoruLabel>
                                         <div className="flex items-center gap-4">
@@ -693,8 +724,10 @@ export function QrCodeGenerator({ user }: { user: Omit<UserType, 'password'> & {
                                             </div>
                                         </div>
                                     </div>
-                                </TabsContent>
-                            </Tabs>
+                                </div>
+                                )}
+                                </div>
+                            </div>
                         </div>
 
                         <div className="border rounded-lg overflow-hidden">

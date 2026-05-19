@@ -18,16 +18,10 @@ import {
   ZoruBreadcrumbSeparator,
   ZoruButton,
   ZoruCard,
-  ZoruInput,
   ZoruPageDescription,
   ZoruPageHeader,
   ZoruPageHeading,
   ZoruPageTitle,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
   ZoruSkeleton,
   cn,
   useZoruToast,
@@ -50,10 +44,10 @@ import {
   LoaderCircle,
   MessageSquare,
   QrCode,
-  Search,
   Trash2,
   Upload,
   } from 'lucide-react';
+import { QrCodeSidebar } from '@/components/wabasimplify/qr-code-sidebar';
 import Link from 'next/link';
 import { getSession } from '@/app/actions/index';
 import { deleteManyQrCodes,
@@ -77,29 +71,6 @@ type TypeFilter = 'all' | 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
 
 const PAGE_SIZES = [10, 25, 50];
 const RECENT_MS = 24 * 60 * 60 * 1000;
-
-const typeOptions: Array<{ value: TypeFilter; label: string }> = [
-  { value: 'all', label: 'All types' },
-  { value: 'url', label: 'URL' },
-  { value: 'text', label: 'Text' },
-  { value: 'email', label: 'Email' },
-  { value: 'phone', label: 'Phone' },
-  { value: 'sms', label: 'SMS' },
-  { value: 'wifi', label: 'WiFi' },
-];
-
-const sortOptions: Array<{ value: SortKey; label: string }> = [
-  { value: 'newest', label: 'Newest first' },
-  { value: 'oldest', label: 'Oldest first' },
-  { value: 'name-asc', label: 'Name A–Z' },
-  { value: 'name-desc', label: 'Name Z–A' },
-];
-
-const dynamicOptions: Array<{ value: DynamicFilter; label: string }> = [
-  { value: 'all', label: 'All' },
-  { value: 'dynamic', label: 'Dynamic only' },
-  { value: 'static', label: 'Static only' },
-];
 
 function downloadCsv(filename: string, rows: string[][]) {
   const escape = (v: string) => {
@@ -450,69 +421,24 @@ export default function QrCodeMakerPage() {
           <QrCodeGenerator user={session.user} />
         </ZoruCard>
 
-        {/* Saved QR Codes */}
+        {/* Saved QR Codes — sidebar + table */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          <QrCodeSidebar
+            search={search}
+            onSearchChange={setSearch}
+            typeFilter={typeFilter}
+            onTypeChange={setTypeFilter}
+            dynamicFilter={dynamicFilter}
+            onDynamicChange={setDynamicFilter}
+            sortKey={sortKey}
+            onSortChange={setSortKey}
+          />
+          <div className="flex-1 min-w-0">
         <ZoruCard className="p-0">
           <div className="flex items-center justify-between border-b border-zoru-line px-5 py-4">
             <h2 className="text-[15px] text-zoru-ink">Your Saved QR Codes</h2>
             <div className="text-[11.5px] text-zoru-ink-muted">
               {filtered.length} of {qrCodes.length}
-            </div>
-          </div>
-
-          {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line px-5 py-3.5">
-            <div className="flex-1 min-w-[220px]">
-              <ZoruInput
-                placeholder="Search by name..."
-                leadingSlot={<Search />}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="min-w-[140px]">
-              <ZoruSelect value={typeFilter} onValueChange={(v) => setTypeFilter(v as TypeFilter)}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {typeOptions.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <div className="min-w-[140px]">
-              <ZoruSelect
-                value={dynamicFilter}
-                onValueChange={(v) => setDynamicFilter(v as DynamicFilter)}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {dynamicOptions.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <div className="min-w-[160px]">
-              <ZoruSelect value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {sortOptions.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
             </div>
           </div>
 
@@ -820,6 +746,8 @@ export default function QrCodeMakerPage() {
             </div>
           ) : null}
         </ZoruCard>
+          </div>
+        </div>
       </div>
     </>
   );

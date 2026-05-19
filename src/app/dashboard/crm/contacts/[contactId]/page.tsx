@@ -131,8 +131,8 @@ export default function CrmContactDetailPage() {
     return 'danger';
   };
 
-  const dealStageVariant = (stage: string): 'success' | 'danger' | 'ghost' => {
-    const s = stage.toLowerCase();
+  const dealStageVariant = (stage: string | null | undefined): 'success' | 'danger' | 'ghost' => {
+    const s = (stage ?? '').toLowerCase();
     if (s === 'won') return 'success';
     if (s === 'lost') return 'danger';
     return 'ghost';
@@ -336,7 +336,7 @@ export default function CrmContactDetailPage() {
                             {deal.name}
                           </ZoruTableCell>
                           <ZoruTableCell>
-                            <ZoruBadge variant={dealStageVariant(deal.stage)}>{deal.stage}</ZoruBadge>
+                            <ZoruBadge variant={dealStageVariant(deal.stage)}>{deal.stage ?? '—'}</ZoruBadge>
                           </ZoruTableCell>
                           <ZoruTableCell className="text-right font-medium text-zoru-ink">
                             {new Intl.NumberFormat('en-US', {

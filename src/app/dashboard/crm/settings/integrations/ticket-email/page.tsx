@@ -1,190 +1,221 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-  } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import * as React from 'react';
+import Link from 'next/link';
+import { Mail, Inbox, Ticket, ArrowUpRight } from 'lucide-react';
 
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruInput,
+  ZoruLabel,
+  ZoruSwitch,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  getTicketEmailSetting,
-  saveTicketEmailSetting,
-} from '@/app/actions/worksuite/integrations.actions';
-import type { WsTicketEmailSetting } from '@/lib/worksuite/integrations-types';
+  ModuleConnectionWizard,
+  type ModuleWizardStep,
+} from '@/components/crm/module-connection-wizard';
 
-type Doc = (WsTicketEmailSetting & { _id: unknown }) | null;
+type TicketEmailDraft = {
+  inboxAddress: string;
+  autoCreateTicket: boolean;
+  defaultCategory: string;
+  defaultAssignee: string;
+};
 
-export default function TicketEmailIntegrationPage() {
-  const { toast } = useZoruToast();
-  const [doc, setDoc] = useState<Doc>(null);
-  const [autoReply, setAutoReply] = useState(false);
-  const [, startLoading] = useTransition();
-  const [saveState, saveFormAction, isSaving] = useActionState(
-    saveTicketEmailSetting,
-    { message: '', error: '' } as {
-      message?: string;
-      error?: string;
-      id?: string;
-    },
+const DEFAULT_DRAFT: TicketEmailDraft = {
+  inboxAddress: '',
+  autoCreateTicket: true,
+  defaultCategory: '',
+  defaultAssignee: '',
+};
+
+export default function TicketEmailPage() {
+  const steps = React.useMemo<ModuleWizardStep<TicketEmailDraft>[]>(
+    () => [
+      {
+        id: 'intro',
+        title: 'Welcome',
+        description:
+          'Forward customer emails to an inbox in the Email module and we’ll turn each new conversation into a CRM ticket.',
+        render: () => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {[
+              { icon: Inbox, title: '1. Email arrives', body: 'A customer emails your support address.' },
+              { icon: Mail, title: '2. Routed by Email module', body: 'The SabNode Email module receives, deduplicates, and threads it.' },
+              { icon: Ticket, title: '3. CRM ticket opens', body: 'A ticket is created with sender, subject, and the message body.' },
+            ].map((p) => (
+              <div
+                key={p.title}
+                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
+              >
+                <p.icon className="h-5 w-5 text-zoru-ink" />
+                <p className="mt-2 text-sm font-medium">{p.title}</p>
+                <p className="mt-1 text-xs text-zoru-ink-muted">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        ),
+      },
+      {
+        id: 'inbox',
+        title: 'Inbox address',
+        description:
+          'The address customers email. It must already be receiving in the Email module.',
+        render: ({ draft, setDraft }) => (
+          <div className="space-y-3">
+            <div>
+              <ZoruLabel htmlFor="inboxAddress">Inbox address</ZoruLabel>
+              <ZoruInput
+                id="inboxAddress"
+                type="email"
+                value={draft.inboxAddress}
+                onChange={(e) => setDraft({ inboxAddress: e.target.value })}
+                placeholder="support@acme.com"
+              />
+            </div>
+            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
+              <ZoruSwitch
+                checked={draft.autoCreateTicket}
+                onCheckedChange={(v) => setDraft({ autoCreateTicket: v })}
+                className="mt-1"
+              />
+              <div>
+                <ZoruLabel className="text-sm">Auto-create ticket</ZoruLabel>
+                <p className="text-xs text-zoru-ink-muted">
+                  Off = emails appear in the inbox only, no ticket is created.
+                </p>
+              </div>
+            </label>
+          </div>
+        ),
+        validate: (d) => {
+          if (!d.inboxAddress || !/^.+@.+\..+$/.test(d.inboxAddress)) {
+            return 'A valid inbox address is required.';
+          }
+          return null;
+        },
+      },
+      {
+        id: 'defaults',
+        title: 'Ticket defaults',
+        description: 'Optional defaults applied to incoming tickets.',
+        render: ({ draft, setDraft }) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <ZoruLabel htmlFor="defaultCategory">Default category</ZoruLabel>
+              <ZoruInput
+                id="defaultCategory"
+                value={draft.defaultCategory}
+                onChange={(e) => setDraft({ defaultCategory: e.target.value })}
+                placeholder="Support"
+              />
+            </div>
+            <div>
+              <ZoruLabel htmlFor="defaultAssignee">Default assignee email</ZoruLabel>
+              <ZoruInput
+                id="defaultAssignee"
+                type="email"
+                value={draft.defaultAssignee}
+                onChange={(e) => setDraft({ defaultAssignee: e.target.value })}
+                placeholder="ops@acme.com"
+              />
+            </div>
+          </div>
+        ),
+      },
+      {
+        id: 'review',
+        title: 'Review',
+        render: ({ draft }) => (
+          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Inbox</dt>
+              <dd className="mt-0.5 font-medium">{draft.inboxAddress}</dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Auto-create ticket</dt>
+              <dd className="mt-0.5 font-medium">
+                {draft.autoCreateTicket ? 'On' : 'Off'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Default category</dt>
+              <dd className="mt-0.5 font-medium">
+                {draft.defaultCategory || '—'}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-xs text-zoru-ink-muted">Default assignee</dt>
+              <dd className="mt-0.5 font-medium">
+                {draft.defaultAssignee || '—'}
+              </dd>
+            </div>
+          </dl>
+        ),
+      },
+    ],
+    [],
   );
-
-  const refresh = useCallback(() => {
-    startLoading(async () => {
-      const d = (await getTicketEmailSetting()) as Doc;
-      setDoc(d);
-      setAutoReply(Boolean(d?.auto_reply));
-    });
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  useEffect(() => {
-    if (saveState?.message) {
-      toast({ title: 'Saved', description: saveState.message });
-      refresh();
-    }
-    if (saveState?.error)
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
-  }, [saveState, toast, refresh]);
-
-  const v = (k: keyof WsTicketEmailSetting) => {
-    const val = doc ? (doc as any)[k] : undefined;
-    return val == null ? '' : String(val);
-  };
-
-  const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
 
   return (
     <EntityListShell
-      title="Ticket Email"
-      subtitle="IMAP inbox that converts incoming emails into tickets."
+      title="Ticket email"
+      subtitle="Turn incoming emails into CRM tickets via the Email module inbox."
     >
-
-      <ZoruCard className="p-6">
-        {!doc && !id ? (
-          <div className="space-y-4">
-            <ZoruSkeleton className="h-10 w-full" />
-            <ZoruSkeleton className="h-10 w-full" />
-          </div>
-        ) : null}
-
-        <form action={saveFormAction} className="space-y-4">
-          {id ? <input type="hidden" name="_id" value={id} /> : null}
-          <input
-            type="hidden"
-            name="auto_reply"
-            value={autoReply ? 'true' : 'false'}
-          />
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="md:col-span-2">
-              <ZoruLabel htmlFor="email_address">Email Address</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="email_address"
-                  name="email_address"
-                  type="email"
-                  defaultValue={v('email_address')}
-                  placeholder="support@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="imap_host">IMAP Host</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="imap_host"
-                  name="imap_host"
-                  defaultValue={v('imap_host')}
-                  placeholder="imap.example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="imap_port">IMAP Port</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="imap_port"
-                  name="imap_port"
-                  defaultValue={v('imap_port')}
-                  placeholder="993"
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="password">Password</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="password"
-                  name="password"
-                  type="password"
-                  defaultValue={v('password')}
-                />
-              </div>
-            </div>
-
-            <div>
-              <ZoruLabel htmlFor="encryption">Encryption</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruInput
-                  id="encryption"
-                  name="encryption"
-                  defaultValue={v('encryption')}
-                  placeholder="ssl / tls"
-                />
-              </div>
-            </div>
-
-            <div className="md:col-span-2 flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-bg px-4 py-3">
-              <div>
-                <div className="text-[13px] text-zoru-ink">Auto-reply</div>
-                <div className="text-[12px] text-zoru-ink-muted">
-                  Send an automatic acknowledgement when a ticket is created.
+      <ModuleConnectionWizard<TicketEmailDraft>
+        moduleKey="ticket-email"
+        title="Ticket email"
+        subtitle="Convert customer emails into CRM tickets automatically."
+        icon={Ticket}
+        targetModuleLabel="Email module"
+        defaultDraft={DEFAULT_DRAFT}
+        steps={steps}
+        manageView={({ connection, onReconnect }) => (
+          <ZoruCard>
+            <ZoruCardContent className="p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">Inbox</p>
+                  <p className="mt-0.5 font-medium">
+                    {connection.config.inboxAddress}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">Auto-create ticket</p>
+                  <ZoruBadge
+                    variant={
+                      connection.config.autoCreateTicket ? 'default' : 'outline'
+                    }
+                  >
+                    {connection.config.autoCreateTicket ? 'On' : 'Off'}
+                  </ZoruBadge>
+                </div>
+                <div>
+                  <p className="text-xs text-zoru-ink-muted">Default category</p>
+                  <p className="mt-0.5 font-medium">
+                    {connection.config.defaultCategory || '—'}
+                  </p>
                 </div>
               </div>
-              <ZoruSwitch
-                checked={autoReply}
-                onCheckedChange={setAutoReply}
-                aria-label="Auto-reply"
-              />
-            </div>
-
-            <div className="md:col-span-2">
-              <ZoruLabel htmlFor="auto_reply_body">Auto-reply Body</ZoruLabel>
-              <div className="mt-1.5">
-                <ZoruTextarea
-                  id="auto_reply_body"
-                  name="auto_reply_body"
-                  rows={5}
-                  defaultValue={v('auto_reply_body')}
-                  placeholder="Thanks for contacting us — we'll reply shortly."
-                />
+              <div className="flex justify-end gap-2">
+                <ZoruButton variant="outline" asChild>
+                  <Link href="/dashboard/email/inbox">
+                    Open Email inbox
+                    <ArrowUpRight className="h-4 w-4" />
+                  </Link>
+                </ZoruButton>
+                <ZoruButton variant="ghost" onClick={onReconnect}>
+                  Edit
+                </ZoruButton>
               </div>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <ZoruButton type="submit" disabled={isSaving}>
-              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-              Save
-            </ZoruButton>
-          </div>
-        </form>
-      </ZoruCard>
+            </ZoruCardContent>
+          </ZoruCard>
+        )}
+      />
     </EntityListShell>
   );
 }

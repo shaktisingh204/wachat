@@ -74,7 +74,6 @@ import {
   QrCode,
   ChevronsUpDown,
   Check,
-  Search,
   Download,
   Settings as SettingsIcon,
   ChevronLeft,
@@ -90,6 +89,7 @@ import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
 import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
 import { DatePicker } from '@/components/ui/date-picker';
+import { UrlShortenerSidebar } from '@/components/wabasimplify/url-shortener-sidebar';
 import Link from 'next/link';
 
 const initialState: any = { message: null, error: null };
@@ -516,21 +516,6 @@ export default function UrlShortenerPage() {
     ...verifiedDomains.map((d) => ({ value: d._id.toString(), label: d.hostname })),
   ];
 
-  const sortOptions: Array<{ value: SortKey; label: string }> = [
-    { value: 'newest', label: 'Newest first' },
-    { value: 'oldest', label: 'Oldest first' },
-    { value: 'most-clicks', label: 'Most clicks' },
-    { value: 'least-clicks', label: 'Least clicks' },
-    { value: 'alpha', label: 'Alias A–Z' },
-  ];
-
-  const statusOptions: Array<{ value: StatusKey; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'active', label: 'Active' },
-    { value: 'expiring-soon', label: 'Expiring soon' },
-    { value: 'expired', label: 'Expired' },
-  ];
-
   return (
     <>
       <QrCodeDialog
@@ -824,80 +809,23 @@ export default function UrlShortenerPage() {
           </form>
         </ZoruCard>
 
-        {/* ── Links table with filters ── */}
+        {/* ── Links table with sidebar filters ── */}
+        <div className="flex flex-col lg:flex-row gap-4">
+          <UrlShortenerSidebar
+            search={search}
+            onSearchChange={setSearch}
+            statusFilter={statusFilter}
+            onStatusChange={setStatusFilter}
+            sortKey={sortKey}
+            onSortChange={setSortKey}
+            userTags={user?.tags || []}
+            filterTagIds={filterTagIds}
+            onFilterTagsChange={setFilterTagIds}
+            selectedCollectionId={selectedCollectionId}
+            onSelectCollection={setSelectedCollectionId}
+          />
+          <div className="flex-1 min-w-0">
         <ZoruCard className="p-0">
-          <div className="flex flex-wrap items-center gap-3 border-b border-zoru-line px-5 py-3.5">
-            <div className="flex-1 min-w-[220px]">
-              <ZoruInput
-                placeholder="Search links by URL or alias..."
-                leadingSlot={<Search />}
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-            </div>
-            <div className="min-w-[160px]">
-              <ZoruSelect
-                value={statusFilter}
-                onValueChange={(v) => setStatusFilter(v as StatusKey)}
-              >
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {statusOptions.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            <div className="min-w-[160px]">
-              <ZoruSelect value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
-                <ZoruSelectTrigger>
-                  <ZoruSelectValue />
-                </ZoruSelectTrigger>
-                <ZoruSelectContent>
-                  {sortOptions.map((o) => (
-                    <ZoruSelectItem key={o.value} value={o.value}>
-                      {o.label}
-                    </ZoruSelectItem>
-                  ))}
-                </ZoruSelectContent>
-              </ZoruSelect>
-            </div>
-            {user?.tags && user.tags.length > 0 ? (
-              <div className="min-w-[180px] max-w-[240px]">
-                <TagsSelector
-                  userTags={user.tags}
-                  selectedTags={filterTagIds}
-                  onSelectionChange={setFilterTagIds}
-                  placeholder="Filter by tag..."
-                />
-              </div>
-            ) : null}
-            {collections.length > 0 ? (
-              <div className="min-w-[160px]">
-                <ZoruSelect value={selectedCollectionId ?? 'all'} onValueChange={(v) => setSelectedCollectionId(v === 'all' ? null : v)}>
-                  <ZoruSelectTrigger>
-                    <ZoruSelectValue placeholder="All Collections" />
-                  </ZoruSelectTrigger>
-                  <ZoruSelectContent>
-                    <ZoruSelectItem value="all">All Collections</ZoruSelectItem>
-                    {collections.map((c) => (
-                      <ZoruSelectItem key={c._id} value={c._id}>
-                        <span className="flex items-center gap-1.5">
-                          <span className="h-2 w-2 rounded-full inline-block" style={{ backgroundColor: c.color }} />
-                          {c.name}
-                        </span>
-                      </ZoruSelectItem>
-                    ))}
-                  </ZoruSelectContent>
-                </ZoruSelect>
-              </div>
-            ) : null}
-          </div>
-
           {selectedIds.size > 0 ? (
             <div className="flex items-center justify-between gap-3 border-b border-zoru-line bg-zoru-surface-2 px-5 py-2.5 text-[12.5px]">
               <span className="text-zoru-ink">
@@ -1164,6 +1092,8 @@ export default function UrlShortenerPage() {
             </div>
           ) : null}
         </ZoruCard>
+          </div>
+        </div>
       </div>
     </>
   );
