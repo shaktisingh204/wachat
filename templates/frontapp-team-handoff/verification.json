@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "templateId": "frontapp-team-handoff",
+  "cases": [
+    {
+      "id": "shift-handoff",
+      "description": "Front shift-change assignment posts to Slack + Mongo.",
+      "triggerPayload": {
+        "conversation": { "id": "cnv_1", "subject": "Server down" },
+        "previous_assignee": { "email": "asia@example.com" },
+        "assignee": { "email": "eu@example.com" },
+        "reason": "shift_change"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
