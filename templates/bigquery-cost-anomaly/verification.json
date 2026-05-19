@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "bigquery-cost-anomaly",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron compares BQ usage and alerts Slack on anomaly.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T06:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
