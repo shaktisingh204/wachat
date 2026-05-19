@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_redis_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "redis.maxmemory_alert",
+    "options": {
+      "path": "/webhooks/redis-eviction",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Redis-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_redis_trigger",
+      "name": "Redis Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "redis-eviction",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "redis-eviction-webhook"
+    },
+    {
+      "id": "n_extract_alert",
+      "name": "Extract Alert",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "cluster", "value": "={{ $json.cluster }}" },
+            { "name": "evictedKeys", "value": "={{ $json.evictedKeys }}" },
+            { "name": "usedMemoryHuman", "value": "={{ $json.used_memory_human }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_dedupe_window",
+      "name": "Dedupe 10m Window",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.DEDUPE_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "key", "value": "redis-evict-{{ $json.cluster }}" },
+            { "name": "ttlSeconds", "value": "600" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_ops",
+      "name": "Slack #ops",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":warning: Redis *{{ $json.cluster }}* evicted {{ $json.evictedKeys }} keys (mem={{ $json.usedMemoryHuman }}).",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_linear_issue",
+      "name": "Linear Ticket",
+      "type": "n8n-nodes-base.linear",
+      "typeVersion": 1,
+      "position": [720, 80],
+      "parameters": {
+        "resource": "issue",
+        "operation": "create",
+        "teamId": "={{ $vars.LINEAR_API_TEAM }}",
+        "title": "Redis {{ $json.cluster }} hitting maxmemory",
+        "description": "Evicted {{ $json.evictedKeys }} keys, used={{ $json.usedMemoryHuman }}."
+      },
+      "credentials": { "linearApi": { "id": "linear-cred", "name": "Linear API" } }
+    }
+  ],
+  "connections": {
+    "n_redis_trigger": { "main": [[{ "node": "n_extract_alert", "type": "main", "index": 0 }]] },
+    "n_extract_alert": { "main": [[{ "node": "n_dedupe_window", "type": "main", "index": 0 }]] },
+    "n_dedupe_window": {
+      "main": [
+        [
+          { "node": "n_slack_ops", "type": "main", "index": 0 },
+          { "node": "n_linear_issue", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Eviction",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_redis_trigger", "n_extract_alert", "n_dedupe_window", "n_slack_ops", "n_linear_issue"]
+    }
+  ],
+  "variables": [
+    { "id": "v_dedupe", "name": "DEDUPE_URL", "defaultValue": "https://dedupe.example.com/check" },
+    { "id": "v_slack", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops" },
+    { "id": "v_team", "name": "LINEAR_API_TEAM", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

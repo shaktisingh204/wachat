@@ -1,0 +1,10 @@
+{
+  "id": "redis-key-eviction-alert",
+  "name": "Redis Key Eviction Alert",
+  "description": "Receives Redis maxmemory eviction alerts, posts the alert to Slack #ops, and opens a Linear ticket so the team can size memory before users see cold caches. Turns a one-line metric into accountable work.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ops", "redis", "memory", "slack", "linear", "alert"],
+  "version": "0.1.0"
+}
