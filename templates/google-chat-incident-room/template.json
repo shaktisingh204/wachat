@@ -1,0 +1,10 @@
+{
+  "id": "google-chat-incident-room",
+  "name": "Google Chat Incident Room",
+  "description": "On every PagerDuty incident.triggered, spins up a fresh Google Chat space, invites the on-call rotation, posts the incident summary, and pings #incidents in Slack. Cuts the bridge-creation phase out of every page.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["pagerduty", "google-chat", "slack", "incident", "ops"],
+  "version": "0.1.0"
+}

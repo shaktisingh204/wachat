@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "freshdesk-aging-ticket",
+  "cases": [
+    {
+      "id": "aging-flagged",
+      "description": "Daily sweep finds aging Freshdesk tickets and routes to Slack alert branch.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T09:00:00-04:00" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "zulip-thread-archive",
+  "cases": [
+    {
+      "id": "weekly-archive",
+      "description": "Weekly cron archives Zulip topics and writes Notion rows.",
+      "triggerPayload": { "scheduledAt": "2026-05-25T03:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

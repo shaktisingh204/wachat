@@ -1,0 +1,10 @@
+{
+  "id": "line-customer-care",
+  "name": "LINE Customer Care Router",
+  "description": "On every LINE message.received event, classifies user intent with GPT-4o and routes support tickets into Zendesk while pushing sales conversations to the SDR queue. Keeps Japan/Thailand-focused inboxes from mixing the two flows.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["line", "openai", "support", "sales", "routing"],
+  "version": "0.1.0"
+}

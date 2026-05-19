@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_tw_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "twitter.mention.received",
+    "options": {
+      "path": "/webhooks/twitter-mention-care",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Tw-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_tw_trigger",
+      "name": "Twitter Mention",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "twitter-mention-care",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "twitter-mention-care"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Tweet",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tweetId", "value": "={{ $json.tweet_id }}" },
+            { "name": "author", "value": "={{ $json.user.screen_name }}" },
+            { "name": "text", "value": "={{ $json.text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sentiment",
+      "name": "OpenAI Tone",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Reply with one word: love or complaint." },
+            { "role": "user", "content": "={{ $json.text }}" }
+          ]
+        },
+        "options": { "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Tone",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tone", "value": "={{ $json.message.content.trim().toLowerCase() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Tone",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.tone }}", "operation": "equal", "value2": "complaint" }] }, "outputKey": "complaint" }
+          ]
+        },
+        "fallbackOutput": "love"
+      }
+    },
+    {
+      "id": "n_slack_support",
+      "name": "Slack Support",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SUPPORT_CHANNEL }}",
+        "text": ":warning: Complaint from @{{ $node['Extract Tweet'].json.author }}: \"{{ $node['Extract Tweet'].json.text }}\""
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_growth",
+      "name": "Slack Growth",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_GROWTH_CHANNEL }}",
+        "text": ":sparkling_heart: Love from @{{ $node['Extract Tweet'].json.author }}: \"{{ $node['Extract Tweet'].json.text }}\""
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_tw_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_sentiment", "type": "main", "index": 0 }]]
+    },
+    "n_sentiment": {
+      "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]]
+    },
+    "n_parse": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "complaint": [[{ "node": "n_slack_support", "type": "main", "index": 0 }]],
+      "love": [[{ "node": "n_slack_growth", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_tw_trigger", "n_extract", "n_sentiment", "n_parse", "n_route", "n_slack_support", "n_slack_growth"]
+    }
+  ],
+  "variables": [
+    { "id": "v_support", "name": "SLACK_SUPPORT_CHANNEL", "defaultValue": "#support-social" },
+    { "id": "v_growth", "name": "SLACK_GROWTH_CHANNEL", "defaultValue": "#growth-social" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

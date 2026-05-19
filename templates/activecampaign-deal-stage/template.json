@@ -1,0 +1,10 @@
+{
+  "id": "activecampaign-deal-stage",
+  "name": "ActiveCampaign Deal Stage Mirror",
+  "description": "When a deal moves stage in ActiveCampaign, mirrors the new stage and value into Pipedrive so reps using either CRM see consistent funnel state. Posts a Slack note when the deal crosses into closed-won.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["activecampaign", "pipedrive", "slack", "sales", "crm-sync"],
+  "version": "0.1.0"
+}

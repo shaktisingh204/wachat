@@ -1,0 +1,10 @@
+{
+  "id": "smartsheet-row-to-airtable",
+  "name": "Smartsheet Row to Airtable",
+  "description": "When a row is added to a tracked Smartsheet, this flow pushes a mirrored record into an Airtable base. Useful for teams that own work in Smartsheet but report from Airtable dashboards.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["smartsheet", "airtable", "ops", "sync", "automation"],
+  "version": "0.1.0"
+}

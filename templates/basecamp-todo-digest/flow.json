@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 8 * * 1-5",
+      "timezone": "America/New_York",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Weekday Morning Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 8 * * 1-5" }] }
+      }
+    },
+    {
+      "id": "n_fetch_todos",
+      "name": "Fetch Basecamp Todos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://3.basecampapi.com/{{ $vars.BASECAMP_ACCOUNT_ID }}/buckets/{{ $vars.BASECAMP_PROJECT_ID }}/todolists/{{ $vars.BASECAMP_TODOLIST_ID }}/todos.json?status=active",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "basecampOAuth2Api"
+      },
+      "credentials": {
+        "basecampOAuth2Api": { "id": "basecamp-cred", "name": "Basecamp OAuth2" }
+      }
+    },
+    {
+      "id": "n_filter_due_today",
+      "name": "Filter Due Today",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const today = new Date().toISOString().slice(0,10);\nreturn items.filter(i => (i.json.due_on || '').slice(0,10) === today);"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Todo",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Digest",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      }
+    },
+    {
+      "id": "n_send_email",
+      "name": "Email Digest",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.DIGEST_FROM_EMAIL }}",
+        "toEmail": "={{ $vars.DIGEST_TO_EMAIL }}",
+        "subject": "Today in Basecamp",
+        "contentType": "text/html",
+        "content": "<h2>Today's Basecamp todos</h2><ul>{{ $json.items.map(i => '<li>' + i.content + ' — ' + (i.assignees[0]?.name || 'unassigned') + '</li>').join('') }}</ul>"
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_fetch_todos", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_todos": {
+      "main": [[{ "node": "n_filter_due_today", "type": "main", "index": 0 }]]
+    },
+    "n_filter_due_today": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]]
+    },
+    "n_aggregate": {
+      "main": [[{ "node": "n_send_email", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_fetch_todos", "n_filter_due_today", "n_split", "n_aggregate", "n_send_email"]
+    }
+  ],
+  "variables": [
+    { "id": "v_account", "name": "BASECAMP_ACCOUNT_ID", "defaultValue": "" },
+    { "id": "v_project", "name": "BASECAMP_PROJECT_ID", "defaultValue": "" },
+    { "id": "v_list", "name": "BASECAMP_TODOLIST_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "DIGEST_FROM_EMAIL", "defaultValue": "ops@example.com" },
+    { "id": "v_to", "name": "DIGEST_TO_EMAIL", "defaultValue": "team@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

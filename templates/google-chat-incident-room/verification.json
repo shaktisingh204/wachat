@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "templateId": "google-chat-incident-room",
+  "cases": [
+    {
+      "id": "incident-bridge",
+      "description": "PD incident.triggered creates a Google Chat space, invites on-call, posts summary, and pings Slack.",
+      "triggerPayload": {
+        "event": {
+          "data": {
+            "id": "PDINC-001",
+            "title": "Checkout 5xx surge",
+            "service": { "summary": "checkout-api" },
+            "html_url": "https://example.pagerduty.com/incidents/PDINC-001"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

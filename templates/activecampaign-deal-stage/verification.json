@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "activecampaign-deal-stage",
+  "cases": [
+    {
+      "id": "stage-mirrored",
+      "description": "Deal stage change webhook mirrors into Pipedrive and conditionally announces wins.",
+      "triggerPayload": {
+        "deal": { "title": "Acme Year 1", "stage_title": "ClosedWon", "value": 24000, "owner_email": "rep@example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

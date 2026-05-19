@@ -1,0 +1,10 @@
+{
+  "id": "basecamp-todo-digest",
+  "name": "Basecamp Todo Digest",
+  "description": "Each weekday morning pulls Basecamp todos due today and emails a clean digest to the team via SendGrid. Keeps the daily list visible in inboxes without forcing everyone to log in to Basecamp.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["basecamp", "sendgrid", "digest", "ops", "schedule"],
+  "version": "0.1.0"
+}

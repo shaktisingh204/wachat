@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "kustomer-priority-escalate",
+  "cases": [
+    {
+      "id": "vip-escalated",
+      "description": "New VIP conversation routes to CX lead with Slack ping.",
+      "triggerPayload": {
+        "data": {
+          "id": "conv-vip-1",
+          "attributes": { "name": "Need help fast", "tags": ["vip"] },
+          "relationships": { "customer": { "data": { "attributes": { "name": "Acme Corp" } } } }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

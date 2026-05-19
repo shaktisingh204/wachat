@@ -1,0 +1,10 @@
+{
+  "id": "kustomer-priority-escalate",
+  "name": "Kustomer VIP Escalate",
+  "description": "On every new Kustomer conversation, checks whether the customer carries the VIP tag, and if so reassigns the conversation to the senior CX lead and alerts them in Slack. Keeps VIPs out of generic queues.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["kustomer", "slack", "vip", "support", "escalation"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_deploy_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "ci.deploy.completed",
+    "options": {
+      "path": "/webhooks/mattermost-deploy-bot",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-CI-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_deploy_trigger",
+      "name": "CI Deploy Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mattermost-deploy-bot",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "mattermost-deploy-bot"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Deploy Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "service", "value": "={{ $json.service }}" },
+            { "name": "env", "value": "={{ $json.environment }}" },
+            { "name": "sha", "value": "={{ $json.commit.sha }}" },
+            { "name": "actor", "value": "={{ $json.commit.author }}" },
+            { "name": "message", "value": "={{ $json.commit.message }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Notice",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "text", "value": ":rocket: **{{ $json.service }}** deployed to *{{ $json.env }}* by {{ $json.actor }} — `{{ $json.sha }}`\\n> {{ $json.message }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_post_mm",
+      "name": "Post to Mattermost",
+      "type": "n8n-nodes-base.mattermost",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "channelId": "={{ $vars.MATTERMOST_CHANNEL_ID }}",
+        "message": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "mattermostApi": { "id": "mattermost-cred", "name": "Mattermost API" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_deploy_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_format", "type": "main", "index": 0 }]]
+    },
+    "n_format": {
+      "main": [[{ "node": "n_post_mm", "type": "main", "index": 0 }]]
+    },
+    "n_post_mm": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_deploy_trigger", "n_extract", "n_format", "n_post_mm", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_channel", "name": "MATTERMOST_CHANNEL_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

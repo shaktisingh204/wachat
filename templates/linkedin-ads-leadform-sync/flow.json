@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_li_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "linkedin.leadgen.submit",
+    "options": {
+      "path": "/webhooks/linkedin-ads-leadform-sync",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-LI-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_li_trigger",
+      "name": "LinkedIn Lead Form Submit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linkedin-ads-leadform-sync",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "linkedin-ads-leadform-sync"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ ($json.formResponse.answers.find(a=>a.questionId==='email') || {}).rawAnswer }}" },
+            { "name": "firstName", "value": "={{ ($json.formResponse.answers.find(a=>a.questionId==='firstName') || {}).rawAnswer }}" },
+            { "name": "lastName", "value": "={{ ($json.formResponse.answers.find(a=>a.questionId==='lastName') || {}).rawAnswer }}" },
+            { "name": "company", "value": "={{ ($json.formResponse.answers.find(a=>a.questionId==='company') || {}).rawAnswer }}" },
+            { "name": "campaign", "value": "={{ $json.campaignId }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_dedupe_check",
+      "name": "Recent Dupe?",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "findOne",
+        "collection": "li_lead_dedupe",
+        "query": "={\"email\":\"{{ $json.email }}\"}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "Upsert HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $node['Extract Lead'].json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $node['Extract Lead'].json.firstName }}",
+          "lastName": "={{ $node['Extract Lead'].json.lastName }}",
+          "company": "={{ $node['Extract Lead'].json.company }}",
+          "source": "linkedin-ads",
+          "campaign": "={{ $node['Extract Lead'].json.campaign }}"
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_record_dedupe",
+      "name": "Record Dedupe",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "li_lead_dedupe",
+        "fields": "email,seenAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack LinkedIn Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_LI_CHANNEL }}",
+        "text": ":briefcase: New LinkedIn lead *{{ $node['Extract Lead'].json.firstName }} {{ $node['Extract Lead'].json.lastName }}* ({{ $node['Extract Lead'].json.company }}) — campaign {{ $node['Extract Lead'].json.campaign }}."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_li_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_dedupe_check", "type": "main", "index": 0 }]]
+    },
+    "n_dedupe_check": {
+      "main": [[{ "node": "n_hubspot", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot": {
+      "main": [[{ "node": "n_record_dedupe", "type": "main", "index": 0 }]]
+    },
+    "n_record_dedupe": {
+      "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_li_trigger", "n_extract", "n_dedupe_check", "n_hubspot", "n_record_dedupe", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack", "name": "SLACK_LI_CHANNEL", "defaultValue": "#linkedin-ads" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

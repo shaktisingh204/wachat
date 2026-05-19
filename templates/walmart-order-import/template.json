@@ -1,0 +1,10 @@
+{
+  "id": "walmart-order-import",
+  "name": "Walmart Order Import to Shopify",
+  "description": "When Walmart Marketplace reports a new order, creates a mirror order in Shopify so a single fulfillment workflow can serve both channels. Stops Walmart orders from drifting outside the main fulfillment view.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["walmart", "shopify", "e-commerce", "order-mirror", "marketplace"],
+  "version": "0.1.0"
+}

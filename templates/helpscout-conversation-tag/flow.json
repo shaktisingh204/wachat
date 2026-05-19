@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_hs_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "helpscout.convo.created",
+    "options": {
+      "path": "/webhooks/helpscout-conversation-tag",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HelpScout-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_hs_trigger",
+      "name": "Help Scout Conversation Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "helpscout-conversation-tag",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "helpscout-conversation-tag"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Body",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "convoId", "value": "={{ $json.id }}" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "body", "value": "={{ $json.threads[0].body }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_classify",
+      "name": "GPT-4o Topic Classify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON: { tags: string[] } — choose 1-3 short kebab-case topic tags from the message (e.g. 'billing-question', 'login-issue', 'feature-request')." },
+            { "role": "user", "content": "Subject: {{ $json.subject }}\n\n{{ $json.body }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_tags",
+      "name": "Parse Tag List",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tags", "value": "={{ JSON.parse($json.message.content).tags.join(',') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_apply_tags",
+      "name": "Apply Help Scout Tags",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.helpscout.net/v2/conversations/{{ $node['Extract Body'].json.convoId }}/tags",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "tags", "value": "={{ $node['Parse Tag List'].json.tags.split(',') }}" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "helpscoutOAuth2Api"
+      },
+      "credentials": {
+        "helpscoutOAuth2Api": { "id": "helpscout-cred", "name": "Help Scout OAuth2" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true,\"tags\":\"{{ $node['Parse Tag List'].json.tags }}\"}"
+      }
+    }
+  ],
+  "connections": {
+    "n_hs_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_classify", "type": "main", "index": 0 }]]
+    },
+    "n_classify": {
+      "main": [[{ "node": "n_parse_tags", "type": "main", "index": 0 }]]
+    },
+    "n_parse_tags": {
+      "main": [[{ "node": "n_apply_tags", "type": "main", "index": 0 }]]
+    },
+    "n_apply_tags": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_hs_trigger", "n_extract", "n_classify", "n_parse_tags", "n_apply_tags", "n_respond"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

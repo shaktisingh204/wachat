@@ -1,0 +1,10 @@
+{
+  "id": "reddit-mention-monitor",
+  "name": "Reddit Mention Monitor",
+  "description": "Once an hour, searches Reddit for new brand mentions and posts a digest to a Slack social channel. Keeps social listening alive without a $200/mo dashboard tool.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["reddit", "slack", "marketing", "social-listening", "schedule"],
+  "version": "0.1.0"
+}

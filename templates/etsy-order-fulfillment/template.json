@@ -1,0 +1,10 @@
+{
+  "id": "etsy-order-fulfillment",
+  "name": "Etsy Order Fulfillment",
+  "description": "When Etsy reports a new order, creates a ShipStation shipping label and writes the tracking number back to the Etsy order. Shrinks the small-shop fulfillment loop from minutes to seconds.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["etsy", "shipstation", "e-commerce", "fulfillment", "shipping"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_order_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/fb-conversion-api-mirror",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_order_trigger",
+      "name": "Shopify Order Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fb-conversion-api-mirror",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "fb-conversion-api-mirror"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "orderId", "value": "={{ $json.id }}" },
+            { "name": "email", "value": "={{ $json.email }}" },
+            { "name": "phone", "value": "={{ $json.phone }}" },
+            { "name": "value", "value": "={{ $json.total_price }}" },
+            { "name": "currency", "value": "={{ $json.currency }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hash",
+      "name": "Hash Identifiers",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const crypto = require('crypto');\nconst sha256 = s => crypto.createHash('sha256').update(String(s||'').trim().toLowerCase()).digest('hex');\nreturn items.map(i => ({ json: { ...i.json, em: sha256(i.json.email), ph: sha256(i.json.phone) } }));"
+      }
+    },
+    {
+      "id": "n_capi_post",
+      "name": "Meta CAPI Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v18.0/{{ $vars.META_PIXEL_ID }}/events?access_token={{ $vars.META_ACCESS_TOKEN }}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"data\":[{\"event_name\":\"Purchase\",\"event_time\":{{ Math.floor(Date.now()/1000) }},\"action_source\":\"website\",\"user_data\":{\"em\":[\"{{ $json.em }}\"],\"ph\":[\"{{ $json.ph }}\"]},\"custom_data\":{\"currency\":\"{{ $json.currency }}\",\"value\":{{ $json.value }}}}]}"
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo CAPI Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "meta_capi_calls",
+        "fields": "orderId,value,currency,sentAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_order_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_hash", "type": "main", "index": 0 }]]
+    },
+    "n_hash": {
+      "main": [[{ "node": "n_capi_post", "type": "main", "index": 0 }]]
+    },
+    "n_capi_post": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_log": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_order_trigger", "n_extract", "n_hash", "n_capi_post", "n_mongo_log", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_pixel", "name": "META_PIXEL_ID", "defaultValue": "" },
+    { "id": "v_token", "name": "META_ACCESS_TOKEN", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

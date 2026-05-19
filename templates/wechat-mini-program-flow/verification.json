@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "wechat-mini-program-flow",
+  "cases": [
+    {
+      "id": "form-submitted",
+      "description": "WeChat form upserts HubSpot then sends template message.",
+      "triggerPayload": {
+        "openid": "oWX_USER_001",
+        "formData": { "name": "Li Wei", "email": "liwei@example.cn", "phone": "+8613800000000", "company": "Beijing Tech" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
