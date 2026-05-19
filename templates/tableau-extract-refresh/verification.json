@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "tableau-extract-refresh",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Tableau extract refresh failure routes to Slack #bi.",
+      "triggerPayload": { "resource_luid": "ds-abc", "resource_name": "Orders" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
