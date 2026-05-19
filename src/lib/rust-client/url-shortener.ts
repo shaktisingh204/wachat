@@ -129,6 +129,15 @@ export interface VerifyPasswordBody {
     passwordHash: string;
 }
 
+export interface HistoryEntry {
+    url: string;
+    changedAt: string; // ISO string
+}
+
+export interface RollbackBody {
+    url: string;
+}
+
 export interface VerifyPasswordResult {
     valid: boolean;
     originalUrl?: string;
@@ -275,6 +284,15 @@ export const urlShortenerApi = {
 
     getAnalyticsReferrers: (id: string) =>
         rustFetch<AnalyticsReferrersResult>(`${BASE}/${encodeURIComponent(id)}/analytics/referrers`),
+
+    getHistory: (id: string) =>
+        rustFetch<HistoryEntry[]>(`${BASE}/${encodeURIComponent(id)}/history`),
+
+    rollback: (id: string, body: RollbackBody) =>
+        rustFetch<{ success: boolean }>(`${BASE}/${encodeURIComponent(id)}/rollback`, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
 };
 
 export type UrlShortenerApi = typeof urlShortenerApi;

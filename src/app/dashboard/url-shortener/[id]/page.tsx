@@ -36,6 +36,8 @@ import { DeviceBreakdownChart } from '@/components/wabasimplify/device-breakdown
 import { ReferrerTable } from '@/components/wabasimplify/referrer-table';
 import { AnalyticsTabsShell } from '@/components/wabasimplify/analytics-tabs-shell';
 import { EditLinkDrawer } from '@/components/wabasimplify/edit-link-drawer';
+import { LinkHistoryDrawer } from '@/components/wabasimplify/link-history-drawer';
+import { SharePermissionsModal } from '@/components/wabasimplify/share-permissions-modal';
 
 export const dynamic = 'force-dynamic';
 
@@ -177,6 +179,11 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            <SharePermissionsModal
+              resourceType="url"
+              resourceId={shortUrl._id.toString()}
+              resourceName={shortUrl.shortCode}
+            />
             <ZoruButton variant="ghost" size="sm" asChild>
               <Link href="/dashboard/url-shortener">
                 <ArrowLeft className="h-3.5 w-3.5" />
@@ -214,7 +221,13 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: Promis
                 <Settings className="h-4 w-4 text-zoru-ink-muted" />
                 <span className="text-[13px] text-zoru-ink">Link Details</span>
               </div>
-              <EditLinkDrawer shortUrl={shortUrl} />
+              <div className="flex items-center gap-2">
+                <LinkHistoryDrawer
+                  linkId={shortUrl._id.toString()}
+                  currentUrl={shortUrl.originalUrl}
+                />
+                <EditLinkDrawer shortUrl={shortUrl} />
+              </div>
             </div>
             <dl className="space-y-3 text-[13px]">
               <div className="grid grid-cols-[160px_1fr] gap-2">

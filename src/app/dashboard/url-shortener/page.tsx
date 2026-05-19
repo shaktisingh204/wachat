@@ -58,6 +58,7 @@ import {
   deleteShortUrl,
   deleteManyShortUrls,
   } from '@/app/actions/url-shortener.actions';
+import { getCollections } from '@/app/actions/url-collections.actions';
 import type { WithId,
   ShortUrl,
   User,
@@ -294,13 +295,19 @@ export default function UrlShortenerPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isBulkDeleting, startBulkDelete] = useTransition();
   const [notesPanel, setNotesPanel] = useState<{ id: string } | null>(null);
+  const [selectedCollectionId, setSelectedCollectionId] = useState<string | null>(null);
+  const [collections, setCollections] = useState<{ _id: string; name: string; color: string; linkIds: string[] }[]>([]);
 
   const fetchUrls = useCallback(() => {
     startLoadingTransition(async () => {
-      const { user: u, urls: urlData, domains: d } = await getShortUrls();
+      const [{ user: u, urls: urlData, domains: d }, cols] = await Promise.all([
+        getShortUrls(),
+        getCollections(),
+      ]);
       setUser(u);
       setUrls(urlData);
       setDomains(d);
+      setCollections(cols);
       setSelectedIds(new Set());
     });
   }, []);
@@ -365,6 +372,10 @@ export default function UrlShortenerPage() {
         if (!ok) return false;
       }
       if (statusFilter !== 'all' && getStatus(u) !== statusFilter) return false;
+      if (selectedCollectionId) {
+        const col = collections.find((c) => c._id === selectedCollectionId);
+        if (!(col?.linkIds.includes(u._id.toString()) ?? false)) return false;
+      }
       return true;
     });
 
@@ -384,16 +395,15 @@ export default function UrlShortenerPage() {
       }
     });
     return list;
-  }, [urls, search, filterTagIds, statusFilter, sortKey, getStatus]);
+  }, [urls, search, filterTagIds, statusFilter, sortKey, getStatus, selectedCollectionId, collections]);
 
   // Pagination clamp
   const pageCount = Math.max(1, Math.ceil(filteredUrls.length / pageSize));
   const currentPage = Math.min(page, pageCount);
   const pageSlice = filteredUrls.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   useEffect(() => {
-    // Reset to page 1 when filters change
     setPage(1);
-  }, [search, filterTagIds, statusFilter, sortKey, pageSize]);
+  }, [search, filterTagIds, statusFilter, sortKey, pageSize, selectedCollectionId]);
 
   // ── Stats ──────────────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -864,6 +874,26 @@ export default function UrlShortenerPage() {
                   onSelectionChange={setFilterTagIds}
                   placeholder="Filter by tag..."
                 />
+              </div>
+            ) : null}
+            {collections.length > 0 ? (
+              <div className="min-w-[160px]">
+                <ZoruSelect value={selectedCollectionId ?? 'all'} onValueChange={(v) => setSelectedCollectionId(v === 'all' ? null : v)}>
+                  <ZoruSelectTrigger>
+                    <ZoruSelectValue placeholder="All Collections" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All Collections</ZoruSelectItem>
+                    {collections.map((c) => (
+                      <ZoruSelectItem key={c._id} value={c._id}>
+                        <span className="flex items-center gap-1.5">
+                          <span className="h-2 w-2 rounded-full inline-block" style={{ backgroundColor: c.color }} />
+                          {c.name}
+                        </span>
+                      </ZoruSelectItem>
+                    ))}
+                  </ZoruSelectContent>
+                </ZoruSelect>
               </div>
             ) : null}
           </div>

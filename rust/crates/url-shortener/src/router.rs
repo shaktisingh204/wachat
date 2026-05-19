@@ -5,7 +5,7 @@ use std::sync::Arc;
 use axum::{
     Json, Router,
     extract::{FromRef, Multipart, Path, Query, State},
-    routing::{delete as axum_delete, get, post},
+    routing::{delete as axum_delete, get, patch, post},
 };
 use sabnode_auth::{AuthConfig, AuthUser};
 use sabnode_common::Result;
@@ -19,7 +19,7 @@ use crate::{
     store::{
         self, AddDomainBody, AddDomainResult, BulkCreateBody, BulkCreateResult, CreateBody,
         CreateResult, DeleteDomainResult, DeleteManyBody, DeleteManyResult, DeleteOneResult,
-        VerifyDomainResult,
+        UpdateBody, VerifyDomainResult,
     },
 };
 
@@ -39,7 +39,9 @@ where
         .route("/delete-many", post(delete_many))
         .route("/count", get(count_user))
         .route("/admin/count-global", post(count_global))
-        .route("/{id}", get(get_one).delete(delete_one))
+        .route("/{id}", get(get_one).delete(delete_one).patch(update_one))
+        .route("/{id}/history", get(get_history_handler))
+        .route("/{id}/rollback", post(rollback_handler))
         // Analytics sub-routes — must come before /{id} catch-all in declaration
         // but Axum route matching is exact-then-parameterised so order here is fine.
         .route("/{id}/analytics/timeline", get(analytics_timeline))
@@ -323,4 +325,48 @@ async fn activate_scheduled_handler(
     }
     let activated = store::activate_scheduled_links(&s.mongo).await?;
     Ok(Json(ActivateScheduledResult { activated }))
+}
+
+// ---------------------------------------------------------------------------
+// Update handler (PATCH /{id})
+// ---------------------------------------------------------------------------
+
+async fn update_one(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+    Json(body): Json<UpdateBody>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    let ok = store::update(&s.mongo, oid, &id, body).await?;
+    Ok(Json(serde_json::json!({ "success": ok })))
+}
+
+// ---------------------------------------------------------------------------
+// History handlers
+// ---------------------------------------------------------------------------
+
+async fn get_history_handler(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    Ok(Json(store::get_history(&s.mongo, oid, &id).await?))
+}
+
+#[derive(Deserialize)]
+struct RollbackBody {
+    url: String,
+}
+
+async fn rollback_handler(
+    user: AuthUser,
+    State(s): State<UrlShortenerState>,
+    Path(id): Path<String>,
+    Json(body): Json<RollbackBody>,
+) -> Result<Json<serde_json::Value>> {
+    let oid = oid_from_str(&user.user_id)?;
+    let ok = store::rollback_to_url(&s.mongo, oid, &id, &body.url).await?;
+    Ok(Json(serde_json::json!({ "success": ok })))
 }

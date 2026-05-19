@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 /**
- * One-shot seed: upsert 10 first-party SabFlow templates into
- * `sabflow_marketplace_templates`.
+ * One-shot seed: upsert every first-party SabFlow template under `templates/`
+ * into `sabflow_marketplace_templates`.
  *
- * Phase C.10.9 — seed 10 first-party marketplace templates.
+ *   node scripts/sabflow/seed-marketplace-templates.mjs           # upsert only
+ *   node scripts/sabflow/seed-marketplace-templates.mjs --wipe    # delete-all + reseed
  *
- *   node scripts/sabflow/seed-marketplace-templates.mjs
- *
- * Idempotent — each document is upserted on `{ id }`, so running this script
- * multiple times is safe across dev / preview / prod without flag-guarding.
+ * Idempotent — each document is upserted on `{ slug }`. Pass `--wipe` to
+ * replace the entire dashboard catalogue (drops every doc in the collection
+ * before seeding), e.g. when retiring a previous template set.
  *
  * Environment:
  *   MONGODB_URI   — required. MongoDB connection string.
@@ -18,20 +18,20 @@
  *   templates/<slug>/template.json
  *   templates/<slug>/flow.json
  *
- * The document shape written to the collection:
+ * The document shape matches what `/dashboard/sabflow/marketplace` reads:
  *   {
- *     id:          string          (from template.json)
- *     name:        string
- *     description: string
- *     category:    string
- *     complexity:  string
- *     authorName:  string
- *     tags:        string[]
- *     version:     string
- *     flow:        object          (entire flow.json)
- *     source:      "first-party"
+ *     slug:        string          (from template.json id, fallback dir name)
+ *     id:          string          (kept for back-compat with install path)
+ *     name, description, complexity, version, tags, flow
+ *     category:    string          (back-compat single value)
+ *     categories:  string[]        (dashboard reads this)
+ *     authorName:  string          (back-compat)
+ *     author:      { displayName }
+ *     status:      'published'
+ *     installCount: 0              (only on insert)
+ *     source:      'first-party'
  *     updatedAt:   Date
- *     createdAt:   Date            (set only on insert via $setOnInsert)
+ *     createdAt:   Date            (only on insert)
  *   }
  */
 
@@ -97,6 +97,8 @@ function loadTemplate(slug) {
 
 // ─── main ────────────────────────────────────────────────────────────────────
 
+const WIPE = process.argv.includes('--wipe');
+
 async function main() {
   if (!process.env.MONGODB_URI || !process.env.MONGODB_DB) {
     console.error(
@@ -160,9 +162,16 @@ async function main() {
 
     const col = db.collection(COLLECTION);
 
-    // Ensure a unique index on id so upserts are safe.
-    await col.createIndex({ id: 1 }, { name: 'id_1_unique', unique: true, background: true });
-    console.log(`${LOG} index "id_1_unique" ensured`);
+    // Ensure a unique index on slug so upserts are safe.
+    await col.createIndex({ slug: 1 }, { name: 'slug_1_unique', unique: true, background: true });
+    console.log(`${LOG} index "slug_1_unique" ensured`);
+
+    // Wipe the collection if requested — used when retiring a previous
+    // catalogue of templates and replacing it wholesale.
+    if (WIPE) {
+      const deleted = await col.deleteMany({});
+      console.log(`${LOG} --wipe — deleted ${deleted.deletedCount} existing document(s)`);
+    }
 
     // Upsert each template.
     const now = new Date();
@@ -174,26 +183,34 @@ async function main() {
     for (let i = 0; i < total; i++) {
       const { slug, meta, flow } = templates[i];
 
+      const category = meta.category ?? 'General';
+      const authorName = meta.authorName ?? 'SabNode';
+      const docSlug = meta.id ?? slug;
+
       const doc = {
-        id: meta.id ?? slug,
+        slug: docSlug,
+        id: docSlug,
         name: meta.name ?? slug,
         description: meta.description ?? '',
-        category: meta.category ?? 'General',
+        category,
+        categories: [category],
         complexity: meta.complexity ?? 'beginner',
-        authorName: meta.authorName ?? 'SabNode',
+        authorName,
+        author: { displayName: authorName },
         tags: Array.isArray(meta.tags) ? meta.tags : [],
         version: meta.version ?? '0.1.0',
         flow,
+        status: 'published',
         source: 'first-party',
         updatedAt: now,
       };
 
       try {
         const result = await col.updateOne(
-          { id: doc.id },
+          { slug: doc.slug },
           {
             $set: doc,
-            $setOnInsert: { createdAt: now },
+            $setOnInsert: { createdAt: now, installCount: 0, publishedAt: now },
           },
           { upsert: true },
         );
@@ -203,16 +220,16 @@ async function main() {
 
         if (wasInsert) {
           upserted++;
-          console.log(`${LOG} (${i + 1}/${total}) INSERTED "${doc.id}"`);
+          console.log(`${LOG} (${i + 1}/${total}) INSERTED "${doc.slug}"`);
         } else if (wasUpdate) {
           modified++;
-          console.log(`${LOG} (${i + 1}/${total}) UPDATED  "${doc.id}"`);
+          console.log(`${LOG} (${i + 1}/${total}) UPDATED  "${doc.slug}"`);
         } else {
-          console.log(`${LOG} (${i + 1}/${total}) NO-OP    "${doc.id}" (already up-to-date)`);
+          console.log(`${LOG} (${i + 1}/${total}) NO-OP    "${doc.slug}" (already up-to-date)`);
         }
       } catch (err) {
         failed++;
-        console.error(`${LOG} (${i + 1}/${total}) FAILED   "${doc.id}":`, err.message);
+        console.error(`${LOG} (${i + 1}/${total}) FAILED   "${doc.slug}":`, err.message);
       }
     }
 

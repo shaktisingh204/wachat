@@ -21,6 +21,11 @@ export interface ZoruSidebarLeaf {
   onClick?: () => void;
   children?: ZoruSidebarLeaf[];
   defaultOpen?: boolean;
+  /**
+   * Restrict the entry to the tenant owner / admin role (Worksuite parity).
+   * Filtered out for invited team members in `zoru-home-shell` before render.
+   */
+  adminOnly?: boolean;
 }
 
 export interface ZoruSidebarGroup {

@@ -9,25 +9,27 @@ const total = 11839;
 
 export default function Page() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 text-zinc-100">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold">API Reference</h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          {total.toLocaleString()} endpoints across {modules.length} module group{modules.length === 1 ? '' : 's'}.
-          Each endpoint has its own page with code samples in 15+ languages and a live test runner.
-        </p>
-      </header>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {modules.map((m) => (
-          <a
-            key={m.name}
-            href={'/api/docs/modules/' + m.name}
-            className="block p-4 rounded-md border border-zinc-800 bg-zinc-900/40 hover:bg-zinc-900 hover:border-amber-500/40 transition"
-          >
-            <div className="font-semibold capitalize">{m.name}</div>
-            <div className="text-xs text-zinc-400 mt-1">{m.count.toLocaleString()} endpoint{m.count === 1 ? '' : 's'}</div>
-          </a>
-        ))}
+    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <header className="mb-8">
+          <h1 className="text-3xl font-semibold tracking-tight text-zoru-ink">API Reference</h1>
+          <p className="text-sm text-zoru-ink-muted mt-2">
+            {total.toLocaleString()} endpoints across {modules.length} module group{modules.length === 1 ? '' : 's'}.
+            Each endpoint has its own page with code samples in 15+ languages and a live test runner.
+          </p>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {modules.map((m) => (
+            <a
+              key={m.name}
+              href={'/api/docs/modules/' + m.name}
+              className="block p-4 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)] transition-[border-color,box-shadow,background-color] hover:bg-zoru-surface-2 hover:border-zoru-line-strong hover:shadow-[var(--zoru-shadow-md)]"
+            >
+              <div className="text-[14px] font-medium capitalize text-zoru-ink">{m.name}</div>
+              <div className="text-[12.5px] text-zoru-ink-muted mt-1">{m.count.toLocaleString()} endpoint{m.count === 1 ? '' : 's'}</div>
+            </a>
+          ))}
+        </div>
       </div>
     </div>
   );

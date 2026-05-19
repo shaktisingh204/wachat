@@ -1399,6 +1399,209 @@ pub async fn verify_link_password(
 }
 
 // ---------------------------------------------------------------------------
+// UPDATE (PATCH)
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UpdateBody {
+    pub original_url: Option<String>,
+    pub expires_at: Option<Option<String>>,
+    pub click_limit: Option<Option<i64>>,
+    #[serde(default)]
+    pub tag_ids: Option<Vec<String>>,
+    pub utm_params: Option<Option<UtmParams>>,
+    pub split_targets: Option<Option<Vec<SplitTarget>>>,
+    pub pixel_ids: Option<Option<PixelIds>>,
+}
+
+pub async fn update(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+    body: UpdateBody,
+) -> Result<bool> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Ok(false),
+    };
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+
+    // If originalUrl is being changed, push the old one to history first.
+    if let Some(new_url) = body.original_url.as_deref() {
+        let current = coll
+            .find_one(doc! { "_id": oid, "userId": user_oid })
+            .await
+            .map_err(internal)?;
+        if let Some(ref doc) = current {
+            let old_url = doc.get_str("originalUrl").unwrap_or("");
+            if !old_url.is_empty() && old_url != new_url {
+                let history_entry = doc! {
+                    "url": old_url,
+                    "changedAt": BsonDateTime::from_chrono(Utc::now()),
+                };
+                coll.update_one(
+                    doc! { "_id": oid, "userId": user_oid },
+                    doc! { "$push": { "history": history_entry } },
+                )
+                .await
+                .ok(); // best-effort
+            }
+        }
+    }
+
+    let mut set_doc = Document::new();
+    if let Some(url) = body.original_url {
+        set_doc.insert("originalUrl", url);
+    }
+    // expires_at: Option<Option<String>> — outer Some means field was provided.
+    if let Some(exp) = body.expires_at {
+        match exp.as_deref() {
+            Some("") | None => { set_doc.insert("expiresAt", Bson::Null); }
+            Some(s) => {
+                if let Some(dt) = parse_iso(s) {
+                    set_doc.insert("expiresAt", BsonDateTime::from_chrono(dt));
+                }
+            }
+        }
+    }
+    if let Some(limit) = body.click_limit {
+        match limit {
+            None => { set_doc.insert("clickLimit", Bson::Null); }
+            Some(n) => { set_doc.insert("clickLimit", n); }
+        }
+    }
+    if let Some(tags) = body.tag_ids {
+        set_doc.insert(
+            "tagIds",
+            Bson::Array(tags.into_iter().map(Bson::String).collect()),
+        );
+    }
+    if let Some(utm_opt) = body.utm_params {
+        match utm_opt {
+            None => { set_doc.insert("utmParams", Bson::Null); }
+            Some(utm) => {
+                let mut utm_doc = Document::new();
+                if let Some(v) = utm.source { utm_doc.insert("source", v); }
+                if let Some(v) = utm.medium { utm_doc.insert("medium", v); }
+                if let Some(v) = utm.campaign { utm_doc.insert("campaign", v); }
+                if let Some(v) = utm.term { utm_doc.insert("term", v); }
+                if let Some(v) = utm.content { utm_doc.insert("content", v); }
+                set_doc.insert("utmParams", utm_doc);
+            }
+        }
+    }
+    if let Some(targets_opt) = body.split_targets {
+        match targets_opt {
+            None => { set_doc.insert("splitTargets", Bson::Null); }
+            Some(targets) => {
+                let bson_targets: Vec<Bson> = targets
+                    .iter()
+                    .map(|t| Bson::Document(doc! { "url": &t.url, "weight": t.weight }))
+                    .collect();
+                set_doc.insert("splitTargets", Bson::Array(bson_targets));
+            }
+        }
+    }
+    if let Some(pixels_opt) = body.pixel_ids {
+        match pixels_opt {
+            None => { set_doc.insert("pixelIds", Bson::Null); }
+            Some(pixels) => {
+                let mut px_doc = Document::new();
+                if let Some(v) = pixels.facebook { px_doc.insert("facebook", v); }
+                if let Some(v) = pixels.google { px_doc.insert("google", v); }
+                if let Some(v) = pixels.tiktok { px_doc.insert("tiktok", v); }
+                set_doc.insert("pixelIds", px_doc);
+            }
+        }
+    }
+
+    if set_doc.is_empty() {
+        return Ok(true);
+    }
+
+    let res = coll
+        .update_one(
+            doc! { "_id": oid, "userId": user_oid },
+            doc! { "$set": set_doc },
+        )
+        .await
+        .map_err(internal)?;
+    Ok(res.matched_count > 0)
+}
+
+// ---------------------------------------------------------------------------
+// HISTORY
+// ---------------------------------------------------------------------------
+
+pub async fn get_history(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+) -> Result<Value> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Ok(Value::Array(vec![])),
+    };
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+    let doc = coll
+        .find_one(doc! { "_id": oid, "userId": user_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    match doc {
+        None => Ok(Value::Array(vec![])),
+        Some(d) => {
+            let history = d.get_array("history").unwrap_or(&vec![]);
+            let items: Vec<Value> = history
+                .iter()
+                .map(|b| bson_to_json(b.clone()))
+                .collect();
+            Ok(Value::Array(items))
+        }
+    }
+}
+
+pub async fn rollback_to_url(
+    mongo: &MongoHandle,
+    user_oid: ObjectId,
+    link_id: &str,
+    url: &str,
+) -> Result<bool> {
+    let oid = match ObjectId::parse_str(link_id) {
+        Ok(o) => o,
+        Err(_) => return Ok(false),
+    };
+    let coll = mongo.collection::<Document>(SHORT_URL_COLL);
+
+    // Push the current URL to history before overwriting.
+    let current = coll
+        .find_one(doc! { "_id": oid, "userId": user_oid })
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    if let Some(ref doc) = current {
+        let old_url = doc.get_str("originalUrl").unwrap_or("");
+        if !old_url.is_empty() {
+            coll.update_one(
+                doc! { "_id": oid, "userId": user_oid },
+                doc! { "$push": { "history": doc! { "url": old_url, "changedAt": BsonDateTime::from_chrono(Utc::now()) } } },
+            )
+            .await
+            .ok(); // best-effort
+        }
+    }
+
+    let res = coll
+        .update_one(
+            doc! { "_id": oid, "userId": user_oid },
+            doc! { "$set": { "originalUrl": url } },
+        )
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+    Ok(res.matched_count > 0)
+}
+
+// ---------------------------------------------------------------------------
 // HEALTH STATUS
 // ---------------------------------------------------------------------------
 

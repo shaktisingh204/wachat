@@ -64,6 +64,7 @@ import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
 import { CommentsNotesPanel } from '@/components/wabasimplify/comments-notes-panel';
 import { EditQrDialog } from '@/components/wabasimplify/edit-qr-dialog';
+import { SharePermissionsModal } from '@/components/wabasimplify/share-permissions-modal';
 import { QrScanStatsModal } from '@/components/wabasimplify/qr-scan-stats-modal';
 import { BulkQrImportDialog } from '@/components/wabasimplify/bulk-qr-import-dialog';
 import { normalizeQrWebsiteUrl } from '@/lib/qr-utils';
@@ -709,6 +710,11 @@ export default function QrCodeMakerPage() {
                             <EditQrDialog
                               qrCode={code}
                               onComplete={fetchQrCodes}
+                            />
+                            <SharePermissionsModal
+                              resourceType="qr"
+                              resourceId={code._id?.toString?.() ?? String(code._id)}
+                              resourceName={code.name}
                             />
                             {/* Scan stats button (only for dynamic QR codes) */}
                             {code.shortUrl && (

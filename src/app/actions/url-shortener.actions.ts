@@ -301,3 +301,27 @@ export async function verifyLinkPassword(
         return { valid: false, error: rustErr(e) };
     }
 }
+
+export async function getShortUrlHistory(id: string): Promise<{ url: string; changedAt: string }[]> {
+    if (!ObjectId.isValid(id)) return [];
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        return await rustClient.urlShortener.getHistory(id);
+    } catch { return []; }
+}
+
+export async function rollbackShortUrl(
+    id: string, url: string
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const result = await rustClient.urlShortener.rollback(id, { url });
+        revalidatePath(`/dashboard/url-shortener/${id}`);
+        return result;
+    } catch (e) {
+        return { success: false, error: rustErr(e) };
+    }
+}
