@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_daily_cron",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 7 * * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "Daily 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 7 * * *" }] } }
+    },
+    {
+      "id": "n_planhat_pull",
+      "name": "Pull Planhat Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.PLANHAT_HEALTH_URL }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "planhat-cred", "name": "Planhat Header Auth" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Companies",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 50 }
+    },
+    {
+      "id": "n_map",
+      "name": "Map Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "hubspotCompanyId", "value": "={{ $json.externalId }}" },
+            { "name": "healthScore", "value": "={{ $json.health.score }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot_update",
+      "name": "HubSpot Company Update",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "company",
+        "operation": "update",
+        "companyId": "={{ $json.hubspotCompanyId }}",
+        "additionalFields": {
+          "customProperties": {
+            "property": [{ "name": "planhat_health_score", "value": "={{ $json.healthScore }}" }]
+          }
+        }
+      },
+      "credentials": { "hubspotApi": { "id": "hubspot-cred", "name": "HubSpot API" } }
+    },
+    {
+      "id": "n_loop_back",
+      "name": "Continue Loop",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_planhat_pull", "type": "main", "index": 0 }]] },
+    "n_planhat_pull": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_map", "type": "main", "index": 0 }]] },
+    "n_map": { "main": [[{ "node": "n_hubspot_update", "type": "main", "index": 0 }]] },
+    "n_hubspot_update": { "main": [[{ "node": "n_loop_back", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_planhat_pull", "n_split", "n_map", "n_hubspot_update", "n_loop_back"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "PLANHAT_HEALTH_URL", "defaultValue": "https://api.planhat.com/companies?fields=externalId,health" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
