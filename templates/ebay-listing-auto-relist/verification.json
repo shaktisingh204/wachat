@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "ebay-listing-auto-relist",
+  "cases": [
+    {
+      "id": "relisted",
+      "description": "Daily cron pulls expired eBay listings and relists them, then pings Slack.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T06:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
