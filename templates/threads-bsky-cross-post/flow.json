@@ -1,0 +1,120 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_webflow_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "webflow.cms.published",
+    "options": {
+      "path": "/webhooks/threads-bsky-cross-post",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Webflow-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webflow_trigger",
+      "name": "Webflow CMS Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "threads-bsky-cross-post",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "threads-bsky-cross-post"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.payload.name }}" },
+            { "name": "url", "value": "={{ $json.payload.slug ? 'https://' + $vars.SITE_DOMAIN + '/blog/' + $json.payload.slug : $json.payload.url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_bsky_session",
+      "name": "Bluesky Create Session",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://bsky.social/xrpc/com.atproto.server.createSession",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"identifier\":\"{{ $vars.BSKY_HANDLE }}\",\"password\":\"{{ $vars.BSKY_APP_PASSWORD }}\"}"
+      }
+    },
+    {
+      "id": "n_bsky_post",
+      "name": "Bluesky Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://bsky.social/xrpc/com.atproto.repo.createRecord",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"repo\":\"{{ $json.did }}\",\"collection\":\"app.bsky.feed.post\",\"record\":{\"$type\":\"app.bsky.feed.post\",\"text\":\"{{ $node['Extract Post'].json.title }} {{ $node['Extract Post'].json.url }}\",\"createdAt\":\"{{ new Date().toISOString() }}\"}}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $json.accessJwt }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true,\"uri\":\"{{ $json.uri }}\"}" }
+    }
+  ],
+  "connections": {
+    "n_webflow_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_bsky_session", "type": "main", "index": 0 }]]
+    },
+    "n_bsky_session": {
+      "main": [[{ "node": "n_bsky_post", "type": "main", "index": 0 }]]
+    },
+    "n_bsky_post": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webflow_trigger", "n_extract", "n_bsky_session", "n_bsky_post", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_site", "name": "SITE_DOMAIN", "defaultValue": "example.com" },
+    { "id": "v_handle", "name": "BSKY_HANDLE", "defaultValue": "" },
+    { "id": "v_pass", "name": "BSKY_APP_PASSWORD", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

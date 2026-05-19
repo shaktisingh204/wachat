@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "threads-bsky-cross-post",
+  "cases": [
+    {
+      "id": "post-mirrored",
+      "description": "Webflow CMS publish posts a Bluesky status.",
+      "triggerPayload": {
+        "payload": { "name": "Shipping AI agents this week", "slug": "shipping-ai-agents" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
