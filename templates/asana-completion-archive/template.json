@@ -1,0 +1,10 @@
+{
+  "id": "asana-completion-archive",
+  "name": "Asana Completion Archive",
+  "description": "Subscribes to Asana task.completed webhooks and appends each finished task into a Notion log database. A short Slack ping summarises the closure so the team sees momentum without opening Asana.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["asana", "notion", "slack", "ops", "archive"],
+  "version": "0.1.0"
+}

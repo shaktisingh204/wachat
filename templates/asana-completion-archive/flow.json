@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_asana_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "asana.task.completed",
+    "options": {
+      "path": "/webhooks/asana-completion-archive",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hook-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_asana_trigger",
+      "name": "Asana Task Completed",
+      "type": "n8n-nodes-base.asanaTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "resource": "task",
+        "workspace": "={{ $vars.ASANA_WORKSPACE_ID }}",
+        "events": ["completed"]
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    },
+    {
+      "id": "n_fetch_task",
+      "name": "Fetch Task Detail",
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "task",
+        "operation": "get",
+        "id": "={{ $json.resource.gid }}"
+      },
+      "credentials": {
+        "asanaApi": { "id": "asana-cred", "name": "Asana API" }
+      }
+    },
+    {
+      "id": "n_extract",
+      "name": "Shape Archive Row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "taskName", "value": "={{ $json.name }}" },
+            { "name": "assignee", "value": "={{ $json.assignee.name }}" },
+            { "name": "completedAt", "value": "={{ $json.completed_at }}" },
+            { "name": "projectName", "value": "={{ $json.projects[0].name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_notion_archive",
+      "name": "Append to Notion Log",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_ARCHIVE_DB_ID }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Task|title", "title": "={{ $node['Shape Archive Row'].json.taskName }}" },
+            { "key": "Project|rich_text", "textContent": "={{ $node['Shape Archive Row'].json.projectName }}" },
+            { "key": "Owner|rich_text", "textContent": "={{ $node['Shape Archive Row'].json.assignee }}" },
+            { "key": "Completed|date", "date": "={{ $node['Shape Archive Row'].json.completedAt }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_slack_ping",
+      "name": "Slack Closure Ping",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":white_check_mark: *{{ $node['Shape Archive Row'].json.taskName }}* closed by {{ $node['Shape Archive Row'].json.assignee }} — archived to Notion."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_asana_trigger": {
+      "main": [[{ "node": "n_fetch_task", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_task": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_notion_archive", "type": "main", "index": 0 }]]
+    },
+    "n_notion_archive": {
+      "main": [[{ "node": "n_slack_ping", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_asana_trigger", "n_fetch_task", "n_extract", "n_notion_archive", "n_slack_ping"]
+    }
+  ],
+  "variables": [
+    { "id": "v_asana_ws", "name": "ASANA_WORKSPACE_ID", "defaultValue": "" },
+    { "id": "v_notion_db", "name": "NOTION_ARCHIVE_DB_ID", "defaultValue": "" },
+    { "id": "v_slack_ops", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
