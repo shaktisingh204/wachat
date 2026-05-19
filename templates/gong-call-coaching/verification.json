@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gong-call-coaching",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Gong call processed → GPT-4o coaching → SendGrid email to AE.",
+      "triggerPayload": {
+        "callId": "g-001",
+        "primarySpeaker": { "email": "ae@example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

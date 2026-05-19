@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_gong_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "gong.call_processed",
+    "options": {
+      "path": "/webhooks/gong-call",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Gong-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_gong_trigger",
+      "name": "Gong Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gong-call",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "gong-call-webhook"
+    },
+    {
+      "id": "n_extract_call",
+      "name": "Extract Call",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "callId", "value": "={{ $json.callId }}" },
+            { "name": "aeEmail", "value": "={{ $json.primarySpeaker.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_transcript",
+      "name": "Fetch Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.GONG_API }}/v2/calls/{{ $json.callId }}/transcript"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "gong-cred", "name": "Gong API" } }
+    },
+    {
+      "id": "n_gpt_coach",
+      "name": "GPT-4o Coach",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return 3 short, concrete coaching tips for the AE based on this sales call transcript." },
+            { "role": "user", "content": "{{ $json.transcript }}" }
+          ]
+        }
+      },
+      "credentials": { "openAiApi": { "id": "openai-cred", "name": "OpenAI API" } }
+    },
+    {
+      "id": "n_format_email",
+      "name": "Format Email",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subject", "value": "Coaching tips for your call" },
+            { "name": "html", "value": "={{ $json.message.content }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid_ae",
+      "name": "Email AE",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Call'].json.aeEmail }}",
+        "subject": "={{ $json.subject }}",
+        "contentType": "text/html",
+        "content": "={{ $json.html }}"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    }
+  ],
+  "connections": {
+    "n_gong_trigger": { "main": [[{ "node": "n_extract_call", "type": "main", "index": 0 }]] },
+    "n_extract_call": { "main": [[{ "node": "n_fetch_transcript", "type": "main", "index": 0 }]] },
+    "n_fetch_transcript": { "main": [[{ "node": "n_gpt_coach", "type": "main", "index": 0 }]] },
+    "n_gpt_coach": { "main": [[{ "node": "n_format_email", "type": "main", "index": 0 }]] },
+    "n_format_email": { "main": [[{ "node": "n_sendgrid_ae", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Coaching",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_gong_trigger", "n_extract_call", "n_fetch_transcript", "n_gpt_coach", "n_format_email", "n_sendgrid_ae"]
+    }
+  ],
+  "variables": [
+    { "id": "v_gong", "name": "GONG_API", "defaultValue": "https://api.gong.io" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "coaching@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
