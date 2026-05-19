@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_shopify_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "shopify.order.created",
+    "options": {
+      "path": "/webhooks/omnisend-loyalty-tier",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Shopify-Hmac-Sha256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_shopify_trigger",
+      "name": "Shopify Order Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "omnisend-loyalty-tier",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "omnisend-loyalty-tier"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Customer",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "customerId", "value": "={{ $json.customer.id }}" },
+            { "name": "email", "value": "={{ $json.customer.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_get_customer",
+      "name": "Shopify Customer Get",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "customer",
+        "operation": "get",
+        "customerId": "={{ $json.customerId }}"
+      },
+      "credentials": {
+        "shopifyOAuth2Api": { "id": "shopify-cred", "name": "Shopify OAuth2" }
+      }
+    },
+    {
+      "id": "n_compute_tier",
+      "name": "Compute Tier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tier", "value": "={{ Number($json.total_spent) >= 1000 ? 'gold' : Number($json.total_spent) >= 300 ? 'silver' : 'bronze' }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_if_upgrade",
+      "name": "Gold Tier?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.tier }}", "operation": "equal", "value2": "gold" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_tag_omnisend",
+      "name": "Omnisend Tag Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.omnisend.com/v3/contacts/{{ $node['Extract Customer'].json.email }}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"tags\":[\"loyalty:{{ $node['Compute Tier'].json.tier }}\"]}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-API-KEY", "value": "={{ $vars.OMNISEND_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_gold",
+      "name": "Slack New Gold",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1440, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_LOYALTY_CHANNEL }}",
+        "text": ":star2: Loyalty tier set to *{{ $node['Compute Tier'].json.tier }}* for {{ $node['Extract Customer'].json.email }}."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_shopify_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_get_customer", "type": "main", "index": 0 }]]
+    },
+    "n_get_customer": {
+      "main": [[{ "node": "n_compute_tier", "type": "main", "index": 0 }]]
+    },
+    "n_compute_tier": {
+      "main": [[{ "node": "n_if_upgrade", "type": "main", "index": 0 }]]
+    },
+    "n_if_upgrade": {
+      "true": [[{ "node": "n_tag_omnisend", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_tag_omnisend", "type": "main", "index": 0 }]]
+    },
+    "n_tag_omnisend": {
+      "main": [[{ "node": "n_slack_gold", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_shopify_trigger", "n_extract", "n_get_customer", "n_compute_tier", "n_if_upgrade", "n_tag_omnisend", "n_slack_gold"]
+    }
+  ],
+  "variables": [
+    { "id": "v_key", "name": "OMNISEND_KEY", "defaultValue": "" },
+    { "id": "v_loyalty", "name": "SLACK_LOYALTY_CHANNEL", "defaultValue": "#loyalty" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

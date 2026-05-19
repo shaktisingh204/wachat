@@ -1,0 +1,10 @@
+{
+  "id": "omnisend-loyalty-tier",
+  "name": "Omnisend Loyalty Tier",
+  "description": "On every Shopify order.created webhook, looks up the customer's lifetime spend and upgrades or downgrades their Omnisend loyalty tag. Keeps the loyalty program in sync with actual revenue without manual segments.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "omnisend", "loyalty", "marketing", "ltv"],
+  "version": "0.1.0"
+}
