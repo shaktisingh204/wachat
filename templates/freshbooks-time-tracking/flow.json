@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_toggl_entry",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "toggl.entry.created",
+    "options": {
+      "path": "/webhooks/toggl-entry",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Toggl-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Toggl Time Entry",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "toggl-entry",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "toggl-entry-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Entry",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "description", "value": "={{ $json.description }}" },
+            { "name": "durationSec", "value": "={{ $json.duration }}" },
+            { "name": "projectId", "value": "={{ $json.freshbooks_project_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup_user",
+      "name": "Lookup FB User",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.FRESHBOOKS_URL }}/auth/api/v1/users/me"
+      },
+      "credentials": { "oAuth2Api": { "id": "freshbooks-cred", "name": "FreshBooks OAuth2" } }
+    },
+    {
+      "id": "n_create_entry",
+      "name": "FreshBooks Time Entry Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.FRESHBOOKS_URL }}/timetracking/business/{{ $vars.BUSINESS_ID }}/time_entries",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "duration", "value": "={{ $node['Extract Entry'].json.durationSec }}" },
+            { "name": "note", "value": "={{ $node['Extract Entry'].json.description }}" },
+            { "name": "project_id", "value": "={{ $node['Extract Entry'].json.projectId }}" }
+          ]
+        }
+      },
+      "credentials": { "oAuth2Api": { "id": "freshbooks-cred", "name": "FreshBooks OAuth2" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Activity",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "TimeMirror",
+        "fields": { "Description": "={{ $node['Extract Entry'].json.description }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup_user", "type": "main", "index": 0 }]] },
+    "n_lookup_user": { "main": [[{ "node": "n_create_entry", "type": "main", "index": 0 }]] },
+    "n_create_entry": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup_user", "n_create_entry", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_fb", "name": "FRESHBOOKS_URL", "defaultValue": "https://api.freshbooks.com" },
+    { "id": "v_biz", "name": "BUSINESS_ID", "defaultValue": "" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

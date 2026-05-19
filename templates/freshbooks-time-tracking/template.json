@@ -1,0 +1,10 @@
+{
+  "id": "freshbooks-time-tracking",
+  "name": "FreshBooks Time Tracking",
+  "description": "When Toggl logs a new time entry, mirrors it into the matching FreshBooks project so client invoicing reflects the real hours. Eliminates monthly timesheet reconciliation.",
+  "category": "Finance",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["toggl", "freshbooks", "time-tracking", "invoicing", "finance"],
+  "version": "0.1.0"
+}
