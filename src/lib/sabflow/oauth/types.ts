@@ -44,17 +44,27 @@ export interface OAuthProvider {
   label: string;
   /** Default scopes — the user can add more in the authorise step. */
   defaultScopes: string[];
+  /**
+   * Marker — the user must supply a workspace subdomain (Zendesk, Freshdesk,
+   * Shopify shop name, etc.) before we can build the authorise URL.  When
+   * true, the connections UI renders a "{subdomain}.example.com" input.
+   */
+  requiresSubdomain?: boolean;
 
   /**
    * Build the authorise URL that the user visits in their browser.  The
-   * provider appends the state nonce + the supplied scopes.
+   * provider appends the state nonce + the supplied scopes.  PKCE-style
+   * providers may return `{ url, codeVerifier }` instead of a bare string;
+   * the authorise route then stashes `codeVerifier` on the state entry so
+   * `exchangeCode` can replay it.
    */
   buildAuthorizeUrl(opts: {
     config: OAuthProviderConfig;
     state: string;
     scopes?: string[];
     extraParams?: Record<string, string>;
-  }): string;
+    subdomain?: string;
+  }): string | { url: string; codeVerifier?: string };
 
   /**
    * Exchange an authorisation code (from the callback) for tokens.  This
@@ -63,6 +73,8 @@ export interface OAuthProvider {
   exchangeCode(opts: {
     code: string;
     config: OAuthProviderConfig;
+    codeVerifier?: string;
+    subdomain?: string;
   }): Promise<OAuthTokens>;
 
   /**
@@ -72,5 +84,6 @@ export interface OAuthProvider {
   refreshAccessToken(opts: {
     refreshToken: string;
     config: OAuthProviderConfig;
+    subdomain?: string;
   }): Promise<OAuthTokens>;
 }

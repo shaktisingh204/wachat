@@ -23,6 +23,12 @@ type StateEntry = {
   label?: string;
   /** Where to redirect after a successful exchange. */
   returnTo?: string;
+  /** PKCE verifier — set after `buildAuthorizeUrl` for providers that use it. */
+  codeVerifier?: string;
+  /** Workspace subdomain (Zendesk, Freshdesk, Shopify shop, etc.). */
+  subdomain?: string;
+  /** SabFlow credential type the user picked, persisted across the dance. */
+  credentialType?: string;
   expiresAt: number;
 };
 
@@ -38,6 +44,15 @@ export function mintOAuthState(payload: Omit<StateEntry, 'expiresAt'>): string {
   const state = randomBytes(24).toString('base64url');
   STATES.set(state, { ...payload, expiresAt: now + TTL_MS });
   return state;
+}
+
+export function updateOAuthState(
+  state: string,
+  partial: Partial<Omit<StateEntry, 'expiresAt'>>,
+): void {
+  const entry = STATES.get(state);
+  if (!entry) return;
+  STATES.set(state, { ...entry, ...partial });
 }
 
 export function consumeOAuthState(state: string): StateEntry | null {

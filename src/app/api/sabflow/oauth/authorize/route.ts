@@ -12,7 +12,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSession } from '@/app/actions/user.actions';
 import { getOAuthProvider } from '@/lib/sabflow/oauth/providers';
-import { mintOAuthState } from '@/lib/sabflow/oauth/stateStore';
+import {
+  mintOAuthState,
+  updateOAuthState,
+} from '@/lib/sabflow/oauth/stateStore';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -53,6 +56,15 @@ export async function GET(req: NextRequest) {
     const label = url.searchParams.get('label') ?? undefined;
     const credentialId = url.searchParams.get('credentialId') ?? undefined;
     const returnTo = url.searchParams.get('returnTo') ?? undefined;
+    const credentialType = url.searchParams.get('credentialType') ?? undefined;
+    const subdomain = url.searchParams.get('subdomain')?.trim() || undefined;
+
+    if (provider.requiresSubdomain && !subdomain) {
+      return NextResponse.json(
+        { error: `Provider "${providerId}" requires a workspace subdomain (?subdomain=...).` },
+        { status: 400 },
+      );
+    }
 
     const state = mintOAuthState({
       userId,
@@ -61,13 +73,20 @@ export async function GET(req: NextRequest) {
       label,
       credentialId,
       returnTo,
+      subdomain,
+      credentialType,
     });
 
-    const authorizeUrl = provider.buildAuthorizeUrl({
+    const built = provider.buildAuthorizeUrl({
       config,
       state,
       scopes,
+      subdomain,
     });
+    const authorizeUrl = typeof built === 'string' ? built : built.url;
+    if (typeof built !== 'string' && built.codeVerifier) {
+      updateOAuthState(state, { codeVerifier: built.codeVerifier });
+    }
 
     console.log(
       `[SABFLOW OAUTH AUTHORIZE] provider=${providerId} user=${userId} state=${state.slice(0, 8)}…`,

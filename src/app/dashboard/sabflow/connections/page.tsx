@@ -61,6 +61,9 @@ import {
   OAUTH_PROVIDER_FOR_CREDENTIAL_TYPE,
   OAUTH_PROVIDER_LABEL,
   OAUTH_PROVIDER_ACCENT,
+  OAUTH_PROVIDER_REQUIRES_SUBDOMAIN,
+  OAUTH_PROVIDER_SUBDOMAIN_HINT,
+  OAUTH_PROVIDER_SUBDOMAIN_SUFFIX,
 } from '@/lib/sabflow/oauth/credential-type-map';
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
@@ -318,6 +321,7 @@ function AddCredentialModal({
   const [activeCategory, setActiveCategory] = useState<CredentialCategory | 'all'>('all');
   const [oauthPhase, setOauthPhase] = useState<OAuthPhase>('idle');
   const [oauthMessage, setOauthMessage] = useState<string | null>(null);
+  const [subdomain, setSubdomain] = useState('');
   const popupRef = useRef<Window | null>(null);
   const pollRef = useRef<number | null>(null);
   const credentialsBaselineRef = useRef<Set<string>>(new Set());
@@ -341,6 +345,7 @@ function AddCredentialModal({
       setActiveCategory('all');
       setOauthPhase('idle');
       setOauthMessage(null);
+      setSubdomain('');
     } else {
       // Tear down any in-flight popup poll
       if (pollRef.current) {
@@ -393,6 +398,17 @@ function AddCredentialModal({
   const oauthAccent = oauthProviderId
     ? OAUTH_PROVIDER_ACCENT[oauthProviderId]
     : undefined;
+  const oauthNeedsSubdomain = oauthProviderId
+    ? OAUTH_PROVIDER_REQUIRES_SUBDOMAIN.has(oauthProviderId)
+    : false;
+  const subdomainSuffix = oauthProviderId
+    ? OAUTH_PROVIDER_SUBDOMAIN_SUFFIX[oauthProviderId] ?? ''
+    : '';
+  const subdomainHint = oauthProviderId
+    ? OAUTH_PROVIDER_SUBDOMAIN_HINT[oauthProviderId] ?? ''
+    : '';
+  const oauthCtaDisabled =
+    !form.name.trim() || (oauthNeedsSubdomain && !subdomain.trim());
 
   function pickType(tp: CredentialType) {
     setForm((f) => ({ ...f, type: tp, name: defaultName(tp), data: {} }));
@@ -462,6 +478,9 @@ function AddCredentialModal({
     authorizeUrl.searchParams.set('label', form.name.trim() || defaultName(form.type));
     authorizeUrl.searchParams.set('credentialType', form.type);
     authorizeUrl.searchParams.set('returnTo', returnTo);
+    if (oauthNeedsSubdomain && subdomain.trim()) {
+      authorizeUrl.searchParams.set('subdomain', subdomain.trim());
+    }
 
     const w = 600;
     const h = 750;
@@ -674,9 +693,41 @@ function AddCredentialModal({
                       </div>
                     </div>
 
+                    {oauthNeedsSubdomain && (
+                      <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-zoru-ink-muted uppercase tracking-wider">
+                          Workspace subdomain
+                          <span className="text-zoru-danger ml-0.5">*</span>
+                        </label>
+                        <div className="flex items-stretch rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden bg-zoru-bg focus-within:border-zoru-line-strong transition-colors">
+                          <input
+                            value={subdomain}
+                            onChange={(e) =>
+                              setSubdomain(
+                                e.target.value
+                                  .toLowerCase()
+                                  .replace(/[^a-z0-9-]/g, ''),
+                              )
+                            }
+                            placeholder={subdomainHint || 'mycompany'}
+                            spellCheck={false}
+                            autoCapitalize="off"
+                            autoCorrect="off"
+                            className="flex-1 min-w-0 bg-transparent px-3 py-2 text-sm text-zoru-ink outline-none"
+                          />
+                          <span className="px-3 py-2 text-xs text-zoru-ink-muted bg-zoru-surface-2 border-l border-zoru-line whitespace-nowrap flex items-center">
+                            {subdomainSuffix}
+                          </span>
+                        </div>
+                        <p className="text-xs text-zoru-ink-subtle">
+                          Letters, numbers, and dashes only.
+                        </p>
+                      </div>
+                    )}
+
                     <button
                       onClick={startOAuth}
-                      disabled={!form.name.trim()}
+                      disabled={oauthCtaDisabled}
                       className={cn(
                         'w-full flex items-center justify-center gap-2 px-4 py-3 rounded-[var(--zoru-radius)]',
                         'bg-zoru-primary text-zoru-primary-foreground font-medium text-sm',

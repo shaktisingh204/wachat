@@ -75,6 +75,7 @@ export async function refreshIfExpired(
   const fresh: OAuthTokens = await provider.refreshAccessToken({
     refreshToken: data.refreshToken,
     config,
+    subdomain: data.subdomain || undefined,
   });
 
   const patch: Record<string, string> = {
