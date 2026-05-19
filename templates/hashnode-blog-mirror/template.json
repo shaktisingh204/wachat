@@ -1,0 +1,10 @@
+{
+  "id": "hashnode-blog-mirror",
+  "name": "Hashnode Blog Mirror",
+  "description": "When Ghost publishes a post, mirrors it as a Hashnode article via the GraphQL createPost mutation, preserving the canonical URL. Reaches the Hashnode developer audience automatically.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ghost", "hashnode", "graphql", "blog", "marketing"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ghost_pub",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "ghost.post.published",
+    "options": {
+      "path": "/webhooks/ghost-published-hashnode",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Ghost-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Ghost Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ghost-published-hashnode",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ghost-published-hashnode-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.post.current.title }}" },
+            { "name": "markdown", "value": "={{ $json.post.current.markdown }}" },
+            { "name": "canonical", "value": "={{ $json.post.current.url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_create",
+      "name": "Hashnode createPost",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.HASHNODE_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "query", "value": "mutation { publishPost(input: {title: $title, contentMarkdown: $body, originalArticleURL: $canon}) { post { id } } }" },
+            { "name": "variables", "value": "={{ JSON.stringify({title: $json.title, body: $json.markdown, canon: $json.canonical}) }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "hashnode-cred", "name": "Hashnode Header Auth" } }
+    },
+    {
+      "id": "n_capture",
+      "name": "Capture Post Id",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "postId", "value": "={{ $json.data.publishPost.post.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Mirror Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Hashnode",
+        "fields": { "Title": "={{ $node['Extract Post'].json.title }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_create", "type": "main", "index": 0 }]] },
+    "n_create": { "main": [[{ "node": "n_capture", "type": "main", "index": 0 }]] },
+    "n_capture": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_create", "n_capture", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "HASHNODE_URL", "defaultValue": "https://gql.hashnode.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
