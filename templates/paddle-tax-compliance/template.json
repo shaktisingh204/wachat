@@ -1,0 +1,10 @@
+{
+  "id": "paddle-tax-compliance",
+  "name": "Paddle Tax Compliance",
+  "description": "On every Paddle transaction that requires VAT, validates the customer's VAT number with Vatlayer and logs the result to an Airtable compliance ledger. Keeps audit trails complete without spreadsheet copy-paste.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["paddle", "vat", "vatlayer", "airtable", "finance", "compliance"],
+  "version": "0.1.0"
+}

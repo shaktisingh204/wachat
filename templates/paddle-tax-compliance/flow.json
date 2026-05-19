@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_paddle_tx",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "paddle.transaction.completed",
+    "options": {
+      "path": "/webhooks/paddle-transaction",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Paddle-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Paddle Transaction",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "paddle-transaction",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "paddle-transaction-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Transaction",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "txId", "value": "={{ $json.transaction.id }}" },
+            { "name": "vatRequired", "value": "={{ $json.transaction.vat_required }}" },
+            { "name": "vatNumber", "value": "={{ $json.customer.vat_number }}" },
+            { "name": "country", "value": "={{ $json.customer.country }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "VAT Required?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.vatRequired }}", "operation": "equal", "value2": "true" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_vatlayer",
+      "name": "Vatlayer Validate",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -120],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.VATLAYER_URL }}?vat_number={{ $node['Extract Transaction'].json.vatNumber }}"
+      }
+    },
+    {
+      "id": "n_airtable",
+      "name": "Airtable Compliance Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 120],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "TaxLedger",
+        "fields": {
+          "TxId": "={{ $node['Extract Transaction'].json.txId }}",
+          "Country": "={{ $node['Extract Transaction'].json.country }}"
+        }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": { "mode": "combine", "combinationMode": "mergeByPosition" }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "true": [
+        [
+          { "node": "n_vatlayer", "type": "main", "index": 0 },
+          { "node": "n_airtable", "type": "main", "index": 0 }
+        ]
+      ],
+      "false": [
+        [
+          { "node": "n_airtable", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_vatlayer": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_airtable": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_route", "n_vatlayer", "n_airtable", "n_merge"]
+    }
+  ],
+  "variables": [
+    { "id": "v_vat", "name": "VATLAYER_URL", "defaultValue": "http://apilayer.net/api/validate" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
