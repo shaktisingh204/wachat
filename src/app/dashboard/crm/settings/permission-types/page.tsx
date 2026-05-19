@@ -20,6 +20,7 @@ import { ListChecks,
 
 import * as React from 'react';
 
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getPermissionTypes,
@@ -85,7 +86,25 @@ export default function PermissionTypesPage() {
                 {
                     key: 'name',
                     label: 'Name',
-                    render: (row) => <ZoruBadge variant="ghost">{row.name}</ZoruBadge>,
+                    render: (row) => (
+                        <RowDrawer
+                            label={<ZoruBadge variant="ghost">{row.name}</ZoruBadge>}
+                            subtitle={row.display_name || undefined}
+                            title={`Permission Type · ${row.name}`}
+                            description="Read-only details. Use the row Edit action to modify."
+                        >
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Name</div>
+                                    <div className="font-mono">{row.name}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Display name</div>
+                                    <div>{row.display_name || '—'}</div>
+                                </div>
+                            </div>
+                        </RowDrawer>
+                    ),
                 },
                 {
                     key: 'display_name',

@@ -31,6 +31,7 @@ import { LoaderCircle, Plus, Trash2, Edit, Landmark } from 'lucide-react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
     const { toast } = useZoruToast();
@@ -157,7 +158,13 @@ export default function BankAccountsPage() {
                         <ZoruTableBody>
                             {accounts.map(account => (
                                 <ZoruTableRow key={account._id.toString()} className="border-border">
-                                    <ZoruTableCell className="font-medium text-foreground">{account.accountName}</ZoruTableCell>
+                                    <ZoruTableCell className="font-medium text-foreground">
+                                        <EntityRowLink
+                                            href={`/dashboard/crm/banking/bank-accounts/${account._id.toString()}`}
+                                            label={account.accountName}
+                                            subtitle={account.bankDetails?.accountNumber || undefined}
+                                        />
+                                    </ZoruTableCell>
                                     <ZoruTableCell className="text-[13px] text-foreground">{account.bankDetails?.bankName || 'N/A'}</ZoruTableCell>
                                     <ZoruTableCell className="font-mono text-xs text-foreground">{account.bankDetails?.accountNumber || 'N/A'}</ZoruTableCell>
                                     <ZoruTableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</ZoruTableCell>

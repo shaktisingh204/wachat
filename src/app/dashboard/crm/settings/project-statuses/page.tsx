@@ -14,6 +14,7 @@ import { Flag, Star, CheckCircle2 } from 'lucide-react';
 
 import * as React from 'react';
 
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getProjectStatusSettings,
@@ -73,7 +74,52 @@ export default function ProjectStatusesPage() {
             ]}
             onFilterChange={(k) => setFilter(k as Filter)}
             columns={[
-                { key: 'status_name', label: 'Name' },
+                {
+                    key: 'status_name',
+                    label: 'Name',
+                    render: (row) => (
+                        <RowDrawer
+                            label={
+                                <span className="inline-flex items-center gap-2">
+                                    {row.color ? (
+                                        <span
+                                            className="inline-block h-2.5 w-2.5 rounded-full"
+                                            style={{ backgroundColor: row.color }}
+                                            aria-hidden="true"
+                                        />
+                                    ) : null}
+                                    {row.status_name}
+                                </span>
+                            }
+                            subtitle={row.slug || undefined}
+                            title={`Project Status · ${row.status_name}`}
+                            description="Read-only status details. Use the row Edit action to modify."
+                        >
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Slug</div>
+                                    <div className="font-mono">{row.slug || '—'}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Color</div>
+                                    <div className="font-mono">{row.color || '—'}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Order</div>
+                                    <div>{row.priority != null ? String(row.priority) : '—'}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Terminal</div>
+                                    <div>{row.is_final ? 'Yes' : 'No'}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div>{row.is_default ? 'Yes' : 'No'}</div>
+                                </div>
+                            </div>
+                        </RowDrawer>
+                    ),
+                },
                 { key: 'slug', label: 'Slug' },
                 {
                     key: 'color',

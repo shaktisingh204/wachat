@@ -33,6 +33,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {
@@ -378,12 +379,11 @@ export function LoansListClient({ loans }: LoansListClientProps) {
                     </ZoruTableCell>
                     <ZoruTableCell>{fmtType(r.type)}</ZoruTableCell>
                     <ZoruTableCell>
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/loans/${r._id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {r.borrowerName || r.borrowerId || '—'}
-                      </Link>
+                        label={r.borrowerName || r.borrowerId || '—'}
+                        subtitle={r.type ? fmtType(r.type) : undefined}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell>{fmtMoney(r.principal)}</ZoruTableCell>
                     <ZoruTableCell>

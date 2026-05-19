@@ -54,6 +54,7 @@ import {
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -546,7 +547,10 @@ export default function ShiftsListPage() {
                                                             className="inline-block h-4 w-4 rounded-[4px] border border-zoru-line"
                                                             style={{ backgroundColor: s.color || '#EAB308' }}
                                                         />
-                                                        <span>{s.name}</span>
+                                                        <EntityRowLink
+                                                            href={`${BASE}/${s._id}`}
+                                                            label={s.name}
+                                                        />
                                                         {s.isDefault ? (
                                                             <ZoruBadge variant="info">default</ZoruBadge>
                                                         ) : null}

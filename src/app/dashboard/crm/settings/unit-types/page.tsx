@@ -11,6 +11,7 @@
 import * as React from 'react';
 import { Ruler, Hash, Type } from 'lucide-react';
 
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getUnitTypes,
@@ -53,7 +54,32 @@ export default function UnitTypesPage() {
                 },
             ]}
             columns={[
-                { key: 'unit_name', label: 'Name' },
+                {
+                    key: 'unit_name',
+                    label: 'Name',
+                    render: (row) => (
+                        <RowDrawer
+                            label={row.unit_name}
+                            subtitle={row.short_name || undefined}
+                            title={`Unit · ${row.unit_name}`}
+                            description="Use the row Edit action to change this unit."
+                        >
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Unit name</div>
+                                    <div>{row.unit_name}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Short name</div>
+                                    <div className="font-mono">{row.short_name || '—'}</div>
+                                </div>
+                                <p className="text-muted-foreground text-xs">
+                                    Edit and delete are available from the row actions.
+                                </p>
+                            </div>
+                        </RowDrawer>
+                    ),
+                },
                 { key: 'short_name', label: 'Short' },
             ]}
             fields={[

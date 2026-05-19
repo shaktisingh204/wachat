@@ -53,6 +53,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 export type HrFieldType =
   | 'text'
@@ -227,6 +228,22 @@ export interface HrEntityPageProps<T extends { _id: string }> {
   deleteAction: (id: string) => Promise<{ success: boolean; error?: string }>;
   emptyText?: string;
   basePath?: string;
+  /**
+   * When true together with `basePath`, the first column's cell is
+   * wrapped in `<EntityRowLink>` pointing at `${basePath}/{row._id}`.
+   * The inline dialog "Edit" action is retained as a secondary action
+   * (it is NOT swapped to a Link). Use when `[id]/page.tsx` detail
+   * routes exist and should be the primary navigation target while
+   * inline edit remains available.
+   */
+  rowLinksToDetail?: boolean;
+  /**
+   * When `basePath` is unset (dialog-based editing), wrap the first
+   * column's cell in a clickable affordance that opens the edit dialog
+   * for that row. Has no effect when `basePath` is set — use
+   * `rowLinksToDetail` for that flow.
+   */
+  rowOpensEditDialog?: boolean;
 }
 
 function renderField(
@@ -484,6 +501,8 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
   deleteAction,
   emptyText,
   basePath,
+  rowLinksToDetail,
+  rowOpensEditDialog,
 }: HrEntityPageProps<T>) {
   const { toast } = useZoruToast();
   const [rows, setRows] = useState<T[]>([]);
@@ -589,7 +608,7 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
       title={title}
       subtitle={subtitle}
       primaryAction={
-        basePath ? (
+        basePath && !rowLinksToDetail ? (
           <ZoruButton asChild>
             <Link href={`${basePath}/new`}>
               <Plus className="h-4 w-4" strokeWidth={1.75} />
@@ -644,14 +663,41 @@ export function HrEntityPage<T extends { _id: string; [k: string]: any }>({
               ) : (
                 rows.map((row) => (
                   <ZoruTableRow key={row._id}>
-                    {columns.map((c) => (
-                      <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
-                        {c.render ? toNode(c.render(row)) : toNode(row[c.key])}
-                      </ZoruTableCell>
-                    ))}
+                    {columns.map((c, colIdx) => {
+                      const content = c.render ? toNode(c.render(row)) : toNode(row[c.key]);
+                      const wrapWithLink =
+                        colIdx === 0 && rowLinksToDetail && basePath;
+                      const wrapWithDialogTrigger =
+                        colIdx === 0 && rowOpensEditDialog && !basePath;
+                      return (
+                        <ZoruTableCell key={c.key} className="text-[13px] text-zoru-ink">
+                          {wrapWithLink ? (
+                            <EntityRowLink
+                              href={`${basePath}/${row._id}`}
+                              label={content}
+                            />
+                          ) : wrapWithDialogTrigger ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setEditing(row);
+                                setDialogOpen(true);
+                              }}
+                              className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                            >
+                              <span className="font-medium text-foreground transition-colors group-hover:text-primary group-hover:underline group-focus-visible:underline">
+                                {content}
+                              </span>
+                            </button>
+                          ) : (
+                            content
+                          )}
+                        </ZoruTableCell>
+                      );
+                    })}
                     <ZoruTableCell className="text-right">
                       <div className="flex justify-end gap-1">
-                        {basePath ? (
+                        {basePath && !rowLinksToDetail ? (
                           <ZoruButton variant="ghost" size="sm" asChild>
                             <Link href={`${basePath}/${row._id}/edit`}>
                               <Pencil className="h-3.5 w-3.5" />

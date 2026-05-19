@@ -59,6 +59,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
     getRolesWithCounts,
     deleteRole,
@@ -418,17 +419,11 @@ export default function RolesPage() {
                                                     />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-[13px] text-zoru-ink">
-                                                    <Link
-                                                        href={`/dashboard/crm/settings/roles/${row._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {row.display_name || row.name}
-                                                    </Link>
-                                                    {row.description ? (
-                                                        <div className="text-[12px] text-zoru-ink-muted">
-                                                            {row.description}
-                                                        </div>
-                                                    ) : null}
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/settings/roles/${row._id}/edit`}
+                                                        label={row.display_name || row.name}
+                                                        subtitle={row.description || undefined}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
                                                     <code>{row.name}</code>

@@ -23,6 +23,7 @@ export default function CustomLinksPage() {
       getAllAction={getCustomLinks as any}
       saveAction={saveCustomLink}
       deleteAction={deleteCustomLink}
+      rowOpensEditDialog
       columns={[
         { key: 'link_name', label: 'Name' },
         { key: 'url', label: 'URL' },

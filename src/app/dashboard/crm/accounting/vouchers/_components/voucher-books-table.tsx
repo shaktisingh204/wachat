@@ -25,6 +25,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 import type { VoucherBookRow } from './types';
 
@@ -109,12 +110,11 @@ export function VoucherBooksTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-medium">
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/accounting/vouchers/${row._id}`}
-                                            className="hover:underline text-accent-foreground"
-                                        >
-                                            {row.name}
-                                        </Link>
+                                            label={row.name}
+                                            subtitle={row.prefix ? `Prefix ${row.prefix}` : undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         <StatusPill label={row.type} tone="neutral" />

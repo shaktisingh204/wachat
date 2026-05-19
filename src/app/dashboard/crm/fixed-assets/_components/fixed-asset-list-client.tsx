@@ -44,6 +44,7 @@ import Link from 'next/link';
 
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { deleteFixedAssetAction } from '@/app/actions/crm/fixed-assets.actions';
 import type { CrmFixedAssetDoc } from '@/lib/rust-client/crm-fixed-assets';
 
@@ -489,15 +490,11 @@ export function FixedAssetListClient({
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/fixed-assets/${id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {asset.code}
-                      </Link>
-                      <div className="text-[12px] text-zoru-ink-muted">
-                        {asset.name}
-                      </div>
+                        label={asset.code}
+                        subtitle={asset.name || undefined}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                       {asset.category || '—'}

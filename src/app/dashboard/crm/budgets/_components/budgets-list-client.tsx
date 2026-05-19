@@ -31,6 +31,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {
@@ -411,12 +412,11 @@ export function BudgetsListClient({ budgets }: BudgetsListClientProps) {
                         />
                       </ZoruTableCell>
                       <ZoruTableCell>
-                        <Link
+                        <EntityRowLink
                           href={`/dashboard/crm/budgets/${r._id}`}
-                          className="font-medium text-zoru-ink hover:underline"
-                        >
-                          {r.budgetHead || '—'}
-                        </Link>
+                          label={r.budgetHead || '—'}
+                          subtitle={r.headType || r.period || undefined}
+                        />
                       </ZoruTableCell>
                       <ZoruTableCell>{r.period || '—'}</ZoruTableCell>
                       <ZoruTableCell>{fmtMoney(r.planAmount)}</ZoruTableCell>

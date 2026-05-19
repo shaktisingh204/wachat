@@ -35,6 +35,7 @@ import { LoaderCircle,
   X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
     getCrmDesignations,
     saveCrmDesignation,
@@ -176,10 +177,11 @@ export default function DesignationsPage() {
                                     return (
                                         <tr key={desig._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
                                             <td className="px-4 py-3">
-                                                <div className="text-zoru-ink">{desig.name}</div>
-                                                {desig.description ? (
-                                                    <div className="text-[11.5px] text-zoru-ink-muted">{desig.description}</div>
-                                                ) : null}
+                                                <EntityRowLink
+                                                    href={`/dashboard/crm/hr-payroll/designations/${desig._id.toString()}`}
+                                                    label={desig.name}
+                                                    subtitle={desig.description || undefined}
+                                                />
                                             </td>
                                             <td className="px-4 py-3 text-zoru-ink-muted">{deptName}</td>
                                             <td className="px-4 py-3">

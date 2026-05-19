@@ -4,6 +4,7 @@ import { ZoruBadge } from '@/components/zoruui';
 import {
   Flag } from 'lucide-react';
 import { HrEntityPage } from '../../_components/hr-entity-page';
+import { RowDrawer } from '@/components/crm/row-drawer';
 
 import {
   getFlags,
@@ -31,7 +32,36 @@ export default function FlagsPage() {
             <ZoruBadge variant="ghost">{String(row.resource_type || '')}</ZoruBadge>
           ),
         },
-        { key: 'resource_id', label: 'Resource ID' },
+        {
+          key: 'resource_id',
+          label: 'Resource ID',
+          render: (row) => (
+            <RowDrawer
+              label={String(row.resource_id || '')}
+              subtitle={String(row.resource_type || '')}
+              title={`Flag · ${String(row.resource_id || '')}`}
+              description="Use the row Edit action to change this flag."
+            >
+              <div className="space-y-3 text-sm">
+                <div>
+                  <div className="text-muted-foreground text-xs">Module</div>
+                  <div>{String(row.resource_type || '—')}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground text-xs">Resource ID</div>
+                  <div className="font-mono">{String(row.resource_id || '—')}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground text-xs">Reason</div>
+                  <div className="whitespace-pre-wrap">{String(row.reason || '—')}</div>
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  Edit and delete are available from the row actions.
+                </p>
+              </div>
+            </RowDrawer>
+          ),
+        },
         { key: 'reason', label: 'Reason' },
       ]}
       fields={[

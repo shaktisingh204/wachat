@@ -19,6 +19,8 @@ export default function TicketCustomFormsPage() {
       subtitle="Additional form fields to collect on ticket creation."
       icon={FormInput}
       singular="Field"
+      basePath="/dashboard/crm/tickets/custom-forms"
+      rowLinksToDetail
       getAllAction={getTicketCustomForms as any}
       saveAction={saveTicketCustomForm}
       deleteAction={deleteTicketCustomForm}

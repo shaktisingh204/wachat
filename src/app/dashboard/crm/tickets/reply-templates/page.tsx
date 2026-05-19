@@ -19,6 +19,8 @@ export default function TicketReplyTemplatesPage() {
       subtitle="Canned responses that agents can paste into replies."
       icon={MessageSquareText}
       singular="Template"
+      basePath="/dashboard/crm/tickets/reply-templates"
+      rowLinksToDetail
       getAllAction={getTicketReplyTemplates as any}
       saveAction={saveTicketReplyTemplate}
       deleteAction={deleteTicketReplyTemplate}

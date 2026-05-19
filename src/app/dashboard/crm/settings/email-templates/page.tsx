@@ -37,6 +37,7 @@ import * as React from 'react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -196,13 +197,11 @@ export default function EmailTemplatesListPage() {
                                                 key={t._id}
                                                 className="border-zoru-line"
                                             >
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    <EntityRowLink
                                                         href={`${BASE}/${t._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {t.name}
-                                                    </Link>
+                                                        label={t.name}
+                                                    />
                                                 </ZoruTableCell>
                                                 <ZoruTableCell className="max-w-[280px] truncate text-zoru-ink">
                                                     {t.subject}

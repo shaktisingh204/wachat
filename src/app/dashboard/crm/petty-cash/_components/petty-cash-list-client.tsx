@@ -30,6 +30,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 import {
@@ -340,12 +341,11 @@ export function PettyCashListClient({ floats }: PettyCashListClientProps) {
                       />
                     </ZoruTableCell>
                     <ZoruTableCell>
-                      <Link
+                      <EntityRowLink
                         href={`/dashboard/crm/petty-cash/${r._id}`}
-                        className="font-medium text-zoru-ink hover:underline"
-                      >
-                        {r.branchName || r.branchId || '—'}
-                      </Link>
+                        label={r.branchName || r.branchId || '—'}
+                        subtitle={r.custodianName || r.custodianId || undefined}
+                      />
                     </ZoruTableCell>
                     <ZoruTableCell>
                       {r.custodianName || r.custodianId || '—'}

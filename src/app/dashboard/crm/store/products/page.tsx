@@ -14,6 +14,7 @@ import {
   Package } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 /**
  * Products list — `/dashboard/crm/store/products`.
@@ -130,13 +131,16 @@ export default async function ProductListPage({ searchParams }: PageProps) {
                                             className="border-zoru-line"
                                         >
                                             <ZoruTableCell className="text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/store/products/${id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {(p.title as string) ||
-                                                        'Untitled product'}
-                                                </Link>
+                                                    label={
+                                                        (p.title as string) ||
+                                                        'Untitled product'
+                                                    }
+                                                    subtitle={
+                                                        (p.sku as string) || undefined
+                                                    }
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {(p.sku as string) || '—'}

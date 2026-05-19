@@ -56,6 +56,7 @@ import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import {
@@ -545,16 +546,68 @@ export default function ExpenseCategoriesPage() {
                                     filtered.map((c) => (
                                         <ZoruTableRow key={c._id} className="border-border">
                                             <ZoruTableCell className="font-medium text-foreground">
-                                                <span className="inline-flex items-center gap-2">
-                                                    {c.color ? (
-                                                        <span
-                                                            className="inline-block h-2.5 w-2.5 rounded-full"
-                                                            style={{ backgroundColor: c.color }}
-                                                            aria-hidden="true"
-                                                        />
-                                                    ) : null}
-                                                    {c.name}
-                                                </span>
+                                                <RowDrawer
+                                                    label={
+                                                        <span className="inline-flex items-center gap-2">
+                                                            {c.color ? (
+                                                                <span
+                                                                    className="inline-block h-2.5 w-2.5 rounded-full"
+                                                                    style={{ backgroundColor: c.color }}
+                                                                    aria-hidden="true"
+                                                                />
+                                                            ) : null}
+                                                            {c.name}
+                                                        </span>
+                                                    }
+                                                    subtitle={c.code ?? undefined}
+                                                    title={`Expense Category · ${c.name}`}
+                                                    description="Read-only category details. Use the row Edit action to modify."
+                                                >
+                                                    <div className="space-y-3 text-sm">
+                                                        {c.description ? (
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Description</div>
+                                                                <div>{c.description}</div>
+                                                            </div>
+                                                        ) : null}
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Code</div>
+                                                            <div className="font-mono">{c.code ?? '—'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Parent</div>
+                                                            <div>
+                                                                {c.parentId
+                                                                    ? parentNameById.get(c.parentId) ?? '—'
+                                                                    : '—'}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Tax rate</div>
+                                                            <div className="font-mono">
+                                                                {typeof c.taxRate === 'number'
+                                                                    ? `${c.taxRate.toFixed(2)}%`
+                                                                    : '—'}
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Max amount</div>
+                                                            <div className="font-mono">{formatMoney(c.maxAmount)}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Billable</div>
+                                                            <div>{c.isBillable ? 'Yes' : 'No'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Reimbursable</div>
+                                                            <div>{c.isReimbursable ? 'Yes' : 'No'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Status</div>
+                                                            <div>{c.status === 'active' ? 'Active' : 'Archived'}</div>
+                                                        </div>
+                                                    </div>
+                                                </RowDrawer>
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-mono text-foreground">
                                                 {c.code ?? '—'}

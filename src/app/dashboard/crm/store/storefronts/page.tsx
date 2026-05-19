@@ -12,6 +12,7 @@ import {
 import { Plus } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 /**
  * Storefronts list — `/dashboard/crm/store/storefronts`.
@@ -101,12 +102,13 @@ export default async function StorefrontListPage() {
                                             className="border-zoru-line"
                                         >
                                             <ZoruTableCell className="text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/store/storefronts/${id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {(sf.name as string) || 'Untitled'}
-                                                </Link>
+                                                    label={(sf.name as string) || 'Untitled'}
+                                                    subtitle={
+                                                        (sf.slug as string) || undefined
+                                                    }
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {(sf.slug as string) || '—'}

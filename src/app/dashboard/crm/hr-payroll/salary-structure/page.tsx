@@ -44,6 +44,7 @@ import type { WithId,
   CrmSalaryStructure } from '@/lib/definitions';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 const saveInitialState = { success: false, error: undefined };
 
@@ -296,7 +297,12 @@ export default function SalaryStructurePage() {
                                         const deductions = s.components?.filter(c => c.type === 'deduction') ?? [];
                                         return (
                                             <tr key={s._id.toString()} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                                <td className="px-4 py-3 font-medium text-zoru-ink">{s.name}</td>
+                                                <td className="px-4 py-3 font-medium text-zoru-ink">
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/hr-payroll/salary-structure/${s._id.toString()}`}
+                                                        label={s.name}
+                                                    />
+                                                </td>
                                                 <td className="px-4 py-3 text-zoru-ink-muted">{s.description ?? '—'}</td>
                                                 <td className="px-4 py-3 text-center">
                                                     <ZoruBadge variant="success">{earnings.length} earning{earnings.length !== 1 ? 's' : ''}</ZoruBadge>

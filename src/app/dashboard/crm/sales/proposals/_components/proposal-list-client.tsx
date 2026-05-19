@@ -471,12 +471,7 @@ export function ProposalListClient({
                           />
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink">
-                          <Link
-                            href={`/dashboard/crm/sales/proposals/${id}`}
-                            className="hover:underline"
-                          >
-                            {p.title || '—'}
-                          </Link>
+                          {p.title || '—'}
                         </ZoruTableCell>
                         <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
                           {fmtDate(p.issue_date)}

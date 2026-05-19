@@ -51,6 +51,7 @@ import Link from 'next/link';
 import Papa from 'papaparse';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -403,8 +404,12 @@ export function BankTransactionsListClient(): React.JSX.Element {
                                                     {r.accountName ?? '—'}
                                                 </Link>
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] text-foreground">
-                                                {r.description ?? '—'}
+                                            <ZoruTableCell className="max-w-[280px] truncate text-[12.5px] font-medium text-foreground">
+                                                <EntityRowLink
+                                                    href={`/dashboard/crm/banking/bank-transactions/${r._id}`}
+                                                    label={r.description ?? '—'}
+                                                    subtitle={r.accountName || undefined}
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="font-mono text-[12px] text-muted-foreground">
                                                 {r.referenceNumber ?? '—'}

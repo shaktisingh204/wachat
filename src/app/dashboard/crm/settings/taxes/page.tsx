@@ -14,6 +14,7 @@ import { Percent, Star, BarChart3, TrendingUp } from 'lucide-react';
 
 import * as React from 'react';
 
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import { getTaxes, saveTax, deleteTax } from '@/app/actions/worksuite/meta.actions';
 import type { WsTax } from '@/lib/worksuite/meta-types';
@@ -81,7 +82,29 @@ export default function TaxesPage() {
             ]}
             onFilterChange={(k) => setFilter(k as Filter)}
             columns={[
-                { key: 'tax_name', label: 'Name' },
+                {
+                    key: 'tax_name',
+                    label: 'Name',
+                    render: (row) => (
+                        <RowDrawer
+                            label={row.tax_name}
+                            subtitle={`${Number(row.rate_percent ?? 0)}%${row.is_default ? ' · default' : ''}`}
+                            title={`Tax · ${row.tax_name}`}
+                            description="Read-only tax details. Use the row Edit action to modify."
+                        >
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Rate</div>
+                                    <div className="font-mono">{Number(row.rate_percent ?? 0)}%</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div>{row.is_default ? 'Yes' : 'No'}</div>
+                                </div>
+                            </div>
+                        </RowDrawer>
+                    ),
+                },
                 {
                     key: 'rate_percent',
                     label: 'Rate',

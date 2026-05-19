@@ -34,6 +34,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import {
     getWebhookSubscriptions,
     type CrmWebhookRow,
@@ -137,12 +138,10 @@ export default function CrmWebhooksListPage() {
                             rows.map((row) => (
                                 <ZoruTableRow key={row._id}>
                                     <ZoruTableCell>
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/settings/webhooks/${row._id}`}
-                                            className="font-medium hover:underline"
-                                        >
-                                            {row.name}
-                                        </Link>
+                                            label={row.name}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-mono text-xs truncate max-w-[280px]">
                                         {row.targetUrl}

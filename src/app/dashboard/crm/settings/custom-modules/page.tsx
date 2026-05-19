@@ -228,12 +228,23 @@ export default function CustomModulesPage() {
                 rows.map((row) => (
                   <ZoruTableRow key={row._id}>
                     <ZoruTableCell className="text-[13px] text-zoru-ink">
-                      {row.display_name || row.name}
-                      {row.description ? (
-                        <div className="text-[12px] text-zoru-ink-muted">
-                          {row.description}
-                        </div>
-                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditing(row);
+                          setDialogOpen(true);
+                        }}
+                        className="group inline-flex flex-col items-start gap-0.5 rounded-sm text-left outline-none transition-colors hover:text-primary focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+                      >
+                        <span className="font-medium text-foreground transition-colors group-hover:text-primary group-hover:underline group-focus-visible:underline">
+                          {row.display_name || row.name}
+                        </span>
+                        {row.description ? (
+                          <span className="text-[12px] text-zoru-ink-muted">
+                            {row.description}
+                          </span>
+                        ) : null}
+                      </button>
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <ZoruBadge variant="ghost">

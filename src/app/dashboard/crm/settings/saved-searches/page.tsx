@@ -26,6 +26,7 @@ export default function CrmSavedSearchesPage() {
       getAllAction={getSavedSearches as any}
       saveAction={saveSavedSearch}
       deleteAction={deleteSavedSearch}
+      rowOpensEditDialog
       columns={[
         { key: 'search_term', label: 'Search Term' },
         { key: 'module', label: 'Module' },

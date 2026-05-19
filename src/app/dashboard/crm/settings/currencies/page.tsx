@@ -58,6 +58,7 @@ import { AlertTriangle,
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
@@ -489,7 +490,56 @@ export default function CurrenciesPage() {
                                             <ZoruTableCell className="font-mono font-medium text-foreground">
                                                 {r.code}
                                             </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">{r.name}</ZoruTableCell>
+                                            <ZoruTableCell className="text-foreground">
+                                                <RowDrawer
+                                                    label={r.name}
+                                                    subtitle={`${r.code}${r.symbol ? ` · ${r.symbol}` : ''}`}
+                                                    title={`Currency · ${r.name}`}
+                                                    description="Review currency settings, then open the editor to change them."
+                                                >
+                                                    <div className="space-y-3 text-sm">
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Code</div>
+                                                                <div className="font-mono">{r.code}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Symbol</div>
+                                                                <div className="font-mono">{r.symbol ?? '—'}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Exchange rate</div>
+                                                                <div className="font-mono">
+                                                                    {Number(r.exchangeRate).toLocaleString(undefined, {
+                                                                        maximumFractionDigits: 6,
+                                                                    })}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Decimals</div>
+                                                                <div className="font-mono">{r.decimalPlaces}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Display</div>
+                                                                <div>{r.displayFormat}</div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-muted-foreground text-xs">Base</div>
+                                                                <div>{r.isBase ? 'Yes' : 'No'}</div>
+                                                            </div>
+                                                        </div>
+                                                        <div className="pt-2">
+                                                            <ZoruButton
+                                                                size="sm"
+                                                                onClick={() => handleOpenDialog(r)}
+                                                            >
+                                                                <Edit className="mr-1.5 h-3.5 w-3.5" />
+                                                                Open editor
+                                                            </ZoruButton>
+                                                        </div>
+                                                    </div>
+                                                </RowDrawer>
+                                            </ZoruTableCell>
                                             <ZoruTableCell className="text-foreground">
                                                 {r.symbol ?? '—'}
                                             </ZoruTableCell>

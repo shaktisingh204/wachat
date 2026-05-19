@@ -11,6 +11,7 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { listEWayBills } from '@/app/actions/crm-india-eway.actions';
 import { EWayBillRowActions } from './_components/row-actions';
 
@@ -99,12 +100,11 @@ export default async function EWayBillsPage() {
                                     {bills.map((b) => (
                                         <tr key={b._id} className="border-b border-border/60">
                                             <td className="px-2 py-2 font-mono text-[12px]">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/tax/eway-bills/${b._id}`}
-                                                    className="text-primary underline"
-                                                >
-                                                    {b.ewbNo}
-                                                </Link>
+                                                    label={b.ewbNo}
+                                                    subtitle={`${b.fromGstin} → ${b.toGstin ?? 'URP'}`}
+                                                />
                                             </td>
                                             <td className="px-2 py-2">
                                                 <span className="font-mono text-[11px]">

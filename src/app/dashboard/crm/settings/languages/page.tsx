@@ -19,6 +19,7 @@ import { Languages,
 
 import * as React from 'react';
 
+import { RowDrawer } from '@/components/crm/row-drawer';
 import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
     getLanguages,
@@ -122,7 +123,36 @@ export default function LanguagesPage() {
             onFilterChange={(k) => setFilter(k as Filter)}
             columns={[
                 { key: 'language_code', label: 'Code' },
-                { key: 'language_name', label: 'Name' },
+                {
+                    key: 'language_name',
+                    label: 'Name',
+                    render: (row) => (
+                        <RowDrawer
+                            label={row.language_name}
+                            subtitle={row.language_code}
+                            title={`Language · ${row.language_name}`}
+                            description="Use the row Edit action to change this language."
+                        >
+                            <div className="space-y-3 text-sm">
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Code</div>
+                                    <div className="font-mono">{row.language_code}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Enabled</div>
+                                    <div>{row.is_enabled ? 'Yes' : 'No'}</div>
+                                </div>
+                                <div>
+                                    <div className="text-muted-foreground text-xs">Default</div>
+                                    <div>{row.is_default ? 'Yes' : 'No'}</div>
+                                </div>
+                                <p className="text-muted-foreground text-xs">
+                                    Edit and delete are available from the row actions.
+                                </p>
+                            </div>
+                        </RowDrawer>
+                    ),
+                },
                 {
                     key: 'is_enabled',
                     label: 'Enabled',

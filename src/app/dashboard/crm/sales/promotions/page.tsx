@@ -35,6 +35,8 @@ export default function PromotionsPage() {
       subtitle="Discount codes and promotional offers."
       icon={Tag}
       singular="Promotion"
+      basePath="/dashboard/crm/sales/promotions"
+      rowLinksToDetail
       emptyText="No promotions yet — click Add to create your first one."
       getAllAction={async () => {
         const rows = await getPromotions();

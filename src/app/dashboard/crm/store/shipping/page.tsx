@@ -14,6 +14,7 @@ import {
   Truck } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 
 /**
  * Shipping zones list — `/dashboard/crm/store/shipping`.
@@ -128,12 +129,15 @@ export default async function ShippingZoneListPage({ searchParams }: PageProps) 
                                             className="border-zoru-line"
                                         >
                                             <ZoruTableCell className="text-zoru-ink">
-                                                <Link
+                                                <EntityRowLink
                                                     href={`/dashboard/crm/store/shipping/${id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {(z.name as string) || 'Untitled'}
-                                                </Link>
+                                                    label={(z.name as string) || 'Untitled'}
+                                                    subtitle={
+                                                        countries.length > 0
+                                                            ? `${countries.length} countr${countries.length === 1 ? 'y' : 'ies'}`
+                                                            : undefined
+                                                    }
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-zoru-ink">
                                                 {countries.length > 0

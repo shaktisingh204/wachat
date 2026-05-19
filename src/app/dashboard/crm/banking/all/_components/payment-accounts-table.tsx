@@ -25,6 +25,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 import type { PaymentAccountRow } from './types';
 
@@ -127,12 +128,11 @@ export function PaymentAccountsTable({
                                         />
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-medium">
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/banking/all/${row._id}`}
-                                            className="hover:underline text-accent-foreground"
-                                        >
-                                            {row.accountName}
-                                        </Link>
+                                            label={row.accountName}
+                                            subtitle={row.bankDetails?.bankName || undefined}
+                                        />
                                     </ZoruTableCell>
                                     {!compact ? (
                                         <ZoruTableCell className="text-foreground">

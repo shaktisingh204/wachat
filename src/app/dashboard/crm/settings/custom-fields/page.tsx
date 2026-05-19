@@ -62,6 +62,7 @@ import {
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import {
@@ -768,22 +769,23 @@ export default function CustomFieldsPage() {
                                                 {f.displayOrder ?? 0}
                                             </ZoruTableCell>
                                             <ZoruTableCell>
-                                                <div className="flex flex-col">
-                                                    <span className="font-medium text-foreground">
-                                                        {f.label}
-                                                    </span>
-                                                    <span className="font-mono text-xs text-muted-foreground">
-                                                        {f.name}
-                                                        {f.section ? (
-                                                            <>
-                                                                {' · '}
-                                                                <span className="not-italic">
-                                                                    {f.section}
-                                                                </span>
-                                                            </>
-                                                        ) : null}
-                                                    </span>
-                                                </div>
+                                                <EntityRowLink
+                                                    href={`/dashboard/crm/settings/custom-fields/${String(f._id)}/edit`}
+                                                    label={f.label}
+                                                    subtitle={
+                                                        <span className="font-mono">
+                                                            {f.name}
+                                                            {f.section ? (
+                                                                <>
+                                                                    {' · '}
+                                                                    <span className="not-italic">
+                                                                        {f.section}
+                                                                    </span>
+                                                                </>
+                                                            ) : null}
+                                                        </span>
+                                                    }
+                                                />
                                             </ZoruTableCell>
                                             <ZoruTableCell className="text-foreground">
                                                 {labelForType(f.fieldType)}

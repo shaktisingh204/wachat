@@ -23,6 +23,7 @@ import {
 import * as React from 'react';
 import Link from 'next/link';
 
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import type { CoaNature, CoaRow } from './types';
 
@@ -117,12 +118,11 @@ export function CoaTable({ rows, loading, selection, onToggle, onToggleAll, onDe
                                         {row.code || '—'}
                                     </ZoruTableCell>
                                     <ZoruTableCell className="font-medium">
-                                        <Link
+                                        <EntityRowLink
                                             href={`/dashboard/crm/accounting/charts/${row._id}`}
-                                            className="hover:underline text-accent-foreground"
-                                        >
-                                            {row.name}
-                                        </Link>
+                                            label={row.name}
+                                            subtitle={row.code ? `Code ${row.code}` : undefined}
+                                        />
                                     </ZoruTableCell>
                                     <ZoruTableCell>
                                         {nature ? (
