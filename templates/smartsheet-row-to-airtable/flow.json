@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_smartsheet_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "smartsheet.row.added",
+    "options": {
+      "path": "/webhooks/smartsheet-row-to-airtable",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "Smartsheet-Hook-Shared-Secret",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_smartsheet_trigger",
+      "name": "Smartsheet Row Added",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "smartsheet-row-to-airtable",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "smartsheet-row-to-airtable"
+    },
+    {
+      "id": "n_fetch_row",
+      "name": "Fetch Smartsheet Row",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.smartsheet.com/2.0/sheets/{{ $vars.SMARTSHEET_SHEET_ID }}/rows/{{ $json.events[0].rowId }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "smartsheetOAuth2Api"
+      },
+      "credentials": {
+        "smartsheetOAuth2Api": { "id": "smartsheet-cred", "name": "Smartsheet OAuth2" }
+      }
+    },
+    {
+      "id": "n_shape_record",
+      "name": "Shape Airtable Record",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.cells[0].value }}" },
+            { "name": "owner", "value": "={{ $json.cells[1].value }}" },
+            { "name": "status", "value": "={{ $json.cells[2].value }}" },
+            { "name": "dueDate", "value": "={{ $json.cells[3].value }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_airtable_create",
+      "name": "Create Airtable Record",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "create",
+        "application": "={{ $vars.AIRTABLE_BASE_ID }}",
+        "table": "={{ $vars.AIRTABLE_TABLE }}",
+        "fields": {
+          "Title": "={{ $node['Shape Airtable Record'].json.title }}",
+          "Owner": "={{ $node['Shape Airtable Record'].json.owner }}",
+          "Status": "={{ $node['Shape Airtable Record'].json.status }}",
+          "Due": "={{ $node['Shape Airtable Record'].json.dueDate }}",
+          "Source": "smartsheet"
+        }
+      },
+      "credentials": {
+        "airtableTokenApi": { "id": "airtable-cred", "name": "Airtable PAT" }
+      }
+    },
+    {
+      "id": "n_done",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"ok\":true,\"airtableId\":\"{{ $json.id }}\"}"
+      }
+    }
+  ],
+  "connections": {
+    "n_smartsheet_trigger": {
+      "main": [[{ "node": "n_fetch_row", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_row": {
+      "main": [[{ "node": "n_shape_record", "type": "main", "index": 0 }]]
+    },
+    "n_shape_record": {
+      "main": [[{ "node": "n_airtable_create", "type": "main", "index": 0 }]]
+    },
+    "n_airtable_create": {
+      "main": [[{ "node": "n_done", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_smartsheet_trigger", "n_fetch_row", "n_shape_record", "n_airtable_create", "n_done"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sheet", "name": "SMARTSHEET_SHEET_ID", "defaultValue": "" },
+    { "id": "v_base", "name": "AIRTABLE_BASE_ID", "defaultValue": "" },
+    { "id": "v_table", "name": "AIRTABLE_TABLE", "defaultValue": "Mirror" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
