@@ -31,6 +31,17 @@
  *    stays Mongo-only until the worksuite UI is rebuilt against the
  *    range-based + per-employee Rust model.
  *
+ *  - `listPayrollRuns` / `getPayrollRunById` / `deletePayrollRun` have
+ *    thin Rust-path wrappers (best-effort bridge across the model gap).
+ *    The Rust doc is returned as-is and callers that only use `_id`,
+ *    `status`, and date fields will work fine. Fields specific to the
+ *    legacy shape (`period_month`, `period_year`, `total_*`) will be
+ *    absent on the Rust path — the UI must tolerate undefined.
+ *  - `savePayrollRun` and `finalizePayrollRun` remain Mongo-only:
+ *    `savePayrollRun` invokes `generatePayrollData`/`processPayroll`
+ *    which are themselves Mongo-only; `finalizePayrollRun` flips a
+ *    legacy status value not present in the Rust status enum.
+ *
  * TODO 1.P3: collapse the (month, year) wrapper onto the Rust range
  * model once the legacy `/dashboard/hrm/payroll/payroll` route is
  * migrated to consume `periodFrom`/`periodTo` directly.
@@ -47,6 +58,13 @@ import {
     processPayroll,
     getPayslips,
 } from '@/app/actions/crm-payroll.actions';
+import { crmPayrollRunsApi } from '@/lib/rust-client/crm-payroll-runs';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 
@@ -112,6 +130,35 @@ export async function listPayrollRuns(
     const guard = await requirePermission('crm_payroll', 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            // Best-effort: pass status if it maps to a Rust status value.
+            // year/month filters have no Rust equivalent — they are
+            // ignored on this path; the legacy UI filters client-side.
+            const rustStatus =
+                filters?.status && filters.status !== 'all'
+                    ? filters.status
+                    : undefined;
+            const docs = await crmPayrollRunsApi.list({
+                limit: filters?.limit ?? 200,
+                status: rustStatus,
+            });
+            // Cast: callers that only read _id/status/date fields work fine;
+            // legacy-specific fields (period_month, period_year, total_*)
+            // will be undefined — the UI must tolerate this on the Rust path.
+            return JSON.parse(JSON.stringify(docs)) as CrmPayrollRunDoc[];
+        } catch (e) {
+            console.error('[listPayrollRuns] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payroll_run',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userId = new ObjectId(session.user._id);
@@ -141,11 +188,27 @@ export async function getPayrollRunById(
 ): Promise<CrmPayrollRunDoc | null> {
     const session = await getSession();
     if (!session?.user) return null;
-    if (!ObjectId.isValid(id)) return null;
 
     const guard = await requirePermission('crm_payroll', 'view');
     if (!guard.ok) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPayrollRunsApi.getById(id);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as CrmPayrollRunDoc) : null;
+        } catch (e) {
+            console.error('[getPayrollRunById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payroll_run',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db.collection('crm_payroll_runs').findOne({
@@ -178,6 +241,14 @@ export async function getPayrollRunPayslips(
  * Generate + persist a payroll run. Delegates the heavy work to the
  * existing `generatePayrollData` / `processPayroll` actions, then
  * upserts a `crm_payroll_runs` document with the aggregate totals.
+ *
+ * Mongo-only path — no Rust delegation. The Rust BFF accepts
+ * `periodFrom`/`periodTo` ISO date ranges, while this action takes
+ * `period_month`/`period_year` ints and also invokes
+ * `generatePayrollData`/`processPayroll` which are themselves
+ * Mongo-only. Wire the Rust path here once the worksuite UI is
+ * rebuilt against the range-based Rust model.
+ * TODO: add Rust path when crm-payroll-runs router accepts legacy (month, year) wrapper.
  */
 export async function savePayrollRun(
     _prev: { message?: string; error?: string; id?: string } | undefined,
@@ -300,6 +371,11 @@ export async function savePayrollRun(
 /**
  * Flip a run to `processed` (i.e. lock the payslips). Requires that
  * payslips already exist for the period.
+ *
+ * Mongo-only path — the Rust status enum uses `approved`/`disbursed`
+ * instead of `processed`. Wire the Rust path here once the status
+ * mapping is resolved.
+ * TODO: add Rust path when crm-payroll-runs router exposes a `finalize` lifecycle endpoint.
  */
 export async function finalizePayrollRun(
     id: string,
@@ -335,11 +411,31 @@ export async function deletePayrollRun(
 ): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
-    if (!ObjectId.isValid(id))
-        return { success: false, error: 'Invalid run id.' };
 
     const guard = await requirePermission('crm_payroll', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!id) return { success: false, error: 'Invalid run id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmPayrollRunsApi.delete(id);
+            revalidatePath('/dashboard/hrm/payroll/payroll');
+            return { success: true };
+        } catch (e) {
+            console.error('[deletePayrollRun] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payroll_run',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id))
+        return { success: false, error: 'Invalid run id.' };
 
     try {
         const { db } = await connectToDatabase();

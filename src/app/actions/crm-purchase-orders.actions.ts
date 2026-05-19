@@ -1,5 +1,18 @@
 'use server';
 
+/**
+ * CRM Purchase Order server actions.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, reads and create/update/delete
+ *    delegate to the Rust BFF (`/v1/crm/purchase-orders`) via
+ *    `src/lib/rust-client/crm-purchase-orders.ts`.
+ *  - Otherwise (default), the legacy direct-Mongo path runs.
+ *
+ * Export shapes are identical across both paths so existing pages keep
+ * working without changes.
+ */
+
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -8,6 +21,13 @@ import type { CrmPurchaseOrder, LineageKind, LineageRef } from '@/lib/definition
 import { getErrorMessage } from '@/lib/utils';
 import { appendLineage, buildLineageFromParent } from '@/lib/lineage';
 import { requirePermission } from '@/lib/rbac-server';
+import { crmPurchaseOrdersApi } from '@/lib/rust-client/crm-purchase-orders';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 async function getNextPurchaseOrderNumber(db: Db, userId: ObjectId): Promise<string> {
     const lastOrder = await db.collection<CrmPurchaseOrder>('crm_purchase_orders')
@@ -42,6 +62,25 @@ export async function getPurchaseOrders(
 ): Promise<{ orders: WithId<CrmPurchaseOrder>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { orders: [], total: 0 };
+
+    if (useRustCrm()) {
+        try {
+            const docs = await crmPurchaseOrdersApi.list({ page: page - 1, limit });
+            return {
+                orders: JSON.parse(JSON.stringify(docs)) as WithId<CrmPurchaseOrder>[],
+                total: docs.length,
+            };
+        } catch (e) {
+            console.error('[getPurchaseOrders] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'purchase_order',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -78,10 +117,26 @@ export async function getPurchaseOrders(
 }
 
 export async function getPurchaseOrderById(id: string): Promise<WithId<CrmPurchaseOrder> | null> {
-    if (!ObjectId.isValid(id)) return null;
     const session = await getSession();
     if (!session?.user) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPurchaseOrdersApi.getById(id);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmPurchaseOrder>) : null;
+        } catch (e) {
+            console.error('[getPurchaseOrderById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'purchase_order',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const order = await db.collection<CrmPurchaseOrder>('crm_purchase_orders').findOne({
@@ -104,6 +159,56 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
 
     const guard = await requirePermission('crm_purchase_order', isEdit ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const vendorIdRaw = formData.get('vendorId') as string | null;
+            const orderDate = formData.get('orderDate') as string | null;
+            if (!vendorIdRaw || !orderDate) throw new Error('missing required fields');
+
+            const lineItemsRaw = formData.get('lineItems') as string | null;
+            const lineItems = JSON.parse(lineItemsRaw || '[]');
+            const subTotal = lineItems.reduce(
+                (sum: number, item: any) => sum + (item.quantity * item.rate),
+                0,
+            );
+
+            const payload = {
+                vendorId: vendorIdRaw,
+                date: orderDate,
+                expectedDelivery: (formData.get('expectedDeliveryDate') as string | null) || undefined,
+                currency: (formData.get('currency') as string | null) || 'INR',
+                paymentTerms: (formData.get('paymentTerms') as string | null) || undefined,
+                shipToWarehouseId: (formData.get('warehouseId') as string | null) || undefined,
+                notes: (formData.get('notes') as string | null) || undefined,
+                items: lineItems,
+                totals: { subTotal, total: subTotal },
+                fromKind: (formData.get('fromKind') as string | null) || undefined,
+                fromId: (formData.get('fromId') as string | null) || undefined,
+            };
+
+            if (isEdit && orderIdRaw) {
+                await crmPurchaseOrdersApi.update(orderIdRaw, payload);
+                revalidatePath('/dashboard/crm/purchases/orders');
+                revalidatePath(`/dashboard/crm/purchases/orders/${orderIdRaw}/edit`);
+                return { message: 'Purchase order updated successfully.' };
+            }
+
+            const orderNumber = (formData.get('orderNumber') as string | null) || '';
+            await crmPurchaseOrdersApi.create({ ...payload, poNo: orderNumber });
+            revalidatePath('/dashboard/crm/purchases/orders');
+            return { message: 'Purchase order saved successfully.' };
+        } catch (e) {
+            console.error('[savePurchaseOrder] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'purchase_order',
+                op: isEdit ? 'update' : 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -257,13 +362,32 @@ export async function savePurchaseOrder(prevState: any, formData: FormData): Pro
 }
 
 export async function deletePurchaseOrder(orderId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid ID.' };
-
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const guard = await requirePermission('crm_purchase_order', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!orderId) return { success: false, error: 'Invalid ID.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmPurchaseOrdersApi.delete(orderId);
+            revalidatePath('/dashboard/crm/purchases/orders');
+            return { success: true };
+        } catch (e) {
+            console.error('[deletePurchaseOrder] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'purchase_order',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(orderId)) return { success: false, error: 'Invalid ID.' };
 
     try {
         const { db } = await connectToDatabase();

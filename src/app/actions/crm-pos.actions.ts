@@ -9,11 +9,10 @@
  *   - `crm_pos_holds`        — parked tickets that can be recalled
  *   - `crm_pos_refunds`      — refunds linked to an original transaction
  *
- * A sibling Rust crate (`rust/crates/crm-pos/`) is being authored in
- * parallel but is not yet workspace-registered, so this file talks to
- * Mongo directly until the parent batch wires up `crmPosApi`. The
- * dual-path pattern from `crm-invoices.actions.ts` is preserved
- * (`useRustCrm()` flag is intentionally absent here for the moment).
+ * The Rust client (`src/lib/rust-client/crm-pos.ts`) is now registered
+ * and the dual-impl pattern is wired via `useRustCrm()`.
+ * When `USE_RUST_CRM === 'true'`, every action delegates to the Rust
+ * BFF (`/v1/crm/pos`) and falls back to Mongo on failure.
  *
  * RBAC: every mutation runs through `requirePermission('crm_pos', ...)`.
  * `crm_pos` is a NEW key that must be appended to
@@ -29,6 +28,13 @@ import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { requirePermission } from '@/lib/rbac-server';
 import { getErrorMessage } from '@/lib/utils';
+import { crmPosApi } from '@/lib/rust-client/crm-pos';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Shared types ───────────────────────────────────────────────────── */
 
@@ -221,6 +227,26 @@ export async function getPosSessions(filters?: {
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.sessions.list({
+                terminalId: filters?.terminalId,
+                status: filters?.status,
+                limit: 200,
+            });
+            return serialize<PosSessionDoc[]>(res.items);
+        } catch (e) {
+            console.error('[getPosSessions] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(String(session.user._id));
@@ -246,10 +272,26 @@ export async function getPosSessionById(
 ): Promise<PosSessionDoc | null> {
     const session = await getSession();
     if (!session?.user?._id) return null;
-    if (!ObjectId.isValid(id)) return null;
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPosApi.sessions.getById(id);
+            return doc ? serialize<PosSessionDoc>(doc) : null;
+        } catch (e) {
+            console.error('[getPosSessionById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db.collection('crm_pos_sessions').findOne({
@@ -280,6 +322,28 @@ export async function openPosSession(
     if (!terminalId) return { error: 'Terminal is required.' };
     if (!Number.isFinite(openingCash) || openingCash < 0) {
         return { error: 'Opening cash must be a non-negative number.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.sessions.open({
+                terminalId,
+                openingCash,
+                notes: notes || undefined,
+            });
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/sessions');
+            return { message: 'Session opened.', id: res.id };
+        } catch (e) {
+            console.error('[openPosSession] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
     }
 
     try {
@@ -331,12 +395,35 @@ export async function closePosSession(input: {
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!ObjectId.isValid(input.id)) {
-        return { success: false, error: 'Invalid session id.' };
-    }
     const closingCash = Number(input.closingCash);
     if (!Number.isFinite(closingCash) || closingCash < 0) {
         return { success: false, error: 'Closing cash must be a non-negative number.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPosApi.sessions.close(input.id, { closingCash });
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/sessions');
+            revalidatePath(`/dashboard/crm/pos/sessions/${input.id}`);
+            return {
+                success: true,
+                discrepancy: typeof doc.discrepancy === 'number' ? doc.discrepancy : undefined,
+            };
+        } catch (e) {
+            console.error('[closePosSession] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(input.id)) {
+        return { success: false, error: 'Invalid session id.' };
     }
 
     try {
@@ -418,6 +505,25 @@ export async function reconcilePosSession(
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmPosApi.sessions.reconcile(id);
+            revalidatePath('/dashboard/crm/pos/sessions');
+            revalidatePath(`/dashboard/crm/pos/sessions/${id}`);
+            return { success: true };
+        } catch (e) {
+            console.error('[reconcilePosSession] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid session id.' };
 
     try {
@@ -460,6 +566,24 @@ export async function archivePosSession(
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmPosApi.sessions.archive(id);
+            revalidatePath('/dashboard/crm/pos/sessions');
+            return { success: true };
+        } catch (e) {
+            console.error('[archivePosSession] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_session',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid session id.' };
 
     try {
@@ -501,6 +625,26 @@ export async function getPosTransactions(filters?: {
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.transactions.list({
+                sessionId: filters?.sessionId,
+                status: filters?.status as any,
+                limit: Math.max(1, Math.min(500, filters?.limit ?? 200)),
+            });
+            return serialize<PosTransactionDoc[]>(res.items);
+        } catch (e) {
+            console.error('[getPosTransactions] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_transaction',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(String(session.user._id));
@@ -528,10 +672,26 @@ export async function getPosTransactionById(
 ): Promise<PosTransactionDoc | null> {
     const session = await getSession();
     if (!session?.user?._id) return null;
-    if (!ObjectId.isValid(id)) return null;
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPosApi.transactions.getById(id);
+            return doc ? serialize<PosTransactionDoc>(doc) : null;
+        } catch (e) {
+            console.error('[getPosTransactionById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_transaction',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db.collection('crm_pos_transactions').findOne({
@@ -568,7 +728,7 @@ export async function createPosTransaction(
     const guard = await requirePermission('crm_pos', 'create');
     if (!guard.ok) return { success: false, error: guard.error };
 
-    if (!input.sessionId || !ObjectId.isValid(input.sessionId)) {
+    if (!input.sessionId) {
         return { success: false, error: 'A valid session is required.' };
     }
     const items = normalizeLineItems(input.lineItems ?? []);
@@ -578,6 +738,52 @@ export async function createPosTransaction(
     const totals = computeTotals(items);
     if (totals.total <= 0) {
         return { success: false, error: 'Transaction total must be positive.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.transactions.create({
+                sessionId: input.sessionId,
+                customerId: input.customerId ?? undefined,
+                lineItems: items.map((li) => ({
+                    itemId: li.itemId ?? null,
+                    name: li.name,
+                    quantity: li.qty,
+                    rate: li.rate,
+                    taxRate: li.taxRate,
+                    total: li.total,
+                })),
+                subtotal: totals.subtotal,
+                taxTotal: totals.taxTotal,
+                total: totals.total,
+                paymentMethod: input.paymentMethod as any,
+                paymentSplits: input.paymentSplits?.map((s) => ({
+                    method: s.method as any,
+                    amount: s.amount,
+                })),
+            });
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/terminal');
+            revalidatePath(`/dashboard/crm/pos/sessions/${input.sessionId}`);
+            return {
+                success: true,
+                id: res.id,
+                transactionNumber: res.entity?.transactionNumber,
+            };
+        } catch (e) {
+            console.error('[createPosTransaction] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_transaction',
+                op: 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(input.sessionId)) {
+        return { success: false, error: 'A valid session is required.' };
     }
 
     try {
@@ -655,6 +861,25 @@ export async function voidPosTransaction(input: {
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmPosApi.transactions.void(input.id, input.reason);
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/terminal');
+            return { success: true };
+        } catch (e) {
+            console.error('[voidPosTransaction] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_transaction',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(input.id)) {
         return { success: false, error: 'Invalid transaction id.' };
     }
@@ -714,9 +939,6 @@ export async function refundPosTransaction(
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!input.originalTransactionId || !ObjectId.isValid(input.originalTransactionId)) {
-        return { success: false, error: 'Invalid original transaction id.' };
-    }
     if (!input.reason?.trim()) {
         return { success: false, error: 'Refund reason is required.' };
     }
@@ -727,6 +949,37 @@ export async function refundPosTransaction(
     const totals = computeTotals(items);
     if (totals.total <= 0) {
         return { success: false, error: 'Refund total must be positive.' };
+    }
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.transactions.refund(input.originalTransactionId, {
+                reason: input.reason.trim(),
+                refundedLineItems: items.map((li, idx) => ({
+                    originalLineItemIndex: idx,
+                    quantity: li.qty,
+                    refundAmount: li.total,
+                })),
+                refundTotal: totals.total,
+                refundMethod: input.refundMethod as any,
+            });
+            revalidatePath('/dashboard/crm/pos/refunds');
+            revalidatePath('/dashboard/crm/pos');
+            return { success: true, id: res.id };
+        } catch (e) {
+            console.error('[refundPosTransaction] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_transaction',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!input.originalTransactionId || !ObjectId.isValid(input.originalTransactionId)) {
+        return { success: false, error: 'Invalid original transaction id.' };
     }
 
     try {
@@ -799,6 +1052,25 @@ export async function getPosRefunds(filters?: {
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return [];
 
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.refunds.list({
+                status: filters?.status as any,
+                limit: Math.max(1, Math.min(500, filters?.limit ?? 200)),
+            });
+            return serialize<PosRefundDoc[]>(res.items);
+        } catch (e) {
+            console.error('[getPosRefunds] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_refund',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(String(session.user._id));
@@ -821,10 +1093,26 @@ export async function getPosRefunds(filters?: {
 export async function getPosRefundById(id: string): Promise<PosRefundDoc | null> {
     const session = await getSession();
     if (!session?.user?._id) return null;
-    if (!ObjectId.isValid(id)) return null;
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmPosApi.refunds.getById(id);
+            return doc ? serialize<PosRefundDoc>(doc) : null;
+        } catch (e) {
+            console.error('[getPosRefundById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_refund',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id)) return null;
     try {
         const { db } = await connectToDatabase();
         const doc = await db.collection('crm_pos_refunds').findOne({
@@ -849,6 +1137,26 @@ export async function getPosHolds(filters?: {
     if (!session?.user?._id) return [];
     const guard = await requirePermission('crm_pos', 'view');
     if (!guard.ok) return [];
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.holds.list({
+                sessionId: filters?.sessionId,
+                status: (filters?.status ?? 'held') as any,
+                limit: 200,
+            });
+            return serialize<PosHoldDoc[]>(res.items);
+        } catch (e) {
+            console.error('[getPosHolds] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_hold',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -892,14 +1200,45 @@ export async function createPosHold(
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'create');
     if (!guard.ok) return { success: false, error: guard.error };
-    if (!input.sessionId || !ObjectId.isValid(input.sessionId)) {
-        return { success: false, error: 'A valid session is required.' };
-    }
     const items = normalizeLineItems(input.lineItems ?? []);
     if (items.length === 0) {
         return { success: false, error: 'At least one line item is required.' };
     }
     const totals = computeTotals(items);
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.holds.create({
+                sessionId: input.sessionId,
+                customerId: input.customerId ?? undefined,
+                lineItems: items.map((li) => ({
+                    itemId: li.itemId ?? null,
+                    name: li.name,
+                    quantity: li.qty,
+                    rate: li.rate,
+                    taxRate: li.taxRate,
+                    total: li.total,
+                })),
+                holdReason: input.holdReason,
+            });
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/hold-recall');
+            return { success: true, id: res.id };
+        } catch (e) {
+            console.error('[createPosHold] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_hold',
+                op: 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!input.sessionId || !ObjectId.isValid(input.sessionId)) {
+        return { success: false, error: 'A valid session is required.' };
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -963,6 +1302,35 @@ export async function recallPosHold(input: {
     if (!session?.user?._id) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_pos', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmPosApi.holds.recall(input.holdId, {
+                paymentMethod: input.paymentMethod as any,
+                paymentSplits: input.paymentSplits?.map((s) => ({
+                    method: s.method as any,
+                    amount: s.amount,
+                })),
+            });
+            revalidatePath('/dashboard/crm/pos');
+            revalidatePath('/dashboard/crm/pos/hold-recall');
+            return {
+                success: true,
+                transactionId: res.id,
+                transactionNumber: res.entity?.transactionNumber,
+            };
+        } catch (e) {
+            console.error('[recallPosHold] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'pos_hold',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     if (!ObjectId.isValid(input.holdId)) {
         return { success: false, error: 'Invalid hold id.' };
     }

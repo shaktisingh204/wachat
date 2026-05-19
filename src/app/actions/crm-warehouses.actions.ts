@@ -9,6 +9,16 @@
  * The save action keeps backwards-compat with the legacy form (which
  * posts `location` → `address` and only `name`/`isDefault`). All new
  * fields are optional and additive.
+ *
+ * **Dual implementation:**
+ *  - When `USE_RUST_CRM === 'true'`, CRUD operations delegate to the
+ *    Rust BFF (`/v1/crm/warehouses`) via
+ *    `src/lib/rust-client/crm-warehouses.ts`.
+ *  - `getCrmWarehouseKpis`, `getCrmWarehouseInventorySummary`,
+ *    `getCrmWarehouseStockByItem`, `getCrmWarehousesPaginated`, and
+ *    `setDefaultCrmWarehouse` remain Mongo-only — no matching Rust
+ *    endpoints exist yet.
+ *    TODO: add Rust path when crm-warehouses router exposes KPI + pagination + set-default endpoints.
  */
 
 import { revalidatePath } from 'next/cache';
@@ -25,6 +35,12 @@ import { getErrorMessage } from '@/lib/utils';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
+import { crmWarehousesApi } from '@/lib/rust-client/crm-warehouses';
+import { RustApiError } from '@/lib/rust-client/fetcher';
+
+function useRustCrm(): boolean {
+    return process.env.USE_RUST_CRM === 'true';
+}
 
 /* ─── Types ────────────────────────────────────────────────────────── */
 
@@ -75,10 +91,27 @@ const EMPTY_KPIS: CrmWarehouseKpis = {
 export async function getCrmWarehouseById(
     warehouseId: string,
 ): Promise<WithId<CrmWarehouse> | null> {
-    if (!warehouseId || !ObjectId.isValid(warehouseId)) return null;
+    if (!warehouseId) return null;
     const session = await getSession();
     if (!session?.user) return null;
 
+    if (useRustCrm()) {
+        try {
+            const doc = await crmWarehousesApi.getById(warehouseId);
+            return doc ? (JSON.parse(JSON.stringify(doc)) as WithId<CrmWarehouse>) : null;
+        } catch (e) {
+            console.error('[getCrmWarehouseById] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'warehouse',
+                op: 'get',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(warehouseId)) return null;
     try {
         const { db } = await connectToDatabase();
         const warehouse = await db
@@ -98,6 +131,22 @@ export async function getCrmWarehouseById(
 export async function getCrmWarehouses(): Promise<WithId<CrmWarehouse>[]> {
     const session = await getSession();
     if (!session?.user) return [];
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmWarehousesApi.list({ limit: 200 });
+            return JSON.parse(JSON.stringify(res.items)) as WithId<CrmWarehouse>[];
+        } catch (e) {
+            console.error('[getCrmWarehouses] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'warehouse',
+                op: 'list',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
 
     try {
         const { db } = await connectToDatabase();
@@ -367,6 +416,73 @@ export async function saveCrmWarehouse(
     const guard = await requirePermission('crm_warehouse', isEditing ? 'edit' : 'create');
     if (!guard.ok) return { error: guard.error };
 
+    if (useRustCrm()) {
+        try {
+            const name = ((formData.get('name') as string | null) || '').trim();
+            if (!name) return { error: 'Warehouse name is required.' };
+
+            const strOrUndef = (k: string, alt?: string): string | undefined => {
+                const v =
+                    (formData.get(k) as string | null) ??
+                    (alt ? (formData.get(alt) as string | null) : null);
+                return v || undefined;
+            };
+            const numberOrUndef = (k: string): number | undefined => {
+                const raw = formData.get(k);
+                if (raw == null || String(raw).trim() === '') return undefined;
+                const n = Number(raw);
+                return Number.isFinite(n) ? n : undefined;
+            };
+
+            const payload = {
+                name,
+                code: (formData.get('code') as string | null)?.trim() || undefined,
+                type: strOrUndef('type') as any,
+                status: strOrUndef('status') as any,
+                address: strOrUndef('address', 'location'),
+                city: strOrUndef('city'),
+                state: strOrUndef('state'),
+                country: strOrUndef('country'),
+                pincode: strOrUndef('pincode'),
+                phone: strOrUndef('phone'),
+                managerId: strOrUndef('managerId'),
+                managerName: strOrUndef('managerName'),
+                gstin: strOrUndef('gstin'),
+                capacityUnits: numberOrUndef('capacityUnits'),
+                capacitySqft: numberOrUndef('capacitySqft'),
+                climateControlled: formData.get('climateControlled') === 'on',
+                isDefault: formData.get('isDefault') === 'on',
+            };
+
+            if (isEditing && warehouseId) {
+                const doc = await crmWarehousesApi.update(warehouseId, payload);
+                revalidatePath('/dashboard/crm/inventory/warehouses');
+                return {
+                    message: `Warehouse "${name}" saved successfully!`,
+                    warehouse: JSON.parse(JSON.stringify(doc)) as CrmWarehouse,
+                };
+            }
+
+            const res = await crmWarehousesApi.create(payload);
+            revalidatePath('/dashboard/crm/inventory/warehouses');
+            return {
+                message: `Warehouse "${name}" saved successfully!`,
+                warehouse: res.entity
+                    ? (JSON.parse(JSON.stringify(res.entity)) as CrmWarehouse)
+                    : undefined,
+            };
+        } catch (e) {
+            console.error('[saveCrmWarehouse] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'warehouse',
+                op: isEditing ? 'update' : 'create',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
     try {
         const userId = new ObjectId(session.user._id);
         const name = (formData.get('name') as string)?.trim();
@@ -480,12 +596,32 @@ async function setArchiveState(
     warehouseId: string,
     archived: boolean,
 ): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(warehouseId))
-        return { success: false, error: 'Invalid warehouse id.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_warehouse', 'edit');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!warehouseId) return { success: false, error: 'Invalid warehouse id.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmWarehousesApi.update(warehouseId, { archived });
+            revalidatePath('/dashboard/crm/inventory/warehouses');
+            return { success: true };
+        } catch (e) {
+            console.error('[setArchiveState] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'warehouse',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(warehouseId))
+        return { success: false, error: 'Invalid warehouse id.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -584,12 +720,33 @@ export async function setDefaultCrmWarehouse(
 export async function deleteCrmWarehouse(
     warehouseId: string,
 ): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(warehouseId))
-        return { success: false, error: 'Invalid Warehouse ID.' };
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
     const guard = await requirePermission('crm_warehouse', 'delete');
     if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!warehouseId) return { success: false, error: 'Invalid Warehouse ID.' };
+
+    if (useRustCrm()) {
+        try {
+            await crmWarehousesApi.delete(warehouseId);
+            revalidatePath('/dashboard/crm/inventory/warehouses');
+            revalidatePath('/dashboard/crm/products');
+            return { success: true };
+        } catch (e) {
+            console.error('[deleteCrmWarehouse] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'warehouse',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(warehouseId))
+        return { success: false, error: 'Invalid Warehouse ID.' };
 
     try {
         const { db } = await connectToDatabase();
