@@ -71,9 +71,13 @@ export const ZoruButton = React.forwardRef<HTMLButtonElement, ZoruButtonProps>(
         className={cn(zoruButtonVariants({ variant, size, block }), className)}
         {...props}
       >
-        {leading}
-        {children}
-        {trailing}
+        {asChild ? children : (
+          <>
+            {leading}
+            {children}
+            {trailing}
+          </>
+        )}
       </Comp>
     );
   },
