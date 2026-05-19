@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_kustomer_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "kustomer.conversation.created",
+    "options": {
+      "path": "/webhooks/kustomer-priority-escalate",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Kustomer-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_kustomer_trigger",
+      "name": "Kustomer Convo Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "kustomer-priority-escalate",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "kustomer-priority-escalate"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Convo + Tags",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "convoId", "value": "={{ $json.data.id }}" },
+            { "name": "subject", "value": "={{ $json.data.attributes.name }}" },
+            { "name": "customerName", "value": "={{ $json.data.relationships.customer.data.attributes.name }}" },
+            { "name": "tags", "value": "={{ ($json.data.attributes.tags || []).join(',') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_is_vip",
+      "name": "Is VIP?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.tags }}", "operation": "contains", "value2": "vip" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_assign_lead",
+      "name": "Assign CX Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://api.kustomerapp.com/v1/conversations/{{ $node['Extract Convo + Tags'].json.convoId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "assignedUsers", "value": "={{ $vars.KUSTOMER_LEAD_USER_ID }}" },
+            { "name": "priority", "value": "1" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "kustomerApi"
+      },
+      "credentials": {
+        "kustomerApi": { "id": "kustomer-cred", "name": "Kustomer API" }
+      }
+    },
+    {
+      "id": "n_slack_lead",
+      "name": "Slack CX Lead",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CX_LEAD_CHANNEL }}",
+        "text": ":vip: VIP *{{ $node['Extract Convo + Tags'].json.customerName }}* opened a conversation: \"{{ $node['Extract Convo + Tags'].json.subject }}\". Assigned to you."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_log_standard",
+      "name": "Log Standard Convo",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "standard customer — no escalation" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_kustomer_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_is_vip", "type": "main", "index": 0 }]]
+    },
+    "n_is_vip": {
+      "true": [[{ "node": "n_assign_lead", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_log_standard", "type": "main", "index": 0 }]]
+    },
+    "n_assign_lead": {
+      "main": [[{ "node": "n_slack_lead", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_kustomer_trigger", "n_extract", "n_is_vip", "n_assign_lead", "n_slack_lead", "n_log_standard"]
+    }
+  ],
+  "variables": [
+    { "id": "v_lead", "name": "KUSTOMER_LEAD_USER_ID", "defaultValue": "" },
+    { "id": "v_cx_lead", "name": "SLACK_CX_LEAD_CHANNEL", "defaultValue": "#cx-lead" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "helpscout-conversation-tag",
+  "name": "Help Scout Conversation Auto-Tag",
+  "description": "On every new Help Scout conversation, runs the customer's message through GPT-4o to classify topic and applies matching tags back to the conversation. Reduces the manual triage tax on support leads.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["helpscout", "openai", "support", "tagging", "triage"],
+  "version": "0.1.0"
+}

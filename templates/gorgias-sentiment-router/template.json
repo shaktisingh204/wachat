@@ -1,0 +1,10 @@
+{
+  "id": "gorgias-sentiment-router",
+  "name": "Gorgias Sentiment Router",
+  "description": "When a Gorgias ticket is created, scores its sentiment with OpenAI and routes negative tickets to the senior queue, neutrals to general support, and positives to a celebrate channel. Keeps escalations fast and feedback visible.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["gorgias", "openai", "support", "sentiment", "routing"],
+  "version": "0.1.0"
+}

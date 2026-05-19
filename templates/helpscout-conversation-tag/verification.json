@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "helpscout-conversation-tag",
+  "cases": [
+    {
+      "id": "tags-applied",
+      "description": "A new Help Scout conversation is classified and tags are written back.",
+      "triggerPayload": {
+        "id": "conv-001",
+        "subject": "Can't log in after password reset",
+        "threads": [{ "body": "I reset my password yesterday and now keep hitting a 401 on login." }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

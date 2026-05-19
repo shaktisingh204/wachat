@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "fb-conversion-api-mirror",
+  "cases": [
+    {
+      "id": "purchase-mirrored",
+      "description": "Shopify order is mirrored to Meta CAPI with hashed identifiers and logged.",
+      "triggerPayload": {
+        "id": 1234567890,
+        "email": "buyer@example.com",
+        "phone": "+15550009999",
+        "total_price": "49.00",
+        "currency": "USD"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

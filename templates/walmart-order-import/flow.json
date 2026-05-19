@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_walmart_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "walmart.order.created",
+    "options": {
+      "path": "/webhooks/walmart-order-import",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Walmart-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_walmart_trigger",
+      "name": "Walmart Order Created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "walmart-order-import",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "walmart-order-import"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Walmart Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "purchaseOrderId", "value": "={{ $json.purchaseOrderId }}" },
+            { "name": "customerEmail", "value": "={{ $json.shippingInfo.email || 'walmart-buyer@example.com' }}" },
+            { "name": "lines", "value": "={{ JSON.stringify($json.orderLines.orderLine || []) }}" },
+            { "name": "ship_name", "value": "={{ $json.shippingInfo.postalAddress.name }}" },
+            { "name": "ship_addr", "value": "={{ $json.shippingInfo.postalAddress.address1 }}" },
+            { "name": "ship_city", "value": "={{ $json.shippingInfo.postalAddress.city }}" },
+            { "name": "ship_state", "value": "={{ $json.shippingInfo.postalAddress.state }}" },
+            { "name": "ship_zip", "value": "={{ $json.shippingInfo.postalAddress.postalCode }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_map_shopify",
+      "name": "Map to Shopify Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "lineItemsPayload", "value": "={{ JSON.stringify(JSON.parse($json.lines).map(l => ({ sku: l.item.sku, quantity: l.orderLineQuantity.amount, price: l.charges.charge[0].chargeAmount.amount }))) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shopify_order",
+      "name": "Create Shopify Order",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "resource": "order",
+        "operation": "create",
+        "additionalFields": {
+          "tags": "walmart-mirror",
+          "email": "={{ $node['Extract Walmart Order'].json.customerEmail }}",
+          "note": "Mirrored from Walmart PO {{ $node['Extract Walmart Order'].json.purchaseOrderId }}",
+          "shipping_address": {
+            "name": "={{ $node['Extract Walmart Order'].json.ship_name }}",
+            "address1": "={{ $node['Extract Walmart Order'].json.ship_addr }}",
+            "city": "={{ $node['Extract Walmart Order'].json.ship_city }}",
+            "province": "={{ $node['Extract Walmart Order'].json.ship_state }}",
+            "zip": "={{ $node['Extract Walmart Order'].json.ship_zip }}"
+          }
+        }
+      },
+      "credentials": {
+        "shopifyOAuth2Api": { "id": "shopify-cred", "name": "Shopify OAuth2" }
+      }
+    },
+    {
+      "id": "n_mongo_link",
+      "name": "Link in Mongo",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "walmart_shopify_links",
+        "fields": "walmartId,shopifyId,linkedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_walmart_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_map_shopify", "type": "main", "index": 0 }]]
+    },
+    "n_map_shopify": {
+      "main": [[{ "node": "n_shopify_order", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_order": {
+      "main": [[{ "node": "n_mongo_link", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_link": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_walmart_trigger", "n_extract", "n_map_shopify", "n_shopify_order", "n_mongo_link", "n_respond"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

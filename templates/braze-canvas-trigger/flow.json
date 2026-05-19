@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_app_event",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "app.event",
+    "options": {
+      "path": "/webhooks/braze-canvas-trigger",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-App-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_app_event",
+      "name": "App Event Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "braze-canvas-trigger",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "braze-canvas-trigger"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "externalId", "value": "={{ $json.userId }}" },
+            { "name": "eventName", "value": "={{ $json.event }}" },
+            { "name": "canvasId", "value": "={{ $vars.BRAZE_CANVAS_ID }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_track_event",
+      "name": "Braze Track Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://rest.{{ $vars.BRAZE_INSTANCE }}.braze.com/users/track",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"events\":[{\"external_id\":\"{{ $json.externalId }}\",\"name\":\"{{ $json.eventName }}\",\"time\":\"{{ new Date().toISOString() }}\"}]}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.BRAZE_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_trigger_canvas",
+      "name": "Trigger Canvas",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://rest.{{ $vars.BRAZE_INSTANCE }}.braze.com/canvas/trigger/send",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"canvas_id\":\"{{ $node['Extract Event'].json.canvasId }}\",\"recipients\":[{\"external_user_id\":\"{{ $node['Extract Event'].json.externalId }}\"}]}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.BRAZE_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_lifecycle",
+      "name": "Slack Lifecycle",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_LIFECYCLE_CHANNEL }}",
+        "text": ":wave: Triggered canvas `{{ $node['Extract Event'].json.canvasId }}` for {{ $node['Extract Event'].json.externalId }} on event `{{ $node['Extract Event'].json.eventName }}`."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_app_event": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_track_event", "type": "main", "index": 0 }]]
+    },
+    "n_track_event": {
+      "main": [[{ "node": "n_trigger_canvas", "type": "main", "index": 0 }]]
+    },
+    "n_trigger_canvas": {
+      "main": [[{ "node": "n_slack_lifecycle", "type": "main", "index": 0 }]]
+    },
+    "n_slack_lifecycle": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_app_event", "n_extract", "n_track_event", "n_trigger_canvas", "n_slack_lifecycle", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_instance", "name": "BRAZE_INSTANCE", "defaultValue": "iad-01" },
+    { "id": "v_key", "name": "BRAZE_KEY", "defaultValue": "" },
+    { "id": "v_canvas", "name": "BRAZE_CANVAS_ID", "defaultValue": "" },
+    { "id": "v_lifecycle", "name": "SLACK_LIFECYCLE_CHANNEL", "defaultValue": "#lifecycle" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

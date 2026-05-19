@@ -1,0 +1,10 @@
+{
+  "id": "klaviyo-back-in-stock",
+  "name": "Klaviyo Back-In-Stock",
+  "description": "When Shopify reports an inventory restock, fires the Klaviyo back-in-stock flow for the affected SKU and posts a Slack update to the growth channel. Recaptures wait-list demand the moment stock returns.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "klaviyo", "slack", "e-commerce", "inventory"],
+  "version": "0.1.0"
+}

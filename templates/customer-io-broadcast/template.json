@@ -1,0 +1,10 @@
+{
+  "id": "customer-io-broadcast",
+  "name": "Customer.io Daily Broadcast",
+  "description": "Every day fetches today's signups and triggers a Customer.io broadcast that targets that segment. Lets you ship welcome content the same day a cohort lands without manual segment work.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["customer-io", "broadcast", "marketing", "schedule", "lifecycle"],
+  "version": "0.1.0"
+}

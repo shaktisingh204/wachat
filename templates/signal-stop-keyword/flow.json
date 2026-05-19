@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_signal_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "signal.message.received",
+    "options": {
+      "path": "/webhooks/signal-stop-keyword",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Signal-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_signal_trigger",
+      "name": "Signal Inbound",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "signal-stop-keyword",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "signal-stop-keyword"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "fromNumber", "value": "={{ $json.source }}" },
+            { "name": "body", "value": "={{ ($json.message || '').trim().toUpperCase() }}" },
+            { "name": "email", "value": "={{ $json.profile.email }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_is_stop",
+      "name": "Body == STOP?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.body }}", "operation": "equal", "value2": "STOP" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mongo_optout",
+      "name": "Mark Opted-Out",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, -100],
+      "parameters": {
+        "operation": "update",
+        "collection": "signal_contacts",
+        "updateKey": "phone",
+        "fields": "phone,optedOut,optedOutAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_send_confirm",
+      "name": "SendGrid Confirmation",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.OPTOUT_FROM_EMAIL }}",
+        "toEmail": "={{ $node['Extract Message'].json.email }}",
+        "subject": "You're opted out",
+        "contentType": "text/plain",
+        "content": "Confirmed — you'll no longer receive messages on Signal from us."
+      },
+      "credentials": {
+        "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" }
+      }
+    },
+    {
+      "id": "n_ignore",
+      "name": "Ignore Non-STOP",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "non-STOP message — no action" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_signal_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_is_stop", "type": "main", "index": 0 }]]
+    },
+    "n_is_stop": {
+      "true": [[{ "node": "n_mongo_optout", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_ignore", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_optout": {
+      "main": [[{ "node": "n_send_confirm", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_signal_trigger", "n_extract", "n_is_stop", "n_mongo_optout", "n_send_confirm", "n_ignore"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "OPTOUT_FROM_EMAIL", "defaultValue": "no-reply@example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

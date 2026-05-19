@@ -1,0 +1,10 @@
+{
+  "id": "wechat-mini-program-flow",
+  "name": "WeChat Mini-Program Form Flow",
+  "description": "Catches the WeChat Mini Program form webhook, creates or updates the prospect in HubSpot, and sends a WeChat template message back to the user. Bridges WeChat acquisition with a Western CRM.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["wechat", "hubspot", "form", "marketing", "mini-program"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_broadcast_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "broadcast.submit",
+    "options": {
+      "path": "/webhooks/telegram-broadcast-poll",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Broadcast-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_broadcast_trigger",
+      "name": "Broadcast Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "telegram-broadcast-poll",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "telegram-broadcast-poll"
+    },
+    {
+      "id": "n_validate",
+      "name": "Validate Payload",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.message }}", "operation": "isNotEmpty" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_telegram_send",
+      "name": "Send to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [480, -100],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $vars.TELEGRAM_CHANNEL_ID }}",
+        "text": "={{ $json.message }}",
+        "additionalFields": { "parse_mode": "Markdown" }
+      },
+      "credentials": {
+        "telegramApi": { "id": "telegram-cred", "name": "Telegram Bot" }
+      }
+    },
+    {
+      "id": "n_mongo_log",
+      "name": "Mongo Broadcast Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, -100],
+      "parameters": {
+        "operation": "insert",
+        "collection": "telegram_broadcasts",
+        "fields": "message,channel,messageId,sentAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_reject",
+      "name": "Reject Empty",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [480, 100],
+      "parameters": {
+        "respondWith": "json",
+        "responseCode": 400,
+        "responseBody": "={\"ok\":false,\"error\":\"message required\"}"
+      }
+    },
+    {
+      "id": "n_respond_ok",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, -100],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_broadcast_trigger": {
+      "main": [[{ "node": "n_validate", "type": "main", "index": 0 }]]
+    },
+    "n_validate": {
+      "true": [[{ "node": "n_telegram_send", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_reject", "type": "main", "index": 0 }]]
+    },
+    "n_telegram_send": {
+      "main": [[{ "node": "n_mongo_log", "type": "main", "index": 0 }]]
+    },
+    "n_mongo_log": {
+      "main": [[{ "node": "n_respond_ok", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_broadcast_trigger", "n_validate", "n_telegram_send", "n_mongo_log", "n_reject", "n_respond_ok"]
+    }
+  ],
+  "variables": [
+    { "id": "v_channel", "name": "TELEGRAM_CHANNEL_ID", "defaultValue": "@example" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

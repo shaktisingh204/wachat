@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "line-customer-care",
+  "cases": [
+    {
+      "id": "routed",
+      "description": "LINE inbound message is intent-classified and routed.",
+      "triggerPayload": {
+        "events": [
+          { "source": { "userId": "U123" }, "message": { "text": "Can I get a quote for 50 seats?" } }
+        ]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

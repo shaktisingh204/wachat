@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "drip-cart-abandonment",
+  "cases": [
+    {
+      "id": "recovery-fanout",
+      "description": "Drip cart abandonment fans out to SendGrid + Slack, merges, then logs to Mongo.",
+      "triggerPayload": {
+        "subscriber": { "email": "shopper@example.com", "first_name": "Riley" },
+        "event": { "properties": { "cart_url": "https://shop.example.com/cart/abc", "cart_total": "78.50" } }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

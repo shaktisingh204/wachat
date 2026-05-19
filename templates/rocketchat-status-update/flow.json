@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_form_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "standup.form.submit",
+    "options": {
+      "path": "/webhooks/rocketchat-status-update",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Form-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_form_trigger",
+      "name": "Standup Form Submit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rocketchat-status-update",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "rocketchat-status-update"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Status Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "name", "value": "={{ $json.name }}" },
+            { "name": "yesterday", "value": "={{ $json.yesterday }}" },
+            { "name": "today", "value": "={{ $json.today }}" },
+            { "name": "blockers", "value": "={{ $json.blockers || 'none' }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "text", "value": "*{{ $json.name }} — standup*\\n• Yesterday: {{ $json.yesterday }}\\n• Today: {{ $json.today }}\\n• Blockers: {{ $json.blockers }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_post_rocket",
+      "name": "Post to Rocket.Chat",
+      "type": "n8n-nodes-base.rocketchat",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "channel": "={{ $vars.ROCKETCHAT_CHANNEL }}",
+        "text": "={{ $json.text }}"
+      },
+      "credentials": {
+        "rocketchatApi": { "id": "rocketchat-cred", "name": "Rocket.Chat API" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_form_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_format", "type": "main", "index": 0 }]]
+    },
+    "n_format": {
+      "main": [[{ "node": "n_post_rocket", "type": "main", "index": 0 }]]
+    },
+    "n_post_rocket": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_form_trigger", "n_extract", "n_format", "n_post_rocket", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_channel", "name": "ROCKETCHAT_CHANNEL", "defaultValue": "#standup" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

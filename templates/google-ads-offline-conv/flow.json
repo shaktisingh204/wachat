@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_hs_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "hubspot.deal.closedwon",
+    "options": {
+      "path": "/webhooks/google-ads-offline-conv",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-HubSpot-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_hs_trigger",
+      "name": "HubSpot Closed-Won",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "google-ads-offline-conv",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "google-ads-offline-conv"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Deal",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "dealId", "value": "={{ $json.objectId }}" },
+            { "name": "amount", "value": "={{ $json.properties.amount }}" },
+            { "name": "gclid", "value": "={{ $json.properties.hs_analytics_first_url }}" },
+            { "name": "closeDate", "value": "={{ $json.properties.closedate }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_check_gclid",
+      "name": "Has GCLID?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.gclid }}", "operation": "isNotEmpty" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_gads_upload",
+      "name": "Google Ads Upload Conv",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/v15/customers/{{ $vars.GADS_CUSTOMER_ID }}:uploadClickConversions",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"conversions\":[{\"gclid\":\"{{ $node['Extract Deal'].json.gclid }}\",\"conversionAction\":\"customers/{{ $vars.GADS_CUSTOMER_ID }}/conversionActions/{{ $vars.GADS_CONVERSION_ACTION }}\",\"conversionDateTime\":\"{{ $node['Extract Deal'].json.closeDate }}\",\"conversionValue\":{{ $node['Extract Deal'].json.amount }},\"currencyCode\":\"USD\"}],\"partialFailure\":true}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api"
+      },
+      "credentials": {
+        "googleAdsOAuth2Api": { "id": "gads-cred", "name": "Google Ads OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_ps",
+      "name": "Slack Paid Search",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_PAID_SEARCH_CHANNEL }}",
+        "text": ":moneybag: Uploaded ${{ $node['Extract Deal'].json.amount }} offline conversion to Google Ads (deal {{ $node['Extract Deal'].json.dealId }})."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_skip_no_gclid",
+      "name": "Skip — No GCLID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "no gclid — organic deal" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_hs_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_check_gclid", "type": "main", "index": 0 }]]
+    },
+    "n_check_gclid": {
+      "true": [[{ "node": "n_gads_upload", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_skip_no_gclid", "type": "main", "index": 0 }]]
+    },
+    "n_gads_upload": {
+      "main": [[{ "node": "n_slack_ps", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_hs_trigger", "n_extract", "n_check_gclid", "n_gads_upload", "n_slack_ps", "n_skip_no_gclid"]
+    }
+  ],
+  "variables": [
+    { "id": "v_cust", "name": "GADS_CUSTOMER_ID", "defaultValue": "" },
+    { "id": "v_act", "name": "GADS_CONVERSION_ACTION", "defaultValue": "" },
+    { "id": "v_ps", "name": "SLACK_PAID_SEARCH_CHANNEL", "defaultValue": "#paid-search" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

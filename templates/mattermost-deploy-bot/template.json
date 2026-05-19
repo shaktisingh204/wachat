@@ -1,0 +1,10 @@
+{
+  "id": "mattermost-deploy-bot",
+  "name": "Mattermost Deploy Bot",
+  "description": "Receives a deploy webhook from CI and posts a structured deploy notice into a Mattermost channel. Lets the team see what shipped, by whom, and to which environment without leaving chat.",
+  "category": "Developer",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["mattermost", "ci", "deploy", "developer", "webhook"],
+  "version": "0.1.0"
+}

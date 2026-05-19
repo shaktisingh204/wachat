@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 6 * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 6 * * *" }] }
+      }
+    },
+    {
+      "id": "n_get_expired",
+      "name": "Get Expired Listings",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.ebay.com/sell/inventory/v1/offer?listing_status=ENDED",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.EBAY_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Listing",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_relist",
+      "name": "Relist on eBay",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.ebay.com/sell/inventory/v1/offer/{{ $json.offerId }}/publish",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.EBAY_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_ops",
+      "name": "Slack Ops Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":recycle: Relisted eBay offer `{{ $json.listingId }}`."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_get_expired", "type": "main", "index": 0 }]]
+    },
+    "n_get_expired": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_relist", "type": "main", "index": 0 }]]
+    },
+    "n_relist": {
+      "main": [[{ "node": "n_slack_ops", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_get_expired", "n_split", "n_relist", "n_slack_ops"]
+    }
+  ],
+  "variables": [
+    { "id": "v_tok", "name": "EBAY_TOKEN", "defaultValue": "" },
+    { "id": "v_ops", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops-ecom" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

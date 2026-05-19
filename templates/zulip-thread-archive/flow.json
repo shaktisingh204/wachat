@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 3 * * 1",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Weekly Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 3 * * 1" }] }
+      }
+    },
+    {
+      "id": "n_list_topics",
+      "name": "List Zulip Topics",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $vars.ZULIP_DOMAIN }}/api/v1/users/me/{{ $vars.ZULIP_STREAM_ID }}/topics",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "zulip-cred", "name": "Zulip Basic Auth" }
+      }
+    },
+    {
+      "id": "n_filter_old",
+      "name": "Filter Older Than 30d",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const cutoff = Date.now()/1000 - 30*24*60*60;\nreturn (items[0]?.json?.topics || []).filter(t => t.max_id_timestamp < cutoff).map(t => ({ json: t }));"
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Topic",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_notion_row",
+      "name": "Notion Archive Row",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_ZULIP_DB_ID }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Topic|title", "title": "={{ $json.name }}" },
+            { "key": "Last Activity|date", "date": "={{ new Date($json.max_id_timestamp*1000).toISOString() }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_archive",
+      "name": "Archive Zulip Topic",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "PATCH",
+        "url": "=https://{{ $vars.ZULIP_DOMAIN }}/api/v1/streams/{{ $vars.ZULIP_STREAM_ID }}/delete_topic",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [{ "name": "topic_name", "value": "={{ $node['Notion Archive Row'].json.name }}" }]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": { "id": "zulip-cred", "name": "Zulip Basic Auth" }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_list_topics", "type": "main", "index": 0 }]]
+    },
+    "n_list_topics": {
+      "main": [[{ "node": "n_filter_old", "type": "main", "index": 0 }]]
+    },
+    "n_filter_old": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_notion_row", "type": "main", "index": 0 }]]
+    },
+    "n_notion_row": {
+      "main": [[{ "node": "n_archive", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_list_topics", "n_filter_old", "n_split", "n_notion_row", "n_archive"]
+    }
+  ],
+  "variables": [
+    { "id": "v_domain", "name": "ZULIP_DOMAIN", "defaultValue": "yourorg.zulipchat.com" },
+    { "id": "v_stream", "name": "ZULIP_STREAM_ID", "defaultValue": "" },
+    { "id": "v_db", "name": "NOTION_ZULIP_DB_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

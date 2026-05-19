@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "pinterest-product-feed",
+  "cases": [
+    {
+      "id": "feed-synced",
+      "description": "Daily cron pushes Shopify products into Pinterest catalog.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T05:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

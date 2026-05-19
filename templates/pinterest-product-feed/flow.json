@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 5 * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 5 * * *" }] }
+      }
+    },
+    {
+      "id": "n_shopify_products",
+      "name": "Shopify Products",
+      "type": "n8n-nodes-base.shopify",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "product",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "shopifyOAuth2Api": { "id": "shopify-cred", "name": "Shopify OAuth2" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Product",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_map_item",
+      "name": "Map to Pinterest Item",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "item_id", "value": "={{ $json.id }}" },
+            { "name": "title", "value": "={{ $json.title }}" },
+            { "name": "description", "value": "={{ $json.body_html }}" },
+            { "name": "image_link", "value": "={{ $json.images[0].src }}" },
+            { "name": "price", "value": "={{ $json.variants[0].price }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_pinterest_upsert",
+      "name": "Pinterest Catalog Upsert",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.pinterest.com/v5/catalogs/{{ $vars.PINTEREST_CATALOG_ID }}/items",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"items\":[{\"item_id\":\"{{ $json.item_id }}\",\"attributes\":{\"title\":\"{{ $json.title }}\",\"description\":\"{{ $json.description }}\",\"link\":\"https://{{ $vars.SHOPIFY_DOMAIN }}/products/{{ $json.item_id }}\",\"image_link\":\"{{ $json.image_link }}\",\"price\":\"{{ $json.price }} USD\",\"availability\":\"in stock\"}}]}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "=Bearer {{ $vars.PINTEREST_TOKEN }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_aggregate",
+      "name": "Aggregate Result",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "aggregate": "aggregateAllItemData", "options": {} }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_shopify_products", "type": "main", "index": 0 }]]
+    },
+    "n_shopify_products": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_map_item", "type": "main", "index": 0 }]]
+    },
+    "n_map_item": {
+      "main": [[{ "node": "n_pinterest_upsert", "type": "main", "index": 0 }]]
+    },
+    "n_pinterest_upsert": {
+      "main": [[{ "node": "n_aggregate", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_shopify_products", "n_split", "n_map_item", "n_pinterest_upsert", "n_aggregate"]
+    }
+  ],
+  "variables": [
+    { "id": "v_cat", "name": "PINTEREST_CATALOG_ID", "defaultValue": "" },
+    { "id": "v_token", "name": "PINTEREST_TOKEN", "defaultValue": "" },
+    { "id": "v_dom", "name": "SHOPIFY_DOMAIN", "defaultValue": "shop.example.com" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

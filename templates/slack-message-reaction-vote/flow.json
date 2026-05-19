@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_slack_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "slack.reaction_added",
+    "options": {
+      "path": "/webhooks/slack-message-reaction-vote",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Slack-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_slack_trigger",
+      "name": "Slack Reaction Added",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "slack-message-reaction-vote",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "slack-message-reaction-vote"
+    },
+    {
+      "id": "n_get_reactions",
+      "name": "Get Reactions",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://slack.com/api/reactions.get?channel={{ $json.event.item.channel }}&timestamp={{ $json.event.item.ts }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "slackOAuth2Api"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_tally",
+      "name": "Tally Votes",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "channel", "value": "={{ $json.message.channel || $json.channel }}" },
+            { "name": "ts", "value": "={{ $json.message.ts }}" }
+          ],
+          "number": [
+            { "name": "total", "value": "={{ ($json.message.reactions || []).reduce((s, r) => s + r.count, 0) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_threshold",
+      "name": "Threshold Reached?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.total }}", "operation": "largerEqual", "value2": "={{ $vars.VOTE_THRESHOLD }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_post_result",
+      "name": "Post Result",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Tally Votes'].json.channel }}",
+        "text": ":bar_chart: Vote closed! Total reactions: {{ $node['Tally Votes'].json.total }} (threshold {{ $vars.VOTE_THRESHOLD }} reached)."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_wait_more",
+      "name": "Wait For More Votes",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [960, 100],
+      "parameters": {
+        "values": { "string": [{ "name": "status", "value": "below threshold — keep listening" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_slack_trigger": {
+      "main": [[{ "node": "n_get_reactions", "type": "main", "index": 0 }]]
+    },
+    "n_get_reactions": {
+      "main": [[{ "node": "n_tally", "type": "main", "index": 0 }]]
+    },
+    "n_tally": {
+      "main": [[{ "node": "n_threshold", "type": "main", "index": 0 }]]
+    },
+    "n_threshold": {
+      "true": [[{ "node": "n_post_result", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_wait_more", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_slack_trigger", "n_get_reactions", "n_tally", "n_threshold", "n_post_result", "n_wait_more"]
+    }
+  ],
+  "variables": [
+    { "id": "v_threshold", "name": "VOTE_THRESHOLD", "defaultValue": "5" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "id": "telegram-broadcast-poll",
+  "name": "Telegram Broadcast Poll",
+  "description": "Webhook submits a broadcast message that the Telegram bot fans out to a channel, then writes the broadcast metadata into MongoDB for analytics. Useful for marketing pulses and quick community polls.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["telegram", "broadcast", "mongodb", "marketing", "poll"],
+  "version": "0.1.0"
+}

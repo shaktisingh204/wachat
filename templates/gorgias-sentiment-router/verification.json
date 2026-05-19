@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gorgias-sentiment-router",
+  "cases": [
+    {
+      "id": "routed",
+      "description": "A new Gorgias ticket is sentiment-scored and routed to one of three branches.",
+      "triggerPayload": {
+        "id": 42,
+        "subject": "Your last update broke everything",
+        "messages": [{ "body_text": "Nothing works after the update. Refund me." }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

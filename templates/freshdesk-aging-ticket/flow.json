@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 9 * * *",
+      "timezone": "America/New_York",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Daily 9am Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 * * *" }] }
+      }
+    },
+    {
+      "id": "n_fetch_tickets",
+      "name": "Fetch Open Tickets",
+      "type": "n8n-nodes-base.freshdesk",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": true,
+        "filters": { "status": 2 }
+      },
+      "credentials": {
+        "freshdeskApi": { "id": "freshdesk-cred", "name": "Freshdesk API" }
+      }
+    },
+    {
+      "id": "n_filter_aging",
+      "name": "Filter Idle > 48h",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "const cutoff = Date.now() - 48 * 60 * 60 * 1000;\nreturn items.filter(i => new Date(i.json.updated_at).getTime() < cutoff);"
+      }
+    },
+    {
+      "id": "n_count",
+      "name": "Count Aging Tickets",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      }
+    },
+    {
+      "id": "n_if_any",
+      "name": "Any Aging?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.items.length }}", "operation": "larger", "value2": 0 }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack_alert",
+      "name": "Slack Leads Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, -80],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_LEADS_CHANNEL }}",
+        "text": ":hourglass_flowing_sand: *{{ $json.items.length }}* Freshdesk tickets idle >48h. Top: {{ $json.items.slice(0,5).map(t => '#' + t.id + ' ' + t.subject).join(', ') }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_quiet_log",
+      "name": "Quiet Day Log",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [1200, 80],
+      "parameters": {
+        "values": { "string": [{ "name": "result", "value": "no aging tickets" }] }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_fetch_tickets", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_tickets": {
+      "main": [[{ "node": "n_filter_aging", "type": "main", "index": 0 }]]
+    },
+    "n_filter_aging": {
+      "main": [[{ "node": "n_count", "type": "main", "index": 0 }]]
+    },
+    "n_count": {
+      "main": [[{ "node": "n_if_any", "type": "main", "index": 0 }]]
+    },
+    "n_if_any": {
+      "true": [[{ "node": "n_slack_alert", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_quiet_log", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_fetch_tickets", "n_filter_aging", "n_count", "n_if_any", "n_slack_alert", "n_quiet_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_leads", "name": "SLACK_LEADS_CHANNEL", "defaultValue": "#support-leads" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

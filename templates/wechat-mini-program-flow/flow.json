@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_wechat_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "wechat.miniprogram.form.submit",
+    "options": {
+      "path": "/webhooks/wechat-mini-program-flow",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-WX-Sign",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_wechat_trigger",
+      "name": "WeChat Form Submit",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "wechat-mini-program-flow",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "wechat-mini-program-flow"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "openid", "value": "={{ $json.openid }}" },
+            { "name": "name", "value": "={{ $json.formData.name }}" },
+            { "name": "email", "value": "={{ $json.formData.email }}" },
+            { "name": "phone", "value": "={{ $json.formData.phone }}" },
+            { "name": "company", "value": "={{ $json.formData.company }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "Upsert HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $json.name }}",
+          "phone": "={{ $json.phone }}",
+          "company": "={{ $json.company }}",
+          "source": "wechat-miniprogram"
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_get_token",
+      "name": "Get WX Access Token",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={{ $vars.WX_APPID }}&secret={{ $vars.WX_SECRET }}"
+      }
+    },
+    {
+      "id": "n_send_template",
+      "name": "Send Template Message",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://api.weixin.qq.com/cgi-bin/message/subscribe/send?access_token={{ $json.access_token }}",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"touser\":\"{{ $node['Extract Lead'].json.openid }}\",\"template_id\":\"{{ $vars.WX_TEMPLATE_ID }}\",\"page\":\"pages/thanks/index\",\"data\":{\"thing1\":{\"value\":\"Thanks {{ $node['Extract Lead'].json.name }}!\"}}}"
+      }
+    },
+    {
+      "id": "n_slack_growth",
+      "name": "Slack Growth Notify",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_GROWTH_CHANNEL }}",
+        "text": ":cn: New WeChat lead *{{ $node['Extract Lead'].json.name }}* ({{ $node['Extract Lead'].json.company }}) — pushed to HubSpot."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_wechat_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_hubspot", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot": {
+      "main": [[{ "node": "n_get_token", "type": "main", "index": 0 }]]
+    },
+    "n_get_token": {
+      "main": [[{ "node": "n_send_template", "type": "main", "index": 0 }]]
+    },
+    "n_send_template": {
+      "main": [[{ "node": "n_slack_growth", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_wechat_trigger", "n_extract", "n_hubspot", "n_get_token", "n_send_template", "n_slack_growth"]
+    }
+  ],
+  "variables": [
+    { "id": "v_appid", "name": "WX_APPID", "defaultValue": "" },
+    { "id": "v_secret", "name": "WX_SECRET", "defaultValue": "" },
+    { "id": "v_template", "name": "WX_TEMPLATE_ID", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_GROWTH_CHANNEL", "defaultValue": "#growth" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

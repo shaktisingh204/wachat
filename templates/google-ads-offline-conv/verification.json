@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "google-ads-offline-conv",
+  "cases": [
+    {
+      "id": "uploaded",
+      "description": "Closed-won deal with GCLID uploads to Google Ads and pings paid-search Slack.",
+      "triggerPayload": {
+        "objectId": "deal-001",
+        "properties": { "amount": 19000, "hs_analytics_first_url": "Cj0KCQjw1234abcGCLID", "closedate": "2026-05-19T00:00:00Z" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

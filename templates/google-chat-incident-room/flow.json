@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_pd_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "pagerduty.incident.triggered",
+    "options": {
+      "path": "/webhooks/google-chat-incident-room",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-PagerDuty-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_pd_trigger",
+      "name": "PagerDuty Incident Triggered",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "google-chat-incident-room",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "google-chat-incident-room"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Incident",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "incidentId", "value": "={{ $json.event.data.id }}" },
+            { "name": "title", "value": "={{ $json.event.data.title }}" },
+            { "name": "service", "value": "={{ $json.event.data.service.summary }}" },
+            { "name": "url", "value": "={{ $json.event.data.html_url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_create_space",
+      "name": "Create GChat Space",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://chat.googleapis.com/v1/spaces",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"spaceType\":\"SPACE\",\"displayName\":\"incident-{{ $node['Extract Incident'].json.incidentId }}\"}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": {
+        "googleApi": { "id": "google-cred", "name": "Google OAuth2" }
+      }
+    },
+    {
+      "id": "n_invite_oncall",
+      "name": "Invite On-Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://chat.googleapis.com/v1/{{ $json.name }}/members",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"member\":{\"name\":\"users/{{ $vars.ONCALL_USER_ID }}\",\"type\":\"HUMAN\"}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": {
+        "googleApi": { "id": "google-cred", "name": "Google OAuth2" }
+      }
+    },
+    {
+      "id": "n_post_summary",
+      "name": "Post Incident Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://chat.googleapis.com/v1/{{ $node['Create GChat Space'].json.name }}/messages",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"text\":\":rotating_light: *{{ $node['Extract Incident'].json.title }}* on {{ $node['Extract Incident'].json.service }} — {{ $node['Extract Incident'].json.url }}\"}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleApi"
+      },
+      "credentials": {
+        "googleApi": { "id": "google-cred", "name": "Google OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_incidents",
+      "name": "Slack #incidents",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_INCIDENTS_CHANNEL }}",
+        "text": ":rotating_light: New incident *{{ $node['Extract Incident'].json.title }}* — bridge created."
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_pd_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_create_space", "type": "main", "index": 0 }]]
+    },
+    "n_create_space": {
+      "main": [[{ "node": "n_invite_oncall", "type": "main", "index": 0 }]]
+    },
+    "n_invite_oncall": {
+      "main": [[{ "node": "n_post_summary", "type": "main", "index": 0 }]]
+    },
+    "n_post_summary": {
+      "main": [[{ "node": "n_slack_incidents", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_pd_trigger", "n_extract", "n_create_space", "n_invite_oncall", "n_post_summary", "n_slack_incidents"]
+    }
+  ],
+  "variables": [
+    { "id": "v_oncall", "name": "ONCALL_USER_ID", "defaultValue": "" },
+    { "id": "v_incidents", "name": "SLACK_INCIDENTS_CHANNEL", "defaultValue": "#incidents" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

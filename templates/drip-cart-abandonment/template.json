@@ -1,0 +1,10 @@
+{
+  "id": "drip-cart-abandonment",
+  "name": "Drip Cart Abandonment Recovery",
+  "description": "When Drip reports a cart-abandonment event, fans out a SendGrid recovery email and a Slack ping to the #growth channel, then logs the recovery touch to MongoDB. Replaces a static recovery sequence with a unified trigger.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["drip", "sendgrid", "slack", "marketing", "cart-abandonment"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "customer-io-broadcast",
+  "cases": [
+    {
+      "id": "daily-broadcast",
+      "description": "Daily cron checks for new signups and triggers the Customer.io broadcast.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T14:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

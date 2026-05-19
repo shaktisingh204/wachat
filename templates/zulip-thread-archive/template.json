@@ -1,0 +1,10 @@
+{
+  "id": "zulip-thread-archive",
+  "name": "Zulip Thread Archive",
+  "description": "Each week, sweeps Zulip topics older than 30 days, archives them, and writes a row per topic into a Notion database. Keeps the active stream list clean while preserving searchable history.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["zulip", "notion", "archive", "internal-tools", "schedule"],
+  "version": "0.1.0"
+}

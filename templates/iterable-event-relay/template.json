@@ -1,0 +1,10 @@
+{
+  "id": "iterable-event-relay",
+  "name": "Iterable Product Event Relay",
+  "description": "Receives product event webhooks from your backend (Mongo change-stream forwarder) and relays them as Iterable track events, enriched with user metadata. Centralises product analytics that drive Iterable campaigns.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["iterable", "mongodb", "marketing", "events", "relay"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "linkedin-ads-leadform-sync",
+  "name": "LinkedIn Lead Gen Form Sync",
+  "description": "Whenever a LinkedIn Lead Gen Form submission lands, upserts the lead into HubSpot and notifies the LinkedIn-paid Slack channel. Replaces the daily CSV export ritual with a real-time pipe.",
+  "category": "Ads",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["linkedin-ads", "hubspot", "slack", "ads", "lead-form"],
+  "version": "0.1.0"
+}

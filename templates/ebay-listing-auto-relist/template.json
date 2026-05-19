@@ -1,0 +1,10 @@
+{
+  "id": "ebay-listing-auto-relist",
+  "name": "eBay Auto-Relist Expired",
+  "description": "Each day finds eBay listings whose duration expired without selling and re-lists them via the Trading API, then pings a Slack ops channel with what was relisted. Keeps revenue running without manual seller hub clicks.",
+  "category": "E-commerce",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ebay", "slack", "e-commerce", "relist", "schedule"],
+  "version": "0.1.0"
+}

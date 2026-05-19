@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "viber-broadcast-campaign",
+  "cases": [
+    {
+      "id": "daily-wave",
+      "description": "Cron pulls Mailchimp opt-in audience and runs Viber broadcast.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T10:00:00+03:00" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

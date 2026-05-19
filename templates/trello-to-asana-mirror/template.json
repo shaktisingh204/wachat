@@ -1,0 +1,10 @@
+{
+  "id": "trello-to-asana-mirror",
+  "name": "Trello to Asana Mirror",
+  "description": "Listens for Trello card.create webhooks and mirrors each new card into Asana as a task in a chosen project. Keeps cross-tool teams in sync without manual copy-paste, and posts a confirmation to Slack so PMs see the bridge fire in real time.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["trello", "asana", "slack", "ops", "sync"],
+  "version": "0.1.0"
+}

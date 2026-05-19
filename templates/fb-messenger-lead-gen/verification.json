@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "templateId": "fb-messenger-lead-gen",
+  "cases": [
+    {
+      "id": "lead-qualified",
+      "description": "FB Messenger lead is qualified, upserted in HubSpot, and SDR is pinged.",
+      "triggerPayload": {
+        "entry": [
+          {
+            "changes": [
+              {
+                "value": {
+                  "field_data": [
+                    { "name": "full_name", "values": ["Jordan Lee"] },
+                    { "name": "email", "values": ["jordan@acme.com"] },
+                    { "name": "company", "values": ["Acme"] }
+                  ]
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

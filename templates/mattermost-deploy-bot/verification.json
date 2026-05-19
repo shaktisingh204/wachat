@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mattermost-deploy-bot",
+  "cases": [
+    {
+      "id": "deploy-posted",
+      "description": "A CI deploy webhook produces a Mattermost notice.",
+      "triggerPayload": {
+        "service": "api",
+        "environment": "prod",
+        "commit": { "sha": "abc1234", "author": "harsh", "message": "fix: tighten rate limit" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

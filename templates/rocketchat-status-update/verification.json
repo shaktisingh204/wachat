@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "templateId": "rocketchat-status-update",
+  "cases": [
+    {
+      "id": "standup-posted",
+      "description": "Form submission posts a standup message to Rocket.Chat.",
+      "triggerPayload": {
+        "name": "Maya",
+        "yesterday": "Closed perf bug in checkout",
+        "today": "Pair on retention dashboard",
+        "blockers": "none"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "asana-completion-archive",
+  "cases": [
+    {
+      "id": "task-archived",
+      "description": "Asana task.completed webhook results in a Notion archive row and a Slack closure ping.",
+      "triggerPayload": {
+        "resource": { "gid": "asana-task-001" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
