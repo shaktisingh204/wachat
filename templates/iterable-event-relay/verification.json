@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "iterable-event-relay",
+  "cases": [
+    {
+      "id": "event-relayed",
+      "description": "Mongo change-stream event is relayed to Iterable and logged.",
+      "triggerPayload": {
+        "userId": "user-123",
+        "event": "report_exported",
+        "properties": { "format": "csv" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

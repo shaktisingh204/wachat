@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_mongo_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "mongo.changestream.event",
+    "options": {
+      "path": "/webhooks/iterable-event-relay",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Relay-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_mongo_trigger",
+      "name": "Mongo Event Forwarder",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "iterable-event-relay",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "iterable-event-relay"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Event",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "userId", "value": "={{ $json.userId }}" },
+            { "name": "eventName", "value": "={{ $json.event }}" },
+            { "name": "props", "value": "={{ JSON.stringify($json.properties || {}) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_enrich_user",
+      "name": "Enrich User",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "operation": "findOne",
+        "collection": "users",
+        "query": "={\"_id\":\"{{ $json.userId }}\"}"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_iterable_track",
+      "name": "Iterable Track",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.iterable.com/api/events/track",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"userId\":\"{{ $node['Extract Event'].json.userId }}\",\"eventName\":\"{{ $node['Extract Event'].json.eventName }}\",\"email\":\"{{ $json.email }}\",\"dataFields\":{{ $node['Extract Event'].json.props }}}",
+        "headerParameters": {
+          "parameters": [
+            { "name": "Api-Key", "value": "={{ $vars.ITERABLE_KEY }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_log",
+      "name": "Log Relay",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "insert",
+        "collection": "iterable_relay_log",
+        "fields": "userId,eventName,relayedAt"
+      },
+      "credentials": {
+        "mongoDb": { "id": "mongo-cred", "name": "MongoDB" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true}" }
+    }
+  ],
+  "connections": {
+    "n_mongo_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_enrich_user", "type": "main", "index": 0 }]]
+    },
+    "n_enrich_user": {
+      "main": [[{ "node": "n_iterable_track", "type": "main", "index": 0 }]]
+    },
+    "n_iterable_track": {
+      "main": [[{ "node": "n_log", "type": "main", "index": 0 }]]
+    },
+    "n_log": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_mongo_trigger", "n_extract", "n_enrich_user", "n_iterable_track", "n_log", "n_respond"]
+    }
+  ],
+  "variables": [
+    { "id": "v_key", "name": "ITERABLE_KEY", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
