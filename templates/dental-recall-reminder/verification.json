@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "dental-recall-reminder",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Daily cron sends SMS + email recall reminders to due patients.",
+      "triggerPayload": { "scheduledFor": "2026-05-19T08:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
