@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "hightouch-reverse-etl-fail",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Hightouch sync failure fans out to Slack + Linear.",
+      "triggerPayload": {
+        "sync": { "id": "s-001", "name": "salesforce-contacts" },
+        "error": { "message": "auth expired" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
