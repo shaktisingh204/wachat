@@ -1,0 +1,10 @@
+{
+  "id": "rabbitmq-dlq-replay",
+  "name": "RabbitMQ DLQ Replay",
+  "description": "Receives a dead-letter webhook from RabbitMQ, waits five minutes for the downstream service to recover, replays the message to its original queue, and posts a Slack confirmation. Lifts transient failures off the on-call pager.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["ops", "rabbitmq", "dead-letter", "replay", "slack", "webhook"],
+  "version": "0.1.0"
+}

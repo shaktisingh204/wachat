@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_dlq_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "rabbitmq.dead_lettered",
+    "options": {
+      "path": "/webhooks/rabbitmq-dlq",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Mq-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_dlq_trigger",
+      "name": "DLQ Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "rabbitmq-dlq",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "rabbitmq-dlq-webhook"
+    },
+    {
+      "id": "n_extract_msg",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "originalQueue", "value": "={{ $json.headers['x-original-queue'] }}" },
+            { "name": "messageId", "value": "={{ $json.messageId }}" },
+            { "name": "payload", "value": "={{ JSON.stringify($json.payload) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_wait_5m",
+      "name": "Wait 5 Minutes",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": { "amount": 5, "unit": "minutes" }
+    },
+    {
+      "id": "n_health_check",
+      "name": "Downstream Health",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.DOWNSTREAM_HEALTH_URL }}"
+      }
+    },
+    {
+      "id": "n_republish",
+      "name": "Republish to Queue",
+      "type": "n8n-nodes-base.rabbitmq",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "queue": "={{ $json.originalQueue }}",
+        "options": { "headers": "x-replay=true" }
+      },
+      "credentials": { "rabbitmq": { "id": "rmq-cred", "name": "RabbitMQ" } }
+    },
+    {
+      "id": "n_slack_ack",
+      "name": "Slack Confirm",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_OPS_CHANNEL }}",
+        "text": ":arrows_counterclockwise: Replayed DLQ message {{ $json.messageId }} → {{ $json.originalQueue }}.",
+        "otherOptions": {}
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_dlq_trigger": { "main": [[{ "node": "n_extract_msg", "type": "main", "index": 0 }]] },
+    "n_extract_msg": { "main": [[{ "node": "n_wait_5m", "type": "main", "index": 0 }]] },
+    "n_wait_5m": { "main": [[{ "node": "n_health_check", "type": "main", "index": 0 }]] },
+    "n_health_check": { "main": [[{ "node": "n_republish", "type": "main", "index": 0 }]] },
+    "n_republish": { "main": [[{ "node": "n_slack_ack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Replay",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_dlq_trigger", "n_extract_msg", "n_wait_5m", "n_health_check", "n_republish", "n_slack_ack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_health", "name": "DOWNSTREAM_HEALTH_URL", "defaultValue": "https://orders.example.com/health" },
+    { "id": "v_slack", "name": "SLACK_OPS_CHANNEL", "defaultValue": "#ops" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}
