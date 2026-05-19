@@ -1,0 +1,10 @@
+{
+  "id": "chargify-trial-extension",
+  "name": "Chargify Trial Extension",
+  "description": "When a Chargify trial is about to end, looks up the customer's engagement score and extends the trial automatically for high-engagement users. Low-engagement trials fall through to the usual expiry path.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["chargify", "trial", "engagement", "billing", "finance", "automation"],
+  "version": "0.1.0"
+}

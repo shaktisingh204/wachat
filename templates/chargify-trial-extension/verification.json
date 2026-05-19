@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "chargify-trial-extension",
+  "cases": [
+    {
+      "id": "engaged-trial",
+      "description": "Highly engaged user gets a trial extension; otherwise NoOp.",
+      "triggerPayload": {
+        "subscription": { "id": "sub_1", "customer_id": "cust_1" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
