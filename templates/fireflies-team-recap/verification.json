@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "fireflies-team-recap",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Fireflies recording fetches summary and emails team recap via SendGrid.",
+      "triggerPayload": {
+        "recording": {
+          "id": "r-001",
+          "title": "Customer kickoff",
+          "attendees": [{ "email": "ae@example.com" }, { "email": "cs@example.com" }]
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
