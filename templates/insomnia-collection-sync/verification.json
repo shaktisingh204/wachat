@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "insomnia-collection-sync",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "Insomnia collection update is exported and mirrored to S3.",
+      "triggerPayload": { "collection": { "id": "c-001", "name": "Checkout" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
