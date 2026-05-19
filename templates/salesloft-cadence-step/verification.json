@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "salesloft-cadence-step",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "SalesLoft step is personalized via GPT-4o using HubSpot context.",
+      "triggerPayload": {
+        "step": { "id": "s-001", "body": "Hi {{first_name}}, do you have 15 minutes?" },
+        "person": { "email": "buyer@acme.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
