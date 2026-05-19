@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "braze-canvas-trigger",
+  "cases": [
+    {
+      "id": "canvas-triggered",
+      "description": "App event triggers Braze canvas and pings Slack lifecycle channel.",
+      "triggerPayload": { "userId": "user-991", "event": "onboarded" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

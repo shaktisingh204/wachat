@@ -1,0 +1,10 @@
+{
+  "id": "braze-canvas-trigger",
+  "name": "Braze Canvas Trigger",
+  "description": "Catches an app event webhook and triggers a Braze Canvas for the specified user, then alerts the lifecycle team in Slack. Lets product-side events drive Braze journeys without an SDK dance.",
+  "category": "Marketing",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["braze", "slack", "marketing", "lifecycle", "canvas"],
+  "version": "0.1.0"
+}
