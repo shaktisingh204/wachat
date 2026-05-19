@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "sap-vendor-onboarding",
+  "cases": [
+    {
+      "id": "form-submitted",
+      "description": "Vendor form fires SAP vendor create and DocuSign envelope.",
+      "triggerPayload": {
+        "vendor": { "name": "Acme Vendor", "email": "ar@vendor.example.com", "tax_id": "12-3456789" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
