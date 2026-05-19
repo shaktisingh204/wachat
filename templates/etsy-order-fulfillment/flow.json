@@ -1,0 +1,149 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_etsy_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "etsy.order.placed",
+    "options": {
+      "path": "/webhooks/etsy-order-fulfillment",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Etsy-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_etsy_trigger",
+      "name": "Etsy Order Placed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "etsy-order-fulfillment",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "etsy-order-fulfillment"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Order",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "receiptId", "value": "={{ $json.receipt_id }}" },
+            { "name": "shopId", "value": "={{ $json.shop_id }}" },
+            { "name": "buyerName", "value": "={{ $json.name }}" },
+            { "name": "address1", "value": "={{ $json.first_line }}" },
+            { "name": "city", "value": "={{ $json.city }}" },
+            { "name": "postalCode", "value": "={{ $json.zip }}" },
+            { "name": "country", "value": "={{ $json.country_iso }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_shipstation",
+      "name": "ShipStation Create Label",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "https://ssapi.shipstation.com/shipments/createlabel",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"carrierCode\":\"usps\",\"serviceCode\":\"usps_first_class_mail\",\"shipTo\":{\"name\":\"{{ $json.buyerName }}\",\"street1\":\"{{ $json.address1 }}\",\"city\":\"{{ $json.city }}\",\"postalCode\":\"{{ $json.postalCode }}\",\"country\":\"{{ $json.country }}\"},\"weight\":{\"value\":8,\"units\":\"ounces\"}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "shipstationApi"
+      },
+      "credentials": {
+        "shipstationApi": { "id": "shipstation-cred", "name": "ShipStation API" }
+      }
+    },
+    {
+      "id": "n_extract_tracking",
+      "name": "Extract Tracking",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "trackingNumber", "value": "={{ $json.trackingNumber }}" },
+            { "name": "carrier", "value": "={{ $json.carrierCode }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_etsy_tracking",
+      "name": "Update Etsy Tracking",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://openapi.etsy.com/v3/application/shops/{{ $node['Extract Order'].json.shopId }}/receipts/{{ $node['Extract Order'].json.receiptId }}/tracking",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "tracking_code", "value": "={{ $node['Extract Tracking'].json.trackingNumber }}" },
+            { "name": "carrier_name", "value": "={{ $node['Extract Tracking'].json.carrier }}" },
+            { "name": "send_bcc", "value": "true" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "etsyOAuth2Api"
+      },
+      "credentials": {
+        "etsyOAuth2Api": { "id": "etsy-cred", "name": "Etsy OAuth2" }
+      }
+    },
+    {
+      "id": "n_respond",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [1200, 0],
+      "parameters": { "respondWith": "json", "responseBody": "={\"ok\":true,\"tracking\":\"{{ $node['Extract Tracking'].json.trackingNumber }}\"}" }
+    }
+  ],
+  "connections": {
+    "n_etsy_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_shipstation", "type": "main", "index": 0 }]]
+    },
+    "n_shipstation": {
+      "main": [[{ "node": "n_extract_tracking", "type": "main", "index": 0 }]]
+    },
+    "n_extract_tracking": {
+      "main": [[{ "node": "n_etsy_tracking", "type": "main", "index": 0 }]]
+    },
+    "n_etsy_tracking": {
+      "main": [[{ "node": "n_respond", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_etsy_trigger", "n_extract", "n_shipstation", "n_extract_tracking", "n_etsy_tracking", "n_respond"]
+    }
+  ],
+  "variables": [],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
