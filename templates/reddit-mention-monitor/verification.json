@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "reddit-mention-monitor",
+  "cases": [
+    {
+      "id": "hourly-scan",
+      "description": "Hourly cron searches Reddit and posts mentions to Slack.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T15:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

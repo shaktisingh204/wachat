@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 * * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Hourly Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 * * * *" }] }
+      }
+    },
+    {
+      "id": "n_search",
+      "name": "Reddit Search Mentions",
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "resource": "postSearch",
+        "operation": "search",
+        "keyword": "={{ $vars.BRAND_NAME }}",
+        "limit": 25,
+        "additionalFields": { "sort": "new", "time": "hour" }
+      },
+      "credentials": {
+        "redditOAuth2Api": { "id": "reddit-cred", "name": "Reddit OAuth2" }
+      }
+    },
+    {
+      "id": "n_split",
+      "name": "Split Per Mention",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1, "options": {} }
+    },
+    {
+      "id": "n_format",
+      "name": "Format Slack Line",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "line", "value": "*r/{{ $json.subreddit }}*: <https://reddit.com{{ $json.permalink }}|{{ $json.title }}> — by u/{{ $json.author }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_post_slack",
+      "name": "Slack #social",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SOCIAL_CHANNEL }}",
+        "text": "={{ $json.line }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_search", "type": "main", "index": 0 }]]
+    },
+    "n_search": {
+      "main": [[{ "node": "n_split", "type": "main", "index": 0 }]]
+    },
+    "n_split": {
+      "main": [[{ "node": "n_format", "type": "main", "index": 0 }]]
+    },
+    "n_format": {
+      "main": [[{ "node": "n_post_slack", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_search", "n_split", "n_format", "n_post_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_brand", "name": "BRAND_NAME", "defaultValue": "SabNode" },
+    { "id": "v_social", "name": "SLACK_SOCIAL_CHANNEL", "defaultValue": "#social" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
