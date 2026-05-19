@@ -1,0 +1,10 @@
+{
+  "id": "fb-messenger-lead-gen",
+  "name": "Facebook Messenger Lead-Gen",
+  "description": "Listens on Facebook Messenger lead-gen webhooks, qualifies the prospect with GPT-4o, upserts a contact in HubSpot, and pings the SDR Slack channel. Compresses the time-to-first-touch on social leads.",
+  "category": "Sales",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["facebook-messenger", "hubspot", "openai", "slack", "lead-generation"],
+  "version": "0.1.0"
+}

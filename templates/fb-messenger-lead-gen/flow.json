@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_fb_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "facebook.messenger.leadgen",
+    "options": {
+      "path": "/webhooks/fb-messenger-lead-gen",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_fb_trigger",
+      "name": "FB Messenger Lead-Gen",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fb-messenger-lead-gen",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "fb-messenger-lead-gen"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Lead",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "name", "value": "={{ $json.entry[0].changes[0].value.field_data.find(f=>f.name=='full_name').values[0] }}" },
+            { "name": "email", "value": "={{ $json.entry[0].changes[0].value.field_data.find(f=>f.name=='email').values[0] }}" },
+            { "name": "company", "value": "={{ $json.entry[0].changes[0].value.field_data.find(f=>f.name=='company').values[0] }}" },
+            { "name": "answers", "value": "={{ JSON.stringify($json.entry[0].changes[0].value.field_data) }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_qualify",
+      "name": "GPT-4o Qualify",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Return JSON: { tier: 'hot'|'warm'|'cold', reason: string }." },
+            { "role": "user", "content": "Lead form answers: {{ $json.answers }}" }
+          ]
+        },
+        "options": { "responseFormat": "json_object", "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse_tier",
+      "name": "Parse Tier",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "tier", "value": "={{ JSON.parse($json.message.content).tier }}" },
+            { "name": "reason", "value": "={{ JSON.parse($json.message.content).reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_hubspot",
+      "name": "Upsert HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "contact",
+        "operation": "upsert",
+        "email": "={{ $node['Extract Lead'].json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $node['Extract Lead'].json.name }}",
+          "company": "={{ $node['Extract Lead'].json.company }}",
+          "leadStatus": "={{ $node['Parse Tier'].json.tier }}",
+          "source": "fb-messenger"
+        }
+      },
+      "credentials": {
+        "hubspotOAuth2Api": { "id": "hubspot-cred", "name": "HubSpot OAuth2" }
+      }
+    },
+    {
+      "id": "n_slack_sdr",
+      "name": "Ping SDR Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_SDR_CHANNEL }}",
+        "text": ":incoming_envelope: *{{ $node['Parse Tier'].json.tier }}* lead from FB Messenger — {{ $node['Extract Lead'].json.name }} ({{ $node['Extract Lead'].json.company }}). Reason: {{ $node['Parse Tier'].json.reason }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_fb_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_qualify", "type": "main", "index": 0 }]]
+    },
+    "n_qualify": {
+      "main": [[{ "node": "n_parse_tier", "type": "main", "index": 0 }]]
+    },
+    "n_parse_tier": {
+      "main": [[{ "node": "n_hubspot", "type": "main", "index": 0 }]]
+    },
+    "n_hubspot": {
+      "main": [[{ "node": "n_slack_sdr", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_fb_trigger", "n_extract", "n_qualify", "n_parse_tier", "n_hubspot", "n_slack_sdr"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sdr", "name": "SLACK_SDR_CHANNEL", "defaultValue": "#sdr" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
