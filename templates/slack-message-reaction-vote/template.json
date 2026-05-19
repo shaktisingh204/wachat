@@ -1,0 +1,10 @@
+{
+  "id": "slack-message-reaction-vote",
+  "name": "Slack Reaction Vote",
+  "description": "Watches reaction_added events on a configured poll message and once the threshold reactions are reached posts the result back to the channel. Lets the team run lightweight polls without a third-party app.",
+  "category": "Internal Tools",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["slack", "vote", "poll", "internal-tools"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "slack-message-reaction-vote",
+  "cases": [
+    {
+      "id": "reaction-tallied",
+      "description": "Reaction event triggers a tally and routes through threshold gate.",
+      "triggerPayload": {
+        "event": {
+          "type": "reaction_added",
+          "reaction": "+1",
+          "item": { "type": "message", "channel": "C123", "ts": "1717171717.000100" }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
