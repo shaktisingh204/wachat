@@ -1,0 +1,10 @@
+{
+  "id": "postman-monitor-failure",
+  "name": "Postman Monitor Failure",
+  "description": "Subscribes to Postman monitor.failed webhooks, posts the failing collection to Slack #qa, and opens a Linear bug on the on-call API team. Turns a flaky monitor into a tracked issue without manual triage.",
+  "category": "Developer",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["developer", "postman", "monitoring", "slack", "linear", "qa"],
+  "version": "0.1.0"
+}
