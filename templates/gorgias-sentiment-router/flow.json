@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_gorgias_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "gorgias.ticket.new",
+    "options": {
+      "path": "/webhooks/gorgias-sentiment-router",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Gorgias-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_gorgias_trigger",
+      "name": "Gorgias Ticket New",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "gorgias-sentiment-router",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "gorgias-sentiment-router"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Message",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "ticketId", "value": "={{ $json.id }}" },
+            { "name": "subject", "value": "={{ $json.subject }}" },
+            { "name": "body", "value": "={{ $json.messages[0].body_text }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sentiment",
+      "name": "OpenAI Sentiment",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Reply with one word: positive, neutral, or negative." },
+            { "role": "user", "content": "Subject: {{ $json.subject }}\n\n{{ $json.body }}" }
+          ]
+        },
+        "options": { "temperature": 0 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_parse",
+      "name": "Parse Sentiment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "sentiment", "value": "={{ $json.message.content.trim().toLowerCase() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Route by Sentiment",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            { "conditions": { "string": [{ "value1": "={{ $json.sentiment }}", "operation": "equal", "value2": "negative" }] }, "outputKey": "negative" },
+            { "conditions": { "string": [{ "value1": "={{ $json.sentiment }}", "operation": "equal", "value2": "positive" }] }, "outputKey": "positive" }
+          ]
+        },
+        "fallbackOutput": "neutral"
+      }
+    },
+    {
+      "id": "n_route_negative",
+      "name": "Assign Senior Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, -120],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $vars.GORGIAS_SUBDOMAIN }}.gorgias.com/api/tickets/{{ $node['Extract Message'].json.ticketId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "assignee_team", "value": "={{ $vars.GORGIAS_SENIOR_TEAM_ID }}" },
+            { "name": "tags", "value": "negative,priority" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gorgiasApi"
+      },
+      "credentials": {
+        "gorgiasApi": { "id": "gorgias-cred", "name": "Gorgias API" }
+      }
+    },
+    {
+      "id": "n_route_positive",
+      "name": "Celebrate Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_KUDOS_CHANNEL }}",
+        "text": ":heart: Positive ticket from a customer! \"{{ $node['Extract Message'].json.subject }}\""
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_route_neutral",
+      "name": "General Queue Tag",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 120],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $vars.GORGIAS_SUBDOMAIN }}.gorgias.com/api/tickets/{{ $node['Extract Message'].json.ticketId }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "tags", "value": "neutral" }
+          ]
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "gorgiasApi"
+      },
+      "credentials": {
+        "gorgiasApi": { "id": "gorgias-cred", "name": "Gorgias API" }
+      }
+    }
+  ],
+  "connections": {
+    "n_gorgias_trigger": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [[{ "node": "n_sentiment", "type": "main", "index": 0 }]]
+    },
+    "n_sentiment": {
+      "main": [[{ "node": "n_parse", "type": "main", "index": 0 }]]
+    },
+    "n_parse": {
+      "main": [[{ "node": "n_route", "type": "main", "index": 0 }]]
+    },
+    "n_route": {
+      "negative": [[{ "node": "n_route_negative", "type": "main", "index": 0 }]],
+      "positive": [[{ "node": "n_route_positive", "type": "main", "index": 0 }]],
+      "neutral": [[{ "node": "n_route_neutral", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_gorgias_trigger", "n_extract", "n_sentiment", "n_parse", "n_route", "n_route_negative", "n_route_positive", "n_route_neutral"]
+    }
+  ],
+  "variables": [
+    { "id": "v_subdomain", "name": "GORGIAS_SUBDOMAIN", "defaultValue": "" },
+    { "id": "v_senior", "name": "GORGIAS_SENIOR_TEAM_ID", "defaultValue": "" },
+    { "id": "v_kudos", "name": "SLACK_KUDOS_CHANNEL", "defaultValue": "#kudos" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
