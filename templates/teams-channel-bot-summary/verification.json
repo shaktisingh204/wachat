@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "teams-channel-bot-summary",
+  "cases": [
+    {
+      "id": "hourly-recap",
+      "description": "Hourly cron fetches Teams messages, summarises, posts back.",
+      "triggerPayload": { "scheduledAt": "2026-05-20T15:00:00Z" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

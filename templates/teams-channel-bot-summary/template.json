@@ -1,0 +1,10 @@
+{
+  "id": "teams-channel-bot-summary",
+  "name": "Teams Hourly Channel Summary",
+  "description": "Every hour, pulls the last hour of messages from a Microsoft Teams channel via Graph API, summarises them with GPT-4o, and posts the recap back into the channel. Keeps lurkers and async teammates current without scrolling.",
+  "category": "Internal Tools",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["microsoft-teams", "openai", "summary", "schedule", "internal-tools"],
+  "version": "0.1.0"
+}

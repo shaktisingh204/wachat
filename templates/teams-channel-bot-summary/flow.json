@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_schedule",
+    "type": "schedule",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "schedule.cron",
+    "options": {
+      "cron": "0 * * * *",
+      "timezone": "UTC",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_schedule",
+      "name": "Hourly Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "rule": { "interval": [{ "field": "cronExpression", "expression": "0 * * * *" }] }
+      }
+    },
+    {
+      "id": "n_compute_window",
+      "name": "Compute Time Window",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "since", "value": "={{ new Date(Date.now() - 60*60*1000).toISOString() }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_messages",
+      "name": "Fetch Channel Messages",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "=https://graph.microsoft.com/v1.0/teams/{{ $vars.TEAMS_TEAM_ID }}/channels/{{ $vars.TEAMS_CHANNEL_ID }}/messages?$filter=lastModifiedDateTime ge {{ $node['Compute Time Window'].json.since }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftGraphOAuth2Api"
+      },
+      "credentials": {
+        "microsoftGraphOAuth2Api": { "id": "msgraph-cred", "name": "Microsoft Graph OAuth2" }
+      }
+    },
+    {
+      "id": "n_concat",
+      "name": "Concatenate Messages",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "transcript", "value": "={{ ($json.value || []).map(m => (m.from?.user?.displayName || 'unknown') + ': ' + (m.body?.content || '')).join('\\n') }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_summarise",
+      "name": "GPT-4o Summarise",
+      "type": "n8n-nodes-base.openAi",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "apiKey",
+        "resource": "chat",
+        "operation": "complete",
+        "model": "gpt-4o-mini",
+        "messages": {
+          "values": [
+            { "role": "system", "content": "Summarise the last hour of chat into 3-5 bullets focused on decisions, asks, and open questions. Return markdown." },
+            { "role": "user", "content": "={{ $json.transcript }}" }
+          ]
+        },
+        "options": { "temperature": 0.2 }
+      },
+      "credentials": {
+        "openAiApi": { "id": "openai-cred", "name": "OpenAI API" }
+      }
+    },
+    {
+      "id": "n_post_summary",
+      "name": "Post Summary to Teams",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [1200, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.microsoft.com/v1.0/teams/{{ $vars.TEAMS_TEAM_ID }}/channels/{{ $vars.TEAMS_CHANNEL_ID }}/messages",
+        "sendBody": true,
+        "bodyContentType": "json",
+        "jsonBody": "={\"body\":{\"contentType\":\"html\",\"content\":\"<b>Hourly recap</b><br>{{ $json.message.content }}\"}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "microsoftGraphOAuth2Api"
+      },
+      "credentials": {
+        "microsoftGraphOAuth2Api": { "id": "msgraph-cred", "name": "Microsoft Graph OAuth2" }
+      }
+    }
+  ],
+  "connections": {
+    "n_schedule": {
+      "main": [[{ "node": "n_compute_window", "type": "main", "index": 0 }]]
+    },
+    "n_compute_window": {
+      "main": [[{ "node": "n_fetch_messages", "type": "main", "index": 0 }]]
+    },
+    "n_fetch_messages": {
+      "main": [[{ "node": "n_concat", "type": "main", "index": 0 }]]
+    },
+    "n_concat": {
+      "main": [[{ "node": "n_summarise", "type": "main", "index": 0 }]]
+    },
+    "n_summarise": {
+      "main": [[{ "node": "n_post_summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_schedule", "n_compute_window", "n_fetch_messages", "n_concat", "n_summarise", "n_post_summary"]
+    }
+  ],
+  "variables": [
+    { "id": "v_team", "name": "TEAMS_TEAM_ID", "defaultValue": "" },
+    { "id": "v_channel", "name": "TEAMS_CHANNEL_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
