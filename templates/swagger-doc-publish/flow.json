@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "n_push_trigger",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "github.push",
+    "options": {
+      "path": "/webhooks/openapi-push",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Hub-Signature-256",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_push_trigger",
+      "name": "GitHub Push Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "openapi-push",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "openapi-push-webhook"
+    },
+    {
+      "id": "n_filter_path",
+      "name": "Filter openapi.yaml",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ JSON.stringify($json.commits) }}", "operation": "contains", "value2": "openapi.yaml" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_fetch_spec",
+      "name": "Fetch openapi.yaml",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.OPENAPI_URL }}"
+      }
+    },
+    {
+      "id": "n_redocly_build",
+      "name": "Redocly Bundle",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.REDOCLY_BUILD_URL }}",
+        "sendBody": true,
+        "bodyContentType": "json"
+      }
+    },
+    {
+      "id": "n_s3_publish",
+      "name": "S3 Publish",
+      "type": "n8n-nodes-base.awsS3",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "={{ $vars.DOCS_BUCKET }}",
+        "fileName": "index.html"
+      },
+      "credentials": { "aws": { "id": "aws-cred", "name": "AWS Docs" } }
+    }
+  ],
+  "connections": {
+    "n_push_trigger": { "main": [[{ "node": "n_filter_path", "type": "main", "index": 0 }]] },
+    "n_filter_path": { "main": [[{ "node": "n_fetch_spec", "type": "main", "index": 0 }]] },
+    "n_fetch_spec": { "main": [[{ "node": "n_redocly_build", "type": "main", "index": 0 }]] },
+    "n_redocly_build": { "main": [[{ "node": "n_s3_publish", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Docs",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_push_trigger", "n_filter_path", "n_fetch_spec", "n_redocly_build", "n_s3_publish"]
+    }
+  ],
+  "variables": [
+    { "id": "v_openapi", "name": "OPENAPI_URL", "defaultValue": "https://raw.githubusercontent.com/example/api/main/openapi.yaml" },
+    { "id": "v_redocly", "name": "REDOCLY_BUILD_URL", "defaultValue": "https://api.redoc.ly/bundle" },
+    { "id": "v_bucket", "name": "DOCS_BUCKET", "defaultValue": "example-api-docs" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

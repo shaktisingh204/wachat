@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "swagger-doc-publish",
+  "cases": [
+    {
+      "id": "happy-path",
+      "description": "openapi.yaml push rebuilds docs and uploads to S3.",
+      "triggerPayload": {
+        "commits": [{ "modified": ["openapi.yaml"] }]
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}
