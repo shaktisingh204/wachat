@@ -1387,7 +1387,7 @@ export async function getLeadStageFunnel(
  * ══════════════════════════════════════════════════════════════ */
 
 /** Default Indian fiscal year: 1-Apr → 31-Mar. */
-export function fyRangeFromAnchor(anchorIso?: string): { start: Date; end: Date; label: string } {
+function fyRangeFromAnchor(anchorIso?: string): { start: Date; end: Date; label: string } {
   const anchor = anchorIso ? new Date(anchorIso) : new Date();
   const y = anchor.getFullYear();
   const startYear = anchor.getMonth() < 3 ? y - 1 : y;

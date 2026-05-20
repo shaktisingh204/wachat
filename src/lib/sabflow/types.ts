@@ -901,8 +901,19 @@ export type Block = {
   retry?: NodeRetryConfig;
   /** n8n-style error-handling strategy. */
   onError?: NodeErrorStrategy;
-  /** Pinned output — when set, engine skips execution and returns this. */
-  pinData?: unknown;
+  /**
+   * Pinned output — when set, the engine skips this block's `action.run`
+   * and uses the pinned payload as the block's result. Lets authors test
+   * downstream nodes without re-firing the trigger / hitting third-party
+   * APIs. Matches n8n's `pinData` semantics:
+   *   • `outputs` — the legacy single-bag result; powers `$node["X"].json`
+   *   • `items`   — the per-item array used by per-item iteration
+   * At least one of the two should be set when pinning a real result.
+   */
+  pinData?: {
+    outputs?: Record<string, unknown>;
+    items?: Array<Record<string, unknown>>;
+  };
   /**
    * Canvas position for this block when rendered as an atomic n8n-style node.
    * When absent, the n8n canvas falls back to the containing group's coords

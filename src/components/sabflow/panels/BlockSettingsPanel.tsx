@@ -20,6 +20,7 @@ import type { Block, SabFlowDoc, SabFlowEvent, Variable } from '@/lib/sabflow/ty
 import { cn } from '@/lib/utils';
 import { TRIGGER_OPTIONS } from '@/components/sabflow/canvas/triggerPanel/triggerOptions';
 import { TriggerEventSettings } from './TriggerEventSettings';
+import { PinOutputSection } from './PinOutputSection';
 
 // Re-use the existing per-block settings sub-components
 import { TextBlockSettings } from '@/components/sabflow/blocks/panels/settings/TextBlockSettings';
@@ -185,6 +186,10 @@ export function BlockSettingsPanel({ flow, onFlowChange, onVariablesChange }: Pr
                 block={openedBlock}
                 flow={flow}
                 onBlockChange={handleBlockUpdate}
+              />
+              <PinOutputSection
+                block={openedBlock}
+                onUpdate={handleBlockUpdate}
               />
               <div className="mt-4">
                 <BlockDocsSection blockType={openedBlock.type} />

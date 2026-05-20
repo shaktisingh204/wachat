@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * GSTR-2B — `/dashboard/crm/tax/gstr2b`
  *

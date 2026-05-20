@@ -6,6 +6,21 @@ import type {
   PortType,
   SwitchCase,
 } from './types';
+import { getForgeBlock } from './forge/registry';
+
+/**
+ * Builds `NodePort[]` from a forge block's declared `outputs`. Returns
+ * `null` when the block isn't in the registry OR doesn't declare ports
+ * worth surfacing (no `outputs`, or only one — both fall back to the
+ * legacy single-port default rendered by the caller).
+ *
+ * Pure: never throws, never mutates the registry.
+ */
+function getForgeOutputPorts(blockType: BlockType): NodePort[] | null {
+  const forge = getForgeBlock(blockType);
+  if (!forge?.outputs || forge.outputs.length < 2) return null;
+  return forge.outputs.map((o, i) => mkOutput('main', i, o.displayName ?? o.name));
+}
 
 /* ── Helpers ──────────────────────────────────────────── */
 
@@ -70,8 +85,21 @@ export type DefaultPorts = { inputs: NodePort[]; outputs: NodePort[] };
  * - Merge: 2 inputs, 1 output.
  * - Start event placeholder: 0 inputs, 1 output.
  * - AI blocks (open_ai, anthropic, etc.): 1 main input, 1 main output, optional AI tool input.
+ * - Forge blocks (Phase 8): when the registered ForgeBlock declares
+ *   `outputs: [...]` with >1 entries, expose each as its own output port —
+ *   IF blocks then render `true`/`false` handles, Switch renders N etc.
+ *   Single-output forge blocks fall through to the default 1-in/1-out.
  */
 export function getDefaultPorts(blockType: BlockType): DefaultPorts {
+  // Forge multi-output: consult the registry for any `forge_*` block.
+  // Falls through to the legacy switch below when the block isn't
+  // registered yet, doesn't declare outputs, or declares only one.
+  if (blockType.startsWith('forge_')) {
+    const forgePorts = getForgeOutputPorts(blockType);
+    if (forgePorts) {
+      return { inputs: [mkInput('main', 0)], outputs: forgePorts };
+    }
+  }
   switch (blockType) {
     /* ── Logic: branching ──────────────────────────── */
     case 'condition':

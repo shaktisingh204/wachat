@@ -48,6 +48,7 @@ import {
   LuPackage,
   LuWorkflow,
   LuMessageCircleReply,
+  LuPin,
 } from 'react-icons/lu';
 import { Icon } from '@iconify/react';
 import type { Block, BlockType } from '@/lib/sabflow/types';
@@ -202,7 +203,20 @@ export function BlockNodeContent({ block }: Props) {
 
       {/* Label + preview */}
       <div className="flex-1 min-w-0">
-        <div className="text-[12.5px] font-medium text-[var(--gray-12)] truncate">{label}</div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[12.5px] font-medium text-[var(--gray-12)] truncate">
+            {label}
+          </span>
+          {block.pinData !== undefined && (
+            <span
+              title="Output is pinned — block will not run; downstream uses the stored payload."
+              aria-label="Pinned output"
+              className="shrink-0 inline-flex items-center justify-center rounded-full bg-[var(--amber-3)] p-0.5 text-[var(--amber-11)]"
+            >
+              <LuPin className="h-2.5 w-2.5" strokeWidth={2.5} />
+            </span>
+          )}
+        </div>
         <BlockPreview block={block} />
       </div>
     </div>

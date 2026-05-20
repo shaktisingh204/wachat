@@ -179,6 +179,23 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
             onDelete={(targetBlock) => {
               onBlocksChange(blocks.filter((b) => b.id !== targetBlock.id));
             }}
+            onTogglePin={
+              isReadOnly
+                ? undefined
+                : (targetBlock) => {
+                    // Empty `outputs` object seeds the pin so the runtime
+                    // short-circuits on next test; the user fills in the
+                    // real payload from the settings-panel textarea (or
+                    // a future "capture last run" affordance).
+                    const nextPin = targetBlock.pinData
+                      ? undefined
+                      : { outputs: {} };
+                    const updated = blocks.map((b) =>
+                      b.id === targetBlock.id ? { ...b, pinData: nextPin } : b,
+                    );
+                    onBlocksChange(updated);
+                  }
+            }
           />
           {/* Placeholder after each block */}
           <PlaceholderNode

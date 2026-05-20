@@ -1448,9 +1448,6 @@ export interface DuplicateClusterResolution {
 
 const LEAD_DUP_RESOLUTIONS_COLLECTION = 'crm_lead_duplicate_resolutions';
 
-export function leadDuplicateSignature(key: 'email' | 'phone', value: string): string {
-    return `${key}:${value.trim().toLowerCase()}`;
-}
 
 export async function getLeadDuplicateResolutions(): Promise<DuplicateClusterResolution[]> {
     const session = await getSession();

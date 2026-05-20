@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * Bank Reconciliation — `/dashboard/crm/banking/reconciliation`
  *

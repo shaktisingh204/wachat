@@ -190,3 +190,132 @@ export async function dismissMsmeAlert(
         };
     }
 }
+
+/* ─── Bulk mark paid ────────────────────────────────────────────── */
+
+export type BulkMsmePaidResult =
+    | { ok: true; updated: number }
+    | { ok: false; error: string };
+
+/**
+ * Stamps `crm_bills` rows as `status: 'paid'` for the given bill IDs.
+ * All IDs must belong to the authenticated tenant — the query enforces
+ * this via the `userId` filter.
+ */
+export async function bulkMarkMsmePaid(
+    billIds: string[],
+): Promise<BulkMsmePaidResult> {
+    if (!billIds.length) return { ok: true, updated: 0 };
+
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_msme', 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    const validIds = billIds.filter((id) => ObjectId.isValid(id));
+    if (!validIds.length) return { ok: false, error: 'No valid bill IDs provided.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const tenantUserId = String(session.user._id);
+
+        const result = await db.collection('crm_bills').updateMany(
+            {
+                _id: { $in: validIds.map((id) => new ObjectId(id)) },
+                userId: new ObjectId(tenantUserId),
+            } as Filter<Document>,
+            {
+                $set: {
+                    status: 'paid',
+                    paidAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            },
+        );
+
+        try {
+            await writeAuditEntry({
+                tenantUserId,
+                action: 'update',
+                entityKind: 'msme_bill_bulk_paid',
+                entityId: tenantUserId,
+                reason: `Bulk MSME mark-paid: ${result.modifiedCount} bills`,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath(LIST_PATH);
+        return { ok: true, updated: result.modifiedCount };
+    } catch (e) {
+        return {
+            ok: false,
+            error: e instanceof Error ? e.message : 'Internal error',
+        };
+    }
+}
+
+/* ─── Bulk request extension ────────────────────────────────────── */
+
+export type BulkMsmeExtensionResult =
+    | { ok: true; flagged: number }
+    | { ok: false; error: string };
+
+/**
+ * Flags `crm_bills` rows with `extensionRequested: true` for tracking.
+ * Actual negotiation (email, terms update) happens outside the system.
+ */
+export async function bulkRequestMsmeExtension(
+    billIds: string[],
+): Promise<BulkMsmeExtensionResult> {
+    if (!billIds.length) return { ok: true, flagged: 0 };
+
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_msme', 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    const validIds = billIds.filter((id) => ObjectId.isValid(id));
+    if (!validIds.length) return { ok: false, error: 'No valid bill IDs provided.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const tenantUserId = String(session.user._id);
+
+        const result = await db.collection('crm_bills').updateMany(
+            {
+                _id: { $in: validIds.map((id) => new ObjectId(id)) },
+                userId: new ObjectId(tenantUserId),
+            } as Filter<Document>,
+            {
+                $set: {
+                    extensionRequested: true,
+                    extensionRequestedAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            },
+        );
+
+        try {
+            await writeAuditEntry({
+                tenantUserId,
+                action: 'update',
+                entityKind: 'msme_bill_extension_requested',
+                entityId: tenantUserId,
+                reason: `Bulk MSME extension request: ${result.modifiedCount} bills`,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath(LIST_PATH);
+        return { ok: true, flagged: result.modifiedCount };
+    } catch (e) {
+        return {
+            ok: false,
+            error: e instanceof Error ? e.message : 'Internal error',
+        };
+    }
+}

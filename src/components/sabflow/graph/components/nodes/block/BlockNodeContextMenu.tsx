@@ -1,12 +1,19 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { LuSettings2, LuCopy, LuTrash2 } from 'react-icons/lu';
+import { LuSettings2, LuCopy, LuTrash2, LuPin, LuPinOff } from 'react-icons/lu';
 
 type Props = {
   x: number;
   y: number;
+  /** Whether the target block currently has pinned output. Drives the
+   *  pin / unpin menu item's label + icon. */
+  isPinned?: boolean;
   onSettings: () => void;
   onDuplicate: () => void;
+  /** Fired when the user picks the pin/unpin menu item. Optional — when
+   *  omitted (e.g. for trigger event nodes that can't be pinned) the
+   *  menu item is hidden. */
+  onTogglePin?: () => void;
   onDelete: () => void;
   onClose: () => void;
 };
@@ -14,8 +21,10 @@ type Props = {
 export function BlockNodeContextMenu({
   x,
   y,
+  isPinned = false,
   onSettings,
   onDuplicate,
+  onTogglePin,
   onDelete,
   onClose,
 }: Props) {
@@ -51,6 +60,11 @@ export function BlockNodeContextMenu({
     onClose();
   };
 
+  const handleTogglePin = () => {
+    onTogglePin?.();
+    onClose();
+  };
+
   const handleDelete = () => {
     onDelete();
     onClose();
@@ -80,6 +94,26 @@ export function BlockNodeContextMenu({
         <LuCopy className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
         Duplicate
       </button>
+
+      {onTogglePin && (
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
+          onClick={handleTogglePin}
+        >
+          {isPinned ? (
+            <>
+              <LuPinOff className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
+              Unpin output
+            </>
+          ) : (
+            <>
+              <LuPin className="h-3.5 w-3.5 shrink-0 text-[var(--amber-10)]" />
+              Pin output
+            </>
+          )}
+        </button>
+      )}
 
       <div className="my-1 h-px bg-[var(--gray-4)]" />
 

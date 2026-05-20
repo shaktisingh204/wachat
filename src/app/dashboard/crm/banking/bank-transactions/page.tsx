@@ -1,5 +1,3 @@
-'use server';
-
 /**
  * Bank Transactions list — `/dashboard/crm/banking/bank-transactions`
  *

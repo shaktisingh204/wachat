@@ -4,6 +4,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruInput,
   ZoruSelect,
   ZoruSelectContent,
@@ -17,32 +18,37 @@ import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   useDebouncedCallback } from 'use-debounce';
 import {
+    Archive,
     BookOpen,
-  CheckSquare,
-  LayoutList,
-  ListTree,
-  Pin,
-  Plus,
-  Trash2,
-  X,
-  } from 'lucide-react';
+    CheckSquare,
+    Download,
+    LayoutList,
+    ListTree,
+    Pin,
+    Plus,
+    Trash2,
+    X,
+    } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill } from '@/components/crm/status-pill';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
 /**
  * Internal KB list (§1D.1) — mirrors the customer-facing
  * /tickets/knowledge-base shape: KPI strip · 5 filters · table or
- * category-tree view · CSV export. The "Most viewed" / "Helpful %" KPI
- * tiles are TODO 1D.1 (internal KB schema lacks those fields).
+ * category-tree view · CSV/XLSX export · bulk Publish/Archive/Delete.
  */
 
 import * as React from 'react';
 import Link from 'next/link';
 
 import {
+    bulkArchiveKbArticles,
+    bulkDeleteKbArticles,
+    bulkPublishKbArticles,
     deleteKnowledgeBase,
     getKnowledgeBaseCategories,
     getKnowledgeBases,
@@ -66,10 +72,12 @@ import {
 
 type KbInternalViewMode = 'table' | 'tree';
 
+type ArticleRow = WsKnowledgeBase & { _id: string };
+
 export function KbInternalListClient(): React.JSX.Element {
     const { toast } = useZoruToast();
 
-    const [articles, setArticles] = React.useState<(WsKnowledgeBase & { _id: string })[]>([]);
+    const [articles, setArticles] = React.useState<ArticleRow[]>([]);
     const [categories, setCategories] = React.useState<
         (WsKnowledgeBaseCategory & { _id: string })[]
     >([]);
@@ -80,6 +88,10 @@ export function KbInternalListClient(): React.JSX.Element {
     const [view, setView] = React.useState<KbInternalViewMode>('table');
     const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
+    // Bulk selection
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkAction, setBulkAction] = React.useState<'publish' | 'archive' | 'delete' | null>(null);
+
     const fetchData = React.useCallback(() => {
         startTransition(async () => {
             try {
@@ -87,7 +99,7 @@ export function KbInternalListClient(): React.JSX.Element {
                     getKnowledgeBases(),
                     getKnowledgeBaseCategories(),
                 ]);
-                setArticles(a as (WsKnowledgeBase & { _id: string })[]);
+                setArticles(a as ArticleRow[]);
                 setCategories(c as (WsKnowledgeBaseCategory & { _id: string })[]);
             } catch (err) {
                 toast({
@@ -139,11 +151,37 @@ export function KbInternalListClient(): React.JSX.Element {
         [visible, categories],
     );
 
+    // Selection helpers
+    const allVisibleSelected =
+        visible.length > 0 && visible.every((a) => selected.has(a._id));
+    const someSelected = selected.size > 0;
+
+    const toggleAll = React.useCallback(
+        (checked: boolean) => {
+            setSelected(checked ? new Set(visible.map((a) => a._id)) : new Set());
+        },
+        [visible],
+    );
+
+    const toggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
     const handleConfirmDelete = React.useCallback(async () => {
         if (!deleteId) return;
         const r = await deleteKnowledgeBase(deleteId);
         if (r.success) {
             toast({ title: 'Article deleted' });
+            setSelected((prev) => {
+                const next = new Set(prev);
+                next.delete(deleteId);
+                return next;
+            });
             fetchData();
         } else {
             toast({ title: 'Delete failed', description: r.error, variant: 'destructive' });
@@ -160,32 +198,86 @@ export function KbInternalListClient(): React.JSX.Element {
         [fetchData, toast],
     );
 
+    // Bulk action handler
+    const handleBulkConfirm = React.useCallback(async () => {
+        const ids = Array.from(selected);
+        if (ids.length === 0 || !bulkAction) return;
+
+        let result: { updated?: number; deleted?: number; failed: number; error?: string } | null = null;
+
+        if (bulkAction === 'publish') {
+            result = await bulkPublishKbArticles(ids);
+            if (result.error) {
+                toast({ title: 'Bulk publish failed', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: `${result.updated ?? 0} article${(result.updated ?? 0) === 1 ? '' : 's'} published` });
+            }
+        } else if (bulkAction === 'archive') {
+            result = await bulkArchiveKbArticles(ids);
+            if (result.error) {
+                toast({ title: 'Bulk archive failed', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: `${result.updated ?? 0} article${(result.updated ?? 0) === 1 ? '' : 's'} archived` });
+            }
+        } else if (bulkAction === 'delete') {
+            result = await bulkDeleteKbArticles(ids);
+            if (result.error) {
+                toast({ title: 'Bulk delete failed', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: `${result.deleted ?? 0} article${(result.deleted ?? 0) === 1 ? '' : 's'} deleted` });
+            }
+        }
+
+        setSelected(new Set());
+        setBulkAction(null);
+        fetchData();
+    }, [selected, bulkAction, fetchData, toast]);
+
     const exportCsv = React.useCallback(() => {
-        const header = ['ID', 'Title', 'Type', 'Category', 'Pinned', 'To-do', 'Updated'];
-        const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-        const csv = [
-            header.join(','),
-            ...visible.map((a) => {
-                const cat = categories.find((c) => c._id === a.category_id);
-                return [
-                    esc(a._id),
-                    esc(a.title),
-                    esc(a.type),
-                    esc(cat?.name ?? ''),
-                    esc(a.pinned ? 'yes' : 'no'),
-                    esc(a.to_do),
-                    esc(fmtDate(a.updatedAt ?? a.createdAt)),
-                ].join(',');
-            }),
-        ].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `kb-internal-${new Date().toISOString().slice(0, 10)}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
+        const headers = ['Title', 'Category', 'Type', 'Status', 'Author', 'Views', 'Created'];
+        const rows = visible.map((a) => {
+            const cat = categories.find((c) => c._id === a.category_id);
+            return {
+                Title: a.title,
+                Category: cat?.name ?? 'Uncategorized',
+                Type: a.type,
+                Status: a.pinned ? 'Published' : 'Draft',
+                Author: '',
+                Views: '',
+                Created: fmtDate(a.createdAt),
+            };
+        });
+        downloadCsv(`kb-internal-${dateStamp()}.csv`, headers, rows);
     }, [visible, categories]);
+
+    const exportXlsx = React.useCallback(async () => {
+        const headers = ['Title', 'Category', 'Type', 'Status', 'Author', 'Views', 'Created'];
+        const rows = visible.map((a) => {
+            const cat = categories.find((c) => c._id === a.category_id);
+            return {
+                Title: a.title,
+                Category: cat?.name ?? 'Uncategorized',
+                Type: a.type,
+                Status: a.pinned ? 'Published' : 'Draft',
+                Author: '',
+                Views: '',
+                Created: fmtDate(a.createdAt),
+            };
+        });
+        await downloadXlsx(`kb-internal-${dateStamp()}.xlsx`, headers, rows, 'Knowledge Base');
+    }, [visible, categories]);
+
+    const bulkBarLabel =
+        bulkAction === 'publish'
+            ? 'Publish selected articles?'
+            : bulkAction === 'archive'
+              ? 'Archive selected articles?'
+              : 'Delete selected articles?';
+
+    const bulkBarDescription =
+        bulkAction === 'delete'
+            ? 'Deleted articles cannot be recovered.'
+            : undefined;
 
     return (
         <>
@@ -300,9 +392,51 @@ export function KbInternalListClient(): React.JSX.Element {
                             </ZoruButton>
                         ) : null}
                         <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
-                            Export CSV
+                            <Download className="h-3.5 w-3.5" /> CSV
+                        </ZoruButton>
+                        <ZoruButton variant="ghost" size="sm" onClick={exportXlsx}>
+                            <Download className="h-3.5 w-3.5" /> XLSX
                         </ZoruButton>
                     </div>
+                }
+                bulkBar={
+                    someSelected ? (
+                        <div className="flex items-center justify-between">
+                            <span className="text-sm text-zoru-ink">
+                                {selected.size} selected
+                            </span>
+                            <div className="flex gap-2">
+                                <ZoruButton
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setSelected(new Set())}
+                                >
+                                    Clear
+                                </ZoruButton>
+                                <ZoruButton
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setBulkAction('publish')}
+                                >
+                                    <Pin className="h-3.5 w-3.5" /> Publish
+                                </ZoruButton>
+                                <ZoruButton
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setBulkAction('archive')}
+                                >
+                                    <Archive className="h-3.5 w-3.5" /> Archive
+                                </ZoruButton>
+                                <ZoruButton
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => setBulkAction('delete')}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    ) : null
                 }
                 empty={
                     !loading && articles.length === 0 ? (
@@ -340,6 +474,10 @@ export function KbInternalListClient(): React.JSX.Element {
                         <KbInternalTable
                             articles={visible}
                             categories={categories}
+                            selected={selected}
+                            allSelected={allVisibleSelected}
+                            onToggleAll={toggleAll}
+                            onToggleOne={toggleOne}
                             onDelete={(id) => setDeleteId(id)}
                             onTogglePin={handleTogglePin}
                         />
@@ -358,6 +496,18 @@ export function KbInternalListClient(): React.JSX.Element {
                 confirmLabel="Delete"
                 onConfirm={handleConfirmDelete}
             />
+
+            <ConfirmDialog
+                open={!!bulkAction}
+                onOpenChange={(o) => !o && setBulkAction(null)}
+                title={bulkBarLabel}
+                description={bulkBarDescription ?? `${selected.size} article${selected.size === 1 ? '' : 's'} will be affected.`}
+                requireTyped={bulkAction === 'delete' ? 'DELETE' : undefined}
+                confirmLabel={
+                    bulkAction === 'publish' ? 'Publish' : bulkAction === 'archive' ? 'Archive' : 'Delete'
+                }
+                onConfirm={handleBulkConfirm}
+            />
         </>
     );
 }
@@ -365,19 +515,34 @@ export function KbInternalListClient(): React.JSX.Element {
 function KbInternalTable({
     articles,
     categories,
+    selected,
+    allSelected,
+    onToggleAll,
+    onToggleOne,
     onDelete,
     onTogglePin,
 }: {
     articles: (WsKnowledgeBase & { _id: string })[];
     categories: (WsKnowledgeBaseCategory & { _id: string })[];
+    selected: Set<string>;
+    allSelected: boolean;
+    onToggleAll: (checked: boolean) => void;
+    onToggleOne: (id: string) => void;
     onDelete: (id: string) => void;
     onTogglePin: (id: string) => void;
 }) {
     return (
         <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-            <table className="w-full min-w-[800px] text-[13px]">
+            <table className="w-full min-w-[860px] text-[13px]">
                 <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                     <tr>
+                        <th className="px-3 py-2 text-left font-medium w-10">
+                            <ZoruCheckbox
+                                aria-label="Select all"
+                                checked={allSelected}
+                                onCheckedChange={(v) => onToggleAll(Boolean(v))}
+                            />
+                        </th>
                         {[
                             'Title',
                             'Category',
@@ -396,15 +561,29 @@ function KbInternalTable({
                 <tbody className="divide-y divide-zoru-line bg-zoru-bg">
                     {articles.length === 0 ? (
                         <tr>
-                            <td colSpan={7} className="p-6 text-center text-zoru-ink-muted">
+                            <td colSpan={8} className="p-6 text-center text-zoru-ink-muted">
                                 No articles match the current filters.
                             </td>
                         </tr>
                     ) : null}
                     {articles.map((a) => {
                         const cat = categories.find((c) => c._id === a.category_id);
+                        const isSelected = selected.has(a._id);
                         return (
-                            <tr key={a._id} className="hover:bg-zoru-surface">
+                            <tr
+                                key={a._id}
+                                className={[
+                                    'hover:bg-zoru-surface',
+                                    isSelected ? 'bg-zoru-surface' : '',
+                                ].join(' ')}
+                            >
+                                <td className="px-3 py-2">
+                                    <ZoruCheckbox
+                                        aria-label={`Select ${a.title}`}
+                                        checked={isSelected}
+                                        onCheckedChange={() => onToggleOne(a._id)}
+                                    />
+                                </td>
                                 <td className="px-3 py-2">
                                     <EntityRowLink
                                         href={`/dashboard/crm/workspace/knowledge-base/${a._id}`}

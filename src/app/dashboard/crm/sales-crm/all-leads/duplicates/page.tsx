@@ -35,13 +35,13 @@ import {
     findCrmLeadDuplicates,
     getLeadDuplicateResolutions,
     ignoreLeadDuplicateCluster,
-    leadDuplicateSignature,
     mergeCrmLeads,
     type DuplicateClusterStatus,
     type DuplicateGroup,
     type DuplicateLeadEntry,
     type DuplicateClusterResolution,
 } from '@/app/actions/crm-leads.actions';
+import { leadDuplicateSignature } from '@/lib/crm/lead-utils';
 
 type StatusFilter = 'all' | DuplicateClusterStatus;
 

@@ -41,7 +41,16 @@ export async function runWithRetry<T>(
   opts: RunOpts = {},
 ): Promise<NodeRunOutcome<T>> {
   if (block.pinData !== undefined) {
-    return { kind: 'ok', value: block.pinData as T, attempts: 0, pinned: true };
+    // The pinned payload is shaped like a `ForgeActionResult` subset so
+    // `executeForgeBlock`'s downstream code (items + outputs aggregation,
+    // pairedItem auto-population) treats it identically to a real run.
+    // Cast through `unknown` because the type variable T is opaque here.
+    return {
+      kind: 'ok',
+      value: block.pinData as unknown as T,
+      attempts: 0,
+      pinned: true,
+    };
   }
 
   const retry = block.retry;

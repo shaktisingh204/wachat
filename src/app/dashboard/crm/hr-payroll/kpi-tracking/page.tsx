@@ -4,12 +4,18 @@
  * KPI tracking — list page rebuilt to §1D.1 bar.
  *
  * KPI strip: Total · On-track · Achieved · Behind.
- * Server actions preserved: getCrmKpis / deleteCrmKpi.
+ * Server actions preserved: getCrmKpis / deleteCrmKpi / bulkDeleteCrmKpis.
+ * Export: CSV + XLSX of KPI name, employee, period, target, actual,
+ *         achievement %, status.
  */
 
 import * as React from 'react';
 import { useCallback, useEffect, useState, useTransition } from 'react';
-import { LineChart } from 'lucide-react';
+import { Download, LineChart } from 'lucide-react';
+
+import {
+  ZoruButton,
+} from '@/components/zoruui';
 
 import {
   getCrmKpis,
@@ -18,6 +24,8 @@ import {
 } from '@/app/actions/crm-hr-appraisals.actions';
 import type { WithId } from 'mongodb';
 
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+
 import {
   HrChip,
   HrListShell,
@@ -25,6 +33,7 @@ import {
 } from '../../hr/_components/hr-list-shell';
 
 type Row = WithId<CrmKpi>;
+type StringRow = Omit<Row, '_id'> & { _id: string };
 
 function AchievementBar({ target, actual }: { target: number; actual: number }) {
   const pct = target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
@@ -38,6 +47,10 @@ function AchievementBar({ target, actual }: { target: number; actual: number }) 
       <span className="text-[12px] tabular-nums text-zoru-ink-muted">{pct}%</span>
     </div>
   );
+}
+
+function achievementPct(target: number, actual: number): number {
+  return target > 0 ? Math.min(100, Math.round((actual / target) * 100)) : 0;
 }
 
 export default function KpiTrackingPage() {
@@ -68,13 +81,41 @@ export default function KpiTrackingPage() {
     ];
   }, [rows]);
 
-  // Cast `_id` to string for the shell — HrListShell expects string ids
-  // for table keys / nav hrefs.
-  type StringRow = Omit<Row, '_id'> & { _id: string };
   const stringRows: StringRow[] = rows.map((r) => ({
     ...r,
     _id: String(r._id),
   })) as StringRow[];
+
+  // HrListShell handles bulk delete by iterating onDelete per id serially.
+  // Export buttons are surfaced via extraFilters slot.
+
+  const handleExportCsv = useCallback(() => {
+    const headers = ['KPI Name', 'Employee', 'Period', 'Target', 'Actual', 'Achievement %', 'Status'];
+    const exportData = rows.map((r) => ({
+      'KPI Name': r.kpi_name,
+      Employee: r.employee_id,
+      Period: r.period,
+      Target: String(r.target_value),
+      Actual: String(r.actual_value),
+      'Achievement %': String(achievementPct(r.target_value, r.actual_value)),
+      Status: r.status,
+    }));
+    downloadCsv(`kpi-tracking-${dateStamp()}.csv`, headers, exportData);
+  }, [rows]);
+
+  const handleExportXlsx = useCallback(async () => {
+    const headers = ['KPI Name', 'Employee', 'Period', 'Target', 'Actual', 'Achievement %', 'Status'];
+    const exportData = rows.map((r) => ({
+      'KPI Name': r.kpi_name,
+      Employee: r.employee_id,
+      Period: r.period,
+      Target: String(r.target_value),
+      Actual: String(r.actual_value),
+      'Achievement %': String(achievementPct(r.target_value, r.actual_value)),
+      Status: r.status,
+    }));
+    await downloadXlsx(`kpi-tracking-${dateStamp()}.xlsx`, headers, exportData, 'KPI Tracking');
+  }, [rows]);
 
   return (
     <HrListShell<StringRow>
@@ -101,6 +142,16 @@ export default function KpiTrackingPage() {
       onDelete={deleteCrmKpi}
       onAfterChange={refresh}
       emptyText="No KPIs yet"
+      extraFilters={
+        <div className="flex items-center gap-2">
+          <ZoruButton size="sm" variant="ghost" onClick={handleExportCsv}>
+            <Download className="h-3.5 w-3.5" /> CSV
+          </ZoruButton>
+          <ZoruButton size="sm" variant="ghost" onClick={handleExportXlsx}>
+            <Download className="h-3.5 w-3.5" /> XLSX
+          </ZoruButton>
+        </div>
+      }
       columns={[
         {
           key: 'name',

@@ -35,6 +35,10 @@ type Props = {
   onBlockChange?: (block: Block) => void;
   onDuplicate?: (block: Block) => void;
   onDelete?: (block: Block) => void;
+  /** Toggle pin state on the target block. Setting `pinData` to `undefined`
+   *  unpins; setting it to `{ outputs: {} }` pins (the settings panel
+   *  textarea lets the user fill the actual payload afterwards). */
+  onTogglePin?: (block: Block) => void;
 };
 
 export function BlockNode({
@@ -49,6 +53,7 @@ export function BlockNode({
   onBlockChange,
   onDuplicate,
   onDelete,
+  onTogglePin,
 }: Props) {
   const {
     openedNodeId,
@@ -237,8 +242,12 @@ export function BlockNode({
       <BlockNodeContextMenu
         x={contextMenu.x}
         y={contextMenu.y}
+        isPinned={block.pinData !== undefined}
         onSettings={() => setOpenedNodeId(block.id)}
         onDuplicate={() => onDuplicate?.(block)}
+        onTogglePin={
+          onTogglePin ? () => onTogglePin(block) : undefined
+        }
         onDelete={() => onDelete?.(block)}
         onClose={() => setContextMenu(null)}
       />

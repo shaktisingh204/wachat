@@ -254,3 +254,25 @@ export async function deleteCrmKpi(id: string): Promise<{ success: boolean; erro
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+export async function bulkDeleteCrmKpis(
+    ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { deleted: 0, failed: ids.length, error: 'Access denied' };
+    const validOids = ids
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+    if (validOids.length === 0) return { deleted: 0, failed: ids.length };
+    try {
+        const { db } = await connectToDatabase();
+        const r = await db.collection('crm_kpis').deleteMany({
+            _id: { $in: validOids },
+            userId: new ObjectId(session.user._id),
+        });
+        revalidatePath('/dashboard/crm/hr-payroll/kpi-tracking');
+        return { deleted: r.deletedCount, failed: Math.max(0, ids.length - r.deletedCount) };
+    } catch (e) {
+        return { deleted: 0, failed: ids.length, error: getErrorMessage(e) };
+    }
+}

@@ -46,6 +46,8 @@ import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   getWsProjects,
   deleteWsProject,
+  bulkArchiveProjects,
+  bulkDeleteProjects,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProject } from '@/lib/worksuite/project-types';
 
@@ -87,9 +89,11 @@ export default function ProjectsPage() {
   const [clientFilter, setClientFilter] = React.useState<string>('');
   const [categoryFilter, setCategoryFilter] = React.useState<string>('');
 
-  // View + delete
+  // View + delete + bulk
   const [view, setView] = React.useState<ViewMode>('table');
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+  const [bulkArchiveIds, setBulkArchiveIds] = React.useState<string[] | null>(null);
+  const [bulkDeleteIds, setBulkDeleteIds] = React.useState<string[] | null>(null);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -198,6 +202,30 @@ export default function ProjectsPage() {
     }
     setDeleteTargetId(null);
   }, [deleteTargetId, refresh, toast]);
+
+  const handleBulkArchiveConfirm = React.useCallback(async () => {
+    if (!bulkArchiveIds || bulkArchiveIds.length === 0) return;
+    const res = await bulkArchiveProjects(bulkArchiveIds);
+    if (res.error) {
+      toast({ title: 'Bulk archive failed', description: res.error, variant: 'destructive' });
+    } else {
+      toast({ title: `${res.updated} project${res.updated === 1 ? '' : 's'} archived` });
+      refresh();
+    }
+    setBulkArchiveIds(null);
+  }, [bulkArchiveIds, refresh, toast]);
+
+  const handleBulkDeleteConfirm = React.useCallback(async () => {
+    if (!bulkDeleteIds || bulkDeleteIds.length === 0) return;
+    const res = await bulkDeleteProjects(bulkDeleteIds);
+    if (res.error) {
+      toast({ title: 'Bulk delete failed', description: res.error, variant: 'destructive' });
+    } else {
+      toast({ title: `${res.deleted} project${res.deleted === 1 ? '' : 's'} deleted` });
+      refresh();
+    }
+    setBulkDeleteIds(null);
+  }, [bulkDeleteIds, refresh, toast]);
 
   const KpiBtn = React.useCallback(
     (
@@ -379,6 +407,8 @@ export default function ProjectsPage() {
               rows={filtered}
               loading={loading}
               onDelete={(id) => setDeleteTargetId(id)}
+              onBulkArchive={(ids) => setBulkArchiveIds(ids)}
+              onBulkDelete={(ids) => setBulkDeleteIds(ids)}
             />
           ) : view === 'kanban' ? (
             <ProjectsKanban rows={filtered} />
@@ -398,6 +428,25 @@ export default function ProjectsPage() {
         requireTyped="DELETE"
         confirmLabel="Delete"
         onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmDialog
+        open={!!bulkArchiveIds}
+        onOpenChange={(o) => !o && setBulkArchiveIds(null)}
+        title={`Archive ${bulkArchiveIds?.length ?? 0} project${(bulkArchiveIds?.length ?? 0) === 1 ? '' : 's'}?`}
+        description="Archived projects are hidden from active views but can be restored."
+        confirmLabel="Archive"
+        onConfirm={handleBulkArchiveConfirm}
+      />
+
+      <ConfirmDialog
+        open={!!bulkDeleteIds}
+        onOpenChange={(o) => !o && setBulkDeleteIds(null)}
+        title={`Delete ${bulkDeleteIds?.length ?? 0} project${(bulkDeleteIds?.length ?? 0) === 1 ? '' : 's'}?`}
+        description="This permanently removes all selected projects and may orphan tasks and milestones. This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={handleBulkDeleteConfirm}
       />
     </>
   );

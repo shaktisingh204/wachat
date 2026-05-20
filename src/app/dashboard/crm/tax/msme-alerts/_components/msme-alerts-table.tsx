@@ -1,22 +1,24 @@
 'use client';
 
-import { ZoruBadge, ZoruButton } from '@/components/zoruui';
-import { CalendarClock, Wallet } from 'lucide-react';
+import { ZoruBadge, ZoruButton, ZoruCheckbox } from '@/components/zoruui';
+import { CalendarClock, Download, Loader2, Wallet, X } from 'lucide-react';
 
 /**
- * Per-bucket MSME alerts table. Renders the rows that
- * `computeMsmeOverduebills` returned for one bucket
- * (`overdue` or `at_risk`).
- *
- * The "Mark paid" / "Negotiate extension" buttons deep-link into the
- * bill detail page so the user records the outcome there — we
- * intentionally don't write-back from this page yet (out of scope per
- * §6.10 deliverable; see ticket follow-ups for the inline-action
- * shortcuts).
+ * Per-bucket MSME alerts table with:
+ *   - ZoruCheckbox row selection + select-all
+ *   - Bulk bar: Mark Paid · Export CSV/XLSX · Request Extension
+ *   - Per-row "Mark paid" / "Negotiate extension" deep-links (unchanged)
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+
+import { downloadCsv, downloadXlsx, dateStamp, type ExportRow } from '@/lib/crm-list-export';
+import {
+    bulkMarkMsmePaid,
+    bulkRequestMsmeExtension,
+} from '@/app/actions/crm-msme-alerts.actions';
 
 interface MsmeAlertRow {
     billId: string;
@@ -35,6 +37,8 @@ interface MsmeAlertsTableProps {
     rows: MsmeAlertRow[];
     bucket: 'overdue' | 'at_risk';
 }
+
+/* ─── helpers ─────────────────────────────────────────────────────── */
 
 function formatINR(n: number): string {
     try {
@@ -58,105 +62,324 @@ function formatDate(d: string | Date): string {
     });
 }
 
+function isoDate(d: string | Date): string {
+    const date = d instanceof Date ? d : new Date(d);
+    if (!Number.isFinite(date.getTime())) return '';
+    return date.toISOString().slice(0, 10);
+}
+
+/* ─── component ───────────────────────────────────────────────────── */
+
 export function MsmeAlertsTable({ rows, bucket }: MsmeAlertsTableProps) {
+    const router = useRouter();
+
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkPending, setBulkPending] = React.useState(false);
+    const [bulkError, setBulkError] = React.useState<string | null>(null);
+    const [bulkSuccess, setBulkSuccess] = React.useState<string | null>(null);
+
+    const allSelected = rows.length > 0 && rows.every((r) => selected.has(r.billId));
+    const someSelected = !allSelected && rows.some((r) => selected.has(r.billId));
+    const selectedRows = rows.filter((r) => selected.has(r.billId));
+    const selectionCount = selectedRows.length;
+
+    function toggleAll() {
+        if (allSelected) {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                rows.forEach((r) => next.delete(r.billId));
+                return next;
+            });
+        } else {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                rows.forEach((r) => next.add(r.billId));
+                return next;
+            });
+        }
+    }
+
+    function toggleRow(id: string) {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }
+
+    function clearSelection() {
+        setSelected(new Set());
+        setBulkError(null);
+        setBulkSuccess(null);
+    }
+
+    /* ── export ── */
+    const EXPORT_HEADERS = [
+        'Bill No',
+        'Vendor',
+        'MSME Category',
+        'Bill Date',
+        'Days Overdue',
+        'Outstanding (INR)',
+        'Payment Terms (days)',
+    ];
+
+    function toExportRow(r: MsmeAlertRow): ExportRow {
+        return {
+            'Bill No': r.billNo ?? `#${r.billId.slice(-6)}`,
+            'Vendor': r.vendorName,
+            'MSME Category': r.msmeCategory ?? '',
+            'Bill Date': isoDate(r.billDate),
+            'Days Overdue': r.daysOverdue,
+            'Outstanding (INR)': r.amountOutstanding,
+            'Payment Terms (days)': r.msmePaymentTermsDays,
+        };
+    }
+
+    function exportSource() {
+        return selectionCount > 0 ? selectedRows : rows;
+    }
+
+    function handleCsv() {
+        downloadCsv(
+            `msme-${bucket}-${dateStamp()}.csv`,
+            EXPORT_HEADERS,
+            exportSource().map(toExportRow),
+        );
+    }
+
+    async function handleXlsx() {
+        await downloadXlsx(
+            `msme-${bucket}-${dateStamp()}.xlsx`,
+            EXPORT_HEADERS,
+            exportSource().map(toExportRow),
+            bucket === 'overdue' ? 'Overdue' : 'At Risk',
+        );
+    }
+
+    /* ── bulk actions ── */
+    async function handleBulkPaid() {
+        setBulkPending(true);
+        setBulkError(null);
+        setBulkSuccess(null);
+        const ids = selectedRows.map((r) => r.billId);
+        const res = await bulkMarkMsmePaid(ids);
+        setBulkPending(false);
+        if (!res.ok) {
+            setBulkError(res.error);
+            return;
+        }
+        setBulkSuccess(`${res.updated} bill${res.updated !== 1 ? 's' : ''} marked as paid.`);
+        setSelected(new Set());
+        router.refresh();
+    }
+
+    async function handleBulkExtension() {
+        setBulkPending(true);
+        setBulkError(null);
+        setBulkSuccess(null);
+        const ids = selectedRows.map((r) => r.billId);
+        const res = await bulkRequestMsmeExtension(ids);
+        setBulkPending(false);
+        if (!res.ok) {
+            setBulkError(res.error);
+            return;
+        }
+        setBulkSuccess(
+            `Extension requested for ${res.flagged} bill${res.flagged !== 1 ? 's' : ''}.`,
+        );
+        setSelected(new Set());
+        router.refresh();
+    }
+
+    /* ── render ── */
     if (rows.length === 0) {
         return (
             <div className="px-4 py-8 text-center text-[13px] text-muted-foreground">
                 {bucket === 'overdue'
-                    ? 'No bills past the 45-day MSME clock. 🎉'
+                    ? 'No bills past the 45-day MSME clock.'
                     : 'No bills entering the 7-day at-risk window.'}
             </div>
         );
     }
 
     return (
-        <div className="overflow-x-auto">
-            <table className="w-full text-[13px]">
-                <thead className="border-b border-border/60 bg-muted/30 text-[12px] uppercase tracking-wide text-muted-foreground">
-                    <tr>
-                        <th className="px-4 py-2 text-left font-medium">Bill</th>
-                        <th className="px-4 py-2 text-left font-medium">Vendor</th>
-                        <th className="px-4 py-2 text-left font-medium">Bill date</th>
-                        <th className="px-4 py-2 text-right font-medium">
-                            Days {bucket === 'overdue' ? 'overdue' : 'to breach'}
-                        </th>
-                        <th className="px-4 py-2 text-right font-medium">Outstanding</th>
-                        <th className="px-4 py-2 text-right font-medium">Terms</th>
-                        <th className="px-4 py-2 text-right font-medium">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {rows.map((r) => {
-                        const labelDays =
-                            bucket === 'overdue'
-                                ? `${r.daysOverdue} d`
-                                : `${Math.abs(r.daysOverdue)} d`;
-                        return (
-                            <tr key={r.billId} className="border-b border-border/40 last:border-b-0">
-                                <td className="px-4 py-2.5">
-                                    <Link
-                                        href={`/dashboard/crm/purchases/expenses/${r.billId}`}
-                                        className="font-medium text-foreground hover:underline"
-                                    >
-                                        {r.billNo ?? `#${r.billId.slice(-6)}`}
-                                    </Link>
-                                </td>
-                                <td className="px-4 py-2.5">
-                                    <div className="flex flex-col">
-                                        <Link
-                                            href={`/dashboard/crm/purchases/vendors/${r.vendorId}`}
-                                            className="text-foreground hover:underline"
-                                        >
-                                            {r.vendorName}
-                                        </Link>
-                                        {r.msmeCategory ? (
-                                            <span className="mt-0.5 text-[11px] text-muted-foreground">
-                                                MSME · {r.msmeCategory}
-                                            </span>
-                                        ) : null}
-                                    </div>
-                                </td>
-                                <td className="px-4 py-2.5 text-muted-foreground">
-                                    {formatDate(r.billDate)}
-                                </td>
-                                <td className="px-4 py-2.5 text-right">
-                                    <ZoruBadge
-                                        variant={bucket === 'overdue' ? 'danger' : 'warning'}
-                                    >
-                                        {labelDays}
-                                    </ZoruBadge>
-                                </td>
-                                <td className="px-4 py-2.5 text-right font-medium">
-                                    {formatINR(r.amountOutstanding)}
-                                </td>
-                                <td className="px-4 py-2.5 text-right text-muted-foreground">
-                                    {r.msmePaymentTermsDays} d
-                                </td>
-                                <td className="px-4 py-2.5">
-                                    <div className="flex items-center justify-end gap-1.5">
+        <div className="flex flex-col gap-0">
+            {/* Bulk action bar — shown when at least one row is selected */}
+            {selectionCount > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-b border-border/60 bg-muted/40 px-4 py-2 text-[13px]">
+                    <span className="font-medium">{selectionCount} selected</span>
+                    <ZoruButton
+                        size="sm"
+                        variant="outline"
+                        onClick={handleBulkPaid}
+                        disabled={bulkPending}
+                    >
+                        {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wallet className="h-3.5 w-3.5" />}
+                        Mark paid
+                    </ZoruButton>
+                    <ZoruButton
+                        size="sm"
+                        variant="outline"
+                        onClick={handleBulkExtension}
+                        disabled={bulkPending}
+                    >
+                        {bulkPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarClock className="h-3.5 w-3.5" />}
+                        Request extension
+                    </ZoruButton>
+                    <ZoruButton
+                        size="sm"
+                        variant="outline"
+                        onClick={handleCsv}
+                        disabled={bulkPending}
+                    >
+                        <Download className="h-3.5 w-3.5" />
+                        Export CSV
+                    </ZoruButton>
+                    <ZoruButton
+                        size="sm"
+                        variant="outline"
+                        onClick={handleXlsx}
+                        disabled={bulkPending}
+                    >
+                        <Download className="h-3.5 w-3.5" />
+                        Export XLSX
+                    </ZoruButton>
+                    <ZoruButton size="sm" variant="ghost" onClick={clearSelection} disabled={bulkPending}>
+                        <X className="h-3.5 w-3.5" />
+                        Clear
+                    </ZoruButton>
+                </div>
+            )}
+
+            {/* Export all (no selection) */}
+            {selectionCount === 0 && (
+                <div className="flex items-center justify-end gap-2 border-b border-border/60 px-4 py-2">
+                    <ZoruButton size="sm" variant="outline" onClick={handleCsv}>
+                        <Download className="h-3.5 w-3.5" />
+                        Export CSV
+                    </ZoruButton>
+                    <ZoruButton size="sm" variant="outline" onClick={handleXlsx}>
+                        <Download className="h-3.5 w-3.5" />
+                        Export XLSX
+                    </ZoruButton>
+                </div>
+            )}
+
+            {/* Feedback messages */}
+            {(bulkError || bulkSuccess) && (
+                <div className={`px-4 py-2 text-[12.5px] ${bulkError ? 'text-destructive' : 'text-emerald-500'}`}>
+                    {bulkError ?? bulkSuccess}
+                </div>
+            )}
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+                <table className="w-full text-[13px]">
+                    <thead className="border-b border-border/60 bg-muted/30 text-[12px] uppercase tracking-wide text-muted-foreground">
+                        <tr>
+                            <th className="px-4 py-2 text-left font-medium">
+                                <ZoruCheckbox
+                                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                                    onCheckedChange={toggleAll}
+                                    aria-label="Select all"
+                                />
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium">Bill</th>
+                            <th className="px-4 py-2 text-left font-medium">Vendor</th>
+                            <th className="px-4 py-2 text-left font-medium">Bill date</th>
+                            <th className="px-4 py-2 text-right font-medium">
+                                Days {bucket === 'overdue' ? 'overdue' : 'to breach'}
+                            </th>
+                            <th className="px-4 py-2 text-right font-medium">Outstanding</th>
+                            <th className="px-4 py-2 text-right font-medium">Terms</th>
+                            <th className="px-4 py-2 text-right font-medium">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {rows.map((r) => {
+                            const labelDays =
+                                bucket === 'overdue'
+                                    ? `${r.daysOverdue} d`
+                                    : `${Math.abs(r.daysOverdue)} d`;
+                            return (
+                                <tr
+                                    key={r.billId}
+                                    className={`border-b border-border/40 last:border-b-0 ${selected.has(r.billId) ? 'bg-muted/30' : ''}`}
+                                >
+                                    <td className="px-4 py-2.5">
+                                        <ZoruCheckbox
+                                            checked={selected.has(r.billId)}
+                                            onCheckedChange={() => toggleRow(r.billId)}
+                                            aria-label={`Select bill ${r.billNo ?? r.billId}`}
+                                        />
+                                    </td>
+                                    <td className="px-4 py-2.5">
                                         <Link
                                             href={`/dashboard/crm/purchases/expenses/${r.billId}`}
+                                            className="font-medium text-foreground hover:underline"
                                         >
-                                            <ZoruButton variant="outline" size="sm">
-                                                <Wallet className="h-3.5 w-3.5" />
-                                                Mark paid
-                                            </ZoruButton>
+                                            {r.billNo ?? `#${r.billId.slice(-6)}`}
                                         </Link>
-                                        <Link
-                                            href={`/dashboard/crm/purchases/expenses/${r.billId}/edit`}
+                                    </td>
+                                    <td className="px-4 py-2.5">
+                                        <div className="flex flex-col">
+                                            <Link
+                                                href={`/dashboard/crm/purchases/vendors/${r.vendorId}`}
+                                                className="text-foreground hover:underline"
+                                            >
+                                                {r.vendorName}
+                                            </Link>
+                                            {r.msmeCategory ? (
+                                                <span className="mt-0.5 text-[11px] text-muted-foreground">
+                                                    MSME · {r.msmeCategory}
+                                                </span>
+                                            ) : null}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-2.5 text-muted-foreground">
+                                        {formatDate(r.billDate)}
+                                    </td>
+                                    <td className="px-4 py-2.5 text-right">
+                                        <ZoruBadge
+                                            variant={bucket === 'overdue' ? 'danger' : 'warning'}
                                         >
-                                            <ZoruButton variant="ghost" size="sm">
-                                                <CalendarClock className="h-3.5 w-3.5" />
-                                                Negotiate extension
-                                            </ZoruButton>
-                                        </Link>
-                                    </div>
-                                </td>
-                            </tr>
-                        );
-                    })}
-                </tbody>
-            </table>
+                                            {labelDays}
+                                        </ZoruBadge>
+                                    </td>
+                                    <td className="px-4 py-2.5 text-right font-medium">
+                                        {formatINR(r.amountOutstanding)}
+                                    </td>
+                                    <td className="px-4 py-2.5 text-right text-muted-foreground">
+                                        {r.msmePaymentTermsDays} d
+                                    </td>
+                                    <td className="px-4 py-2.5">
+                                        <div className="flex items-center justify-end gap-1.5">
+                                            <Link
+                                                href={`/dashboard/crm/purchases/expenses/${r.billId}`}
+                                            >
+                                                <ZoruButton variant="outline" size="sm">
+                                                    <Wallet className="h-3.5 w-3.5" />
+                                                    Mark paid
+                                                </ZoruButton>
+                                            </Link>
+                                            <Link
+                                                href={`/dashboard/crm/purchases/expenses/${r.billId}/edit`}
+                                            >
+                                                <ZoruButton variant="ghost" size="sm">
+                                                    <CalendarClock className="h-3.5 w-3.5" />
+                                                    Negotiate extension
+                                                </ZoruButton>
+                                            </Link>
+                                        </div>
+                                    </td>
+                                </tr>
+                            );
+                        })}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }

@@ -232,6 +232,42 @@ async function runFlowInner(
     }
   }
 
+  // Run-from-here seed: when the session points at a non-start position
+  // (rerun OR editor's "run from this node"), walk every block declared
+  // before the start point and seed `nodeOutputs` from each one's
+  // `block.pinData`. Lets the started block reference upstream values via
+  // `$node["X"].json.<key>` without re-running the trigger. Skipped blocks
+  // WITHOUT pinData stay absent — downstream reads to them return empty,
+  // which matches n8n's behaviour for "run from here without pinning".
+  const isMidFlowStart =
+    session.currentGroupId !== flow.groups[0]?.id ||
+    session.currentBlockIndex > 0;
+  if (isMidFlowStart) {
+    for (const group of flow.groups) {
+      for (let bi = 0; bi < group.blocks.length; bi++) {
+        const b = group.blocks[bi];
+        // Stop at the start position — anything from here on runs for real.
+        if (
+          group.id === session.currentGroupId &&
+          bi === session.currentBlockIndex
+        ) {
+          break;
+        }
+        if (b.pinData?.outputs && Object.keys(b.pinData.outputs).length > 0) {
+          const name = blockNameMap.get(b.id) ?? b.id;
+          nodeOutputs[name] = {
+            json: b.pinData.outputs,
+            items:
+              b.pinData.items && b.pinData.items.length > 0
+                ? b.pinData.items
+                : undefined,
+          };
+        }
+      }
+      if (group.id === session.currentGroupId) break;
+    }
+  }
+
   const blockCtxBase = {
     userId: flow.userId,
     callerStack: [...(callerStack ?? []), selfFlowId],

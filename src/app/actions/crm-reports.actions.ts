@@ -2322,3 +2322,300 @@ export async function getBirthdayAnniversaryDeep(
         return empty;
     }
 }
+
+/* ════════════════════════════════════════════════════════════════════════
+ *  §TP — Late Report + Project Status Report
+ * ════════════════════════════════════════════════════════════════════════ */
+
+export type LateEntityKind = 'task' | 'project' | 'invoice';
+export type ProjectRag = 'on-track' | 'at-risk' | 'blocked';
+
+export interface TpReportProject { id: string; name: string }
+export interface TpReportOwner  { id: string; name: string }
+
+export async function getTpReportProjects(): Promise<TpReportProject[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const rows = await db.collection('crm_projects')
+            .find({ userId }, { projection: { _id: 1, name: 1 } })
+            .sort({ name: 1 })
+            .toArray();
+        return rows.map((r: any) => ({ id: r._id.toString(), name: String(r.name ?? 'Unnamed') }));
+    } catch (e) {
+        console.error('[getTpReportProjects] failed:', e);
+        return [];
+    }
+}
+
+export async function getTpReportOwners(): Promise<TpReportOwner[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const rows = await db.collection('crm_employees')
+            .find({ userId, status: 'Active' }, { projection: { _id: 1, firstName: 1, lastName: 1 } })
+            .sort({ firstName: 1 })
+            .toArray();
+        return rows.map((r: any) => ({
+            id: r._id.toString(),
+            name: `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim() || 'Unnamed',
+        }));
+    } catch (e) {
+        console.error('[getTpReportOwners] failed:', e);
+        return [];
+    }
+}
+
+export interface LateReportRow {
+    _id: string;
+    kind: LateEntityKind;
+    title: string;
+    projectId?: string;
+    projectName: string;
+    ownerName: string;
+    dueDate?: string;
+    lateDays: number;
+    status: string;
+}
+
+export interface LateReportDeep {
+    rows: LateReportRow[];
+    byKind: Array<{ kind: LateEntityKind; count: number; avgDays: number }>;
+    stacked: Array<{ month: string; task: number; project: number; invoice: number }>;
+    totals: { totalLate: number; avgLatenessDays: number; worstLatenessDays: number; kindCount: number };
+}
+
+export async function getLateReportDeep(
+    from?: string,
+    to?: string,
+    projectId?: string,
+    ownerId?: string,
+): Promise<LateReportDeep> {
+    const empty: LateReportDeep = {
+        rows: [],
+        byKind: [],
+        stacked: [],
+        totals: { totalLate: 0, avgLatenessDays: 0, worstLatenessDays: 0, kindCount: 0 },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const now = new Date();
+        const toDate = to ? new Date(to) : now;
+
+        const baseFilter: any = { userId, dueDate: { $lt: toDate }, status: { $nin: ['Completed', 'Closed', 'Cancelled', 'Paid'] } };
+        if (from) baseFilter.dueDate.$gte = new Date(from);
+        if (projectId && ObjectId.isValid(projectId)) baseFilter.projectId = new ObjectId(projectId);
+        if (ownerId && ObjectId.isValid(ownerId)) baseFilter.ownerId = new ObjectId(ownerId);
+
+        const [rawTasks, rawProjects, rawInvoices] = await Promise.all([
+            db.collection('crm_tasks').find({ ...baseFilter }, { projection: { _id: 1, title: 1, dueDate: 1, status: 1, projectId: 1, assigneeId: 1 } }).toArray(),
+            db.collection('crm_projects').find({ userId, deadline: { $lt: toDate }, status: { $nin: ['Completed', 'Cancelled'] } }, { projection: { _id: 1, name: 1, deadline: 1, status: 1, clientId: 1 } }).toArray(),
+            db.collection('crm_invoices').find({ userId, dueDate: { $lt: toDate }, status: { $nin: ['Paid', 'Cancelled'] } }, { projection: { _id: 1, invoiceNumber: 1, dueDate: 1, status: 1, clientName: 1 } }).toArray(),
+        ]);
+
+        const rows: LateReportRow[] = [
+            ...rawTasks.map((t: any) => {
+                const due = t.dueDate ? new Date(t.dueDate) : null;
+                return {
+                    _id: t._id.toString(),
+                    kind: 'task' as LateEntityKind,
+                    title: String(t.title ?? 'Untitled'),
+                    projectId: t.projectId?.toString(),
+                    projectName: '',
+                    ownerName: '',
+                    dueDate: due?.toISOString(),
+                    lateDays: due ? Math.max(0, Math.floor((now.getTime() - due.getTime()) / 86400000)) : 0,
+                    status: String(t.status ?? ''),
+                };
+            }),
+            ...rawProjects.map((p: any) => {
+                const due = p.deadline ? new Date(p.deadline) : null;
+                return {
+                    _id: p._id.toString(),
+                    kind: 'project' as LateEntityKind,
+                    title: String(p.name ?? 'Untitled'),
+                    projectName: String(p.name ?? ''),
+                    ownerName: '',
+                    dueDate: due?.toISOString(),
+                    lateDays: due ? Math.max(0, Math.floor((now.getTime() - due.getTime()) / 86400000)) : 0,
+                    status: String(p.status ?? ''),
+                };
+            }),
+            ...rawInvoices.map((inv: any) => {
+                const due = inv.dueDate ? new Date(inv.dueDate) : null;
+                return {
+                    _id: inv._id.toString(),
+                    kind: 'invoice' as LateEntityKind,
+                    title: String(inv.invoiceNumber ?? 'Untitled'),
+                    projectName: '',
+                    ownerName: String(inv.clientName ?? ''),
+                    dueDate: due?.toISOString(),
+                    lateDays: due ? Math.max(0, Math.floor((now.getTime() - due.getTime()) / 86400000)) : 0,
+                    status: String(inv.status ?? ''),
+                };
+            }),
+        ].sort((a, b) => b.lateDays - a.lateDays);
+
+        const kindMap: Record<LateEntityKind, { count: number; total: number }> = { task: { count: 0, total: 0 }, project: { count: 0, total: 0 }, invoice: { count: 0, total: 0 } };
+        const monthMap: Record<string, { task: number; project: number; invoice: number }> = {};
+        let worst = 0;
+        for (const r of rows) {
+            kindMap[r.kind].count++;
+            kindMap[r.kind].total += r.lateDays;
+            if (r.lateDays > worst) worst = r.lateDays;
+            if (r.dueDate) {
+                const m = r.dueDate.slice(0, 7);
+                if (!monthMap[m]) monthMap[m] = { task: 0, project: 0, invoice: 0 };
+                monthMap[m][r.kind]++;
+            }
+        }
+
+        const byKind = (Object.entries(kindMap) as [LateEntityKind, { count: number; total: number }][])
+            .filter(([, v]) => v.count > 0)
+            .map(([kind, v]) => ({ kind, count: v.count, avgDays: Math.round(v.total / v.count) }));
+
+        const stacked = Object.entries(monthMap)
+            .sort(([a], [b]) => a.localeCompare(b))
+            .map(([month, v]) => ({ month, ...v }));
+
+        const totalLate = rows.length;
+        const avgLatenessDays = totalLate ? Math.round(rows.reduce((s, r) => s + r.lateDays, 0) / totalLate) : 0;
+
+        return {
+            rows,
+            byKind,
+            stacked,
+            totals: { totalLate, avgLatenessDays, worstLatenessDays: worst, kindCount: byKind.length },
+        };
+    } catch (e) {
+        console.error('[getLateReportDeep] failed:', e);
+        return empty;
+    }
+}
+
+export interface ProjectStatusRow {
+    _id: string;
+    name: string;
+    status: string;
+    rag: ProjectRag;
+    ownerName: string;
+    completionPercent: number;
+    tasksCount: number;
+    overdueTasks: number;
+    deadline?: string;
+    daysToDeadline?: number;
+}
+
+export interface ProjectStatusReport {
+    rows: ProjectStatusRow[];
+    ragDistribution: Array<{ rag: string; count: number }>;
+    velocity: Array<{ month: string; completed: number }>;
+    totals: { totalActive: number; onTrack: number; atRisk: number; blocked: number };
+}
+
+export async function getProjectStatusDeep(
+    projectId?: string,
+    ownerId?: string,
+): Promise<ProjectStatusReport> {
+    const empty: ProjectStatusReport = {
+        rows: [],
+        ragDistribution: [],
+        velocity: [],
+        totals: { totalActive: 0, onTrack: 0, atRisk: 0, blocked: 0 },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const now = new Date();
+
+        const projectFilter: any = { userId, status: { $nin: ['Completed', 'Cancelled'] } };
+        if (projectId && ObjectId.isValid(projectId)) projectFilter._id = new ObjectId(projectId);
+
+        const projects = await db.collection('crm_projects')
+            .find(projectFilter, { projection: { _id: 1, name: 1, status: 1, deadline: 1, clientId: 1 } })
+            .toArray();
+
+        const projectIds = projects.map((p: any) => p._id);
+
+        const [allTasks, completedTasks] = await Promise.all([
+            db.collection('crm_tasks').find({ userId, projectId: { $in: projectIds } }, { projection: { _id: 1, projectId: 1, status: 1, dueDate: 1, completedAt: 1 } }).toArray(),
+            db.collection('crm_tasks').find({ userId, projectId: { $in: projectIds }, status: 'Completed' }, { projection: { _id: 1, projectId: 1, completedAt: 1 } }).toArray(),
+        ]);
+
+        const tasksByProject: Record<string, { total: number; overdue: number; completed: number }> = {};
+        for (const p of projects) tasksByProject[p._id.toString()] = { total: 0, overdue: 0, completed: 0 };
+
+        for (const t of allTasks as any[]) {
+            const pid = t.projectId?.toString();
+            if (!pid || !tasksByProject[pid]) continue;
+            tasksByProject[pid].total++;
+            if (t.status === 'Completed') tasksByProject[pid].completed++;
+            else if (t.dueDate && new Date(t.dueDate) < now) tasksByProject[pid].overdue++;
+        }
+
+        const velocityMap: Record<string, number> = {};
+        for (const t of completedTasks as any[]) {
+            const m = t.completedAt ? new Date(t.completedAt).toISOString().slice(0, 7) : null;
+            if (m) velocityMap[m] = (velocityMap[m] ?? 0) + 1;
+        }
+
+        function deriveRag(p: any, stats: { total: number; overdue: number; completed: number }): ProjectRag {
+            if (p.status === 'On Hold' || stats.overdue > stats.total * 0.4) return 'blocked';
+            if (stats.overdue > 0 || (p.deadline && new Date(p.deadline) < new Date(now.getTime() + 7 * 86400000))) return 'at-risk';
+            return 'on-track';
+        }
+
+        const rows: ProjectStatusRow[] = projects.map((p: any) => {
+            const stats = tasksByProject[p._id.toString()] ?? { total: 0, overdue: 0, completed: 0 };
+            const rag = deriveRag(p, stats);
+            const deadline = p.deadline ? new Date(p.deadline).toISOString() : undefined;
+            const daysToDeadline = deadline ? Math.round((new Date(deadline).getTime() - now.getTime()) / 86400000) : undefined;
+            return {
+                _id: p._id.toString(),
+                name: String(p.name ?? 'Untitled'),
+                status: String(p.status ?? ''),
+                rag,
+                ownerName: '',
+                completionPercent: stats.total ? Math.round((stats.completed / stats.total) * 100) : 0,
+                tasksCount: stats.total,
+                overdueTasks: stats.overdue,
+                deadline,
+                daysToDeadline,
+            };
+        });
+
+        const ragCounts = { 'on-track': 0, 'at-risk': 0, blocked: 0 };
+        for (const r of rows) ragCounts[r.rag]++;
+
+        return {
+            rows,
+            ragDistribution: [
+                { rag: 'on-track', count: ragCounts['on-track'] },
+                { rag: 'at-risk', count: ragCounts['at-risk'] },
+                { rag: 'blocked', count: ragCounts.blocked },
+            ],
+            velocity: Object.entries(velocityMap)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .slice(-12)
+                .map(([month, completed]) => ({ month, completed })),
+            totals: {
+                totalActive: rows.length,
+                onTrack: ragCounts['on-track'],
+                atRisk: ragCounts['at-risk'],
+                blocked: ragCounts.blocked,
+            },
+        };
+    } catch (e) {
+        console.error('[getProjectStatusDeep] failed:', e);
+        return empty;
+    }
+}

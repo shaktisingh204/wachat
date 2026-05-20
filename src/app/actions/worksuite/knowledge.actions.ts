@@ -553,6 +553,81 @@ export async function getNoticeKpis(): Promise<NoticeKpis> {
     return { total: notices.length, active, expired, expiringIn7Days };
 }
 
+/* ═══════════════════ Bulk Knowledge Base ops ═══════════════════ */
+
+export interface KbKpis {
+    total: number;
+    published: number;
+    drafts: number;
+    archived: number;
+}
+
+export async function getKbKpis(): Promise<KbKpis> {
+    const user = await requireSession();
+    if (!user) return { total: 0, published: 0, drafts: 0, archived: 0 };
+    const articles = await hrList<WsKnowledgeBase>(COLS.kb, { sortBy: { createdAt: -1 } });
+    let published = 0;
+    let archived = 0;
+    for (const a of articles) {
+        if ((a as WsKnowledgeBase & { archived?: boolean }).archived) {
+            archived += 1;
+        } else if (a.pinned) {
+            published += 1;
+        }
+    }
+    const drafts = articles.length - published - archived;
+    return {
+        total: articles.length,
+        published,
+        drafts: Math.max(0, drafts),
+        archived,
+    };
+}
+
+export async function bulkPublishKbArticles(
+    ids: string[],
+): Promise<{ updated: number; failed: number; error?: string }> {
+    const user = await requireSession();
+    if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+    const { ObjectId: OId } = await import('mongodb');
+    const oids = ids.filter((id) => OId.isValid(id)).map((id) => new OId(id));
+    if (oids.length === 0) return { updated: 0, failed: ids.length };
+    const { db } = await connectToDatabase();
+    const r = await db.collection(COLS.kb).updateMany(
+        { _id: { $in: oids }, userId: new OId(user._id) },
+        { $set: { pinned: true, archived: false, updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/workspace/knowledge-base');
+    return { updated: r.modifiedCount, failed: Math.max(0, ids.length - r.modifiedCount) };
+}
+
+export async function bulkArchiveKbArticles(
+    ids: string[],
+): Promise<{ updated: number; failed: number; error?: string }> {
+    const user = await requireSession();
+    if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+    const { ObjectId: OId } = await import('mongodb');
+    const oids = ids.filter((id) => OId.isValid(id)).map((id) => new OId(id));
+    if (oids.length === 0) return { updated: 0, failed: ids.length };
+    const { db } = await connectToDatabase();
+    const r = await db.collection(COLS.kb).updateMany(
+        { _id: { $in: oids }, userId: new OId(user._id) },
+        { $set: { archived: true, pinned: false, updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/workspace/knowledge-base');
+    return { updated: r.modifiedCount, failed: Math.max(0, ids.length - r.modifiedCount) };
+}
+
+export async function bulkDeleteKbArticles(
+    ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+    const { hrBulkDelete } = await import('@/lib/hr-crud');
+    const r = await hrBulkDelete(COLS.kb, ids);
+    revalidatePath('/dashboard/crm/workspace/knowledge-base');
+    if (!r.success) return { deleted: 0, failed: ids.length, error: r.error };
+    return { deleted: r.deleted, failed: Math.max(0, ids.length - r.deleted) };
+}
+
 export async function togglePinStickyNote(id: string) {
   const user = await requireSession();
   if (!user) return { success: false, error: 'Access denied' };

@@ -85,6 +85,12 @@ export async function POST(
    * Pin every upstream node's output by writing it to block.pinData on a
    * cloned flow.  executeFlow's nodeOutputs builder picks pinData up.  This
    * is a per-call clone — the persisted flow doc is not mutated.
+   *
+   * `prior.nodes[].output` is a stringified summary (per ExecutionStep);
+   * we wrap it as a single-field outputs bag so it matches the strict
+   * pinData shape introduced in Phase 10. Downstream blocks can still see
+   * the value via `$node["X"].json.value`. A later phase that records the
+   * full structured outputs in ExecutionStep can swap in the real shape.
    */
   const upstreamOutputs = new Map<string, unknown>();
   for (const n of prior.nodes ?? []) {
@@ -97,7 +103,12 @@ export async function POST(
     groups: flow.groups.map((g) => ({
       ...g,
       blocks: g.blocks.map((b) =>
-        upstreamOutputs.has(b.id) ? { ...b, pinData: upstreamOutputs.get(b.id) } : b,
+        upstreamOutputs.has(b.id)
+          ? {
+              ...b,
+              pinData: { outputs: { value: upstreamOutputs.get(b.id) } },
+            }
+          : b,
       ),
     })),
   };

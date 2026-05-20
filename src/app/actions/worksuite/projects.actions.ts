@@ -903,6 +903,39 @@ export async function bulkDeleteWsProjectActivities(ids: string[]) {
 
 /* ── Issues bulk ops ─────────────────────────────────────────────── */
 
+/* ── Project-level bulk ops ──────────────────────────────────────── */
+
+export async function bulkArchiveProjects(
+  ids: string[],
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length };
+
+  try {
+    const { db } = await connectToDatabase();
+    const r = await db.collection('crm_projects').updateMany(
+      { _id: { $in: oids }, userId: new ObjectId(user._id) },
+      { $set: { archived: true, status: 'archived', updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/projects');
+    return { updated: r.modifiedCount, failed: Math.max(0, ids.length - r.modifiedCount) };
+  } catch (e: unknown) {
+    return { updated: 0, failed: ids.length, error: (e as Error)?.message ?? 'Bulk archive failed' };
+  }
+}
+
+export async function bulkDeleteProjects(
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  const r = await hrBulkDelete('crm_projects', ids);
+  revalidatePath('/dashboard/crm/projects');
+  if (!r.success) return { deleted: 0, failed: ids.length, error: r.error };
+  return { deleted: r.deleted, failed: Math.max(0, ids.length - r.deleted) };
+}
+
 export async function bulkDeleteWsIssues(
   ids: string[],
 ): Promise<{ deleted: number; failed: number; error?: string }> {
