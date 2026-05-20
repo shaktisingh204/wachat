@@ -37,6 +37,8 @@ import { getSession } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { sendSlackNotification } from '@/lib/integrations/slack';
+import { pushToCalendar } from '@/lib/integrations/google-calendar';
 import type {
   WsLeave,
   WsLeaveType,
@@ -384,6 +386,17 @@ export async function saveLeave(
       /* non-fatal */
     }
     revalidatePath(ROUTE);
+
+    // Slack — non-fatal; never breaks leave application.
+    try {
+      const employeeName = await resolveEmployeeName(db, String(input.user_id ?? ''));
+      void sendSlackNotification(
+        `Leave request: ${employeeName} for ${daysCount} day${daysCount === 1 ? '' : 's'}`,
+      ).catch((err) => console.warn('[saveLeave] slack notify failed:', err));
+    } catch (err) {
+      console.warn('[saveLeave] slack notify lookup failed:', err);
+    }
+
     return { success: true, id: res.insertedId.toString() };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
@@ -458,10 +471,80 @@ export async function approveLeave(id: string): Promise<ActionResult> {
     }
     revalidatePath(ROUTE);
     revalidatePath(`${ROUTE}/${id}`);
+
+    // Push approved leave to the approver's Google Calendar (block dates).
+    // Non-fatal — if the calendar push fails we mark the leave doc with
+    // `googleCalendarSyncFailed: true` so ops can surface it later.
+    try {
+      const leave = await db.collection(COLL.LEAVES).findOne({ _id: oid });
+      if (leave) {
+        const employeeName = await resolveEmployeeName(
+          db,
+          String((leave as any).user_id ?? ''),
+        );
+        const start = ((leave as any).leave_date instanceof Date
+          ? (leave as any).leave_date
+          : new Date((leave as any).leave_date)) as Date;
+        const endRaw = (leave as any).end_date;
+        const end = endRaw
+          ? endRaw instanceof Date
+            ? endRaw
+            : new Date(endRaw)
+          : start;
+        const endExclusive = new Date(end.getTime() + 24 * 60 * 60 * 1000);
+        const push = await pushToCalendar(t.userIdString, {
+          summary: `Leave: ${employeeName}`,
+          description: (leave as any).reason ?? '',
+          start: start.toISOString().slice(0, 10),
+          end: endExclusive.toISOString().slice(0, 10),
+          allDay: true,
+        });
+        if (push.ok && push.googleEventId) {
+          await db.collection(COLL.LEAVES).updateOne(
+            { _id: oid },
+            { $set: { googleEventId: push.googleEventId } },
+          );
+        } else if (!push.ok) {
+          await db.collection(COLL.LEAVES).updateOne(
+            { _id: oid },
+            { $set: { googleCalendarSyncFailed: true } },
+          );
+        }
+      }
+    } catch (err) {
+      console.warn('[approveLeave] google calendar push failed:', err);
+    }
+
     return { success: true };
   } catch (e) {
     return { success: false, error: getErrorMessage(e) };
   }
+}
+
+/**
+ * Resolve a display name for an employee user_id — tries the standard
+ * `users` collection first, then falls back to the HR employees table.
+ */
+async function resolveEmployeeName(
+  db: import('mongodb').Db,
+  userIdLike: string,
+): Promise<string> {
+  if (!userIdLike) return 'Employee';
+  try {
+    if (ObjectId.isValid(userIdLike)) {
+      const u = await db
+        .collection('users')
+        .findOne({ _id: new ObjectId(userIdLike) }, { projection: { name: 1, email: 1 } as any });
+      if (u) return String((u as any).name ?? (u as any).email ?? 'Employee');
+      const e = await db
+        .collection('crm_employees')
+        .findOne({ _id: new ObjectId(userIdLike) }, { projection: { name: 1, full_name: 1, email: 1 } as any });
+      if (e) return String((e as any).name ?? (e as any).full_name ?? (e as any).email ?? 'Employee');
+    }
+  } catch {
+    /* non-fatal */
+  }
+  return userIdLike;
 }
 
 export async function rejectLeave(id: string, reason: string): Promise<ActionResult> {

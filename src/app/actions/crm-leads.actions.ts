@@ -25,6 +25,7 @@ import { crmLeadsApi, type CrmLeadDoc, type CrmLeadCreateInput, type CrmLeadUpda
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { dispatchAutomations } from '@/lib/automations/dispatch';
+import { sendSlackNotification } from '@/lib/integrations/slack';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -475,6 +476,10 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
             } catch (err) {
                 console.warn('[addCrmLead] automation dispatch failed (non-fatal):', err);
             }
+            // Slack — non-fatal; never breaks lead creation.
+            void sendSlackNotification(
+                `New lead: ${validatedFields.data.contactName || validatedFields.data.title || 'Untitled'} from ${validatedFields.data.source || 'unknown source'}`,
+            ).catch((err) => console.warn('[addCrmLead] slack notify failed:', err));
             return { message: 'Lead added successfully.', leadId: newId };
         } catch (e) {
             console.error('[addCrmLead] rust path failed; falling back:', e);
@@ -523,6 +528,10 @@ export async function addCrmLead(prevState: any, formData: FormData, apiUser?: W
         } catch (err) {
             console.warn('[addCrmLead] automation dispatch failed (non-fatal):', err);
         }
+        // Slack — non-fatal; never breaks lead creation.
+        void sendSlackNotification(
+            `New lead: ${validatedFields.data.contactName || validatedFields.data.title || 'Untitled'} from ${validatedFields.data.source || 'unknown source'}`,
+        ).catch((err) => console.warn('[addCrmLead] slack notify failed:', err));
         return { message: 'Lead added successfully.', leadId: result.insertedId.toString() };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

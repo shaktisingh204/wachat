@@ -28,6 +28,7 @@ import { getSession } from '@/app/actions/user.actions';
 import { requirePermission } from '@/lib/rbac-server';
 import { writeAuditEntry } from '@/lib/audit-log';
 import { getErrorMessage } from '@/lib/utils';
+import { generatePublicHash } from '@/lib/public-hash';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import {
     crmProposalsApi,
@@ -445,6 +446,8 @@ export async function saveProposal(
             sections,
             attachments,
             signsCount: 0,
+            // Public portal hash — drives `/share/proposal/[hash]`.
+            publicHash: generatePublicHash(),
             ...(status === 'sent' ? { sentAt: now } : {}),
             createdAt: now,
             updatedAt: now,

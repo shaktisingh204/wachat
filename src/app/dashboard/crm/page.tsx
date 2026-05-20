@@ -34,6 +34,7 @@ import {
   RecentContactsCard,
   InvoiceSummaryCard,
 } from './_components/crm-dashboard-components';
+import { WidgetConfigDrawer } from './_components/widget-config-drawer';
 
 function StatCard({
   title,
@@ -155,6 +156,8 @@ export default function CrmDashboardPage() {
           </ZoruPageHeading>
         </ZoruPageHeader>
         <div className="flex flex-wrap items-center gap-2">
+          {/* TODO: conditionally render the widget grid below from getMyWidgets(dashboardType) */}
+          <WidgetConfigDrawer dashboardType="overview" />
           <ZoruButton
             variant="outline"
             onClick={() => router.push('/dashboard/crm/contacts')}

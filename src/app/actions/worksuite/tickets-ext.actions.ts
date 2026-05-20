@@ -12,6 +12,7 @@ import {
   requireSession,
 } from '@/lib/hr-crud';
 import { connectToDatabase } from '@/lib/mongodb';
+import { processMentionsFromBody } from '@/app/actions/mentions.actions';
 import type {
   WsTicketChannel,
   WsTicketGroup,
@@ -299,9 +300,15 @@ export async function getTicketReplies(ticketId?: string) {
   return hrList<WsTicketReply>(COL_REPLIES);
 }
 export async function saveTicketReply(_prev: any, formData: FormData) {
-  return genericSave(COL_REPLIES, `${ROUTE_BASE}`, formData, {
+  const result = await genericSave(COL_REPLIES, `${ROUTE_BASE}`, formData, {
     jsonKeys: ['attachments'],
   });
+  if (result.id) {
+    const ticketId = String(formData.get('ticket_id') ?? formData.get('ticketId') ?? result.id);
+    const body = String(formData.get('body') ?? formData.get('message') ?? formData.get('reply') ?? '');
+    await processMentionsFromBody('ticket_reply', ticketId, body);
+  }
+  return result;
 }
 export async function deleteTicketReply(id: string) {
   const r = await hrDelete(COL_REPLIES, id);

@@ -13,6 +13,7 @@ import {
 } from '@/lib/hr-crud';
 import { connectToDatabase } from '@/lib/mongodb';
 import { isDateBefore } from '@/lib/form-validation';
+import { processMentionsFromBody } from '@/app/actions/mentions.actions';
 import type {
   WsProject,
   WsProjectMember,
@@ -241,10 +242,15 @@ export async function getWsProjectNotesByProject(projectId: string) {
   });
 }
 export async function saveWsProjectNote(_prev: any, formData: FormData) {
-  return genericSave('crm_project_notes', '/dashboard/crm/projects', formData, {
+  const result = await genericSave('crm_project_notes', '/dashboard/crm/projects', formData, {
     idFields: ['projectId', 'clientId'],
     numericKeys: ['type', 'isClientShow', 'askPassword'],
   });
+  if (result.id) {
+    const body = String(formData.get('details') ?? formData.get('body') ?? formData.get('note') ?? '');
+    await processMentionsFromBody('project_note', result.id, body);
+  }
+  return result;
 }
 export async function deleteWsProjectNote(id: string) {
   const r = await hrDelete('crm_project_notes', id);
@@ -531,9 +537,15 @@ export async function getWsTaskCommentsByTask(taskId: string) {
   return hrList<WsTaskComment>('crm_task_comments', { extraFilter: { taskId } });
 }
 export async function saveWsTaskComment(_prev: any, formData: FormData) {
-  return genericSave('crm_task_comments', '/dashboard/crm/projects', formData, {
+  const result = await genericSave('crm_task_comments', '/dashboard/crm/projects', formData, {
     idFields: ['taskId', 'commentByUserId'],
   });
+  // Fan out @-mentions to the notification bell.
+  if (result.id) {
+    const body = String(formData.get('comment') ?? formData.get('body') ?? '');
+    await processMentionsFromBody('task_comment', result.id, body);
+  }
+  return result;
 }
 export async function deleteWsTaskComment(id: string) {
   const r = await hrDelete('crm_task_comments', id);

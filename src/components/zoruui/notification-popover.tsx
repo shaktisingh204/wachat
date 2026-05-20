@@ -33,6 +33,7 @@ import {
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/app/actions/notification.actions";
+import { getMyMentionNotifications } from "@/app/actions/mentions.actions";
 import type { NotificationWithProject } from "@/lib/definitions";
 import type { WithId } from "mongodb";
 
@@ -93,8 +94,24 @@ export function ZoruNotificationPopover({
   const fetchNotifications = React.useCallback(async () => {
     setLoading(true);
     try {
-      const { notifications: data } = await getAllNotifications(1, 100);
-      setNotifications(data);
+      const [{ notifications: data }, mentions] = await Promise.all([
+        getAllNotifications(1, 100),
+        getMyMentionNotifications(20).catch(() => []),
+      ]);
+      // Merge in user-scoped @-mention notifications. These don't carry
+      // a projectId, so they appear under the CRM category.
+      const mentionRows: WithId<NotificationWithProject>[] = mentions.map((m) => ({
+        _id: m._id,
+        projectId: m._id,
+        wabaId: '',
+        message: m.message,
+        link: m.link,
+        isRead: m.isRead,
+        createdAt: new Date(m.createdAt),
+        eventType: 'mention',
+        sourceApp: 'crm',
+      } as unknown as WithId<NotificationWithProject>));
+      setNotifications([...mentionRows, ...data]);
     } catch (e) {
       console.error("Failed to fetch notifications", e);
     } finally {

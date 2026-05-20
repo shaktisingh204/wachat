@@ -9,6 +9,8 @@ import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmContractsApi } from '@/lib/rust-client/crm-contracts';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { generatePublicHash } from '@/lib/public-hash';
+import { pushToCalendar } from '@/lib/integrations/google-calendar';
 
 function useRustCrm(): boolean {
   return process.env.USE_RUST_CRM === 'true';
@@ -370,6 +372,8 @@ export async function saveContract(
       doc.attachments = f.attachmentsRaw.split('|').map((s) => s.trim()).filter(Boolean);
     }
 
+    // Public portal hash — drives `/share/contract/[hash]`.
+    (doc as Record<string, unknown>).publicHash = generatePublicHash();
     const { insertedId } = await db.collection('crm_contracts').insertOne(doc);
 
     try {
@@ -385,6 +389,41 @@ export async function saveContract(
     }
 
     revalidateContracts();
+
+    // Google Calendar — push the contract end date as a renewal reminder.
+    // Non-fatal; if it fails we flag the contract doc so ops can review.
+    try {
+      if (f.expiryDateRaw) {
+        const expiry = new Date(f.expiryDateRaw);
+        if (!Number.isNaN(expiry.getTime())) {
+          // All-day reminder on the expiry date.
+          const startStr = expiry.toISOString().slice(0, 10);
+          const endStr = new Date(expiry.getTime() + 24 * 60 * 60 * 1000)
+            .toISOString()
+            .slice(0, 10);
+          const push = await pushToCalendar(String(session.user._id), {
+            summary: `Contract renewal: ${f.title}`,
+            description: `Contract ${contractNumber} with ${f.partyName} expires today.`,
+            start: startStr,
+            end: endStr,
+            allDay: true,
+          });
+          await db.collection('crm_contracts').updateOne(
+            { _id: insertedId },
+            {
+              $set: {
+                googleEventId: push.googleEventId ?? null,
+                googleCalendarSyncFailed: !push.ok,
+                googleCalendarSyncError: push.ok ? null : push.error ?? null,
+              },
+            },
+          );
+        }
+      }
+    } catch (err) {
+      console.warn('[saveContract] google calendar push failed:', err);
+    }
+
     return { message: 'Contract saved successfully.', id: insertedId.toString() };
   } catch (e: any) {
     console.error('Failed to save CRM contract:', e);

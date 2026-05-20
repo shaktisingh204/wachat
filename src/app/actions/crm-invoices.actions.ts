@@ -30,6 +30,7 @@ import {
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
+import { generatePublicHash } from '@/lib/public-hash';
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -263,6 +264,8 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
         const insertResult = await db.collection('crm_invoices').insertOne({
             ...invoiceData,
             ...(lineage ? { lineage } : {}),
+            // Public portal hash — drives `/share/invoice/[hash]`.
+            publicHash: generatePublicHash(),
             createdAt: new Date(),
             updatedAt: new Date()
         } as any);

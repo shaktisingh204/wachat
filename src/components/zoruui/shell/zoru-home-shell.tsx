@@ -7,7 +7,6 @@ import {
   Briefcase,
   Home,
   LogOut,
-  Search,
   Smartphone,
   Sparkles,
   Workflow,
@@ -25,8 +24,6 @@ import { findAppSidebarConfig } from "./zoru-app-sidebars";
 import { useProject } from "@/context/project-context";
 import { isElevatedRole } from "@/lib/rbac";
 import { ZoruHeader } from "./zoru-header";
-import { ZoruInput } from "../input";
-import { ZoruKbd } from "../kbd";
 import { ZoruButton } from "../button";
 import { ZoruNotificationPopover } from "../notification-popover";
 import { ZoruUserDropdown } from "../user-dropdown";
@@ -34,6 +31,7 @@ import {
   CommandPaletteProvider,
   useCommandPalette,
 } from "@/components/crm/command-palette";
+import { UniversalSearch } from "@/components/crm/universal-search";
 
 export interface ZoruHomeShellProps {
   user?: {
@@ -121,10 +119,9 @@ function ZoruHomeShellContent({
   children,
 }: ZoruHomeShellProps) {
   const pathname = usePathname();
-  const { setOpen: setCommandPaletteOpen } = useCommandPalette();
-  const openCommandPalette = React.useCallback(() => {
-    setCommandPaletteOpen(true);
-  }, [setCommandPaletteOpen]);
+  // CommandPaletteProvider is still mounted; the universal search header
+  // owns the ⌘K binding now, but the palette can be opened via other UI.
+  useCommandPalette();
 
   const fullBleed = isFullBleedRoute(pathname);
 
@@ -262,22 +259,7 @@ function ZoruHomeShellContent({
               </span>
             </a>
           }
-          center={
-            <ZoruInput
-              placeholder="Search SabNode…"
-              leadingSlot={<Search />}
-              trailingSlot={
-                <button
-                  type="button"
-                  aria-label="Open command palette"
-                  onClick={openCommandPalette}
-                  className="inline-flex cursor-pointer items-center rounded-[var(--zoru-radius-sm)] border-0 bg-transparent p-0 outline-none focus-visible:ring-2 focus-visible:ring-zoru-ink/30"
-                >
-                  <ZoruKbd>⌘K</ZoruKbd>
-                </button>
-              }
-            />
-          }
+          center={<UniversalSearch />}
           trailing={
             <>
               <ZoruNotificationPopover />

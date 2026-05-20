@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { verifyFirebaseIdToken, createSessionToken } from '@/lib/auth';
 import { sessionCookieOptions } from '@/lib/cookies';
+import { checkRequires2fa } from '@/app/actions/two-fa.actions';
 import type { User, WithId, SessionPayload } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 
@@ -77,8 +78,39 @@ export async function POST(request: NextRequest) {
         }
         
         const user = updateResult as WithId<User>;
-        
+
         console.log('[API_SESSION] User upserted successfully.');
+
+        // If the user has 2FA enabled, return `requires2fa` instead of
+        // issuing the session cookie. The client-side login form then
+        // prompts for the 6-digit code and posts to /api/auth/two-fa,
+        // which completes the session.
+        const challenge = await checkRequires2fa(user._id.toString());
+        if (challenge.requires2fa) {
+            // Short-lived "pending" cookie so the next request can identify
+            // *which* user is in the challenge step without re-running the
+            // Firebase verify. httpOnly + sameSite + tied to the userId.
+            const pendingPayload: Omit<SessionPayload, 'jti' | 'exp'> = ({
+                userId: user._id.toString(),
+                email: user.email,
+                name: user.name,
+                isApproved: (user as any).isApproved || false,
+                pending2fa: true,
+            } as any);
+            const pendingToken = await createSessionToken(pendingPayload as any);
+            const resp = NextResponse.json({
+                requires2fa: true,
+                method: challenge.method,
+                userId: user._id.toString(),
+            });
+            // 5-minute pending cookie — enough to enter the code but
+            // short enough to limit replay.
+            resp.cookies.set('session_pending_2fa', pendingToken, {
+                ...sessionCookieOptions(300),
+                maxAge: 300,
+            });
+            return resp;
+        }
 
         // Create a custom session token for our app
         const sessionPayload: Omit<SessionPayload, 'jti' | 'exp'> = ({

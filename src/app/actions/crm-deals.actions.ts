@@ -27,6 +27,42 @@ import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { crmDealsApi, type CrmDealDoc, type CrmDealCreateInput, type CrmDealUpdateInput } from '@/lib/rust-client/crm-deals';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { dispatchAutomations } from '@/lib/automations/dispatch';
+import { sendSlackNotification } from '@/lib/integrations/slack';
+
+async function maybeNotifySlackDealWon(
+    dealId: string,
+    newStage: string,
+    fallbackName?: string,
+    fallbackValue?: number | string,
+    fallbackCurrency?: string,
+): Promise<void> {
+    if ((newStage || '').toLowerCase() !== 'won' && (newStage || '').toLowerCase() !== 'closed-won' && (newStage || '').toLowerCase() !== 'closed_won') {
+        return;
+    }
+    try {
+        let name = fallbackName ?? 'Deal';
+        let value: number | string | undefined = fallbackValue;
+        let currency = fallbackCurrency ?? 'INR';
+        if (ObjectId.isValid(dealId)) {
+            const { db } = await connectToDatabase();
+            const doc = await db.collection('crm_deals').findOne(
+                { _id: new ObjectId(dealId) },
+                { projection: { name: 1, title: 1, value: 1, amount: 1, currency: 1 } as any },
+            );
+            if (doc) {
+                name = (doc as any).name ?? (doc as any).title ?? name;
+                value = (doc as any).value ?? (doc as any).amount ?? value;
+                currency = (doc as any).currency ?? currency;
+            }
+        }
+        const valStr = typeof value === 'number' || typeof value === 'string'
+            ? `${currency} ${value}`
+            : 'value unknown';
+        await sendSlackNotification(`Deal won: ${name} - ${valStr}`);
+    } catch (err) {
+        console.warn('[crm-deals] slack notify (won) failed:', err);
+    }
+}
 
 function useRustCrm(): boolean {
     return process.env.USE_RUST_CRM === 'true';
@@ -533,6 +569,7 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
             });
 
             revalidateDealSurfaces(dealId);
+            void maybeNotifySlackDealWon(dealId, newStage);
             return { success: true };
         } catch (e) {
             console.error('[updateCrmDealStage] rust path failed; falling back:', e);
@@ -566,6 +603,7 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
         });
 
         revalidateDealSurfaces(dealId);
+        void maybeNotifySlackDealWon(dealId, newStage);
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -626,6 +664,9 @@ export async function updateCrmDeal(
             });
 
             revalidateDealSurfaces(dealId);
+            if (patch.status === 'won' || (typeof patch.stage === 'string' && patch.stage.toLowerCase() === 'won')) {
+                void maybeNotifySlackDealWon(dealId, 'won');
+            }
             return { success: true };
         } catch (e) {
             console.error('[updateCrmDeal] rust path failed; falling back:', e);
@@ -712,6 +753,9 @@ export async function updateCrmDeal(
         });
 
         revalidateDealSurfaces(dealId);
+        if (patch.status === 'won' || (typeof patch.stage === 'string' && patch.stage.toLowerCase() === 'won')) {
+            void maybeNotifySlackDealWon(dealId, 'won');
+        }
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

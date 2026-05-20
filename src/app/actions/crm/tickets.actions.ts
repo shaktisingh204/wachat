@@ -27,6 +27,7 @@ import {
 } from '@/lib/rust-client/crm-tickets';
 import { applyCustomFieldsToEntity } from '@/app/actions/worksuite/meta.actions';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
+import { sendSlackNotification } from '@/lib/integrations/slack';
 
 const LIST_PATH = '/dashboard/crm/tickets';
 
@@ -204,6 +205,14 @@ export async function saveTicketAction(
         target: String(result._id),
         metadata: { subject, channel, severity, status: statusV },
       });
+      // Slack — non-fatal; never breaks ticket creation.
+      const ticketNumber =
+        (result as any).ticket_number ??
+        (result as any).number ??
+        String(result._id).slice(-6);
+      void sendSlackNotification(
+        `New ticket #${ticketNumber}: ${subject}`,
+      ).catch((err) => console.warn('[saveTicketAction] slack notify failed:', err));
     } else if (statusV === 'resolved' || statusV === 'closed') {
       void recordFlowAction('crm.ticket.resolved', {
         userId: String(session.user._id),

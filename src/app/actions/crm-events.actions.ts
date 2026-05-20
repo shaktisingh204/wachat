@@ -26,6 +26,9 @@ import {
   type CrmEventsListResponse,
 } from '@/lib/rust-client/crm-events';
 import { RustApiError } from '@/lib/rust-client/fetcher';
+import { pushToCalendar } from '@/lib/integrations/google-calendar';
+import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 const DASHBOARD_PATH = '/dashboard/hrm/hr/events';
 
@@ -236,6 +239,45 @@ export async function saveEvent(
       startsAt: startsAt!,
     });
     revalidatePath(DASHBOARD_PATH);
+
+    // Google Calendar — non-fatal; never breaks event creation. Stores
+    // the resulting Google event id on a side-collection so a future
+    // delete can call `removeFromCalendar`.
+    try {
+      const startIso = startsAt ?? new Date().toISOString();
+      const endIso = endsAt ?? new Date(new Date(startIso).getTime() + 60 * 60 * 1000).toISOString();
+      const push = await pushToCalendar(String(session.user._id), {
+        summary: name,
+        description: payload.description ?? undefined,
+        start: startIso,
+        end: endIso,
+        location: payload.location ?? undefined,
+        allDay: payload.isAllDay,
+      });
+      if (res.id) {
+        const { db } = await connectToDatabase();
+        const eventOid = ObjectId.isValid(res.id) ? new ObjectId(res.id) : null;
+        const filter = eventOid ? { _id: eventOid } : { rustEventId: res.id };
+        await db.collection('crm_event_calendar_sync').updateOne(
+          { ...filter, userId: new ObjectId(String(session.user._id)) },
+          {
+            $set: {
+              userId: new ObjectId(String(session.user._id)),
+              eventRef: res.id,
+              googleEventId: push.googleEventId ?? null,
+              syncFailed: !push.ok,
+              syncError: push.ok ? null : push.error ?? null,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: { createdAt: new Date() },
+          },
+          { upsert: true },
+        );
+      }
+    } catch (err) {
+      console.warn('[saveEvent] google calendar push failed:', err);
+    }
+
     return { message: 'Event created.', id: res.id };
   } catch (e) {
     console.error('[saveEvent] rust path failed:', e);

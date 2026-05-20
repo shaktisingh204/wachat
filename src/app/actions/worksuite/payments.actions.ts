@@ -22,6 +22,7 @@ import type {
   WsBankTransactionType,
   WsInvoicePaymentDetail,
 } from '@/lib/worksuite/payments-types';
+import { sendSlackNotification } from '@/lib/integrations/slack';
 
 /**
  * Worksuite payments actions — ported from the Worksuite PHP/Laravel
@@ -380,6 +381,14 @@ export async function recordPayment(
 
   revalidatePath(OK_PAYMENTS);
   revalidatePath(OK_INVOICES);
+
+  // Slack — non-fatal; never breaks payment recording.
+  void sendSlackNotification(
+    `Payment received: ${paymentDoc.currency} ${input.amount} for ${paymentDoc.invoice_number || input.invoiceId}`,
+    undefined,
+    { userId: String(user._id) },
+  ).catch((err) => console.warn('[recordPayment] slack notify failed:', err));
+
   return { paymentId: paymentId.toString(), status: statusInfo.status };
 }
 
