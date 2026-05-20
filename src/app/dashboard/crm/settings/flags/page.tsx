@@ -1,11 +1,21 @@
 'use client';
 
-import { ZoruBadge } from '@/components/zoruui';
-import {
-  Flag } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
-import { RowDrawer } from '@/components/crm/row-drawer';
+/**
+ * Flags settings — §1D.4 bar:
+ *  - KPI strip (Total · by module count · unique modules)
+ *  - Search across resource_id / reason
+ *  - Filter chips: All + per-module
+ *  - Bulk delete + CSV export
+ *  - Inline create + edit dialog
+ *  - RowDrawer on resource_id
+ */
 
+import * as React from 'react';
+import { Flag, Tag, Hash } from 'lucide-react';
+import { ZoruBadge } from '@/components/zoruui';
+
+import { RowDrawer } from '@/components/crm/row-drawer';
+import { SettingsEntityShell } from '@/components/crm/settings-entity-shell';
 import {
   getFlags,
   saveFlag,
@@ -13,17 +23,73 @@ import {
 } from '@/app/actions/worksuite/meta.actions';
 import type { WsFlag } from '@/lib/worksuite/meta-types';
 
-/** Resource flags — moderator-style tagging of records that need attention. */
+type Row = WsFlag & { _id: string };
+
+type ModuleFilter = 'all' | string;
+
+const MODULE_OPTIONS = [
+  { value: 'contact', label: 'Contact' },
+  { value: 'account', label: 'Account' },
+  { value: 'deal', label: 'Deal' },
+  { value: 'lead', label: 'Lead' },
+  { value: 'task', label: 'Task' },
+  { value: 'project', label: 'Project' },
+  { value: 'invoice', label: 'Invoice' },
+  { value: 'ticket', label: 'Ticket' },
+];
+
 export default function FlagsPage() {
+  const [moduleFilter, setModuleFilter] = React.useState<ModuleFilter>('all');
+
+  const getAll = React.useCallback(async () => {
+    const list = (await getFlags()) as Row[];
+    if (moduleFilter !== 'all') {
+      return list.filter((f) => f.resource_type === moduleFilter);
+    }
+    return list;
+  }, [moduleFilter]);
+
   return (
-    <HrEntityPage<WsFlag & { _id: string }>
+    <SettingsEntityShell<Row>
       title="Flags"
       subtitle="Flag records across modules that need follow-up or review."
-      icon={Flag}
       singular="Flag"
-      getAllAction={getFlags as any}
+      getAllAction={getAll}
       saveAction={saveFlag}
       deleteAction={deleteFlag}
+      csvFilename="flags"
+      kpis={(_rows, all) => {
+        const uniqueModules = new Set(all.map((f) => f.resource_type).filter(Boolean)).size;
+        return [
+          {
+            label: 'Total',
+            value: all.length,
+            icon: <Flag className="h-4 w-4" />,
+            filterKey: 'all',
+            active: moduleFilter === 'all',
+          },
+          {
+            label: 'Modules covered',
+            value: uniqueModules,
+            icon: <Tag className="h-4 w-4" />,
+          },
+          {
+            label: 'With reason',
+            value: all.filter((f) => (f.reason || '').trim().length > 0).length,
+            icon: <Hash className="h-4 w-4" />,
+          },
+        ];
+      }}
+      onKpiClick={(k) => setModuleFilter(k)}
+      filterChips={[
+        { key: 'all', label: 'All', active: moduleFilter === 'all' },
+        ...MODULE_OPTIONS.map((m) => ({
+          key: m.value,
+          label: m.label,
+          active: moduleFilter === m.value,
+        })),
+      ]}
+      onFilterChange={(k) => setModuleFilter(k)}
       columns={[
         {
           key: 'resource_type',
@@ -55,9 +121,6 @@ export default function FlagsPage() {
                   <div className="text-muted-foreground text-xs">Reason</div>
                   <div className="whitespace-pre-wrap">{String(row.reason || '—')}</div>
                 </div>
-                <p className="text-muted-foreground text-xs">
-                  Edit and delete are available from the row actions.
-                </p>
               </div>
             </RowDrawer>
           ),
@@ -70,16 +133,7 @@ export default function FlagsPage() {
           label: 'Module',
           type: 'select',
           required: true,
-          options: [
-            { value: 'contact', label: 'Contact' },
-            { value: 'account', label: 'Account' },
-            { value: 'deal', label: 'Deal' },
-            { value: 'lead', label: 'Lead' },
-            { value: 'task', label: 'Task' },
-            { value: 'project', label: 'Project' },
-            { value: 'invoice', label: 'Invoice' },
-            { value: 'ticket', label: 'Ticket' },
-          ],
+          options: MODULE_OPTIONS,
         },
         { name: 'resource_id', label: 'Resource ID', required: true },
         { name: 'reason', label: 'Reason', type: 'textarea', fullWidth: true },

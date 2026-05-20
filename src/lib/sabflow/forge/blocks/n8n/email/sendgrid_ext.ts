@@ -30,16 +30,36 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asBoolean, asNumber, asString, requireCredential } from '../_shared/http';
+import { asBoolean, asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.sendgrid.com/v3';
 
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('SendGrid', ctx.credential);
-  const apiKey = cred.apiKey ?? '';
-  if (!apiKey) throw new Error('SendGrid: credential is missing `apiKey`');
-  return { Authorization: `Bearer ${apiKey}` };
+type SgResult = { ok: boolean; status: number; data: unknown; headers: Record<string, string> };
+
+async function sgApi(
+  ctx: ForgeActionContext,
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
+  url: string,
+  json?: unknown,
+): Promise<SgResult> {
+  requireCredential('SendGrid', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method,
+    url,
+    tokenField: 'apiKey',
+    json,
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`SendGrid ${method} ${url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 async function mailSend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -78,15 +98,9 @@ async function mailSend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     body.content = content;
   }
 
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'POST',
-    url: `${BASE}/mail/send`,
-    headers: authHeaders(ctx),
-    json: body,
-  });
+  const res = await sgApi(ctx, 'POST', `${BASE}/mail/send`, body);
   return {
-    outputs: { success: true, messageId: res.headers.get('x-message-id') ?? undefined },
+    outputs: { success: true, messageId: res.headers['x-message-id'] ?? undefined },
     logs: [`SendGrid mail send → ${to}`],
   };
 }
@@ -109,25 +123,14 @@ async function contactUpsert(ctx: ForgeActionContext): Promise<ForgeActionResult
   if (listIdsRaw) {
     body.list_ids = listIdsRaw.split(',').map((s) => s.trim()).filter(Boolean);
   }
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'PUT',
-    url: `${BASE}/marketing/contacts`,
-    headers: authHeaders(ctx),
-    json: body,
-  });
+  const res = await sgApi(ctx, 'PUT', `${BASE}/marketing/contacts`, body);
   return { outputs: { result: res.data }, logs: [`SendGrid contact upsert → ${email}`] };
 }
 
 async function contactGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const contactId = asString(ctx.options.contactId);
   if (!contactId) throw new Error('SendGrid: contactId is required');
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'GET',
-    url: `${BASE}/marketing/contacts/${encodeURIComponent(contactId)}`,
-    headers: authHeaders(ctx),
-  });
+  const res = await sgApi(ctx, 'GET', `${BASE}/marketing/contacts/${encodeURIComponent(contactId)}`);
   return { outputs: { contact: res.data }, logs: [`SendGrid contact get → ${contactId}`] };
 }
 
@@ -136,26 +139,14 @@ async function contactSearch(ctx: ForgeActionContext): Promise<ForgeActionResult
   const query = asString(ctx.options.query);
   const sql = query || (email ? `email LIKE '${email.replace(/'/g, "''")}'` : '');
   if (!sql) throw new Error('SendGrid: email or query is required');
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'POST',
-    url: `${BASE}/marketing/contacts/search`,
-    headers: authHeaders(ctx),
-    json: { query: sql },
-  });
+  const res = await sgApi(ctx, 'POST', `${BASE}/marketing/contacts/search`, { query: sql });
   return { outputs: { results: res.data }, logs: ['SendGrid contact search'] };
 }
 
 async function listCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const name = asString(ctx.options.name);
   if (!name) throw new Error('SendGrid: name is required');
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'POST',
-    url: `${BASE}/marketing/lists`,
-    headers: authHeaders(ctx),
-    json: { name },
-  });
+  const res = await sgApi(ctx, 'POST', `${BASE}/marketing/lists`, { name });
   return { outputs: { list: res.data }, logs: [`SendGrid list create → ${name}`] };
 }
 
@@ -164,24 +155,18 @@ async function listGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!listId) throw new Error('SendGrid: listId is required');
   const contactSample = asBoolean(ctx.options.contactSample);
   const qs = contactSample ? '?contact_sample=true' : '';
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'GET',
-    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`,
-    headers: authHeaders(ctx),
-  });
+  const res = await sgApi(ctx, 'GET', `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`);
   return { outputs: { list: res.data }, logs: [`SendGrid list get → ${listId}`] };
 }
 
 async function listGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const headers = authHeaders(ctx);
   const limit = asNumber(ctx.options.limit);
   // SendGrid uses _metadata.next as an absolute URL — paginateAll lets us
   // hand it back unchanged on the next fetch instead of munging cursors.
   const all = await paginateAll<unknown>({
     fetchPage: async (cursor) => {
       const url = cursor ?? `${BASE}/marketing/lists?page_size=100`;
-      const page = await apiRequest({ service: 'SendGrid', method: 'GET', url, headers });
+      const page = await sgApi(ctx, 'GET', url);
       const body = page.data as { result?: unknown[]; _metadata?: { next?: string } };
       return { items: body.result ?? [], nextCursor: body._metadata?.next };
     },
@@ -195,13 +180,7 @@ async function listUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const name = asString(ctx.options.name);
   if (!listId) throw new Error('SendGrid: listId is required');
   if (!name) throw new Error('SendGrid: name is required');
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'PATCH',
-    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}`,
-    headers: authHeaders(ctx),
-    json: { name },
-  });
+  const res = await sgApi(ctx, 'PATCH', `${BASE}/marketing/lists/${encodeURIComponent(listId)}`, { name });
   return { outputs: { list: res.data }, logs: [`SendGrid list update → ${listId}`] };
 }
 
@@ -210,12 +189,7 @@ async function listDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!listId) throw new Error('SendGrid: listId is required');
   const deleteContacts = asBoolean(ctx.options.deleteContacts);
   const qs = deleteContacts ? '?delete_contacts=true' : '';
-  await apiRequest({
-    service: 'SendGrid',
-    method: 'DELETE',
-    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`,
-    headers: authHeaders(ctx),
-  });
+  await sgApi(ctx, 'DELETE', `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`);
   return { outputs: { success: true }, logs: [`SendGrid list delete → ${listId}`] };
 }
 
@@ -223,12 +197,7 @@ async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult
   const contactId = asString(ctx.options.contactId);
   if (!contactId) throw new Error('SendGrid: contactId is required');
   const url = `${BASE}/marketing/contacts?ids=${encodeURIComponent(contactId)}`;
-  const res = await apiRequest({
-    service: 'SendGrid',
-    method: 'DELETE',
-    url,
-    headers: authHeaders(ctx),
-  });
+  const res = await sgApi(ctx, 'DELETE', url);
   return { outputs: { result: res.data, success: true }, logs: [`SendGrid contact delete → ${contactId}`] };
 }
 

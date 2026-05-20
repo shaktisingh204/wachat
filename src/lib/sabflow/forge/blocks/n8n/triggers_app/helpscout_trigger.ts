@@ -51,7 +51,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_helpscout_trigger',
   name: 'Help Scout Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Help Scout event types n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Help Scout event types.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

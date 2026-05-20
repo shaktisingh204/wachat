@@ -248,3 +248,126 @@ export async function deleteAsset(
         return { success: false, error: `Failed to delete asset: ${msg}` };
     }
 }
+
+/* ─── KPIs ───────────────────────────────────────────────────────────── */
+
+export interface CrmAssetKpis {
+    total: number;
+    assigned: number;
+    inStore: number;
+    underMaintenance: number;
+}
+
+export async function getAssetKpis(): Promise<CrmAssetKpis> {
+    const empty: CrmAssetKpis = {
+        total: 0,
+        assigned: 0,
+        inStore: 0,
+        underMaintenance: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission(RBAC_KEY, 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmAssetsApi.list({ limit: 1000 });
+        const items = res.items;
+        let assigned = 0;
+        let inStore = 0;
+        let underMaintenance = 0;
+        for (const a of items) {
+            const s = a.status ?? 'available';
+            if (s === 'assigned') assigned += 1;
+            else if (s === 'available') inStore += 1;
+            else if (s === 'in_repair') underMaintenance += 1;
+        }
+        return { total: items.length, assigned, inStore, underMaintenance };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        recordRustFallback({ entity: ENTITY_KIND, op: 'list', errorCode: code, status });
+        console.error('[getAssetKpis] failed:', msg);
+        return empty;
+    }
+}
+
+/* ─── Bulk actions ───────────────────────────────────────────────────── */
+
+export async function bulkAssignAssets(
+    ids: string[],
+    assigneeId: string,
+    assigneeName: string,
+): Promise<{ success: boolean; affected: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, affected: 0, error: 'Access denied.' };
+    const guard = await requirePermission(RBAC_KEY, 'edit');
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    let affected = 0;
+    for (const id of ids) {
+        try {
+            await crmAssetsApi.update(id, {
+                status: 'assigned',
+                currentAssigneeId: assigneeId,
+                currentAssigneeName: assigneeName,
+            });
+            affected += 1;
+        } catch (e) {
+            console.error('[bulkAssignAssets] partial failure on', id, e);
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { success: true, affected };
+}
+
+export async function bulkRetireAssets(
+    ids: string[],
+): Promise<{ success: boolean; affected: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, affected: 0, error: 'Access denied.' };
+    const guard = await requirePermission(RBAC_KEY, 'edit');
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    let affected = 0;
+    for (const id of ids) {
+        try {
+            await crmAssetsApi.update(id, { status: 'retired' });
+            affected += 1;
+        } catch (e) {
+            console.error('[bulkRetireAssets] partial failure on', id, e);
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { success: true, affected };
+}
+
+export async function bulkDeleteAssets(
+    ids: string[],
+): Promise<{ success: boolean; affected: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, affected: 0, error: 'Access denied.' };
+    const guard = await requirePermission(RBAC_KEY, 'delete');
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    let affected = 0;
+    for (const id of ids) {
+        try {
+            const res = await crmAssetsApi.delete(id);
+            if (res?.deleted) {
+                affected += 1;
+                void writeAuditEntry({
+                    tenantUserId: session.user._id as string,
+                    action: 'delete',
+                    entityKind: ENTITY_KIND,
+                    entityId: id,
+                });
+            }
+        } catch (e) {
+            console.error('[bulkDeleteAssets] partial failure on', id, e);
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { success: true, affected };
+}

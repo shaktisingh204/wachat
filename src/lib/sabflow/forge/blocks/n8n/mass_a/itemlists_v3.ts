@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_itemlists_v3',
   name: 'Item Lists (v3)',
-  description: 'Legacy n8n Item Lists v3 shape. Delegates to forge_aggregate.',
+  description: 'Legacy Item Lists v3 shape. Delegates to forge_aggregate.',
   iconName: 'LuList',
   category: 'Logic',
   auth: { type: 'none' },

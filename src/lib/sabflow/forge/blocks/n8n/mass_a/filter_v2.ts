@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_filter_v2',
   name: 'Filter (v2)',
-  description: 'Legacy n8n Filter v2 shape. Delegates to forge_filter.',
+  description: 'Legacy Filter v2 shape. Delegates to forge_filter.',
   iconName: 'LuFilter',
   category: 'Logic',
   auth: { type: 'none' },

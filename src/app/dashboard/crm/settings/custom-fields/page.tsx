@@ -24,6 +24,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -38,12 +39,13 @@ import {
 import { useFormStatus } from 'react-dom';
 import {
     Check,
-  Edit,
-  LoaderCircle,
-  Plus,
-  Trash2,
-  X,
-  } from 'lucide-react';
+    Download,
+    Edit,
+    LoaderCircle,
+    Plus,
+    Trash2,
+    X,
+} from 'lucide-react';
 
 /**
  * CRM Custom Fields — settings-style list grouped by `entity_kind`.
@@ -76,6 +78,7 @@ import type {
     CrmCustomFieldType,
     CrmCustomFieldValidation,
 } from '@/lib/rust-client/crm-custom-fields';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 /* ─── Constants ─────────────────────────────────────────────────── */
 
@@ -616,6 +619,7 @@ export default function CustomFieldsPage() {
     const [activeEntity, setActiveEntity] =
         React.useState<string>(DEFAULT_ENTITY_KIND);
     const [search, setSearch] = React.useState('');
+    const [fieldTypeFilter, setFieldTypeFilter] = React.useState<string>('all');
     const [editing, setEditing] = React.useState<CrmCustomFieldDoc | null>(null);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [pendingDelete, setPendingDelete] =
@@ -636,13 +640,42 @@ export default function CustomFieldsPage() {
 
     const filtered = React.useMemo(() => {
         const q = search.trim().toLowerCase();
-        if (!q) return fields;
-        return fields.filter((f) =>
-            `${f.label} ${f.name} ${f.section ?? ''}`
-                .toLowerCase()
-                .includes(q),
+        return fields.filter((f) => {
+            if (fieldTypeFilter !== 'all' && f.fieldType !== fieldTypeFilter) return false;
+            if (!q) return true;
+            return `${f.label} ${f.name} ${f.section ?? ''}`.toLowerCase().includes(q);
+        });
+    }, [fields, search, fieldTypeFilter]);
+
+    // KPI derivations (over all loaded fields for the active entity)
+    const totalFields = fields.length;
+    const requiredCount = fields.filter((f) => f.required).length;
+    // Per-entity counts across ALL fetched fields are entity-scoped — show entity-level breakdown
+    // by counting how many of the 9 entity kinds have at least one field; cross-entity KPI
+    // is not available here since we fetch one entity at a time, so we surface active-entity stats.
+    const activeFieldsCount = fields.filter((f) => f.isActive).length;
+    const selectTypeCount = fields.filter((f) => f.fieldType === 'select' || f.fieldType === 'multiselect').length;
+
+    // Export CSV
+    const handleExport = () => {
+        const exportRows = filtered.map((f) => ({
+            Label: f.label,
+            'Internal name': f.name,
+            Entity: labelForEntity(f.entityKind),
+            Type: labelForType(f.fieldType),
+            Required: f.required ? 'Yes' : 'No',
+            Unique: f.unique ? 'Yes' : 'No',
+            Active: f.isActive ? 'Yes' : 'No',
+            Section: f.section ?? '',
+            'Display order': f.displayOrder ?? 0,
+        }));
+        downloadCsv(
+            `custom-fields-${activeEntity}-${dateStamp()}.csv`,
+            Object.keys(exportRows[0] ?? {}),
+            exportRows,
         );
-    }, [fields, search]);
+        toast({ title: 'CSV exported' });
+    };
 
     const handleOpenDialog = (field: CrmCustomFieldDoc | null) => {
         setEditing(field);
@@ -698,17 +731,63 @@ export default function CustomFieldsPage() {
                     title="Custom Fields"
                     subtitle="Extend any CRM entity with user-defined fields, grouped by entity kind."
                     primaryAction={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
-                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
-                        </ZoruButton>
+                        <div className="flex items-center gap-2">
+                            <ZoruButton
+                                variant="outline"
+                                onClick={handleExport}
+                                disabled={filtered.length === 0}
+                            >
+                                <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+                            </ZoruButton>
+                            <ZoruButton onClick={() => handleOpenDialog(null)}>
+                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New field
+                            </ZoruButton>
+                        </div>
                     }
                     search={{
                         value: search,
                         onChange: setSearch,
                         placeholder: 'Search by label, name or section…',
                     }}
+                    filters={
+                        <div className="flex flex-wrap items-center gap-2">
+                            <ZoruSelect
+                                value={fieldTypeFilter}
+                                onValueChange={setFieldTypeFilter}
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[180px]">
+                                    <ZoruSelectValue placeholder="Field type" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="all">All types</ZoruSelectItem>
+                                    {FIELD_TYPES.map((t) => (
+                                        <ZoruSelectItem key={t.value} value={t.value}>
+                                            {t.label}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            {(search || fieldTypeFilter !== 'all') && (
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => { setSearch(''); setFieldTypeFilter('all'); }}
+                                >
+                                    <X className="mr-1 h-3.5 w-3.5" /> Clear
+                                </ZoruButton>
+                            )}
+                        </div>
+                    }
                     loading={isLoading && fields.length === 0}
                 >
+                    {/* KPI strip */}
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                        <ZoruStatCard label="Total fields" value={totalFields.toLocaleString()} />
+                        <ZoruStatCard label="Active" value={activeFieldsCount.toLocaleString()} />
+                        <ZoruStatCard label="Required" value={requiredCount.toLocaleString()} />
+                        <ZoruStatCard label="Select / multi" value={selectTypeCount.toLocaleString()} />
+                    </div>
+
                     <div className="overflow-x-auto rounded-lg border border-border">
                         <ZoruTable>
                             <ZoruTableHeader>

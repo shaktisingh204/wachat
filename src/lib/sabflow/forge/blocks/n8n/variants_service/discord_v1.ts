@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_discord_v1',
   name: 'Discord (v1)',
-  description: 'Legacy n8n Discord v1 shape. Delegates to forge_discord.',
+  description: 'Legacy Discord v1 shape. Delegates to forge_discord.',
   iconName: 'LuMessageSquare',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'discord' },

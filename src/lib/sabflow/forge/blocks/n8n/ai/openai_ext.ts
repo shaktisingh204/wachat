@@ -22,11 +22,39 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { asString, requireCredential } from '../_shared/http';
 
 const API = 'https://api.openai.com/v1';
 
-function bearer(ctx: ForgeActionContext): string {
+async function oaApi(
+  ctx: ForgeActionContext,
+  method: 'GET' | 'POST',
+  url: string,
+  json?: unknown,
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  const cred = requireCredential('OpenAI', ctx.credential);
+  // Accept either `apiKey` (canonical) or `accessToken` (legacy) — pick whichever is set
+  // so we can pass the correct tokenField to the helper.
+  const tokenField = cred.apiKey ? 'apiKey' : cred.accessToken ? 'accessToken' : 'apiKey';
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method,
+    url,
+    tokenField,
+    json,
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`OpenAI ${method} ${url} failed (${r.status}): ${clip}`);
+  }
+  return r;
+}
+
+function bearerHeader(ctx: ForgeActionContext): string {
   const cred = requireCredential('OpenAI', ctx.credential);
   const key = cred.apiKey ?? cred.accessToken;
   if (!key) throw new Error('OpenAI: credential is missing `apiKey`');
@@ -60,13 +88,7 @@ async function chat(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (temperature !== undefined) payload.temperature = temperature;
   if (maxTokens !== undefined) payload.max_tokens = maxTokens;
 
-  const res = await apiRequest({
-    service: 'OpenAI',
-    method: 'POST',
-    url: `${API}/chat/completions`,
-    headers: { Authorization: bearer(ctx) },
-    json: payload,
-  });
+  const res = await oaApi(ctx, 'POST', `${API}/chat/completions`, payload);
   const body = res.data as { choices?: Array<{ message?: { content?: string } }> };
   return {
     outputs: {
@@ -88,13 +110,7 @@ async function complete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     payload.temperature = Number(ctx.options.temperature);
   }
 
-  const res = await apiRequest({
-    service: 'OpenAI',
-    method: 'POST',
-    url: `${API}/completions`,
-    headers: { Authorization: bearer(ctx) },
-    json: payload,
-  });
+  const res = await oaApi(ctx, 'POST', `${API}/completions`, payload);
   const body = res.data as { choices?: Array<{ text?: string }> };
   return {
     outputs: { text: body?.choices?.[0]?.text ?? '', raw: res.data },
@@ -109,13 +125,7 @@ async function imageGenerate(ctx: ForgeActionContext): Promise<ForgeActionResult
   const size = asString(ctx.options.size) || '1024x1024';
   const n = ctx.options.n ? Number(ctx.options.n) : 1;
 
-  const res = await apiRequest({
-    service: 'OpenAI',
-    method: 'POST',
-    url: `${API}/images/generations`,
-    headers: { Authorization: bearer(ctx) },
-    json: { model, prompt, size, n },
-  });
+  const res = await oaApi(ctx, 'POST', `${API}/images/generations`, { model, prompt, size, n });
   const body = res.data as { data?: Array<{ url?: string; b64_json?: string }> };
   return {
     outputs: { images: body?.data ?? [], raw: res.data },
@@ -128,13 +138,7 @@ async function embed(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!input) throw new Error('OpenAI embed: input is required');
   const model = asString(ctx.options.model) || 'text-embedding-3-small';
 
-  const res = await apiRequest({
-    service: 'OpenAI',
-    method: 'POST',
-    url: `${API}/embeddings`,
-    headers: { Authorization: bearer(ctx) },
-    json: { model, input },
-  });
+  const res = await oaApi(ctx, 'POST', `${API}/embeddings`, { model, input });
   const body = res.data as { data?: Array<{ embedding?: number[] }> };
   return {
     outputs: { embedding: body?.data?.[0]?.embedding ?? [], raw: res.data },
@@ -148,6 +152,8 @@ async function transcribeStub(ctx: ForgeActionContext): Promise<ForgeActionResul
   const model = asString(ctx.options.model) || 'whisper-1';
 
   // Fetch the audio file, then forward as multipart.
+  // Multipart upload is not supported by the helper layer (json/body string only),
+  // so we keep the manual fetch but derive the Bearer header via bearerHeader().
   const audioRes = await fetch(audioUrl);
   if (!audioRes.ok) throw new Error(`OpenAI transcribe: failed to fetch audio (${audioRes.status})`);
   const buf = Buffer.from(await audioRes.arrayBuffer());
@@ -163,7 +169,7 @@ async function transcribeStub(ctx: ForgeActionContext): Promise<ForgeActionResul
 
   const res = await fetch(`${API}/audio/transcriptions`, {
     method: 'POST',
-    headers: { Authorization: bearer(ctx) },
+    headers: { Authorization: bearerHeader(ctx) },
     body: form,
   });
   const text = await res.text();

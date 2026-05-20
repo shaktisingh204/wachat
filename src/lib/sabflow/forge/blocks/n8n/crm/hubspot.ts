@@ -38,18 +38,11 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { asString, requireCredential } from '../_shared/http';
 import { parseJsonObject } from '../_shared/json';
 import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.hubapi.com';
-
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('HubSpot', ctx.credential);
-  const token = cred.accessToken;
-  if (!token) throw new Error('HubSpot: credential is missing `accessToken` field');
-  return { Authorization: `Bearer ${token}` };
-}
 
 async function hsApi(
   ctx: ForgeActionContext,
@@ -57,14 +50,23 @@ async function hsApi(
   path: string,
   json?: unknown,
 ): Promise<unknown> {
-  const res = await apiRequest({
-    service: 'HubSpot',
+  requireCredential('HubSpot', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method,
     url: `${BASE}${path}`,
-    headers: authHeaders(ctx),
+    tokenField: 'accessToken',
     json,
   });
-  return res.data;
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`HubSpot ${method} ${path} failed (${r.status}): ${clip}`);
+  }
+  return r.data;
 }
 
 // ── Contact actions ─────────────────────────────────────────────────────────
@@ -376,14 +378,8 @@ async function engagementCreate(ctx: ForgeActionContext): Promise<ForgeActionRes
   const associations = parseJsonObject(ctx.options.associations, 'HubSpot: associations');
   const metadata = parseJsonObject(ctx.options.metadata, 'HubSpot: metadata');
   const body: Record<string, unknown> = { engagement, associations, metadata };
-  const data = await apiRequest({
-    service: 'HubSpot',
-    method: 'POST',
-    url: `${BASE}/engagements/v1/engagements`,
-    headers: authHeaders(ctx),
-    json: body,
-  });
-  return { outputs: { engagement: data.data }, logs: [`HubSpot engagement create → ${type}`] };
+  const data = await hsApi(ctx, 'POST', '/engagements/v1/engagements', body);
+  return { outputs: { engagement: data }, logs: [`HubSpot engagement create → ${type}`] };
 }
 
 // ── Block ──────────────────────────────────────────────────────────────────
@@ -418,11 +414,10 @@ const block: ForgeBlock = {
           helperText: 'Dynamically loaded from HubSpot when a credential is selected.',
           loadOptions: async (ctx) => {
             if (!ctx.credential?.accessToken) return [];
-            const res = await apiRequest({
-              service: 'HubSpot',
+            const res = await ctx.helpers!.requestWithAuthentication('bearer', {
               method: 'GET',
               url: 'https://api.hubapi.com/crm/v3/properties/contacts/lifecyclestage',
-              headers: { Authorization: `Bearer ${ctx.credential.accessToken}` },
+              tokenField: 'accessToken',
             });
             const opts =
               (res.data as { options?: Array<{ label: string; value: string }> }).options ?? [];

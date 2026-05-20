@@ -27,7 +27,7 @@ function delegate(actionId: string) {
 const block: ForgeBlock = {
   id: 'forge_merge_v1',
   name: 'Merge (v1)',
-  description: 'Legacy n8n Merge v1 shape. Delegates to forge_merge.',
+  description: 'Legacy Merge v1 shape. Delegates to forge_merge.',
   iconName: 'LuMerge',
   category: 'Logic',
   auth: { type: 'none' },

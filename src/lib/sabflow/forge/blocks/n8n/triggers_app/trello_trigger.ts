@@ -87,7 +87,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_trello_trigger',
-  name: 'Trello Trigger (n8n)',
+  name: 'Trello Trigger',
   description:
     'Registration-info shim for Trello webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

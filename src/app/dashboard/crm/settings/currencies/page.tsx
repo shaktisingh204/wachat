@@ -23,6 +23,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruStatCard,
   ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
@@ -523,6 +524,22 @@ export default function CurrenciesPage() {
                 }
                 loading={isLoading && rows.length === 0}
             >
+                {/* KPI strip */}
+                {(() => {
+                    const totalCurrencies = rows.length;
+                    const activeCurrencies = rows.filter((r) => r.status === 'active').length;
+                    const baseCurrency = rows.find((r) => r.isBase);
+                    const multiCurrencyOn = rows.filter((r) => r.status === 'active').length > 1;
+                    return (
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                            <ZoruStatCard label="Total currencies" value={totalCurrencies.toLocaleString()} />
+                            <ZoruStatCard label="Active" value={activeCurrencies.toLocaleString()} />
+                            <ZoruStatCard label="Base currency" value={baseCurrency ? `${baseCurrency.code} ${baseCurrency.symbol ?? ''}`.trim() : '—'} />
+                            <ZoruStatCard label="Multi-currency" value={multiCurrencyOn ? 'On' : 'Off'} />
+                        </div>
+                    );
+                })()}
+
                 {/* Bulk bar */}
                 {hasSelection && (
                     <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">

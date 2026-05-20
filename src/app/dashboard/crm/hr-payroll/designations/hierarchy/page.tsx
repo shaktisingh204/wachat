@@ -20,6 +20,7 @@ import {
   ZoruSkeleton,
   useZoruToast,
 } from '@/components/zoruui';
+import { Briefcase, GitBranch, Layers, Search, TreePine } from 'lucide-react';
 import {
   useActionState,
   useCallback,
@@ -170,6 +171,44 @@ function TreeRow({
     );
 }
 
+function countNodes(nodes: WsHierarchyNode[]): number {
+    return nodes.reduce((acc, n) => acc + 1 + countNodes(n.children), 0);
+}
+
+function maxDepth(nodes: WsHierarchyNode[], level = 0): number {
+    if (nodes.length === 0) return level;
+    return Math.max(...nodes.map((n) => maxDepth(n.children, level + 1)));
+}
+
+function countLeaves(nodes: WsHierarchyNode[]): number {
+    return nodes.reduce(
+        (acc, n) => acc + (n.children.length === 0 ? 1 : countLeaves(n.children)),
+        0,
+    );
+}
+
+function KpiCard({
+    icon,
+    label,
+    value,
+}: {
+    icon: React.ReactNode;
+    label: string;
+    value: number | string;
+}) {
+    return (
+        <ZoruCard className="p-5">
+            <div className="flex items-center gap-2 text-zoru-ink-muted">
+                {icon}
+                <p className="text-[12.5px] font-medium">{label}</p>
+            </div>
+            <div className="mt-2 text-[22px] font-semibold text-zoru-ink">
+                {typeof value === 'number' ? value.toLocaleString() : value}
+            </div>
+        </ZoruCard>
+    );
+}
+
 export default function DesignationsHierarchyPage() {
     const { toast } = useZoruToast();
     const [tree, setTree] = useState<WsHierarchyNode[]>([]);
@@ -177,6 +216,7 @@ export default function DesignationsHierarchyPage() {
     const [expanded, setExpanded] = useState<Record<string, boolean>>({});
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editing, setEditing] = useState<WsDesignationExt | null>(null);
+    const [search, setSearch] = useState('');
     const [isLoading, startLoading] = useTransition();
     const formRef = useRef<HTMLFormElement>(null);
     const [saveState, formAction, isSaving] = useActionState(
@@ -259,6 +299,16 @@ export default function DesignationsHierarchyPage() {
         return String(editing.parent_designation_id);
     }, [editing]);
 
+    const totalDesignations = flat.length;
+    const levels = maxDepth(tree);
+    const leaves = countLeaves(tree);
+
+    const searchLower = search.trim().toLowerCase();
+    const matchedIds = useMemo(() => {
+        if (!searchLower) return new Set<string>();
+        return new Set(flat.filter((n) => n.name.toLowerCase().includes(searchLower)).map((n) => String(n._id)));
+    }, [flat, searchLower]);
+
     return (
         <EntityListShell
             title="Designations — Hierarchy"
@@ -270,13 +320,75 @@ export default function DesignationsHierarchyPage() {
                 </ZoruButton>
             }
         >
+            {/* KPI strip */}
+            <div className="grid gap-3 sm:grid-cols-3">
+                <KpiCard
+                    icon={<Briefcase className="h-4 w-4" />}
+                    label="Total designations"
+                    value={totalDesignations}
+                />
+                <KpiCard
+                    icon={<Layers className="h-4 w-4" />}
+                    label="Hierarchy levels"
+                    value={levels}
+                />
+                <KpiCard
+                    icon={<TreePine className="h-4 w-4" />}
+                    label="Leaf nodes"
+                    value={leaves}
+                />
+            </div>
 
             <ZoruCard className="p-6">
+                {/* Search bar */}
+                <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-[13px] text-zoru-ink-muted">
+                        Set a parent via the dropdown on each row, or click a row to edit.
+                    </p>
+                    <div className="relative w-60">
+                        <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zoru-ink-muted" />
+                        <ZoruInput
+                            placeholder="Search designations…"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-9 text-[13px]"
+                        />
+                    </div>
+                </div>
+
                 {isLoading && tree.length === 0 ? (
                     <ZoruSkeleton className="h-[240px] w-full" />
                 ) : tree.length === 0 ? (
                     <div className="py-10 text-center text-[13px] text-zoru-ink-muted">
                         No designations yet — click Add to get started.
+                    </div>
+                ) : matchedIds.size > 0 && searchLower ? (
+                    /* Flat search results */
+                    <div className="rounded-lg border border-zoru-line bg-zoru-bg">
+                        {flat
+                            .filter((n) => n.name.toLowerCase().includes(searchLower))
+                            .map((n) => (
+                                <div
+                                    key={String(n._id)}
+                                    className="flex items-center gap-2 border-b border-zoru-line px-4 py-2.5 last:border-b-0"
+                                >
+                                    <div className="min-w-0 flex-1">
+                                        <div className="text-[13px] font-medium text-zoru-ink">{n.name}</div>
+                                        {n.description ? (
+                                            <div className="text-[11.5px] text-zoru-ink-muted">{n.description}</div>
+                                        ) : null}
+                                    </div>
+                                    <ZoruButton
+                                        variant="ghost"
+                                        size="icon"
+                                        className="h-8 w-8"
+                                        onClick={() => handleEdit(String(n._id))}
+                                        aria-label="Edit"
+                                    >
+                                        <GitBranch className="h-3.5 w-3.5" />
+                                    </ZoruButton>
+                                </div>
+                            ))}
                     </div>
                 ) : (
                     <div className="rounded-lg border border-zoru-line bg-zoru-bg">

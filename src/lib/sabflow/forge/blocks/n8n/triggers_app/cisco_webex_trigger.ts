@@ -49,7 +49,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_cisco_webex_trigger',
   name: 'Cisco Webex Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Cisco Webex resource:event slugs n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Cisco Webex resource:event slugs.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

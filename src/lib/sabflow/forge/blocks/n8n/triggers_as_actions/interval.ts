@@ -38,7 +38,7 @@ async function tick(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_interval_n8n',
-  name: 'Interval (n8n)',
+  name: 'Interval',
   description: 'Sleep for N seconds and return a tick. Real intervals live in the trigger system.',
   iconName: 'LuTimer',
   category: 'Logic',

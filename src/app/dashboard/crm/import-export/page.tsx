@@ -1,5 +1,15 @@
 import { ZoruCard } from '@/components/zoruui';
-import { ArrowRight, Building2, FileSpreadsheet, Package, UserCheck, Users, } from 'lucide-react';
+import {
+    AlertCircle,
+    ArrowRight,
+    Building2,
+    Clock,
+    FileCheck2,
+    FileSpreadsheet,
+    Package,
+    UserCheck,
+    Users,
+} from 'lucide-react';
 
 /**
  * Import / Export landing — `/dashboard/crm/import-export`.
@@ -7,9 +17,18 @@ import { ArrowRight, Building2, FileSpreadsheet, Package, UserCheck, Users, } fr
  * Server component. Lists the entity kinds supported by the §5.9 bulk
  * pipeline and links into the per-entity wizard at
  * `/dashboard/crm/import-export/[entityKind]`.
+ *
+ * KPI strip: total import jobs, completed, failed, last import date.
+ * Reads from `crm_audit_log` where action starts with 'bulk_import_'.
  */
 
 import Link from 'next/link';
+
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
+import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
+import { formatDate } from '../_components/hub-data';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +64,81 @@ const TILES: Array<{
     },
 ];
 
-export default function ImportExportLandingPage(): React.ReactElement {
+interface ImportJobStats {
+    total: number;
+    completed: number;
+    failed: number;
+    lastImportDate: Date | null;
+}
+
+async function getImportJobStats(): Promise<ImportJobStats> {
+    const empty: ImportJobStats = { total: 0, completed: 0, failed: 0, lastImportDate: null };
+    try {
+        const session = await getSession();
+        if (!session?.user?._id) return empty;
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id as string);
+
+        const result = await db
+            .collection('crm_audit_log')
+            .aggregate([
+                { $match: { userId, action: { $regex: '^bulk_import_' } } },
+                {
+                    $group: {
+                        _id: null,
+                        total: { $sum: 1 },
+                        completed: {
+                            $sum: { $cond: [{ $eq: ['$status', 'success'] }, 1, 0] },
+                        },
+                        failed: {
+                            $sum: { $cond: [{ $eq: ['$status', 'error'] }, 1, 0] },
+                        },
+                        lastDate: { $max: '$createdAt' },
+                    },
+                },
+            ])
+            .toArray();
+
+        if (!result[0]) return empty;
+        return {
+            total: result[0].total ?? 0,
+            completed: result[0].completed ?? 0,
+            failed: result[0].failed ?? 0,
+            lastImportDate: result[0].lastDate ?? null,
+        };
+    } catch {
+        return empty;
+    }
+}
+
+export default async function ImportExportLandingPage(): Promise<React.ReactElement> {
+    const stats = await getImportJobStats();
+
+    const kpis: HubKpi[] = [
+        {
+            label: 'Total import jobs',
+            value: stats.total.toLocaleString(),
+            icon: FileSpreadsheet,
+        },
+        {
+            label: 'Completed',
+            value: stats.completed.toLocaleString(),
+            icon: FileCheck2,
+            tone: 'success',
+        },
+        {
+            label: 'Failed',
+            value: stats.failed.toLocaleString(),
+            icon: AlertCircle,
+            tone: stats.failed > 0 ? 'danger' : 'default',
+        },
+        {
+            label: 'Last import',
+            value: stats.lastImportDate ? formatDate(stats.lastImportDate) : '—',
+            icon: Clock,
+        },
+    ];
+
     return (
         <div className="flex w-full flex-col gap-5">
             <header className="flex items-center gap-3">
@@ -61,6 +154,8 @@ export default function ImportExportLandingPage(): React.ReactElement {
                     </p>
                 </div>
             </header>
+
+            <HubKpiGrid kpis={kpis} />
 
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {TILES.map((t) => {

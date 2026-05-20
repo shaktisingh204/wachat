@@ -18,16 +18,35 @@
 
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { asString, requireCredential } from '../_shared/http';
 
 const API = 'https://api.dropboxapi.com/2';
 const CONTENT_API = 'https://content.dropboxapi.com/2';
 
-function bearer(ctx: ForgeActionContext): string {
-  const cred = requireCredential('Dropbox', ctx.credential);
-  const token = cred.accessToken;
-  if (!token) throw new Error('Dropbox: credential is missing `accessToken`');
-  return `Bearer ${token}`;
+async function dbxRequest(
+  ctx: ForgeActionContext,
+  url: string,
+  init: { headers?: Record<string, string>; json?: unknown; body?: string },
+): Promise<{ ok: boolean; status: number; data: unknown; headers: Record<string, string> }> {
+  requireCredential('Dropbox', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method: 'POST',
+    url,
+    tokenField: 'accessToken',
+    headers: init.headers,
+    json: init.json,
+    body: init.body,
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`Dropbox POST ${url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 function normalizePath(p: string): string {
@@ -40,12 +59,8 @@ async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const body = asString(ctx.options.body);
   if (!path) throw new Error('Dropbox: path is required');
   const mode = asString(ctx.options.mode) || 'add';
-  const res = await apiRequest({
-    service: 'Dropbox',
-    method: 'POST',
-    url: `${CONTENT_API}/files/upload`,
+  const res = await dbxRequest(ctx, `${CONTENT_API}/files/upload`, {
     headers: {
-      Authorization: bearer(ctx),
       'Content-Type': 'application/octet-stream',
       'Dropbox-API-Arg': JSON.stringify({ path, mode, autorename: true, mute: false }),
     },
@@ -57,32 +72,23 @@ async function fileUpload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const path = normalizePath(asString(ctx.options.path));
   if (!path) throw new Error('Dropbox: path is required');
-  const res = await apiRequest({
-    service: 'Dropbox',
-    method: 'POST',
-    url: `${CONTENT_API}/files/download`,
+  const res = await dbxRequest(ctx, `${CONTENT_API}/files/download`, {
     headers: {
-      Authorization: bearer(ctx),
       'Dropbox-API-Arg': JSON.stringify({ path }),
     },
   });
-  const meta = res.headers.get('dropbox-api-result');
+  const meta = res.headers['dropbox-api-result'];
+  const text = typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? '');
   return {
-    outputs: { body: res.text, meta: meta ? JSON.parse(meta) : null },
-    logs: [`Dropbox download → ${path} (${res.text.length} bytes)`],
+    outputs: { body: text, meta: meta ? JSON.parse(meta) : null },
+    logs: [`Dropbox download → ${path} (${text.length} bytes)`],
   };
 }
 
 async function fileDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const path = normalizePath(asString(ctx.options.path));
   if (!path) throw new Error('Dropbox: path is required');
-  const res = await apiRequest({
-    service: 'Dropbox',
-    method: 'POST',
-    url: `${API}/files/delete_v2`,
-    headers: { Authorization: bearer(ctx) },
-    json: { path },
-  });
+  const res = await dbxRequest(ctx, `${API}/files/delete_v2`, { json: { path } });
   return { outputs: { result: res.data }, logs: [`Dropbox delete → ${path}`] };
 }
 
@@ -91,11 +97,7 @@ async function fileList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   // Dropbox uses "" for the root of the user's Dropbox.
   const dropboxPath = path === '/' || path === '' ? '' : normalizePath(path);
   const recursive = ctx.options.recursive === true;
-  const res = await apiRequest({
-    service: 'Dropbox',
-    method: 'POST',
-    url: `${API}/files/list_folder`,
-    headers: { Authorization: bearer(ctx) },
+  const res = await dbxRequest(ctx, `${API}/files/list_folder`, {
     json: { path: dropboxPath, recursive },
   });
   const data = res.data as { entries?: unknown[] } | null;
@@ -108,11 +110,7 @@ async function fileList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 async function folderCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const path = normalizePath(asString(ctx.options.path));
   if (!path) throw new Error('Dropbox: path is required');
-  const res = await apiRequest({
-    service: 'Dropbox',
-    method: 'POST',
-    url: `${API}/files/create_folder_v2`,
-    headers: { Authorization: bearer(ctx) },
+  const res = await dbxRequest(ctx, `${API}/files/create_folder_v2`, {
     json: { path, autorename: false },
   });
   return { outputs: { result: res.data }, logs: [`Dropbox folder create → ${path}`] };

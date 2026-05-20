@@ -35,7 +35,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_emelia_trigger',
   name: 'Emelia Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Emelia campaign event slugs n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Emelia campaign event slugs.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

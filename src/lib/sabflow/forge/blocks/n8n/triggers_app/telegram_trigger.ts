@@ -82,7 +82,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_telegram_trigger',
-  name: 'Telegram Trigger (n8n)',
+  name: 'Telegram Trigger',
   description:
     'Registration-info shim for Telegram bot webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

@@ -1,8 +1,9 @@
-import type { SabFlowDoc } from '@/lib/sabflow/types';
+import type { SabFlowDoc, Block, Edge } from '@/lib/sabflow/types';
 import type { SessionState, ExecutionResult, InputRequest } from './types';
 import type { OutgoingMessage } from './types';
 import { executeBlock } from './executeBlock';
 import { buildBlockNameMap } from '@/lib/sabflow/nodeOutputs/nodeNames';
+import { getForgeBlock } from '@/lib/sabflow/forge/registry';
 import { acquireRunSlot } from '@/lib/sabflow/execution/concurrency';
 import { loadEnvVars } from '@/lib/sabflow/envVars/db';
 import { publishTraceEvent } from '@/lib/sabflow/execution/traceBus';
@@ -219,6 +220,13 @@ async function runFlowInner(
       items?: Array<Record<string, unknown>>;
       pairedItems?: Array<{ item: number; input?: number }>;
       prevNodeName?: string;
+      /**
+       * Phase 12 per-item branching: when the producing block returned
+       * `itemsByOutput`, each port's items are stored here keyed by port
+       * name. Downstream blocks resolve their own upstream branch via
+       * the inbound edge's `sourceHandle` ("outputs/main/<index>").
+       */
+      branchedItems?: Record<string, Array<Record<string, unknown>>>;
     }
   > = {};
   // Seed from any previously-recorded outputs in the session — restored across
@@ -292,7 +300,7 @@ async function runFlowInner(
     if (!group) break;
 
     for (let i = currentBlockIndex; i < group.blocks.length; i++) {
-      const block = group.blocks[i];
+      const block: Block = group.blocks[i];
 
       // Only pass userInput to the first block of the current position (the
       // one that previously requested input).
@@ -308,13 +316,47 @@ async function runFlowInner(
       // which fan-in was active, and most flows have a single upstream).
       // Edges originating from an event/trigger are ignored: $prevNode is a
       // "previous block" shortcut, not "previous anything".
-      const inbound = flow.edges.find(
+      const inbound: Edge | undefined = flow.edges.find(
         (e) => e.to.blockId === block.id && e.from.blockId !== undefined,
       );
       const prevSourceId = inbound?.from.blockId;
       const prevNodeName = prevSourceId
         ? blockNameMap.get(prevSourceId) ?? prevSourceId
         : undefined;
+
+      // Phase 12 per-item branching: if the inbound edge's `sourceHandle`
+      // identifies a specific output port AND the upstream block emitted
+      // `branchedItems`, route only THAT port's items into this block.
+      // Falls through to whatever default upstream items the executor
+      // would otherwise read (no override) — preserves zero-regression
+      // for single-output upstream blocks.
+      let inputItems: Array<Record<string, unknown>> | undefined;
+      if (
+        prevNodeName &&
+        inbound?.sourceHandle &&
+        inbound.sourceHandle.startsWith('outputs/main/')
+      ) {
+        const upstream = nodeOutputs[prevNodeName];
+        const branches = upstream?.branchedItems;
+        if (branches) {
+          const portIdx = Number(inbound.sourceHandle.split('/')[2]);
+          // Resolve the upstream block's declared output names so port
+          // index N maps back to its `name` key. Forge-only for now —
+          // built-in blocks declare ports via getDefaultPorts which we
+          // can mirror in a later phase.
+          const upstreamBlock = flow.groups
+            .flatMap((g) => g.blocks)
+            .find((b) => b.id === prevSourceId);
+          const upstreamForgeId = upstreamBlock?.type;
+          if (upstreamForgeId) {
+            const upstreamForge = getForgeBlock(upstreamForgeId);
+            const portName = upstreamForge?.outputs?.[portIdx]?.name;
+            if (portName && Array.isArray(branches[portName])) {
+              inputItems = branches[portName];
+            }
+          }
+        }
+      }
 
       // itemIndex is the 0-based position of the block within its group; used
       // by the trace emitter to distinguish per-row events within a block.
@@ -326,6 +368,7 @@ async function runFlowInner(
         nodeOutputs,
         currentNodeName: blockNameMap.get(block.id) ?? block.id,
         prevNodeName,
+        inputItems,
       };
 
       const stepStartedAt = Date.now();
@@ -443,6 +486,7 @@ async function runFlowInner(
               ? blockResult.forgePairedItems
               : undefined,
           prevNodeName: blockCtx.prevNodeName,
+          branchedItems: blockResult.forgeBranchedItems,
         };
       }
 

@@ -22,7 +22,7 @@ async function run(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_http_request_v2',
   name: 'HTTP Request (v2)',
-  description: 'Legacy n8n HTTP Request v2 shape. Delegates to forge_http_request.',
+  description: 'Legacy HTTP Request v2 shape. Delegates to forge_http_request.',
   iconName: 'LuGlobe',
   category: 'Integration',
   auth: { type: 'none' },

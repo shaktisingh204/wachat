@@ -70,7 +70,7 @@ async function runLegacy(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_function_legacy',
   name: 'Function (legacy)',
-  description: 'Deprecated n8n Function node — runs a JS snippet against the full `items` batch. Prefer `forge_code_n8n` for new flows.',
+  description: 'Deprecated Function node — runs a JS snippet against the full `items` batch. Prefer `forge_code_n8n` for new flows.',
   iconName: 'LuFunctionSquare',
   category: 'Logic',
   auth: { type: 'none' },

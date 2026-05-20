@@ -18,7 +18,7 @@ const block: ForgeBlock = {
   id: 'forge_emailimap_v2',
   name: 'Email Read IMAP (v2)',
   description:
-    'Legacy n8n Email Read IMAP v2 shape. Delegates to forge_email_read_imap.',
+    'Legacy Email Read IMAP v2 shape. Delegates to forge_email_read_imap.',
   iconName: 'LuMail',
   category: 'Integration',
   auth: { type: 'none' },

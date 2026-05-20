@@ -280,3 +280,171 @@ export async function deleteReplyTemplate(
     return { success: false, error: rustErr(e) };
   }
 }
+
+/* ─── KPIs ───────────────────────────────────────────────────────── */
+
+export interface ReplyTemplateKpis {
+  total: number;
+  active: number;
+  byCategory: Record<string, number>;
+  mostUsedName: string | null;
+  mostUsedCount: number;
+}
+
+export async function getReplyTemplateKpis(): Promise<ReplyTemplateKpis> {
+  const zero: ReplyTemplateKpis = {
+    total: 0,
+    active: 0,
+    byCategory: {},
+    mostUsedName: null,
+    mostUsedCount: 0,
+  };
+
+  const session = await getSession();
+  if (!session?.user) return zero;
+  const guard = await requirePermission('crm_reply_template', 'view');
+  if (!guard.ok) return zero;
+
+  try {
+    // Fetch a generous page of templates to derive KPIs client-side;
+    // the Rust list endpoint handles tenant scoping.
+    const res = await crmReplyTemplatesApi.list({ limit: 200 });
+    const items = res.items;
+    const total = items.length;
+    const active = items.filter((t) => t.isActive).length;
+    const byCategory: Record<string, number> = {};
+    let mostUsedName: string | null = null;
+    let mostUsedCount = 0;
+    for (const t of items) {
+      const cat = t.category ?? 'uncategorised';
+      byCategory[cat] = (byCategory[cat] ?? 0) + 1;
+      if (t.usageCount > mostUsedCount) {
+        mostUsedCount = t.usageCount;
+        mostUsedName = t.name;
+      }
+    }
+    return { total, active, byCategory, mostUsedName, mostUsedCount };
+  } catch (e) {
+    console.error('[getReplyTemplateKpis] failed:', e);
+    recordRustFallback({
+      entity: 'reply_template',
+      op: 'list',
+      errorCode: e instanceof RustApiError ? e.code : undefined,
+      status: e instanceof RustApiError ? e.status : undefined,
+    });
+    return zero;
+  }
+}
+
+/* ─── Bulk operations ────────────────────────────────────────────── */
+
+export interface BulkUpdateResult {
+  updated: number;
+  errors: string[];
+}
+
+export async function bulkUpdateReplyTemplates(
+  ids: string[],
+  patch: { isActive?: boolean; status?: CrmReplyTemplateStatus },
+): Promise<BulkUpdateResult> {
+  if (!ids.length) return { updated: 0, errors: [] };
+
+  const session = await getSession();
+  if (!session?.user) return { updated: 0, errors: ['Unauthorized'] };
+  const guard = await requirePermission('crm_reply_template', 'edit');
+  if (!guard.ok) return { updated: 0, errors: [guard.error ?? 'Forbidden'] };
+
+  let updated = 0;
+  const errors: string[] = [];
+
+  await Promise.all(
+    ids.map(async (id) => {
+      try {
+        await crmReplyTemplatesApi.update(id, patch);
+        updated += 1;
+      } catch (e) {
+        errors.push(`${id}: ${rustErr(e)}`);
+        recordRustFallback({
+          entity: 'reply_template',
+          op: 'update',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }),
+  );
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'bulk_update',
+      entityKind: 'reply_template',
+      entityId: ids.join(','),
+      diff: Object.fromEntries(
+        Object.entries(patch).map(([k, v]) => [k, { after: v }]),
+      ),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  revalidatePath(LIST_PATH);
+  return { updated, errors };
+}
+
+export interface BulkDeleteResult {
+  deleted: number;
+  errors: string[];
+}
+
+export async function bulkDeleteReplyTemplates(
+  ids: string[],
+): Promise<BulkDeleteResult> {
+  if (!ids.length) return { deleted: 0, errors: [] };
+
+  const session = await getSession();
+  if (!session?.user) return { deleted: 0, errors: ['Unauthorized'] };
+  const guard = await requirePermission('crm_reply_template', 'delete');
+  if (!guard.ok) return { deleted: 0, errors: [guard.error ?? 'Forbidden'] };
+
+  let deleted = 0;
+  const errors: string[] = [];
+
+  await Promise.all(
+    ids.map(async (id) => {
+      try {
+        await crmReplyTemplatesApi.delete(id);
+        deleted += 1;
+      } catch (e) {
+        if (e instanceof RustApiError && e.status === 404) {
+          // Treat missing as already deleted.
+          deleted += 1;
+          return;
+        }
+        errors.push(`${id}: ${rustErr(e)}`);
+        recordRustFallback({
+          entity: 'reply_template',
+          op: 'delete',
+          errorCode: e instanceof RustApiError ? e.code : undefined,
+          status: e instanceof RustApiError ? e.status : undefined,
+        });
+      }
+    }),
+  );
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'bulk_delete',
+      entityKind: 'reply_template',
+      entityId: ids.join(','),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  revalidatePath(LIST_PATH);
+  return { deleted, errors };
+}

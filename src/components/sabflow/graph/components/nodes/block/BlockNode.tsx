@@ -39,6 +39,9 @@ type Props = {
    *  unpins; setting it to `{ outputs: {} }` pins (the settings panel
    *  textarea lets the user fill the actual payload afterwards). */
   onTogglePin?: (block: Block) => void;
+  /** Fired when the user picks "Run from here" in the context menu.
+   *  Hidden when not provided. */
+  onRunFrom?: (block: Block) => void;
 };
 
 export function BlockNode({
@@ -54,6 +57,7 @@ export function BlockNode({
   onDuplicate,
   onDelete,
   onTogglePin,
+  onRunFrom,
 }: Props) {
   const {
     openedNodeId,
@@ -248,6 +252,7 @@ export function BlockNode({
         onTogglePin={
           onTogglePin ? () => onTogglePin(block) : undefined
         }
+        onRunFrom={onRunFrom ? () => onRunFrom(block) : undefined}
         onDelete={() => onDelete?.(block)}
         onClose={() => setContextMenu(null)}
       />

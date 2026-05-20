@@ -1417,6 +1417,77 @@ export async function recallPosHold(input: {
     }
 }
 
+/* ─── Hold discard (void without recalling into a transaction) ────────── */
+
+export async function discardPosHold(holdId: string): Promise<{
+    success: boolean;
+    error?: string;
+}> {
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+    const guard = await requirePermission('crm_pos', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!ObjectId.isValid(holdId)) return { success: false, error: 'Invalid hold id.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        const result = await db.collection('crm_pos_holds').updateOne(
+            { _id: new ObjectId(holdId), userId: userObjectId, status: 'held' },
+            { $set: { status: 'discarded', updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Hold not found or already processed.' };
+        }
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'delete',
+                entityKind: 'pos_hold',
+                entityId: holdId,
+                reason: 'voided from hold-recall list',
+            });
+        } catch {
+            /* non-fatal */
+        }
+        revalidatePath('/dashboard/crm/pos');
+        revalidatePath('/dashboard/crm/pos/hold-recall');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function bulkDiscardPosHolds(holdIds: string[]): Promise<{
+    success: boolean;
+    processed: number;
+    error?: string;
+}> {
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, processed: 0, error: 'Access denied.' };
+    const guard = await requirePermission('crm_pos', 'edit');
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const validIds = holdIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+    if (validIds.length === 0) return { success: false, processed: 0, error: 'No valid hold ids.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        const result = await db.collection('crm_pos_holds').updateMany(
+            { _id: { $in: validIds }, userId: userObjectId, status: 'held' },
+            { $set: { status: 'discarded', updatedAt: new Date() } },
+        );
+        revalidatePath('/dashboard/crm/pos');
+        revalidatePath('/dashboard/crm/pos/hold-recall');
+        return { success: true, processed: result.modifiedCount ?? 0 };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}
+
 /* ─── KPI summary (used by the POS home/overview page) ───────────────── */
 
 export interface PosOverviewKpis {

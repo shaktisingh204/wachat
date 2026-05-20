@@ -22,7 +22,7 @@ async function run(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_if_v1',
   name: 'If (v1)',
-  description: 'Legacy n8n If v1 shape. Delegates to forge_if.',
+  description: 'Legacy If v1 shape. Delegates to forge_if.',
   iconName: 'LuGitBranch',
   category: 'Logic',
   auth: { type: 'none' },

@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_pipedrive_v2',
   name: 'Pipedrive (v2)',
-  description: 'Legacy n8n Pipedrive v2 shape. Delegates to forge_pipedrive.',
+  description: 'Legacy Pipedrive v2 shape. Delegates to forge_pipedrive.',
   iconName: 'LuTrendingUp',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'pipedrive' },

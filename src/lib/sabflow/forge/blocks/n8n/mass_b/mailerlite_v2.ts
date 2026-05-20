@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_mailerlite_v2',
   name: 'MailerLite (v2)',
-  description: 'Legacy n8n MailerLite v2 shape. Delegates to forge_mailerlite.',
+  description: 'Legacy MailerLite v2 shape. Delegates to forge_mailerlite.',
   iconName: 'LuMail',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'mailerlite' },

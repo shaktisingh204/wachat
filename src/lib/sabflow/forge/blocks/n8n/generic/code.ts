@@ -54,7 +54,7 @@ async function runJs(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_code_n8n',
-  name: 'Code (n8n)',
+  name: 'Code (Legacy)',
   description: 'Run a JavaScript snippet against the current flow variables.',
   iconName: 'LuCode',
   category: 'Logic',

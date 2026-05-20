@@ -19,11 +19,8 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
+  ZoruStatCard,
+  ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -38,16 +35,19 @@ import {
   useState,
   useTransition,
   useActionState,
-  } from 'react';
+} from 'react';
 import {
-  Plus,
-  Pencil,
-  Trash2,
-  LoaderCircle,
+  CheckCircle2,
   Eye,
   EyeOff,
+  FlaskConical,
+  LoaderCircle,
+  Pencil,
+  Plus,
   Power,
-  } from 'lucide-react';
+  Trash2,
+  Wifi,
+} from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -58,16 +58,16 @@ import {
   toggleGateway,
 } from '@/app/actions/worksuite/payments.actions';
 
-const GATEWAY_PROVIDERS = [
-  'razorpay',
-  'stripe',
-  'paypal',
-  'payfast',
-  'paytm',
-  'mollie',
-  'authorize_net',
-  'square',
-];
+interface GatewayRow {
+  _id: string;
+  gateway: string;
+  mode: 'live' | 'test';
+  api_key?: string;
+  api_secret?: string;
+  webhook_secret?: string;
+  is_active: boolean;
+  show_on_public: boolean;
+}
 
 const COLORS: Record<string, string> = {
   razorpay: 'bg-zoru-info/10 text-zoru-info-ink',
@@ -115,21 +115,41 @@ function SecretInput({
   );
 }
 
+function ActiveSwitch({
+  initialChecked,
+  name,
+}: {
+  initialChecked: boolean;
+  name: string;
+}) {
+  const [checked, setChecked] = useState(initialChecked);
+  return (
+    <>
+      <ZoruSwitch
+        id={name}
+        checked={checked}
+        onCheckedChange={setChecked}
+      />
+      <input type="hidden" name={name} value={checked ? 'on' : ''} />
+    </>
+  );
+}
+
 export default function PaymentGatewaysPage() {
   const { toast } = useZoruToast();
-  const [rows, setRows] = useState<any[]>([]);
+  const [rows, setRows] = useState<GatewayRow[]>([]);
   const [isLoading, startLoad] = useTransition();
   const [isPending, startPending] = useTransition();
-  const [editing, setEditing] = useState<any | null>(null);
+  const [editing, setEditing] = useState<GatewayRow | null>(null);
   const [open, setOpen] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState<any | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<GatewayRow | null>(null);
 
   const [state, formAction] = useActionState(saveGatewayCredential, {});
 
   const load = useCallback(() => {
     startLoad(async () => {
       const data = await getGatewayCredentials();
-      setRows((data || []) as any[]);
+      setRows((data || []) as GatewayRow[]);
     });
   }, []);
 
@@ -138,15 +158,15 @@ export default function PaymentGatewaysPage() {
   }, [load]);
 
   useEffect(() => {
-    if (state.message) {
-      toast({ title: state.message });
+    if ((state as { message?: string }).message) {
+      toast({ title: (state as { message: string }).message });
       setOpen(false);
       setEditing(null);
       load();
-    } else if (state.error) {
+    } else if ((state as { error?: string }).error) {
       toast({
         title: 'Error',
-        description: state.error,
+        description: (state as { error: string }).error,
         variant: 'destructive',
       });
     }
@@ -156,11 +176,12 @@ export default function PaymentGatewaysPage() {
   const onToggle = (id: string) => {
     startPending(async () => {
       const r = await toggleGateway(id);
-      if (r.message) toast({ title: r.message });
-      if (r.error)
+      if ((r as { message?: string }).message)
+        toast({ title: (r as { message: string }).message });
+      if ((r as { error?: string }).error)
         toast({
           title: 'Error',
-          description: r.error,
+          description: (r as { error: string }).error,
           variant: 'destructive',
         });
       load();
@@ -171,17 +192,22 @@ export default function PaymentGatewaysPage() {
     if (!confirmDelete) return;
     startPending(async () => {
       const r = await deleteGatewayCredential(confirmDelete._id);
-      if (r.success) toast({ title: 'Gateway deleted.' });
+      if ((r as { success?: boolean }).success) toast({ title: 'Gateway deleted.' });
       else
         toast({
           title: 'Error',
-          description: r.error,
+          description: (r as { error?: string }).error,
           variant: 'destructive',
         });
       setConfirmDelete(null);
       load();
     });
   };
+
+  // KPI computed values
+  const totalConfigured = rows.length;
+  const totalActive = rows.filter((r) => r.is_active).length;
+  const totalTestMode = rows.filter((r) => r.mode === 'test').length;
 
   return (
     <EntityListShell
@@ -199,6 +225,23 @@ export default function PaymentGatewaysPage() {
         </ZoruButton>
       }
     >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <ZoruStatCard
+          label="Configured"
+          value={totalConfigured}
+          icon={<Wifi className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Active"
+          value={totalActive}
+          icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Test mode"
+          value={totalTestMode}
+          icon={<FlaskConical className="h-4 w-4" />}
+        />
+      </div>
 
       <ZoruCard className="p-6">
         {isLoading && rows.length === 0 ? (
@@ -225,9 +268,7 @@ export default function PaymentGatewaysPage() {
               </ZoruTableHeader>
               <ZoruTableBody>
                 {rows.map((r) => {
-                  const letter = (r.gateway || '?')
-                    .charAt(0)
-                    .toUpperCase();
+                  const letter = (r.gateway || '?').charAt(0).toUpperCase();
                   return (
                     <ZoruTableRow key={r._id}>
                       <ZoruTableCell>
@@ -248,9 +289,7 @@ export default function PaymentGatewaysPage() {
                         </ZoruBadge>
                       </ZoruTableCell>
                       <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                        {r.api_key
-                          ? `${String(r.api_key).slice(0, 6)}…`
-                          : '—'}
+                        {r.api_key ? `${String(r.api_key).slice(0, 6)}…` : '—'}
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <ZoruBadge variant={r.is_active ? 'success' : 'ghost'}>
@@ -349,24 +388,27 @@ export default function PaymentGatewaysPage() {
                 defaultValue={editing?.webhook_secret}
               />
             </div>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
-              <input
-                type="checkbox"
+            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+              <ActiveSwitch
                 name="is_active"
-                defaultChecked={!!editing?.is_active}
-                className="h-4 w-4 accent-zoru-ink"
+                initialChecked={editing?.is_active ?? false}
               />
-              Active
-            </label>
-            <label className="inline-flex items-center gap-2 text-[12.5px] text-zoru-ink">
-              <input
-                type="checkbox"
+              <ZoruLabel htmlFor="is_active" className="text-[13px] text-zoru-ink">
+                Active
+              </ZoruLabel>
+            </div>
+            <div className="flex items-center gap-3 rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+              <ActiveSwitch
                 name="show_on_public"
-                defaultChecked={!!editing?.show_on_public}
-                className="h-4 w-4 accent-zoru-ink"
+                initialChecked={editing?.show_on_public ?? false}
               />
-              Show on public invoice/proposal pay pages
-            </label>
+              <ZoruLabel
+                htmlFor="show_on_public"
+                className="text-[13px] text-zoru-ink"
+              >
+                Show on public invoice/proposal pay pages
+              </ZoruLabel>
+            </div>
             <ZoruDialogFooter>
               <ZoruButton
                 type="button"

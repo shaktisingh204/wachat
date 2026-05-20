@@ -22,7 +22,7 @@ async function run(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_filter_v1',
   name: 'Filter (v1)',
-  description: 'Legacy n8n Filter v1 shape. Delegates to forge_filter.',
+  description: 'Legacy Filter v1 shape. Delegates to forge_filter.',
   iconName: 'LuFilter',
   category: 'Logic',
   auth: { type: 'none' },

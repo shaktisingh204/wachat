@@ -514,6 +514,24 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
   }, [parseError, block, flow, inputParsed.value, variablesParsed.value, upstreamEntries, recordResult]);
 
   /*
+   * "Run from here" trigger from the canvas context menu. BlockNodesList
+   * fires a `sabflow:auto-run-block` window event with the target block's
+   * id; when it matches THIS panel's block we kick off the same
+   * `handleExecute` the Run button calls. Decouples the canvas from the
+   * panel's internal state — no prop drilling, no shared store.
+   */
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent<{ blockId?: string }>).detail;
+      if (!detail || detail.blockId !== block.id) return;
+      if (parseError) return;
+      void handleExecute();
+    };
+    window.addEventListener('sabflow:auto-run-block', handler);
+    return () => window.removeEventListener('sabflow:auto-run-block', handler);
+  }, [block.id, parseError, handleExecute]);
+
+  /*
    * SSE subscription for live per-node trace.
    *
    * Mirrors the wire format produced by `/api/sabflow/executions/[id]/stream`:
@@ -682,7 +700,20 @@ function TestNodePanelInner({ block, flow, onBlockChange }: TestNodePanelProps) 
         pinPersisted={block.pinData !== undefined}
         onPersistPinData={
           onBlockChange
-            ? (value) => onBlockChange({ pinData: value })
+            ? (value) =>
+                onBlockChange({
+                  // `value` is the raw test-run output (`unknown`). The Phase
+                  // 10 strict `pinData` shape requires `{ outputs }` where
+                  // outputs is a plain object — wrap primitives / arrays
+                  // under a single `value` field so downstream `$node["X"]
+                  // .json.value` reads them back consistently.
+                  pinData: {
+                    outputs:
+                      value && typeof value === 'object' && !Array.isArray(value)
+                        ? (value as Record<string, unknown>)
+                        : { value },
+                  },
+                })
             : undefined
         }
         onClearPinData={

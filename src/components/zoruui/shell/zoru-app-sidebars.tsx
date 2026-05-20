@@ -1514,7 +1514,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
   /* ─────────────────────────────  N8N  ────────────────────────────── */
   {
     prefix: "/dashboard/n8n",
-    heading: "n8n",
+    heading: "SabFlow",
     caption: "Workflow automation",
     build: (p) => [
       {

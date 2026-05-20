@@ -100,7 +100,7 @@ async function nextFires(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_cron_n8n',
-  name: 'Cron (n8n)',
+  name: 'Cron',
   description: 'Preview upcoming firing times for a cron expression. SabFlow real cron lives in the trigger system.',
   iconName: 'LuClock',
   category: 'Integration',

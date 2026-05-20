@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_lemlist_v2',
   name: 'Lemlist (v2)',
-  description: 'Legacy n8n Lemlist v2 shape. Delegates to forge_lemlist.',
+  description: 'Legacy Lemlist v2 shape. Delegates to forge_lemlist.',
   iconName: 'LuMail',
   category: 'Integration',
   auth: { type: 'none' },

@@ -90,7 +90,7 @@ const BODY_MODE_OPTIONS = [
 
 const block: ForgeBlock = {
   id: 'forge_respond_to_webhook',
-  name: 'Respond to Webhook (n8n)',
+  name: 'Respond to Webhook',
   description: 'Build a webhook response payload. Real inline "respond now" is part of the webhook trigger handler.',
   iconName: 'LuReply',
   category: 'Integration',

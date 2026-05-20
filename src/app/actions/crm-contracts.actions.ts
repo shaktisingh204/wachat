@@ -435,6 +435,130 @@ export async function archiveContract(contractId: string) {
   return setContractStatus(contractId, 'cancelled');
 }
 
+/* ─── Renewal helpers ────────────────────────────────────────────── */
+
+export interface RenewalActionResult {
+  processed: number;
+  errors: string[];
+}
+
+/**
+ * Mark a batch of contracts as renewed (status → 'renewed').
+ * RBAC: crm_contract / edit.
+ */
+export async function bulkMarkRenewed(
+  ids: string[],
+): Promise<RenewalActionResult> {
+  if (!ids.length) return { processed: 0, errors: [] };
+
+  const session = await getSession();
+  if (!session?.user) return { processed: 0, errors: ['Unauthorized'] };
+  const guard = await requirePermission('crm_contract', 'edit');
+  if (!guard.ok) return { processed: 0, errors: [guard.error ?? 'Forbidden'] };
+
+  let processed = 0;
+  const errors: string[] = [];
+
+  await Promise.all(
+    ids.map(async (id) => {
+      if (!ObjectId.isValid(id)) {
+        errors.push(`${id}: invalid id`);
+        return;
+      }
+      try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_contracts').updateOne(
+          {
+            _id: new ObjectId(id),
+            userId: new ObjectId(session.user._id as string),
+          },
+          { $set: { status: 'renewed', updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) {
+          errors.push(`${id}: not found`);
+        } else {
+          processed += 1;
+        }
+      } catch (e: unknown) {
+        errors.push(`${id}: ${e instanceof Error ? e.message : 'failed'}`);
+      }
+    }),
+  );
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'bulk_renew',
+      entityKind: 'contract',
+      entityId: ids.join(','),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  revalidatePath('/dashboard/crm/sales/contracts');
+  revalidatePath('/dashboard/crm/sales/contracts/renewals');
+  return { processed, errors };
+}
+
+/**
+ * Send renewal notice emails/notifications for the given contract IDs.
+ *
+ * Implementation: queues a notification log entry in `crm_renewal_notices`
+ * so the worker can pick it up. Adjust to your notification transport.
+ * RBAC: crm_contract / edit.
+ */
+export async function sendRenewalNotices(
+  ids: string[],
+): Promise<RenewalActionResult> {
+  if (!ids.length) return { processed: 0, errors: [] };
+
+  const session = await getSession();
+  if (!session?.user) return { processed: 0, errors: ['Unauthorized'] };
+  const guard = await requirePermission('crm_contract', 'edit');
+  if (!guard.ok) return { processed: 0, errors: [guard.error ?? 'Forbidden'] };
+
+  let processed = 0;
+  const errors: string[] = [];
+
+  try {
+    const { db } = await connectToDatabase();
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    const invalidCount = ids.length - validIds.length;
+    if (invalidCount > 0) {
+      for (let i = 0; i < invalidCount; i++) errors.push('invalid id');
+    }
+
+    if (validIds.length > 0) {
+      const notices = validIds.map((id) => ({
+        contractId: new ObjectId(id),
+        userId: new ObjectId(session.user._id as string),
+        status: 'pending',
+        queuedAt: new Date(),
+      }));
+      await db.collection('crm_renewal_notices').insertMany(notices);
+      processed = validIds.length;
+    }
+  } catch (e: unknown) {
+    errors.push(e instanceof Error ? e.message : 'Failed to queue notices');
+  }
+
+  try {
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      actorId: String(session.user._id),
+      action: 'send_renewal_notices',
+      entityKind: 'contract',
+      entityId: ids.join(','),
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  return { processed, errors };
+}
+
 export async function deleteContract(
   contractId: string,
 ): Promise<{ success: boolean; error?: string }> {

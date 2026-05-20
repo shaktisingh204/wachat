@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_if_v2',
   name: 'If (v2)',
-  description: 'Legacy n8n If v2 shape. Delegates to forge_if.',
+  description: 'Legacy If v2 shape. Delegates to forge_if.',
   iconName: 'LuGitBranch',
   category: 'Logic',
   auth: { type: 'none' },

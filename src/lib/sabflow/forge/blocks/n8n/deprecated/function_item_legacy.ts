@@ -77,7 +77,7 @@ async function runPerItem(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_function_item_legacy',
   name: 'Function Item (legacy)',
-  description: 'Deprecated n8n FunctionItem node — runs a JS snippet once per item. Prefer `forge_code_n8n` + map for new flows.',
+  description: 'Deprecated FunctionItem node — runs a JS snippet once per item. Prefer `forge_code_n8n` + map for new flows.',
   iconName: 'LuFunctionSquare',
   category: 'Logic',
   auth: { type: 'none' },

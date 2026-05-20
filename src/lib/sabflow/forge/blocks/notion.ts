@@ -14,17 +14,13 @@ const NOTION_VERSION = '2022-06-28';
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.apiKey;
-  if (!token) {
+const ensureCred = (ctx: ForgeActionContext) => {
+  if (!ctx.credential?.apiKey) {
     throw new Error('Notion: select a credential from SabFlow Connections');
   }
-  return {
-    Authorization: `Bearer ${token}`,
-    'Notion-Version': NOTION_VERSION,
-    'Content-Type': 'application/json',
-  };
 };
+
+const notionHeaders = { 'Notion-Version': NOTION_VERSION };
 
 async function createPage(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const parentDatabaseId = str(ctx.options.parentDatabaseId);
@@ -52,16 +48,18 @@ async function createPage(ctx: ForgeActionContext): Promise<ForgeActionResult> {
       : [],
   };
 
-  const res = await fetch(`${NOTION_API}/pages`, {
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'POST',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify(body),
+    url: `${NOTION_API}/pages`,
+    tokenField: 'apiKey',
+    headers: notionHeaders,
+    json: body,
   });
-  const data: unknown = await res.json();
-  if (!res.ok) throw new Error(`Notion create page failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Notion create page failed: ${r.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = r.data;
   return { outputs, logs: [`Notion: created page in database ${parentDatabaseId}`] };
 }
 
@@ -81,12 +79,15 @@ async function appendBlock(ctx: ForgeActionContext): Promise<ForgeActionResult> 
     ],
   };
 
-  const res = await fetch(`${NOTION_API}/blocks/${encodeURIComponent(pageId)}/children`, {
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'PATCH',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify(body),
+    url: `${NOTION_API}/blocks/${encodeURIComponent(pageId)}/children`,
+    tokenField: 'apiKey',
+    headers: notionHeaders,
+    json: body,
   });
-  if (!res.ok) throw new Error(`Notion append block failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Notion append block failed: ${r.status}`);
 
   return { logs: [`Notion: appended block to page ${pageId}`] };
 }
@@ -95,16 +96,18 @@ async function getDatabase(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   const databaseId = str(ctx.options.databaseId);
   const outputVariable = str(ctx.options.outputVariable);
 
-  const res = await fetch(`${NOTION_API}/databases/${encodeURIComponent(databaseId)}/query`, {
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'POST',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify({}),
+    url: `${NOTION_API}/databases/${encodeURIComponent(databaseId)}/query`,
+    tokenField: 'apiKey',
+    headers: notionHeaders,
+    json: {},
   });
-  const data: unknown = await res.json();
-  if (!res.ok) throw new Error(`Notion get database failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Notion get database failed: ${r.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = r.data;
   return { outputs, logs: [`Notion: fetched database ${databaseId}`] };
 }
 

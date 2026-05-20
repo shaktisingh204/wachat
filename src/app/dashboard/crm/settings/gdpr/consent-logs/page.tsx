@@ -2,7 +2,13 @@
 
 import {
   ZoruBadge,
+  ZoruButton,
   ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruSkeleton,
   ZoruStatCard,
   ZoruTable,
@@ -12,12 +18,14 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   cn,
+  useZoruToast,
 } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition } from 'react';
 import * as React from 'react';
+import { Download } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -42,12 +50,16 @@ function formatDateTime(value?: Date | string) {
   return d.toLocaleString();
 }
 
+type StatusFilter = 'all' | 'granted' | 'revoked';
+
 export default function ConsentLogsPage() {
+  const { toast } = useZoruToast();
   const [tab, setTab] = useState<'leads' | 'users'>('leads');
   const [leads, setLeads] = useState<LeadRow[]>([]);
   const [users, setUsers] = useState<UserRow[]>([]);
   const [purposes, setPurposes] = useState<PurposeRow[]>([]);
   const [isLoading, startLoading] = useTransition();
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -82,6 +94,45 @@ export default function ConsentLogsPage() {
   const grantedEntries = allRows.filter((r) => r.granted).length;
   const revokedEntries = totalEntries - grantedEntries;
 
+  const visibleLeads = React.useMemo(() => {
+    if (statusFilter === 'granted') return leads.filter((r) => r.granted);
+    if (statusFilter === 'revoked') return leads.filter((r) => !r.granted);
+    return leads;
+  }, [leads, statusFilter]);
+
+  const visibleUsers = React.useMemo(() => {
+    if (statusFilter === 'granted') return users.filter((r) => r.granted);
+    if (statusFilter === 'revoked') return users.filter((r) => !r.granted);
+    return users;
+  }, [users, statusFilter]);
+
+  const handleExportCsv = () => {
+    const src = tab === 'leads' ? visibleLeads : visibleUsers;
+    if (!src.length) {
+      toast({ title: 'Nothing to export' });
+      return;
+    }
+    const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const header = tab === 'leads'
+      ? ['Lead ID', 'Purpose', 'State', 'Timestamp', 'IP']
+      : ['User ID', 'Purpose', 'State', 'Timestamp', 'IP'];
+    const csvRows = src.map((r) => [
+      escape(tab === 'leads' ? (r as LeadRow).lead_id ?? '' : (r as UserRow).target_user_id ?? ''),
+      escape(purposeTitle(r.purpose_consent_id)),
+      escape(r.granted ? 'Granted' : 'Revoked'),
+      escape(formatDateTime(r.granted_at)),
+      escape(r.ip_address ?? ''),
+    ].join(','));
+    const csv = [header.join(','), ...csvRows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `consent-logs-${tab}-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <EntityListShell
       title="Consent Logs"
@@ -89,13 +140,32 @@ export default function ConsentLogsPage() {
     >
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <ZoruStatCard label="Total entries" value={totalEntries.toLocaleString()} />
-        <ZoruStatCard label="Active (granted)" value={grantedEntries.toLocaleString()} />
-        <ZoruStatCard label="Withdrawn (revoked)" value={revokedEntries.toLocaleString()} />
+        <button type="button" className="text-left" onClick={() => setStatusFilter('all')}>
+          <ZoruStatCard
+            label="Total entries"
+            value={totalEntries.toLocaleString()}
+            className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+          />
+        </button>
+        <button type="button" className="text-left" onClick={() => setStatusFilter('granted')}>
+          <ZoruStatCard
+            label="Active (granted)"
+            value={grantedEntries.toLocaleString()}
+            className={cn(statusFilter === 'granted' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+          />
+        </button>
+        <button type="button" className="text-left" onClick={() => setStatusFilter('revoked')}>
+          <ZoruStatCard
+            label="Withdrawn (revoked)"
+            value={revokedEntries.toLocaleString()}
+            className={cn(statusFilter === 'revoked' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+          />
+        </button>
       </div>
 
       <ZoruCard className="p-6">
-        <div className="mb-4 inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="inline-flex gap-1 rounded-[var(--zoru-radius-sm)] border border-zoru-line bg-zoru-surface p-1">
           {(['leads', 'users'] as const).map((id) => (
             <button
               key={id}
@@ -111,6 +181,26 @@ export default function ConsentLogsPage() {
               {id === 'leads' ? `Leads (${leads.length})` : `Users (${users.length})`}
             </button>
           ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <ZoruSelect
+              value={statusFilter}
+              onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+            >
+              <ZoruSelectTrigger className="h-8 w-[140px] text-[12px]">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All states</ZoruSelectItem>
+                <ZoruSelectItem value="granted">Granted</ZoruSelectItem>
+                <ZoruSelectItem value="revoked">Revoked</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv}>
+              <Download className="mr-1 h-3.5 w-3.5" />
+              Export CSV
+            </ZoruButton>
+          </div>
         </div>
 
         {tab === 'leads' ? (
@@ -134,17 +224,17 @@ export default function ConsentLogsPage() {
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
-                ) : leads.length === 0 ? (
+                ) : visibleLeads.length === 0 ? (
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
                       className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
-                      No lead consent entries yet.
+                      No lead consent entries match this filter.
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : (
-                  leads.map((row) => (
+                  visibleLeads.map((row) => (
                     <ZoruTableRow key={row._id}>
                       <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {row.lead_id || '—'}
@@ -190,17 +280,17 @@ export default function ConsentLogsPage() {
                       </ZoruTableCell>
                     </ZoruTableRow>
                   ))
-                ) : users.length === 0 ? (
+                ) : visibleUsers.length === 0 ? (
                   <ZoruTableRow>
                     <ZoruTableCell
                       colSpan={5}
                       className="h-24 text-center text-[13px] text-zoru-ink-muted"
                     >
-                      No user consent entries yet.
+                      No user consent entries match this filter.
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : (
-                  users.map((row) => (
+                  visibleUsers.map((row) => (
                     <ZoruTableRow key={row._id}>
                       <ZoruTableCell className="text-[13px] text-zoru-ink">
                         {row.target_user_id || '—'}

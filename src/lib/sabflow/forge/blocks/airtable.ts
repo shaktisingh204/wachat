@@ -13,15 +13,10 @@ const AIRTABLE_API = 'https://api.airtable.com/v0';
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.apiKey;
-  if (!token) {
+const ensureCred = (ctx: ForgeActionContext) => {
+  if (!ctx.credential?.apiKey) {
     throw new Error('Airtable: select a credential from SabFlow Connections');
   }
-  return {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json',
-  };
 };
 
 const parseJsonFields = (raw: unknown): Record<string, unknown> => {
@@ -49,16 +44,17 @@ async function createRecord(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const fields = parseJsonFields(ctx.options.fields);
   const outputVariable = str(ctx.options.outputVariable);
 
-  const res = await fetch(baseUrl(baseId, tableName), {
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'POST',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify({ fields }),
+    url: baseUrl(baseId, tableName),
+    tokenField: 'apiKey',
+    json: { fields },
   });
-  const data: unknown = await res.json();
-  if (!res.ok) throw new Error(`Airtable create record failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Airtable create record failed: ${r.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = r.data;
   return { outputs, logs: [`Airtable: created record in ${baseId}/${tableName}`] };
 }
 
@@ -68,12 +64,14 @@ async function updateRecord(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const recordId = str(ctx.options.recordId);
   const fields = parseJsonFields(ctx.options.fields);
 
-  const res = await fetch(`${baseUrl(baseId, tableName)}/${encodeURIComponent(recordId)}`, {
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'PATCH',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify({ fields }),
+    url: `${baseUrl(baseId, tableName)}/${encodeURIComponent(recordId)}`,
+    tokenField: 'apiKey',
+    json: { fields },
   });
-  if (!res.ok) throw new Error(`Airtable update record failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Airtable update record failed: ${r.status}`);
 
   return { logs: [`Airtable: updated ${recordId} in ${baseId}/${tableName}`] };
 }
@@ -84,15 +82,17 @@ async function listRecords(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   const maxRecords = str(ctx.options.maxRecords) || '100';
   const outputVariable = str(ctx.options.outputVariable);
 
-  const url = new URL(baseUrl(baseId, tableName));
-  url.searchParams.set('maxRecords', maxRecords);
-
-  const res = await fetch(url.toString(), { headers: buildHeaders(ctx) });
-  const data: unknown = await res.json();
-  if (!res.ok) throw new Error(`Airtable list records failed: ${res.status}`);
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method: 'GET',
+    url: baseUrl(baseId, tableName),
+    tokenField: 'apiKey',
+    query: { maxRecords },
+  });
+  if (!r.ok) throw new Error(`Airtable list records failed: ${r.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = r.data;
   return { outputs, logs: [`Airtable: listed records from ${baseId}/${tableName}`] };
 }
 

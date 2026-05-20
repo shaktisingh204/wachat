@@ -91,7 +91,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_jira_trigger',
-  name: 'Jira Trigger (n8n)',
+  name: 'Jira Trigger',
   description:
     'Registration-info shim for Jira webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

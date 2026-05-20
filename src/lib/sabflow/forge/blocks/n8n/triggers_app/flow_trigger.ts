@@ -37,7 +37,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_flow_trigger',
   name: 'Flow Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Flow resource types n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Flow resource types.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

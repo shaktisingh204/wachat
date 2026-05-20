@@ -25,6 +25,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruStatCard,
   ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
@@ -38,7 +39,7 @@ import {
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import { Download, Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 /**
  * Expense Categories — settings-style list.
@@ -64,6 +65,7 @@ import {
     saveExpenseCategory,
 } from '@/app/actions/crm-expense-categories.actions';
 import type { CrmExpenseCategoryDoc } from '@/lib/rust-client/crm-expense-categories';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 /* ─── Types ──────────────────────────────────────────────────── */
 
@@ -523,6 +525,46 @@ export default function ExpenseCategoriesPage() {
               }).format(n)
             : '—';
 
+    // KPI derivations
+    const totalCategories = categories.length;
+    const activeCategories = categories.filter((c) => c.status === 'active').length;
+    const inactiveCategories = categories.filter((c) => c.status !== 'active').length;
+    // Top category by sub-category count (children whose parentId points to it)
+    const childCountById = new Map<string, number>();
+    for (const c of categories) {
+        if (c.parentId) {
+            childCountById.set(c.parentId, (childCountById.get(c.parentId) ?? 0) + 1);
+        }
+    }
+    let topCategoryName = '—';
+    let topCategoryCount = 0;
+    for (const [id, count] of childCountById) {
+        if (count > topCategoryCount) {
+            topCategoryCount = count;
+            topCategoryName = categories.find((c) => c._id === id)?.name ?? '—';
+        }
+    }
+
+    // Export CSV
+    const handleExport = () => {
+        const exportRows = filtered.map((c) => ({
+            Name: c.name,
+            Code: c.code ?? '',
+            Parent: c.parentId ? (parentNameById.get(c.parentId) ?? '') : '',
+            Status: c.status,
+            Billable: c.isBillable ? 'Yes' : 'No',
+            Reimbursable: c.isReimbursable ? 'Yes' : 'No',
+            'Tax rate': typeof c.taxRate === 'number' ? c.taxRate : '',
+            'Max amount': typeof c.maxAmount === 'number' ? c.maxAmount : '',
+        }));
+        downloadCsv(
+            `expense-categories-${dateStamp()}.csv`,
+            Object.keys(exportRows[0] ?? {}),
+            exportRows,
+        );
+        toast({ title: 'CSV exported' });
+    };
+
     return (
         <>
             <ExpenseCategoryDialog
@@ -537,9 +579,18 @@ export default function ExpenseCategoriesPage() {
                 title="Expense Categories"
                 subtitle="Classify expenses for accounting, billing, and reimbursement."
                 primaryAction={
-                    <ZoruButton onClick={() => handleOpenDialog(null)}>
-                        <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
-                    </ZoruButton>
+                    <div className="flex items-center gap-2">
+                        <ZoruButton
+                            variant="outline"
+                            onClick={handleExport}
+                            disabled={filtered.length === 0}
+                        >
+                            <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+                        </ZoruButton>
+                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
+                        </ZoruButton>
+                    </div>
                 }
                 search={{
                     value: search,
@@ -591,6 +642,17 @@ export default function ExpenseCategoriesPage() {
                 }
                 loading={isLoading && categories.length === 0}
             >
+                {/* KPI strip */}
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                    <ZoruStatCard label="Total categories" value={totalCategories.toLocaleString()} />
+                    <ZoruStatCard label="Active" value={activeCategories.toLocaleString()} />
+                    <ZoruStatCard label="Inactive" value={inactiveCategories.toLocaleString()} />
+                    <ZoruStatCard
+                        label="Top by sub-categories"
+                        value={topCategoryName}
+                    />
+                </div>
+
                 {/* Bulk bar */}
                 {hasSelection && (
                     <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">

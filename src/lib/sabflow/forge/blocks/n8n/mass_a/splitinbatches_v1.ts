@@ -14,7 +14,7 @@ const block: ForgeBlock = {
   id: 'forge_splitinbatches_v1',
   name: 'Split In Batches (v1)',
   description:
-    'Legacy n8n SplitInBatches v1 shape. Delegates to forge_split_in_batches.',
+    'Legacy SplitInBatches v1 shape. Delegates to forge_split_in_batches.',
   iconName: 'LuLayers',
   category: 'Logic',
   auth: { type: 'none' },

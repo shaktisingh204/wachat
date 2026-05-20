@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_twitter_v1',
   name: 'Twitter (v1)',
-  description: 'Legacy n8n Twitter v1 shape. Delegates to forge_twitter.',
+  description: 'Legacy Twitter v1 shape. Delegates to forge_twitter.',
   iconName: 'LuTwitter',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'twitter' },

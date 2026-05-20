@@ -1227,3 +1227,219 @@ export async function bulkHrAction(
   return result;
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk actions — recruitment (candidates · interviews · offers)
+ *
+ *  All are multi-tenant via hrBulk* which requires session internally.
+ *  Revalidate both crm + hrm twin paths.
+ * ══════════════════════════════════════════════════════════════════ */
+
+/* ── Candidates ───────────────────────────────────────────────── */
+
+export async function bulkShortlistCandidates(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_candidates', ids, 'screening', {
+    shortlistedAt: new Date(),
+  });
+  revalidatePair('candidates');
+  return r;
+}
+export async function bulkRejectCandidates(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_candidates', ids, 'rejected', {
+    rejectedAt: new Date(),
+  });
+  revalidatePair('candidates');
+  return r;
+}
+export async function bulkDeleteCandidates(ids: string[]) {
+  const r = await hrBulkDelete('hr_candidates', ids);
+  revalidatePair('candidates');
+  return r;
+}
+
+/* ── Interviews ───────────────────────────────────────────────── */
+
+export async function bulkCancelInterviews(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_interviews', ids, 'cancelled', {
+    cancelledAt: new Date(),
+  });
+  revalidatePair('interviews');
+  return r;
+}
+export async function bulkRescheduleInterviews(ids: string[]) {
+  // Mark as rescheduled — caller sets new slot via edit form.
+  const r = await hrBulkUpdateStatus('hr_interviews', ids, 'rescheduled');
+  revalidatePair('interviews');
+  return r;
+}
+export async function bulkDeleteInterviews(ids: string[]) {
+  const r = await hrBulkDelete('hr_interviews', ids);
+  revalidatePair('interviews');
+  return r;
+}
+
+/* ── Offers ───────────────────────────────────────────────────── */
+
+export async function bulkSendOffers(ids: string[]) {
+  const r = await hrBulkUpdateStatus('crm_offers', ids, 'sent', {
+    sentAt: new Date(),
+  });
+  revalidatePair('offers');
+  return r;
+}
+export async function bulkRevokeOffers(ids: string[]) {
+  const r = await hrBulkUpdateStatus('crm_offers', ids, 'withdrawn', {
+    withdrawnAt: new Date(),
+  });
+  revalidatePair('offers');
+  return r;
+}
+export async function bulkDeleteOffers(ids: string[]) {
+  const r = await hrBulkDelete('crm_offers', ids);
+  revalidatePair('offers');
+  return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk actions — weekly timesheets
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function bulkApproveTimesheets(ids: string[]) {
+  const r = await hrBulkUpdateStatus('crm_timesheets', ids, 'approved', {
+    approvedAt: new Date(),
+  });
+  revalidatePair('timesheets');
+  return r;
+}
+export async function bulkRejectTimesheets(ids: string[]) {
+  const r = await hrBulkUpdateStatus('crm_timesheets', ids, 'rejected', {
+    rejectedAt: new Date(),
+  });
+  revalidatePair('timesheets');
+  return r;
+}
+export async function bulkDeleteTimesheets(ids: string[]) {
+  const r = await hrBulkDelete('crm_timesheets', ids);
+  revalidatePair('timesheets');
+  return r;
+}
+
+/* ── Timesheet KPIs ──────────────────────────────────────────── */
+
+export interface HrTimesheetKpis {
+  total: number;
+  submitted: number;
+  approved: number;
+  rejected: number;
+}
+
+export async function getTimesheetKpis(): Promise<HrTimesheetKpis> {
+  const empty: HrTimesheetKpis = { total: 0, submitted: 0, approved: 0, rejected: 0 };
+  const rows = await hrList<HrTimesheet>('crm_timesheets');
+  if (!rows) return empty;
+  let submitted = 0;
+  let approved = 0;
+  let rejected = 0;
+  for (const r of rows as any[]) {
+    const s = String(r.status ?? 'draft');
+    if (s === 'submitted') submitted++;
+    else if (s === 'approved') approved++;
+    else if (s === 'rejected') rejected++;
+  }
+  return { total: rows.length, submitted, approved, rejected };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk actions + KPIs — disciplinary cases
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface HrDisciplinaryCase {
+  _id: string;
+  caseNo?: string;
+  employeeId?: string;
+  employeeName?: string;
+  severity?: string;
+  type?: string;
+  raisedById?: string;
+  raisedByName?: string;
+  decision?: string;
+  status?: string;
+  createdAt?: string;
+  resolvedAt?: string;
+}
+
+export async function getDisciplinaryCases(): Promise<HrDisciplinaryCase[]> {
+  const session = await getSession();
+  if (!session?.user?._id) return [];
+  try {
+    const { db } = await connectToDatabase();
+    const docs = await db
+      .collection('crm_disciplinary_cases')
+      .find({ userId: new ObjectId(session.user._id as string) })
+      .sort({ createdAt: -1 })
+      .limit(500)
+      .toArray();
+    return JSON.parse(JSON.stringify(docs)) as HrDisciplinaryCase[];
+  } catch {
+    return [];
+  }
+}
+
+export async function bulkCloseDisciplinaryCases(ids: string[]) {
+  const r = await hrBulkUpdateStatus('crm_disciplinary_cases', ids, 'closed', {
+    resolvedAt: new Date(),
+  });
+  revalidatePair('disciplinary');
+  return r;
+}
+export async function bulkArchiveDisciplinaryCases(ids: string[]) {
+  const r = await hrBulkArchive('crm_disciplinary_cases', ids);
+  revalidatePair('disciplinary');
+  return r;
+}
+export async function bulkDeleteDisciplinaryCases(ids: string[]) {
+  const r = await hrBulkDelete('crm_disciplinary_cases', ids);
+  revalidatePair('disciplinary');
+  return r;
+}
+
+export interface HrDisciplinaryKpis {
+  total: number;
+  open: number;
+  resolved: number;
+  warningsIssued: number;
+}
+
+export async function getDisciplinaryKpis(): Promise<HrDisciplinaryKpis> {
+  const empty: HrDisciplinaryKpis = { total: 0, open: 0, resolved: 0, warningsIssued: 0 };
+  const rows = await hrList<any>('crm_disciplinary_cases');
+  if (!rows) return empty;
+  let open = 0;
+  let resolved = 0;
+  let warnings = 0;
+  for (const r of rows as any[]) {
+    const s = String(r.status ?? 'open').toLowerCase();
+    if (s === 'open' || s === 'under_review') open++;
+    else if (s === 'resolved' || s === 'dismissed' || s === 'closed') resolved++;
+    const t = String(r.type ?? '').toLowerCase();
+    if (t === 'warning' || t === 'written_warning' || t === 'verbal_warning') warnings++;
+  }
+  return { total: rows.length, open, resolved, warningsIssued: warnings };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  KPIs — recruitment (candidates · jobs · interviews · offers)
+ *
+ *  Thin re-export wrappers so list-pages can import from one file.
+ *  The real aggregation lives in `hr-recruitment-kpis.actions.ts`.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export {
+  getCandidateKpis,
+  getJobKpis,
+  getInterviewKpis,
+  getOfferKpis,
+  type CandidateKpis,
+  type JobKpis,
+  type InterviewKpis,
+  type OfferKpis,
+} from './hr-recruitment-kpis.actions';

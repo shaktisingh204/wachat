@@ -18,7 +18,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_slack_v1',
   name: 'Slack (v1)',
-  description: 'Legacy n8n Slack v1 shape. Delegates to forge_slack.',
+  description: 'Legacy Slack v1 shape. Delegates to forge_slack.',
   iconName: 'LuSlack',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'slack' },

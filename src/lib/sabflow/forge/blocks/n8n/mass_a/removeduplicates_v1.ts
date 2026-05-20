@@ -14,7 +14,7 @@ const block: ForgeBlock = {
   id: 'forge_removeduplicates_v1',
   name: 'Remove Duplicates (v1)',
   description:
-    'Legacy n8n RemoveDuplicates v1 shape. Delegates to forge_remove_duplicates.',
+    'Legacy RemoveDuplicates v1 shape. Delegates to forge_remove_duplicates.',
   iconName: 'LuCopyMinus',
   category: 'Logic',
   auth: { type: 'none' },

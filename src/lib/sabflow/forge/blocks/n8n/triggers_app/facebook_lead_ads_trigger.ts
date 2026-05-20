@@ -35,7 +35,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_facebook_lead_ads_trigger',
   name: 'Facebook Lead Ads Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Facebook Lead Ads new-lead event n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Facebook Lead Ads new-lead event.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

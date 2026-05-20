@@ -37,7 +37,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_gumroad_trigger',
   name: 'Gumroad Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Gumroad resource subscriptions n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Gumroad resource subscriptions.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

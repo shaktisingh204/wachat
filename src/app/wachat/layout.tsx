@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 /**
  * /wachat layout — phase 0 of the wachat → ZoruUI migration.
  *

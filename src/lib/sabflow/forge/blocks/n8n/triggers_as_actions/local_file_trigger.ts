@@ -52,7 +52,7 @@ async function readFileOnce(ctx: ForgeActionContext): Promise<ForgeActionResult>
 
 const block: ForgeBlock = {
   id: 'forge_local_file_trigger',
-  name: 'Local File Trigger (n8n)',
+  name: 'Local File Trigger',
   description: 'Read a local file once. Actual fs.watch change detection is part of the trigger system.',
   iconName: 'LuFile',
   category: 'Integration',

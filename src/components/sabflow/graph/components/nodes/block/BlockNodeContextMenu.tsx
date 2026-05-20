@@ -1,6 +1,13 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { LuSettings2, LuCopy, LuTrash2, LuPin, LuPinOff } from 'react-icons/lu';
+import {
+  LuSettings2,
+  LuCopy,
+  LuTrash2,
+  LuPin,
+  LuPinOff,
+  LuPlay,
+} from 'react-icons/lu';
 
 type Props = {
   x: number;
@@ -14,6 +21,9 @@ type Props = {
    *  omitted (e.g. for trigger event nodes that can't be pinned) the
    *  menu item is hidden. */
   onTogglePin?: () => void;
+  /** Fired when the user picks "Run from here". Optional — when omitted
+   *  the menu item is hidden (e.g. read-only flows, trigger nodes). */
+  onRunFrom?: () => void;
   onDelete: () => void;
   onClose: () => void;
 };
@@ -25,6 +35,7 @@ export function BlockNodeContextMenu({
   onSettings,
   onDuplicate,
   onTogglePin,
+  onRunFrom,
   onDelete,
   onClose,
 }: Props) {
@@ -65,6 +76,11 @@ export function BlockNodeContextMenu({
     onClose();
   };
 
+  const handleRunFrom = () => {
+    onRunFrom?.();
+    onClose();
+  };
+
   const handleDelete = () => {
     onDelete();
     onClose();
@@ -85,6 +101,20 @@ export function BlockNodeContextMenu({
         <LuSettings2 className="h-3.5 w-3.5 shrink-0 text-[var(--gray-10)]" />
         Settings
       </button>
+
+      {onRunFrom && (
+        <button
+          type="button"
+          className="flex w-full items-center gap-2.5 px-3 py-2 text-[12.5px] text-[var(--gray-12)] hover:bg-[var(--gray-3)] transition-colors"
+          onClick={handleRunFrom}
+        >
+          <LuPlay
+            className="h-3.5 w-3.5 shrink-0 text-[var(--green-10)]"
+            strokeWidth={2.5}
+          />
+          Run from here
+        </button>
+      )}
 
       <button
         type="button"

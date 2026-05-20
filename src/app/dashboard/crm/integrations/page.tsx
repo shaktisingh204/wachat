@@ -1,11 +1,15 @@
 import { ZoruBadge, ZoruCard, cn } from '@/components/zoruui';
 import {
-  Zap,
-  Mail,
-  Bot,
-  ShoppingCart,
-  MessageSquare,
-  Megaphone } from 'lucide-react';
+    AlertTriangle,
+    Bot,
+    Link2,
+    Link2Off,
+    Mail,
+    Megaphone,
+    MessageSquare,
+    ShoppingCart,
+    Zap,
+} from 'lucide-react';
 
 import { getIntegrationTypes } from '@/app/actions/crm-integrations.actions';
 
@@ -14,126 +18,163 @@ export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 
 const btnBase =
-  'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
-const btnObsidian =
-  'bg-zoru-ink text-white hover:bg-zoru-ink/90';
+    'inline-flex h-9 w-full items-center justify-center gap-2 rounded-full px-4 text-[13px] font-medium leading-none transition-colors';
+const btnObsidian = 'bg-zoru-ink text-white hover:bg-zoru-ink/90';
 const btnRoseSoft =
-  'bg-accent text-accent-foreground border border-accent hover:brightness-[0.97]';
+    'bg-accent text-accent-foreground border border-accent hover:brightness-[0.97]';
 const btnDisabled =
-  'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
+    'bg-zoru-bg text-zoru-ink-muted border border-zoru-line opacity-60 pointer-events-none';
 
 type IntegrationStatus = 'connected' | 'available' | 'coming_soon';
 
 interface Integration {
-  name: string;
-  icon: React.ElementType;
-  description: string;
-  status: IntegrationStatus;
-  link?: string;
+    name: string;
+    icon: React.ElementType;
+    description: string;
+    status: IntegrationStatus;
+    link?: string;
 }
 
 export default async function IntegrationsPage() {
-  const status = await getIntegrationTypes();
+    const status = await getIntegrationTypes();
 
-  const integrations: Integration[] = [
-    {
-      name: 'Gmail',
-      icon: Mail,
-      description: 'Sync your emails and contacts directly from Gmail.',
-      status: status.gmail ? 'connected' : 'available',
-      link: '/dashboard/email/settings',
-    },
-    {
-      name: 'WhatsApp',
-      icon: MessageSquare,
-      description: 'Connect your WhatsApp Business API for direct messaging.',
-      status: status.whatsapp ? 'connected' : 'available',
-      link: '/dashboard/settings/whatsapp',
-    },
-    {
-      name: 'Facebook Lead Ads',
-      icon: Megaphone,
-      description: 'Auto-create CRM leads from Facebook Lead Ad forms in real-time.',
-      status: status.facebook ? 'connected' : 'available',
-      link: '/dashboard/crm/settings/integrations/facebook-ads',
-    },
-    {
-      name: 'Shopify',
-      icon: ShoppingCart,
-      description: 'Sync customers, products, and orders directly from your Shopify store.',
-      status: status.shopify ? 'connected' : 'coming_soon',
-    },
-    {
-      name: 'Zapier',
-      icon: Zap,
-      description: 'Connect your CRM to thousands of other apps with Zapier automation.',
-      status: status.zapier ? 'connected' : 'coming_soon',
-    },
-    {
-      name: 'Slack',
-      icon: Bot,
-      description: 'Get real-time notifications for new leads, deals, and tasks in Slack.',
-      status: status.slack ? 'connected' : 'coming_soon',
-    },
-  ];
+    const integrations: Integration[] = [
+        {
+            name: 'Gmail',
+            icon: Mail,
+            description: 'Sync your emails and contacts directly from Gmail.',
+            status: status.gmail ? 'connected' : 'available',
+            link: '/dashboard/email/settings',
+        },
+        {
+            name: 'WhatsApp',
+            icon: MessageSquare,
+            description: 'Connect your WhatsApp Business API for direct messaging.',
+            status: status.whatsapp ? 'connected' : 'available',
+            link: '/dashboard/settings/whatsapp',
+        },
+        {
+            name: 'Facebook Lead Ads',
+            icon: Megaphone,
+            description: 'Auto-create CRM leads from Facebook Lead Ad forms in real-time.',
+            status: status.facebook ? 'connected' : 'available',
+            link: '/dashboard/crm/settings/integrations/facebook-ads',
+        },
+        {
+            name: 'Shopify',
+            icon: ShoppingCart,
+            description: 'Sync customers, products, and orders directly from your Shopify store.',
+            status: status.shopify ? 'connected' : 'coming_soon',
+        },
+        {
+            name: 'Zapier',
+            icon: Zap,
+            description: 'Connect your CRM to thousands of other apps with Zapier automation.',
+            status: status.zapier ? 'connected' : 'coming_soon',
+        },
+        {
+            name: 'Slack',
+            icon: Bot,
+            description: 'Get real-time notifications for new leads, deals, and tasks in Slack.',
+            status: status.slack ? 'connected' : 'coming_soon',
+        },
+    ];
 
-  return (
-    <EntityListShell
-      title="Integrations"
-      subtitle="Connect your CRM to other tools and services to streamline your workflow."
-    >
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {integrations.map((integration) => {
-          const Icon = integration.icon;
-          const connected = integration.status === 'connected';
+    const totalCount = integrations.length;
+    const connectedCount = integrations.filter((i) => i.status === 'connected').length;
+    const disconnectedCount = integrations.filter((i) => i.status === 'available').length;
+    const comingSoonCount = integrations.filter((i) => i.status === 'coming_soon').length;
 
-          return (
-            <ZoruCard key={integration.name} className="flex h-full flex-col p-6">
-              <div className="flex items-start gap-3">
-                <div
-                  className={
-                    'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
-                    (connected
-                      ? 'bg-emerald-50 text-emerald-500'
-                      : 'bg-accent text-accent-foreground')
-                  }
-                >
-                  <Icon className="h-5 w-5" strokeWidth={1.75} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-[14.5px] font-semibold text-zoru-ink">
-                      {integration.name}
-                    </h3>
-                    {connected ? (
-                      <ZoruBadge variant="success">Connected</ZoruBadge>
-                    ) : null}
-                  </div>
-                  <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
-                    {integration.description}
-                  </p>
-                </div>
-              </div>
+    const kpis: HubKpi[] = [
+        {
+            label: 'Total integrations',
+            value: totalCount,
+            icon: Link2,
+        },
+        {
+            label: 'Connected',
+            value: connectedCount,
+            icon: Link2,
+            tone: connectedCount > 0 ? 'success' : 'default',
+        },
+        {
+            label: 'Available to connect',
+            value: disconnectedCount,
+            icon: Link2Off,
+        },
+        {
+            label: 'Coming soon',
+            value: comingSoonCount,
+            icon: AlertTriangle,
+        },
+    ];
 
-              <div className="mt-5 flex-1" />
+    return (
+        <EntityListShell
+            title="Integrations"
+            subtitle="Connect your CRM to other tools and services to streamline your workflow."
+        >
+            <HubKpiGrid kpis={kpis} />
 
-              {connected ? (
-                <Link href={integration.link || '#'} className={cn(btnBase, btnRoseSoft)}>
-                  Manage
-                </Link>
-              ) : integration.status === 'available' ? (
-                <Link href={integration.link || '#'} className={cn(btnBase, btnObsidian)}>
-                  Connect
-                </Link>
-              ) : (
-                <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
-              )}
-            </ZoruCard>
-          );
-        })}
-      </div>
-    </EntityListShell>
-  );
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {integrations.map((integration) => {
+                    const Icon = integration.icon;
+                    const connected = integration.status === 'connected';
+
+                    return (
+                        <ZoruCard key={integration.name} className="flex h-full flex-col p-6">
+                            <div className="flex items-start gap-3">
+                                <div
+                                    className={
+                                        'flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ' +
+                                        (connected
+                                            ? 'bg-emerald-50 text-emerald-500'
+                                            : 'bg-accent text-accent-foreground')
+                                    }
+                                >
+                                    <Icon className="h-5 w-5" strokeWidth={1.75} />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="text-[14.5px] font-semibold text-zoru-ink">
+                                            {integration.name}
+                                        </h3>
+                                        {connected ? (
+                                            <ZoruBadge variant="success">Connected</ZoruBadge>
+                                        ) : null}
+                                    </div>
+                                    <p className="mt-1 text-[12.5px] leading-snug text-zoru-ink-muted">
+                                        {integration.description}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div className="mt-5 flex-1" />
+
+                            {connected ? (
+                                <Link
+                                    href={integration.link || '#'}
+                                    className={cn(btnBase, btnRoseSoft)}
+                                >
+                                    Manage
+                                </Link>
+                            ) : integration.status === 'available' ? (
+                                <Link
+                                    href={integration.link || '#'}
+                                    className={cn(btnBase, btnObsidian)}
+                                >
+                                    Connect
+                                </Link>
+                            ) : (
+                                <span className={cn(btnBase, btnDisabled)}>Coming Soon</span>
+                            )}
+                        </ZoruCard>
+                    );
+                })}
+            </div>
+        </EntityListShell>
+    );
 }

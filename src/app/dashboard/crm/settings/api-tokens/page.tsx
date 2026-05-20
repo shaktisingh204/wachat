@@ -31,6 +31,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSkeleton,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -238,6 +239,14 @@ export default function CrmApiTokensPage() {
     };
 
     const activeCount = rows.filter((r) => !r.revoked).length;
+    const revokedCount = rows.filter((r) => r.revoked).length;
+    const now = Date.now();
+    const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+    const expiringSoonCount = rows.filter((r) => {
+        if (r.revoked || !r.expiresAt) return false;
+        const exp = new Date(r.expiresAt).getTime();
+        return exp > now && exp - now < thirtyDays;
+    }).length;
     const hasSelection = selectedIds.length > 0;
 
     return (
@@ -281,6 +290,14 @@ export default function CrmApiTokensPage() {
                     </div>
                 </div>
             </ZoruPageHeader>
+
+            {/* KPI strip */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <ZoruStatCard label="Total tokens" value={rows.length.toLocaleString()} />
+                <ZoruStatCard label="Active" value={activeCount.toLocaleString()} />
+                <ZoruStatCard label="Expiring soon" value={expiringSoonCount.toLocaleString()} />
+                <ZoruStatCard label="Revoked" value={revokedCount.toLocaleString()} />
+            </div>
 
             {/* Filter row */}
             <div className="flex flex-wrap items-center gap-2">

@@ -1,36 +1,66 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruDatePicker,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    ZoruButton,
+    ZoruCard,
+    ZoruDatePicker,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
-import { Download } from "lucide-react";
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateClientPerformanceReportData, generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
-import { LoaderCircle } from 'lucide-react';
+import { Download, LoaderCircle, TrendingUp, Users } from 'lucide-react';
+import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
+import {
+    generateClientPerformanceReportData,
+    generateTeamSalesReportData,
+} from '@/app/actions/crm-reports.actions';
 import Papa from 'papaparse';
-
-import { format } from "date-fns";
+import { format } from 'date-fns';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
+interface ReportRow {
+    clientId: string;
+    clientName: string;
+    totalRevenue: number;
+    leadConversionRate: number;
+    leadsGenerated: number;
+    openLeads: number;
+    closedLeads: number;
+    lostLeads: number;
+    notServiceable: number;
+    avgDealValue: number;
+    lastLeadActivityOn?: string | null;
+}
+
+interface UserOption {
+    salespersonId: string;
+    salespersonName: string;
+}
+
 export default function ClientPerformanceReportPage() {
-    const [reportData, setReportData] = useState<any[]>([]);
-    const [users, setUsers] = useState<any[]>([]);
+    const [reportData, setReportData] = useState<ReportRow[]>([]);
+    const [users, setUsers] = useState<UserOption[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useZoruToast();
 
@@ -41,7 +71,7 @@ export default function ClientPerformanceReportPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const [{ data, users }, clientData] = await Promise.all([
+            const [{ data, users: teamUsers }, clientData] = await Promise.all([
                 generateTeamSalesReportData({}),
                 generateClientPerformanceReportData({
                     createdFrom: startDate,
@@ -50,8 +80,11 @@ export default function ClientPerformanceReportPage() {
                     assigneeId,
                 }),
             ]);
-            setUsers(users);
-            setReportData(clientData);
+            setUsers(teamUsers as UserOption[]);
+            setReportData(
+                Array.isArray(clientData) ? (clientData as ReportRow[]) : [],
+            );
+            void data;
         });
     }, [startDate, endDate, pipelineId, assigneeId]);
 
@@ -59,18 +92,50 @@ export default function ClientPerformanceReportPage() {
         fetchData();
     }, [fetchData]);
 
+    /* ─── KPIs ──────────────────────────────────────────────────── */
+
+    const kpis = useMemo(() => {
+        if (reportData.length === 0) {
+            return { topRevenue: 0, activeClients: 0, avgOrderValue: 0, avgConvRate: 0 };
+        }
+        const topRevenue = Math.max(...reportData.map((d) => d.totalRevenue));
+        const activeClients = reportData.filter((d) => d.leadsGenerated > 0).length;
+        const avgOrderValue =
+            reportData.reduce((s, d) => s + d.avgDealValue, 0) / reportData.length;
+        const avgConvRate =
+            reportData.reduce((s, d) => s + d.leadConversionRate, 0) / reportData.length;
+        return { topRevenue, activeClients, avgOrderValue, avgConvRate };
+    }, [reportData]);
+
+    /* ─── Bar chart data (top 10 by revenue) ──────────────────── */
+
+    const chartData = useMemo(
+        () =>
+            [...reportData]
+                .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                .slice(0, 10)
+                .map((d) => ({ name: d.clientName, Revenue: Math.round(d.totalRevenue) })),
+        [reportData],
+    );
+
+    /* ─── Export ────────────────────────────────────────────────── */
+
     const handleDownload = () => {
         if (reportData.length === 0) {
-            toast({ title: 'No Data', description: 'There is no report data to download.' });
+            toast({ title: 'No data', description: 'No report data to download.' });
             return;
         }
-        const csv = Papa.unparse(reportData.map(d => ({
-            ...d,
-            totalRevenue: d.totalRevenue.toFixed(2),
-            leadConversionRate: `${d.leadConversionRate.toFixed(1)}%`,
-            avgDealValue: d.avgDealValue.toFixed(2),
-            lastLeadActivityOn: d.lastLeadActivityOn ? format(new Date(d.lastLeadActivityOn), 'PPP') : 'N/A',
-        })));
+        const csv = Papa.unparse(
+            reportData.map((d) => ({
+                ...d,
+                totalRevenue: d.totalRevenue.toFixed(2),
+                leadConversionRate: `${d.leadConversionRate.toFixed(1)}%`,
+                avgDealValue: d.avgDealValue.toFixed(2),
+                lastLeadActivityOn: d.lastLeadActivityOn
+                    ? format(new Date(d.lastLeadActivityOn), 'PPP')
+                    : 'N/A',
+            })),
+        );
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -93,33 +158,129 @@ export default function ClientPerformanceReportPage() {
             subtitle="Analyze revenue and lead metrics for each client account."
             primaryAction={
                 <ZoruButton variant="outline" onClick={handleDownload}>
-                    Download CSV
+                    <Download className="h-3.5 w-3.5" /> Download CSV
                 </ZoruButton>
             }
         >
+            {/* KPI strip */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <ZoruStatCard
+                    label="Top client revenue"
+                    value={`₹${kpis.topRevenue.toLocaleString()}`}
+                    icon={<TrendingUp />}
+                    period="single client max"
+                />
+                <ZoruStatCard
+                    label="Active clients"
+                    value={kpis.activeClients.toLocaleString()}
+                    icon={<Users />}
+                    period="with leads generated"
+                />
+                <ZoruStatCard
+                    label="Avg order value"
+                    value={`₹${kpis.avgOrderValue.toFixed(0)}`}
+                    icon={<TrendingUp />}
+                    period="across all clients"
+                />
+                <ZoruStatCard
+                    label="Avg conversion rate"
+                    value={`${kpis.avgConvRate.toFixed(1)}%`}
+                    icon={<TrendingUp />}
+                    period="lead → closed"
+                />
+            </div>
 
+            {/* Filters */}
             <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Lead Created At</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Pipeline</ZoruLabel><ZoruSelect value={pipelineId} onValueChange={setPipelineId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Pipelines" /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Assigned To</ZoruLabel><ZoruSelect value={assigneeId} onValueChange={setAssigneeId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Assignees" /></ZoruSelectTrigger><ZoruSelectContent>{users.map(u => <ZoruSelectItem key={u.salespersonId} value={u.salespersonId}>{u.salespersonName}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Lead created from</ZoruLabel>
+                        <ZoruDatePicker
+                            value={startDate}
+                            onChange={(d) => setStartDate(d ?? undefined)}
+                            placeholder="Start date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Lead created to</ZoruLabel>
+                        <ZoruDatePicker
+                            value={endDate}
+                            onChange={(d) => setEndDate(d ?? undefined)}
+                            placeholder="End date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
+                        <ZoruSelect value={pipelineId} onValueChange={setPipelineId}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="All pipelines" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="">All pipelines</ZoruSelectItem>
+                                <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Assigned to</ZoruLabel>
+                        <ZoruSelect value={assigneeId} onValueChange={setAssigneeId}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="All assignees" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="">All assignees</ZoruSelectItem>
+                                {users.map((u) => (
+                                    <ZoruSelectItem key={u.salespersonId} value={u.salespersonId}>
+                                        {u.salespersonName}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
                 </div>
                 <div className="mt-4 flex gap-2">
                     <ZoruButton onClick={fetchData} disabled={isLoading}>
                         Apply Filters
                     </ZoruButton>
-                    <ZoruButton variant="ghost" onClick={clearFilters}>Clear Filters</ZoruButton>
+                    <ZoruButton variant="ghost" onClick={clearFilters}>
+                        Clear Filters
+                    </ZoruButton>
                 </div>
             </ZoruCard>
 
+            {/* Bar chart — top 10 clients by revenue */}
+            {chartData.length > 0 ? (
+                <ZoruCard>
+                    <div className="mb-4">
+                        <h2 className="text-[16px] font-semibold text-foreground">
+                            Top clients by revenue
+                        </h2>
+                        <p className="text-[12px] text-muted-foreground">
+                            Showing top {chartData.length} clients.
+                        </p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={chartData} layout="vertical">
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis dataKey="name" type="category" width={130} />
+                            <Tooltip formatter={(v: number) => [`₹${v.toLocaleString()}`, 'Revenue']} />
+                            <Bar dataKey="Revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </ZoruCard>
+            ) : null}
+
+            {/* Data table */}
             <ZoruCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Report Data</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Showing {reportData.length} of {reportData.length} clients.</p>
+                    <h2 className="text-[16px] font-semibold text-foreground">Report data</h2>
+                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                        Showing {reportData.length} client(s).
+                    </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
                     <ZoruTable>
@@ -127,36 +288,69 @@ export default function ClientPerformanceReportPage() {
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Client</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Total Revenue</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Lead Conversion Rate</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Leads Generated</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Open Leads</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Closed Leads</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Lost Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Conv. Rate</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Leads</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Open</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Closed</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Lost</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Not Serviceable</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Avg. Deal Value</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Last Lead Activity On</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Avg Deal</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Last Activity</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={10} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={10} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : reportData.length > 0 ? (
-                                reportData.map(row => (
+                                reportData.map((row) => (
                                     <ZoruTableRow key={row.clientId} className="border-border">
-                                        <ZoruTableCell className="font-medium text-foreground">{row.clientName}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.leadConversionRate.toFixed(1)}%</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.leadsGenerated}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.openLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="text-green-600">{row.closedLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="text-red-600">{row.lostLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.notServiceable}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.lastLeadActivityOn ? format(new Date(row.lastLeadActivityOn), 'PPP') : 'N/A'}</ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">
+                                            {row.clientName}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            ₹{row.totalRevenue.toLocaleString()}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.leadConversionRate.toFixed(1)}%
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.leadsGenerated}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.openLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-green-600">
+                                            {row.closedLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-red-600">
+                                            {row.lostLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.notServiceable}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            ₹{row.avgDealValue.toLocaleString()}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.lastLeadActivityOn
+                                                ? format(new Date(row.lastLeadActivityOn), 'PPP')
+                                                : 'N/A'}
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={10} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell
+                                        colSpan={10}
+                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                    >
+                                        No data for selected filters.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
                         </ZoruTableBody>
                     </ZoruTable>

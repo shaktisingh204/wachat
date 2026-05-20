@@ -76,7 +76,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_linear_trigger',
-  name: 'Linear Trigger (n8n)',
+  name: 'Linear Trigger',
   description:
     'Registration-info shim for Linear webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

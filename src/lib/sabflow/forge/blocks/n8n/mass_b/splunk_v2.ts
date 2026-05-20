@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_splunk_v2',
   name: 'Splunk (v2)',
-  description: 'Legacy n8n Splunk v2 shape. Delegates to forge_splunk.',
+  description: 'Legacy Splunk v2 shape. Delegates to forge_splunk.',
   iconName: 'LuSearch',
   category: 'Integration',
   auth: { type: 'none' },

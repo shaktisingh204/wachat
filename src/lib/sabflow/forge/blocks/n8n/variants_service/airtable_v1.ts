@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_airtable_v1',
   name: 'Airtable (v1)',
-  description: 'Legacy n8n Airtable v1 shape. Delegates to forge_airtable.',
+  description: 'Legacy Airtable v1 shape. Delegates to forge_airtable.',
   iconName: 'LuTable',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'airtable' },

@@ -91,7 +91,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_clickup_trigger',
-  name: 'ClickUp Trigger (n8n)',
+  name: 'ClickUp Trigger',
   description:
     'Registration-info shim for ClickUp webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

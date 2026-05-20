@@ -14,7 +14,7 @@ const block: ForgeBlock = {
   id: 'forge_http_request_v3',
   name: 'HTTP Request (v3)',
   description:
-    'Legacy n8n HTTP Request v3 shape. Delegates to forge_http_request.',
+    'Legacy HTTP Request v3 shape. Delegates to forge_http_request.',
   iconName: 'LuGlobe',
   category: 'Integration',
   auth: { type: 'none' },

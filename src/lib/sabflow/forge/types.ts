@@ -123,12 +123,42 @@ export type ForgeLoadOptionsContext = {
   getCurrentNodeParameter?: (name: string, fallback?: unknown) => unknown;
   /** Minimal node identity exposed for diagnostics + provider call attribution. */
   getNode?: () => { id: string; name: string };
+  /**
+   * `helpers.requestWithAuthentication(auth, req)` — Phase 4 platform-owned
+   * HTTP fetcher. Closes over the resolved credential so resolvers never
+   * see raw tokens. Optional for back-compat: legacy resolvers that hand-
+   * roll fetch via `ctx.credential` keep working unchanged.
+   */
+  helpers?: import('./helpers').ForgeHelpers;
+  /**
+   * Type-ahead query forwarded from the editor (Phase 3). Resolvers SHOULD
+   * apply server-side filtering when their provider supports it.
+   */
+  filter?: string;
+  /**
+   * Opaque cursor returned by a previous page (Phase 3). Forwarded back to
+   * the provider's "next page" call. Resolvers that don't paginate ignore.
+   */
+  paginationToken?: string | null;
 };
+
+/**
+ * Result shape of a `loadOptions` resolver (Phase 3 union):
+ *   • plain array — for static / fully-loaded lists (one page, no cursor)
+ *   • envelope `{ results, paginationToken }` — for paginated providers
+ * `paginationToken: null` means the cursor is exhausted.
+ */
+export type ForgeLoadOptionsResult =
+  | ForgeSelectOption[]
+  | {
+      results: ForgeSelectOption[];
+      paginationToken?: string | null;
+    };
 
 /** Async resolver that returns dropdown options at runtime. */
 export type ForgeLoadOptions = (
   ctx: ForgeLoadOptionsContext,
-) => Promise<ForgeSelectOption[]>;
+) => Promise<ForgeLoadOptionsResult>;
 
 export type ForgeField = {
   /** Unique field id — becomes the key inside the options object. */
@@ -218,6 +248,13 @@ export type ForgeActionContext = {
    * Undefined when no iteration is in progress.
    */
   currentItem?: Record<string, unknown>;
+  /**
+   * `helpers.requestWithAuthentication(auth, req)` — Phase 4 platform-owned
+   * HTTP fetcher. Closes over the resolved credential so actions never see
+   * raw tokens. Optional for back-compat with legacy `fetch(..., { headers:
+   * { Authorization: 'Bearer ' + ctx.credential!.accessToken }})` patterns.
+   */
+  helpers?: import('./helpers').ForgeHelpers;
 };
 
 export type ForgeActionResult = {
@@ -239,6 +276,19 @@ export type ForgeActionResult = {
    * block declares only a single output.
    */
   selectedOutput?: string;
+  /**
+   * Per-item branching (Phase 12): split items across multiple output
+   * ports in a single run. Keys are output port `name`s (matching the
+   * block's `outputs` declaration); values are the items routed to that
+   * port. The executor reads each port's items and distributes them to
+   * the matching downstream branch (`sourceHandle: 'outputs/main/<idx>'`).
+   *
+   * When set, `itemsByOutput` takes precedence over `selectedOutput` /
+   * `items` for routing — actions that need true per-item splits return
+   * this instead. The first non-empty branch's items also become the
+   * legacy `forgeItems` so single-output downstream readers keep working.
+   */
+  itemsByOutput?: Record<string, Array<Record<string, unknown>>>;
   /** Human-readable log lines appended to the run transcript. */
   logs?: string[];
 };

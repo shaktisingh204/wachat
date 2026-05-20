@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_gmail_v1',
   name: 'Gmail (v1)',
-  description: 'Legacy n8n Gmail v1 shape. Delegates to forge_gmail.',
+  description: 'Legacy Gmail v1 shape. Delegates to forge_gmail.',
   iconName: 'LuMail',
   category: 'Integration',
   auth: { type: 'none' },

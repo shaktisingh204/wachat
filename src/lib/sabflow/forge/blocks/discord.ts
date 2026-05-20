@@ -24,12 +24,12 @@ async function sendWebhookMessage(ctx: ForgeActionContext): Promise<ForgeActionR
   if (username) body.username = username;
   if (avatarUrl) body.avatar_url = avatarUrl;
 
-  const res = await fetch(webhookUrl, {
+  const r = await ctx.helpers!.httpRequest({
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    url: webhookUrl,
+    json: body,
   });
-  if (!res.ok) throw new Error(`Discord webhook failed: ${res.status}`);
+  if (!r.ok) throw new Error(`Discord webhook failed: ${r.status}`);
 
   return { logs: ['Discord: webhook message delivered'] };
 }

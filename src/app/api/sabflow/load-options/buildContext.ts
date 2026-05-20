@@ -19,6 +19,7 @@ import type {
   ForgeLoadOptionsContext,
 } from '@/lib/sabflow/forge/types';
 import { extractValue, isResourceLocatorValue } from '@/lib/sabflow/forge/extractValue';
+import { makeHelpers } from '@/lib/sabflow/forge/helpers';
 
 export type BuildLoadOptionsContextArgs = {
   block: ForgeBlock;
@@ -68,6 +69,7 @@ export function buildLoadOptionsContext(
     getNodeParameter: readParam,
     getCurrentNodeParameter: readParam,
     getNode: () => ({ id: block.id, name: block.name }),
+    helpers: makeHelpers(credential),
     filter,
     paginationToken,
   };

@@ -30,7 +30,7 @@ async function defineForm(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_form_n8n',
-  name: 'Form (n8n)',
+  name: 'Form (Legacy)',
   description: 'Define a form spec (declarative — use SabFlow input blocks at runtime).',
   iconName: 'LuClipboardList',
   category: 'Input',
@@ -39,7 +39,7 @@ const block: ForgeBlock = {
     {
       id: 'define_form',
       label: 'Define form',
-      description: 'Build a form schema for migration parity with n8n.',
+      description: 'Build a form schema for legacy migration parity.',
       fields: [
         { id: 'title', label: 'Form title', type: 'text' },
         { id: 'description', label: 'Description', type: 'textarea' },

@@ -16,6 +16,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
   ZoruSkeleton,
+  ZoruStatCard,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -23,8 +24,9 @@ import {
   useCallback,
   useEffect,
   useState,
-  useTransition } from 'react';
-import { LoaderCircle } from 'lucide-react';
+  useTransition,
+} from 'react';
+import { Building2, Clock, DollarSign, Globe, LoaderCircle } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -79,13 +81,17 @@ export default function GlobalSettingsPage() {
       refresh();
     }
     if (saveState?.error) {
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
     }
   }, [saveState, toast, refresh]);
+
+  // resolve currency label for KPI
+  const currencyLabel =
+    currencies.find(
+      (c) => String((c as unknown as { _id: string })._id) === currencyId,
+    )?.currency_code ??
+    currencyId ??
+    '—';
 
   return (
     <div className="flex min-h-full flex-col gap-6">
@@ -114,13 +120,43 @@ export default function GlobalSettingsPage() {
         </ZoruPageHeading>
       </ZoruPageHeader>
 
+      {/* Status summary strip */}
+      {settings ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ZoruStatCard
+            label="Business name"
+            value={settings.business_name || '—'}
+            icon={<Building2 className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Timezone"
+            value={settings.timezone || '—'}
+            icon={<Clock className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Currency"
+            value={currencyLabel}
+            icon={<DollarSign className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="RTL"
+            value={settings.rtl ? 'Enabled' : 'Disabled'}
+            icon={<Globe className="h-4 w-4" />}
+          />
+        </div>
+      ) : null}
+
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
           <ZoruSkeleton className="h-[320px] w-full" />
         </ZoruCard>
       ) : (
-        <ZoruCard className="p-6">
-          <form action={formAction} className="space-y-5">
+        <form action={formAction} className="flex flex-col gap-4">
+          {/* Section: Identity */}
+          <ZoruCard className="p-6">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              Identity
+            </h3>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <ZoruLabel htmlFor="business_name" className="text-[13px]">
@@ -134,19 +170,6 @@ export default function GlobalSettingsPage() {
                 />
               </div>
               <div>
-                <ZoruLabel htmlFor="timezone" className="text-[13px]">
-                  Timezone
-                </ZoruLabel>
-                <div className="mt-1.5">
-                  <EnumFormField
-                    name="timezone"
-                    enumName="timezonePreset"
-                    initialId={settings?.timezone ?? 'Asia/Kolkata'}
-                    placeholder="Pick a timezone (or type a custom IANA id)"
-                  />
-                </div>
-              </div>
-              <div>
                 <ZoruLabel htmlFor="currency_id" className="text-[13px]">
                   Default Currency
                 </ZoruLabel>
@@ -158,6 +181,28 @@ export default function GlobalSettingsPage() {
                     onChange={(id) => setCurrencyId(id ?? '')}
                     placeholder="Select currency"
                     allowCreate
+                  />
+                </div>
+              </div>
+            </div>
+          </ZoruCard>
+
+          {/* Section: Locale */}
+          <ZoruCard className="p-6">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              Locale &amp; Date Formats
+            </h3>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div>
+                <ZoruLabel htmlFor="timezone" className="text-[13px]">
+                  Timezone
+                </ZoruLabel>
+                <div className="mt-1.5">
+                  <EnumFormField
+                    name="timezone"
+                    enumName="timezonePreset"
+                    initialId={settings?.timezone ?? 'Asia/Kolkata'}
+                    placeholder="Pick a timezone (or type a custom IANA id)"
                   />
                 </div>
               </div>
@@ -185,6 +230,15 @@ export default function GlobalSettingsPage() {
                   />
                 </div>
               </div>
+            </div>
+          </ZoruCard>
+
+          {/* Section: Behaviour */}
+          <ZoruCard className="p-6">
+            <h3 className="mb-4 text-[13px] uppercase tracking-wide text-zoru-ink-muted">
+              Behaviour
+            </h3>
+            <div className="grid gap-4 md:grid-cols-3">
               <div>
                 <ZoruLabel htmlFor="rtl" className="text-[13px]">
                   Right-to-left Layout
@@ -225,17 +279,15 @@ export default function GlobalSettingsPage() {
                 </div>
               </div>
             </div>
+          </ZoruCard>
 
-            <div className="flex justify-end">
-              <ZoruButton type="submit" disabled={isSaving}>
-                {isSaving ? (
-                  <LoaderCircle className="h-4 w-4 animate-spin" />
-                ) : null}
-                Save Global Settings
-              </ZoruButton>
-            </div>
-          </form>
-        </ZoruCard>
+          <div className="flex justify-end">
+            <ZoruButton type="submit" disabled={isSaving}>
+              {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+              Save Global Settings
+            </ZoruButton>
+          </div>
+        </form>
       )}
     </div>
   );

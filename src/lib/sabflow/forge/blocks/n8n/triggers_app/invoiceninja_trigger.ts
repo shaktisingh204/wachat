@@ -43,7 +43,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_invoiceninja_trigger',
   name: 'Invoice Ninja Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Invoice Ninja event types n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Invoice Ninja event types.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

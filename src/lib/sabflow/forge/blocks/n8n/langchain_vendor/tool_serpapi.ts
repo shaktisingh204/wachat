@@ -57,7 +57,7 @@ const block: ForgeBlock = {
       label: 'Search the web',
       fields: [
         { id: 'apiKey', label: 'SerpAPI key', type: 'password', required: true },
-        { id: 'query', label: 'Query', type: 'text', required: true, placeholder: 'latest n8n release notes' },
+        { id: 'query', label: 'Query', type: 'text', required: true, placeholder: 'latest SabFlow release notes' },
         {
           id: 'engine',
           label: 'Engine',

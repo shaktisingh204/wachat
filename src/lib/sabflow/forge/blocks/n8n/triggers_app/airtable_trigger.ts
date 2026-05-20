@@ -77,7 +77,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_airtable_trigger',
-  name: 'Airtable Trigger (n8n)',
+  name: 'Airtable Trigger',
   description:
     'Registration-info shim for Airtable webhooks / polling triggers. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

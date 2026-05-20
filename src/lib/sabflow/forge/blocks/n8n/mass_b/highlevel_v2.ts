@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_highlevel_v2',
   name: 'HighLevel (v2)',
-  description: 'Legacy n8n HighLevel v2 shape. Delegates to forge_highlevel.',
+  description: 'Legacy HighLevel v2 shape. Delegates to forge_highlevel.',
   iconName: 'LuGauge',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'highlevel' },

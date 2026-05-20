@@ -47,7 +47,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_facebook_trigger',
   name: 'Facebook Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Facebook Graph API webhook objects n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Facebook Graph API webhook objects.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

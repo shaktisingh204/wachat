@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_notion_v2',
   name: 'Notion (v2)',
-  description: 'Legacy n8n Notion v2 shape. Delegates to forge_notion.',
+  description: 'Legacy Notion v2 shape. Delegates to forge_notion.',
   iconName: 'LuBookOpen',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'notion' },

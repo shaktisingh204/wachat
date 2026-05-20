@@ -32,16 +32,37 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.intercom.io';
 
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('Intercom', ctx.credential);
-  const token = cred.accessToken;
-  if (!token) throw new Error('Intercom: credential is missing `accessToken`');
-  return { Authorization: `Bearer ${token}`, Accept: 'application/json' };
+const INTERCOM_HEADERS = { Accept: 'application/json' };
+
+async function icRequest(
+  ctx: ForgeActionContext,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  url: string,
+  json?: unknown,
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  requireCredential('Intercom', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method,
+    url,
+    tokenField: 'accessToken',
+    headers: INTERCOM_HEADERS,
+    json,
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`Intercom ${method} ${url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 async function icApi(
@@ -50,13 +71,7 @@ async function icApi(
   path: string,
   json?: unknown,
 ): Promise<unknown> {
-  const res = await apiRequest({
-    service: 'Intercom',
-    method,
-    url: `${BASE}${path}`,
-    headers: authHeaders(ctx),
-    json,
-  });
+  const res = await icRequest(ctx, method, `${BASE}${path}`, json);
   return res.data;
 }
 
@@ -180,12 +195,7 @@ async function listPaginated<T>(
     async fetchPage(cursor) {
       const page = cursor ? Number(cursor) : 1;
       const qs = new URLSearchParams({ per_page: String(pageSize), page: String(page) });
-      const res = await apiRequest({
-        service: 'Intercom',
-        method: 'GET',
-        url: `${BASE}${path}?${qs.toString()}`,
-        headers: authHeaders(ctx),
-      });
+      const res = await icRequest(ctx, 'GET', `${BASE}${path}?${qs.toString()}`);
       const body = res.data as Record<string, unknown> & {
         pages?: { next?: { page?: number } | string; total_pages?: number };
       };

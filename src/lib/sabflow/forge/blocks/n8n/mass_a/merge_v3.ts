@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_merge_v3',
   name: 'Merge (v3)',
-  description: 'Legacy n8n Merge v3 shape. Delegates to forge_merge.',
+  description: 'Legacy Merge v3 shape. Delegates to forge_merge.',
   iconName: 'LuGitMerge',
   category: 'Logic',
   auth: { type: 'none' },

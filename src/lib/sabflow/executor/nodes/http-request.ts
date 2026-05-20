@@ -791,7 +791,7 @@ async function execute(ctx: NodeExecutionContext): Promise<NodeExecutionResult> 
 export const httpRequestNode: NodeRegistration = {
   type: HTTP_REQUEST_NODE_TYPE,
   typeVersion: HTTP_REQUEST_NODE_VERSION,
-  description: 'Make an HTTP request to any URL. n8n-compatible primary external-call node.',
+  description: 'Make an HTTP request to any URL. Primary external-call node.',
   defaults: { name: 'HTTP Request', color: '#0F62FE' },
   properties,
   credentials: ['httpBasicAuth', 'httpHeaderAuth', 'httpQueryAuth', 'oAuth2Api'],

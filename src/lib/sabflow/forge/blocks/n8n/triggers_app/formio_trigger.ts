@@ -38,7 +38,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_formio_trigger',
   name: 'Form.io Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + Form.io submission events n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported Form.io submission events.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

@@ -1,5 +1,29 @@
 'use client';
 
+/**
+ * Modules — list page with:
+ *  KPIs: total modules, enabled, disabled
+ *  Search across display name / slug / description
+ *  Filter chips: All / Enabled / Disabled
+ *  Bulk enable / disable
+ *  RowDrawer on name to view module details
+ *  Inline edit + add dialog
+ */
+
+import * as React from 'react';
+import { useActionState } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+  CheckCircle2,
+  Layers,
+  LoaderCircle,
+  Pencil,
+  Plus,
+  Trash2,
+  XCircle,
+  X,
+} from 'lucide-react';
+
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -12,6 +36,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -21,6 +46,7 @@ import {
   ZoruIconPicker,
   ZoruInput,
   ZoruLabel,
+  ZoruStatCard,
   ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
@@ -31,20 +57,8 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  LoaderCircle,
-  } from 'lucide-react';
-import { useActionState,
-  useEffect,
-  useState,
-  useTransition } from 'react';
-
-import * as React from 'react';
-
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { RowDrawer } from '@/components/crm/row-drawer';
 import {
   getModules,
   saveModule,
@@ -55,24 +69,30 @@ import {
 import type { WsModule } from '@/lib/worksuite/rbac-types';
 
 type Row = WsModule & { _id: string };
+type StatusFilter = 'all' | 'enabled' | 'disabled';
 
-export default function ModulesPage() {
+export default function ModulesPage(): React.JSX.Element {
   const { toast } = useZoruToast();
-  const [rows, setRows] = useState<Row[]>([]);
-  const [isLoading, startLoading] = useTransition();
-  const [isBusy, startBusy] = useTransition();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editing, setEditing] = useState<Row | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [icon, setIcon] = useState<string>(editing?.icon ?? '');
+  const [rows, setRows] = React.useState<Row[]>([]);
+  const [isLoading, startLoading] = React.useTransition();
+  const [isBusy, startBusy] = React.useTransition();
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editing, setEditing] = React.useState<Row | null>(null);
+  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [icon, setIcon] = React.useState<string>('');
+  const [search, setSearch] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkAction, setBulkAction] = React.useState<'enable' | 'disable' | null>(null);
 
   React.useEffect(() => {
     setIcon(editing?.icon ?? '');
   }, [editing]);
+
   const [saveState, saveAction, isSaving] = useActionState(saveModule, {
     message: '',
     error: '',
-  } as any);
+  } as { message: string; error: string });
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -81,11 +101,11 @@ export default function ModulesPage() {
     });
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     refresh();
   }, [refresh]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (saveState?.message) {
       toast({ title: 'Saved', description: saveState.message });
       setDialogOpen(false);
@@ -93,20 +113,19 @@ export default function ModulesPage() {
       refresh();
     }
     if (saveState?.error) {
-      toast({
-        title: 'Error',
-        description: saveState.error,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
     }
   }, [saveState, toast, refresh]);
+
+  const handleSearch = useDebouncedCallback(
+    (v: string) => setSearch(v),
+    200,
+  );
 
   const flip = (id: string, which: 'active' | 'menu') =>
     startBusy(async () => {
       const res =
-        which === 'active'
-          ? await toggleModule(id)
-          : await toggleModuleInMenu(id);
+        which === 'active' ? await toggleModule(id) : await toggleModuleInMenu(id);
       if (res.success) refresh();
       else
         toast({
@@ -122,20 +141,94 @@ export default function ModulesPage() {
     if (res.success) {
       toast({ title: 'Deleted', description: 'Module removed.' });
       setDeletingId(null);
+      setSelected((cur) => {
+        const n = new Set(cur);
+        n.delete(deletingId);
+        return n;
+      });
       refresh();
     } else {
-      toast({
-        title: 'Error',
-        description: res.error || 'Failed',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: res.error || 'Failed', variant: 'destructive' });
     }
   };
+
+  const handleBulkToggle = async (enable: boolean) => {
+    const ids = Array.from(selected);
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+      const row = rows.find((r) => r._id === id);
+      const alreadyCorrect = enable ? row?.is_active : !row?.is_active;
+      if (alreadyCorrect) { ok += 1; continue; }
+      const res = await toggleModule(id);
+      if (res.success) ok += 1;
+      else fail += 1;
+    }
+    toast({
+      title: fail === 0 ? (enable ? 'Enabled' : 'Disabled') : 'Partial',
+      description: `${ok} updated, ${fail} failed.`,
+      variant: fail === 0 ? undefined : 'destructive',
+    });
+    setSelected(new Set());
+    setBulkAction(null);
+    refresh();
+  };
+
+  // Filtered rows
+  const visible = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (q) {
+        const hay =
+          `${r.display_name ?? ''} ${r.module_name ?? ''} ${r.description ?? ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (statusFilter === 'enabled' && !r.is_active) return false;
+      if (statusFilter === 'disabled' && r.is_active) return false;
+      return true;
+    });
+  }, [rows, search, statusFilter]);
+
+  const allVisibleIds = React.useMemo(() => visible.map((r) => r._id), [visible]);
+  const allSelected =
+    allVisibleIds.length > 0 && allVisibleIds.every((id) => selected.has(id));
+  const someSelected = allVisibleIds.some((id) => selected.has(id));
+
+  const toggleAll = React.useCallback(() => {
+    setSelected((cur) => {
+      if (allSelected) {
+        const n = new Set(cur);
+        for (const id of allVisibleIds) n.delete(id);
+        return n;
+      }
+      const n = new Set(cur);
+      for (const id of allVisibleIds) n.add(id);
+      return n;
+    });
+  }, [allSelected, allVisibleIds]);
+
+  const toggleOne = React.useCallback((id: string) => {
+    setSelected((cur) => {
+      const n = new Set(cur);
+      if (n.has(id)) n.delete(id);
+      else n.add(id);
+      return n;
+    });
+  }, []);
+
+  // KPI values
+  const totalEnabled = rows.filter((r) => r.is_active).length;
+  const totalDisabled = rows.length - totalEnabled;
 
   return (
     <EntityListShell
       title="Modules"
       subtitle="Enable or disable CRM modules and control whether they appear in the menu."
+      search={{
+        value: search,
+        onChange: (v) => handleSearch(v),
+        placeholder: 'Search modules…',
+      }}
       primaryAction={
         <ZoruButton
           onClick={() => {
@@ -147,13 +240,100 @@ export default function ModulesPage() {
           Add Module
         </ZoruButton>
       }
+      filters={
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="inline-flex rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-0.5">
+            {(['all', 'enabled', 'disabled'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setStatusFilter(v)}
+                className={
+                  'rounded-[calc(var(--zoru-radius)-2px)] px-2.5 py-1 text-[12.5px] font-medium capitalize transition-colors ' +
+                  (statusFilter === v
+                    ? 'bg-zoru-bg text-zoru-ink shadow-[var(--zoru-shadow-sm)]'
+                    : 'text-zoru-ink-muted hover:text-zoru-ink')
+                }
+              >
+                {v === 'all' ? 'All' : v.charAt(0).toUpperCase() + v.slice(1)}
+              </button>
+            ))}
+          </div>
+          {(search !== '' || statusFilter !== 'all') ? (
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setSearch('');
+                setStatusFilter('all');
+              }}
+            >
+              <X className="h-3.5 w-3.5" /> Clear
+            </ZoruButton>
+          ) : null}
+        </div>
+      }
+      bulkBar={
+        selected.size > 0 ? (
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-[13px] text-zoru-ink">{selected.size} selected</span>
+            <div className="flex gap-2">
+              <ZoruButton
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                Clear
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                onClick={() => setBulkAction('enable')}
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" /> Enable
+              </ZoruButton>
+              <ZoruButton
+                variant="outline"
+                size="sm"
+                onClick={() => setBulkAction('disable')}
+              >
+                <XCircle className="h-3.5 w-3.5" /> Disable
+              </ZoruButton>
+            </div>
+          </div>
+        ) : null
+      }
     >
+      {/* KPI strip */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <ZoruStatCard
+          label="Total modules"
+          value={rows.length}
+          icon={<Layers className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Enabled"
+          value={totalEnabled}
+          icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Disabled"
+          value={totalDisabled}
+          icon={<XCircle className="h-4 w-4" />}
+        />
+      </div>
 
       <ZoruCard className="p-0">
         <div className="overflow-x-auto rounded-lg">
           <ZoruTable>
             <ZoruTableHeader>
               <ZoruTableRow className="hover:bg-transparent">
+                <ZoruTableHead className="w-8">
+                  <ZoruCheckbox
+                    checked={allSelected ? true : someSelected ? 'indeterminate' : false}
+                    onCheckedChange={toggleAll}
+                    aria-label="Select all"
+                  />
+                </ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
@@ -167,31 +347,88 @@ export default function ModulesPage() {
               {isLoading && rows.length === 0 ? (
                 <ZoruTableRow>
                   <ZoruTableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
                     <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
                   </ZoruTableCell>
                 </ZoruTableRow>
-              ) : rows.length === 0 ? (
+              ) : visible.length === 0 ? (
                 <ZoruTableRow>
                   <ZoruTableCell
-                    colSpan={5}
+                    colSpan={6}
                     className="h-20 text-center text-[13px] text-zoru-ink-muted"
                   >
-                    No modules yet.
+                    {rows.length === 0
+                      ? 'No modules yet.'
+                      : 'No modules match the current filters.'}
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
-                rows.map((row) => (
+                visible.map((row) => (
                   <ZoruTableRow key={row._id}>
+                    <ZoruTableCell>
+                      <ZoruCheckbox
+                        checked={selected.has(row._id)}
+                        onCheckedChange={() => toggleOne(row._id)}
+                        aria-label={`Select ${row.display_name ?? row.module_name}`}
+                      />
+                    </ZoruTableCell>
                     <ZoruTableCell className="text-[13px] text-zoru-ink">
-                      {row.display_name || row.module_name}
-                      {row.description ? (
-                        <div className="text-[12px] text-zoru-ink-muted">
-                          {row.description}
+                      <RowDrawer
+                        label={row.display_name || row.module_name}
+                        subtitle={row.description || row.module_name}
+                        title={`Module · ${row.display_name || row.module_name}`}
+                        description="Module configuration details."
+                        width="sm"
+                      >
+                        <div className="space-y-3 text-[13px]">
+                          <div>
+                            <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                              Slug
+                            </div>
+                            <code className="font-mono text-[12px]">
+                              {row.module_name}
+                            </code>
+                          </div>
+                          {row.description ? (
+                            <div>
+                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                                Description
+                              </div>
+                              <div>{row.description}</div>
+                            </div>
+                          ) : null}
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                                Active
+                              </div>
+                              <ZoruBadge variant={row.is_active ? 'success' : 'ghost'}>
+                                {row.is_active ? 'Yes' : 'No'}
+                              </ZoruBadge>
+                            </div>
+                            <div>
+                              <div className="text-[11px] uppercase tracking-wider text-zoru-ink-muted">
+                                In Menu
+                              </div>
+                              <ZoruBadge variant={row.in_menu ? 'success' : 'ghost'}>
+                                {row.in_menu ? 'Yes' : 'No'}
+                              </ZoruBadge>
+                            </div>
+                          </div>
+                          <ZoruButton
+                            size="sm"
+                            className="w-full"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" /> Edit module
+                          </ZoruButton>
                         </div>
-                      ) : null}
+                      </RowDrawer>
                     </ZoruTableCell>
                     <ZoruTableCell>
                       <ZoruBadge variant="ghost">
@@ -245,6 +482,7 @@ export default function ModulesPage() {
         </div>
       </ZoruCard>
 
+      {/* Add / Edit dialog */}
       <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
           <ZoruDialogHeader>
@@ -294,27 +532,27 @@ export default function ModulesPage() {
                 defaultValue={editing?.description || ''}
               />
             </div>
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                <input
-                  type="checkbox"
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+                <ZoruLabel htmlFor="is_active_toggle" className="text-[13px] text-zoru-ink">
+                  Active
+                </ZoruLabel>
+                <ActiveToggle
                   name="is_active"
-                  value="true"
+                  id="is_active_toggle"
                   defaultChecked={editing?.is_active ?? true}
-                  className="h-4 w-4 accent-zoru-ink"
                 />
-                Active
-              </label>
-              <label className="flex items-center gap-2 text-[13px] text-zoru-ink">
-                <input
-                  type="checkbox"
+              </div>
+              <div className="flex items-center justify-between rounded-lg border border-zoru-line bg-zoru-surface px-4 py-3">
+                <ZoruLabel htmlFor="in_menu_toggle" className="text-[13px] text-zoru-ink">
+                  Show in menu
+                </ZoruLabel>
+                <ActiveToggle
                   name="in_menu"
-                  value="true"
+                  id="in_menu_toggle"
                   defaultChecked={editing?.in_menu ?? true}
-                  className="h-4 w-4 accent-zoru-ink"
                 />
-                Show in menu
-              </label>
+              </div>
             </div>
 
             <ZoruDialogFooter className="gap-2">
@@ -334,6 +572,7 @@ export default function ModulesPage() {
         </ZoruDialogContent>
       </ZoruDialog>
 
+      {/* Delete confirm */}
       <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
@@ -351,6 +590,54 @@ export default function ModulesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
+
+      {/* Bulk action confirm */}
+      <ZoruAlertDialog
+        open={bulkAction !== null}
+        onOpenChange={(o) => !o && setBulkAction(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              {bulkAction === 'enable'
+                ? `Enable ${selected.size} modules?`
+                : `Disable ${selected.size} modules?`}
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              {bulkAction === 'enable'
+                ? 'Selected modules will be activated.'
+                : 'Selected modules will be deactivated and hidden from the menu.'}
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={() => handleBulkToggle(bulkAction === 'enable')}
+            >
+              Confirm
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
     </EntityListShell>
+  );
+}
+
+/** Switch that writes a hidden `yes`/`no` value into a form. */
+function ActiveToggle({
+  name,
+  id,
+  defaultChecked,
+}: {
+  name: string;
+  id: string;
+  defaultChecked: boolean;
+}) {
+  const [checked, setChecked] = React.useState(defaultChecked);
+  return (
+    <>
+      <ZoruSwitch id={id} checked={checked} onCheckedChange={setChecked} />
+      <input type="hidden" name={name} value={checked ? 'true' : ''} />
+    </>
   );
 }

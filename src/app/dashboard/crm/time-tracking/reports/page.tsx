@@ -11,6 +11,7 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
   ZoruSkeleton,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -22,16 +23,22 @@ import {
   useCallback,
   useEffect,
   useState,
-  useTransition } from 'react';
+  useTransition,
+} from 'react';
 import {
+  Clock,
+  ClipboardList,
   Download,
   Filter,
-  RotateCcw } from 'lucide-react';
+  RotateCcw,
+  Timer,
+} from 'lucide-react';
 
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { getTimeReport } from '@/app/actions/worksuite/time.actions';
+import { wsWeekBounds } from '@/lib/worksuite/time-types';
 import type { WsTimeReportRow } from '@/lib/worksuite/time-types';
 
 type Group = 'employee' | 'project' | 'date';
@@ -59,12 +66,19 @@ function downloadCsv(filename: string, text: string) {
   URL.revokeObjectURL(url);
 }
 
+function fmtDuration(totalMinutes: number): string {
+  return `${Math.floor(totalMinutes / 60)}h ${String(totalMinutes % 60).padStart(2, '0')}m`;
+}
+
 export default function TimeTrackingReportsPage() {
   const [group, setGroup] = useState<Group>('project');
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [rows, setRows] = useState<WsTimeReportRow[]>([]);
   const [isLoading, startLoading] = useTransition();
+  // "this week" rows fetched once on mount
+  const [weekRows, setWeekRows] = useState<WsTimeReportRow[]>([]);
+  const [, startWeekLoad] = useTransition();
 
   const refresh = useCallback(() => {
     startLoading(async () => {
@@ -72,6 +86,17 @@ export default function TimeTrackingReportsPage() {
       setRows(list);
     });
   }, [group, from, to]);
+
+  // Load this-week stats on mount (all groups summed)
+  React.useEffect(() => {
+    const { start, end } = wsWeekBounds();
+    const s = start.toISOString().slice(0, 10);
+    const e = end.toISOString().slice(0, 10);
+    startWeekLoad(async () => {
+      const list = await getTimeReport('date', s, e);
+      setWeekRows(list);
+    });
+  }, []);
 
   useEffect(() => {
     refresh();
@@ -81,6 +106,13 @@ export default function TimeTrackingReportsPage() {
     group === 'employee' ? 'Employee' : group === 'project' ? 'Project' : 'Date';
 
   const grandMinutes = rows.reduce(
+    (s, r) => s + r.totalHours * 60 + r.totalMinutes,
+    0,
+  );
+  const totalEntries = rows.reduce((s, r) => s + r.entries, 0);
+  const avgPerEntry =
+    totalEntries > 0 ? Math.round(grandMinutes / totalEntries) : 0;
+  const weekMinutes = weekRows.reduce(
     (s, r) => s + r.totalHours * 60 + r.totalMinutes,
     0,
   );
@@ -104,7 +136,31 @@ export default function TimeTrackingReportsPage() {
         </ZoruButton>
       }
     >
+      {/* KPI strip */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ZoruStatCard
+          label="Total hours"
+          value={fmtDuration(grandMinutes)}
+          icon={<Clock className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Total entries"
+          value={totalEntries}
+          icon={<ClipboardList className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Avg per entry"
+          value={totalEntries > 0 ? fmtDuration(avgPerEntry) : '—'}
+          icon={<Timer className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="This week"
+          value={fmtDuration(weekMinutes)}
+          icon={<Clock className="h-4 w-4" />}
+        />
+      </div>
 
+      {/* Filter bar */}
       <ZoruCard className="p-6">
         <div className="flex flex-wrap items-end gap-3">
           <div className="min-w-[180px] flex-1">
@@ -162,6 +218,7 @@ export default function TimeTrackingReportsPage() {
         </div>
       </ZoruCard>
 
+      {/* Results table */}
       <ZoruCard className="p-6">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <ZoruTable>
@@ -169,9 +226,7 @@ export default function TimeTrackingReportsPage() {
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">{groupLabel}</ZoruTableHead>
                 <ZoruTableHead className="text-zoru-ink-muted">Entries</ZoruTableHead>
-                <ZoruTableHead className="text-right text-zoru-ink-muted">
-                  Hours
-                </ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Hours</ZoruTableHead>
               </ZoruTableRow>
             </ZoruTableHeader>
             <ZoruTableBody>

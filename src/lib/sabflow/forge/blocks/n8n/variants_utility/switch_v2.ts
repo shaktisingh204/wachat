@@ -22,7 +22,7 @@ async function run(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_switch_v2',
   name: 'Switch (v2)',
-  description: 'Legacy n8n Switch v2 shape. Delegates to forge_switch_n8n.',
+  description: 'Legacy Switch v2 shape. Delegates to forge_switch_n8n.',
   iconName: 'LuRoute',
   category: 'Logic',
   auth: { type: 'none' },

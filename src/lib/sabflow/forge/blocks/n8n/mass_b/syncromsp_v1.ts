@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_syncromsp_v1',
   name: 'Syncro MSP (v1)',
-  description: 'Legacy n8n Syncro MSP v1 shape. Delegates to forge_syncro_msp.',
+  description: 'Legacy Syncro MSP v1 shape. Delegates to forge_syncro_msp.',
   iconName: 'LuTicket',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'syncro_msp' },

@@ -11,6 +11,7 @@ import {
   ZoruAlertDialogTitle,
   ZoruButton,
   ZoruCheckbox,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -281,6 +282,26 @@ export default function EmailTemplatesListPage() {
                 }
                 loading={isLoading && templates.length === 0}
             >
+                {/* KPI strip */}
+                {(() => {
+                    const totalCount = templates.length;
+                    const activeTemplates = templates.filter((t) => (t.status ?? 'active') === 'active').length;
+                    const categorySet = new Set(templates.map((t) => t.category).filter(Boolean));
+                    const lastUsed = templates.reduce<string | null>((acc, t) => {
+                        if (!t.updatedAt) return acc;
+                        if (!acc) return t.updatedAt as string;
+                        return new Date(t.updatedAt as string) > new Date(acc) ? (t.updatedAt as string) : acc;
+                    }, null);
+                    return (
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                            <ZoruStatCard label="Total templates" value={totalCount.toLocaleString()} />
+                            <ZoruStatCard label="Active" value={activeTemplates.toLocaleString()} />
+                            <ZoruStatCard label="Event categories" value={categorySet.size.toLocaleString()} />
+                            <ZoruStatCard label="Last updated" value={lastUsed ? new Date(lastUsed).toLocaleDateString() : '—'} />
+                        </div>
+                    );
+                })()}
+
                 {/* Bulk bar */}
                 {hasSelection && (
                     <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">

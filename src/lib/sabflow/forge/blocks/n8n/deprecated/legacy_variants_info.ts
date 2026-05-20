@@ -106,7 +106,7 @@ async function listLegacyVariants(_ctx: ForgeActionContext): Promise<ForgeAction
 const block: ForgeBlock = {
   id: 'forge_legacy_variants_info',
   name: 'Legacy Variants (info)',
-  description: 'Static metadata listing n8n node version variants that the SabFlow forge surface intentionally collapses.',
+  description: 'Static metadata listing legacy node version variants that the SabFlow forge surface intentionally collapses.',
   iconName: 'LuInfo',
   category: 'Logic',
   auth: { type: 'none' },

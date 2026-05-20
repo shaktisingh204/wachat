@@ -13,17 +13,15 @@ const GITHUB_API = 'https://api.github.com';
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.accessToken;
-  if (!token) {
+const ensureCred = (ctx: ForgeActionContext) => {
+  if (!ctx.credential?.accessToken) {
     throw new Error('GitHub: select a credential from SabFlow Connections');
   }
-  return {
-    Authorization: `Bearer ${token}`,
-    Accept: 'application/vnd.github+json',
-    'X-GitHub-Api-Version': '2022-11-28',
-    'Content-Type': 'application/json',
-  };
+};
+
+const ghHeaders = {
+  Accept: 'application/vnd.github+json',
+  'X-GitHub-Api-Version': '2022-11-28',
 };
 
 const parseLabels = (raw: unknown): string[] => {
@@ -43,19 +41,17 @@ async function createIssue(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   const labels = parseLabels(ctx.options.labels);
   const outputVariable = str(ctx.options.outputVariable);
 
-  const res = await fetch(
-    `${GITHUB_API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
-    {
-      method: 'POST',
-      headers: buildHeaders(ctx),
-      body: JSON.stringify({ title, body, labels }),
-    },
-  );
-  const data: unknown = await res.json();
-  if (!res.ok) throw new Error(`GitHub create issue failed: ${res.status}`);
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method: 'POST',
+    url: `${GITHUB_API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues`,
+    headers: ghHeaders,
+    json: { title, body, labels },
+  });
+  if (!r.ok) throw new Error(`GitHub create issue failed: ${r.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = r.data;
   return { outputs, logs: [`GitHub: issue created in ${owner}/${repo}`] };
 }
 
@@ -65,15 +61,14 @@ async function addComment(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const issueNumber = str(ctx.options.issueNumber);
   const body = str(ctx.options.body);
 
-  const res = await fetch(
-    `${GITHUB_API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${encodeURIComponent(issueNumber)}/comments`,
-    {
-      method: 'POST',
-      headers: buildHeaders(ctx),
-      body: JSON.stringify({ body }),
-    },
-  );
-  if (!res.ok) throw new Error(`GitHub add comment failed: ${res.status}`);
+  ensureCred(ctx);
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method: 'POST',
+    url: `${GITHUB_API}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/issues/${encodeURIComponent(issueNumber)}/comments`,
+    headers: ghHeaders,
+    json: { body },
+  });
+  if (!r.ok) throw new Error(`GitHub add comment failed: ${r.status}`);
 
   return { logs: [`GitHub: commented on ${owner}/${repo}#${issueNumber}`] };
 }

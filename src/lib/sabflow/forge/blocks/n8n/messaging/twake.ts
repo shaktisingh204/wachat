@@ -124,7 +124,7 @@ const block: ForgeBlock = {
     {
       id: 'custom',
       label: 'Custom request',
-      description: 'Send an arbitrary request to the Twake n8n plugin endpoint.',
+      description: 'Send an arbitrary request to the Twake plugin endpoint.',
       fields: [
         { id: 'workspaceKey', label: 'Workspace key', type: 'password', required: true },
         { id: 'method', label: 'Method', type: 'select', options: [

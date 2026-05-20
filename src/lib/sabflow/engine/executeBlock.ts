@@ -8,6 +8,7 @@ import { runWithRetry } from './runWithRetry';
 import { resolveErrorEdge } from './errorRouting';
 import { getForgeBlock } from '@/lib/sabflow/forge';
 import { extractValue, isResourceLocatorValue } from '@/lib/sabflow/forge/extractValue';
+import { makeHelpers } from '@/lib/sabflow/forge/helpers';
 import type { ForgeField } from '@/lib/sabflow/forge/types';
 import { getCredentialById } from '@/lib/sabflow/credentials/db';
 // Side-effect import: wires up the real AgentRunner + TranscriptPersister on
@@ -51,6 +52,13 @@ export type BlockExecutionResult = {
    * (consumers that don't care about provenance just read `forgeItems`).
    */
   forgePairedItems?: Array<{ item: number; input?: number }>;
+  /**
+   * Per-output items bag for Phase 12 per-item branching. Populated when
+   * the action returned `itemsByOutput`. executeFlow distributes each
+   * output's items to the matching downstream branch instead of feeding
+   * one single stream forward. Optional — single-output blocks omit it.
+   */
+  forgeBranchedItems?: Record<string, Array<Record<string, unknown>>>;
   /**
    * When the block errored and `onError` is set to 'continueErrorOutput', this
    * carries the error edge's destination so `executeFlow` can jump to it.
@@ -123,6 +131,14 @@ export type ExecuteBlockContext = {
   envAllowlist?: string[];
   /** Flow doc passed through so the expression engine can expose `$workflow`. */
   flow?: SabFlowDoc;
+  /**
+   * Override the items the iteration loop reads. When set (typically by
+   * executeFlow's Phase 12 per-item-branch routing), the executor iterates
+   * over THIS array instead of `ctx.nodeOutputs[prevNodeName].items`.
+   * Lets an upstream IF block route different items down different edges
+   * — each downstream branch sees only the items its inbound edge carries.
+   */
+  inputItems?: Array<Record<string, unknown>>;
 };
 
 /**
@@ -583,13 +599,22 @@ async function executeForgeBlock(
   // that item — matching n8n's `for each input item` semantics. Otherwise
   // we run once with no `$json` and the action sees the legacy single-shot
   // behaviour.
+  //
+  // Phase 12: when executeFlow routed branched items to this block (via
+  // `ctx.inputItems`), use THAT slice instead of the upstream's full items
+  // array — gives true per-item branching where some items go true / others
+  // false in the same IF run.
   const prevName = ctx?.prevNodeName;
   const prevOutput = prevName
     ? (ctx?.nodeOutputs?.[prevName] as
         | { items?: Array<Record<string, unknown>> }
         | undefined)
     : undefined;
-  const upstreamItems = Array.isArray(prevOutput?.items) ? prevOutput!.items! : null;
+  const upstreamItems = Array.isArray(ctx?.inputItems)
+    ? ctx!.inputItems!
+    : Array.isArray(prevOutput?.items)
+      ? prevOutput!.items!
+      : null;
   const shouldIterate =
     upstreamItems !== null &&
     upstreamItems.length > 0 &&
@@ -604,6 +629,11 @@ async function executeForgeBlock(
   // (single-shot blocks pair to upstream item 0) so downstream walks via
   // `$getPairedItem` work uniformly regardless of fan-out shape.
   const collectedPairedItems: Array<{ item: number; input?: number }> = [];
+  // Per-output items accumulator for Phase 12 per-item branching. When the
+  // action returns `itemsByOutput`, each iteration's per-port items are
+  // appended here. executeFlow uses this to route different items down
+  // different branches in a single block run.
+  const collectedBranches: Record<string, Array<Record<string, unknown>>> = {};
   // Tracked across all iterations for multi-output blocks. The LAST
   // non-null `selectedOutput` from the iteration loop decides which edge
   // the run follows — matches n8n's "the node selected output port N"
@@ -651,6 +681,7 @@ async function executeForgeBlock(
         callerStack: ctx?.callerStack,
         itemIndex: i,
         currentItem,
+        helpers: makeHelpers(credential),
       });
     });
 
@@ -686,15 +717,44 @@ async function executeForgeBlock(
     if (typeof result?.selectedOutput === 'string') {
       selectedOutput = result.selectedOutput;
     }
+    // Per-item branching (Phase 12): accumulate per-output items so a
+    // single block run can fan items into separate downstream branches.
+    // Each port's items are appended across iterations — letting actions
+    // emit a single item per call OR a batch.
+    if (result?.itemsByOutput && typeof result.itemsByOutput === 'object') {
+      for (const [portName, portItems] of Object.entries(result.itemsByOutput)) {
+        if (!Array.isArray(portItems)) continue;
+        if (!collectedBranches[portName]) collectedBranches[portName] = [];
+        collectedBranches[portName].push(...portItems);
+      }
+    }
   }
 
   // Aggregate. `forgeOutputs` keeps single-item back-compat (it's what
   // legacy `{{ $node["X"].json.foo }}` reads); `forgeItems` is the full
   // fan-out array consumed by downstream iteration. `forgePairedItems`
   // tracks ancestry in parallel for `$getPairedItem`.
-  const forgeOutputs = collectedItems[0] ?? {};
-  const forgeItems = collectedItems;
-  const forgePairedItems = collectedPairedItems;
+  const branchKeys = Object.keys(collectedBranches);
+  const hasBranches = branchKeys.length > 0;
+  // When per-item branching produced output, the legacy `forgeItems`
+  // surface is the FIRST non-empty branch — preserves downstream
+  // back-compat for blocks that don't know about branching. Single-output
+  // downstream readers see the same single stream they always did.
+  let forgeOutputs: Record<string, unknown> = collectedItems[0] ?? {};
+  let forgeItems = collectedItems;
+  let forgePairedItems = collectedPairedItems;
+  if (hasBranches) {
+    const firstNonEmptyPort =
+      branchKeys.find((k) => collectedBranches[k].length > 0) ?? branchKeys[0];
+    forgeItems = collectedBranches[firstNonEmptyPort];
+    forgeOutputs = forgeItems[0] ?? {};
+    // Branched output items don't carry the iteration-index ancestry that
+    // collectedPairedItems tracks (one-iter-per-upstream-item is no longer
+    // the model). Default to {item: 0} until per-item paired-item tracking
+    // is wired through Phase 12.5.
+    forgePairedItems = forgeItems.map(() => ({ item: 0 }));
+  }
+  const forgeBranchedItems = hasBranches ? collectedBranches : undefined;
 
   // Multi-output branch routing. When the action picked a selectedOutput
   // AND the block declares >1 outputs AND an outgoing edge's sourceHandle
@@ -731,10 +791,18 @@ async function executeForgeBlock(
       forgeOutputs,
       forgeItems,
       forgePairedItems,
+      forgeBranchedItems,
       nextGroupId,
     };
   }
-  return { messages: [], forgeOutputs, forgeItems, forgePairedItems, nextGroupId };
+  return {
+    messages: [],
+    forgeOutputs,
+    forgeItems,
+    forgePairedItems,
+    forgeBranchedItems,
+    nextGroupId,
+  };
 }
 
 /** Recursively substitute {{var}} tokens in any string field of an object/array. */

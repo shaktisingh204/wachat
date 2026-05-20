@@ -40,8 +40,8 @@ async function sendMessage(ctx: ForgeActionContext): Promise<ForgeActionResult> 
 
 const block: ForgeBlock = {
   id: 'forge_training_messenger',
-  name: 'Customer Messenger (n8n training)',
-  description: 'Demo no-op messenger from n8n training — echoes the payload. For migration parity only.',
+  name: 'Customer Messenger (Training Demo)',
+  description: 'Demo no-op messenger — echoes the payload. For migration parity only.',
   iconName: 'LuMessageCircle',
   category: 'Integration',
   auth: { type: 'none' },

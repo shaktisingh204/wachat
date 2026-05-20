@@ -129,8 +129,8 @@ async function listCustomers(_ctx: ForgeActionContext): Promise<ForgeActionResul
 
 const block: ForgeBlock = {
   id: 'forge_training_datastore',
-  name: 'Customer Datastore (n8n training)',
-  description: 'Demo in-memory customer table from n8n training. No persistence — for migration parity only.',
+  name: 'Customer Datastore (Training Demo)',
+  description: 'Demo in-memory customer table. No persistence — for migration parity only.',
   iconName: 'LuDatabase',
   category: 'Integration',
   auth: { type: 'none' },

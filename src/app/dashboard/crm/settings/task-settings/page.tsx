@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruLabel, ZoruSkeleton, ZoruSwitch, useZoruToast } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruLabel, ZoruSkeleton, ZoruStatCard, ZoruSwitch, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
@@ -8,7 +8,7 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { CheckCircle2, GitBranch, LoaderCircle, RefreshCw } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -88,7 +88,30 @@ export default function TaskSettingsPage() {
       title="Task Settings"
       subtitle="Task-module behaviour: subtasks, dependencies, time logs, ratings, and defaults."
     >
-
+      {settings ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ZoruStatCard
+            label="Subtasks"
+            value={settings.enable_subtasks ? 'Enabled' : 'Disabled'}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Dependencies"
+            value={settings.enable_dependencies ? 'Enabled' : 'Disabled'}
+            icon={<GitBranch className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Recurring tasks"
+            value={settings.enable_recurring_tasks ? 'Enabled' : 'Disabled'}
+            icon={<RefreshCw className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Time logging"
+            value={settings.enable_time_logs ? 'Enabled' : 'Disabled'}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+        </div>
+      ) : null}
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
           <ZoruSkeleton className="h-[400px] w-full" />

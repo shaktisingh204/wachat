@@ -10,6 +10,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruCheckbox,
   ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
@@ -24,6 +25,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruStatCard,
   ZoruSwitch,
   ZoruTable,
   ZoruTableBody,
@@ -32,17 +34,21 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   ZoruTextarea,
+  cn,
   useZoruToast,
 } from '@/components/zoruui';
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Edit,
+import { Download,
+  Edit,
   LifeBuoy,
   LoaderCircle,
   Plus,
-  Trash2 } from 'lucide-react';
+  Trash2,
+  X,
+} from 'lucide-react';
 
 /**
  * Ticket Groups — settings-style list (mirrors the Account Groups page).
@@ -333,6 +339,22 @@ function ColorSwatch({ color }: { color?: string }) {
   );
 }
 
+function buildGroupsCsv(rows: CrmTicketGroupDoc[]): string {
+  const header = ['Name', 'Status', 'Parent Group', 'Tickets'];
+  const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  return [
+    header.join(','),
+    ...rows.map((r) =>
+      [
+        escape(r.name),
+        escape(r.status),
+        escape(r.parentGroupId ?? ''),
+        escape(r.ticketsCount ?? 0),
+      ].join(','),
+    ),
+  ].join('\n');
+}
+
 export default function TicketGroupsPage() {
   const [groups, setGroups] = React.useState<CrmTicketGroupDoc[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -343,6 +365,8 @@ export default function TicketGroupsPage() {
   const [pendingDelete, setPendingDelete] =
     React.useState<CrmTicketGroupDoc | null>(null);
   const [deletePending, startDeleteTransition] = React.useTransition();
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkDeleting, startBulkDelete] = React.useTransition();
   const { toast } = useZoruToast();
 
   const refresh = React.useCallback(async () => {
@@ -393,6 +417,11 @@ export default function TicketGroupsPage() {
       if (result.success) {
         toast({ title: 'Group deleted' });
         setPendingDelete(null);
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
         await refresh();
       } else {
         toast({
@@ -403,6 +432,57 @@ export default function TicketGroupsPage() {
       }
     });
   };
+
+  const handleBulkDelete = () => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    startBulkDelete(async () => {
+      let ok = 0;
+      let failed = 0;
+      for (const id of ids) {
+        const res = await deleteTicketGroup(id);
+        if (res.success) ok += 1;
+        else failed += 1;
+      }
+      setSelected(new Set());
+      toast({
+        title: 'Bulk delete',
+        description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
+      await refresh();
+    });
+  };
+
+  const handleExportCsv = () => {
+    const src =
+      selected.size > 0
+        ? filtered.filter((g) => selected.has(String(g._id)))
+        : filtered;
+    if (!src.length) {
+      toast({ title: 'Nothing to export' });
+      return;
+    }
+    const csv = buildGroupsCsv(src);
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `ticket-groups-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const kpis = React.useMemo(() => ({
+    total: groups.length,
+    active: groups.filter((g) => g.status === 'active').length,
+    avgTickets:
+      groups.length > 0
+        ? Math.round(
+            groups.reduce((s, g) => s + (g.ticketsCount ?? 0), 0) / groups.length,
+          )
+        : 0,
+  }), [groups]);
 
   return (
     <>
@@ -445,12 +525,105 @@ export default function TicketGroupsPage() {
               </ZoruSelectContent>
             </ZoruSelect>
           }
+          bulkBar={
+            selected.size > 0 ? (
+              <div className="flex flex-wrap items-center gap-2 text-[13px]">
+                <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+                <span className="text-zoru-ink-muted">·</span>
+                <ZoruButton
+                  variant="ghost"
+                  size="sm"
+                  disabled={bulkDeleting}
+                  onClick={handleBulkDelete}
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                  Delete
+                </ZoruButton>
+                <ZoruButton variant="ghost" size="sm" onClick={handleExportCsv}>
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
+                </ZoruButton>
+                <span className="ml-auto" />
+                <ZoruButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelected(new Set())}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  Clear
+                </ZoruButton>
+              </div>
+            ) : null
+          }
           loading={isLoading && groups.length === 0}
         >
+          <div className="flex flex-col gap-4">
+            {/* KPI strip */}
+            <div className="grid grid-cols-3 gap-3">
+              <button
+                type="button"
+                className="text-left"
+                onClick={() => setStatusFilter('all')}
+              >
+                <ZoruStatCard
+                  label="Total groups"
+                  value={kpis.total.toLocaleString()}
+                  className={cn(statusFilter === 'all' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+                />
+              </button>
+              <button
+                type="button"
+                className="text-left"
+                onClick={() => setStatusFilter('active')}
+              >
+                <ZoruStatCard
+                  label="Active"
+                  value={kpis.active.toLocaleString()}
+                  className={cn(statusFilter === 'active' && 'ring-1 ring-zoru-primary rounded-[var(--zoru-radius-lg)]')}
+                />
+              </button>
+              <ZoruStatCard
+                label="Avg tickets / group"
+                value={kpis.avgTickets.toLocaleString()}
+              />
+            </div>
+
+            {/* Export toolbar when nothing selected */}
+            {selected.size === 0 ? (
+              <div className="flex justify-end">
+                <ZoruButton
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportCsv}
+                  disabled={filtered.length === 0}
+                >
+                  <Download className="mr-1 h-3.5 w-3.5" />
+                  Export CSV
+                </ZoruButton>
+              </div>
+            ) : null}
+
           <div className="overflow-x-auto rounded-lg border border-border">
             <ZoruTable>
               <ZoruTableHeader>
                 <ZoruTableRow className="border-border hover:bg-transparent">
+                  <ZoruTableHead className="w-10">
+                    <ZoruCheckbox
+                      checked={
+                        filtered.length > 0 && filtered.every((g) => selected.has(String(g._id)))
+                          ? true
+                          : filtered.some((g) => selected.has(String(g._id)))
+                          ? 'indeterminate'
+                          : false
+                      }
+                      onCheckedChange={(v) =>
+                        setSelected(
+                          v === true ? new Set(filtered.map((g) => String(g._id))) : new Set(),
+                        )
+                      }
+                      aria-label="Select all"
+                    />
+                  </ZoruTableHead>
                   <ZoruTableHead className="text-muted-foreground">
                     Name
                   </ZoruTableHead>
@@ -480,14 +653,14 @@ export default function TicketGroupsPage() {
               <ZoruTableBody>
                 {isLoading ? (
                   <ZoruTableRow className="border-border">
-                    <ZoruTableCell colSpan={8} className="h-24 text-center">
+                    <ZoruTableCell colSpan={9} className="h-24 text-center">
                       <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                     </ZoruTableCell>
                   </ZoruTableRow>
                 ) : filtered.length === 0 ? (
                   <ZoruTableRow className="border-border">
                     <ZoruTableCell
-                      colSpan={8}
+                      colSpan={9}
                       className="h-24 text-center text-muted-foreground"
                     >
                       No ticket groups match this filter.
@@ -501,8 +674,23 @@ export default function TicketGroupsPage() {
                     return (
                       <ZoruTableRow
                         key={String(g._id)}
-                        className="border-border"
+                        className={cn('border-border', selected.has(String(g._id)) && 'bg-zoru-surface')}
                       >
+                        <ZoruTableCell>
+                          <ZoruCheckbox
+                            checked={selected.has(String(g._id))}
+                            onCheckedChange={() =>
+                              setSelected((prev) => {
+                                const next = new Set(prev);
+                                const id = String(g._id);
+                                if (next.has(id)) next.delete(id);
+                                else next.add(id);
+                                return next;
+                              })
+                            }
+                            aria-label={`Select ${g.name}`}
+                          />
+                        </ZoruTableCell>
                         <ZoruTableCell className="font-medium text-foreground">
                           <div className="flex flex-col">
                             <span>{g.name}</span>
@@ -587,6 +775,7 @@ export default function TicketGroupsPage() {
                 )}
               </ZoruTableBody>
             </ZoruTable>
+          </div>
           </div>
         </EntityListShell>
       </div>

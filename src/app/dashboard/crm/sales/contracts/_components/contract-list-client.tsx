@@ -5,9 +5,9 @@
  *
  * Composes <EntityListShell> with:
  *   - KPI strip (Active · Pending Signature · Expiring Soon · Terminated · Renewed)
- *   - Status filter (EnumFilterField) + inline search
+ *   - Filters: status, customer search, date range (effective/expiry), value range
  *   - Dense ZoruTable with row checkboxes
- *   - Bulk delete with ConfirmDialog
+ *   - Bulk-action bar: archive, change status, export CSV, delete
  *   - URL-based pagination via PaginationBar
  */
 
@@ -18,6 +18,12 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCheckbox,
+  ZoruInput,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -26,7 +32,7 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { FileSignature, Plus, Trash2, X } from 'lucide-react';
+import { Archive, CalendarRange, Download, FileSignature, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
@@ -36,8 +42,11 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   deleteContractAction,
+  setContractStatusV2,
   type ContractKpisV2,
+  type ContractStatusV2,
 } from '@/app/actions/crm/contracts.actions';
+import { dateStamp, downloadCsv, downloadXlsx } from '@/lib/crm-list-export';
 import type { CrmContractDoc } from '@/lib/rust-client/crm-contracts';
 
 /* ─── KPI strip ────────────────────────────────────────────────────── */
@@ -171,6 +180,13 @@ export function ContractListClient({
 
   /* Filters */
   const [statusFilter, setStatusFilter] = React.useState<string>(ALL);
+  const [partySearch, setPartySearch] = React.useState('');
+  const [effectiveFrom, setEffectiveFrom] = React.useState('');
+  const [effectiveTo, setEffectiveTo] = React.useState('');
+  const [expiryFrom, setExpiryFrom] = React.useState('');
+  const [expiryTo, setExpiryTo] = React.useState('');
+  const [valueMin, setValueMin] = React.useState('');
+  const [valueMax, setValueMax] = React.useState('');
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -178,6 +194,7 @@ export function ContractListClient({
   /* Dialogs */
   const [pendingDelete, setPendingDelete] = React.useState<CrmContractDoc | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
+  const [pendingBulkArchive, setPendingBulkArchive] = React.useState(false);
 
   const [busy, startBusy] = React.useTransition();
 
@@ -195,16 +212,60 @@ export function ContractListClient({
     return () => clearTimeout(t);
   }, [query, initialQuery, sp, pathname, router]);
 
-  /* In-memory filter */
+  /* In-memory filter — status + party search + date ranges + value range */
   const filtered = React.useMemo(() => {
-    if (statusFilter === ALL) return serverRows;
-    return serverRows.filter((c) => (c.status as string) === statusFilter);
-  }, [serverRows, statusFilter]);
+    const minVal = valueMin ? Number(valueMin) : Number.NEGATIVE_INFINITY;
+    const maxVal = valueMax ? Number(valueMax) : Number.POSITIVE_INFINITY;
+    const effFromTs = effectiveFrom ? new Date(effectiveFrom).getTime() : null;
+    const effToTs = effectiveTo ? new Date(effectiveTo).getTime() : null;
+    const expFromTs = expiryFrom ? new Date(expiryFrom).getTime() : null;
+    const expToTs = expiryTo ? new Date(expiryTo).getTime() : null;
+    const partyCmp = partySearch.trim().toLowerCase();
 
-  const filtersActive = statusFilter !== ALL;
+    return serverRows.filter((c) => {
+      if (statusFilter !== ALL && (c.status as string) !== statusFilter) return false;
+      if (partyCmp && !(c.partyName ?? '').toLowerCase().includes(partyCmp)) return false;
+      const val = typeof c.value === 'number' ? c.value : 0;
+      if (val < minVal || val > maxVal) return false;
+      if (effFromTs && c.effectiveDate) {
+        const t = new Date(c.effectiveDate).getTime();
+        if (!Number.isNaN(t) && t < effFromTs) return false;
+      }
+      if (effToTs && c.effectiveDate) {
+        const t = new Date(c.effectiveDate).getTime();
+        if (!Number.isNaN(t) && t > effToTs) return false;
+      }
+      if (expFromTs && c.expiryDate) {
+        const t = new Date(c.expiryDate).getTime();
+        if (!Number.isNaN(t) && t < expFromTs) return false;
+      }
+      if (expToTs && c.expiryDate) {
+        const t = new Date(c.expiryDate).getTime();
+        if (!Number.isNaN(t) && t > expToTs) return false;
+      }
+      return true;
+    });
+  }, [serverRows, statusFilter, partySearch, effectiveFrom, effectiveTo, expiryFrom, expiryTo, valueMin, valueMax]);
+
+  const filtersActive =
+    statusFilter !== ALL ||
+    Boolean(partySearch) ||
+    Boolean(effectiveFrom) ||
+    Boolean(effectiveTo) ||
+    Boolean(expiryFrom) ||
+    Boolean(expiryTo) ||
+    Boolean(valueMin) ||
+    Boolean(valueMax);
 
   const clearFilters = React.useCallback(() => {
     setStatusFilter(ALL);
+    setPartySearch('');
+    setEffectiveFrom('');
+    setEffectiveTo('');
+    setExpiryFrom('');
+    setExpiryTo('');
+    setValueMin('');
+    setValueMax('');
   }, []);
 
   /* Selection helpers */
@@ -274,8 +335,52 @@ export function ContractListClient({
       router.refresh();
     });
 
-  /* Bulk export */
-  const bulkExport = React.useCallback(() => {
+  /* Bulk archive — sets status to 'terminated' as the archive equivalent */
+  const bulkArchive = () =>
+    startBusy(async () => {
+      let ok = 0;
+      let fail = 0;
+      for (const id of selected) {
+        const res = await setContractStatusV2(id, 'terminated');
+        if (res.success) ok += 1;
+        else fail += 1;
+      }
+      toast({
+        title: `Archived ${ok}`,
+        description: fail > 0 ? `${fail} failed.` : 'Selected contracts archived.',
+        variant: fail > 0 ? 'destructive' : undefined,
+      });
+      clearSelection();
+      setPendingBulkArchive(false);
+      router.refresh();
+    });
+
+  /* Bulk status change */
+  const bulkStatus = React.useCallback(
+    (next: ContractStatusV2) => {
+      if (selected.size === 0) return;
+      startBusy(async () => {
+        let ok = 0;
+        let fail = 0;
+        for (const id of selected) {
+          const res = await setContractStatusV2(id, next);
+          if (res.success) ok += 1;
+          else fail += 1;
+        }
+        toast({
+          title: `Updated ${ok}`,
+          description: fail > 0 ? `${fail} failed.` : `Status set to ${next.replace(/_/g, ' ')}.`,
+          variant: fail > 0 ? 'destructive' : undefined,
+        });
+        clearSelection();
+        router.refresh();
+      });
+    },
+    [selected, toast, clearSelection, router],
+  );
+
+  /* Bulk export CSV */
+  const bulkExportCsv = React.useCallback(() => {
     const rows = filtered.filter(
       (c) => selected.size === 0 || selected.has(String(c._id)),
     );
@@ -283,17 +388,57 @@ export function ContractListClient({
       toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
       return;
     }
-    const csv = toCsv(rows);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `contracts-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const headers = [
+      'id', 'contractNo', 'title', 'partyName', 'type', 'status',
+      'effectiveDate', 'expiryDate', 'value', 'currency', 'esignProvider', 'createdAt',
+    ];
+    const exportRows = rows.map((r) => ({
+      id: String(r._id),
+      contractNo: r.contractNo ?? '',
+      title: r.title ?? '',
+      partyName: r.partyName ?? '',
+      type: r.type ?? '',
+      status: r.status ?? '',
+      effectiveDate: r.effectiveDate ?? '',
+      expiryDate: r.expiryDate ?? '',
+      value: typeof r.value === 'number' ? r.value : '',
+      currency: r.currency ?? '',
+      esignProvider: r.esignProvider ?? '',
+      createdAt: r.createdAt ?? '',
+    }));
+    downloadCsv(`contracts-${dateStamp()}.csv`, headers, exportRows);
     toast({ title: 'Exported', description: `${rows.length} contracts saved to CSV.` });
+  }, [filtered, selected, toast]);
+
+  /* Bulk export XLSX */
+  const bulkExportXlsx = React.useCallback(() => {
+    const rows = filtered.filter(
+      (c) => selected.size === 0 || selected.has(String(c._id)),
+    );
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    const headers = [
+      'id', 'contractNo', 'title', 'partyName', 'type', 'status',
+      'effectiveDate', 'expiryDate', 'value', 'currency', 'esignProvider', 'createdAt',
+    ];
+    const exportRows = rows.map((r) => ({
+      id: String(r._id),
+      contractNo: r.contractNo ?? '',
+      title: r.title ?? '',
+      partyName: r.partyName ?? '',
+      type: r.type ?? '',
+      status: r.status ?? '',
+      effectiveDate: r.effectiveDate ?? '',
+      expiryDate: r.expiryDate ?? '',
+      value: typeof r.value === 'number' ? r.value : '',
+      currency: r.currency ?? '',
+      esignProvider: r.esignProvider ?? '',
+      createdAt: r.createdAt ?? '',
+    }));
+    void downloadXlsx(`contracts-${dateStamp()}.xlsx`, headers, exportRows, 'Contracts');
+    toast({ title: 'Exported', description: `${rows.length} contracts saved to XLSX.` });
   }, [filtered, selected, toast]);
 
   /* KPI pivot */
@@ -330,6 +475,88 @@ export function ContractListClient({
               onChange={(v) => setStatusFilter(v ?? ALL)}
               placeholder="All statuses"
             />
+            <ZoruInput
+              value={partySearch}
+              onChange={(e) => setPartySearch(e.target.value)}
+              placeholder="Counter-party…"
+              className="h-9 w-[180px] text-[13px]"
+              aria-label="Filter by counter-party name"
+            />
+            <details className="relative">
+              <summary className="list-none">
+                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                  <CalendarRange className="h-3.5 w-3.5" /> Effective range
+                </ZoruButton>
+              </summary>
+              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
+                <label className="text-[11px] text-zoru-ink-muted">From</label>
+                <ZoruInput
+                  type="date"
+                  value={effectiveFrom}
+                  onChange={(e) => setEffectiveFrom(e.target.value)}
+                  className="h-8 text-[12.5px]"
+                />
+                <label className="text-[11px] text-zoru-ink-muted">To</label>
+                <ZoruInput
+                  type="date"
+                  value={effectiveTo}
+                  onChange={(e) => setEffectiveTo(e.target.value)}
+                  className="h-8 text-[12.5px]"
+                />
+              </div>
+            </details>
+            <details className="relative">
+              <summary className="list-none">
+                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                  <CalendarRange className="h-3.5 w-3.5" /> Expiry range
+                </ZoruButton>
+              </summary>
+              <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
+                <label className="text-[11px] text-zoru-ink-muted">From</label>
+                <ZoruInput
+                  type="date"
+                  value={expiryFrom}
+                  onChange={(e) => setExpiryFrom(e.target.value)}
+                  className="h-8 text-[12.5px]"
+                />
+                <label className="text-[11px] text-zoru-ink-muted">To</label>
+                <ZoruInput
+                  type="date"
+                  value={expiryTo}
+                  onChange={(e) => setExpiryTo(e.target.value)}
+                  className="h-8 text-[12.5px]"
+                />
+              </div>
+            </details>
+            <details className="relative">
+              <summary className="list-none">
+                <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                  Value range
+                </ZoruButton>
+              </summary>
+              <div className="absolute left-0 z-20 mt-2 grid w-[220px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
+                <label className="text-[11px] text-zoru-ink-muted">Min value</label>
+                <ZoruInput
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={valueMin}
+                  onChange={(e) => setValueMin(e.target.value)}
+                  placeholder="0"
+                  className="h-8 text-[12.5px]"
+                />
+                <label className="text-[11px] text-zoru-ink-muted">Max value</label>
+                <ZoruInput
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={valueMax}
+                  onChange={(e) => setValueMax(e.target.value)}
+                  placeholder="No limit"
+                  className="h-8 text-[12.5px]"
+                />
+              </div>
+            </details>
             {filtersActive ? (
               <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
                 <X className="h-3.5 w-3.5" /> Clear
@@ -343,12 +570,30 @@ export function ContractListClient({
               <span className="text-[12.5px] text-zoru-ink">
                 {selected.size} selected
               </span>
+              <ZoruSelect onValueChange={(v) => bulkStatus(v as ContractStatusV2)}>
+                <ZoruSelectTrigger className="h-8 w-[160px] text-[12px]">
+                  <ZoruSelectValue placeholder="Change status…" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                  <ZoruSelectItem value="pending_signature">Pending signature</ZoruSelectItem>
+                  <ZoruSelectItem value="renewed">Renewed</ZoruSelectItem>
+                  <ZoruSelectItem value="expired">Expired</ZoruSelectItem>
+                  <ZoruSelectItem value="terminated">Terminated</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
               <ZoruButton
                 size="sm"
-                variant="ghost"
-                onClick={bulkExport}
+                variant="outline"
+                onClick={() => setPendingBulkArchive(true)}
               >
-                Export CSV
+                <Archive className="h-3.5 w-3.5" /> Archive
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={bulkExportCsv}>
+                <Download className="h-3.5 w-3.5" /> Export CSV
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={bulkExportXlsx}>
+                <Download className="h-3.5 w-3.5" /> Export XLSX
               </ZoruButton>
               <ZoruButton
                 size="sm"
@@ -520,6 +765,17 @@ export function ContractListClient({
         requireTyped="DELETE"
         confirmLabel="Delete"
         onConfirm={async () => bulkDelete()}
+      />
+
+      {/* Bulk archive */}
+      <ConfirmDialog
+        open={pendingBulkArchive}
+        onOpenChange={setPendingBulkArchive}
+        title={`Archive ${selected.size} contract${selected.size === 1 ? '' : 's'}?`}
+        description="Sets the status of selected contracts to Terminated. They remain in the database."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={async () => bulkArchive()}
       />
 
       {busy ? <span className="sr-only">Working…</span> : null}

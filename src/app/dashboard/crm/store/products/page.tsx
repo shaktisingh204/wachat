@@ -1,175 +1,395 @@
+'use client';
+
+/**
+ * Products list — `/dashboard/crm/store/products`
+ *
+ * KPI strip (total, published/active, draft, low stock), filter (status,
+ * category, storefront), bulk publish/archive/delete, export CSV.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { Download, Package, Plus, Trash2 } from 'lucide-react';
+
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCheckbox,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
-import {
-  Plus,
-  Package } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
-
-/**
- * Products list — `/dashboard/crm/store/products`.
- *
- * Server component. Reads `?storefrontId=` from the URL to filter the
- * list. The top-of-page picker re-emits the filter via a plain link
- * select (no client island required).
- */
-
-import Link from 'next/link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 
 import {
+    deleteProduct,
     getProductList,
     getStorefrontList,
+    saveProduct,
 } from '@/app/actions/crm-store.actions';
-import { StorefrontFilterClient } from './_components/storefront-filter';
 
-export const dynamic = 'force-dynamic';
+type ProductItem = Record<string, unknown>;
+type StatusFilter = 'all' | 'active' | 'draft' | 'archived';
 
-function statusVariant(
-    status?: string,
-): 'success' | 'warning' | 'danger' | 'ghost' {
+const LOW_STOCK_THRESHOLD = 5;
+
+function statusVariant(status?: string): 'success' | 'warning' | 'danger' | 'ghost' {
     const s = (status || '').toLowerCase();
     if (s === 'active') return 'success';
     if (s === 'archived') return 'danger';
     return 'ghost';
 }
 
-interface PageProps {
-    searchParams: Promise<{ storefrontId?: string }>;
+function pId(p: ProductItem): string {
+    return String(p._id ?? '');
+}
+function pStatus(p: ProductItem): string {
+    return String(p.status ?? 'draft');
+}
+function pInventory(p: ProductItem): number {
+    const qty = p.inventoryQuantity ?? p.inventory_quantity ?? p.stock;
+    return typeof qty === 'number' ? qty : parseInt(String(qty ?? '99'), 10) || 99;
 }
 
-export default async function ProductListPage({ searchParams }: PageProps) {
-    const sp = await searchParams;
-    const storefrontId = sp.storefrontId ?? '';
+export default function ProductListPage(): React.JSX.Element {
+    const { toast } = useZoruToast();
 
-    const [{ items }, { items: storefronts }] = await Promise.all([
-        getProductList(storefrontId || undefined),
-        getStorefrontList(),
-    ]);
+    const [items, setItems] = React.useState<ProductItem[]>([]);
+    const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
+    const [isPending, startTransition] = React.useTransition();
+    const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
-    const newHref = storefrontId
-        ? `/dashboard/crm/store/products/new?storefrontId=${storefrontId}`
+    const fetchData = React.useCallback(() => {
+        startTransition(async () => {
+            const [{ items: products }, { items: sfList }] = await Promise.all([
+                getProductList(storefrontFilter || undefined),
+                getStorefrontList(),
+            ]);
+            setItems(Array.isArray(products) ? products : []);
+            setStorefronts(
+                (Array.isArray(sfList) ? sfList : []).map((sf) => ({
+                    id: String((sf as Record<string, unknown>)._id ?? ''),
+                    name: String((sf as Record<string, unknown>).name ?? 'Untitled'),
+                })),
+            );
+        });
+    }, [storefrontFilter]);
+
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const kpis = React.useMemo(() => {
+        const total = items.length;
+        const active = items.filter((p) => pStatus(p) === 'active').length;
+        const draft = items.filter((p) => pStatus(p) === 'draft').length;
+        const lowStock = items.filter(
+            (p) => (p.inventoryTracked || p.inventory_tracked) && pInventory(p) < LOW_STOCK_THRESHOLD,
+        ).length;
+        return { total, active, draft, lowStock };
+    }, [items]);
+
+    const filtered = React.useMemo(() => {
+        if (statusFilter === 'all') return items;
+        return items.filter((p) => pStatus(p) === statusFilter);
+    }, [items, statusFilter]);
+
+    const allSelected =
+        filtered.length > 0 && filtered.every((p) => selected.has(pId(p)));
+
+    const toggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(filtered.map(pId)) : new Set());
+        },
+        [filtered],
+    );
+
+    const handleBulkSetStatus = React.useCallback(
+        async (nextStatus: 'active' | 'archived') => {
+            let ok = 0;
+            for (const id of Array.from(selected)) {
+                const target = items.find((p) => pId(p) === id);
+                if (!target) continue;
+                const fd = new FormData();
+                fd.set('productId', id);
+                fd.set('status', nextStatus);
+                // carry forward required fields
+                fd.set('title', String(target.title ?? ''));
+                fd.set('storefrontId', String(target.storefrontId ?? target.storefront_id ?? ''));
+                const res = await saveProduct(undefined, fd);
+                if (!res?.error) ok++;
+            }
+            toast({ title: `${ok} product(s) set to ${nextStatus}` });
+            setSelected(new Set());
+            fetchData();
+        },
+        [selected, items, fetchData, toast],
+    );
+
+    const handleBulkDelete = React.useCallback(async () => {
+        let ok = 0;
+        for (const id of Array.from(selected)) {
+            const res = await deleteProduct(id);
+            if (res.ok) ok++;
+        }
+        toast({ title: `${ok} product(s) deleted` });
+        setSelected(new Set());
+        setBulkDeleteOpen(false);
+        fetchData();
+    }, [selected, fetchData, toast]);
+
+    const exportCsv = React.useCallback(() => {
+        const rows = selected.size > 0 ? filtered.filter((p) => selected.has(pId(p))) : filtered;
+        const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const csv = [
+            'Title,SKU,Price,Currency,Inventory,Status',
+            ...rows.map((p) =>
+                [
+                    escape(p.title),
+                    escape(p.sku),
+                    escape(p.price),
+                    escape(p.currency ?? 'INR'),
+                    escape(p.inventoryQuantity ?? p.inventory_quantity ?? ''),
+                    escape(pStatus(p)),
+                ].join(','),
+            ),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `products-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [filtered, selected]);
+
+    const newHref = storefrontFilter
+        ? `/dashboard/crm/store/products/new?storefrontId=${storefrontFilter}`
         : '/dashboard/crm/store/products/new';
 
     return (
-        <EntityListShell
-            title="Products"
-            subtitle="Catalog with images, pricing and inventory toggles."
-            primaryAction={
-                <ZoruButton variant="outline" asChild>
-                    <Link href={newHref}>
-                        <Plus className="h-4 w-4" />
-                        New product
-                    </Link>
-                </ZoruButton>
-            }
-        >
+        <>
+            <EntityListShell
+                title="Products"
+                subtitle="Catalog with images, pricing and inventory toggles."
+                primaryAction={
+                    <ZoruButton variant="outline" asChild>
+                        <Link href={newHref}>
+                            <Plus className="h-4 w-4" /> New product
+                        </Link>
+                    </ZoruButton>
+                }
+                filters={
+                    <ZoruCard>
+                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                            <div className="min-w-[180px] space-y-1">
+                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    Storefront
+                                </ZoruLabel>
+                                <ZoruSelect value={storefrontFilter} onValueChange={setStorefrontFilter}>
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="All storefronts" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        {storefronts.map((sf) => (
+                                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                                                {sf.name}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="min-w-[160px] space-y-1">
+                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    Status
+                                </ZoruLabel>
+                                <ZoruSelect
+                                    value={statusFilter}
+                                    onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                                >
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="All" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">All</ZoruSelectItem>
+                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                                        <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                                        <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                        </ZoruCardContent>
+                    </ZoruCard>
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
+                            <span className="flex-1" />
+                            <ZoruButton size="sm" variant="outline" onClick={() => handleBulkSetStatus('active')}>
+                                Publish
+                            </ZoruButton>
+                            <ZoruButton size="sm" variant="outline" onClick={() => handleBulkSetStatus('archived')}>
+                                Archive
+                            </ZoruButton>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton size="sm" variant="outline">
+                                        <Download className="h-3.5 w-3.5" /> Export
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent align="end">
+                                    <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
+                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                                <Trash2 className="h-3.5 w-3.5" /> Delete
+                            </ZoruButton>
+                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                                Clear
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+                loading={isPending && items.length === 0}
+                empty={
+                    !isPending && filtered.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 p-8">
+                            <Package className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">No products found</h3>
+                            <ZoruButton variant="outline" asChild>
+                                <Link href={newHref}>
+                                    <Plus className="h-4 w-4" /> New product
+                                </Link>
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <ZoruStatCard label="Total products" value={kpis.total.toLocaleString()} icon={<Package />} />
+                        <ZoruStatCard label="Published" value={kpis.active.toLocaleString()} icon={<Package />} period="active listings" />
+                        <ZoruStatCard label="Draft" value={kpis.draft.toLocaleString()} icon={<Package />} period="not live" />
+                        <ZoruStatCard
+                            label="Low stock"
+                            value={kpis.lowStock.toLocaleString()}
+                            icon={<Package />}
+                            period={`below ${LOW_STOCK_THRESHOLD} units`}
+                        />
+                    </div>
 
-            <ZoruCard className="p-4">
-                <StorefrontFilterClient
-                    storefronts={storefronts.map((sf) => ({
-                        id: String((sf as Record<string, unknown>)._id ?? ''),
-                        name:
-                            ((sf as Record<string, unknown>).name as string) ??
-                            'Untitled',
-                    }))}
-                    selectedId={storefrontId}
-                />
-            </ZoruCard>
+                    {filtered.length > 0 ? (
+                        <ZoruCard className="overflow-hidden p-0">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow>
+                                        <ZoruTableHead className="w-10">
+                                            <ZoruCheckbox
+                                                aria-label="Select all"
+                                                checked={allSelected}
+                                                onCheckedChange={(c) => toggleAll(c === true)}
+                                            />
+                                        </ZoruTableHead>
+                                        <ZoruTableHead>Title</ZoruTableHead>
+                                        <ZoruTableHead>SKU</ZoruTableHead>
+                                        <ZoruTableHead>Price</ZoruTableHead>
+                                        <ZoruTableHead>Inventory</ZoruTableHead>
+                                        <ZoruTableHead>Status</ZoruTableHead>
+                                    </ZoruTableRow>
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
+                                    {filtered.map((p) => {
+                                        const id = pId(p);
+                                        const status = pStatus(p);
+                                        return (
+                                            <ZoruTableRow
+                                                key={id}
+                                                data-state={selected.has(id) ? 'selected' : undefined}
+                                            >
+                                                <ZoruTableCell>
+                                                    <ZoruCheckbox
+                                                        aria-label={`Select ${String(p.title ?? '')}`}
+                                                        checked={selected.has(id)}
+                                                        onCheckedChange={() => toggleOne(id)}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/store/products/${id}`}
+                                                        label={String(p.title ?? 'Untitled product')}
+                                                        subtitle={String(p.sku ?? '')}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {String(p.sku ?? '—')}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {typeof p.price === 'number'
+                                                        ? `${String(p.currency ?? 'INR')} ${(p.price as number).toFixed(2)}`
+                                                        : '—'}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {p.inventoryTracked || p.inventory_tracked
+                                                        ? String(p.inventoryQuantity ?? p.inventory_quantity ?? 0)
+                                                        : 'Untracked'}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })}
+                                </ZoruTableBody>
+                            </ZoruTable>
+                        </ZoruCard>
+                    ) : null}
+                </div>
+            </EntityListShell>
 
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">All products</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                        {storefrontId
-                            ? 'Showing products for the selected storefront.'
-                            : 'Showing products across every storefront.'}
-                    </p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Title</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">SKU</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Price</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Inventory</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {items.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell
-                                        colSpan={5}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                    >
-                                        No products yet.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                items.map((p) => {
-                                    const id = String(
-                                        (p as Record<string, unknown>)._id ?? '',
-                                    );
-                                    const status =
-                                        ((p as Record<string, unknown>).status as
-                                            | string
-                                            | undefined) ?? 'draft';
-                                    return (
-                                        <ZoruTableRow
-                                            key={id}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                <EntityRowLink
-                                                    href={`/dashboard/crm/store/products/${id}`}
-                                                    label={
-                                                        (p.title as string) ||
-                                                        'Untitled product'
-                                                    }
-                                                    subtitle={
-                                                        (p.sku as string) || undefined
-                                                    }
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {(p.sku as string) || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {typeof p.price === 'number'
-                                                    ? `${(p.currency as string) || 'INR'} ${(p.price as number).toFixed(2)}`
-                                                    : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {p.inventoryTracked
-                                                    ? 'Tracked'
-                                                    : 'Untracked'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <ZoruBadge
-                                                    variant={statusVariant(status)}
-                                                >
-                                                    {status}
-                                                </ZoruBadge>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
+            <ConfirmDialog
+                open={bulkDeleteOpen}
+                onOpenChange={setBulkDeleteOpen}
+                title={`Delete ${selected.size} product${selected.size === 1 ? '' : 's'}?`}
+                description="This permanently removes the selected products. This action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={handleBulkDelete}
+            />
+        </>
     );
 }

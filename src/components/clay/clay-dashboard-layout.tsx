@@ -3151,7 +3151,7 @@ export function ClayDashboardLayout({
             context === 'meta-suite' ? <ClayMetaBrand /> :
             context === 'wachat' ? <ClayWachatBrand /> :
             context === 'sabflow' ? <ClaySabFlowBrand /> :
-            context === 'n8n' ? <ClayN8NBrand /> :
+            context === 'n8n' ? <ClaySabFlowExtraBrand /> :
             context === 'telegram' ? <ClayTelegramBrand /> :
             context === 'url-shortener' ? <ClayUrlShortenerBrand /> :
             context === 'qr-code-maker' ? <ClayQrCodeMakerBrand /> :
@@ -3814,7 +3814,7 @@ function ClayCrmBrand() {
 
 /* ── n8n sidebar brand ───────────────────────────────────────── */
 
-function ClayN8NBrand() {
+function ClaySabFlowExtraBrand() {
   const router = useRouter();
 
   return (
@@ -3835,7 +3835,7 @@ function ClayN8NBrand() {
           <LuZap className="h-4 w-4 text-white" strokeWidth={2} />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-semibold leading-tight text-foreground">n8n</p>
+          <p className="truncate text-[13px] font-semibold leading-tight text-foreground">SabFlow</p>
           <p className="text-[11px] text-muted-foreground">Workflow automation</p>
         </div>
       </div>

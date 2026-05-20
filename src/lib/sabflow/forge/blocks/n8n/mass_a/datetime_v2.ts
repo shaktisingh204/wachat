@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_datetime_v2',
   name: 'Date & Time (v2)',
-  description: 'Legacy n8n DateTime v2 shape. Delegates to forge_datetime.',
+  description: 'Legacy DateTime v2 shape. Delegates to forge_datetime.',
   iconName: 'LuClock',
   category: 'Logic',
   auth: { type: 'none' },

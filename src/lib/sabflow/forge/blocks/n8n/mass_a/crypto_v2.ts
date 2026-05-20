@@ -13,7 +13,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_crypto_v2',
   name: 'Crypto (v2)',
-  description: 'Legacy n8n Crypto v2 shape. Delegates to forge_crypto.',
+  description: 'Legacy Crypto v2 shape. Delegates to forge_crypto.',
   iconName: 'LuLock',
   category: 'Logic',
   auth: { type: 'none' },

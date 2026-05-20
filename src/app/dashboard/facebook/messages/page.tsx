@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
 import { ZoruSkeleton } from '@/components/zoruui';
 import { ZoruFacebookChatClient } from '../_components/zoru-fb-chat-client';
 import { Suspense } from "react";

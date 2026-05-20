@@ -14,7 +14,7 @@ const block: ForgeBlock = {
   id: 'forge_spreadsheetfile_v1',
   name: 'Spreadsheet File (v1)',
   description:
-    'Legacy n8n SpreadsheetFile v1 shape. Delegates to forge_spreadsheet_file.',
+    'Legacy SpreadsheetFile v1 shape. Delegates to forge_spreadsheet_file.',
   iconName: 'LuFileSpreadsheet',
   category: 'Logic',
   auth: { type: 'none' },

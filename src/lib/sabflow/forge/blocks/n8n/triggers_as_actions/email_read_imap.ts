@@ -122,7 +122,7 @@ async function fetchUnread(ctx: ForgeActionContext): Promise<ForgeActionResult> 
 
 const block: ForgeBlock = {
   id: 'forge_email_read_imap',
-  name: 'Email Read IMAP (n8n)',
+  name: 'Email Read IMAP',
   description: 'Fetch the latest unread IMAP messages once. Continuous polling lives in the trigger system.',
   iconName: 'LuMail',
   category: 'Integration',

@@ -121,7 +121,7 @@ async function subscribeOnce(ctx: ForgeActionContext): Promise<ForgeActionResult
 
 const block: ForgeBlock = {
   id: 'forge_sse_trigger',
-  name: 'SSE Trigger (n8n)',
+  name: 'SSE Trigger',
   description: 'Connect to a server-sent events stream and capture the first event. Long-lived SSE belongs in the trigger system.',
   iconName: 'LuRadioTower',
   category: 'Integration',

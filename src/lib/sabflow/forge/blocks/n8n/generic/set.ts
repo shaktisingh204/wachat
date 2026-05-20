@@ -45,7 +45,7 @@ async function setValues(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_set_n8n',
-  name: 'Set (n8n)',
+  name: 'Set (Legacy)',
   description: 'Write one or more values into flow variables.',
   iconName: 'LuPencilLine',
   category: 'Logic',

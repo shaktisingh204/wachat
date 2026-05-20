@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_hubspot_v2',
   name: 'HubSpot (v2)',
-  description: 'Legacy n8n HubSpot v2 shape. Delegates to forge_hubspot.',
+  description: 'Legacy HubSpot v2 shape. Delegates to forge_hubspot.',
   iconName: 'LuOrbit',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'hubspot' },

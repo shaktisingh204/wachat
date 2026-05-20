@@ -46,7 +46,7 @@ async function register_trigger_info(ctx: ForgeActionContext): Promise<ForgeActi
 const block: ForgeBlock = {
   id: 'forge_convertkit_trigger',
   name: 'ConvertKit Trigger (info)',
-  description: 'Returns the SabFlow webhook URL pattern + ConvertKit event slugs n8n supports.',
+  description: 'Returns the SabFlow webhook URL pattern + supported ConvertKit event slugs.',
   iconName: 'LuWebhook',
   category: 'Integration',
   auth: { type: 'none' },

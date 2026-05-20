@@ -10,6 +10,10 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruCardHeader,
+  ZoruCardTitle,
   ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
@@ -28,13 +32,16 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
+  Download,
   Edit,
   LoaderCircle,
   Plus,
   Trash2,
+  X,
   } from 'lucide-react';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 /**
  * CRM Contract Types — settings-style list.
@@ -268,6 +275,8 @@ export default function ContractTypesPage() {
     >('all');
     const [pendingDelete, setPendingDelete] =
         React.useState<CrmContractTypeDoc | null>(null);
+    const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [deletePending, startDeleteTransition] = React.useTransition();
     const { toast } = useZoruToast();
 
@@ -318,6 +327,76 @@ export default function ContractTypesPage() {
         });
     };
 
+    /* Bulk selection helpers */
+    const allIds = React.useMemo(() => items.map((r) => r._id), [items]);
+    const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
+
+    const toggleRow = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleAll = React.useCallback(() => {
+        setSelected(allSelected ? new Set() : new Set(allIds));
+    }, [allSelected, allIds]);
+
+    const clearSelection = React.useCallback(() => setSelected(new Set()), []);
+
+    /* Bulk delete */
+    const confirmBulkDelete = () => {
+        startDeleteTransition(async () => {
+            let ok = 0;
+            let fail = 0;
+            for (const id of selected) {
+                const res = await deleteContractType(id);
+                if (res.success) ok += 1;
+                else fail += 1;
+            }
+            toast({
+                title: `Deleted ${ok}`,
+                description: fail > 0 ? `${fail} failed.` : 'All selected removed.',
+                variant: fail > 0 ? 'destructive' : undefined,
+            });
+            clearSelection();
+            setPendingBulkDelete(false);
+            await refresh();
+        });
+    };
+
+    /* Export CSV */
+    const exportCsv = React.useCallback(() => {
+        const rows = items.filter(
+            (r) => selected.size === 0 || selected.has(r._id),
+        );
+        if (rows.length === 0) {
+            toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+            return;
+        }
+        const headers = ['code', 'name', 'description', 'defaultTermMonths', 'status', 'isActive'];
+        const exportRows = rows.map((r) => ({
+            code: r.code ?? '',
+            name: r.name ?? '',
+            description: r.description ?? '',
+            defaultTermMonths: r.defaultTermMonths ?? '',
+            status: r.status ?? '',
+            isActive: r.isActive !== false ? 'true' : 'false',
+        }));
+        downloadCsv(`contract-types-${dateStamp()}.csv`, headers, exportRows);
+        toast({ title: 'Exported', description: `${rows.length} contract types saved to CSV.` });
+    }, [items, selected, toast]);
+
+    /* KPI counts */
+    const kpi = React.useMemo(() => {
+        const total = items.length;
+        const active = items.filter((r) => (r.status ?? 'active') === 'active').length;
+        const archived = items.filter((r) => r.status === 'archived').length;
+        return { total, active, archived };
+    }, [items]);
+
     return (
         <>
             <ContractTypeDialog
@@ -350,12 +429,80 @@ export default function ContractTypesPage() {
                             placeholder="All statuses"
                         />
                     }
+                    bulkBar={
+                        selected.size > 0 ? (
+                            <div className="flex flex-wrap items-center gap-2 text-[12.5px]">
+                                <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+                                <ZoruButton size="sm" variant="ghost" onClick={exportCsv}>
+                                    <Download className="h-3.5 w-3.5" /> Export CSV
+                                </ZoruButton>
+                                <ZoruButton
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => setPendingBulkDelete(true)}
+                                    disabled={deletePending}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </ZoruButton>
+                                <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
+                                    <X className="h-3.5 w-3.5" /> Clear
+                                </ZoruButton>
+                            </div>
+                        ) : null
+                    }
                     loading={isLoading && items.length === 0}
                 >
+                    {/* KPI strip */}
+                    <div className="mb-4 grid grid-cols-3 gap-3">
+                        <ZoruCard className="p-0">
+                            <ZoruCardHeader className="pb-1 pt-3 px-4">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                    Total
+                                </ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="pb-3 px-4">
+                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                    {kpi.total}
+                                </span>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard className="p-0 border-emerald-500/30">
+                            <ZoruCardHeader className="pb-1 pt-3 px-4">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-emerald-700 dark:text-emerald-400">
+                                    Active
+                                </ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="pb-3 px-4">
+                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                    {kpi.active}
+                                </span>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                        <ZoruCard className="p-0 border-zoru-line">
+                            <ZoruCardHeader className="pb-1 pt-3 px-4">
+                                <ZoruCardTitle className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                                    Archived
+                                </ZoruCardTitle>
+                            </ZoruCardHeader>
+                            <ZoruCardContent className="pb-3 px-4">
+                                <span className="text-2xl font-semibold tabular-nums text-zoru-ink">
+                                    {kpi.archived}
+                                </span>
+                            </ZoruCardContent>
+                        </ZoruCard>
+                    </div>
+
                     <div className="overflow-x-auto rounded-lg border border-zoru-line">
                         <ZoruTable>
                             <ZoruTableHeader>
                                 <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                    <ZoruTableHead className="w-[36px]">
+                                        <ZoruCheckbox
+                                            checked={allSelected}
+                                            onCheckedChange={toggleAll}
+                                            aria-label="Select all"
+                                        />
+                                    </ZoruTableHead>
                                     <ZoruTableHead className="text-zoru-ink-muted">
                                         Code
                                     </ZoruTableHead>
@@ -380,7 +527,7 @@ export default function ContractTypesPage() {
                                 {isLoading ? (
                                     <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="h-24 text-center"
                                         >
                                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
@@ -389,7 +536,7 @@ export default function ContractTypesPage() {
                                 ) : items.length === 0 ? (
                                     <ZoruTableRow className="border-zoru-line">
                                         <ZoruTableCell
-                                            colSpan={6}
+                                            colSpan={7}
                                             className="h-24 text-center text-zoru-ink-muted"
                                         >
                                             No contract types match this
@@ -402,11 +549,20 @@ export default function ContractTypesPage() {
                                             'active') as CrmContractTypeStatus;
                                         const tone =
                                             STATUS_TONE[status] ?? 'neutral';
+                                        const isSelected = selected.has(row._id);
                                         return (
                                             <ZoruTableRow
                                                 key={row._id}
                                                 className="border-zoru-line"
+                                                data-state={isSelected ? 'selected' : undefined}
                                             >
+                                                <ZoruTableCell>
+                                                    <ZoruCheckbox
+                                                        checked={isSelected}
+                                                        onCheckedChange={() => toggleRow(row._id)}
+                                                        aria-label={`Select ${row.name}`}
+                                                    />
+                                                </ZoruTableCell>
                                                 <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
                                                     {row.code}
                                                 </ZoruTableCell>
@@ -460,6 +616,7 @@ export default function ContractTypesPage() {
                     </div>
                 </EntityListShell>
 
+            {/* Single delete */}
             <ZoruAlertDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
@@ -482,6 +639,38 @@ export default function ContractTypesPage() {
                             disabled={deletePending}
                         >
                             {deletePending ? 'Deleting…' : 'Delete'}
+                        </ZoruAlertDialogAction>
+                    </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+            </ZoruAlertDialog>
+
+            {/* Bulk delete */}
+            <ZoruAlertDialog
+                open={pendingBulkDelete}
+                onOpenChange={(o) => !o && setPendingBulkDelete(false)}
+            >
+                <ZoruAlertDialogContent>
+                    <ZoruAlertDialogHeader>
+                        <ZoruAlertDialogTitle>
+                            Delete {selected.size} contract type{selected.size === 1 ? '' : 's'}?
+                        </ZoruAlertDialogTitle>
+                        <ZoruAlertDialogDescription>
+                            This removes the selected types from the type
+                            picker. Existing contracts keep their stored type
+                            label.
+                        </ZoruAlertDialogDescription>
+                    </ZoruAlertDialogHeader>
+                    <ZoruAlertDialogFooter>
+                        <ZoruAlertDialogCancel disabled={deletePending}>Cancel</ZoruAlertDialogCancel>
+                        <ZoruAlertDialogAction
+                            onClick={confirmBulkDelete}
+                            disabled={deletePending}
+                            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+                        >
+                            {deletePending ? (
+                                <LoaderCircle className="mr-2 h-3.5 w-3.5 animate-spin" />
+                            ) : null}
+                            Delete permanently
                         </ZoruAlertDialogAction>
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>

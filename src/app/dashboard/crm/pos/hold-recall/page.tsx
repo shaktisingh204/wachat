@@ -1,38 +1,20 @@
-import { ZoruButton, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { ZoruButton } from '@/components/zoruui';
 import { ShoppingCart } from 'lucide-react';
+import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { getPosHolds } from '@/app/actions/crm-pos.actions';
+import { PosHoldRecallClient } from '../_components/pos-hold-recall-client';
 
 /**
  * POS held tickets — `/dashboard/crm/pos/hold-recall`.
  *
- * Server component. Lists currently-held tickets; per-row Recall
- * affordance routes the cashier back to the terminal with the hold
- * pre-loaded into the cart. Per CRM_REBUILD_PLAN §6.3.
+ * Server component. Fetches held tickets and delegates all interactive
+ * behaviour (KPI strip, cashier + date filters, bulk void, Recall /
+ * Void per row, CSV export) to `<PosHoldRecallClient>`.
  */
 
-import Link from 'next/link';
-
-import { getPosHolds } from '@/app/actions/crm-pos.actions';
-
 export const dynamic = 'force-dynamic';
-
-const inr = new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-});
-
-function fmtMoney(v: number | null | undefined): string {
-    if (typeof v !== 'number' || !Number.isFinite(v)) return '—';
-    return inr.format(v);
-}
-
-function fmtDateTime(v: string | null | undefined): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
 
 export default async function PosHoldRecallPage() {
     const holds = await getPosHolds({ status: 'held' });
@@ -40,7 +22,7 @@ export default async function PosHoldRecallPage() {
     return (
         <EntityListShell
             title="Held tickets"
-            subtitle="Parked transactions waiting to be recalled."
+            subtitle="Parked transactions waiting to be recalled or voided."
             primaryAction={
                 <ZoruButton size="sm" variant="outline" asChild>
                     <Link href="/dashboard/crm/pos/terminal">
@@ -49,81 +31,7 @@ export default async function PosHoldRecallPage() {
                 </ZoruButton>
             }
         >
-            <ZoruCard className="p-0">
-                <div className="overflow-x-auto">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead>Customer</ZoruTableHead>
-                                <ZoruTableHead>Lines</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
-                                    Subtotal
-                                </ZoruTableHead>
-                                <ZoruTableHead>Cashier</ZoruTableHead>
-                                <ZoruTableHead>Held at</ZoruTableHead>
-                                <ZoruTableHead>Reason</ZoruTableHead>
-                                <ZoruTableHead className="text-right">
-                                    Action
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {holds.length === 0 ? (
-                                <ZoruTableRow>
-                                    <ZoruTableCell
-                                        colSpan={7}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                    >
-                                        No held tickets right now.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                holds.map((h) => {
-                                    const subtotal = h.lineItems.reduce(
-                                        (sum, l) => sum + (l.total ?? 0),
-                                        0,
-                                    );
-                                    return (
-                                        <ZoruTableRow key={h._id}>
-                                            <ZoruTableCell>
-                                                {h.customerName || 'Walk-in'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                {h.lineItems.length}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right tabular-nums">
-                                                {fmtMoney(subtotal)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                {h.heldByName || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                {fmtDateTime(h.heldAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="max-w-[200px] truncate text-[12px] text-zoru-ink-muted">
-                                                {h.holdReason || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <ZoruButton
-                                                    size="sm"
-                                                    variant="outline"
-                                                    asChild
-                                                >
-                                                    <Link
-                                                        href={`/dashboard/crm/pos/terminal?holdId=${h._id}`}
-                                                    >
-                                                        Recall
-                                                    </Link>
-                                                </ZoruButton>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
+            <PosHoldRecallClient holds={holds} />
         </EntityListShell>
     );
 }

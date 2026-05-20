@@ -196,6 +196,23 @@ export function BlockNodesList({ blocks, group, groupIndex, groupRef, edges, onB
                     onBlocksChange(updated);
                   }
             }
+            onRunFrom={
+              isReadOnly
+                ? undefined
+                : (targetBlock) => {
+                    // Open the block's settings panel — the test runner
+                    // lives inside `TestNodePanel` (already mounted there).
+                    // A custom DOM event signals the panel to auto-fire its
+                    // Run button once it mounts; using a window event keeps
+                    // BlockNodesList decoupled from the panel's state.
+                    setOpenedNodeId(targetBlock.id);
+                    window.dispatchEvent(
+                      new CustomEvent('sabflow:auto-run-block', {
+                        detail: { blockId: targetBlock.id },
+                      }),
+                    );
+                  }
+            }
           />
           {/* Placeholder after each block */}
           <PlaceholderNode

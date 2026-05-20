@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruLabel, ZoruSkeleton, ZoruSwitch, useZoruToast } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruLabel, ZoruSkeleton, ZoruStatCard, ZoruSwitch, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
@@ -8,7 +8,7 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { CheckCircle2, LoaderCircle, LayoutKanban, Milestone } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -88,6 +88,30 @@ export default function ProjectSettingsPage() {
       title="Project Settings"
       subtitle="Milestones, time tracking, views, and creation defaults for the project module."
     >
+      {settings ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ZoruStatCard
+            label="Milestones"
+            value={settings.enable_milestones ? 'Enabled' : 'Disabled'}
+            icon={<Milestone className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Time tracking"
+            value={settings.enable_time_tracking ? 'Enabled' : 'Disabled'}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Kanban"
+            value={settings.enable_kanban ? 'Enabled' : 'Disabled'}
+            icon={<LayoutKanban className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Client portal"
+            value={settings.enable_client_portal ? 'Enabled' : 'Disabled'}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+        </div>
+      ) : null}
       {isLoading && !settings ? (
         <ZoruCard className="p-6">
           <ZoruSkeleton className="h-[420px] w-full" />

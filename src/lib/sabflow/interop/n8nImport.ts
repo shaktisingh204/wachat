@@ -191,7 +191,7 @@ export function importN8nWorkflow(input: unknown): N8nImportResult {
   const groups: Group[] = [
     {
       id: groupId,
-      title: 'Imported from n8n',
+      title: 'Imported workflow',
       graphCoordinates: { x: 0, y: 0 },
       blocks,
     },
@@ -199,13 +199,13 @@ export function importN8nWorkflow(input: unknown): N8nImportResult {
 
   return {
     doc: {
-      name: wf.name ?? 'Imported from n8n',
+      name: wf.name ?? 'Imported workflow',
       events,
       groups,
       edges,
       variables,
       theme: {},
-      settings: { description: 'Imported from an n8n workflow.json export' },
+      settings: { description: 'Imported from a workflow JSON export' },
     },
     stubbed,
     blocks: blocks.length,

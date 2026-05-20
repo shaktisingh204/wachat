@@ -37,7 +37,7 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
 
 const API_VERSION = 'v59.0';
@@ -57,20 +57,39 @@ function resolveAuth(ctx: ForgeActionContext): { instanceUrl: string; token: str
   return { instanceUrl, token };
 }
 
+async function sfRequest(
+  ctx: ForgeActionContext,
+  method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+  url: string,
+  json?: unknown,
+): Promise<{ ok: boolean; status: number; data: unknown }> {
+  // Credential validated by resolveAuth() before any call site.
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method,
+    url,
+    tokenField: 'accessToken',
+    json,
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`Salesforce ${method} ${url} failed (${r.status}): ${clip}`);
+  }
+  return r;
+}
+
 async function sfApi(
   ctx: ForgeActionContext,
   method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
   path: string,
   json?: unknown,
 ): Promise<unknown> {
-  const { instanceUrl, token } = resolveAuth(ctx);
-  const res = await apiRequest({
-    service: 'Salesforce',
-    method,
-    url: `${instanceUrl}/services/data/${API_VERSION}${path}`,
-    headers: { Authorization: `Bearer ${token}` },
-    json,
-  });
+  const { instanceUrl } = resolveAuth(ctx);
+  const res = await sfRequest(ctx, method, `${instanceUrl}/services/data/${API_VERSION}${path}`, json);
   return res.data;
 }
 
@@ -433,7 +452,7 @@ async function soqlQuery(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 async function soqlQueryAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const q = asString(ctx.options.soql);
   if (!q) throw new Error('Salesforce: SOQL string is required');
-  const { instanceUrl, token } = resolveAuth(ctx);
+  const { instanceUrl } = resolveAuth(ctx);
   const maxItems = asNumber(ctx.options.maxItems) ?? 500;
   const firstUrl = `${instanceUrl}/services/data/${API_VERSION}/query?q=${encodeURIComponent(q)}`;
 
@@ -448,12 +467,7 @@ async function soqlQueryAll(ctx: ForgeActionContext): Promise<ForgeActionResult>
           ? cursor
           : `${instanceUrl}${cursor}`
         : firstUrl;
-      const res = await apiRequest({
-        service: 'Salesforce',
-        method: 'GET',
-        url,
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await sfRequest(ctx, 'GET', url);
       const data = res.data as {
         records?: unknown[];
         done?: boolean;

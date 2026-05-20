@@ -26,6 +26,7 @@ import {
   ZoruInput,
   ZoruLabel,
   ZoruSkeleton,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -211,6 +212,9 @@ export default function ManageRolesPage() {
     const [bulkPending, startBulkTransition] = useTransition();
     const { toast } = useZoruToast();
 
+    // Search filter
+    const [search, setSearch] = useState('');
+
     // Selection — tracks role ids (strings like 'agent' or custom uuids)
     const [selected, setSelected] = useState<Set<string>>(new Set());
     const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
@@ -251,6 +255,28 @@ export default function ManageRolesPage() {
             ...customRolesWithPermissions,
         ];
     }, [user]);
+
+    // Filtered roles for display
+    const filteredRoles = useMemo(() => {
+        const q = search.trim().toLowerCase();
+        if (!q) return allRoles;
+        return allRoles.filter((r) => r.name.toLowerCase().includes(q));
+    }, [allRoles, search]);
+
+    // KPI derivations
+    const totalRoles = allRoles.length;
+    const systemRoles = allRoles.filter((r) => r.id === 'agent').length;
+    const customRolesCount = allRoles.filter((r) => r.id !== 'agent').length;
+    const mostUsedRole = useMemo(() => {
+        // Most-used = role with highest permission count as a proxy
+        let best = allRoles[0];
+        for (const r of allRoles) {
+            if (countPermissions(r.permissions ?? {}) > countPermissions(best?.permissions ?? {})) {
+                best = r;
+            }
+        }
+        return best?.name ?? '—';
+    }, [allRoles]);
 
     // Only non-system roles can be bulk-deleted
     const customRoleIds = useMemo(
@@ -351,7 +377,20 @@ export default function ManageRolesPage() {
                     <AddRoleDialog onRoleAdded={fetchUser} />
                 </div>
             }
+            search={{
+                value: search,
+                onChange: setSearch,
+                placeholder: 'Search by role name…',
+            }}
         >
+            {/* KPI strip */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
+                <ZoruStatCard label="Total roles" value={totalRoles.toLocaleString()} />
+                <ZoruStatCard label="System roles" value={systemRoles.toLocaleString()} />
+                <ZoruStatCard label="Custom roles" value={customRolesCount.toLocaleString()} />
+                <ZoruStatCard label="Most permissions" value={mostUsedRole} />
+            </div>
+
             {/* Bulk selection header for custom roles */}
             {customRoleIds.length > 0 && (
                 <div className="mb-3 flex items-center gap-3">
@@ -419,7 +458,7 @@ export default function ManageRolesPage() {
 
             <form action={formAction}>
                 <ZoruAccordion type="single" collapsible className="w-full space-y-4">
-                    {allRoles.map((role) => {
+                    {filteredRoles.map((role) => {
                         const crmPermissions = (role.permissions || {}) as Record<string, Record<string, boolean>>;
                         const isSystem = role.id === 'agent';
 

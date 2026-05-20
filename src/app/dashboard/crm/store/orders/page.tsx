@@ -1,29 +1,58 @@
-import { ZoruBadge, ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-import {
-  ShoppingBag } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+'use client';
 
 /**
- * Store orders list — `/dashboard/crm/store/orders`.
+ * Store orders list — `/dashboard/crm/store/orders`
  *
- * Orders are created from the public storefront; this admin surface is
- * read-only at the list level (per CRM_REBUILD_PLAN §6.3 bonus).
+ * KPI strip (total, pending, fulfilled, cancelled, revenue), filter
+ * (status, date range, storefront), bulk fulfill/cancel/delete, export CSV.
  */
 
+import * as React from 'react';
 import Link from 'next/link';
+import { Download, ShoppingBag, Trash2 } from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
 
 import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCardContent,
+    ZoruCheckbox,
+    ZoruDateRangePicker,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuTrigger,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+
+import {
+    cancelOrder,
     getStorefrontList,
     getStoreOrders,
+    markOrderFulfilled,
 } from '@/app/actions/crm-store.actions';
-import { StorefrontFilterClient } from '../products/_components/storefront-filter';
 
-export const dynamic = 'force-dynamic';
+type OrderItem = Record<string, unknown>;
+type StatusFilter = 'all' | 'pending' | 'paid' | 'fulfilled' | 'cancelled' | 'refunded';
 
-function statusVariant(
-    status?: string,
-): 'success' | 'warning' | 'danger' | 'ghost' {
+function statusVariant(status?: string): 'success' | 'warning' | 'danger' | 'ghost' {
     const s = (status || '').toLowerCase();
     if (s === 'paid' || s === 'fulfilled') return 'success';
     if (s === 'pending' || s === 'awaiting_fulfillment') return 'warning';
@@ -35,10 +64,7 @@ function fmtMoney(n: unknown, currency = 'INR'): string {
     const num = typeof n === 'number' ? n : parseFloat(String(n ?? ''));
     if (Number.isNaN(num)) return '—';
     try {
-        return new Intl.NumberFormat('en-IN', {
-            style: 'currency',
-            currency,
-        }).format(num);
+        return new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(num);
     } catch {
         return `${currency} ${num}`;
     }
@@ -50,121 +76,356 @@ function fmtDate(v: unknown): string {
     return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-interface PageProps {
-    searchParams: Promise<{ storefrontId?: string }>;
+function oId(o: OrderItem): string {
+    return String(o._id ?? '');
+}
+function oStatus(o: OrderItem): string {
+    return String(o.status ?? 'pending');
+}
+function oTotal(o: OrderItem): number {
+    const t =
+        (o.totals as Record<string, unknown> | null)?.total ??
+        o.total ??
+        0;
+    return typeof t === 'number' ? t : parseFloat(String(t)) || 0;
 }
 
-export default async function StoreOrdersPage({ searchParams }: PageProps) {
-    const sp = await searchParams;
-    const storefrontId = sp.storefrontId ?? '';
+export default function StoreOrdersPage(): React.JSX.Element {
+    const { toast } = useZoruToast();
 
-    const [{ items }, { items: storefronts }] = await Promise.all([
-        getStoreOrders(storefrontId || undefined),
-        getStorefrontList(),
-    ]);
+    const [items, setItems] = React.useState<OrderItem[]>([]);
+    const [storefronts, setStorefronts] = React.useState<Array<{ id: string; name: string }>>([]);
+    const [isPending, startTransition] = React.useTransition();
+    const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+    const [storefrontFilter, setStorefrontFilter] = React.useState('');
+    const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
+
+    const fetchData = React.useCallback(() => {
+        startTransition(async () => {
+            const [{ items: orders }, { items: sfList }] = await Promise.all([
+                getStoreOrders(storefrontFilter || undefined),
+                getStorefrontList(),
+            ]);
+            setItems(Array.isArray(orders) ? orders : []);
+            setStorefronts(
+                (Array.isArray(sfList) ? sfList : []).map((sf) => ({
+                    id: String((sf as Record<string, unknown>)._id ?? ''),
+                    name: String((sf as Record<string, unknown>).name ?? 'Untitled'),
+                })),
+            );
+        });
+    }, [storefrontFilter]);
+
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const kpis = React.useMemo(() => {
+        const total = items.length;
+        const pending = items.filter((o) => ['pending', 'awaiting_fulfillment'].includes(oStatus(o))).length;
+        const fulfilled = items.filter((o) => oStatus(o) === 'fulfilled').length;
+        const cancelled = items.filter((o) => ['cancelled', 'refunded'].includes(oStatus(o))).length;
+        const revenue = items
+            .filter((o) => ['paid', 'fulfilled'].includes(oStatus(o)))
+            .reduce((sum, o) => sum + oTotal(o), 0);
+        return { total, pending, fulfilled, cancelled, revenue };
+    }, [items]);
+
+    const filtered = React.useMemo(() => {
+        return items.filter((o) => {
+            if (statusFilter !== 'all' && oStatus(o) !== statusFilter) return false;
+            if (dateRange?.from || dateRange?.to) {
+                const d = new Date(o.createdAt as string | Date | null ?? '');
+                if (Number.isNaN(d.getTime())) return false;
+                if (dateRange.from && d < dateRange.from) return false;
+                if (dateRange.to && d > dateRange.to) return false;
+            }
+            return true;
+        });
+    }, [items, statusFilter, dateRange]);
+
+    const allSelected =
+        filtered.length > 0 && filtered.every((o) => selected.has(oId(o)));
+
+    const toggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(filtered.map(oId)) : new Set());
+        },
+        [filtered],
+    );
+
+    const handleBulkFulfill = React.useCallback(async () => {
+        let ok = 0;
+        for (const id of Array.from(selected)) {
+            const res = await markOrderFulfilled(id);
+            if (res.ok) ok++;
+        }
+        toast({ title: `${ok} order(s) fulfilled` });
+        setSelected(new Set());
+        fetchData();
+    }, [selected, fetchData, toast]);
+
+    const handleBulkCancel = React.useCallback(async () => {
+        let ok = 0;
+        for (const id of Array.from(selected)) {
+            const res = await cancelOrder(id);
+            if (res.ok) ok++;
+        }
+        toast({ title: `${ok} order(s) cancelled` });
+        setSelected(new Set());
+        fetchData();
+    }, [selected, fetchData, toast]);
+
+    // Bulk delete uses cancel as a soft-delete equivalent
+    const handleBulkDelete = React.useCallback(async () => {
+        let ok = 0;
+        for (const id of Array.from(selected)) {
+            const res = await cancelOrder(id);
+            if (res.ok) ok++;
+        }
+        toast({ title: `${ok} order(s) cancelled/removed` });
+        setSelected(new Set());
+        setBulkDeleteOpen(false);
+        fetchData();
+    }, [selected, fetchData, toast]);
+
+    const exportCsv = React.useCallback(() => {
+        const rows = selected.size > 0 ? filtered.filter((o) => selected.has(oId(o))) : filtered;
+        const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const csv = [
+            'OrderNo,Customer,Total,Currency,Placed,Status',
+            ...rows.map((o) => {
+                const orderNo = String((o as Record<string, unknown>).orderNo ?? `#${oId(o).slice(-6)}`);
+                return [
+                    escape(orderNo),
+                    escape(o.customerEmail ?? o.customerName),
+                    escape(oTotal(o).toFixed(2)),
+                    escape(o.currency ?? 'INR'),
+                    escape(fmtDate(o.createdAt)),
+                    escape(oStatus(o)),
+                ].join(',');
+            }),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `orders-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [filtered, selected]);
+
+    const hasActiveFilters = statusFilter !== 'all' || !!dateRange?.from || !!dateRange?.to;
 
     return (
-        <EntityListShell
-            title="Store orders"
-            subtitle="Orders captured from the storefront — payment and fulfillment state."
-        >
+        <>
+            <EntityListShell
+                title="Store orders"
+                subtitle="Orders captured from the storefront — payment and fulfillment state."
+                filters={
+                    <ZoruCard>
+                        <ZoruCardContent className="flex flex-wrap items-end gap-3 pt-4">
+                            <div className="min-w-[180px] space-y-1">
+                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    Storefront
+                                </ZoruLabel>
+                                <ZoruSelect value={storefrontFilter} onValueChange={setStorefrontFilter}>
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="All storefronts" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="">All storefronts</ZoruSelectItem>
+                                        {storefronts.map((sf) => (
+                                            <ZoruSelectItem key={sf.id} value={sf.id}>
+                                                {sf.name}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="min-w-[160px] space-y-1">
+                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    Status
+                                </ZoruLabel>
+                                <ZoruSelect
+                                    value={statusFilter}
+                                    onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                                >
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="All" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">All</ZoruSelectItem>
+                                        <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+                                        <ZoruSelectItem value="paid">Paid</ZoruSelectItem>
+                                        <ZoruSelectItem value="fulfilled">Fulfilled</ZoruSelectItem>
+                                        <ZoruSelectItem value="cancelled">Cancelled</ZoruSelectItem>
+                                        <ZoruSelectItem value="refunded">Refunded</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="min-w-[220px] space-y-1">
+                                <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                                    Date placed
+                                </ZoruLabel>
+                                <ZoruDateRangePicker value={dateRange} onChange={setDateRange} />
+                            </div>
+                            {hasActiveFilters ? (
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                        setStatusFilter('all');
+                                        setDateRange(undefined);
+                                    }}
+                                >
+                                    Clear filters
+                                </ZoruButton>
+                            ) : null}
+                        </ZoruCardContent>
+                    </ZoruCard>
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-medium text-zoru-ink">{selected.size} selected</span>
+                            <span className="flex-1" />
+                            <ZoruButton size="sm" variant="outline" onClick={handleBulkFulfill}>
+                                Fulfill
+                            </ZoruButton>
+                            <ZoruButton size="sm" variant="outline" onClick={handleBulkCancel}>
+                                Cancel
+                            </ZoruButton>
+                            <ZoruDropdownMenu>
+                                <ZoruDropdownMenuTrigger asChild>
+                                    <ZoruButton size="sm" variant="outline">
+                                        <Download className="h-3.5 w-3.5" /> Export
+                                    </ZoruButton>
+                                </ZoruDropdownMenuTrigger>
+                                <ZoruDropdownMenuContent align="end">
+                                    <ZoruDropdownMenuItem onClick={exportCsv}>Export as CSV</ZoruDropdownMenuItem>
+                                </ZoruDropdownMenuContent>
+                            </ZoruDropdownMenu>
+                            <ZoruButton size="sm" variant="destructive" onClick={() => setBulkDeleteOpen(true)}>
+                                <Trash2 className="h-3.5 w-3.5" /> Delete
+                            </ZoruButton>
+                            <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                                Clear
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+                loading={isPending && items.length === 0}
+                empty={
+                    !isPending && filtered.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 p-8">
+                            <ShoppingBag className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">No orders found</h3>
+                        </div>
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                        <ZoruStatCard label="Total orders" value={kpis.total.toLocaleString()} icon={<ShoppingBag />} />
+                        <ZoruStatCard label="Pending" value={kpis.pending.toLocaleString()} icon={<ShoppingBag />} period="awaiting action" />
+                        <ZoruStatCard label="Fulfilled" value={kpis.fulfilled.toLocaleString()} icon={<ShoppingBag />} period="shipped" />
+                        <ZoruStatCard label="Cancelled" value={kpis.cancelled.toLocaleString()} icon={<ShoppingBag />} period="cancelled / refunded" />
+                        <ZoruStatCard
+                            label="Revenue"
+                            value={fmtMoney(kpis.revenue)}
+                            icon={<ShoppingBag />}
+                            period="paid + fulfilled"
+                        />
+                    </div>
 
-            <ZoruCard className="p-4">
-                <StorefrontFilterClient
-                    storefronts={storefronts.map((sf) => ({
-                        id: String((sf as Record<string, unknown>)._id ?? ''),
-                        name:
-                            ((sf as Record<string, unknown>).name as string) ??
-                            'Untitled',
-                    }))}
-                    selectedId={storefrontId}
-                />
-            </ZoruCard>
-
-            <ZoruCard className="p-6">
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="text-zoru-ink-muted">Order #</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Customer</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Total</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Placed</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {items.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell
-                                        colSpan={5}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                    >
-                                        No orders yet.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                items.map((o) => {
-                                    const id = String(
-                                        (o as Record<string, unknown>)._id ?? '',
-                                    );
-                                    const status =
-                                        ((o as Record<string, unknown>).status as
-                                            | string
-                                            | undefined) ?? 'pending';
-                                    const orderNo =
-                                        ((o as Record<string, unknown>)
-                                            .orderNo as string) ??
-                                        `#${id.slice(-6)}`;
-                                    return (
-                                        <ZoruTableRow
-                                            key={id}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                <Link
-                                                    href={`/dashboard/crm/store/orders/${id}`}
-                                                    className="hover:underline"
-                                                >
-                                                    {orderNo}
-                                                </Link>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {(o.customerEmail as string) ||
-                                                    (o.customerName as string) ||
-                                                    '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtMoney(
-                                                    (o.totals as Record<
-                                                        string,
-                                                        unknown
-                                                    > | null)?.total ?? o.total,
-                                                    (o.currency as string) ||
-                                                        'INR',
-                                                )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtDate(
-                                                    (o as Record<string, unknown>)
-                                                        .createdAt,
-                                                )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <ZoruBadge
-                                                    variant={statusVariant(status)}
-                                                >
-                                                    {status}
-                                                </ZoruBadge>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
+                    {filtered.length > 0 ? (
+                        <ZoruCard className="overflow-hidden p-0">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow>
+                                        <ZoruTableHead className="w-10">
+                                            <ZoruCheckbox
+                                                aria-label="Select all"
+                                                checked={allSelected}
+                                                onCheckedChange={(c) => toggleAll(c === true)}
+                                            />
+                                        </ZoruTableHead>
+                                        <ZoruTableHead>Order #</ZoruTableHead>
+                                        <ZoruTableHead>Customer</ZoruTableHead>
+                                        <ZoruTableHead>Total</ZoruTableHead>
+                                        <ZoruTableHead>Placed</ZoruTableHead>
+                                        <ZoruTableHead>Status</ZoruTableHead>
+                                    </ZoruTableRow>
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
+                                    {filtered.map((o) => {
+                                        const id = oId(o);
+                                        const status = oStatus(o);
+                                        const orderNo = String((o as Record<string, unknown>).orderNo ?? `#${id.slice(-6)}`);
+                                        return (
+                                            <ZoruTableRow
+                                                key={id}
+                                                data-state={selected.has(id) ? 'selected' : undefined}
+                                            >
+                                                <ZoruTableCell>
+                                                    <ZoruCheckbox
+                                                        aria-label={`Select ${orderNo}`}
+                                                        checked={selected.has(id)}
+                                                        onCheckedChange={() => toggleOne(id)}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    <Link
+                                                        href={`/dashboard/crm/store/orders/${id}`}
+                                                        className="hover:underline"
+                                                    >
+                                                        {orderNo}
+                                                    </Link>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {String(o.customerEmail ?? o.customerName ?? '—')}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {fmtMoney(oTotal(o), String(o.currency ?? 'INR'))}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
+                                                    {fmtDate(o.createdAt)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })}
+                                </ZoruTableBody>
+                            </ZoruTable>
+                        </ZoruCard>
+                    ) : null}
                 </div>
-            </ZoruCard>
-        </EntityListShell>
+            </EntityListShell>
+
+            <ConfirmDialog
+                open={bulkDeleteOpen}
+                onOpenChange={setBulkDeleteOpen}
+                title={`Cancel/delete ${selected.size} order${selected.size === 1 ? '' : 's'}?`}
+                description="Selected orders will be cancelled. This action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Confirm"
+                onConfirm={handleBulkDelete}
+            />
+        </>
     );
 }

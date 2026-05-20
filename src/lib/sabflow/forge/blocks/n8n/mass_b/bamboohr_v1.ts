@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_bamboohr_v1',
   name: 'BambooHR (v1)',
-  description: 'Legacy n8n BambooHR v1 shape. Delegates to forge_bamboohr.',
+  description: 'Legacy BambooHR v1 shape. Delegates to forge_bamboohr.',
   iconName: 'LuUsers',
   category: 'Integration',
   auth: { type: 'none' },

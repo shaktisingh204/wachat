@@ -45,8 +45,8 @@ async function info(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_error_trigger',
-  name: 'Error Trigger (n8n)',
-  description: 'Describe the n8n error payload shape. SabFlow onError is the real path.',
+  name: 'Error Trigger',
+  description: 'Describe the legacy error payload shape. SabFlow onError is the real path.',
   iconName: 'LuTriangleAlert',
   category: 'Integration',
   auth: { type: 'none' },
@@ -54,7 +54,7 @@ const block: ForgeBlock = {
     {
       id: 'info',
       label: 'Info',
-      description: 'Return the shape of the error data n8n exposes on a failed workflow.',
+      description: 'Return the shape of the error data exposed on a failed workflow.',
       fields: [],
       run: info,
     },

@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_webflow_v2',
   name: 'Webflow (v2)',
-  description: 'Legacy n8n Webflow v2 shape. Delegates to forge_webflow.',
+  description: 'Legacy Webflow v2 shape. Delegates to forge_webflow.',
   iconName: 'LuLayoutDashboard',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'webflow' },

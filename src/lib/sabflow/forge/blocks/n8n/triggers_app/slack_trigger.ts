@@ -93,7 +93,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_slack_trigger',
-  name: 'Slack Trigger (n8n)',
+  name: 'Slack Trigger',
   description:
     'Registration-info shim for Slack Events API. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_seatable_v1',
   name: 'SeaTable (v1)',
-  description: 'Legacy n8n SeaTable v1 shape. Delegates to forge_seatable.',
+  description: 'Legacy SeaTable v1 shape. Delegates to forge_seatable.',
   iconName: 'LuTable',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'seatable' },

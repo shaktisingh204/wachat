@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruStatCard, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
@@ -26,6 +26,7 @@ import {
  */
 
 import * as React from 'react';
+import { Building2, Clock, DollarSign, Calendar } from 'lucide-react';
 
 import { SabFileUrlInput } from '@/components/sabfiles';
 import { EntityFormField } from '@/components/crm/entity-form-field';
@@ -157,6 +158,34 @@ export default function CompanyProfilePage() {
             title="Company Profile"
             subtitle="Master details for your organization — branding, contact, fiscal year, and document prefixes."
         >
+            {profile ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <ZoruStatCard
+                        label="Company"
+                        value={profile.company_name || '—'}
+                        icon={<Building2 className="h-4 w-4" />}
+                    />
+                    <ZoruStatCard
+                        label="Timezone"
+                        value={profile.timezone || '—'}
+                        icon={<Clock className="h-4 w-4" />}
+                    />
+                    <ZoruStatCard
+                        label="Currency"
+                        value={profile.currency_code || '—'}
+                        icon={<DollarSign className="h-4 w-4" />}
+                    />
+                    <ZoruStatCard
+                        label="Fiscal year start"
+                        value={
+                            profile.fiscal_year_start_month
+                                ? `Month ${profile.fiscal_year_start_month}`
+                                : '—'
+                        }
+                        icon={<Calendar className="h-4 w-4" />}
+                    />
+                </div>
+            ) : null}
             <EntityFormShell
                 action={formAction}
                 submitLabel="Save Profile"

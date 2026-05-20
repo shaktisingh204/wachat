@@ -99,7 +99,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_pipedrive_trigger',
-  name: 'Pipedrive Trigger (n8n)',
+  name: 'Pipedrive Trigger',
   description:
     'Registration-info shim for Pipedrive webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

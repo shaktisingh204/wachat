@@ -257,7 +257,7 @@ export function ImportClient() {
             <div className="flex items-center gap-2">
               <LuCircleCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
               <span className="text-[13px] font-semibold text-green-800 dark:text-green-300">
-                Imported from {success.format === 'n8n' ? 'n8n' : 'Typebot'}
+                Imported from {success.format === 'n8n' ? 'workflow JSON' : 'Typebot'}
               </span>
             </div>
             <ul className="text-[11.5px] text-green-700 dark:text-green-300 ml-6 list-disc space-y-0.5">

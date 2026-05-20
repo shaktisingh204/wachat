@@ -54,7 +54,7 @@ async function route(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_switch_n8n',
-  name: 'Switch (n8n)',
+  name: 'Switch (Legacy)',
   description: 'Route the flow based on which case the expression matches.',
   iconName: 'LuRoute',
   category: 'Logic',

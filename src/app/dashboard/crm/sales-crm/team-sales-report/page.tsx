@@ -1,34 +1,63 @@
 'use client';
 
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruDatePicker,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    ZoruButton,
+    ZoruCard,
+    ZoruDatePicker,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
-import { Download } from "lucide-react";
-import { useState, useEffect, useTransition, useCallback } from 'react';
+import { Download, LoaderCircle, Trophy, TrendingUp, Users } from 'lucide-react';
+import { useState, useEffect, useTransition, useCallback, useMemo } from 'react';
 import { generateTeamSalesReportData } from '@/app/actions/crm-reports.actions';
-import { LoaderCircle } from 'lucide-react';
 import Papa from 'papaparse';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 
+interface ReportRow {
+    salespersonId: string;
+    salespersonName: string;
+    salespersonEmail?: string;
+    totalLeads: number;
+    openLeads: number;
+    closedLeads: number;
+    lostLeads: number;
+    conversionRate: number;
+    totalRevenue: number;
+    avgDealValue: number;
+}
+
+interface UserOption {
+    _id?: string;
+    salespersonId?: string;
+    name?: string;
+    salespersonName?: string;
+}
+
 export default function TeamSalesReportPage() {
-    const [reportData, setReportData] = useState<any[]>([]);
-    const [users, setUsers] = useState<any[]>([]);
+    const [reportData, setReportData] = useState<ReportRow[]>([]);
+    const [users, setUsers] = useState<UserOption[]>([]);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useZoruToast();
 
@@ -40,15 +69,15 @@ export default function TeamSalesReportPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const { data, users } = await generateTeamSalesReportData({
+            const { data, users: rawUsers } = await generateTeamSalesReportData({
                 createdFrom: startDate,
                 createdTo: endDate,
                 pipelineId,
                 leadSource,
                 assigneeId,
             });
-            setReportData(data);
-            setUsers(users);
+            setReportData(Array.isArray(data) ? (data as ReportRow[]) : []);
+            setUsers(Array.isArray(rawUsers) ? (rawUsers as UserOption[]) : []);
         });
     }, [startDate, endDate, pipelineId, leadSource, assigneeId]);
 
@@ -56,17 +85,56 @@ export default function TeamSalesReportPage() {
         fetchData();
     }, [fetchData]);
 
+    /* ─── KPIs ──────────────────────────────────────────────────── */
+
+    const kpis = useMemo(() => {
+        if (reportData.length === 0) {
+            return {
+                totalRevenue: 0,
+                topPerformer: '—',
+                avgPerRep: 0,
+                avgConvRate: 0,
+            };
+        }
+        const totalRevenue = reportData.reduce((s, d) => s + d.totalRevenue, 0);
+        const sorted = [...reportData].sort((a, b) => b.totalRevenue - a.totalRevenue);
+        const topPerformer = sorted[0]?.salespersonName ?? '—';
+        const avgPerRep = totalRevenue / reportData.length;
+        const avgConvRate =
+            reportData.reduce((s, d) => s + d.conversionRate, 0) / reportData.length;
+        return { totalRevenue, topPerformer, avgPerRep, avgConvRate };
+    }, [reportData]);
+
+    /* ─── Bar chart data (revenue per rep) ─────────────────────── */
+
+    const chartData = useMemo(
+        () =>
+            [...reportData]
+                .sort((a, b) => b.totalRevenue - a.totalRevenue)
+                .slice(0, 10)
+                .map((d) => ({
+                    name: d.salespersonName,
+                    Revenue: Math.round(d.totalRevenue),
+                    Closed: d.closedLeads,
+                })),
+        [reportData],
+    );
+
+    /* ─── Export ────────────────────────────────────────────────── */
+
     const handleDownload = () => {
         if (reportData.length === 0) {
-            toast({ title: 'No Data', description: 'There is no report data to download.' });
+            toast({ title: 'No data', description: 'No report data to download.' });
             return;
         }
-        const csv = Papa.unparse(reportData.map(d => ({
-            ...d,
-            conversionRate: d.conversionRate.toFixed(1) + '%',
-            totalRevenue: d.totalRevenue.toFixed(2),
-            avgDealValue: d.avgDealValue.toFixed(2),
-        })));
+        const csv = Papa.unparse(
+            reportData.map((d) => ({
+                ...d,
+                conversionRate: `${d.conversionRate.toFixed(1)}%`,
+                totalRevenue: d.totalRevenue.toFixed(2),
+                avgDealValue: d.avgDealValue.toFixed(2),
+            })),
+        );
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -84,51 +152,140 @@ export default function TeamSalesReportPage() {
         setAssigneeId('');
     };
 
-    const ReportStat = ({ label, value, subValue }: { label: string, value: string | number, subValue?: string }) => (
-        <div className="rounded-lg border border-border bg-secondary p-3 text-center">
-            <p className="text-[13px] text-muted-foreground">{label}</p>
-            <p className="text-[22px] font-semibold text-foreground">{value}</p>
-            {subValue && <p className="text-[11.5px] text-muted-foreground">{subValue}</p>}
-        </div>
-    );
-
     return (
         <EntityListShell
             title="Team Sales Report"
             subtitle="Performance metrics for each salesperson."
+            primaryAction={
+                <ZoruButton variant="outline" onClick={handleDownload}>
+                    <Download className="h-3.5 w-3.5" /> Download CSV
+                </ZoruButton>
+            }
         >
+            {/* KPI strip */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <ZoruStatCard
+                    label="Total team revenue"
+                    value={`₹${kpis.totalRevenue.toLocaleString()}`}
+                    icon={<TrendingUp />}
+                    period="all reps combined"
+                />
+                <ZoruStatCard
+                    label="Top performer"
+                    value={kpis.topPerformer}
+                    icon={<Trophy />}
+                    period="by revenue"
+                />
+                <ZoruStatCard
+                    label="Avg per rep"
+                    value={`₹${kpis.avgPerRep.toFixed(0)}`}
+                    icon={<Users />}
+                    period="mean revenue"
+                />
+                <ZoruStatCard
+                    label="Avg conversion"
+                    value={`${kpis.avgConvRate.toFixed(1)}%`}
+                    icon={<TrendingUp />}
+                    period="across all reps"
+                />
+            </div>
 
+            {/* Filters */}
             <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Lead Created At</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Pipeline</ZoruLabel><ZoruSelect value={pipelineId} onValueChange={setPipelineId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Pipelines" /></ZoruSelectTrigger><ZoruSelectContent><ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem></ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Assigned To</ZoruLabel><ZoruSelect value={assigneeId} onValueChange={setAssigneeId}><ZoruSelectTrigger><ZoruSelectValue placeholder="All Assignees" /></ZoruSelectTrigger><ZoruSelectContent>{users.map(u => <ZoruSelectItem key={u._id} value={u._id}>{u.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Lead created from</ZoruLabel>
+                        <ZoruDatePicker
+                            value={startDate}
+                            onChange={(d) => setStartDate(d ?? undefined)}
+                            placeholder="Start date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Lead created to</ZoruLabel>
+                        <ZoruDatePicker
+                            value={endDate}
+                            onChange={(d) => setEndDate(d ?? undefined)}
+                            placeholder="End date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
+                        <ZoruSelect value={pipelineId} onValueChange={setPipelineId}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="All pipelines" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="">All pipelines</ZoruSelectItem>
+                                <ZoruSelectItem value="sales">Sales Pipeline</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Rep</ZoruLabel>
+                        <ZoruSelect value={assigneeId} onValueChange={setAssigneeId}>
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="All reps" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="">All reps</ZoruSelectItem>
+                                {users.map((u) => {
+                                    const uid = String(u._id ?? u.salespersonId ?? '');
+                                    const uname = String(u.name ?? u.salespersonName ?? uid);
+                                    return (
+                                        <ZoruSelectItem key={uid} value={uid}>
+                                            {uname}
+                                        </ZoruSelectItem>
+                                    );
+                                })}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
                 </div>
                 <div className="mt-4 flex gap-2">
                     <ZoruButton onClick={fetchData} disabled={isLoading}>
                         Apply Filters
                     </ZoruButton>
-                    <ZoruButton variant="ghost" onClick={clearFilters}>Clear Filters</ZoruButton>
+                    <ZoruButton variant="ghost" onClick={clearFilters}>
+                        Clear Filters
+                    </ZoruButton>
                 </div>
             </ZoruCard>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <ReportStat label="Total Revenue" value={`₹${reportData.reduce((sum, d) => sum + d.totalRevenue, 0).toLocaleString()}`} />
-                <ReportStat label="Total Leads" value={reportData.reduce((sum, d) => sum + d.totalLeads, 0)} />
-                <ReportStat label="Deals Closed" value={reportData.reduce((sum, d) => sum + d.closedLeads, 0)} />
-                <ReportStat label="Avg. Deal Value" value={`₹${(reportData.reduce((sum, d) => sum + d.avgDealValue, 0) / (reportData.length || 1)).toFixed(0)}`} />
-            </div>
+            {/* Bar chart — revenue by rep */}
+            {chartData.length > 0 ? (
+                <ZoruCard>
+                    <div className="mb-4">
+                        <h2 className="text-[16px] font-semibold text-foreground">Revenue by rep</h2>
+                        <p className="text-[12px] text-muted-foreground">
+                            Top {chartData.length} salesperson(s).
+                        </p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={chartData} layout="vertical">
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis dataKey="name" type="category" width={130} />
+                            <Tooltip
+                                formatter={(v: number, name: string) => [
+                                    name === 'Revenue' ? `₹${v.toLocaleString()}` : v,
+                                    name,
+                                ]}
+                            />
+                            <Bar dataKey="Revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                            <Bar dataKey="Closed" fill="hsl(var(--secondary))" radius={[0, 4, 4, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </ZoruCard>
+            ) : null}
 
+            {/* Data table */}
             <ZoruCard>
-                <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-[16px] font-semibold text-foreground">Salesperson Performance</h2>
-                    <ZoruButton variant="outline" onClick={handleDownload}>
-                        Download CSV
-                    </ZoruButton>
+                <div className="mb-4">
+                    <h2 className="text-[16px] font-semibold text-foreground">Salesperson performance</h2>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
                     <ZoruTable>
@@ -139,32 +296,63 @@ export default function TeamSalesReportPage() {
                                 <ZoruTableHead className="text-muted-foreground">Open</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Closed</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Lost</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Conversion Rate</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Total Revenue</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Avg. Deal Value</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Conv. Rate</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Revenue</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Avg Deal</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={8} className="h-24 text-center"><LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" /></ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={8} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : reportData.length > 0 ? (
-                                reportData.map(row => (
+                                reportData.map((row) => (
                                     <ZoruTableRow key={row.salespersonId} className="border-border">
                                         <ZoruTableCell>
-                                            <div className="font-medium text-foreground">{row.salespersonName}</div>
-                                            <div className="text-[11.5px] text-muted-foreground">{row.salespersonEmail}</div>
+                                            <div className="font-medium text-foreground">
+                                                {row.salespersonName}
+                                            </div>
+                                            {row.salespersonEmail ? (
+                                                <div className="text-[11.5px] text-muted-foreground">
+                                                    {row.salespersonEmail}
+                                                </div>
+                                            ) : null}
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.totalLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.openLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-green-600">{row.closedLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="font-semibold text-red-600">{row.lostLeads}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.conversionRate.toFixed(1)}%</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">₹{row.totalRevenue.toLocaleString()}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">₹{row.avgDealValue.toLocaleString()}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.totalLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.openLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-semibold text-green-600">
+                                            {row.closedLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-semibold text-red-600">
+                                            {row.lostLeads}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.conversionRate.toFixed(1)}%
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            ₹{row.totalRevenue.toLocaleString()}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            ₹{row.avgDealValue.toLocaleString()}
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={8} className="h-24 text-center text-[13px] text-muted-foreground">No data available for the selected filters.</ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell
+                                        colSpan={8}
+                                        className="h-24 text-center text-[13px] text-muted-foreground"
+                                    >
+                                        No data for selected filters.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
                         </ZoruTableBody>
                     </ZoruTable>

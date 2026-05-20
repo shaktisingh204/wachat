@@ -26,7 +26,7 @@ async function start(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_manual_trigger',
-  name: 'Manual Trigger (n8n)',
+  name: 'Manual Trigger',
   description: 'No-op start marker. SabFlow uses the start event for real manual runs.',
   iconName: 'LuPlay',
   category: 'Logic',

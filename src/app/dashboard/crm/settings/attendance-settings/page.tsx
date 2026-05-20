@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
+import { ZoruButton, ZoruCard, ZoruInput, ZoruLabel, ZoruSkeleton, ZoruStatCard, ZoruSwitch, ZoruTextarea, useZoruToast } from '@/components/zoruui';
 import {
   useActionState,
   useCallback,
@@ -8,7 +8,7 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { LoaderCircle } from 'lucide-react';
+import { Clock, LoaderCircle, ShieldCheck, Timer } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
@@ -84,11 +84,49 @@ export default function AttendanceSettingsPage() {
 
   const ipListInitial = (settings?.allowed_ip_addresses ?? []).join('\n');
 
+  const enabledToggles = settings
+    ? [
+        settings.allow_web_checkin,
+        settings.allow_mobile_checkin,
+        settings.require_location,
+        settings.work_from_home_allowed,
+        settings.require_approval,
+        settings.auto_clock_out,
+      ].filter(Boolean).length
+    : 0;
+
+  const ipCount = (settings?.allowed_ip_addresses ?? []).length;
+
   return (
     <EntityListShell
       title="Attendance Settings"
       subtitle="Office hours, check-in methods, lateness rules, and location/IP constraints."
     >
+
+      {settings ? (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <ZoruStatCard
+            label="Office hours"
+            value={`${settings.office_start_time ?? '09:00'} – ${settings.office_end_time ?? '18:00'}`}
+            icon={<Clock className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Late after"
+            value={`${settings.late_mark_after ?? 10} min`}
+            icon={<Timer className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Toggles on"
+            value={`${enabledToggles} / 6`}
+            icon={<ShieldCheck className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="IP whitelist"
+            value={ipCount === 0 ? 'Open' : `${ipCount} IPs`}
+            icon={<ShieldCheck className="h-4 w-4" />}
+          />
+        </div>
+      ) : null}
 
       {isLoading && !settings ? (
         <ZoruCard className="p-6">

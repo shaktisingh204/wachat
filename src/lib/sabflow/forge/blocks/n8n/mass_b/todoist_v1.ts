@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_todoist_v1',
   name: 'Todoist (v1)',
-  description: 'Legacy n8n Todoist v1 shape. Delegates to forge_todoist.',
+  description: 'Legacy Todoist v1 shape. Delegates to forge_todoist.',
   iconName: 'LuCheckSquare',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'todoist' },

@@ -11,31 +11,25 @@ import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../types
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-const buildHeaders = (ctx: ForgeActionContext): Record<string, string> => {
-  const token = ctx.credential?.botToken;
-  if (!token) {
-    throw new Error('Slack: select a credential from SabFlow Connections');
-  }
-  return {
-    Authorization: `Bearer ${token}`,
-    'Content-Type': 'application/json; charset=utf-8',
-  };
-};
-
 async function postMessage(
   ctx: ForgeActionContext,
   channel: string,
   text: string,
   logPrefix: string,
 ): Promise<ForgeActionResult> {
-  const res = await fetch('https://slack.com/api/chat.postMessage', {
+  if (!ctx.credential?.botToken) {
+    throw new Error('Slack: select a credential from SabFlow Connections');
+  }
+  const r = await ctx.helpers!.requestWithAuthentication('bearer', {
     method: 'POST',
-    headers: buildHeaders(ctx),
-    body: JSON.stringify({ channel, text }),
+    url: 'https://slack.com/api/chat.postMessage',
+    tokenField: 'botToken',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    json: { channel, text },
   });
-  const data: unknown = await res.json();
+  const data = r.data;
   const ok = !!(data && typeof data === 'object' && (data as { ok?: boolean }).ok);
-  if (!res.ok || !ok) {
+  if (!r.ok || !ok) {
     const err =
       data && typeof data === 'object' ? (data as { error?: string }).error ?? 'unknown' : 'unknown';
     throw new Error(`Slack ${logPrefix} failed: ${err}`);

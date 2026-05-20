@@ -85,7 +85,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_notion_trigger',
-  name: 'Notion Trigger (n8n)',
+  name: 'Notion Trigger',
   description:
     'Registration-info shim for Notion webhooks / polling triggers. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

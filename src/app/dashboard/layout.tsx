@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ZoruHomeShell } from '@/components/zoruui';
 import {
   redirect } from "next/navigation";

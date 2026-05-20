@@ -14,7 +14,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_switch_v3',
   name: 'Switch (v3)',
-  description: 'Legacy n8n Switch v3 shape. Delegates to forge_switch_n8n.',
+  description: 'Legacy Switch v3 shape. Delegates to forge_switch_n8n.',
   iconName: 'LuShuffle',
   category: 'Logic',
   auth: { type: 'none' },

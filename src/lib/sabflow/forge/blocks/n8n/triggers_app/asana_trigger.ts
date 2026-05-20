@@ -87,7 +87,7 @@ function parseEvents(raw: unknown): string[] {
 
 const block: ForgeBlock = {
   id: 'forge_asana_trigger',
-  name: 'Asana Trigger (n8n)',
+  name: 'Asana Trigger',
   description:
     'Registration-info shim for Asana webhooks. The actual incoming webhook is handled by SabFlow’s webhook receiver.',
   iconName: 'LuWebhook',

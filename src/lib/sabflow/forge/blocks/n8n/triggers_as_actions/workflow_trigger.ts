@@ -30,8 +30,8 @@ async function info(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
 
 const block: ForgeBlock = {
   id: 'forge_workflow_trigger',
-  name: 'Workflow Trigger (n8n)',
-  description: 'Describe the n8n workflow lifecycle events. Not wired to a runtime in SabFlow.',
+  name: 'Workflow Trigger',
+  description: 'Describe the workflow lifecycle events. Not wired to a runtime in SabFlow.',
   iconName: 'LuInfo',
   category: 'Integration',
   auth: { type: 'none' },

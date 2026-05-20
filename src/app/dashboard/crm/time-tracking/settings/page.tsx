@@ -1,13 +1,16 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruSwitch, useZoruToast } from '@/components/zoruui';
+import { ZoruBadge, ZoruButton, ZoruCard, ZoruStatCard, ZoruSwitch, useZoruToast } from '@/components/zoruui';
 import {
   useEffect,
   useState,
   useTransition } from 'react';
 import {
   Briefcase,
-  ListTodo } from 'lucide-react';
+  CheckCircle2,
+  ListTodo,
+  XCircle,
+} from 'lucide-react';
 
 import * as React from 'react';
 
@@ -76,11 +79,32 @@ export default function TimeTrackingSettingsPage() {
     }
   };
 
+  // Derive KPI values from settings
+  const enabledCount = ITEMS.filter(({ module }) => isEnabled(module)).length;
+  const disabledCount = ITEMS.length - enabledCount;
+
   return (
     <EntityListShell
       title="Time Tracking Settings"
       subtitle="Choose whether time is logged against projects, tasks, or both."
     >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <ZoruStatCard
+          label="Total modules"
+          value={ITEMS.length}
+          icon={<Briefcase className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Enabled"
+          value={enabledCount}
+          icon={<CheckCircle2 className="h-4 w-4" />}
+        />
+        <ZoruStatCard
+          label="Disabled"
+          value={disabledCount}
+          icon={<XCircle className="h-4 w-4" />}
+        />
+      </div>
 
       <ZoruCard className="p-6">
         <div className="divide-y divide-zoru-line">

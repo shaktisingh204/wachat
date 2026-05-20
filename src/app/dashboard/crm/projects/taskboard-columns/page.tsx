@@ -21,6 +21,7 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -30,13 +31,15 @@ import {
   useZoruToast,
 } from '@/components/zoruui';
 import {
-  Plus,
-  Pencil,
-  Trash2,
-  ArrowUp,
   ArrowDown,
+  ArrowUp,
+  Download,
+  Kanban,
   LoaderCircle,
-  } from 'lucide-react';
+  Pencil,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 import { useActionState,
   useEffect,
   useState,
@@ -164,12 +167,68 @@ export default function TaskboardColumnsPage() {
       title="Taskboard Columns"
       subtitle="Customise the kanban board — reorder, recolour, and add columns."
       primaryAction={
-        <ZoruButton onClick={openCreate}>
-          <Plus className="h-4 w-4" strokeWidth={1.75} />
-          Add Column
-        </ZoruButton>
+        <div className="flex items-center gap-2">
+          <ZoruButton
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (!rows.length) {
+                toast({ title: 'Nothing to export' });
+                return;
+              }
+              const header = ['Name', 'Slug', 'Colour', 'Priority'];
+              const escape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+              const csv = [
+                header.join(','),
+                ...rows.map((r) =>
+                  [
+                    escape(r.columnName),
+                    escape(r.slug ?? ''),
+                    escape(r.labelColor ?? DEFAULT_COLOR),
+                    escape(r.priority ?? 0),
+                  ].join(','),
+                ),
+              ].join('\n');
+              const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `taskboard-columns-${new Date().toISOString().slice(0, 10)}.csv`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            <Download className="mr-1 h-3.5 w-3.5" />
+            Export CSV
+          </ZoruButton>
+          <ZoruButton onClick={openCreate}>
+            <Plus className="h-4 w-4" strokeWidth={1.75} />
+            Add Column
+          </ZoruButton>
+        </div>
       }
     >
+      <div className="flex flex-col gap-4">
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+          <ZoruStatCard
+            label="Total columns"
+            value={rows.length.toLocaleString()}
+            icon={<Kanban className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="With colour"
+            value={rows.filter((r) => (r.labelColor || '').trim().length > 0).length.toLocaleString()}
+          />
+          <ZoruStatCard
+            label="Priority range"
+            value={
+              rows.length > 0
+                ? `${Math.min(...rows.map((r) => r.priority ?? 0))} – ${Math.max(...rows.map((r) => r.priority ?? 0))}`
+                : '—'
+            }
+          />
+        </div>
 
       <ZoruCard>
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
@@ -275,6 +334,7 @@ export default function TaskboardColumnsPage() {
           </ZoruTable>
         </div>
       </ZoruCard>
+      </div>
 
       <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">

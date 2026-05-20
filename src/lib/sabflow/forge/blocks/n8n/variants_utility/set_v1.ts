@@ -24,7 +24,7 @@ async function run(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_set_v1',
   name: 'Set (v1)',
-  description: 'Legacy n8n Set v1 shape. Delegates to forge_set_n8n.',
+  description: 'Legacy Set v1 shape. Delegates to forge_set_n8n.',
   iconName: 'LuPencilLine',
   category: 'Logic',
   auth: { type: 'none' },

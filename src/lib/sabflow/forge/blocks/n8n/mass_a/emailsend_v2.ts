@@ -14,7 +14,7 @@ const block: ForgeBlock = {
   id: 'forge_emailsend_v2',
   name: 'Email Send (v2)',
   description:
-    'Legacy n8n EmailSend v2 shape. Delegates to forge_send_email_n8n.',
+    'Legacy EmailSend v2 shape. Delegates to forge_send_email_n8n.',
   iconName: 'LuMail',
   category: 'Integration',
   auth: { type: 'none' },

@@ -17,7 +17,7 @@ import type {
 const block: ForgeBlock = {
   id: 'forge_mattermost_v1',
   name: 'Mattermost (v1)',
-  description: 'Legacy n8n Mattermost v1 shape. Delegates to forge_mattermost.',
+  description: 'Legacy Mattermost v1 shape. Delegates to forge_mattermost.',
   iconName: 'LuMessageCircle',
   category: 'Integration',
   auth: { type: 'apiKey', credentialType: 'mattermost' },
