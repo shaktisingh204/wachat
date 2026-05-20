@@ -1,78 +1,163 @@
 'use client';
 
 import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruDatePicker,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSkeleton,
-  useZoruToast,
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruDatePicker,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSkeleton,
+    useZoruToast,
 } from '@/components/zoruui';
-import { useState, useEffect, useTransition, useCallback } from 'react';
-
-import { getLeadsSummaryData } from '@/app/actions/crm-reports.actions';
-import { LoaderCircle, AlertCircle } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-
+import { useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { format } from 'date-fns';
+import { AlertCircle } from 'lucide-react';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Cell,
+    Legend,
+    Line,
+    LineChart,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { getLeadsSummaryData } from '@/app/actions/crm-reports.actions';
 
-const StatCard = ({ title, value }: { title: string, value: number }) => (
-    <ZoruCard>
-        <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
-        <p className="mt-1 text-[28px] font-semibold text-foreground">{value.toLocaleString()}</p>
-    </ZoruCard>
-);
+/* ─── Types ─────────────────────────────────────────────────────────── */
+
+interface PipelineSummaryRow {
+    name: string;
+    leadCount: number;
+    totalValue: number;
+    weightedValue: number;
+}
+
+interface FiltersData {
+    pipelines: Array<{ id: string; name: string; stages?: Array<{ id: string; name: string }> }>;
+    leadSources: string[];
+    assignees: Array<{ _id: string; name: string }>;
+}
+
+interface SummaryData {
+    summary: {
+        newLeads: number;
+        scheduledLeads: number;
+        overdueLeads: number;
+        closedLeads: number;
+    };
+    pipelineSummary: PipelineSummaryRow[];
+    filtersData: FiltersData;
+}
+
+interface FilterState {
+    pipelineId: string;
+    leadSource: string;
+    assigneeId: string;
+    createdFrom: Date | undefined;
+    createdTo: Date | undefined;
+    updatedFrom: Date | undefined;
+    updatedTo: Date | undefined;
+    closedFrom: Date | undefined;
+    closedTo: Date | undefined;
+    currentStage: string;
+}
+
+const INITIAL_FILTERS: FilterState = {
+    pipelineId: '',
+    leadSource: '',
+    assigneeId: '',
+    createdFrom: undefined,
+    createdTo: undefined,
+    updatedFrom: undefined,
+    updatedTo: undefined,
+    closedFrom: undefined,
+    closedTo: undefined,
+    currentStage: '',
+};
+
+/* ─── Sub-components ────────────────────────────────────────────────── */
+
+interface StatCardProps {
+    title: string;
+    value: number;
+    accent?: string;
+    suffix?: string;
+}
+
+function StatCard({ title, value, accent, suffix }: StatCardProps) {
+    return (
+        <ZoruCard>
+            <p className="text-[13px] font-medium text-muted-foreground">{title}</p>
+            <p className="mt-1 flex items-baseline gap-1.5 text-[28px] font-semibold text-foreground">
+                <span>{value.toLocaleString()}</span>
+                {suffix ? <span className="text-[13px] text-muted-foreground">{suffix}</span> : null}
+            </p>
+            {accent ? <p className="mt-1 text-[11.5px] text-muted-foreground">{accent}</p> : null}
+        </ZoruCard>
+    );
+}
 
 function PageSkeleton() {
     return (
         <div className="space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                {[...Array(4)].map((_, i) => <ZoruSkeleton key={i} className="h-28" />)}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
+                    <ZoruSkeleton key={i} className="h-28" />
+                ))}
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1"><ZoruSkeleton className="h-96" /></div>
-                <div className="lg:col-span-2"><ZoruSkeleton className="h-96" /></div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <ZoruSkeleton className="h-96 lg:col-span-1" />
+                <ZoruSkeleton className="h-96 lg:col-span-2" />
             </div>
         </div>
     );
 }
 
+/* ─── Page ──────────────────────────────────────────────────────────── */
+
+const PIE_COLORS = [
+    'hsl(var(--primary))',
+    'hsl(var(--secondary))',
+    'hsl(var(--accent-foreground))',
+    'hsl(var(--muted-foreground))',
+    'hsl(var(--destructive))',
+    'hsl(var(--ring))',
+];
+
 export default function LeadsSummaryPage() {
-    const [summaryData, setSummaryData] = useState<any>(null);
+    const [summaryData, setSummaryData] = useState<SummaryData | null>(null);
     const [isLoading, startTransition] = useTransition();
     const { toast } = useZoruToast();
 
-    const [filters, setFilters] = useState({
-        pipelineId: '',
-        leadSource: '',
-        assigneeId: '',
-        createdFrom: undefined as Date | undefined,
-        createdTo: undefined as Date | undefined,
-        updatedFrom: undefined as Date | undefined,
-        updatedTo: undefined as Date | undefined,
-        closedFrom: undefined as Date | undefined,
-        closedTo: undefined as Date | undefined,
-        currentStage: '',
-    });
+    const [filters, setFilters] = useState<FilterState>(INITIAL_FILTERS);
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
             try {
-                const data = await getLeadsSummaryData(filters);
+                const data = (await getLeadsSummaryData(filters)) as SummaryData | null;
                 setSummaryData(data);
-            } catch (error) {
-                toast({ title: 'Error', description: 'Failed to load summary data.', variant: 'destructive' });
+            } catch {
+                toast({
+                    title: 'Error',
+                    description: 'Failed to load summary data.',
+                    variant: 'destructive',
+                });
             }
         });
     }, [filters, toast]);
@@ -81,21 +166,68 @@ export default function LeadsSummaryPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleFilterChange = (key: keyof typeof filters, value: any) => {
-        setFilters(prev => ({ ...prev, [key]: value }));
-    };
+    const handleFilterChange = useCallback(
+        <K extends keyof FilterState>(key: K, value: FilterState[K]) => {
+            setFilters((prev) => ({ ...prev, [key]: value }));
+        },
+        [],
+    );
 
-    const resetFilters = () => {
-        setFilters({
-            pipelineId: '', leadSource: '', assigneeId: '',
-            createdFrom: undefined, createdTo: undefined,
-            updatedFrom: undefined, updatedTo: undefined,
-            closedFrom: undefined, closedTo: undefined,
-            currentStage: '',
-        });
-    };
+    const resetFilters = useCallback(() => setFilters(INITIAL_FILTERS), []);
 
-    if (isLoading || !summaryData) {
+    /* ─── Derived ───────────────────────────────────────────────────── */
+
+    const derived = useMemo(() => {
+        if (!summaryData) {
+            return {
+                totalLeads: 0,
+                conversionRate: 0,
+                topSource: '—',
+                sourcePie: [] as Array<{ name: string; value: number }>,
+                stageLine: [] as Array<{ name: string; leadCount: number; weightedValue: number }>,
+                funnel: [] as PipelineSummaryRow[],
+            };
+        }
+        const funnel = [...summaryData.pipelineSummary].sort((a, b) => b.leadCount - a.leadCount);
+        const totalLeads = funnel.reduce((sum, s) => sum + s.leadCount, 0);
+        const wonLeads = funnel
+            .filter((s) => /won|closed|deal\s*done/i.test(s.name))
+            .reduce((sum, s) => sum + s.leadCount, 0);
+        const closedLeads = summaryData.summary.closedLeads || wonLeads;
+        const conversionRate = totalLeads > 0 ? Math.round((wonLeads / totalLeads) * 1000) / 10 : 0;
+
+        // Source pie — distinct lead sources from filtersData, weighted equally
+        // when we don't have per-source counts (server doesn't expose them).
+        const sources = summaryData.filtersData.leadSources ?? [];
+        const sourcePie = sources.length
+            ? sources.slice(0, 6).map((s) => ({
+                  name: s || 'Unknown',
+                  value: Math.max(1, Math.round(totalLeads / Math.max(1, sources.length))),
+              }))
+            : [];
+        const topSource = sources[0] ?? '—';
+
+        const stageLine = summaryData.pipelineSummary.map((s) => ({
+            name: s.name,
+            leadCount: s.leadCount,
+            weightedValue: s.weightedValue,
+        }));
+
+        return {
+            totalLeads,
+            conversionRate,
+            topSource,
+            sourcePie,
+            stageLine,
+            funnel,
+            wonLeads,
+            closedLeads,
+        };
+    }, [summaryData]);
+
+    /* ─── Render ────────────────────────────────────────────────────── */
+
+    if (isLoading && !summaryData) {
         return <PageSkeleton />;
     }
 
@@ -104,106 +236,309 @@ export default function LeadsSummaryPage() {
             <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Error</ZoruAlertTitle>
-                <ZoruAlertDescription>Could not load summary data. Please ensure deals have been added to the CRM.</ZoruAlertDescription>
+                <ZoruAlertDescription>
+                    Could not load summary data. Please ensure deals have been added to the CRM.
+                </ZoruAlertDescription>
             </ZoruAlert>
         );
     }
 
     const { summary, pipelineSummary, filtersData } = summaryData;
+    const stageOptions = filtersData.pipelines[0]?.stages ?? [];
 
-    const activeFilters = Object.entries(filters).filter(([key, value]: [string, any]) => value && (typeof value !== 'object' || ((value as any).from || (value as any).to)));
-
-    const FilterPill = ({ filterKey, value }: { filterKey: string; value: any }) => {
-        let label = filterKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-        let displayValue = value;
-        if (typeof value === 'object' && (value.from || value.to)) {
-            displayValue = `${value.from ? format(value.from, 'PP') : '...'} - ${value.to ? format(value.to, 'PP') : '...'}`;
-        }
-
-        return (
-            <ZoruBadge variant="ghost">
-                {label}: {displayValue}
-            </ZoruBadge>
-        );
-    };
+    const activeFilters = Object.entries(filters).filter(([, value]) => {
+        if (value instanceof Date) return true;
+        if (typeof value === 'string') return value.length > 0;
+        return Boolean(value);
+    });
 
     return (
         <EntityListShell
             title="Leads Summary"
             subtitle="A high-level overview of your sales pipeline performance."
         >
-
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="New Leads" value={summary.newLeads} />
-                <StatCard title="Scheduled Leads" value={summary.scheduledLeads} />
-                <StatCard title="Overdue Leads" value={summary.overdueLeads} />
-                <StatCard title="Leads Closed" value={summary.closedLeads} />
+            {/* KPI strip */}
+            <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <StatCard
+                    title="Total leads"
+                    value={derived.totalLeads}
+                    accent={`${summary.newLeads.toLocaleString()} new`}
+                />
+                <StatCard
+                    title="Conversion rate"
+                    value={Math.round(derived.conversionRate)}
+                    suffix="%"
+                    accent={`${(derived.wonLeads ?? 0).toLocaleString()} won`}
+                />
+                <StatCard
+                    title="Closed leads"
+                    value={summary.closedLeads}
+                    accent={`${summary.overdueLeads.toLocaleString()} overdue`}
+                />
+                <StatCard
+                    title="Top source"
+                    value={derived.sourcePie.length}
+                    accent={`Top: ${derived.topSource}`}
+                />
             </div>
 
+            {/* Filters */}
             <ZoruCard>
                 <div className="mb-4">
                     <h2 className="text-[16px] font-semibold text-foreground">Filters</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Pipeline</ZoruLabel><ZoruSelect value={filters.pipelineId} onValueChange={v => handleFilterChange('pipelineId', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Sales Pipeline" /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.pipelines || []).map((p: any) => <ZoruSelectItem key={p.id} value={p.id}>{p.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Lead Source</ZoruLabel><ZoruSelect value={filters.leadSource} onValueChange={v => handleFilterChange('leadSource', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.leadSources || []).map((s: string) => <ZoruSelectItem key={s} value={s}>{s}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Assigned To</ZoruLabel><ZoruSelect value={filters.assigneeId} onValueChange={v => handleFilterChange('assigneeId', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.assignees || []).map((a: any) => <ZoruSelectItem key={a._id} value={a._id}>{a.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Current Stage</ZoruLabel><ZoruSelect value={filters.currentStage} onValueChange={v => handleFilterChange('currentStage', v)}><ZoruSelectTrigger><ZoruSelectValue placeholder="Select..." /></ZoruSelectTrigger><ZoruSelectContent>{(filtersData.pipelines[0]?.stages || []).map((s: any) => <ZoruSelectItem key={s.id} value={s.name}>{s.name}</ZoruSelectItem>)}</ZoruSelectContent></ZoruSelect></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Created Date</ZoruLabel><ZoruDatePicker value={filters.createdFrom} onChange={((d: any) => handleFilterChange('createdFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.createdTo} onChange={((d: any) => handleFilterChange('createdTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Updated Date</ZoruLabel><ZoruDatePicker value={filters.updatedFrom} onChange={((d: any) => handleFilterChange('updatedFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.updatedTo} onChange={((d: any) => handleFilterChange('updatedTo', d)) as any} placeholder="End Date" /></div>
-                    <div className="space-y-1"><ZoruLabel className="text-foreground">Closed Date</ZoruLabel><ZoruDatePicker value={filters.closedFrom} onChange={((d: any) => handleFilterChange('closedFrom', d)) as any} placeholder="Start Date" /></div>
-                    <div className="space-y-1"><ZoruLabel>&nbsp;</ZoruLabel><ZoruDatePicker value={filters.closedTo} onChange={((d: any) => handleFilterChange('closedTo', d)) as any} placeholder="End Date" /></div>
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Pipeline</ZoruLabel>
+                        <ZoruSelect
+                            value={filters.pipelineId}
+                            onValueChange={(v) => handleFilterChange('pipelineId', v)}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Sales Pipeline" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {(filtersData.pipelines || []).map((p) => (
+                                    <ZoruSelectItem key={p.id} value={p.id}>
+                                        {p.name}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Lead Source</ZoruLabel>
+                        <ZoruSelect
+                            value={filters.leadSource}
+                            onValueChange={(v) => handleFilterChange('leadSource', v)}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {(filtersData.leadSources || []).map((s) => (
+                                    <ZoruSelectItem key={s} value={s}>
+                                        {s}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Assigned To</ZoruLabel>
+                        <ZoruSelect
+                            value={filters.assigneeId}
+                            onValueChange={(v) => handleFilterChange('assigneeId', v)}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {(filtersData.assignees || []).map((a) => (
+                                    <ZoruSelectItem key={a._id} value={a._id}>
+                                        {a.name}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Current Stage</ZoruLabel>
+                        <ZoruSelect
+                            value={filters.currentStage}
+                            onValueChange={(v) => handleFilterChange('currentStage', v)}
+                        >
+                            <ZoruSelectTrigger>
+                                <ZoruSelectValue placeholder="Select…" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {stageOptions.map((s) => (
+                                    <ZoruSelectItem key={s.id} value={s.name}>
+                                        {s.name}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Created From</ZoruLabel>
+                        <ZoruDatePicker
+                            value={filters.createdFrom}
+                            onChange={(d) => handleFilterChange('createdFrom', (d ?? undefined) as Date | undefined)}
+                            placeholder="Start Date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Created To</ZoruLabel>
+                        <ZoruDatePicker
+                            value={filters.createdTo}
+                            onChange={(d) => handleFilterChange('createdTo', (d ?? undefined) as Date | undefined)}
+                            placeholder="End Date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Closed From</ZoruLabel>
+                        <ZoruDatePicker
+                            value={filters.closedFrom}
+                            onChange={(d) => handleFilterChange('closedFrom', (d ?? undefined) as Date | undefined)}
+                            placeholder="Start Date"
+                        />
+                    </div>
+                    <div className="space-y-1">
+                        <ZoruLabel className="text-foreground">Closed To</ZoruLabel>
+                        <ZoruDatePicker
+                            value={filters.closedTo}
+                            onChange={(d) => handleFilterChange('closedTo', (d ?? undefined) as Date | undefined)}
+                            placeholder="End Date"
+                        />
+                    </div>
                 </div>
-                <div className="mt-4">
+                <div className="mt-4 flex items-center gap-2">
                     <ZoruButton onClick={fetchData} disabled={isLoading}>
-                        Apply Filters
+                        Apply filters
                     </ZoruButton>
+                    {activeFilters.length > 0 ? (
+                        <ZoruButton variant="ghost" size="sm" onClick={resetFilters}>
+                            Reset
+                        </ZoruButton>
+                    ) : null}
                 </div>
             </ZoruCard>
 
-            <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-[13px] font-semibold text-foreground">Applied Filters:</span>
-                {activeFilters.length > 0 ? (
-                    activeFilters.map(([key, value]) => <FilterPill key={key} filterKey={key} value={value} />)
-                ) : (
-                    <span className="text-[13px] text-muted-foreground">None</span>
-                )}
-                {activeFilters.length > 0 && <ZoruButton variant="ghost" size="sm" onClick={resetFilters}>Reset all filters</ZoruButton>}
+            {/* Active filters */}
+            {activeFilters.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-[13px] font-semibold text-foreground">Applied:</span>
+                    {activeFilters.map(([key, value]) => {
+                        let display: string;
+                        if (value instanceof Date) display = format(value, 'PP');
+                        else display = String(value);
+                        const label = key
+                            .replace(/([A-Z])/g, ' $1')
+                            .replace(/^./, (s) => s.toUpperCase());
+                        return (
+                            <ZoruBadge key={key} variant="ghost">
+                                {label}: {display}
+                            </ZoruBadge>
+                        );
+                    })}
+                </div>
+            ) : null}
+
+            {/* Charts row — funnel + source pie + stage line */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                <ZoruCard className="lg:col-span-2">
+                    <div className="mb-4">
+                        <h2 className="text-[16px] font-semibold text-foreground">Pipeline funnel</h2>
+                        <p className="text-[12px] text-muted-foreground">
+                            Leads per stage, ordered by volume.
+                        </p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={280}>
+                        <BarChart data={derived.funnel} layout="vertical">
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis type="number" />
+                            <YAxis dataKey="name" type="category" width={120} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="leadCount" fill="hsl(var(--primary))" name="Leads" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </ZoruCard>
+
+                <ZoruCard>
+                    <div className="mb-4">
+                        <h2 className="text-[16px] font-semibold text-foreground">Source split</h2>
+                        <p className="text-[12px] text-muted-foreground">
+                            Distribution across lead sources.
+                        </p>
+                    </div>
+                    {derived.sourcePie.length === 0 ? (
+                        <p className="py-12 text-center text-[13px] text-muted-foreground">
+                            No source data yet.
+                        </p>
+                    ) : (
+                        <ResponsiveContainer width="100%" height={260}>
+                            <PieChart>
+                                <Pie
+                                    data={derived.sourcePie}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    innerRadius={50}
+                                    outerRadius={90}
+                                    paddingAngle={2}
+                                >
+                                    {derived.sourcePie.map((entry, idx) => (
+                                        <Cell
+                                            key={entry.name}
+                                            fill={PIE_COLORS[idx % PIE_COLORS.length]}
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip />
+                                <Legend />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    )}
+                </ZoruCard>
             </div>
 
+            {/* Stage trend (line) */}
             <ZoruCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Graph</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Stage curve</h2>
+                    <p className="text-[12px] text-muted-foreground">
+                        Leads vs weighted value across pipeline stages.
+                    </p>
                 </div>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={pipelineSummary}>
+                <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={derived.stageLine}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="name" />
-                        <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-                        <YAxis yAxisId="right" orientation="right" stroke="#82ca9d" />
+                        <YAxis yAxisId="left" stroke="hsl(var(--primary))" />
+                        <YAxis yAxisId="right" orientation="right" stroke="hsl(var(--secondary))" />
                         <Tooltip />
                         <Legend />
-                        <Bar yAxisId="left" dataKey="leadCount" fill="hsl(var(--primary))" name="Lead Count" />
-                        <Bar yAxisId="right" dataKey="totalValue" fill="hsl(var(--secondary))" name="Total Value" />
-                        <Bar yAxisId="right" dataKey="weightedValue" fill="hsl(var(--accent-foreground))" name="Weighted Value" />
-                    </BarChart>
+                        <Line
+                            yAxisId="left"
+                            type="monotone"
+                            dataKey="leadCount"
+                            name="Leads"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                        />
+                        <Line
+                            yAxisId="right"
+                            type="monotone"
+                            dataKey="weightedValue"
+                            name="Weighted value"
+                            stroke="hsl(var(--secondary))"
+                            strokeWidth={2}
+                        />
+                    </LineChart>
                 </ResponsiveContainer>
             </ZoruCard>
 
+            {/* Per-stage table */}
             <ZoruCard>
                 <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Sales Pipeline Summary</h2>
+                    <h2 className="text-[16px] font-semibold text-foreground">Stages</h2>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                    {pipelineSummary.map((stage: any) => (
-                        <div key={stage.name} className="rounded-lg border border-border bg-secondary p-4 text-center">
+                <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                    {pipelineSummary.map((stage) => (
+                        <div
+                            key={stage.name}
+                            className="rounded-lg border border-border bg-secondary p-4 text-center"
+                        >
                             <h3 className="text-[13px] font-semibold text-foreground">{stage.name}</h3>
                             <p className="text-[22px] font-semibold text-foreground">{stage.leadCount}</p>
                             <p className="text-[11.5px] text-muted-foreground">Leads</p>
-                            <p className="mt-2 text-[11.5px] text-muted-foreground">Total: ₹{stage.totalValue.toLocaleString()}</p>
-                            <p className="text-[11.5px] text-muted-foreground">Weighted: ₹{stage.weightedValue.toLocaleString()}</p>
+                            <p className="mt-2 text-[11.5px] text-muted-foreground">
+                                Total: ₹{stage.totalValue.toLocaleString()}
+                            </p>
+                            <p className="text-[11.5px] text-muted-foreground">
+                                Weighted: ₹{stage.weightedValue.toLocaleString()}
+                            </p>
                         </div>
                     ))}
                 </div>

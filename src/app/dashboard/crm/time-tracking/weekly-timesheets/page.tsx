@@ -1,7 +1,16 @@
 'use client';
 
 import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruCheckbox,
   ZoruInput,
   ZoruLabel,
   ZoruSelect,
@@ -36,26 +45,25 @@ import {
   CalendarRange,
   CheckCircle2,
   Clock,
+  Download,
   Edit,
   Eye,
+  LoaderCircle,
   MoreHorizontal,
   Plus,
   Send,
   Trash2,
   TrendingUp,
+  XCircle,
   } from 'lucide-react';
 
 /**
  * Weekly Timesheets — list page (rebuilt per §1D.1).
  *
- * Composition:
- *   <EntityListShell>
- *     • KPI strip (4 cards: Submitted · Pending approval · Approved · Avg hours/employee)
- *     • Filter row (status · employee · week range)
- *     • Table columns: employee · week of · total hours · status · submitted at · approver · actions
- *
- * Inline create + edit dialog. Detail at
- * `/dashboard/crm/time-tracking/weekly-timesheets/[timesheetId]` (preserved).
+ * Additions over the original:
+ *  - ZoruCheckbox multi-select
+ *  - Bulk bar: Submit + Approve + Reject + Delete with confirm
+ *  - Export CSV/XLSX (timesheet summaries)
  */
 
 import * as React from 'react';
@@ -73,8 +81,14 @@ import {
   deleteWeeklyTimesheet,
   submitWeeklyTimesheet,
   approveWeeklyTimesheet,
+  rejectWeeklyTimesheet,
+  bulkSubmitTimesheets,
+  bulkApproveTimesheets,
+  bulkRejectTimesheets,
+  bulkDeleteTimesheets,
 } from '@/app/actions/worksuite/time.actions';
 import type { WsWeeklyTimesheet } from '@/lib/worksuite/time-types';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
 type Row = WsWeeklyTimesheet & { _id: string };
 
@@ -90,6 +104,10 @@ function fmtDateTime(v: unknown): string {
   return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString();
 }
 
+function fmtHours(r: Row): string {
+  return `${r.total_hours || 0}h ${String(r.total_minutes || 0).padStart(2, '0')}m`;
+}
+
 export default function WeeklyTimesheetsPage() {
   const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<Row[]>([]);
@@ -100,6 +118,11 @@ export default function WeeklyTimesheetsPage() {
   const [createOpen, setCreateOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Row | null>(null);
   const [deleteId, setDeleteId] = React.useState<string | null>(null);
+
+  // Bulk state
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = React.useTransition();
+  const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -155,6 +178,44 @@ export default function WeeklyTimesheetsPage() {
     [rows, deleteId],
   );
 
+  // Selection helpers
+  const filteredIds = React.useMemo(() => filtered.map((r) => r._id), [filtered]);
+  const allChecked =
+    filteredIds.length > 0 && filteredIds.every((id) => selected.has(id));
+  const someChecked = filteredIds.some((id) => selected.has(id));
+
+  const toggleAll = () => {
+    if (allChecked) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredIds.forEach((id) => next.add(id));
+        return next;
+      });
+    }
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectedIds = React.useMemo(
+    () => [...selected].filter((id) => filteredIds.includes(id)),
+    [selected, filteredIds],
+  );
+  const hasSelection = selectedIds.length > 0;
+
+  // Single actions
   const handleConfirmDelete = React.useCallback(async () => {
     if (!deleteId) return;
     const res = await deleteWeeklyTimesheet(deleteId);
@@ -197,6 +258,113 @@ export default function WeeklyTimesheetsPage() {
     [refresh, toast],
   );
 
+  const handleReject = React.useCallback(
+    async (id: string) => {
+      const res = await rejectWeeklyTimesheet(id, '');
+      if (res.ok) {
+        toast({ title: 'Timesheet rejected' });
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
+    },
+    [refresh, toast],
+  );
+
+  // Bulk actions
+  const handleBulkSubmit = () => {
+    startBulkTransition(async () => {
+      const res = await bulkSubmitTimesheets(selectedIds);
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) submitted` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
+    });
+  };
+
+  const handleBulkApprove = () => {
+    startBulkTransition(async () => {
+      const res = await bulkApproveTimesheets(selectedIds);
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) approved` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
+    });
+  };
+
+  const handleBulkReject = () => {
+    startBulkTransition(async () => {
+      const res = await bulkRejectTimesheets(selectedIds, '');
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) rejected` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
+    });
+  };
+
+  const handleBulkDelete = () => {
+    startBulkTransition(async () => {
+      const res = await bulkDeleteTimesheets(selectedIds);
+      if (res.ok) {
+        toast({ title: `${res.count} timesheet(s) deleted` });
+        setSelected(new Set());
+        refresh();
+      } else {
+        toast({ title: 'Error', description: res.error, variant: 'destructive' });
+      }
+      setBulkDeleteOpen(false);
+    });
+  };
+
+  // Export
+  const handleExportCsv = () => {
+    const exportRows = filtered.map((r) => ({
+      'Employee ID': String(r.user_id ?? ''),
+      'Week start': fmtDate(r.week_start_date),
+      'Week end': fmtDate(r.week_end_date),
+      'Total hours': Number(r.total_hours) || 0,
+      'Total minutes': Number(r.total_minutes) || 0,
+      Status: r.status || '',
+      'Submitted at': fmtDateTime(r.submitted_at),
+      'Approver ID': r.approved_by ? String(r.approved_by) : '',
+    }));
+    downloadCsv(
+      `timesheets-${dateStamp()}.csv`,
+      Object.keys(exportRows[0] ?? {}),
+      exportRows,
+    );
+    toast({ title: 'CSV exported' });
+  };
+
+  const handleExportXlsx = async () => {
+    const exportRows = filtered.map((r) => ({
+      'Employee ID': String(r.user_id ?? ''),
+      'Week start': fmtDate(r.week_start_date),
+      'Week end': fmtDate(r.week_end_date),
+      'Total hours': Number(r.total_hours) || 0,
+      'Total minutes': Number(r.total_minutes) || 0,
+      Status: r.status || '',
+      'Submitted at': fmtDateTime(r.submitted_at),
+      'Approver ID': r.approved_by ? String(r.approved_by) : '',
+    }));
+    await downloadXlsx(
+      `timesheets-${dateStamp()}.xlsx`,
+      Object.keys(exportRows[0] ?? {}),
+      exportRows,
+      'Timesheets',
+    );
+    toast({ title: 'XLSX exported' });
+  };
+
   return (
     <>
       <EntityListShell
@@ -208,9 +376,17 @@ export default function WeeklyTimesheetsPage() {
           placeholder: 'Search reason / notes…',
         }}
         primaryAction={
-          <ZoruButton onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" /> New timesheet
-          </ZoruButton>
+          <div className="flex items-center gap-2">
+            <ZoruButton variant="outline" size="sm" onClick={handleExportCsv} disabled={filtered.length === 0}>
+              <Download className="mr-1.5 h-3.5 w-3.5" /> CSV
+            </ZoruButton>
+            <ZoruButton variant="outline" size="sm" onClick={handleExportXlsx} disabled={filtered.length === 0}>
+              <Download className="mr-1.5 h-3.5 w-3.5" /> XLSX
+            </ZoruButton>
+            <ZoruButton onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" /> New timesheet
+            </ZoruButton>
+          </div>
         }
         filters={
           <>
@@ -289,11 +465,116 @@ export default function WeeklyTimesheetsPage() {
             />
           </div>
 
+          {/* Bulk selection header */}
+          {filtered.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+                <ZoruCheckbox
+                  checked={allChecked}
+                  aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all visible timesheets"
+                />
+                Select all
+              </label>
+            </div>
+          )}
+
+          {/* Bulk action bar */}
+          {hasSelection && (
+            <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
+              <span className="font-medium text-foreground">
+                {selectedIds.length} selected
+              </span>
+              <ZoruButton
+                variant="outline"
+                size="sm"
+                disabled={bulkPending}
+                onClick={handleBulkSubmit}
+              >
+                {bulkPending ? (
+                  <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Send className="mr-1.5 h-3.5 w-3.5" />
+                )}
+                Submit
+              </ZoruButton>
+              <ZoruButton
+                variant="outline"
+                size="sm"
+                disabled={bulkPending}
+                onClick={handleBulkApprove}
+              >
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" />
+                Approve
+              </ZoruButton>
+              <ZoruButton
+                variant="outline"
+                size="sm"
+                disabled={bulkPending}
+                onClick={handleBulkReject}
+              >
+                <XCircle className="mr-1.5 h-3.5 w-3.5" />
+                Reject
+              </ZoruButton>
+              <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                <ZoruButton
+                  variant="destructive"
+                  size="sm"
+                  disabled={bulkPending}
+                  onClick={() => setBulkDeleteOpen(true)}
+                >
+                  <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                  Delete selected
+                </ZoruButton>
+                <ZoruAlertDialogContent>
+                  <ZoruAlertDialogHeader>
+                    <ZoruAlertDialogTitle>
+                      Delete {selectedIds.length} timesheet(s)?
+                    </ZoruAlertDialogTitle>
+                    <ZoruAlertDialogDescription>
+                      This permanently removes the selected timesheets. This
+                      action cannot be undone.
+                    </ZoruAlertDialogDescription>
+                  </ZoruAlertDialogHeader>
+                  <ZoruAlertDialogFooter>
+                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                    <ZoruAlertDialogAction
+                      onClick={handleBulkDelete}
+                      disabled={bulkPending}
+                    >
+                      {bulkPending ? (
+                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      ) : null}
+                      Delete
+                    </ZoruAlertDialogAction>
+                  </ZoruAlertDialogFooter>
+                </ZoruAlertDialogContent>
+              </ZoruAlertDialog>
+              <ZoruButton
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelected(new Set())}
+              >
+                Clear selection
+              </ZoruButton>
+            </div>
+          )}
+
           {filtered.length === 0 && !loading ? null : (
             <div className="overflow-x-auto rounded-lg border border-zoru-line">
               <ZoruTable>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      <ZoruCheckbox
+                        checked={allChecked}
+                        aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
+                        onCheckedChange={toggleAll}
+                        aria-label="Select all"
+                        disabled={filtered.length === 0}
+                      />
+                    </ZoruTableHead>
                     <ZoruTableHead>Employee</ZoruTableHead>
                     <ZoruTableHead>Week of</ZoruTableHead>
                     <ZoruTableHead>Week end</ZoruTableHead>
@@ -310,6 +591,13 @@ export default function WeeklyTimesheetsPage() {
                       key={r._id}
                       className="border-zoru-line transition-colors"
                     >
+                      <ZoruTableCell>
+                        <ZoruCheckbox
+                          checked={selected.has(r._id)}
+                          onCheckedChange={() => toggleOne(r._id)}
+                          aria-label={`Select timesheet for ${r.user_id}`}
+                        />
+                      </ZoruTableCell>
                       <ZoruTableCell>
                         {r.user_id ? (
                           <EntityRowLink
@@ -333,7 +621,7 @@ export default function WeeklyTimesheetsPage() {
                         {fmtDate(r.week_end_date)}
                       </ZoruTableCell>
                       <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                        {`${r.total_hours || 0}h ${String(r.total_minutes || 0).padStart(2, '0')}m`}
+                        {fmtHours(r)}
                       </ZoruTableCell>
                       <ZoruTableCell>
                         <StatusPill label={r.status} tone={statusToTone(r.status)} />
@@ -382,11 +670,18 @@ export default function WeeklyTimesheetsPage() {
                               </ZoruDropdownMenuItem>
                             ) : null}
                             {r.status === 'submitted' ? (
-                              <ZoruDropdownMenuItem
-                                onClick={() => handleApprove(r._id)}
-                              >
-                                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Approve
-                              </ZoruDropdownMenuItem>
+                              <>
+                                <ZoruDropdownMenuItem
+                                  onClick={() => handleApprove(r._id)}
+                                >
+                                  <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Approve
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem
+                                  onClick={() => handleReject(r._id)}
+                                >
+                                  <XCircle className="mr-1.5 h-3.5 w-3.5" /> Reject
+                                </ZoruDropdownMenuItem>
+                              </>
                             ) : null}
                             <ZoruDropdownMenuItem
                               onClick={() => setDeleteId(r._id)}

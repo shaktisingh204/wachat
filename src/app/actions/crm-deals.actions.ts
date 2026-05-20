@@ -1302,3 +1302,196 @@ export async function findCrmDealDuplicates(): Promise<DealDuplicateGroup[]> {
         return [];
     }
 }
+
+/* ─── Duplicate-cluster resolution ────────────────────────────────────
+ *
+ * Mirrors `crm-leads.actions.ts`. Cluster status is persisted in
+ * `crm_deal_duplicate_resolutions` keyed by the cluster signature
+ * (`<clientId>:<amount-bucket>:<close-bucket>` — the natural identity
+ * for a deal-dedupe match).
+ */
+
+export type DealDuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
+
+export interface DealDuplicateResolution {
+    signature: string;
+    status: DealDuplicateClusterStatus;
+    survivorId?: string;
+    mergedIds?: string[];
+    updatedAt: string;
+}
+
+const DEAL_DUP_RESOLUTIONS_COLLECTION = 'crm_deal_duplicate_resolutions';
+
+export async function getDealDuplicateResolutions(): Promise<DealDuplicateResolution[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermission('crm_deal', 'view');
+    if (!guard.ok) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db
+            .collection(DEAL_DUP_RESOLUTIONS_COLLECTION)
+            .find({ userId: new ObjectId(String(session.user._id)) })
+            .toArray();
+        return docs.map((d) => ({
+            signature: String((d as any).signature ?? ''),
+            status: ((d as any).status as DealDuplicateClusterStatus) ?? 'pending',
+            survivorId: (d as any).survivorId ? String((d as any).survivorId) : undefined,
+            mergedIds: Array.isArray((d as any).mergedIds)
+                ? ((d as any).mergedIds as unknown[]).map((x) => String(x))
+                : undefined,
+            updatedAt: (d as any).updatedAt
+                ? new Date((d as any).updatedAt).toISOString()
+                : new Date().toISOString(),
+        }));
+    } catch (e) {
+        console.error('[getDealDuplicateResolutions] failed:', e);
+        return [];
+    }
+}
+
+export async function ignoreDealDuplicateCluster(
+    signature: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, error: 'Permission denied' };
+    if (!signature) return { success: false, error: 'signature required' };
+    try {
+        const { db } = await connectToDatabase();
+        const userObjId = new ObjectId(String(session.user._id));
+        await db.collection(DEAL_DUP_RESOLUTIONS_COLLECTION).updateOne(
+            { userId: userObjId, signature },
+            {
+                $set: {
+                    userId: userObjId,
+                    signature,
+                    status: 'ignored',
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true },
+        );
+        revalidateDealSurfaces();
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Merge a set of duplicate deals into one survivor. Backfills missing
+ * scalar fields on the survivor from siblings, then archives the others
+ * (`status='archived'`, `mergedInto=<survivor>`). Cluster signature is
+ * marked `resolved`.
+ */
+export async function mergeCrmDeals(args: {
+    survivorId: string;
+    mergedIds: string[];
+    signature: string;
+}): Promise<{ success: boolean; merged?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_deal', 'edit');
+    if (!guard.ok) return { success: false, error: 'Permission denied' };
+
+    const survivorId = String(args.survivorId ?? '').trim();
+    const mergedIds = (args.mergedIds ?? [])
+        .map((id) => String(id).trim())
+        .filter((id) => id && id !== survivorId);
+    if (!survivorId || mergedIds.length === 0) {
+        return { success: false, error: 'survivor and at least one merged id required' };
+    }
+    if (!ObjectId.isValid(survivorId) || mergedIds.some((id) => !ObjectId.isValid(id))) {
+        return { success: false, error: 'invalid deal id' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(String(session.user._id));
+        const survivorObjId = new ObjectId(survivorId);
+        const mergedObjIds = mergedIds.map((id) => new ObjectId(id));
+
+        const allDocs = await db
+            .collection('crm_deals')
+            .find({ userId: userObjectId, _id: { $in: [survivorObjId, ...mergedObjIds] } })
+            .toArray();
+        if (allDocs.length < 2) {
+            return { success: false, error: 'deals not found' };
+        }
+        const survivor = allDocs.find((d) => String(d._id) === survivorId);
+        if (!survivor) return { success: false, error: 'survivor not found' };
+
+        const backfillKeys = [
+            'name', 'value', 'currency', 'accountId', 'contactIds',
+            'closeDate', 'stage', 'notes', 'description', 'ownerId',
+        ] as const;
+        const survivorPatch: Record<string, unknown> = {};
+        for (const k of backfillKeys) {
+            const sv = (survivor as Record<string, unknown>)[k];
+            if (sv != null && sv !== '' && !(Array.isArray(sv) && sv.length === 0)) continue;
+            for (const d of allDocs) {
+                if (String(d._id) === survivorId) continue;
+                const v = (d as Record<string, unknown>)[k];
+                if (v != null && v !== '' && !(Array.isArray(v) && v.length === 0)) {
+                    survivorPatch[k] = v;
+                    break;
+                }
+            }
+        }
+        if (Object.keys(survivorPatch).length > 0) {
+            survivorPatch.updatedAt = new Date();
+            await db.collection('crm_deals').updateOne(
+                { _id: survivorObjId, userId: userObjectId },
+                { $set: survivorPatch },
+            );
+        }
+
+        await db.collection('crm_deals').updateMany(
+            { _id: { $in: mergedObjIds }, userId: userObjectId },
+            {
+                $set: {
+                    status: 'archived',
+                    mergedInto: survivorObjId,
+                    mergedAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            },
+        );
+
+        if (args.signature) {
+            await db.collection(DEAL_DUP_RESOLUTIONS_COLLECTION).updateOne(
+                { userId: userObjectId, signature: args.signature },
+                {
+                    $set: {
+                        userId: userObjectId,
+                        signature: args.signature,
+                        status: 'resolved',
+                        survivorId: survivorObjId,
+                        mergedIds: mergedObjIds,
+                        updatedAt: new Date(),
+                    },
+                },
+                { upsert: true },
+            );
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'merge',
+            entityKind: 'crm_deal',
+            entityId: survivorId,
+            reason: `Merged ${mergedIds.length} duplicate(s)`,
+            diff: { mergedIds: { after: mergedIds }, signature: { after: args.signature ?? '' } },
+        });
+
+        revalidateDealSurfaces(survivorId);
+        return { success: true, merged: mergedIds.length };
+    } catch (e) {
+        console.error('[mergeCrmDeals] failed:', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

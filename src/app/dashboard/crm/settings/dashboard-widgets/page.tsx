@@ -12,6 +12,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -20,6 +21,13 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
@@ -30,18 +38,36 @@ import {
   Trash2,
   ArrowUp,
   ArrowDown,
-  } from 'lucide-react';
+  LayoutDashboard,
+  PieChart,
+  Layers,
+  UserCircle,
+  Download,
+  X,
+  FileSpreadsheet,
+} from 'lucide-react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 
 import * as React from 'react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { RowDrawer } from '@/components/crm/row-drawer';
+import {
+  downloadCsv,
+  downloadXlsx,
+  dateStamp,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 import {
   getMyDashboardWidgets,
+  getDashboardWidgetKpis,
   saveDashboardWidget,
   deleteDashboardWidget,
   reorderDashboardWidgets,
   toggleWidgetVisibility,
+  type DashboardWidgetKpis,
 } from '@/app/actions/worksuite/dashboard.actions';
 import type {
   WsDashboardWidget,
@@ -49,43 +75,52 @@ import type {
 } from '@/lib/worksuite/dashboard-types';
 
 type Row = WsDashboardWidget & { _id: string };
+type TypeFilter = 'all' | WsDashboardWidgetType;
+type VisibilityFilter = 'all' | 'visible' | 'hidden';
 
-const TYPES: WsDashboardWidgetType[] = [
-  'stats',
-  'chart',
-  'list',
-  'calendar',
-  'custom',
-];
+const EMPTY_KPIS: DashboardWidgetKpis = {
+  total: 0,
+  by_type: {},
+  by_owner: [],
+  visible: 0,
+};
 
-/**
- * Dashboard Widgets settings page.
- *
- * Lets each user compose their personal CRM dashboard: a 12-col grid
- * of widgets that can be added, reordered (up/down), hidden, or
- * deleted. Widths are stored as 1–12 column spans.
- */
 export default function DashboardWidgetsPage() {
   const { toast } = useZoruToast();
-  const [widgets, setWidgets] = React.useState<Row[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
-  const [isPending, startTransition] = React.useTransition();
+  const [widgets, setWidgets] = useState<Row[]>([]);
+  const [kpis, setKpis] = useState<DashboardWidgetKpis>(EMPTY_KPIS);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPending, startTransition] = useTransition();
 
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [form, setForm] = React.useState({
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [form, setForm] = useState({
     widget_name: '',
     type: 'stats' as WsDashboardWidgetType,
     width: 4,
     config: '',
   });
-  const [saving, setSaving] = React.useState(false);
-  const [deletingId, setDeletingId] = React.useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>('all');
+  const [visFilter, setVisFilter] = useState<VisibilityFilter>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const refresh = React.useCallback(async () => {
     setIsLoading(true);
     try {
-      const res = (await getMyDashboardWidgets()) as Row[];
-      setWidgets(Array.isArray(res) ? res : []);
+      const [res, k] = await Promise.all([
+        getMyDashboardWidgets(),
+        getDashboardWidgetKpis(),
+      ]);
+      setWidgets(Array.isArray(res) ? (res as Row[]) : []);
+      setKpis((k as DashboardWidgetKpis) || EMPTY_KPIS);
     } catch (e) {
       console.error('Failed to load widgets', e);
     } finally {
@@ -93,11 +128,32 @@ export default function DashboardWidgetsPage() {
     }
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const handleAdd = async () => {
+  const resetForm = () => {
+    setEditing(null);
+    setForm({ widget_name: '', type: 'stats', width: 4, config: '' });
+  };
+
+  const openCreate = () => {
+    resetForm();
+    setDialogOpen(true);
+  };
+
+  const openEdit = (row: Row) => {
+    setEditing(row);
+    setForm({
+      widget_name: row.widget_name || '',
+      type: row.type || 'stats',
+      width: row.width || 4,
+      config: row.config ? JSON.stringify(row.config, null, 2) : '',
+    });
+    setDialogOpen(true);
+  };
+
+  const handleSave = async () => {
     if (!form.widget_name.trim()) {
       toast({
         title: 'Name required',
@@ -108,11 +164,18 @@ export default function DashboardWidgetsPage() {
     }
     setSaving(true);
     const fd = new FormData();
+    if (editing?._id) fd.set('_id', editing._id);
     fd.set('widget_name', form.widget_name.trim());
     fd.set('type', form.type);
     fd.set('width', String(form.width));
-    fd.set('position', String(widgets.length));
-    fd.set('is_visible', '1');
+    fd.set(
+      'position',
+      String(editing?.position ?? widgets.length),
+    );
+    fd.set(
+      'is_visible',
+      editing && editing.is_visible === false ? '0' : '1',
+    );
     if (form.config) fd.set('config', form.config);
     const res = await saveDashboardWidget(null, fd);
     setSaving(false);
@@ -124,9 +187,14 @@ export default function DashboardWidgetsPage() {
       });
       return;
     }
-    toast({ title: 'Added', description: 'Widget added to your dashboard.' });
+    toast({
+      title: editing ? 'Updated' : 'Added',
+      description: editing
+        ? 'Widget updated.'
+        : 'Widget added to your dashboard.',
+    });
     setDialogOpen(false);
-    setForm({ widget_name: '', type: 'stats', width: 4, config: '' });
+    resetForm();
     refresh();
   };
 
@@ -136,6 +204,11 @@ export default function DashboardWidgetsPage() {
     if (res.success) {
       toast({ title: 'Deleted', description: 'Widget removed.' });
       setDeletingId(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(deletingId);
+        return next;
+      });
       refresh();
     } else {
       toast({
@@ -144,6 +217,32 @@ export default function DashboardWidgetsPage() {
         variant: 'destructive',
       });
     }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    setBulkDeleting(true);
+    let ok = 0;
+    let failed = 0;
+    for (const id of ids) {
+      try {
+        const r = await deleteDashboardWidget(id);
+        if (r.success) ok += 1;
+        else failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    setBulkDeleting(false);
+    setSelected(new Set());
+    setBulkDeleteOpen(false);
+    toast({
+      title: 'Bulk delete',
+      description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
+      variant: failed ? 'destructive' : undefined,
+    });
+    refresh();
   };
 
   const handleToggle = async (id: string) => {
@@ -157,10 +256,12 @@ export default function DashboardWidgetsPage() {
       });
   };
 
+  const sorted = useMemo(
+    () => [...widgets].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
+    [widgets],
+  );
+
   const move = (id: string, dir: -1 | 1) => {
-    const sorted = [...widgets].sort(
-      (a, b) => (a.position ?? 0) - (b.position ?? 0),
-    );
     const idx = sorted.findIndex((w) => w._id === id);
     if (idx === -1) return;
     const j = idx + dir;
@@ -180,133 +281,433 @@ export default function DashboardWidgetsPage() {
     });
   };
 
-  const sorted = React.useMemo(
-    () => [...widgets].sort((a, b) => (a.position ?? 0) - (b.position ?? 0)),
-    [widgets],
-  );
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return sorted.filter((w) => {
+      if (q) {
+        const hay = `${w.widget_name || ''} ${w.type || ''} ${
+          w.config?.data_source || ''
+        }`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (typeFilter !== 'all' && w.type !== typeFilter) return false;
+      if (visFilter === 'visible' && w.is_visible === false) return false;
+      if (visFilter === 'hidden' && w.is_visible !== false) return false;
+      return true;
+    });
+  }, [sorted, search, typeFilter, visFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageRows = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const hasMore = page < totalPages;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const topType = useMemo(() => {
+    const entries = Object.entries(kpis.by_type);
+    if (entries.length === 0) return '—';
+    const top = entries.reduce((a, b) => (b[1] > a[1] ? b : a));
+    return `${top[0]} (${top[1]})`;
+  }, [kpis]);
+
+  const exportRowsFor = (subset: Row[]): ExportRow[] =>
+    subset.map((w) => ({
+      Name: w.widget_name,
+      Type: w.type,
+      Width: w.width,
+      Position: w.position,
+      Visible: w.is_visible === false ? 'No' : 'Yes',
+      DataSource: w.config?.data_source || '',
+    }));
+
+  const doExport = (format: 'csv' | 'xlsx') => {
+    const subset = selected.size
+      ? filtered.filter((r) => selected.has(r._id))
+      : filtered;
+    const headers = [
+      'Name',
+      'Type',
+      'Width',
+      'Position',
+      'Visible',
+      'DataSource',
+    ];
+    const filename = `dashboard-widgets-${dateStamp()}.${format}`;
+    if (format === 'csv') downloadCsv(filename, headers, exportRowsFor(subset));
+    else
+      void downloadXlsx(filename, headers, exportRowsFor(subset), 'Widgets');
+  };
+
+  const toggleAllOnPage = () => {
+    setSelected((prev) => {
+      const ids = pageRows.map((r) => r._id);
+      const allSelected = ids.every((id) => prev.has(id));
+      const next = new Set(prev);
+      if (allSelected) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allOnPageSelected =
+    pageRows.length > 0 && pageRows.every((r) => selected.has(r._id));
+
+  const TYPE_OPTIONS: TypeFilter[] = [
+    'all',
+    'stats',
+    'chart',
+    'list',
+    'calendar',
+    'custom',
+  ];
 
   return (
     <EntityListShell
       title="Dashboard Widgets"
       subtitle="Compose your personal CRM dashboard. Add widgets, reorder, and control visibility."
       primaryAction={
-        <ZoruButton onClick={() => setDialogOpen(true)}>
+        <ZoruButton onClick={openCreate}>
           <Plus className="h-4 w-4" strokeWidth={1.75} />
           Add Widget
         </ZoruButton>
       }
-    >
-
-      {isLoading ? (
-        <ZoruCard className="p-6">
-          <p className="text-[13px] text-zoru-ink-muted">Loading…</p>
-        </ZoruCard>
-      ) : sorted.length === 0 ? (
-        <ZoruCard className="p-6">
-          <div className="text-center">
-            <p className="text-[13px] text-zoru-ink-muted">
-              No widgets yet. Add your first widget to start building your
-              dashboard.
-            </p>
-            <div className="mt-4">
-              <ZoruButton onClick={() => setDialogOpen(true)}>
-                <Plus className="h-4 w-4" strokeWidth={1.75} />
-                Add your first widget
-              </ZoruButton>
-            </div>
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: 'Search widgets…',
+      }}
+      filters={
+        <>
+          {TYPE_OPTIONS.map((t) => (
+            <ZoruButton
+              key={t}
+              variant={typeFilter === t ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setTypeFilter(t);
+                setPage(1);
+              }}
+            >
+              {t === 'all' ? 'All types' : t}
+            </ZoruButton>
+          ))}
+          <span className="mx-1 h-4 w-px bg-zoru-line" />
+          {(['all', 'visible', 'hidden'] as VisibilityFilter[]).map((v) => (
+            <ZoruButton
+              key={v}
+              variant={visFilter === v ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setVisFilter(v);
+                setPage(1);
+              }}
+            >
+              {v === 'all' ? 'Any' : v.charAt(0).toUpperCase() + v.slice(1)}
+            </ZoruButton>
+          ))}
+        </>
+      }
+      bulkBar={
+        selected.size > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className="font-medium text-zoru-ink">
+              {selected.size} selected
+            </span>
+            <span className="text-zoru-ink-muted">·</span>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              disabled={bulkDeleting}
+              onClick={() => setBulkDeleteOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              Delete
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('csv')}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('xlsx')}
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Export XLSX
+            </ZoruButton>
+            <span className="ml-auto" />
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelected(new Set())}
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear
+            </ZoruButton>
           </div>
-        </ZoruCard>
-      ) : (
-        <div className="grid grid-cols-12 gap-4">
-          {sorted.map((w, idx) => {
-            const span = Math.max(1, Math.min(12, w.width ?? 4));
-            const colClass = `col-span-12 md:col-span-${span}`;
-            return (
-              <div key={w._id} className={colClass}>
-                <ZoruCard
-                  className={
-                    w.is_visible === false ? 'p-6 opacity-60' : 'p-6'
-                  }
-                >
-                  <div className="flex items-start justify-between gap-3 pb-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-[14px] text-zoru-ink">
-                        {w.widget_name}
-                      </p>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5">
-                        <ZoruBadge variant="default">{w.type}</ZoruBadge>
-                        <ZoruBadge variant="ghost">w:{span}</ZoruBadge>
-                        <ZoruBadge
-                          variant={w.is_visible !== false ? 'success' : 'ghost'}
-                        >
-                          {w.is_visible !== false ? 'Visible' : 'Hidden'}
-                        </ZoruBadge>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-1">
-                      <ZoruButton
-                        variant="ghost"
-                        size="sm"
-                        disabled={idx === 0 || isPending}
-                        onClick={() => move(w._id, -1)}
-                        aria-label="Move up"
-                      >
-                        <ArrowUp className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                      <ZoruButton
-                        variant="ghost"
-                        size="sm"
-                        disabled={idx === sorted.length - 1 || isPending}
-                        onClick={() => move(w._id, 1)}
-                        aria-label="Move down"
-                      >
-                        <ArrowDown className="h-3.5 w-3.5" />
-                      </ZoruButton>
-                      <ZoruButton
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleToggle(w._id)}
-                        aria-label="Toggle visibility"
-                      >
-                        {w.is_visible !== false ? (
-                          <Eye className="h-3.5 w-3.5" />
-                        ) : (
-                          <EyeOff className="h-3.5 w-3.5" />
-                        )}
-                      </ZoruButton>
-                      <ZoruButton
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setDeletingId(w._id)}
-                        aria-label="Delete"
-                      >
-                        <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                      </ZoruButton>
-                    </div>
-                  </div>
-                  {w.config?.data_source ? (
-                    <p className="text-[12px] text-zoru-ink-muted">
-                      Source:{' '}
-                      <span className="font-mono">{w.config.data_source}</span>
-                    </p>
-                  ) : (
-                    <p className="text-[12px] text-zoru-ink-muted">
-                      No data source configured.
-                    </p>
-                  )}
-                </ZoruCard>
-              </div>
-            );
-          })}
+        ) : null
+      }
+      loading={isLoading && widgets.length === 0}
+    >
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <ZoruStatCard
+            label="Total widgets"
+            value={kpis.total}
+            icon={<LayoutDashboard className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Top type"
+            value={topType}
+            icon={<PieChart className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Visible"
+            value={kpis.visible}
+            period={`${kpis.total - kpis.visible} hidden`}
+            icon={<Layers className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Owner"
+            value={kpis.by_owner[0]?.count ?? 0}
+            period="this user"
+            icon={<UserCircle className="h-4 w-4" />}
+          />
         </div>
-      )}
 
-      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruCard className="p-0">
+          <div className="overflow-x-auto">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="w-[40px]">
+                    <ZoruCheckbox
+                      checked={allOnPageSelected}
+                      onCheckedChange={toggleAllOnPage}
+                      aria-label="Select all on page"
+                    />
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Name
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Type
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Width
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Position
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Visible
+                  </ZoruTableHead>
+                  <ZoruTableHead className="w-[180px] text-right text-zoru-ink-muted">
+                    Actions
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {pageRows.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={7}
+                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      No widgets match the current filters.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  pageRows.map((w, idx) => (
+                    <ZoruTableRow key={w._id}>
+                      <ZoruTableCell>
+                        <ZoruCheckbox
+                          checked={selected.has(w._id)}
+                          onCheckedChange={() => toggleOne(w._id)}
+                          aria-label={`Select ${w.widget_name}`}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <RowDrawer
+                          label={w.widget_name}
+                          subtitle={w.config?.data_source || undefined}
+                          title={`Widget · ${w.widget_name}`}
+                          description="Inline detail. Use Edit to modify."
+                        >
+                          <div className="space-y-3 text-sm">
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Type
+                              </div>
+                              <div>{w.type}</div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Width
+                                </div>
+                                <div>{w.width}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Position
+                                </div>
+                                <div>{w.position ?? 0}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Visible
+                                </div>
+                                <div>
+                                  {w.is_visible === false ? 'No' : 'Yes'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Data source
+                                </div>
+                                <div className="font-mono text-xs">
+                                  {w.config?.data_source || '—'}
+                                </div>
+                              </div>
+                            </div>
+                            {w.config && Object.keys(w.config).length > 0 ? (
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Config
+                                </div>
+                                <pre className="rounded bg-zoru-surface-2 p-2 text-[11px]">
+                                  {JSON.stringify(w.config, null, 2)}
+                                </pre>
+                              </div>
+                            ) : null}
+                            <div className="pt-2">
+                              <ZoruButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() => openEdit(w)}
+                              >
+                                <Plus className="h-3.5 w-3.5" />
+                                Edit
+                              </ZoruButton>
+                            </div>
+                          </div>
+                        </RowDrawer>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant="default">{w.type}</ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        {w.width}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        {w.position ?? 0}
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge
+                          variant={
+                            w.is_visible === false ? 'ghost' : 'success'
+                          }
+                        >
+                          {w.is_visible === false ? 'Hidden' : 'Visible'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            disabled={idx === 0 || isPending}
+                            onClick={() => move(w._id, -1)}
+                            aria-label="Move up"
+                          >
+                            <ArrowUp className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            disabled={
+                              idx === pageRows.length - 1 || isPending
+                            }
+                            onClick={() => move(w._id, 1)}
+                            aria-label="Move down"
+                          >
+                            <ArrowDown className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleToggle(w._id)}
+                            aria-label="Toggle visibility"
+                          >
+                            {w.is_visible !== false ? (
+                              <Eye className="h-3.5 w-3.5" />
+                            ) : (
+                              <EyeOff className="h-3.5 w-3.5" />
+                            )}
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingId(w._id)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+          <PaginationBar
+            page={page}
+            limit={pageSize}
+            hasMore={hasMore}
+            total={filtered.length}
+            controlled={{
+              onChange: ({ page: p, limit: l }) => {
+                setPage(p);
+                setPageSize(l);
+              },
+            }}
+          />
+        </ZoruCard>
+      </div>
+
+      <ZoruDialog
+        open={dialogOpen}
+        onOpenChange={(o) => {
+          setDialogOpen(o);
+          if (!o) resetForm();
+        }}
+      >
         <ZoruDialogContent>
           <ZoruDialogHeader>
-            <ZoruDialogTitle>Add widget</ZoruDialogTitle>
+            <ZoruDialogTitle>
+              {editing ? 'Edit widget' : 'Add widget'}
+            </ZoruDialogTitle>
             <ZoruDialogDescription>
-              Add a new widget to your dashboard grid.
+              {editing
+                ? 'Update the widget configuration.'
+                : 'Add a new widget to your dashboard grid.'}
             </ZoruDialogDescription>
           </ZoruDialogHeader>
           <div className="grid gap-3 py-2">
@@ -357,7 +758,9 @@ export default function DashboardWidgetsPage() {
               </div>
             </div>
             <div className="grid gap-1.5">
-              <ZoruLabel htmlFor="widget-config">Config (JSON, optional)</ZoruLabel>
+              <ZoruLabel htmlFor="widget-config">
+                Config (JSON, optional)
+              </ZoruLabel>
               <ZoruTextarea
                 id="widget-config"
                 rows={4}
@@ -373,8 +776,8 @@ export default function DashboardWidgetsPage() {
             <ZoruButton variant="outline" onClick={() => setDialogOpen(false)}>
               Cancel
             </ZoruButton>
-            <ZoruButton disabled={saving} onClick={handleAdd}>
-              {saving ? 'Saving…' : 'Add Widget'}
+            <ZoruButton disabled={saving} onClick={handleSave}>
+              {saving ? 'Saving…' : editing ? 'Save' : 'Add Widget'}
             </ZoruButton>
           </ZoruDialogFooter>
         </ZoruDialogContent>
@@ -393,7 +796,29 @@ export default function DashboardWidgetsPage() {
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+            <ZoruAlertDialogAction onClick={handleDelete}>
+              Delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
+      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Delete {selected.size} widget(s)?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              The selected widgets will be permanently removed from your
+              dashboard.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+              {bulkDeleting ? 'Deleting…' : 'Delete'}
+            </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>

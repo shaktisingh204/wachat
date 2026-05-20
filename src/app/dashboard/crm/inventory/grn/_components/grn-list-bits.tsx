@@ -100,6 +100,33 @@ function KpiCard({ label, value, active, onClick, tone }: KpiCardProps) {
     );
 }
 
+/**
+ * Read-only KPI tile — for metrics that aren't filterable (MTD / units).
+ * Mirrors `<KpiCard>` visually but skips the button affordance.
+ */
+function KpiStatic({ label, value, tone }: { label: string; value: string; tone: 'amber' | 'green' | 'neutral' | 'red' }) {
+    const ring =
+        tone === 'amber'
+            ? 'border-amber-500/40'
+            : tone === 'green'
+                ? 'border-emerald-500/40'
+                : tone === 'red'
+                    ? 'border-rose-500/40'
+                    : 'border-zoru-line';
+    return (
+        <div
+            className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 text-left ${ring}`}
+        >
+            <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+                {label}
+            </span>
+            <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+                {value}
+            </span>
+        </div>
+    );
+}
+
 export function GrnKpiStrip({
     kpis,
     currentBucket,
@@ -110,23 +137,28 @@ export function GrnKpiStrip({
     onPick: (b: GrnStatusKey) => void;
 }) {
     return (
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            <KpiStatic
+                label="MTD GRNs"
+                value={kpis.mtdCount.toLocaleString()}
+                tone="neutral"
+            />
             <KpiCard
-                label="Pending QC"
+                label="Pending"
                 value={kpis.pendingQcCount}
                 tone="amber"
                 active={currentBucket === 'draft'}
                 onClick={() => onPick('draft')}
             />
             <KpiCard
-                label="Accepted"
+                label="Completed"
                 value={kpis.acceptedCount}
                 tone="green"
                 active={currentBucket === 'posted'}
                 onClick={() => onPick('posted')}
             />
             <KpiCard
-                label="Partially accepted"
+                label="Partial"
                 value={kpis.partiallyAcceptedCount}
                 tone="amber"
                 active={currentBucket === 'partial'}
@@ -138,6 +170,11 @@ export function GrnKpiStrip({
                 tone="red"
                 active={currentBucket === 'rejected'}
                 onClick={() => onPick('rejected')}
+            />
+            <KpiStatic
+                label="Units received"
+                value={kpis.totalReceivedValue.toLocaleString()}
+                tone="neutral"
             />
         </div>
     );
@@ -255,12 +292,15 @@ export function GrnBulkBar({
     count,
     onClear,
     onExport,
+    onExportXlsx,
     onConvertToBill,
     onDelete,
 }: {
     count: number;
     onClear: () => void;
     onExport: () => void;
+    /** Optional XLSX export — hidden when omitted. */
+    onExportXlsx?: () => void;
     onConvertToBill: () => void;
     onDelete: () => void;
 }) {
@@ -273,8 +313,13 @@ export function GrnBulkBar({
             </ZoruButton>
             <span className="mx-1 h-4 w-px bg-zoru-line" />
             <ZoruButton variant="outline" size="sm" onClick={onExport}>
-                <Download className="h-3.5 w-3.5" /> Export
+                <Download className="h-3.5 w-3.5" /> Export CSV
             </ZoruButton>
+            {onExportXlsx ? (
+                <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+                    <Download className="h-3.5 w-3.5" /> Export XLSX
+                </ZoruButton>
+            ) : null}
             <ZoruButton variant="outline" size="sm" onClick={onConvertToBill}>
                 <ArrowRightCircle className="h-3.5 w-3.5" /> Convert to Bill
             </ZoruButton>

@@ -38,4 +38,13 @@ export interface RfqKpiSummary {
   closed: number;
   awarded: number;
   cancelled: number;
+  /** Number of open RFQs that still have an upcoming deadline — i.e.
+   *  vendors still have time to submit. */
+  awaitingResponses: number;
+  /** Average wall-clock hours from RFQ create → first non-draft status
+   *  change (best available proxy for "vendor response time" until the
+   *  vendor-bids stream lands on the BFF). `null` when no data. */
+  avgResponseHours: number | null;
+  /** Total active = open RFQs (clarifies the dashboard headline). */
+  totalActive: number;
 }

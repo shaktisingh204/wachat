@@ -8,15 +8,22 @@
  *   https://oauth2.googleapis.com/token; cached for the call lifetime only.
  *
  * Operations covered:
- *   - spreadsheet.valuesGet     GET    /v4/spreadsheets/{id}/values/{range}
- *   - spreadsheet.valuesAppend  POST   /v4/spreadsheets/{id}/values/{range}:append
- *   - spreadsheet.valuesUpdate  PUT    /v4/spreadsheets/{id}/values/{range}
- *   - spreadsheet.valuesClear   POST   /v4/spreadsheets/{id}/values/{range}:clear
+ *   - spreadsheet.create        POST   /v4/spreadsheets
+ *   - spreadsheet.get           GET    /v4/spreadsheets/{id}
+ *   - spreadsheet.values_get    GET    /v4/spreadsheets/{id}/values/{range}
+ *   - spreadsheet.values_append POST   /v4/spreadsheets/{id}/values/{range}:append
+ *   - spreadsheet.values_update PUT    /v4/spreadsheets/{id}/values/{range}
+ *   - spreadsheet.values_clear  POST   /v4/spreadsheets/{id}/values/{range}:clear
+ *   - spreadsheet.values_batch_get   GET  /v4/spreadsheets/{id}/values:batchGet?ranges=…
+ *   - spreadsheet.values_batch_update POST /v4/spreadsheets/{id}/values:batchUpdate
  *   - sheet.add                 POST   /v4/spreadsheets/{id}:batchUpdate (addSheet)
+ *   - sheet.delete              POST   /v4/spreadsheets/{id}:batchUpdate (deleteSheet)
+ *   - sheet.copy_to             POST   /v4/spreadsheets/{id}/sheets/{sheetId}:copyTo
  *
  * Out of scope:
  *   - LoadOptions for spreadsheet / sheet titles
  *   - Persistent access-token caching across runs
+ *   - Spreadsheet delete (Sheets API has no delete; n8n uses Drive API for that)
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -25,7 +32,7 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
 import {
   cacheKeyFor,
   getCachedToken,
@@ -152,6 +159,78 @@ async function valuesClear(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   return { outputs: { result: data }, logs: [`Sheets values clear → ${range}`] };
 }
 
+// ── Spreadsheet (workbook level) ──────────────────────────────────────────
+
+async function spreadsheetCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const title = asString(ctx.options.title);
+  if (!title) throw new Error('Google Sheets: title is required');
+  const sheetTitles = asString(ctx.options.sheets)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const body: Record<string, unknown> = {
+    properties: { title },
+  };
+  if (sheetTitles.length > 0) {
+    body.sheets = sheetTitles.map((t) => ({ properties: { title: t } }));
+  }
+  const data = await sheetsApi(ctx, 'POST', '/spreadsheets', body);
+  return { outputs: { spreadsheet: data }, logs: [`Sheets spreadsheet create → ${title}`] };
+}
+
+async function spreadsheetGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const spreadsheetId = asString(ctx.options.spreadsheetId);
+  if (!spreadsheetId) throw new Error('Google Sheets: spreadsheetId is required');
+  const includeGridData = asString(ctx.options.includeGridData) === 'true';
+  const data = await sheetsApi(
+    ctx,
+    'GET',
+    `/spreadsheets/${encodeURIComponent(spreadsheetId)}?includeGridData=${includeGridData}`,
+  );
+  return { outputs: { spreadsheet: data }, logs: [`Sheets spreadsheet get → ${spreadsheetId}`] };
+}
+
+async function valuesBatchGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const spreadsheetId = asString(ctx.options.spreadsheetId);
+  if (!spreadsheetId) throw new Error('Google Sheets: spreadsheetId is required');
+  const ranges = asString(ctx.options.ranges)
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (ranges.length === 0) throw new Error('Google Sheets: at least one range is required');
+  const qs = ranges.map((r) => `ranges=${encodeURIComponent(r)}`).join('&');
+  const data = await sheetsApi(
+    ctx,
+    'GET',
+    `/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchGet?${qs}`,
+  );
+  return { outputs: { result: data }, logs: [`Sheets values batch get → ${ranges.length} ranges`] };
+}
+
+async function valuesBatchUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const spreadsheetId = asString(ctx.options.spreadsheetId);
+  if (!spreadsheetId) throw new Error('Google Sheets: spreadsheetId is required');
+  const dataRaw = asString(ctx.options.data).trim();
+  if (!dataRaw) throw new Error('Google Sheets: data is required');
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(dataRaw);
+  } catch {
+    throw new Error('Google Sheets: data must be valid JSON');
+  }
+  if (!Array.isArray(parsed)) {
+    throw new Error('Google Sheets: data must be a JSON array of {range, values} objects');
+  }
+  const valueInputOption = asString(ctx.options.valueInputOption) || 'USER_ENTERED';
+  const data = await sheetsApi(
+    ctx,
+    'POST',
+    `/spreadsheets/${encodeURIComponent(spreadsheetId)}/values:batchUpdate`,
+    { valueInputOption, data: parsed },
+  );
+  return { outputs: { result: data }, logs: [`Sheets values batch update → ${(parsed as unknown[]).length}`] };
+}
+
 // ── Sheet (tab) ────────────────────────────────────────────────────────────
 
 async function sheetAdd(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -176,6 +255,39 @@ async function sheetAdd(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     body,
   );
   return { outputs: { result: data }, logs: [`Sheets sheet add → ${title}`] };
+}
+
+async function sheetDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const spreadsheetId = asString(ctx.options.spreadsheetId);
+  const sheetId = asNumber(ctx.options.sheetId);
+  if (!spreadsheetId) throw new Error('Google Sheets: spreadsheetId is required');
+  if (sheetId === undefined) throw new Error('Google Sheets: sheetId (numeric) is required');
+
+  const body = { requests: [{ deleteSheet: { sheetId } }] };
+  const data = await sheetsApi(
+    ctx,
+    'POST',
+    `/spreadsheets/${encodeURIComponent(spreadsheetId)}:batchUpdate`,
+    body,
+  );
+  return { outputs: { result: data, sheetId }, logs: [`Sheets sheet delete → ${sheetId}`] };
+}
+
+async function sheetCopyTo(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const spreadsheetId = asString(ctx.options.spreadsheetId);
+  const sheetId = asNumber(ctx.options.sheetId);
+  const destinationSpreadsheetId = asString(ctx.options.destinationSpreadsheetId);
+  if (!spreadsheetId) throw new Error('Google Sheets: spreadsheetId is required');
+  if (sheetId === undefined) throw new Error('Google Sheets: sheetId (numeric) is required');
+  if (!destinationSpreadsheetId) throw new Error('Google Sheets: destinationSpreadsheetId is required');
+
+  const data = await sheetsApi(
+    ctx,
+    'POST',
+    `/spreadsheets/${encodeURIComponent(spreadsheetId)}/sheets/${sheetId}:copyTo`,
+    { destinationSpreadsheetId },
+  );
+  return { outputs: { result: data }, logs: [`Sheets sheet copy_to → ${destinationSpreadsheetId}`] };
 }
 
 // ── Block ──────────────────────────────────────────────────────────────────
@@ -259,6 +371,78 @@ const block: ForgeBlock = {
         { id: 'title', label: 'Sheet title', type: 'text', required: true },
       ],
       run: sheetAdd,
+    },
+    {
+      id: 'sheet_delete',
+      label: 'Delete sheet (tab)',
+      description: 'Delete a sheet/tab from an existing spreadsheet (by numeric sheetId).',
+      fields: [
+        { id: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
+        { id: 'sheetId', label: 'Sheet ID (numeric tab id)', type: 'number', required: true },
+      ],
+      run: sheetDelete,
+    },
+    {
+      id: 'sheet_copy_to',
+      label: 'Copy sheet to another spreadsheet',
+      description: 'Copy a single sheet from one spreadsheet into another.',
+      fields: [
+        { id: 'spreadsheetId', label: 'Source spreadsheet ID', type: 'text', required: true },
+        { id: 'sheetId', label: 'Source sheet ID (numeric)', type: 'number', required: true },
+        { id: 'destinationSpreadsheetId', label: 'Destination spreadsheet ID', type: 'text', required: true },
+      ],
+      run: sheetCopyTo,
+    },
+    {
+      id: 'spreadsheet_create',
+      label: 'Create spreadsheet',
+      description: 'Create a brand-new spreadsheet, optionally with a comma-separated initial sheet list.',
+      fields: [
+        { id: 'title', label: 'Title', type: 'text', required: true },
+        { id: 'sheets', label: 'Initial sheet titles (comma list)', type: 'text', placeholder: 'Sheet1,Sheet2' },
+      ],
+      run: spreadsheetCreate,
+    },
+    {
+      id: 'spreadsheet_get',
+      label: 'Get spreadsheet',
+      description: 'Fetch a spreadsheet (metadata; pass includeGridData=true to also pull cell data).',
+      fields: [
+        { id: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
+        { id: 'includeGridData', label: 'Include grid data (true/false)', type: 'text', defaultValue: 'false' },
+      ],
+      run: spreadsheetGet,
+    },
+    {
+      id: 'values_batch_get',
+      label: 'Batch get values',
+      description: 'Read multiple ranges in one request. Ranges is a comma-separated list of A1 ranges.',
+      fields: [
+        { id: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
+        { id: 'ranges', label: 'Ranges (comma-separated A1)', type: 'text', required: true,
+          placeholder: 'Sheet1!A1:C10,Sheet2!A:A' },
+      ],
+      run: valuesBatchGet,
+    },
+    {
+      id: 'values_batch_update',
+      label: 'Batch update values',
+      description: 'Update multiple ranges in one request. data is a JSON array of { range, values } objects.',
+      fields: [
+        { id: 'spreadsheetId', label: 'Spreadsheet ID', type: 'text', required: true },
+        { id: 'data', label: 'Data (JSON array of {range, values})', type: 'json', required: true },
+        {
+          id: 'valueInputOption',
+          label: 'Value input option',
+          type: 'select',
+          options: [
+            { label: 'USER_ENTERED', value: 'USER_ENTERED' },
+            { label: 'RAW', value: 'RAW' },
+          ],
+          defaultValue: 'USER_ENTERED',
+        },
+      ],
+      run: valuesBatchUpdate,
     },
   ],
 };

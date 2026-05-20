@@ -1,56 +1,49 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruProgress,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
-import {
-  Edit,
-  LoaderCircle,
-  Plus,
-  Trash2 } from 'lucide-react';
-
 /**
- * OKRs — list page.
+ * OKRs — §1D Deep-list page.
  *
- * Columns: Objective · Period · Owner · Progress% · Confidence · Status.
- * Search + status filter, inline-rendered ZoruTable, delete via ZoruAlertDialog.
- * Talks to the Rust-backed actions in `crm-okrs.actions.ts`.
+ * Built on EntityListShell + HrDeepListBody. Talks to the Rust-backed
+ * `crm-okrs.actions` module (single CRUD + new bulk wrappers).
+ *
+ * KPI strip:
+ *   - Total OKRs
+ *   - On track
+ *   - At risk
+ *   - Completion rate (current quarter)
+ *
+ * Filters: search · status · period (cycle) · owner · date range
+ * Bulk:    archive · delete · export CSV / XLSX
+ * Export:  via @/lib/crm-list-export
+ * Pagination: client-side via PaginationBar (controlled)
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { Plus, Target } from 'lucide-react';
 
+import {
+  ZoruButton,
+  ZoruCard,
+  ZoruProgress,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
-import { deleteOkr, getOkrs } from '@/app/actions/crm-okrs.actions';
+import {
+  bulkArchiveOkrs,
+  bulkDeleteOkrs,
+  deleteOkr,
+  getOkrs,
+} from '@/app/actions/crm-okrs.actions';
 import type { CrmOkrDoc, CrmOkrStatus } from '@/lib/rust-client/crm-okrs';
+
+import { HrDeepListBody, type DeepColumn } from '../_components/hr-deep-list-body';
 
 const BASE = '/dashboard/crm/hr/okrs';
 
 const STATUS_OPTIONS: Array<{ value: CrmOkrStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
+    { value: 'all', label: 'All' },
     { value: 'draft', label: 'Draft' },
     { value: 'in_progress', label: 'In progress' },
     { value: 'on_track', label: 'On track' },
@@ -82,205 +75,268 @@ function clampPercent(n: unknown): number {
     return Math.max(0, Math.min(100, Math.round(v)));
 }
 
-export default function OkrsListPage() {
+function currentQuarter(): string {
+    const now = new Date();
+    const q = Math.floor(now.getMonth() / 3) + 1;
+    return `Q${q} ${now.getFullYear()}`;
+}
+
+function rowDate(r: CrmOkrDoc): number | null {
+    const v = r.updatedAt ?? r.createdAt;
+    if (!v) return null;
+    const t = new Date(v as string).getTime();
+    return Number.isFinite(t) ? t : null;
+}
+
+export default function OkrsListPage(): React.JSX.Element {
     const [okrs, setOkrs] = React.useState<CrmOkrDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
     const [search, setSearch] = React.useState('');
     const [statusFilter, setStatusFilter] = React.useState<CrmOkrStatus | 'all'>('all');
-    const [pendingDelete, setPendingDelete] = React.useState<CrmOkrDoc | null>(null);
-    const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+    const [period, setPeriod] = React.useState<string>('all');
+    const [owner, setOwner] = React.useState<string>('all');
+    const [dateFrom, setDateFrom] = React.useState<string>('');
+    const [dateTo, setDateTo] = React.useState<string>('');
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
         try {
-            const res = await getOkrs({
-                q: search.trim() || undefined,
-                status: statusFilter === 'all' ? undefined : statusFilter,
-                limit: 100,
-            });
+            const res = await getOkrs({ limit: 500 });
             setOkrs(res.items ?? []);
         } catch {
             setOkrs([]);
         } finally {
             setIsLoading(false);
         }
-    }, [search, statusFilter]);
+    }, []);
 
     React.useEffect(() => {
-        const t = window.setTimeout(() => {
-            void refresh();
-        }, 250);
-        return () => window.clearTimeout(t);
+        void refresh();
     }, [refresh]);
 
-    const handleDelete = () => {
-        if (!pendingDelete) return;
-        const id = pendingDelete._id;
-        startDeleteTransition(async () => {
-            const result = await deleteOkr(id);
-            if (result.success) {
-                toast({ title: 'OKR deleted' });
-                setPendingDelete(null);
-                await refresh();
-            } else {
-                toast({
-                    title: 'Error',
-                    description: result.error ?? 'Could not delete OKR.',
-                    variant: 'destructive',
-                });
+    /* ── filter options (derived) ───────────────────────────────────── */
+
+    const periodOptions = React.useMemo(() => {
+        const set = new Set<string>();
+        for (const o of okrs) if (o.period) set.add(o.period);
+        return Array.from(set)
+            .sort()
+            .map((v) => ({ value: v, label: v }));
+    }, [okrs]);
+
+    const ownerOptions = React.useMemo(() => {
+        const seen = new Map<string, string>();
+        for (const o of okrs) {
+            const id = o.ownerId ?? '';
+            if (id && !seen.has(id)) seen.set(id, o.ownerName ?? id);
+        }
+        return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
+    }, [okrs]);
+
+    /* ── filtered rows ──────────────────────────────────────────────── */
+
+    const filtered = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        const from = dateFrom ? new Date(dateFrom).getTime() : null;
+        const to = dateTo ? new Date(`${dateTo}T23:59:59`).getTime() : null;
+        return okrs.filter((o) => {
+            if (statusFilter !== 'all' && o.status !== statusFilter) return false;
+            if (period !== 'all' && o.period !== period) return false;
+            if (owner !== 'all' && o.ownerId !== owner) return false;
+            if (q) {
+                const hay = `${o.objective ?? ''} ${o.ownerName ?? ''} ${o.period ?? ''}`.toLowerCase();
+                if (!hay.includes(q)) return false;
             }
+            const ts = rowDate(o);
+            if (from !== null && (ts == null || ts < from)) return false;
+            if (to !== null && (ts == null || ts > to)) return false;
+            return true;
         });
-    };
+    }, [okrs, search, statusFilter, period, owner, dateFrom, dateTo]);
+
+    /* ── KPIs ──────────────────────────────────────────────────────── */
+
+    const kpis = React.useMemo(() => {
+        const total = okrs.length;
+        const onTrack = okrs.filter((o) => o.status === 'on_track').length;
+        const atRisk = okrs.filter(
+            (o) => o.status === 'at_risk' || o.status === 'behind',
+        ).length;
+        const thisQ = currentQuarter();
+        const inQuarter = okrs.filter((o) => o.period === thisQ);
+        const completion = inQuarter.length
+            ? Math.round(
+                  inQuarter.reduce((acc, o) => acc + clampPercent(o.progress), 0) /
+                      inQuarter.length,
+              )
+            : 0;
+        return { total, onTrack, atRisk, completion, thisQ };
+    }, [okrs]);
+
+    /* ── columns ───────────────────────────────────────────────────── */
+
+    const columns: DeepColumn<CrmOkrDoc>[] = React.useMemo(
+        () => [
+            {
+                key: 'objective',
+                label: 'Objective',
+                render: (o) => (
+                    <span className="block max-w-[280px] truncate font-medium">
+                        {o.objective}
+                    </span>
+                ),
+            },
+            {
+                key: 'period',
+                label: 'Period',
+                render: (o) => (
+                    <span className="font-mono text-[12px]">{o.period ?? '—'}</span>
+                ),
+            },
+            {
+                key: 'owner',
+                label: 'Owner',
+                render: (o) => o.ownerName ?? o.ownerId ?? '—',
+            },
+            {
+                key: 'progress',
+                label: 'Progress',
+                render: (o) => {
+                    const pct = clampPercent(o.progress);
+                    return (
+                        <div className="flex items-center gap-2">
+                            <ZoruProgress value={pct} className="h-2 w-24" />
+                            <span className="font-mono text-[11.5px] tabular-nums">
+                                {pct}%
+                            </span>
+                        </div>
+                    );
+                },
+            },
+            {
+                key: 'confidence',
+                label: 'Confidence',
+                numeric: true,
+                render: (o) =>
+                    typeof o.confidence === 'number'
+                        ? `${clampPercent(o.confidence)}%`
+                        : '—',
+            },
+            {
+                key: 'status',
+                label: 'Status',
+                render: (o) => {
+                    const s = (o.status ?? 'draft') as CrmOkrStatus;
+                    return <StatusPill label={statusLabel(s)} tone={STATUS_TONE[s] ?? 'neutral'} />;
+                },
+            },
+        ],
+        [],
+    );
 
     return (
-        <>
-            <EntityListShell
-                    title="OKRs"
-                    subtitle="Objectives and key results — individual, team, and company level."
-                    primaryAction={
+        <EntityListShell
+            title="OKRs"
+            subtitle="Objectives and key results — individual, team, and company level."
+            primaryAction={
+                <ZoruButton asChild>
+                    <Link href={`${BASE}/new`}>
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> New OKR
+                    </Link>
+                </ZoruButton>
+            }
+            filters={
+                <div className="flex flex-wrap items-center gap-2">
+                    {STATUS_OPTIONS.map((opt) => (
+                        <ZoruButton
+                            key={opt.value}
+                            variant={statusFilter === opt.value ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(opt.value)}
+                        >
+                            {opt.label}
+                        </ZoruButton>
+                    ))}
+                </div>
+            }
+            loading={isLoading && okrs.length === 0}
+        >
+            <div className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <ZoruCard className="p-3">
+                        <p className="text-xs text-zoru-ink-muted">Total OKRs</p>
+                        <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.total}</p>
+                    </ZoruCard>
+                    <ZoruCard className="p-3">
+                        <p className="text-xs text-zoru-ink-muted">On track</p>
+                        <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.onTrack}</p>
+                    </ZoruCard>
+                    <ZoruCard className="p-3">
+                        <p className="text-xs text-zoru-ink-muted">At risk</p>
+                        <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.atRisk}</p>
+                    </ZoruCard>
+                    <ZoruCard className="p-3">
+                        <p className="text-xs text-zoru-ink-muted">Completion ({kpis.thisQ})</p>
+                        <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.completion}%</p>
+                    </ZoruCard>
+                </div>
+
+                {okrs.length === 0 && !isLoading ? (
+                    <ZoruCard className="flex min-h-[180px] flex-col items-center justify-center gap-3 p-6">
+                        <Target className="h-8 w-8 text-zoru-ink-muted" aria-hidden="true" />
+                        <p className="text-sm text-zoru-ink-muted">No OKRs yet.</p>
                         <ZoruButton asChild>
                             <Link href={`${BASE}/new`}>
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New OKR
+                                <Plus className="h-4 w-4" /> Add first OKR
                             </Link>
                         </ZoruButton>
-                    }
-                    search={{
-                        value: search,
-                        onChange: setSearch,
-                        placeholder: 'Search objectives…',
-                    }}
-                    filters={
-                        <ZoruSelect
-                            value={statusFilter}
-                            onValueChange={(v) => setStatusFilter(v as CrmOkrStatus | 'all')}
-                        >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                {STATUS_OPTIONS.map((o) => (
-                                    <ZoruSelectItem key={o.value} value={o.value}>
-                                        {o.label}
-                                    </ZoruSelectItem>
-                                ))}
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                    }
-                    loading={isLoading && okrs.length === 0}
-                >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Objective</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Owner</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Progress</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Confidence</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : okrs.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
-                                            colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
-                                        >
-                                            No OKRs match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    okrs.map((o) => {
-                                        const status = (o.status ?? 'draft') as CrmOkrStatus;
-                                        const tone = STATUS_TONE[status] ?? 'neutral';
-                                        const progress = clampPercent(o.progress);
-                                        return (
-                                            <ZoruTableRow key={o._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
-                                                        href={`${BASE}/${o._id}`}
-                                                        className="block max-w-[280px] truncate hover:underline"
-                                                    >
-                                                        {o.objective}
-                                                    </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                                                    {o.period ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
-                                                    {o.ownerName ?? o.ownerId ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="min-w-[140px]">
-                                                    <div className="flex items-center gap-2">
-                                                        <ZoruProgress
-                                                            value={progress}
-                                                            className="h-2 w-24"
-                                                        />
-                                                        <span className="font-mono text-[11.5px] tabular-nums text-zoru-ink">
-                                                            {progress}%
-                                                        </span>
-                                                    </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] tabular-nums text-zoru-ink">
-                                                    {typeof o.confidence === 'number'
-                                                        ? `${clampPercent(o.confidence)}%`
-                                                        : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
-                                                    <StatusPill label={statusLabel(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" asChild>
-                                                        <Link href={`${BASE}/${o._id}/edit`}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setPendingDelete(o)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
-                                        );
-                                    })
-                                )}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-            </EntityListShell>
-
-            <ZoruAlertDialog
-                open={!!pendingDelete}
-                onOpenChange={(o) => !o && setPendingDelete(null)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete OKR?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            Deleting &ldquo;{pendingDelete?.objective}&rdquo; will remove it from
-                            the active list. This action cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
-                            {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
-        </>
+                    </ZoruCard>
+                ) : (
+                    <HrDeepListBody<CrmOkrDoc>
+                        rows={filtered}
+                        columns={columns}
+                        getRowId={(o) => o._id}
+                        detailHref={(o) => `${BASE}/${o._id}`}
+                        editHref={(o) => `${BASE}/${o._id}/edit`}
+                        onDeleteOne={deleteOkr}
+                        onBulkDelete={bulkDeleteOkrs}
+                        onBulkArchive={bulkArchiveOkrs}
+                        onAfterChange={() => {
+                            void refresh();
+                        }}
+                        search={search}
+                        setSearch={setSearch}
+                        searchPlaceholder="Search objectives…"
+                        cycleOptions={periodOptions}
+                        cycle={period}
+                        setCycle={setPeriod}
+                        cycleLabel="Period"
+                        ownerOptions={ownerOptions}
+                        owner={owner}
+                        setOwner={setOwner}
+                        dateFrom={dateFrom}
+                        dateTo={dateTo}
+                        setDateFrom={setDateFrom}
+                        setDateTo={setDateTo}
+                        exportColumns={[
+                            { header: 'Objective', value: (o) => o.objective ?? '' },
+                            { header: 'Period', value: (o) => o.period ?? '' },
+                            { header: 'Owner', value: (o) => o.ownerName ?? o.ownerId ?? '' },
+                            { header: 'Progress %', value: (o) => clampPercent(o.progress) },
+                            {
+                                header: 'Confidence %',
+                                value: (o) =>
+                                    typeof o.confidence === 'number'
+                                        ? clampPercent(o.confidence)
+                                        : '',
+                            },
+                            { header: 'Status', value: (o) => o.status ?? '' },
+                        ]}
+                        exportName="okrs"
+                        emptyText="No OKRs match these filters."
+                    />
+                )}
+            </div>
+        </EntityListShell>
     );
 }

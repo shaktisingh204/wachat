@@ -482,6 +482,148 @@ export async function deleteSavedSearch(id: string) {
   return r;
 }
 
+export async function bulkDeleteSavedSearches(
+  ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, deleted: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, deleted: 0 };
+  const res = await db
+    .collection(COLS.savedSearch)
+    .deleteMany({ _id: { $in: oids }, userId: new ObjectId(user._id) });
+  revalidatePath('/dashboard/crm/settings/saved-searches');
+  return { success: true, deleted: res.deletedCount };
+}
+
+export async function getSavedSearchKpis(): Promise<{
+  total: number;
+  usedToday: number;
+  avgFilters: number;
+}> {
+  const user = await requireSession();
+  if (!user) return { total: 0, usedToday: 0, avgFilters: 0 };
+  const { db } = await connectToDatabase();
+  const uid = new ObjectId(user._id);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [total, usedToday] = await Promise.all([
+    db.collection(COLS.savedSearch).countDocuments({ userId: uid }),
+    db.collection(COLS.savedSearch).countDocuments({
+      userId: uid,
+      last_used_at: { $gte: todayStart },
+    }),
+  ]);
+
+  return { total, usedToday, avgFilters: 0 };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Custom Links — KPI + bulk delete
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function bulkDeleteCustomLinks(
+  ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, deleted: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, deleted: 0 };
+  const res = await db
+    .collection(COLS.customLink)
+    .deleteMany({ _id: { $in: oids }, userId: new ObjectId(user._id) });
+  revalidatePath('/dashboard/crm/settings/custom-links');
+  return { success: true, deleted: res.deletedCount };
+}
+
+export async function getCustomLinkKpis(): Promise<{
+  total: number;
+  newTab: number;
+  sameTab: number;
+}> {
+  const user = await requireSession();
+  if (!user) return { total: 0, newTab: 0, sameTab: 0 };
+  const { db } = await connectToDatabase();
+  const uid = new ObjectId(user._id);
+  const [total, newTab] = await Promise.all([
+    db.collection(COLS.customLink).countDocuments({ userId: uid }),
+    db.collection(COLS.customLink).countDocuments({ userId: uid, open_in_new_tab: true }),
+  ]);
+  return { total, newTab, sameTab: total - newTab };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Promotions — KPI + bulk delete + bulk deactivate
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function bulkDeletePromotionsExt(
+  ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, deleted: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, deleted: 0 };
+  const res = await db
+    .collection(COLS.promoExt)
+    .deleteMany({ _id: { $in: oids }, userId: new ObjectId(user._id) });
+  revalidatePath('/dashboard/crm/settings/promotions');
+  return { success: true, deleted: res.deletedCount };
+}
+
+export async function bulkDeactivatePromotionsExt(
+  ids: string[],
+): Promise<{ success: boolean; updated: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, updated: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, updated: 0 };
+  const res = await db.collection(COLS.promoExt).updateMany(
+    { _id: { $in: oids }, userId: new ObjectId(user._id) },
+    { $set: { status: 'inactive', updatedAt: new Date() } },
+  );
+  revalidatePath('/dashboard/crm/settings/promotions');
+  return { success: true, updated: res.modifiedCount };
+}
+
+export async function getPromotionExtKpis(): Promise<{
+  total: number;
+  active: number;
+  expired: number;
+  totalDiscountValue: number;
+}> {
+  const user = await requireSession();
+  if (!user) return { total: 0, active: 0, expired: 0, totalDiscountValue: 0 };
+  const { db } = await connectToDatabase();
+  const uid = new ObjectId(user._id);
+  const now = new Date();
+
+  const [total, active, expired, valueAgg] = await Promise.all([
+    db.collection(COLS.promoExt).countDocuments({ userId: uid }),
+    db.collection(COLS.promoExt).countDocuments({ userId: uid, status: 'active' }),
+    db.collection(COLS.promoExt).countDocuments({
+      userId: uid,
+      $or: [{ status: 'inactive' }, { end_date: { $lt: now } }],
+    }),
+    db
+      .collection(COLS.promoExt)
+      .aggregate([
+        { $match: { userId: uid, status: 'active' } },
+        { $group: { _id: null, total: { $sum: '$value' } } },
+      ])
+      .toArray(),
+  ]);
+
+  const totalDiscountValue =
+    Array.isArray(valueAgg) && valueAgg.length > 0 ? (valueAgg[0].total as number) : 0;
+
+  return { total, active, expired, totalDiscountValue };
+}
+
 /**
  * Universal search skeleton: runs a tenant-scoped, case-insensitive
  * match across the four primary CRM collections. Callers can extend

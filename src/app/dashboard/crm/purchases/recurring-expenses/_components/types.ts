@@ -36,4 +36,15 @@ export interface RecurringExpenseKpiSnapshot {
   paused: number;
   dueNext7: number;
   totalMonthlyValue: number;
+  /** Sum of amount for active schedules whose `last_run_date` (or
+   *  `next_run_date` if last_run is unset) falls in the current month —
+   *  i.e. an estimate of recurring spend booked this month. */
+  mtdSpend: number;
+  /** Active schedules whose `until_date` (or `stop_at_count` exhaustion)
+   *  lands within the next 30 days. */
+  expiringCount: number;
+  /** Vendor label with the largest sum(amount) across active schedules. */
+  topVendor: string | null;
+  topVendorAmount: number;
+  topVendorCount: number;
 }

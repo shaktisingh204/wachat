@@ -1424,3 +1424,212 @@ export async function findCrmLeadDuplicates(): Promise<DuplicateGroup[]> {
         return [];
     }
 }
+
+/* ─── Duplicate-cluster resolution ────────────────────────────────────
+ *
+ * Lead duplicate clusters live entirely virtually (`findCrmLeadDuplicates`
+ * recomputes them on every call). The status of each cluster — pending /
+ * ignored / resolved — is persisted in a per-tenant collection
+ * `crm_lead_duplicate_resolutions` keyed by a stable cluster signature
+ * (`<key>:<normalised-value>`). The cluster signature is the natural
+ * dedupe identity: two scans that surface the same email or phone
+ * collision produce the same signature.
+ */
+
+export type DuplicateClusterStatus = 'pending' | 'ignored' | 'resolved';
+
+export interface DuplicateClusterResolution {
+    signature: string;
+    status: DuplicateClusterStatus;
+    survivorId?: string;
+    mergedIds?: string[];
+    updatedAt: string;
+}
+
+const LEAD_DUP_RESOLUTIONS_COLLECTION = 'crm_lead_duplicate_resolutions';
+
+export function leadDuplicateSignature(key: 'email' | 'phone', value: string): string {
+    return `${key}:${value.trim().toLowerCase()}`;
+}
+
+export async function getLeadDuplicateResolutions(): Promise<DuplicateClusterResolution[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermission('crm_lead', 'view');
+    if (!guard.ok) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const docs = await db
+            .collection(LEAD_DUP_RESOLUTIONS_COLLECTION)
+            .find({ userId: new ObjectId(session.user._id) })
+            .toArray();
+        return docs.map((d) => ({
+            signature: String((d as any).signature ?? ''),
+            status: ((d as any).status as DuplicateClusterStatus) ?? 'pending',
+            survivorId: (d as any).survivorId ? String((d as any).survivorId) : undefined,
+            mergedIds: Array.isArray((d as any).mergedIds)
+                ? ((d as any).mergedIds as unknown[]).map((x) => String(x))
+                : undefined,
+            updatedAt: (d as any).updatedAt
+                ? new Date((d as any).updatedAt).toISOString()
+                : new Date().toISOString(),
+        }));
+    } catch (e) {
+        console.error('[getLeadDuplicateResolutions] failed:', e);
+        return [];
+    }
+}
+
+/**
+ * Mark a duplicate cluster as ignored. Pure status flip — no lead
+ * documents are touched. Idempotent.
+ */
+export async function ignoreLeadDuplicateCluster(
+    signature: string,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_lead', 'edit');
+    if (!guard.ok) return { success: false, error: 'Permission denied' };
+    if (!signature) return { success: false, error: 'signature required' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection(LEAD_DUP_RESOLUTIONS_COLLECTION).updateOne(
+            { userId: new ObjectId(session.user._id), signature },
+            {
+                $set: {
+                    userId: new ObjectId(session.user._id),
+                    signature,
+                    status: 'ignored',
+                    updatedAt: new Date(),
+                },
+            },
+            { upsert: true },
+        );
+        revalidateLeadSurfaces();
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * Merge a set of duplicate leads into one survivor. Minimum viable stub:
+ *  - survivor keeps its identity; its missing fields are backfilled from
+ *    the other members where present
+ *  - other members are archived (status='archived') and tagged with
+ *    `mergedInto: <survivorId>` for traceability
+ *  - the cluster signature is marked `resolved` so the duplicates scanner
+ *    can hide it on the next run
+ *
+ * Returns the number of leads merged into the survivor.
+ */
+export async function mergeCrmLeads(args: {
+    survivorId: string;
+    mergedIds: string[];
+    signature: string;
+}): Promise<{ success: boolean; merged?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    const guard = await requirePermission('crm_lead', 'edit');
+    if (!guard.ok) return { success: false, error: 'Permission denied' };
+
+    const survivorId = String(args.survivorId ?? '').trim();
+    const mergedIds = (args.mergedIds ?? [])
+        .map((id) => String(id).trim())
+        .filter((id) => id && id !== survivorId);
+    if (!survivorId || mergedIds.length === 0) {
+        return { success: false, error: 'survivor and at least one merged id required' };
+    }
+    if (!ObjectId.isValid(survivorId) || mergedIds.some((id) => !ObjectId.isValid(id))) {
+        return { success: false, error: 'invalid lead id' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const survivorObjId = new ObjectId(survivorId);
+        const mergedObjIds = mergedIds.map((id) => new ObjectId(id));
+
+        const allDocs = await db
+            .collection('crm_leads')
+            .find({ userId: userObjectId, _id: { $in: [survivorObjId, ...mergedObjIds] } })
+            .toArray();
+        if (allDocs.length < 2) {
+            return { success: false, error: 'leads not found' };
+        }
+        const survivor = allDocs.find((d) => String(d._id) === survivorId);
+        if (!survivor) return { success: false, error: 'survivor not found' };
+
+        // Backfill missing scalar fields on survivor from non-survivors.
+        const backfillKeys = [
+            'email', 'phone', 'company', 'contactName', 'title',
+            'value', 'currency', 'source', 'notes',
+        ] as const;
+        const survivorPatch: Record<string, unknown> = {};
+        for (const k of backfillKeys) {
+            if (survivor[k] != null && survivor[k] !== '') continue;
+            for (const d of allDocs) {
+                if (String(d._id) === survivorId) continue;
+                if (d[k] != null && d[k] !== '') {
+                    survivorPatch[k] = d[k];
+                    break;
+                }
+            }
+        }
+        if (Object.keys(survivorPatch).length > 0) {
+            survivorPatch.updatedAt = new Date();
+            await db.collection('crm_leads').updateOne(
+                { _id: survivorObjId, userId: userObjectId },
+                { $set: survivorPatch },
+            );
+        }
+
+        // Archive merged docs.
+        await db.collection('crm_leads').updateMany(
+            { _id: { $in: mergedObjIds }, userId: userObjectId },
+            {
+                $set: {
+                    status: 'archived',
+                    mergedInto: survivorObjId,
+                    mergedAt: new Date(),
+                    updatedAt: new Date(),
+                },
+            },
+        );
+
+        // Record resolution.
+        if (args.signature) {
+            await db.collection(LEAD_DUP_RESOLUTIONS_COLLECTION).updateOne(
+                { userId: userObjectId, signature: args.signature },
+                {
+                    $set: {
+                        userId: userObjectId,
+                        signature: args.signature,
+                        status: 'resolved',
+                        survivorId: survivorObjId,
+                        mergedIds: mergedObjIds,
+                        updatedAt: new Date(),
+                    },
+                },
+                { upsert: true },
+            );
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'merge',
+            entityKind: 'crm_lead',
+            entityId: survivorId,
+            reason: `Merged ${mergedIds.length} duplicate(s)`,
+            diff: { mergedIds: { after: mergedIds }, signature: { after: args.signature ?? '' } },
+        });
+
+        revalidateLeadSurfaces(survivorId);
+        return { success: true, merged: mergedIds.length };
+    } catch (e) {
+        console.error('[mergeCrmLeads] failed:', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

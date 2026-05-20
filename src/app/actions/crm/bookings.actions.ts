@@ -465,3 +465,59 @@ export async function rescheduleBooking(
     return { success: false, error: rustErr(e) };
   }
 }
+
+/* ─── KPIs ──────────────────────────────────────────────────────── */
+
+export interface BookingKpis {
+  total: number;
+  confirmed: number;
+  pending: number;
+  cancelled: number;
+  today: number;
+}
+
+/**
+ * Aggregate booking counts for the KPI strip on the list page.
+ * Falls back to zero-values on any error — the page still renders.
+ */
+export async function getBookingKpis(): Promise<BookingKpis> {
+  const empty: BookingKpis = {
+    total: 0,
+    confirmed: 0,
+    pending: 0,
+    cancelled: 0,
+    today: 0,
+  };
+
+  const session = await getSession();
+  if (!session?.user?._id) return empty;
+
+  const guard = await requirePermission('crm_booking', 'view');
+  if (!guard.ok) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const coll = db.collection('crm_bookings');
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date(todayStart.getTime() + 24 * 60 * 60 * 1000);
+
+    const [total, confirmed, pending, cancelled, today] = await Promise.all([
+      coll.countDocuments({ userId }),
+      coll.countDocuments({ userId, status: 'confirmed' }),
+      coll.countDocuments({ userId, status: 'pending' }),
+      coll.countDocuments({ userId, status: 'cancelled' }),
+      coll.countDocuments({
+        userId,
+        slotStart: { $gte: todayStart, $lt: todayEnd },
+      }),
+    ]);
+
+    return { total, confirmed, pending, cancelled, today };
+  } catch (e) {
+    console.error('[getBookingKpis] failed:', e);
+    return empty;
+  }
+}

@@ -6,11 +6,18 @@
  *
  * Operations covered:
  *   - agent.list
+ *   - agent.get
  *   - agent.launch
  *   - agent.output (fetchOutput)
+ *   - agent.delete
+ *   - agent.fetchResultObject (downloads the parsed result-object the agent
+ *     stored after its run — n8n calls this `resolveData=true` on getOutput,
+ *     but flow authors usually want it as its own block so they can chain
+ *     directly off a container id).
  *
  * Out of scope (deferred):
- *   - delete agent / get-progress / persisted state inspection
+ *   - get-progress / persisted state inspection: those return raw run-state
+ *     blobs that are only useful from inside the PhantomBuster UI.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -71,6 +78,48 @@ async function agentLaunch(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   return { outputs: { result: data }, logs: [`PhantomBuster agent launch → ${agentId}`] };
 }
 
+async function agentGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const agentId = asString(ctx.options.agentId);
+  if (!agentId) throw new Error('PhantomBuster: agentId is required');
+  const res = await apiRequest({
+    service: 'PhantomBuster',
+    method: 'GET',
+    url: `${BASE}/agents/fetch?id=${encodeURIComponent(agentId)}`,
+    headers: authHeader(ctx),
+  });
+  return { outputs: { agent: res.data }, logs: [`PhantomBuster agent get → ${agentId}`] };
+}
+
+async function agentDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const agentId = asString(ctx.options.agentId);
+  if (!agentId) throw new Error('PhantomBuster: agentId is required');
+  await call(ctx, 'POST', '/agents/delete', { id: agentId });
+  return { outputs: { success: true }, logs: [`PhantomBuster agent delete → ${agentId}`] };
+}
+
+async function agentFetchResultObject(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const containerId = asString(ctx.options.containerId);
+  if (!containerId) throw new Error('PhantomBuster: containerId is required');
+  const res = await apiRequest({
+    service: 'PhantomBuster',
+    method: 'GET',
+    url: `${BASE}/containers/fetch-result-object?id=${encodeURIComponent(containerId)}`,
+    headers: authHeader(ctx),
+  });
+  // PhantomBuster returns the result as a stringified JSON in `resultObject`;
+  // parse it eagerly so downstream blocks don't need to JSON.parse again.
+  const raw = (res.data as { resultObject?: string | null })?.resultObject ?? null;
+  let parsed: unknown = null;
+  if (raw) {
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      parsed = raw;
+    }
+  }
+  return { outputs: { result: parsed }, logs: [`PhantomBuster fetch-result-object → ${containerId}`] };
+}
+
 async function agentOutput(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const agentId = asString(ctx.options.agentId);
   if (!agentId) throw new Error('PhantomBuster: agentId is required');
@@ -105,6 +154,33 @@ const block: ForgeBlock = {
       description: 'List all agents in the workspace.',
       fields: [],
       run: agentList,
+    },
+    {
+      id: 'agent_get',
+      label: 'Get agent',
+      description: 'Fetch a single agent definition by id.',
+      fields: [
+        { id: 'agentId', label: 'Agent ID', type: 'text', required: true },
+      ],
+      run: agentGet,
+    },
+    {
+      id: 'agent_delete',
+      label: 'Delete agent',
+      description: 'Delete an agent from the workspace.',
+      fields: [
+        { id: 'agentId', label: 'Agent ID', type: 'text', required: true },
+      ],
+      run: agentDelete,
+    },
+    {
+      id: 'agent_fetch_result_object',
+      label: 'Fetch container result-object',
+      description: 'Download the parsed result-object stored by an agent run.',
+      fields: [
+        { id: 'containerId', label: 'Container ID', type: 'text', required: true },
+      ],
+      run: agentFetchResultObject,
     },
     {
       id: 'agent_launch',

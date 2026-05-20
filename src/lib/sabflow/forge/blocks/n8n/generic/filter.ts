@@ -7,8 +7,11 @@
  * Operations covered:
  *   - filter — keep array items for which a JS predicate returns truthy
  *
- * Out of scope: n8n's structured comparison-row UI — flow authors write a
- * one-line JS predicate using `item` and `vars`.
+ * Out of scope: n8n's structured comparison-row UI (a UX surface, not a
+ * runtime feature) — flow authors write a one-line JS predicate using `item`
+ * and `vars`. Per-item iteration would also need sabflow's run-once-per-item
+ * engine mode (Phase 7+ — currently the engine runs each block exactly once
+ * per execution), so we keep the single-array I/O shape.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {

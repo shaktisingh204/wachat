@@ -3,17 +3,16 @@
  *
  * Source: n8n-master/packages/nodes-base/nodes/WriteBinaryFile/WriteBinaryFile.node.ts
  *
- * STATUS:
- *   • `write`          — disk-IO; remains disabled by policy. The SabFlow
- *                        engine refuses to expose the host filesystem to
- *                        tenant flows — use the SabFile / presigned-URL paths
- *                        instead.
- *   • `write_to_url`   — generic presigned-URL uploader, works for S3 / R2 /
- *                        GCS as long as the caller already has a presigned
- *                        PUT/POST URL.
- *   • `write_sabfile`  — uploads base64 bytes into the caller's SabFile
- *                        library via the Rust BFF (presign → PUT → confirm),
- *                        with a worker-safe JWT minted from `ctx.userId`.
+ * Routes every write through SabFiles instead of the host filesystem.
+ * SabNode runs on Vercel Fluid Compute (no persistent disk) and SabFiles
+ * is the canonical, tenant-isolated storage layer.
+ *
+ * Modes:
+ *   • `write_sabfile`  — upload bytes into the caller's SabFile library
+ *                        (presign → PUT → confirm). Worker-safe JWT is
+ *                        minted from `ctx.userId`.
+ *   • `write_to_url`   — generic presigned-URL uploader (S3 / R2 / GCS)
+ *                        when the caller already holds a presigned URL.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -23,12 +22,6 @@ import type {
   ForgeBlock,
 } from '../../../types';
 import { asString } from '../_shared/http';
-
-async function write(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  throw new Error(
-    'WriteBinaryFile: server-side file IO is disabled in SabFlow. Use SabFiles via the @/components/sabfiles components for tenant-isolated storage.',
-  );
-}
 
 /**
  * Mint a short-lived Rust JWT for the calling workspace and POST `path` with
@@ -194,20 +187,23 @@ async function writeToUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_write_binary_file',
   name: 'Write Binary File',
-  description: 'Write a binary file. Server-side disk IO is stubbed; use the URL variant or SabFiles.',
+  description: 'Write a binary file into SabFiles or push to a presigned URL.',
   iconName: 'LuFileUp',
   category: 'Integration',
   auth: { type: 'none' },
   actions: [
     {
-      id: 'write',
-      label: 'Write to disk (disabled)',
-      description: 'Disabled in SabFlow. Use SabFiles for tenant-isolated storage.',
+      id: 'write_sabfile',
+      label: 'Write SabFile',
+      description:
+        "Upload base64 bytes into the workspace's SabFile library (presign → PUT → confirm).",
       fields: [
-        { id: 'filePath', label: 'File path', type: 'text', placeholder: '/tmp/disabled' },
-        { id: 'base64Data', label: 'Base64 data', type: 'textarea' },
+        { id: 'name', label: 'File name', type: 'text', required: true, placeholder: 'report.pdf' },
+        { id: 'base64Data', label: 'Base64 data', type: 'textarea', required: true },
+        { id: 'contentType', label: 'Content-Type', type: 'text', placeholder: 'application/octet-stream' },
+        { id: 'folderId', label: 'Folder ID (optional)', type: 'text', placeholder: 'Leave blank for root' },
       ],
-      run: write,
+      run: writeSabfile,
     },
     {
       id: 'write_to_url',
@@ -229,18 +225,6 @@ const block: ForgeBlock = {
         },
       ],
       run: writeToUrl,
-    },
-    {
-      id: 'write_sabfile',
-      label: 'Write SabFile',
-      description: 'Upload base64 bytes into the workspace\'s SabFile library (presign → PUT → confirm).',
-      fields: [
-        { id: 'name', label: 'File name', type: 'text', required: true, placeholder: 'report.pdf' },
-        { id: 'base64Data', label: 'Base64 data', type: 'textarea', required: true },
-        { id: 'contentType', label: 'Content-Type', type: 'text', placeholder: 'application/octet-stream' },
-        { id: 'folderId', label: 'Folder ID (optional)', type: 'text', placeholder: 'Leave blank for root' },
-      ],
-      run: writeSabfile,
     },
   ],
 };

@@ -1,15 +1,34 @@
 'use client';
 
+/**
+ * HR Policies — Deep list page (§1D.1).
+ *
+ * KPI strip · search · status / category / date filters · row selection
+ * with bulk archive / delete / publish · CSV + XLSX export · pagination ·
+ * `EntityRowLink` for the primary cell. Multi-tenant via `getSession()`
+ * inside the server actions — this page just calls them.
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
+  Download,
+  FileSpreadsheet,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react';
+import type { DateRange } from 'react-day-picker';
+
+import {
   ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruDateRangePicker,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
   ZoruSelect,
   ZoruSelectContent,
   ZoruSelectItem,
@@ -23,294 +42,568 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  Edit,
-  LoaderCircle,
-  Plus,
-  Trash2 } from 'lucide-react';
-
-/**
- * HR Policies — list page.
- *
- * Settings-style list with search + status + category filters and an
- * inline-rendered table. The "New policy" CTA links to the dedicated
- * `/new` page (the form is large enough that a dialog would feel cramped).
- */
-
-import * as React from 'react';
-import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
 import {
-    deletePolicy,
-    getPolicies,
+  bulkPolicyAction,
+  deletePolicy,
+  getPolicies,
+  getPolicyKpis,
+  type CrmPolicyKpis,
 } from '@/app/actions/crm-policies.actions';
 import type {
-    CrmPolicyDoc,
-    CrmPolicyStatus,
-    CrmPolicyCategory,
+  CrmPolicyDoc,
+  CrmPolicyStatus,
+  CrmPolicyCategory,
 } from '@/lib/rust-client/crm-policies';
 
 const BASE = '/dashboard/crm/hr/policies';
+const PAGE_SIZE = 20;
 
 const STATUS_OPTIONS: Array<{ value: CrmPolicyStatus | 'all'; label: string }> = [
-    { value: 'all', label: 'All statuses' },
-    { value: 'draft', label: 'Draft' },
-    { value: 'published', label: 'Published' },
-    { value: 'under_review', label: 'Under review' },
-    { value: 'archived', label: 'Archived' },
-    { value: 'obsolete', label: 'Obsolete' },
+  { value: 'all', label: 'All statuses' },
+  { value: 'draft', label: 'Draft' },
+  { value: 'published', label: 'Published' },
+  { value: 'under_review', label: 'Under review' },
+  { value: 'archived', label: 'Archived' },
+  { value: 'obsolete', label: 'Obsolete' },
 ];
 
 const CATEGORY_OPTIONS: Array<{ value: CrmPolicyCategory | 'all'; label: string }> = [
-    { value: 'all', label: 'All categories' },
-    { value: 'leave', label: 'Leave' },
-    { value: 'travel', label: 'Travel' },
-    { value: 'code_of_conduct', label: 'Code of conduct' },
-    { value: 'it_security', label: 'IT security' },
-    { value: 'hr', label: 'HR' },
-    { value: 'finance', label: 'Finance' },
-    { value: 'other', label: 'Other' },
+  { value: 'all', label: 'All categories' },
+  { value: 'leave', label: 'Leave' },
+  { value: 'travel', label: 'Travel' },
+  { value: 'code_of_conduct', label: 'Code of conduct' },
+  { value: 'it_security', label: 'IT security' },
+  { value: 'hr', label: 'HR' },
+  { value: 'finance', label: 'Finance' },
+  { value: 'other', label: 'Other' },
 ];
 
 const STATUS_TONE: Record<CrmPolicyStatus, StatusTone> = {
-    draft: 'amber',
-    published: 'green',
-    under_review: 'blue',
-    archived: 'neutral',
-    obsolete: 'red',
+  draft: 'amber',
+  published: 'green',
+  under_review: 'blue',
+  archived: 'neutral',
+  obsolete: 'red',
+};
+
+const EMPTY_KPIS: CrmPolicyKpis = {
+  total: 0,
+  published: 0,
+  drafts: 0,
+  acknowledged: 0,
 };
 
 function statusLabel(s: string): string {
-    return s.replace(/_/g, ' ');
-}
-
-function categoryLabel(c?: string): string {
-    if (!c) return '—';
-    return c.replace(/_/g, ' ');
+  return s.replace(/_/g, ' ');
 }
 
 function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+  if (!value) return '—';
+  const d = new Date(value as string);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-export default function PoliciesListPage() {
-    const [policies, setPolicies] = React.useState<CrmPolicyDoc[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
-    const [search, setSearch] = React.useState('');
-    const [statusFilter, setStatusFilter] = React.useState<CrmPolicyStatus | 'all'>('all');
-    const [categoryFilter, setCategoryFilter] = React.useState<CrmPolicyCategory | 'all'>('all');
-    const [pendingDelete, setPendingDelete] = React.useState<CrmPolicyDoc | null>(null);
-    const [deletePending, startDeleteTransition] = React.useTransition();
-    const { toast } = useZoruToast();
+function withinRange(value: unknown, range: DateRange | undefined): boolean {
+  if (!range?.from && !range?.to) return true;
+  if (!value) return false;
+  const t = new Date(value as string).getTime();
+  if (!Number.isFinite(t)) return false;
+  if (range.from && t < range.from.getTime()) return false;
+  if (range.to && t > range.to.getTime() + 24 * 60 * 60 * 1000 - 1) return false;
+  return true;
+}
 
-    const refresh = React.useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const res = await getPolicies({
-                q: search.trim() || undefined,
-                status: statusFilter === 'all' ? undefined : statusFilter,
-                category: categoryFilter === 'all' ? undefined : categoryFilter,
-                limit: 100,
-            });
-            setPolicies(res.items ?? []);
-        } catch {
-            setPolicies([]);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [search, statusFilter, categoryFilter]);
+export default function PoliciesListPage(): React.JSX.Element {
+  const { toast } = useZoruToast();
 
-    React.useEffect(() => {
-        // Debounce server fetch on filter changes — keep it tight (250ms)
-        // so the page feels responsive without spamming the Rust backend.
-        const t = window.setTimeout(() => {
-            void refresh();
-        }, 250);
-        return () => window.clearTimeout(t);
-    }, [refresh]);
+  const [policies, setPolicies] = React.useState<CrmPolicyDoc[]>([]);
+  const [kpis, setKpis] = React.useState<CrmPolicyKpis>(EMPTY_KPIS);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-    const handleDelete = () => {
-        if (!pendingDelete) return;
-        const id = pendingDelete._id;
-        startDeleteTransition(async () => {
-            const result = await deletePolicy(id);
-            if (result.success) {
-                toast({ title: 'Policy deleted' });
-                setPendingDelete(null);
-                await refresh();
-            } else {
-                toast({
-                    title: 'Error',
-                    description: result.error ?? 'Could not delete policy.',
-                    variant: 'destructive',
-                });
-            }
-        });
-    };
+  const [search, setSearch] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<CrmPolicyStatus | 'all'>('all');
+  const [categoryFilter, setCategoryFilter] = React.useState<CrmPolicyCategory | 'all'>('all');
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
 
-    return (
-        <>
-            <EntityListShell
-                    title="Policies"
-                    subtitle="Company policies, handbooks and versioned guidelines."
-                    primaryAction={
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/new`}>
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New policy
-                            </Link>
-                        </ZoruButton>
-                    }
-                    search={{
-                        value: search,
-                        onChange: setSearch,
-                        placeholder: 'Search policies…',
-                    }}
-                    filters={
-                        <>
-                            <ZoruSelect
-                                value={statusFilter}
-                                onValueChange={(v) =>
-                                    setStatusFilter(v as CrmPolicyStatus | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[180px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {STATUS_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
-                                value={categoryFilter}
-                                onValueChange={(v) =>
-                                    setCategoryFilter(v as CrmPolicyCategory | 'all')
-                                }
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[200px]">
-                                    <ZoruSelectValue placeholder="Category" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    {CATEGORY_OPTIONS.map((o) => (
-                                        <ZoruSelectItem key={o.value} value={o.value}>
-                                            {o.label}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                        </>
-                    }
-                    loading={isLoading && policies.length === 0}
-                >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Version</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Effective</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Review</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={7} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : policies.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
-                                            colSpan={7}
-                                            className="h-24 text-center text-zoru-ink-muted"
-                                        >
-                                            No policies match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    policies.map((p) => {
-                                        const status = (p.status ?? 'draft') as CrmPolicyStatus;
-                                        const tone = STATUS_TONE[status] ?? 'neutral';
-                                        return (
-                                            <ZoruTableRow key={p._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link
-                                                        href={`${BASE}/${p._id}`}
-                                                        className="hover:underline"
-                                                    >
-                                                        {p.name}
-                                                    </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
-                                                    {p.version ?? '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="capitalize text-zoru-ink">
-                                                    {categoryLabel(p.category)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
-                                                    <StatusPill label={statusLabel(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
-                                                    {fmtDate(p.effectiveDate)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
-                                                    {fmtDate(p.reviewDate)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
-                                                    <ZoruButton variant="ghost" size="icon" asChild>
-                                                        <Link href={`${BASE}/${p._id}/edit`}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Link>
-                                                    </ZoruButton>
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setPendingDelete(p)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
-                                        );
-                                    })
-                                )}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-            </EntityListShell>
+  const [page, setPage] = React.useState(1);
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
 
-            <ZoruAlertDialog
-                open={!!pendingDelete}
-                onOpenChange={(o) => !o && setPendingDelete(null)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete policy?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            Deleting &ldquo;{pendingDelete?.name}&rdquo; will hide it from
-                            the active policy list. Acknowledgement records remain in audit.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction onClick={handleDelete} disabled={deletePending}>
-                            {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
-        </>
+  const [pendingDeleteId, setPendingDeleteId] = React.useState<string | null>(null);
+  const [pendingBulk, setPendingBulk] = React.useState<
+    'delete' | 'archive' | 'publish' | null
+  >(null);
+  const [bulkPending, startBulkTransition] = React.useTransition();
+
+  const refresh = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const [res, k] = await Promise.all([
+        getPolicies({
+          q: search.trim() || undefined,
+          status: statusFilter === 'all' ? undefined : statusFilter,
+          category: categoryFilter === 'all' ? undefined : categoryFilter,
+          limit: 500,
+        }),
+        getPolicyKpis(),
+      ]);
+      setPolicies(res.items ?? []);
+      setKpis(k);
+    } catch {
+      setPolicies([]);
+      setKpis(EMPTY_KPIS);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, statusFilter, categoryFilter]);
+
+  React.useEffect(() => {
+    const t = window.setTimeout(() => {
+      void refresh();
+    }, 250);
+    return () => window.clearTimeout(t);
+  }, [refresh]);
+
+  const filtered = React.useMemo(() => {
+    return policies.filter((p) => withinRange(p.updatedAt ?? p.createdAt, dateRange));
+  }, [policies, dateRange]);
+
+  const pageRows = React.useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE;
+    return filtered.slice(start, start + PAGE_SIZE);
+  }, [filtered, page]);
+
+  const allOnPageSelected =
+    pageRows.length > 0 && pageRows.every((r) => selected.has(r._id));
+
+  const toggleAll = (check: boolean): void => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (check) for (const r of pageRows) next.add(r._id);
+      else for (const r of pageRows) next.delete(r._id);
+      return next;
+    });
+  };
+
+  const toggleOne = (id: string): void => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const exportRows = React.useCallback(() => {
+    const source = selected.size > 0
+      ? filtered.filter((r) => selected.has(r._id))
+      : filtered;
+    return source.map((p) => ({
+      name: p.name,
+      version: p.version ?? '',
+      category: p.category ?? '',
+      status: statusLabel(p.status ?? 'draft'),
+      effectiveDate: fmtDate(p.effectiveDate),
+      reviewDate: fmtDate(p.reviewDate),
+      acknowledged: p.acknowledgementCount ?? 0,
+    }));
+  }, [filtered, selected]);
+
+  const handleCsv = (): void => {
+    downloadCsv(
+      `policies-${dateStamp()}.csv`,
+      ['name', 'version', 'category', 'status', 'effectiveDate', 'reviewDate', 'acknowledged'],
+      exportRows(),
     );
+  };
+
+  const handleXlsx = (): void => {
+    void downloadXlsx(
+      `policies-${dateStamp()}.xlsx`,
+      ['name', 'version', 'category', 'status', 'effectiveDate', 'reviewDate', 'acknowledged'],
+      exportRows(),
+      'Policies',
+    );
+  };
+
+  const runBulk = (op: 'delete' | 'archive' | 'publish'): void => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      const r = await bulkPolicyAction(ids, op);
+      if (r.success) {
+        toast({
+          title: `${r.affected} ${op === 'delete' ? 'deleted' : op === 'archive' ? 'archived' : 'published'}`,
+        });
+        setSelected(new Set());
+        setPendingBulk(null);
+        await refresh();
+      } else {
+        toast({
+          title: 'Bulk action failed',
+          description: r.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const handleSingleDelete = (): void => {
+    if (!pendingDeleteId) return;
+    startBulkTransition(async () => {
+      const r = await deletePolicy(pendingDeleteId);
+      if (r.success) {
+        toast({ title: 'Policy deleted' });
+        setPendingDeleteId(null);
+        setSelected((prev) => {
+          const next = new Set(prev);
+          next.delete(pendingDeleteId);
+          return next;
+        });
+        await refresh();
+      } else {
+        toast({
+          title: 'Delete failed',
+          description: r.error,
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const resetFilters = (): void => {
+    setSearch('');
+    setStatusFilter('all');
+    setCategoryFilter('all');
+    setDateRange(undefined);
+    setPage(1);
+  };
+
+  const hasFilters =
+    !!search ||
+    statusFilter !== 'all' ||
+    categoryFilter !== 'all' ||
+    !!dateRange?.from ||
+    !!dateRange?.to;
+
+  return (
+    <>
+      <EntityListShell
+        title="Policies"
+        subtitle="Company policies, handbooks and versioned guidelines."
+        primaryAction={
+          <div className="flex items-center gap-2">
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
+                  <Download className="h-3.5 w-3.5" />
+                  Export
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuItem onSelect={handleCsv}>
+                  <FileSpreadsheet className="h-3.5 w-3.5" />
+                  Download CSV
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onSelect={handleXlsx}>
+                  <FileSpreadsheet className="h-3.5 w-3.5" />
+                  Download XLSX
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
+            <ZoruButton asChild>
+              <Link href={`${BASE}/new`}>
+                <Plus className="h-3.5 w-3.5" /> New policy
+              </Link>
+            </ZoruButton>
+          </div>
+        }
+        search={{
+          value: search,
+          onChange: (v) => {
+            setSearch(v);
+            setPage(1);
+          },
+          placeholder: 'Search policies…',
+        }}
+        filters={
+          <div className="flex flex-wrap items-center gap-2">
+            <ZoruSelect
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v as CrmPolicyStatus | 'all');
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-9 w-[170px]">
+                <ZoruSelectValue placeholder="Status" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                {STATUS_OPTIONS.map((o) => (
+                  <ZoruSelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect
+              value={categoryFilter}
+              onValueChange={(v) => {
+                setCategoryFilter(v as CrmPolicyCategory | 'all');
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-9 w-[190px]">
+                <ZoruSelectValue placeholder="Category" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                {CATEGORY_OPTIONS.map((o) => (
+                  <ZoruSelectItem key={o.value} value={o.value}>
+                    {o.label}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruDateRangePicker
+              value={dateRange}
+              onChange={(r) => {
+                setDateRange(r);
+                setPage(1);
+              }}
+              placeholder="Updated date range"
+              className="h-9 w-[230px]"
+            />
+            {hasFilters ? (
+              <ZoruButton variant="ghost" size="sm" onClick={resetFilters}>
+                <X className="h-3.5 w-3.5" />
+                Reset
+              </ZoruButton>
+            ) : null}
+          </div>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-sm text-zoru-ink">
+                {selected.size} selected
+              </span>
+              <div className="flex flex-wrap gap-2">
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setSelected(new Set())}
+                >
+                  Clear
+                </ZoruButton>
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  onClick={handleCsv}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export selected
+                </ZoruButton>
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPendingBulk('publish')}
+                >
+                  Publish
+                </ZoruButton>
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPendingBulk('archive')}
+                >
+                  Archive
+                </ZoruButton>
+                <ZoruButton
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => setPendingBulk('delete')}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Delete
+                </ZoruButton>
+              </div>
+            </div>
+          ) : null
+        }
+        loading={isLoading && policies.length === 0}
+        pagination={
+          <PaginationBar
+            page={page}
+            limit={PAGE_SIZE}
+            hasMore={filtered.length > page * PAGE_SIZE}
+            total={filtered.length}
+            controlled={{ onChange: ({ page: p }) => setPage(p) }}
+          />
+        }
+      >
+        <div className="flex flex-col gap-4">
+          {/* KPI strip */}
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+            <ZoruCard className="p-3">
+              <p className="text-xs text-zoru-ink-muted">Total policies</p>
+              <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.total}</p>
+            </ZoruCard>
+            <ZoruCard className="p-3">
+              <p className="text-xs text-zoru-ink-muted">Published</p>
+              <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.published}</p>
+            </ZoruCard>
+            <ZoruCard className="p-3">
+              <p className="text-xs text-zoru-ink-muted">Drafts</p>
+              <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.drafts}</p>
+            </ZoruCard>
+            <ZoruCard className="p-3">
+              <p className="text-xs text-zoru-ink-muted">Last updated</p>
+              <p className="mt-1 text-xl font-semibold text-zoru-ink">
+                {fmtDate(kpis.lastUpdatedAt)}
+              </p>
+            </ZoruCard>
+            <ZoruCard className="p-3">
+              <p className="text-xs text-zoru-ink-muted">Acknowledgements</p>
+              <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.acknowledged}</p>
+            </ZoruCard>
+          </div>
+
+          {/* Table */}
+          <ZoruCard className="p-0">
+            <div className="overflow-x-auto rounded-[var(--zoru-radius)]">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      <ZoruCheckbox
+                        aria-label="Select all"
+                        checked={allOnPageSelected}
+                        onCheckedChange={(v) => toggleAll(Boolean(v))}
+                      />
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Version</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Effective</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Review</ZoruTableHead>
+                    <ZoruTableHead className="text-right text-zoru-ink-muted">Actions</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell
+                        colSpan={8}
+                        className="h-24 text-center text-zoru-ink-muted"
+                      >
+                        No policies match this filter.
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ) : (
+                    pageRows.map((p) => {
+                      const status = (p.status ?? 'draft') as CrmPolicyStatus;
+                      const tone = STATUS_TONE[status] ?? 'neutral';
+                      const isSelected = selected.has(p._id);
+                      return (
+                        <ZoruTableRow key={p._id} className="border-zoru-line">
+                          <ZoruTableCell>
+                            <ZoruCheckbox
+                              aria-label={`Select ${p.name}`}
+                              checked={isSelected}
+                              onCheckedChange={() => toggleOne(p._id)}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-medium text-zoru-ink">
+                            <EntityRowLink
+                              href={`${BASE}/${p._id}`}
+                              label={p.name}
+                              subtitle={p.summary}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="font-mono text-[12px] text-zoru-ink">
+                            {p.version ?? '—'}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="capitalize text-zoru-ink">
+                            {(p.category ?? '—').toString().replace(/_/g, ' ')}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <StatusPill label={statusLabel(status)} tone={tone} />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            {fmtDate(p.effectiveDate)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            {fmtDate(p.reviewDate)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-right">
+                            <ZoruButton variant="ghost" size="sm" asChild>
+                              <Link href={`${BASE}/${p._id}/edit`}>Edit</Link>
+                            </ZoruButton>
+                            <ZoruButton
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setPendingDeleteId(p._id)}
+                              aria-label="Delete policy"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                            </ZoruButton>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      );
+                    })
+                  )}
+                </ZoruTableBody>
+              </ZoruTable>
+            </div>
+          </ZoruCard>
+        </div>
+      </EntityListShell>
+
+      <ConfirmDialog
+        open={!!pendingDeleteId}
+        onOpenChange={(o) => !o && setPendingDeleteId(null)}
+        title="Delete policy?"
+        description="The policy is removed from the active list. Acknowledgement audit entries are preserved."
+        confirmLabel={bulkPending ? 'Deleting…' : 'Delete'}
+        onConfirm={handleSingleDelete}
+      />
+
+      <ConfirmDialog
+        open={pendingBulk === 'delete'}
+        onOpenChange={(o) => !o && setPendingBulk(null)}
+        title={`Delete ${selected.size} policies?`}
+        description="This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete all"
+        onConfirm={() => runBulk('delete')}
+      />
+
+      <ConfirmDialog
+        open={pendingBulk === 'archive'}
+        onOpenChange={(o) => !o && setPendingBulk(null)}
+        title={`Archive ${selected.size} policies?`}
+        description="Archived policies stay searchable but are hidden from the active list."
+        confirmTone="primary"
+        confirmLabel="Archive"
+        onConfirm={() => runBulk('archive')}
+      />
+
+      <ConfirmDialog
+        open={pendingBulk === 'publish'}
+        onOpenChange={(o) => !o && setPendingBulk(null)}
+        title={`Publish ${selected.size} policies?`}
+        description="Publishing makes the selected policies visible to employees."
+        confirmTone="primary"
+        confirmLabel="Publish"
+        onConfirm={() => runBulk('publish')}
+      />
+    </>
+  );
 }

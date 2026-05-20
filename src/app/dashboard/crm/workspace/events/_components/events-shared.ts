@@ -102,10 +102,20 @@ export function computeEventsKpis(events: readonly WsEvent[]): EventsKpiCounts {
     return { total: events.length, upcoming, today, thisWeek, past, repeating };
 }
 
+export type EventsTypeFilter =
+    | 'all'
+    | 'meeting'
+    | 'webinar'
+    | 'workshop'
+    | 'social'
+    | 'training'
+    | 'other';
+
 export interface EventsFilterState {
     search: string;
     kpiKey: EventsKpiKey;
     repeat: EventsRepeatFilter;
+    eventType: EventsTypeFilter;
     location: string;
     organizer: string;
     rsvp: EventsRsvpFilter;
@@ -117,6 +127,7 @@ export const EVENTS_INITIAL_FILTERS: EventsFilterState = {
     search: '',
     kpiKey: 'all',
     repeat: 'all',
+    eventType: 'all',
     location: '',
     organizer: '',
     rsvp: 'all',
@@ -135,6 +146,20 @@ export function filterEvents<T extends WsEvent>(events: T[], f: EventsFilterStat
         }
         if (f.repeat === 'repeating' && !e.repeat) return false;
         if (f.repeat === 'one-off' && e.repeat) return false;
+        if (f.eventType !== 'all') {
+            const et = (e.repeat_type ?? '').toLowerCase();
+            const nameHay = (e.event_name ?? '').toLowerCase();
+            const descHay = (e.description ?? '').toLowerCase();
+            // Match against event_name / description heuristically since WsEvent
+            // has no explicit eventType field (the Rust CrmEventDoc does).
+            if (
+                !nameHay.includes(f.eventType) &&
+                !descHay.includes(f.eventType) &&
+                et !== f.eventType
+            ) {
+                return false;
+            }
+        }
         if (f.location && !(e.where ?? '').toLowerCase().includes(f.location.toLowerCase())) {
             return false;
         }

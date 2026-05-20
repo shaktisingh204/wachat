@@ -101,8 +101,21 @@ export async function executeFlow(
     },
   };
 
+  // The keys of the loaded env-vars bag double as the allowlist for
+  // n8n-style `{{ $env.KEY }}` expressions evaluated by the advanced
+  // engine. Default-deny: a var must have been provisioned for this
+  // workspace before expressions can read it.
+  const envAllowlist = Object.keys(envVars);
+
   try {
-    const result = await runFlowInner(flow, sessionWithEnv, userInput, executionId, callerStack);
+    const result = await runFlowInner(
+      flow,
+      sessionWithEnv,
+      userInput,
+      executionId,
+      callerStack,
+      envAllowlist,
+    );
     if (executionId) {
       publishTraceEvent({
         kind: 'end',
@@ -152,6 +165,7 @@ async function runFlowInner(
   userInput?: string,
   executionId?: string,
   callerStack?: string[],
+  envAllowlist?: string[],
 ): Promise<ExecuteFlowReturn> {
   const messages: OutgoingMessage[] = [];
   let variables = { ...session.variables };
@@ -189,7 +203,24 @@ async function runFlowInner(
   // `outputs` bag (returned by the forge action's `run()`) is stashed here
   // under `{ json: <outputs> }` so the next block's expression engine can
   // resolve `{{ $node["<DisplayName>"].json.<key> }}`.
-  const nodeOutputs: Record<string, { json: unknown }> = {};
+  // Each entry stores BOTH the single-shot `json` bag (back-compat for
+  // `{{ $node["X"].json.foo }}` references) AND the full per-item `items`
+  // array used by Phase 7 per-item iteration. Most blocks only ever write
+  // `json`; list/getAll ops populate `items` so downstream blocks can fan
+  // out one run per row.
+  // `pairedItems` is the parallel ancestry array — index N tells which
+  // upstream item produced `items[N]`. `prevNodeName` records this block's
+  // own immediate upstream so `$getPairedItem` can hop back through the
+  // chain (Phase 9).
+  const nodeOutputs: Record<
+    string,
+    {
+      json: unknown;
+      items?: Array<Record<string, unknown>>;
+      pairedItems?: Array<{ item: number; input?: number }>;
+      prevNodeName?: string;
+    }
+  > = {};
   // Seed from any previously-recorded outputs in the session — restored across
   // pauses (waiting on user input) so chained references keep working when
   // the flow resumes.
@@ -209,6 +240,15 @@ async function runFlowInner(
     // Threaded into the forge executor so expressions like
     // `{{ $node["Webhook"].json.email }}` resolve to the real upstream value.
     flow,
+    // `$execution.id` / `$execution.mode` inside expressions. Default mode
+    // is 'manual' for now — Phase 7+ will let webhook/trigger entrypoints
+    // override this when they kick off a run.
+    execution: executionId
+      ? { id: executionId, mode: 'manual' as const }
+      : undefined,
+    // Default-deny allowlist for `{{ $env.KEY }}` expressions — only keys
+    // actually loaded for this workspace are readable in templates.
+    envAllowlist,
   };
 
   outer: while (hopCount < MAX_GROUP_HOPS) {
@@ -226,6 +266,20 @@ async function runFlowInner(
           ? userInput
           : undefined;
 
+      // Resolve $prevNode by walking inbound block→block edges. When multiple
+      // blocks feed into this one we take the first deterministic match —
+      // matches n8n's behaviour (the expression engine has no concept of
+      // which fan-in was active, and most flows have a single upstream).
+      // Edges originating from an event/trigger are ignored: $prevNode is a
+      // "previous block" shortcut, not "previous anything".
+      const inbound = flow.edges.find(
+        (e) => e.to.blockId === block.id && e.from.blockId !== undefined,
+      );
+      const prevSourceId = inbound?.from.blockId;
+      const prevNodeName = prevSourceId
+        ? blockNameMap.get(prevSourceId) ?? prevSourceId
+        : undefined;
+
       // itemIndex is the 0-based position of the block within its group; used
       // by the trace emitter to distinguish per-row events within a block.
       // currentNodeName + nodeOutputs are threaded per block so each forge
@@ -235,6 +289,7 @@ async function runFlowInner(
         itemIndex: i,
         nodeOutputs,
         currentNodeName: blockNameMap.get(block.id) ?? block.id,
+        prevNodeName,
       };
 
       const stepStartedAt = Date.now();
@@ -335,7 +390,24 @@ async function runFlowInner(
       // returned no outputs (UI-only bubble blocks etc.).
       if (blockResult.forgeOutputs && Object.keys(blockResult.forgeOutputs).length) {
         const displayName = blockNameMap.get(block.id) ?? block.id;
-        nodeOutputs[displayName] = { json: blockResult.forgeOutputs };
+        nodeOutputs[displayName] = {
+          json: blockResult.forgeOutputs,
+          // Only populate `items` when the action actually produced multiple
+          // items (or one item that was distinct from the legacy single-bag
+          // output). A solitary single-bag entry would defeat downstream
+          // back-compat — readers that don't iterate would still see the
+          // same `json` value via `$node["X"].json`.
+          items:
+            blockResult.forgeItems && blockResult.forgeItems.length > 0
+              ? blockResult.forgeItems
+              : undefined,
+          pairedItems:
+            blockResult.forgePairedItems &&
+            blockResult.forgePairedItems.length > 0
+              ? blockResult.forgePairedItems
+              : undefined,
+          prevNodeName: blockCtx.prevNodeName,
+        };
       }
 
       // Merge variable updates

@@ -1,54 +1,151 @@
 'use client';
 
-import {
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
-import { IndianRupee, Box, Download, LoaderCircle } from 'lucide-react';
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateStockValueReport } from "@/app/actions/crm-reports.actions";
+/**
+ * Inventory — Stock Value report (deep view).
+ *
+ * KPI tiles (total value, slow-moving, fast-moving) sit above a warehouse
+ * pie chart plus the per-item valuation table. Multi-tenant via the
+ * server actions; export ships via the shared CSV/XLSX helpers.
+ */
 
-import Papa from "papaparse";
-import { format } from "date-fns";
+import {
+    Cell,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+    Legend,
+} from 'recharts';
+import {
+    Box,
+    Download,
+    IndianRupee,
+    LoaderCircle,
+    PackageOpen,
+    Snowflake,
+    Zap,
+} from 'lucide-react';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    useTransition,
+} from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    ZoruButton,
+    ZoruCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+import { generateStockValueReport } from '@/app/actions/crm-reports.actions';
+import {
+    getStockValueDeepKpis,
+    type StockValueDeepKpis,
+} from '@/app/actions/crm-inventory.actions';
+import {
+    dateStamp,
+    downloadCsv,
+    downloadXlsx,
+    type ExportRow,
+} from '@/lib/crm-list-export';
 
-const StatCard = ({ title, value, icon: Icon }: { title: string; value: string | number; icon: React.ElementType }) => (
-    <ZoruCard>
-        <div className="flex items-center justify-between">
-            <p className="text-[12.5px] font-medium text-muted-foreground">{title}</p>
-            <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
-        </div>
-        <div className="mt-2 text-[22px] font-semibold text-foreground">{typeof value === 'number' ? value.toLocaleString() : value}</div>
-    </ZoruCard>
-);
-
-const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+type StockRow = {
+    productId: string;
+    productName: string;
+    sku?: string;
+    warehouseId?: string;
+    warehouseName: string;
+    stock: number;
+    unitCost: number;
+    stockValue: number;
 };
 
-export default function StockValueReportPage() {
-    const [reportData, setReportData] = useState<any[]>([]);
-    const [summary, setSummary] = useState<any>({});
-    const [isLoading, startTransition] = useTransition();
+type ReportSummary = {
+    totalValue?: number;
+    totalUnits?: number;
+    productCount?: number;
+};
+
+const PIE_COLORS = [
+    'hsl(var(--primary))',
+    'hsl(var(--muted-foreground))',
+    '#10b981',
+    '#f59e0b',
+    '#ef4444',
+    '#8b5cf6',
+    '#06b6d4',
+    '#ec4899',
+];
+
+const fmtCurrency = (amount: number): string =>
+    new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+    }).format(amount);
+
+const KPI_EMPTY: StockValueDeepKpis = {
+    totalStockValue: 0,
+    slowMovingValue: 0,
+    fastMovingValue: 0,
+    byWarehouse: [],
+};
+
+function KpiTile({
+    label,
+    value,
+    sub,
+    icon: Icon,
+}: {
+    label: string;
+    value: string;
+    sub?: string;
+    icon: React.ElementType;
+}): React.JSX.Element {
+    return (
+        <ZoruCard>
+            <div className="flex items-center justify-between">
+                <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
+                <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+            </div>
+            <p className="mt-2 truncate text-[22px] font-semibold text-foreground">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
+        </ZoruCard>
+    );
+}
+
+export default function StockValueDeepPage(): React.JSX.Element {
     const { toast } = useZoruToast();
+    const [reportData, setReportData] = useState<StockRow[]>([]);
+    const [summary, setSummary] = useState<ReportSummary>({});
+    const [kpis, setKpis] = useState<StockValueDeepKpis>(KPI_EMPTY);
+    const [isLoading, startTransition] = useTransition();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const result = await generateStockValueReport();
-            if (result.error) {
-                toast({ title: "Error", description: result.error, variant: 'destructive' });
+            const [valuation, deep] = await Promise.all([
+                generateStockValueReport(),
+                getStockValueDeepKpis(),
+            ]);
+            if (valuation.error) {
+                toast({
+                    title: 'Error',
+                    description: valuation.error,
+                    variant: 'destructive',
+                });
             } else {
-                setReportData(result.data);
-                setSummary(result.summary);
+                setReportData((valuation.data as StockRow[]) ?? []);
+                setSummary((valuation.summary as ReportSummary) ?? {});
             }
+            setKpis(deep);
         });
     }, [toast]);
 
@@ -56,81 +153,203 @@ export default function StockValueReportPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleDownload = () => {
-        if (reportData.length === 0) {
-            toast({ title: 'No Data', description: 'There is no report data to download.' });
+    const exportRows = useMemo<ExportRow[]>(
+        () =>
+            reportData.map((d) => ({
+                'Product Name': d.productName,
+                SKU: d.sku ?? '',
+                Warehouse: d.warehouseName,
+                'Stock Quantity': d.stock,
+                'Unit Cost': d.unitCost.toFixed(2),
+                'Stock Value': d.stockValue.toFixed(2),
+            })),
+        [reportData],
+    );
+
+    const exportHeaders = [
+        'Product Name',
+        'SKU',
+        'Warehouse',
+        'Stock Quantity',
+        'Unit Cost',
+        'Stock Value',
+    ];
+
+    const handleCsv = useCallback(() => {
+        if (exportRows.length === 0) {
+            toast({ title: 'No data', description: 'Nothing to export.' });
             return;
         }
-        const csv = Papa.unparse(reportData.map(d => ({
-            "Product Name": d.productName,
-            "SKU": d.sku,
-            "Warehouse": d.warehouseName,
-            "Stock Quantity": d.stock,
-            "Unit Cost": d.unitCost.toFixed(2),
-            "Stock Value": d.stockValue.toFixed(2),
-        })));
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', `stock_value_report_${format(new Date(), 'yyyy-MM-dd')}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+        downloadCsv(`stock_value_${dateStamp()}.csv`, exportHeaders, exportRows);
+    }, [exportRows, toast]);
+
+    const handleXlsx = useCallback(() => {
+        if (exportRows.length === 0) {
+            toast({ title: 'No data', description: 'Nothing to export.' });
+            return;
+        }
+        void downloadXlsx(
+            `stock_value_${dateStamp()}.xlsx`,
+            exportHeaders,
+            exportRows,
+            'StockValue',
+        );
+    }, [exportRows, toast]);
 
     return (
         <EntityListShell
-            title="Stock Value Report"
-            subtitle="Get a real-time valuation of your entire inventory."
+            title="Stock value report"
+            subtitle="Real-time valuation of every SKU across every warehouse."
             primaryAction={
-                <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                    Download CSV
-                </ZoruButton>
+                <div className="flex items-center gap-2">
+                    <ZoruButton
+                        variant="outline"
+                        onClick={handleCsv}
+                        disabled={isLoading || exportRows.length === 0}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        CSV
+                    </ZoruButton>
+                    <ZoruButton
+                        variant="outline"
+                        onClick={handleXlsx}
+                        disabled={isLoading || exportRows.length === 0}
+                    >
+                        XLSX
+                    </ZoruButton>
+                </div>
             }
         >
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <StatCard title="Total Inventory Value" value={formatCurrency(summary.totalValue || 0)} icon={IndianRupee} />
-                <StatCard title="Total Units in Stock" value={summary.totalUnits || 0} icon={Box} />
-                <StatCard title="Products with Stock" value={summary.productCount || 0} icon={Box} />
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <KpiTile
+                    label="Total stock value"
+                    value={fmtCurrency(kpis.totalStockValue || summary.totalValue || 0)}
+                    sub={`${(summary.totalUnits ?? 0).toLocaleString('en-IN')} units · ${(summary.productCount ?? 0).toLocaleString('en-IN')} SKUs`}
+                    icon={IndianRupee}
+                />
+                <KpiTile
+                    label="Fast-moving value"
+                    value={fmtCurrency(kpis.fastMovingValue)}
+                    sub="≥ 10 units sold in last 90d"
+                    icon={Zap}
+                />
+                <KpiTile
+                    label="Slow-moving value"
+                    value={fmtCurrency(kpis.slowMovingValue)}
+                    sub="0 units sold in last 90d"
+                    icon={Snowflake}
+                />
+                <KpiTile
+                    label="Warehouses tracked"
+                    value={kpis.byWarehouse.length.toLocaleString('en-IN')}
+                    sub={kpis.byWarehouse[0] ? `Top: ${kpis.byWarehouse[0].warehouseName}` : 'No data'}
+                    icon={PackageOpen}
+                />
             </div>
 
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Inventory Valuation Details</h2>
+            <ZoruCard className="mt-4">
+                <h2 className="text-[16px] font-semibold text-foreground">Value by warehouse</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                    Where your inventory dollars are sitting.
+                </p>
+                <div className="mt-4 h-[280px] w-full">
+                    {kpis.byWarehouse.length === 0 ? (
+                        <div className="flex h-full items-center justify-center text-[12.5px] text-muted-foreground">
+                            <Box className="mr-2 h-4 w-4" />
+                            No warehouse stock recorded yet.
+                        </div>
+                    ) : (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={kpis.byWarehouse}
+                                    dataKey="value"
+                                    nameKey="warehouseName"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={100}
+                                    label={(props) => {
+                                        const wh = (props as { warehouseName?: string }).warehouseName;
+                                        return wh ?? '';
+                                    }}
+                                >
+                                    {kpis.byWarehouse.map((entry, index) => (
+                                        <Cell
+                                            key={entry.warehouseId}
+                                            fill={PIE_COLORS[index % PIE_COLORS.length]}
+                                        />
+                                    ))}
+                                </Pie>
+                                <Tooltip formatter={(value) => fmtCurrency(Number(value))} />
+                                <Legend wrapperStyle={{ fontSize: 12 }} />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    )}
+                </div>
+            </ZoruCard>
+
+            <ZoruCard className="mt-4">
+                <h2 className="text-[16px] font-semibold text-foreground">Valuation details</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <ZoruTable>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Product</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Warehouse</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Stock Quantity</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Unit Cost</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Stock Value</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Stock</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Unit cost</ZoruTableHead>
+                                <ZoruTableHead className="text-right text-muted-foreground">Stock value</ZoruTableHead>
                             </ZoruTableRow>
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={5} className="h-64 text-center"><LoaderCircle className="mx-auto animate-spin h-8 w-8 text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={5} className="h-64 text-center">
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : reportData.length > 0 ? (
-                                reportData.map(item => (
-                                    <ZoruTableRow key={`${item.productId}-${item.warehouseId}`} className="border-border">
+                                reportData.map((item) => (
+                                    <ZoruTableRow
+                                        key={`${item.productId}-${item.warehouseId ?? 'default'}`}
+                                        className="border-border"
+                                    >
                                         <ZoruTableCell>
                                             <p className="font-medium text-foreground">{item.productName}</p>
-                                            <p className="text-[11.5px] text-muted-foreground font-mono">{item.sku || 'N/A'}</p>
+                                            <p className="font-mono text-[11.5px] text-muted-foreground">
+                                                {item.sku || 'N/A'}
+                                            </p>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{item.warehouseName}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-medium text-foreground">{item.stock}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-mono text-foreground">{formatCurrency(item.unitCost)}</ZoruTableCell>
-                                        <ZoruTableCell className="text-right font-semibold text-foreground">{formatCurrency(item.stockValue)}</ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {item.warehouseName}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-medium text-foreground">
+                                            {item.stock}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                            {fmtCurrency(item.unitCost)}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-semibold text-foreground">
+                                            {fmtCurrency(item.stockValue)}
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={5} className="h-64 text-center text-muted-foreground">No stock data found for any products.</ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell
+                                        colSpan={5}
+                                        className="h-64 text-center text-muted-foreground"
+                                    >
+                                        No stock data found for any products.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
                         </ZoruTableBody>
                     </ZoruTable>
                 </div>
-                <p className="mt-4 text-[11.5px] text-muted-foreground">This report is based on the 'Buying Price' (cost) set for each product. If cost is not set, it falls back to the 'Selling Price'.</p>
+                <p className="mt-4 text-[11.5px] text-muted-foreground">
+                    Valuation uses each product&rsquo;s buying price (cost). If the cost is unset, the selling price is used as a fallback.
+                </p>
             </ZoruCard>
         </EntityListShell>
     );

@@ -1,154 +1,258 @@
 'use client';
 
+import * as React from 'react';
+import { useTransition } from 'react';
 import {
-  ZoruButton,
-  ZoruCard,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    Cell,
+    Legend,
+    Pie,
+    PieChart,
+    ResponsiveContainer,
+    Tooltip,
+} from 'recharts';
+import { Banknote, LoaderCircle, PieChart as PieChartIcon, Scale, ShieldCheck } from 'lucide-react';
+
+import {
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
 } from '@/components/zoruui';
-import { Download, ChevronDown } from 'lucide-react';
+import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { generateBalanceSheetData } from '@/app/actions/crm-accounting.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtMoney } from '@/app/dashboard/crm/reports/_components/report-toolbar';
 
-import { generateBalanceSheetData } from "@/app/actions/crm-accounting.actions";
+type Summary = {
+    totalAssets: number;
+    totalLiabilities: number;
+    totalCapital: number;
+    debtToEquity: number;
+};
+type Entry = { account: string; amount: number; isMain?: boolean; isSub?: boolean };
+type BalanceData = { summary: Summary; entries: Entry[] };
 
-import { useEffect, useState, useTransition, useCallback } from "react";
-import Papa from "papaparse";
-import { LoaderCircle } from "lucide-react";
+const HEADERS = ['Account', 'Amount', 'Share (%)'];
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+const PIE_COLORS = ['hsl(var(--primary))', '#f97316', '#10b981'];
 
-const StatCard = ({ title, value }: { title: string; value: string }) => (
-    <div className="bg-secondary border border-border p-4 rounded-lg">
-        <p className="text-[12.5px] text-muted-foreground">{title}</p>
-        <p className="mt-1 text-[22px] font-semibold text-foreground">{value}</p>
-    </div>
-);
-
-const BalanceSheetClient = ({ data }: { data: any }) => {
-    const { toast } = useZoruToast();
-    const { summary, entries } = data;
-
-    const totalAll = Math.abs(summary.totalAssets) + Math.abs(summary.totalLiabilities) + Math.abs(summary.totalCapital);
-
-    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
-        if (format === 'csv') {
-            const csvData = entries.map((entry: any) => ({
-                "Accounts": entry.isSub ? `  ${entry.account}` : entry.account,
-                "Amount": entry.amount.toFixed(2),
-                "% of Total": totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'
-            }));
-            const csv = Papa.unparse(csvData);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', 'balance-sheet.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
-        }
-    };
-
-    return (
-        <EntityListShell
-            title="Balance Sheet"
-            subtitle="A snapshot of your company's financial health."
-        >
-
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Summary</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">Figures are in INR (₹)</p>
-                <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <StatCard title="Total Assets" value={`₹${summary.totalAssets.toFixed(2)}`} />
-                    <StatCard title="Total Liabilities" value={`₹${summary.totalLiabilities.toFixed(2)}`} />
-                    <StatCard title="Total Capital" value={`₹${summary.totalCapital.toFixed(2)}`} />
-                    <StatCard title="Debt to Equity Ratio" value={`${summary.debtToEquity.toFixed(2)}%`} />
-                </div>
-            </ZoruCard>
-
-            <ZoruCard>
-                <div className="flex justify-end mb-4">
-                    <ZoruDropdownMenu>
-                        <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="outline">
-                                Download As
-                            </ZoruButton>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent>
-                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
-                        </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Accounts</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">% of Total</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {entries.map((entry: any, index: number) => (
-                                <ZoruTableRow key={index} className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}>
-                                    <ZoruTableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>{entry.account}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-foreground">₹{entry.amount.toFixed(2)}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-mono text-foreground">{totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00'}%</ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-                <div className="flex items-center justify-between pt-4 text-[11.5px] text-muted-foreground">
-                    <p>Showing 1 to {entries.length} of {entries.length} entries</p>
-                    <p>* Reports are in your business currency INR</p>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
-    )
-}
-
-export default function BalanceSheetPage() {
-    const [data, setData] = useState<any>(null);
+export default function BalanceSheetPage(): React.JSX.Element {
+    const [data, setData] = React.useState<BalanceData | null>(null);
     const [isLoading, startTransition] = useTransition();
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(20);
+    const [asOf, setAsOf] = React.useState<'current' | 'previous'>('current');
 
-    const fetchData = useCallback(() => {
+    const load = React.useCallback(() => {
         startTransition(async () => {
-            const result = await generateBalanceSheetData();
-            setData(result);
+            setRefreshing(true);
+            try {
+                const result = await generateBalanceSheetData();
+                setData(result as BalanceData | null);
+            } finally {
+                setRefreshing(false);
+            }
         });
     }, []);
 
-    useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    React.useEffect(() => {
+        load();
+    }, [load]);
 
-    if (isLoading || !data) {
+    if (isLoading && !data) {
         return (
-            <div className="flex justify-center items-center h-full">
+            <div className="flex h-full items-center justify-center py-16">
                 <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
-    if (!data.summary) {
-         return (
-            <div className="text-center py-10 text-[13px] text-muted-foreground">
-                <p>Could not generate balance sheet data. Please ensure you have accounts and transactions.</p>
-            </div>
-        );
-    }
+    const safeSummary: Summary = data?.summary ?? {
+        totalAssets: 0,
+        totalLiabilities: 0,
+        totalCapital: 0,
+        debtToEquity: 0,
+    };
+    const entries: Entry[] = data?.entries ?? [];
 
-    return <BalanceSheetClient data={data} />;
+    const currentAssets = safeSummary.totalAssets;
+    const currentRatio = safeSummary.totalLiabilities !== 0
+        ? currentAssets / safeSummary.totalLiabilities
+        : 0;
+
+    const totalAll =
+        Math.abs(safeSummary.totalAssets) +
+        Math.abs(safeSummary.totalLiabilities) +
+        Math.abs(safeSummary.totalCapital);
+
+    const kpis: ReportKpiCard[] = [
+        {
+            label: 'Total assets',
+            value: fmtMoney(safeSummary.totalAssets),
+            tone: 'success',
+            icon: Banknote,
+        },
+        {
+            label: 'Total liabilities',
+            value: fmtMoney(safeSummary.totalLiabilities),
+            tone: 'warning',
+            icon: Scale,
+        },
+        {
+            label: 'Equity (capital)',
+            value: fmtMoney(safeSummary.totalCapital),
+            icon: ShieldCheck,
+        },
+        {
+            label: 'Current ratio',
+            value: currentRatio.toFixed(2),
+            hint: currentRatio >= 1 ? 'Healthy liquidity' : 'Watch liquidity',
+            tone: currentRatio >= 1 ? 'success' : 'warning',
+            icon: PieChartIcon,
+        },
+    ];
+
+    const pieData = [
+        { name: 'Assets', value: Math.abs(safeSummary.totalAssets) },
+        { name: 'Liabilities', value: Math.abs(safeSummary.totalLiabilities) },
+        { name: 'Equity', value: Math.abs(safeSummary.totalCapital) },
+    ].filter((d) => d.value > 0);
+
+    const start = (page - 1) * limit;
+    const pageRows = entries.slice(start, start + limit);
+    const hasMore = start + limit < entries.length;
+
+    const exportRows = entries.map((entry) => ({
+        Account: entry.isSub ? `  ${entry.account}` : entry.account,
+        Amount: entry.amount,
+        'Share (%)': totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00',
+    }));
+
+    const onCsv = () => downloadCsv(`balance-sheet-${dateStamp()}.csv`, HEADERS, exportRows);
+    const onXlsx = () =>
+        downloadXlsx(`balance-sheet-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Balance Sheet');
+
+    const chart = (
+        <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Composition</h2>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+                Assets vs liabilities vs equity (absolute values).
+            </p>
+            <div className="mt-4 h-64 w-full">
+                {pieData.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        Nothing to plot yet.
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={pieData}
+                                dataKey="value"
+                                nameKey="name"
+                                innerRadius={50}
+                                outerRadius={90}
+                                paddingAngle={2}
+                            >
+                                {pieData.map((_, i) => (
+                                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <Tooltip formatter={(v: number) => fmtMoney(v)} />
+                            <Legend wrapperStyle={{ fontSize: 12 }} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                )}
+            </div>
+        </div>
+    );
+
+    const table = (
+        <ZoruTable>
+            <ZoruTableHeader>
+                <ZoruTableRow className="border-border hover:bg-transparent">
+                    <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Share (%)</ZoruTableHead>
+                </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+                {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-border">
+                        <ZoruTableCell colSpan={3} className="h-24 text-center text-muted-foreground">
+                            No accounts to display.
+                        </ZoruTableCell>
+                    </ZoruTableRow>
+                ) : (
+                    pageRows.map((entry, idx) => {
+                        const share = totalAll > 0 ? ((Math.abs(entry.amount) / totalAll) * 100).toFixed(2) : '0.00';
+                        return (
+                            <ZoruTableRow
+                                key={`${entry.account}-${idx}`}
+                                className={`border-border ${entry.isMain ? 'bg-secondary font-semibold' : ''}`}
+                            >
+                                <ZoruTableCell className={`text-foreground ${entry.isSub ? 'pl-8' : ''}`}>
+                                    {entry.account}
+                                </ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                    {fmtMoney(entry.amount)}
+                                </ZoruTableCell>
+                                <ZoruTableCell className="text-right font-mono text-foreground">
+                                    {share}%
+                                </ZoruTableCell>
+                            </ZoruTableRow>
+                        );
+                    })
+                )}
+            </ZoruTableBody>
+        </ZoruTable>
+    );
+
+    // Note: balance-sheet is a point-in-time report — no date range, but we
+    // still offer Current vs Previous FY snapshot via filters slot.
+    const filters = (
+        <select
+            value={asOf}
+            onChange={(e) => setAsOf(e.target.value as 'current' | 'previous')}
+            className="h-9 rounded-[var(--zoru-radius-sm)] border border-border bg-background px-3 text-[13px] text-foreground"
+            aria-label="Snapshot date"
+        >
+            <option value="current">As of today</option>
+            <option value="previous">As of FY end (prior)</option>
+        </select>
+    );
+
+    return (
+        <ReportShell
+            title="Balance Sheet"
+            subtitle="Point-in-time snapshot of assets, liabilities, and equity."
+            back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
+            onRefresh={load}
+            refreshing={refreshing || isLoading}
+            onExportCsv={onCsv}
+            onExportXlsx={onXlsx}
+            filters={filters}
+            kpis={<ReportKpiStrip cards={kpis} />}
+            chart={chart}
+            table={<div className="overflow-x-auto">{table}</div>}
+            pagination={
+                <PaginationBar
+                    page={page}
+                    limit={limit}
+                    hasMore={hasMore}
+                    total={entries.length}
+                    controlled={{
+                        onChange: (next) => {
+                            setPage(next.page);
+                            setLimit(next.limit);
+                        },
+                    }}
+                />
+            }
+        />
+    );
 }

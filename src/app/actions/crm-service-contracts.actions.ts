@@ -455,3 +455,121 @@ export async function deleteServiceContract(
     return { success: false, error: e?.message || 'Failed to delete.' };
   }
 }
+
+/* ─── Bulk ─────────────────────────────────────────────────────────── */
+
+/**
+ * Bulk action on service contracts owned by the current user.
+ *
+ * Operations:
+ *   - `renew`      → sets status to `active`, advances periodStart to today,
+ *                    extends periodEnd by the original contract duration (or 1 year
+ *                    when duration cannot be computed).
+ *   - `terminate`  → sets status to `closed`.
+ *   - `delete`     → hard-deletes documents.
+ */
+export async function bulkServiceContractAction(
+  ids: string[],
+  op: 'renew' | 'terminate' | 'delete',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!ids.length) {
+    return { success: false, processed: 0, error: 'No IDs provided.' };
+  }
+  const session = await getSession();
+  if (!session?.user) {
+    return { success: false, processed: 0, error: 'Access denied.' };
+  }
+
+  const permission = op === 'delete' ? 'delete' : 'edit';
+  const guard = await requirePermission('crm_service_contract', permission);
+  if (!guard.ok) {
+    return { success: false, processed: 0, error: guard.error };
+  }
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) {
+    return { success: false, processed: 0, error: 'No valid IDs.' };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const objectIds = validIds.map((id) => new ObjectId(id));
+    const filter = { _id: { $in: objectIds }, userId } as Record<string, unknown>;
+
+    let processed = 0;
+
+    if (op === 'delete') {
+      const res = await db.collection('crm_service_contracts').deleteMany(filter);
+      processed = res.deletedCount ?? 0;
+    } else if (op === 'terminate') {
+      const res = await db.collection('crm_service_contracts').updateMany(filter, {
+        $set: { status: 'closed', updatedAt: new Date() },
+      } as any);
+      processed = res.modifiedCount ?? 0;
+    } else {
+      // renew: read each doc's original period, compute new end, write back
+      const docs = await db
+        .collection('crm_service_contracts')
+        .find(filter)
+        .toArray();
+      const MS_PER_YEAR = 365 * 24 * 60 * 60 * 1000;
+      const now = new Date();
+      let count = 0;
+      for (const doc of docs) {
+        const rawStart = doc.periodStart
+          ? new Date(doc.periodStart as string | Date)
+          : null;
+        const rawEnd = doc.periodEnd
+          ? new Date(doc.periodEnd as string | Date)
+          : null;
+        const durationMs =
+          rawStart &&
+          rawEnd &&
+          !Number.isNaN(rawStart.getTime()) &&
+          !Number.isNaN(rawEnd.getTime())
+            ? rawEnd.getTime() - rawStart.getTime()
+            : MS_PER_YEAR;
+        const newEnd = new Date(now.getTime() + Math.max(durationMs, MS_PER_YEAR));
+        await db.collection('crm_service_contracts').updateOne(
+          { _id: doc._id, userId },
+          {
+            $set: {
+              status: 'active',
+              periodStart: now,
+              periodEnd: newEnd,
+              renewedAt: now,
+              renewalDue: false,
+              updatedAt: now,
+            },
+          } as any,
+        );
+        count += 1;
+      }
+      processed = count;
+    }
+
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: op === 'delete' ? 'delete' : 'status_change',
+        entityKind: 'service_contract',
+        entityId: validIds.join(','),
+        reason: `bulk_${op} on ${processed} contracts`,
+      });
+    } catch {
+      /* non-fatal */
+    }
+
+    revalidatePath('/dashboard/crm/service-contracts');
+    return { success: true, processed };
+  } catch (e: any) {
+    console.error('bulkServiceContractAction error:', e);
+    return {
+      success: false,
+      processed: 0,
+      error: e?.message || 'Bulk action failed.',
+    };
+  }
+}

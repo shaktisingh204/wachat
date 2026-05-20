@@ -1,7 +1,20 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { ObjectId } from 'mongodb';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
+import {
+  hrList,
+  hrGetById,
+  hrSave,
+  hrDelete,
+  hrBulkDelete,
+  hrBulkArchive,
+  hrBulkMarkReminder,
+  hrBulkUpdateStatus,
+  formToObject,
+} from '@/lib/hr-crud';
 import { hasNegativeNumber, isDateBefore } from '@/lib/form-validation';
 import type {
   HrJobPosting,
@@ -599,3 +612,618 @@ export async function deleteSuccessionPlan(id: string) {
   revalidatePath('/dashboard/hrm/hr/succession');
   return r;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk actions (§1D Deep-list template) — performance + engagement
+ *
+ *  Used by the deepened list pages at:
+ *    /dashboard/crm/hr/{okrs,feedback-360,one-on-ones,recognition,surveys}
+ *
+ *  Each action is multi-tenant (hrBulk* uses requireSession internally)
+ *  and revalidates both the crm and hrm twin paths so either route
+ *  reflects fresh data after a bulk op.
+ * ══════════════════════════════════════════════════════════════════ */
+
+function revalidatePair(slug: string): void {
+  revalidatePath(`/dashboard/crm/hr/${slug}`);
+  revalidatePath(`/dashboard/hrm/hr/${slug}`);
+}
+
+/* ── OKRs ─────────────────────────────────────────────────────── */
+
+export async function bulkDeleteOkrs(ids: string[]) {
+  const r = await hrBulkDelete('hr_okrs', ids);
+  revalidatePair('okrs');
+  return r;
+}
+export async function bulkArchiveOkrs(ids: string[]) {
+  const r = await hrBulkArchive('hr_okrs', ids);
+  revalidatePair('okrs');
+  return r;
+}
+
+/* ── 360 feedback ─────────────────────────────────────────────── */
+
+export async function bulkDeleteFeedback360(ids: string[]) {
+  const r = await hrBulkDelete('hr_feedback_360', ids);
+  revalidatePair('feedback-360');
+  return r;
+}
+export async function bulkArchiveFeedback360(ids: string[]) {
+  const r = await hrBulkArchive('hr_feedback_360', ids);
+  revalidatePair('feedback-360');
+  return r;
+}
+export async function bulkRemindFeedback360(ids: string[]) {
+  const r = await hrBulkMarkReminder('hr_feedback_360', ids);
+  revalidatePair('feedback-360');
+  return r;
+}
+
+/* ── 1:1s ─────────────────────────────────────────────────────── */
+
+export async function bulkDeleteOneOnOnes(ids: string[]) {
+  const r = await hrBulkDelete('hr_one_on_ones', ids);
+  revalidatePair('one-on-ones');
+  return r;
+}
+export async function bulkArchiveOneOnOnes(ids: string[]) {
+  const r = await hrBulkArchive('hr_one_on_ones', ids);
+  revalidatePair('one-on-ones');
+  return r;
+}
+export async function bulkRemindOneOnOnes(ids: string[]) {
+  const r = await hrBulkMarkReminder('hr_one_on_ones', ids);
+  revalidatePair('one-on-ones');
+  return r;
+}
+
+/* ── Recognition ──────────────────────────────────────────────── */
+
+export async function bulkDeleteRecognitions(ids: string[]) {
+  const r = await hrBulkDelete('hr_recognitions', ids);
+  revalidatePair('recognition');
+  return r;
+}
+export async function bulkArchiveRecognitions(ids: string[]) {
+  const r = await hrBulkArchive('hr_recognitions', ids);
+  revalidatePair('recognition');
+  return r;
+}
+
+/* ── Surveys ──────────────────────────────────────────────────── */
+
+export async function bulkDeleteSurveys(ids: string[]) {
+  const r = await hrBulkDelete('hr_surveys', ids);
+  revalidatePair('surveys');
+  return r;
+}
+export async function bulkArchiveSurveys(ids: string[]) {
+  const r = await hrBulkArchive('hr_surveys', ids);
+  revalidatePair('surveys');
+  return r;
+}
+export async function bulkRemindSurveys(ids: string[]) {
+  const r = await hrBulkMarkReminder('hr_surveys', ids);
+  revalidatePair('surveys');
+  return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk actions (§1D Deep-list template) — people-ops
+ *
+ *  Welcome kits / compensation bands / expense claims / travel.
+ *  Probation lives in `crm-probation.actions.ts` and ships its own
+ *  bulk helpers there.
+ * ══════════════════════════════════════════════════════════════════ */
+
+/* ── Welcome kits ─────────────────────────────────────────────── */
+
+export async function bulkDeleteWelcomeKits(ids: string[]) {
+  const r = await hrBulkDelete('hr_welcome_kits', ids);
+  revalidatePair('welcome-kit');
+  return r;
+}
+export async function bulkArchiveWelcomeKits(ids: string[]) {
+  const r = await hrBulkArchive('hr_welcome_kits', ids);
+  revalidatePair('welcome-kit');
+  return r;
+}
+export async function bulkMarkWelcomeKitsSent(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_welcome_kits', ids, 'sent', {
+    sent_date: new Date(),
+  });
+  revalidatePair('welcome-kit');
+  return r;
+}
+
+/* ── Compensation bands ───────────────────────────────────────── */
+
+export async function bulkDeleteCompensationBands(ids: string[]) {
+  const r = await hrBulkDelete('hr_compensation_bands', ids);
+  revalidatePair('compensation-bands');
+  return r;
+}
+export async function bulkArchiveCompensationBands(ids: string[]) {
+  const r = await hrBulkArchive('hr_compensation_bands', ids);
+  revalidatePair('compensation-bands');
+  return r;
+}
+
+/* ── Expense claims ───────────────────────────────────────────── */
+
+export async function bulkDeleteExpenseClaims(ids: string[]) {
+  const r = await hrBulkDelete('hr_expense_claims', ids);
+  revalidatePair('expense-claims');
+  return r;
+}
+export async function bulkApproveExpenseClaims(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_expense_claims', ids, 'approved', {
+    approvedAt: new Date(),
+  });
+  revalidatePair('expense-claims');
+  return r;
+}
+export async function bulkRejectExpenseClaims(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_expense_claims', ids, 'rejected', {
+    rejectedAt: new Date(),
+  });
+  revalidatePair('expense-claims');
+  return r;
+}
+export async function bulkReimburseExpenseClaims(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_expense_claims', ids, 'reimbursed', {
+    reimbursedAt: new Date(),
+  });
+  revalidatePair('expense-claims');
+  return r;
+}
+
+/* ── Travel requests ──────────────────────────────────────────── */
+
+export async function bulkDeleteTravelRequests(ids: string[]) {
+  const r = await hrBulkDelete('hr_travel_requests', ids);
+  revalidatePair('travel');
+  return r;
+}
+export async function bulkApproveTravelRequests(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_travel_requests', ids, 'approved', {
+    approvedAt: new Date(),
+  });
+  revalidatePair('travel');
+  return r;
+}
+export async function bulkRejectTravelRequests(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_travel_requests', ids, 'rejected', {
+    rejectedAt: new Date(),
+  });
+  revalidatePair('travel');
+  return r;
+}
+export async function bulkCompleteTravelRequests(ids: string[]) {
+  const r = await hrBulkUpdateStatus('hr_travel_requests', ids, 'completed', {
+    completedAt: new Date(),
+  });
+  revalidatePair('travel');
+  return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  KPIs (§1D Deep-list template) — people-ops
+ *
+ *  Each helper is multi-tenant via hrList (which scopes by userId).
+ *  Returning derived aggregates rather than raw counts keeps the
+ *  client lightweight and avoids re-counting in render.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface HrWelcomeKitKpis {
+  total: number;
+  pending: number;
+  sent: number;
+  expiringSoon: number;
+  byPhase: { onboarding: number; preboarding: number };
+}
+
+export async function getWelcomeKitKpis(): Promise<HrWelcomeKitKpis> {
+  const empty: HrWelcomeKitKpis = {
+    total: 0,
+    pending: 0,
+    sent: 0,
+    expiringSoon: 0,
+    byPhase: { onboarding: 0, preboarding: 0 },
+  };
+  const rows = await hrList<any>('hr_welcome_kits');
+  if (!rows) return empty;
+  const now = new Date();
+  const in14 = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  let pending = 0;
+  let sent = 0;
+  let expiring = 0;
+  let onboarding = 0;
+  let preboarding = 0;
+  for (const r of rows as any[]) {
+    const status = String(r.status ?? 'pending');
+    if (status === 'pending') pending++;
+    else if (status === 'sent') sent++;
+    const phase = String(r.phase ?? r.employee_phase ?? '');
+    if (phase === 'preboarding') preboarding++;
+    else onboarding++;
+    if (Array.isArray(r.items)) {
+      for (const it of r.items) {
+        const exp = it?.expiresAt ? new Date(it.expiresAt) : null;
+        if (exp && !isNaN(exp.getTime()) && exp >= now && exp <= in14) {
+          expiring++;
+          break;
+        }
+      }
+    }
+  }
+  return {
+    total: rows.length,
+    pending,
+    sent,
+    expiringSoon: expiring,
+    byPhase: { onboarding, preboarding },
+  };
+}
+
+export interface HrCompensationBandKpis {
+  total: number;
+  distinctLevels: number;
+  avgMinSalary: number;
+  avgMaxSalary: number;
+  bandsDueReview: number;
+  byLevel: Array<{ level: string; count: number }>;
+}
+
+export async function getCompensationBandKpis(): Promise<HrCompensationBandKpis> {
+  const empty: HrCompensationBandKpis = {
+    total: 0,
+    distinctLevels: 0,
+    avgMinSalary: 0,
+    avgMaxSalary: 0,
+    bandsDueReview: 0,
+    byLevel: [],
+  };
+  const rows = await hrList<any>('hr_compensation_bands');
+  if (!rows || rows.length === 0) return empty;
+  const now = new Date();
+  const dueCutoff = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+  const levelMap = new Map<string, number>();
+  let minSum = 0;
+  let minCount = 0;
+  let maxSum = 0;
+  let maxCount = 0;
+  let due = 0;
+  for (const r of rows as any[]) {
+    const level = String(r.level ?? '').trim();
+    if (level) levelMap.set(level, (levelMap.get(level) ?? 0) + 1);
+    const minS = Number(r.min_salary ?? r.minSalary);
+    const maxS = Number(r.max_salary ?? r.maxSalary);
+    if (Number.isFinite(minS) && minS > 0) {
+      minSum += minS;
+      minCount++;
+    }
+    if (Number.isFinite(maxS) && maxS > 0) {
+      maxSum += maxS;
+      maxCount++;
+    }
+    const last = r.lastReviewedAt ? new Date(r.lastReviewedAt) : (r.updatedAt ? new Date(r.updatedAt) : null);
+    if (last && !isNaN(last.getTime()) && last < dueCutoff) due++;
+  }
+  return {
+    total: rows.length,
+    distinctLevels: levelMap.size,
+    avgMinSalary: minCount > 0 ? Math.round(minSum / minCount) : 0,
+    avgMaxSalary: maxCount > 0 ? Math.round(maxSum / maxCount) : 0,
+    bandsDueReview: due,
+    byLevel: Array.from(levelMap.entries())
+      .map(([level, count]) => ({ level, count }))
+      .sort((a, b) => b.count - a.count),
+  };
+}
+
+export interface HrExpenseClaimKpis {
+  total: number;
+  pending: number;
+  approvedThisMonth: number;
+  rejected: number;
+  totalClaimed: number;
+  approvedAmount: number;
+}
+
+export async function getExpenseClaimKpis(): Promise<HrExpenseClaimKpis> {
+  const empty: HrExpenseClaimKpis = {
+    total: 0,
+    pending: 0,
+    approvedThisMonth: 0,
+    rejected: 0,
+    totalClaimed: 0,
+    approvedAmount: 0,
+  };
+  const rows = await hrList<any>('hr_expense_claims');
+  if (!rows) return empty;
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  let pending = 0;
+  let approvedThisMonth = 0;
+  let rejected = 0;
+  let totalClaimed = 0;
+  let approvedAmount = 0;
+  for (const r of rows as any[]) {
+    const amt = Number(r.amount) || 0;
+    totalClaimed += amt;
+    const status = String(r.status ?? 'pending');
+    if (status === 'pending') pending++;
+    else if (status === 'rejected') rejected++;
+    else if (status === 'approved' || status === 'reimbursed') {
+      approvedAmount += amt;
+      const when = r.approvedAt
+        ? new Date(r.approvedAt)
+        : r.updatedAt
+          ? new Date(r.updatedAt)
+          : null;
+      if (when && !isNaN(when.getTime()) && when >= monthStart && when < monthEnd) {
+        approvedThisMonth++;
+      }
+    }
+  }
+  return {
+    total: rows.length,
+    pending,
+    approvedThisMonth,
+    rejected,
+    totalClaimed,
+    approvedAmount,
+  };
+}
+
+export interface HrTravelRequestKpis {
+  total: number;
+  pendingApproval: number;
+  totalSpendMtd: number;
+  approved: number;
+  topDestination: { destination: string; count: number } | null;
+}
+
+export async function getTravelRequestKpis(): Promise<HrTravelRequestKpis> {
+  const empty: HrTravelRequestKpis = {
+    total: 0,
+    pendingApproval: 0,
+    totalSpendMtd: 0,
+    approved: 0,
+    topDestination: null,
+  };
+  const rows = await hrList<any>('hr_travel_requests');
+  if (!rows) return empty;
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  let pendingApproval = 0;
+  let approved = 0;
+  let totalSpendMtd = 0;
+  const destCount = new Map<string, number>();
+  for (const r of rows as any[]) {
+    const status = String(r.status ?? 'pending');
+    if (status === 'pending') pendingApproval++;
+    if (status === 'approved' || status === 'completed') approved++;
+    const from = r.fromDate ? new Date(r.fromDate) : null;
+    if (from && !isNaN(from.getTime()) && from >= monthStart && from < monthEnd) {
+      totalSpendMtd += Number(r.estimatedCost) || 0;
+    }
+    const dest = String(r.destination ?? '').trim();
+    if (dest) destCount.set(dest, (destCount.get(dest) ?? 0) + 1);
+  }
+  let top: { destination: string; count: number } | null = null;
+  for (const [destination, count] of destCount.entries()) {
+    if (!top || count > top.count) top = { destination, count };
+  }
+  return {
+    total: rows.length,
+    pendingApproval,
+    totalSpendMtd,
+    approved,
+    topDestination: top,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Certifications — KPIs + bulk (§1D Deep template)
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface HrCertificationKpis {
+  totalAwarded: number;
+  expiring30: number;
+  expired: number;
+  topCert?: { name: string; count: number };
+}
+
+/**
+ * Aggregate top-line KPIs for certifications: total · expiring next 30
+ * days · already expired · the most-common certification by name.
+ *
+ * "Total awarded" counts every issued credential row regardless of
+ * expiry. "Top cert" returns `undefined` when there are no rows.
+ */
+export async function getCertificationKpis(): Promise<HrCertificationKpis> {
+  const empty: HrCertificationKpis = {
+    totalAwarded: 0,
+    expiring30: 0,
+    expired: 0,
+  };
+  const rows = await hrList<any>('hr_certifications');
+  if (!rows) return empty;
+  const now = Date.now();
+  const window30 = 30 * 24 * 60 * 60 * 1000;
+  let expiring30 = 0;
+  let expired = 0;
+  const nameCount = new Map<string, number>();
+  for (const r of rows as any[]) {
+    const doesNotExpire = String(r.doesNotExpire ?? '').toLowerCase() === 'yes';
+    if (!doesNotExpire && r.expiresAt) {
+      const exp = new Date(r.expiresAt).getTime();
+      if (Number.isFinite(exp)) {
+        if (exp < now) expired += 1;
+        else if (exp - now <= window30) expiring30 += 1;
+      }
+    }
+    const nm = String(r.name ?? '').trim();
+    if (nm) nameCount.set(nm, (nameCount.get(nm) ?? 0) + 1);
+  }
+  let topCert: { name: string; count: number } | undefined;
+  for (const [name, count] of nameCount.entries()) {
+    if (!topCert || count > topCert.count) topCert = { name, count };
+  }
+  return { totalAwarded: rows.length, expiring30, expired, topCert };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Careers Page — job-posting KPIs (§1D Deep template)
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface HrCareersPageKpis {
+  publishedPosts: number;
+  applicants: number;
+  openPositions: number;
+  avgTimeToFillDays?: number;
+}
+
+/**
+ * Aggregate KPIs for the careers-page surface — derived from
+ * `hr_job_postings` (published & open) and `hr_candidates` (applicants
+ * total + hired-stage rows for time-to-fill).
+ *
+ * Time-to-fill averages the days between `postedAt` (on the linked job)
+ * and `updatedAt` (when stage flipped to `hired`). When no hires exist,
+ * `avgTimeToFillDays` is left undefined so the KPI strip can show "—".
+ */
+export async function getCareersPageKpis(): Promise<HrCareersPageKpis> {
+  const empty: HrCareersPageKpis = {
+    publishedPosts: 0,
+    applicants: 0,
+    openPositions: 0,
+  };
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+
+    const jobs = (await db
+      .collection('hr_job_postings')
+      .find({ userId })
+      .project({ status: 1, postedAt: 1 })
+      .limit(2000)
+      .toArray()) as Array<{
+      _id: ObjectId;
+      status?: string;
+      postedAt?: Date | string;
+    }>;
+
+    let publishedPosts = 0;
+    let openPositions = 0;
+    const postedAtByJob = new Map<string, number>();
+    for (const j of jobs) {
+      const s = String(j.status ?? '');
+      if (s === 'open') {
+        publishedPosts += 1;
+        openPositions += 1;
+      } else if (s === 'on-hold' || s === 'closed' || s === 'draft') {
+        if (s !== 'draft') publishedPosts += 1;
+      }
+      if (j.postedAt) {
+        const t = new Date(j.postedAt).getTime();
+        if (Number.isFinite(t)) postedAtByJob.set(String(j._id), t);
+      }
+    }
+
+    const candidates = (await db
+      .collection('hr_candidates')
+      .find({ userId })
+      .project({ stage: 1, jobId: 1, updatedAt: 1, createdAt: 1 })
+      .limit(5000)
+      .toArray()) as Array<{
+      stage?: string;
+      jobId?: ObjectId | string;
+      updatedAt?: Date | string;
+      createdAt?: Date | string;
+    }>;
+
+    const applicants = candidates.length;
+    const fillDays: number[] = [];
+    for (const c of candidates) {
+      if (String(c.stage ?? '') !== 'hired') continue;
+      const job = c.jobId ? postedAtByJob.get(String(c.jobId)) : undefined;
+      const hiredAt = c.updatedAt
+        ? new Date(c.updatedAt).getTime()
+        : c.createdAt
+          ? new Date(c.createdAt).getTime()
+          : NaN;
+      if (Number.isFinite(job) && Number.isFinite(hiredAt) && (hiredAt as number) > (job as number)) {
+        const days = ((hiredAt as number) - (job as number)) / (1000 * 60 * 60 * 24);
+        if (days >= 0 && days < 365) fillDays.push(days);
+      }
+    }
+    const avgTimeToFillDays =
+      fillDays.length > 0
+        ? Math.round(fillDays.reduce((a, b) => a + b, 0) / fillDays.length)
+        : undefined;
+
+    return { publishedPosts, applicants, openPositions, avgTimeToFillDays };
+  } catch (e) {
+    console.error('[getCareersPageKpis] failed:', e);
+    return empty;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Generic HR bulk action (§1D Deep template)
+ *
+ *  Used by every HR list page that needs delete / archive / publish /
+ *  unpublish across a set of selected rows. Resolves to a uniform
+ *  `{ success, affected, error? }` shape regardless of branch taken.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export type HrBulkOp = 'delete' | 'archive' | 'publish' | 'unpublish';
+
+export interface HrBulkResult {
+  success: boolean;
+  affected: number;
+  error?: string;
+}
+
+export async function bulkHrAction(
+  collection: string,
+  ids: string[],
+  op: HrBulkOp,
+  revalidate?: string,
+): Promise<HrBulkResult> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: true, affected: 0 };
+  }
+
+  let result: { success: boolean; affected: number; error?: string };
+  if (op === 'delete') {
+    const r = await hrBulkDelete(collection, ids);
+    result = { success: r.success, affected: r.deleted, error: r.error };
+  } else if (op === 'archive') {
+    const r = await hrBulkArchive(collection, ids);
+    result = { success: r.success, affected: r.archived, error: r.error };
+  } else if (op === 'publish') {
+    const r = await hrBulkUpdateStatus(collection, ids, 'published', {
+      isPublished: true,
+    });
+    result = { success: r.success, affected: r.updated, error: r.error };
+  } else {
+    const r = await hrBulkUpdateStatus(collection, ids, 'draft', {
+      isPublished: false,
+    });
+    result = { success: r.success, affected: r.updated, error: r.error };
+  }
+
+  if (revalidate) revalidatePath(revalidate);
+  return result;
+}
+

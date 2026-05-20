@@ -27,6 +27,8 @@ import {
 } from 'next/navigation';
 import {
   AlertCircle,
+  Download,
+  FileSpreadsheet,
   ListChecks,
   Pencil,
   Plus,
@@ -61,6 +63,11 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { deleteEmployeeAction } from '@/app/actions/crm/employees.actions';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import {
+  downloadCsv,
+  downloadXlsx,
+  dateStamp,
+} from '@/lib/crm-list-export';
 
 import type { EmployeeListRow } from './types';
 import type { EmployeeKpis } from './kpi';
@@ -288,6 +295,64 @@ export function EmployeesListClient({
     });
   };
 
+  const EXPORT_HEADERS = [
+    'Employee ID',
+    'First name',
+    'Last name',
+    'Display name',
+    'Work email',
+    'Work phone',
+    'Department',
+    'Designation',
+    'Employment type',
+    'Status',
+    'Joining date',
+    'Work location',
+  ];
+
+  function toExportRow(r: EmployeeListRow) {
+    return {
+      'Employee ID': r.employeeId ?? '',
+      'First name': r.firstName ?? '',
+      'Last name': r.lastName ?? '',
+      'Display name': r.displayName ?? displayNameOf(r),
+      'Work email': r.workEmail ?? '',
+      'Work phone': r.workPhone ?? '',
+      Department: r.departmentId ?? '',
+      Designation: r.designation ?? '',
+      'Employment type': employmentTypeLabel(r.employmentType),
+      Status: statusLabel(r.status),
+      'Joining date': fmtDate(r.joiningDate),
+      'Work location': r.workLocation ?? '',
+    };
+  }
+
+  const exportRows = React.useMemo(() => {
+    const ids = selected.size > 0 ? selected : null;
+    const src = ids
+      ? filtered.filter((r) => ids.has(r._id))
+      : filtered;
+    return src.map(toExportRow);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtered, selected]);
+
+  const handleExportCsv = () => {
+    downloadCsv(
+      `employees-${dateStamp()}.csv`,
+      EXPORT_HEADERS,
+      exportRows,
+    );
+  };
+
+  const handleExportXlsx = () => {
+    void downloadXlsx(
+      `employees-${dateStamp()}.xlsx`,
+      EXPORT_HEADERS,
+      exportRows,
+      'Employees',
+    );
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {/* KPI strip */}
@@ -366,6 +431,22 @@ export function EmployeesListClient({
             {selected.size} selected
           </div>
           <div className="flex items-center gap-1">
+            <ZoruButton
+              size="sm"
+              variant="outline"
+              onClick={handleExportCsv}
+              aria-label="Export selection as CSV"
+            >
+              <Download className="h-3.5 w-3.5" /> CSV
+            </ZoruButton>
+            <ZoruButton
+              size="sm"
+              variant="outline"
+              onClick={handleExportXlsx}
+              aria-label="Export selection as XLSX"
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" /> XLSX
+            </ZoruButton>
             <ZoruButton
               size="sm"
               variant="destructive"

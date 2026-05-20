@@ -1,59 +1,28 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Project Activity — timeline feed (§1D).
+ * KPI (events today / week / top actor / top action), search + actor +
+ * entity-kind + date-range filters, bulk-delete + CSV/XLSX export.
+ *
+ * Activity is rendered as a vertical timeline (not a regular table) so
+ * the user can scan who-did-what across all their projects.
+ */
 
-import { Activity } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import { ActivityTimelinePage } from '../_components/activity-timeline-page';
 import {
   getWsProjectActivities,
-  saveWsProjectActivity,
-  deleteWsProjectActivity,
+  bulkDeleteWsProjectActivities,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProjectActivity } from '@/lib/worksuite/project-types';
 
-function fmtDate(v: unknown): string {
-  if (!v) return '—';
-  const d = new Date(v as any);
-  return isNaN(d.getTime()) ? '—' : d.toLocaleString();
-}
+type Row = WsProjectActivity & { _id: string };
 
 export default function ProjectActivityPage() {
   return (
-    <HrEntityPage<WsProjectActivity & { _id: string }>
-      title="Project Activity"
-      subtitle="Timeline of what happened across your projects."
-      icon={Activity}
-      singular="Activity"
-      getAllAction={getWsProjectActivities as any}
-      saveAction={saveWsProjectActivity}
-      deleteAction={deleteWsProjectActivity}
-      columns={[
-        { key: 'activity', label: 'Activity' },
-        {
-          key: 'projectId',
-          label: 'Project',
-          render: (r) => String(r.projectId || '—'),
-        },
-        { key: 'actorName', label: 'Actor' },
-        {
-          key: 'createdAt',
-          label: 'When',
-          render: (r) => fmtDate(r.createdAt),
-        },
-      ]}
-      fields={[
-        { name: 'projectId', label: 'Project ID', required: true },
-        {
-          name: 'activity',
-          label: 'Activity',
-          required: true,
-          fullWidth: true,
-          type: 'textarea',
-        },
-        { name: 'actorName', label: 'Actor Name' },
-        { name: 'actorUserId', label: 'Actor User ID' },
-      ]}
+    <ActivityTimelinePage
+      getList={() => getWsProjectActivities() as unknown as Promise<Row[]>}
+      bulkDelete={bulkDeleteWsProjectActivities}
     />
   );
 }

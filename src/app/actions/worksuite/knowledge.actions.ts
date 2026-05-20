@@ -409,6 +409,150 @@ export async function deleteStickyNote(id: string) {
   revalidatePath('/dashboard/crm/workspace/sticky-notes');
   return r;
 }
+/* ═══════════════════ KPI helpers ═══════════════════ */
+
+export interface AwardKpis {
+    totalPrograms: number;
+    thisMonth: number;
+    uniqueRecipients: number;
+    awardTypes: number;
+}
+
+export async function getAwardKpis(): Promise<AwardKpis> {
+    const user = await requireSession();
+    if (!user) return { totalPrograms: 0, thisMonth: 0, uniqueRecipients: 0, awardTypes: 0 };
+    const [awards, apps] = await Promise.all([
+        hrList<WsAward>(COLS.award, { sortBy: { createdAt: -1 } }),
+        hrList<WsAppreciation>(COLS.appreciation, { sortBy: { given_on: -1 } }),
+    ]);
+    const now = new Date();
+    let thisMonth = 0;
+    for (const a of apps) {
+        const d = new Date(a.given_on as string);
+        if (
+            Number.isFinite(d.getTime()) &&
+            d.getFullYear() === now.getFullYear() &&
+            d.getMonth() === now.getMonth()
+        ) {
+            thisMonth += 1;
+        }
+    }
+    const uniqueRecipients = new Set(apps.map((a) => a.given_to_user_id)).size;
+    const awardTypes = new Set(awards.map((a) => a.frequency)).size;
+    return {
+        totalPrograms: awards.length,
+        thisMonth,
+        uniqueRecipients,
+        awardTypes,
+    };
+}
+
+export interface DiscussionKpis {
+    total: number;
+    open: number;
+    closed: number;
+    repliesThisWeek: number;
+}
+
+export async function getDiscussionKpis(): Promise<DiscussionKpis> {
+    const user = await requireSession();
+    if (!user) return { total: 0, open: 0, closed: 0, repliesThisWeek: 0 };
+    const { db } = await connectToDatabase();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const [discussions, recentReplies] = await Promise.all([
+        hrList<WsDiscussion>(COLS.discussion),
+        db
+            .collection(COLS.discussionReply)
+            .countDocuments({
+                userId: new ObjectId(user._id),
+                createdAt: { $gte: sevenDaysAgo },
+            }),
+    ]);
+    let open = 0;
+    let closed = 0;
+    // Without an explicit status field, treat discussions with no replies
+    // as "open" (pending). We track this from the list since we cannot
+    // efficiently join per-discussion reply count server-side in this helper.
+    // Discussions that have been updated recently are treated as open.
+    for (const d of discussions) {
+        const updated = d.updatedAt ? new Date(d.updatedAt as string) : null;
+        if (updated && Date.now() - updated.getTime() < 30 * 24 * 60 * 60 * 1000) {
+            open += 1;
+        } else {
+            closed += 1;
+        }
+    }
+    return {
+        total: discussions.length,
+        open,
+        closed,
+        repliesThisWeek: recentReplies,
+    };
+}
+
+export interface EventKpis {
+    total: number;
+    upcoming: number;
+    todayCount: number;
+    pastThisMonth: number;
+}
+
+export async function getEventKpis(): Promise<EventKpis> {
+    const user = await requireSession();
+    if (!user) return { total: 0, upcoming: 0, todayCount: 0, pastThisMonth: 0 };
+    const events = await hrList<WsEvent>(COLS.event, { sortBy: { start_date_time: 1 } });
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const endOfDay = new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000 - 1);
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    let upcoming = 0;
+    let todayCount = 0;
+    let pastThisMonth = 0;
+    for (const e of events) {
+        const start = new Date(e.start_date_time as string);
+        if (!Number.isFinite(start.getTime())) continue;
+        if (start >= endOfDay) upcoming += 1;
+        if (start >= startOfDay && start <= endOfDay) todayCount += 1;
+        if (start < startOfDay && start >= startOfMonth) pastThisMonth += 1;
+    }
+    return { total: events.length, upcoming, todayCount, pastThisMonth };
+}
+
+export interface NoticeKpis {
+    total: number;
+    active: number;
+    expired: number;
+    expiringIn7Days: number;
+}
+
+export async function getNoticeKpis(): Promise<NoticeKpis> {
+    const user = await requireSession();
+    if (!user) return { total: 0, active: 0, expired: 0, expiringIn7Days: 0 };
+    const notices = await hrList<WsNotice>(COLS.notice, { sortBy: { pinned: -1, createdAt: -1 } });
+    const now = Date.now();
+    const ninetyDays = 90 * 24 * 60 * 60 * 1000;
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    let active = 0;
+    let expired = 0;
+    let expiringIn7Days = 0;
+    for (const n of notices) {
+        const created = n.createdAt ? new Date(n.createdAt as string).getTime() : null;
+        if (created === null) {
+            active += 1;
+            continue;
+        }
+        const age = now - created;
+        if (age > ninetyDays) {
+            expired += 1;
+        } else {
+            active += 1;
+            const remaining = ninetyDays - age;
+            if (remaining <= sevenDays) expiringIn7Days += 1;
+        }
+    }
+    return { total: notices.length, active, expired, expiringIn7Days };
+}
+
 export async function togglePinStickyNote(id: string) {
   const user = await requireSession();
   if (!user) return { success: false, error: 'Access denied' };

@@ -183,6 +183,64 @@ export async function generateApiToken(
     }
 }
 
+/* ── Bulk actions ───────────────────────────────────────────────────────── */
+
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+
+/** Bulk revoke (soft-delete) multiple tokens by id. */
+export async function bulkRevokeApiTokens(ids: string[]): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Authentication required.' };
+
+    const guard = await requirePermission('crm_settings', 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    const validIds = ids.filter((id) => /^[a-fA-F0-9]{24}$/.test(id));
+    if (validIds.length === 0) return { ok: false, error: 'No valid token IDs provided.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_api_tokens').updateMany(
+            {
+                _id: { $in: validIds.map((id) => new ObjectId(id)) },
+                tenantUserId: String(session.user._id),
+                revoked: { $ne: true },
+            },
+            { $set: { revoked: true, revokedAt: new Date().toISOString() } },
+        );
+        revalidatePath('/dashboard/crm/settings/api-tokens');
+        return { ok: true, count: result.modifiedCount };
+    } catch (e) {
+        console.error('[crm-api-tokens] bulkRevoke failed:', e);
+        return { ok: false, error: 'Failed to revoke tokens.' };
+    }
+}
+
+/** Bulk hard-delete multiple tokens by id. */
+export async function bulkDeleteApiTokens(ids: string[]): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Authentication required.' };
+
+    const guard = await requirePermission('crm_settings', 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    const validIds = ids.filter((id) => /^[a-fA-F0-9]{24}$/.test(id));
+    if (validIds.length === 0) return { ok: false, error: 'No valid token IDs provided.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_api_tokens').deleteMany({
+            _id: { $in: validIds.map((id) => new ObjectId(id)) },
+            tenantUserId: String(session.user._id),
+        });
+        revalidatePath('/dashboard/crm/settings/api-tokens');
+        return { ok: true, count: result.deletedCount };
+    } catch (e) {
+        console.error('[crm-api-tokens] bulkDelete failed:', e);
+        return { ok: false, error: 'Failed to delete tokens.' };
+    }
+}
+
 /** Revoke (soft-delete) a token by id. */
 export async function revokeApiToken(
     id: string,

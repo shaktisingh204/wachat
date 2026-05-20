@@ -546,3 +546,38 @@ export async function deleteProposal(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+/**
+ * Bulk-archive proposals. Archives (soft-deletes) all provided IDs in
+ * one Mongo `updateMany`. Used by the bulk-action bar on the list page.
+ */
+export async function bulkArchiveProposals(
+    ids: string[],
+): Promise<{ success: boolean; archived?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_proposal', 'delete');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) {
+        return { success: false, error: 'No valid IDs supplied.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id as string);
+        const oids = validIds.map((id) => new ObjectId(id));
+
+        const r = await db.collection('crm_proposals').updateMany(
+            { _id: { $in: oids }, userId: userObjectId },
+            { $set: { status: 'archived', updatedAt: new Date() } },
+        );
+
+        revalidatePath('/dashboard/crm/sales/proposals');
+        return { success: true, archived: r.modifiedCount };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

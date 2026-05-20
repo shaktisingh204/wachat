@@ -55,6 +55,11 @@ import { deleteGrnAction } from '@/app/actions/crm/grns.actions';
 import type { GrnKpis } from '@/app/actions/crm/grns.actions';
 import type { CrmGrnDoc } from '@/lib/rust-client/crm-grns';
 import {
+    dateStamp,
+    downloadXlsx,
+    type ExportRow,
+} from '@/lib/crm-list-export';
+import {
     GrnBulkBar,
     GrnFiltersBar,
     GrnKpiStrip,
@@ -213,9 +218,23 @@ export function GrnListClient({
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `grns-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.download = `grns-${dateStamp()}.csv`;
         a.click();
         URL.revokeObjectURL(url);
+    }
+
+    async function bulkExportXlsx() {
+        const sel = grns.filter((g) => selected.has(String(g._id)));
+        const headers = ['GRN #', 'Vendor ID', 'PO ref', 'Date', 'Warehouse', 'Status'];
+        const rows: ExportRow[] = sel.map((g) => ({
+            'GRN #': g.grnNo ?? '',
+            'Vendor ID': g.vendorId ?? '',
+            'PO ref': g.poId ?? '',
+            Date: g.date ?? '',
+            Warehouse: g.warehouseId ?? '',
+            Status: typeof g.status === 'string' ? g.status : '',
+        }));
+        await downloadXlsx(`grns-${dateStamp()}.xlsx`, headers, rows, 'GRNs');
     }
 
     function bulkConvertToBill() {
@@ -283,6 +302,7 @@ export function GrnListClient({
                     count={selected.size}
                     onClear={clearSelection}
                     onExport={bulkExport}
+                    onExportXlsx={bulkExportXlsx}
                     onConvertToBill={bulkConvertToBill}
                     onDelete={() => setPendingBulkDelete(true)}
                 />

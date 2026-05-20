@@ -9,9 +9,14 @@
  *     when the expression's result (stringified) matches one of the cases,
  *     else `branch: 'default'`.
  *
- * Out of scope: structured per-output rules with operator dropdowns — n8n's
- * V3 supports those, but this port keeps the surface tiny: one expression,
- * a comma-separated list of allowed cases, and a default branch.
+ * Out of scope (blocked on sabflow Phase 8 — multi-output branching):
+ *   - n8n V3 "Rules" mode (one output per rule, plus an optional Fallback
+ *     output): forge blocks today emit a single output object, so each rule
+ *     would map to a separate downstream edge that sabflow can't express.
+ *   - n8n V3 "Expression → numberOutputs" mode for the same reason.
+ *
+ * When Phase 8 lands the `branch` string returned here can switch to picking
+ * a real output port instead of just a label.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {

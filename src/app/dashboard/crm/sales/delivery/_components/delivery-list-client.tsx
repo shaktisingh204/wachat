@@ -50,7 +50,11 @@ import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-import { deleteDeliveryChallanAction } from '@/app/actions/crm-delivery-challans.actions';
+import {
+  deleteDeliveryChallanAction,
+  setDeliveryChallanStatus,
+} from '@/app/actions/crm-delivery-challans.actions';
+import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
 import {
   DcActiveFilterChips,
   DcBulkBar,
@@ -216,6 +220,57 @@ export function DeliveryListClient({
     URL.revokeObjectURL(url);
   }
 
+  function bulkExportXlsx() {
+    const sel = rows.filter((r) => selected.has(r._id));
+    if (sel.length === 0) return;
+    const headers = [
+      'challan_no',
+      'customer_id',
+      'so_ref',
+      'date',
+      'status',
+      'vehicle',
+      'driver',
+      'mode',
+    ];
+    const exportRows = sel.map((r) => ({
+      challan_no: r.challanNumber,
+      customer_id: r.accountId,
+      so_ref: r.soRef ?? '',
+      date: r.challanDate,
+      status: r.status,
+      vehicle: r.vehicleNumber ?? '',
+      driver: r.driverName ?? '',
+      mode: r.mode ?? '',
+    }));
+    void downloadXlsx(
+      `delivery-challans-${dateStamp()}.xlsx`,
+      headers,
+      exportRows,
+      'Challans',
+    );
+  }
+
+  function bulkStatus(next: DcStatus) {
+    if (selected.size === 0) return;
+    startBusy(async () => {
+      let ok = 0;
+      let fail = 0;
+      for (const id of selected) {
+        const res = await setDeliveryChallanStatus(id, next);
+        if (res.success) ok++;
+        else fail++;
+      }
+      toast({
+        title: `Updated ${ok}`,
+        description: fail > 0 ? `${fail} failed.` : `Status → ${next}.`,
+        variant: fail > 0 ? 'destructive' : undefined,
+      });
+      clearSelection();
+      router.refresh();
+    });
+  }
+
   function bulkConvertToInvoice() {
     for (const id of selected) {
       window.open(
@@ -256,6 +311,8 @@ export function DeliveryListClient({
             count={selected.size}
             onClear={clearSelection}
             onExport={bulkExport}
+            onExportXlsx={bulkExportXlsx}
+            onStatus={bulkStatus}
             onConvertToInvoice={bulkConvertToInvoice}
             onDelete={() => setPendingBulkDelete(true)}
           />

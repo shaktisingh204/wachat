@@ -5,6 +5,27 @@ import {
   createPersonalToken,
   revokePersonalToken,
 } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableHead,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableCell,
+  ZoruBadge,
+  ZoruEmptyState,
+} from '@/components/zoruui';
+import { AlertCircle, TriangleAlert, Copy, KeyRound } from 'lucide-react';
 
 interface PatRow {
   _id: string;
@@ -75,122 +96,125 @@ export function PatsClient({ initialTokens }: Props): JSX.Element {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {revealed ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4">
-          <div className="text-sm font-semibold text-amber-300 mb-1">Save this token now</div>
-          <div className="text-xs text-amber-200 mb-2">
-            Shown once. Treat it as a password — anyone with this token can act as you.
+        <ZoruAlert variant="warning">
+          <TriangleAlert className="h-4 w-4" />
+          <div className="space-y-2">
+            <p className="font-semibold text-sm">Save this token now — shown once. Treat it as a password.</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+                {revealed}
+              </code>
+              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(revealed)}>
+                <Copy className="h-3 w-3 mr-1" /> Copy
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={() => setRevealed(null)}>
+                Dismiss
+              </ZoruButton>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100 overflow-x-auto">
-              {revealed}
-            </code>
-            <button
-              type="button"
-              onClick={() => navigator.clipboard.writeText(revealed)}
-              className="px-3 py-2 text-xs border border-amber-500/40 rounded hover:bg-amber-500/20"
-            >
-              Copy
-            </button>
-            <button
-              type="button"
-              onClick={() => setRevealed(null)}
-              className="px-3 py-2 text-xs border border-zinc-700 rounded hover:bg-zinc-800"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
+        </ZoruAlert>
       ) : null}
 
-      <div className="rounded-md border border-zinc-800 bg-zinc-900/30 p-4">
-        <div className="text-sm font-semibold mb-2">Generate Personal Access Token</div>
-        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-2 items-center">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="e.g. local-dev"
-            className="bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm"
-            disabled={busy}
-          />
-          <input
-            type="datetime-local"
-            value={expiresAt}
-            onChange={(e) => setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
-            className="bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-300"
-            disabled={busy}
-          />
-          <button
-            type="button"
-            onClick={handleCreate}
-            disabled={busy || !name.trim()}
-            className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-zinc-900 font-semibold rounded disabled:opacity-50"
-          >
-            {busy ? 'Working…' : 'Generate'}
-          </button>
-        </div>
-        <p className="text-xs text-zinc-500 mt-2">
-          PATs inherit your RBAC, so they can only do what your user account is allowed to do.
-        </p>
-      </div>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Generate Personal Access Token</ZoruCardTitle>
+          <ZoruCardDescription>PATs inherit your RBAC and can only do what your account is allowed to do.</ZoruCardDescription>
+        </ZoruCardHeader>
+        <ZoruCardContent>
+          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_auto] gap-3 items-end">
+            <div className="space-y-1.5">
+              <ZoruLabel>Name</ZoruLabel>
+              <ZoruInput
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. local-dev"
+                disabled={busy}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel>Expires at (optional)</ZoruLabel>
+              <ZoruInput
+                type="datetime-local"
+                value={expiresAt}
+                onChange={(e) => setExpiresAt(e.target.value ? new Date(e.target.value).toISOString() : '')}
+                disabled={busy}
+              />
+            </div>
+            <ZoruButton onClick={handleCreate} disabled={busy || !name.trim()}>
+              {busy ? 'Working…' : 'Generate'}
+            </ZoruButton>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {error ? (
-        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          {error}
-        </div>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </ZoruAlert>
       ) : null}
 
-      <div className="rounded-md border border-zinc-800 overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-zinc-900/50 text-zinc-400 text-xs">
-            <tr>
-              <th className="text-left px-3 py-2">Name</th>
-              <th className="text-left px-3 py-2">Scopes</th>
-              <th className="text-left px-3 py-2">Created</th>
-              <th className="text-left px-3 py-2">Expires</th>
-              <th className="text-left px-3 py-2">Status</th>
-              <th className="text-right px-3 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+      <ZoruCard>
+        <ZoruTable>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead>Name</ZoruTableHead>
+              <ZoruTableHead>Scopes</ZoruTableHead>
+              <ZoruTableHead>Created</ZoruTableHead>
+              <ZoruTableHead>Expires</ZoruTableHead>
+              <ZoruTableHead>Status</ZoruTableHead>
+              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
             {tokens.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-zinc-500">
-                  No tokens yet.
-                </td>
-              </tr>
+              <ZoruTableRow>
+                <ZoruTableCell colSpan={6}>
+                  <ZoruEmptyState
+                    icon={<KeyRound className="h-8 w-8" />}
+                    title="No tokens yet"
+                    description="Generate a PAT above to get started."
+                  />
+                </ZoruTableCell>
+              </ZoruTableRow>
             ) : null}
             {tokens.map((t) => (
-              <tr key={t._id} className="border-t border-zinc-800">
-                <td className="px-3 py-2">{t.name}</td>
-                <td className="px-3 py-2 text-zinc-400 text-xs font-mono">
+              <ZoruTableRow key={t._id}>
+                <ZoruTableCell>{t.name}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">
                   {t.scopes.join(' ') || '*'}
-                </td>
-                <td className="px-3 py-2 text-zinc-400 text-xs">{fmt(t.createdAt)}</td>
-                <td className="px-3 py-2 text-zinc-400 text-xs">
+                </ZoruTableCell>
+                <ZoruTableCell className="text-xs text-zoru-ink-muted">{fmt(t.createdAt)}</ZoruTableCell>
+                <ZoruTableCell className="text-xs text-zoru-ink-muted">
                   {t.expiresAt ? fmt(t.expiresAt) : '—'}
-                </td>
-                <td className="px-3 py-2 text-xs">
-                  {t.revoked ? <span className="text-red-400">Revoked</span> : <span className="text-green-400">Active</span>}
-                </td>
-                <td className="px-3 py-2 text-right">
+                </ZoruTableCell>
+                <ZoruTableCell>
+                  {t.revoked ? (
+                    <ZoruBadge variant="destructive">Revoked</ZoruBadge>
+                  ) : (
+                    <ZoruBadge variant="success">Active</ZoruBadge>
+                  )}
+                </ZoruTableCell>
+                <ZoruTableCell className="text-right">
                   {!t.revoked ? (
-                    <button
-                      type="button"
+                    <ZoruButton
+                      variant="ghost"
+                      size="sm"
                       onClick={() => handleRevoke(t._id)}
                       disabled={busy}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-zoru-danger hover:text-zoru-danger"
                     >
                       Revoke
-                    </button>
+                    </ZoruButton>
                   ) : null}
-                </td>
-              </tr>
+                </ZoruTableCell>
+              </ZoruTableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </ZoruTableBody>
+        </ZoruTable>
+      </ZoruCard>
     </div>
   );
 }

@@ -5,16 +5,19 @@
  * Credential type: 'matrix' — { homeserverUrl, accessToken } from CREDENTIAL_FIELD_SCHEMAS.
  *
  * Operations covered:
- *   - message.create     PUT /_matrix/client/r0/rooms/{roomId}/send/m.room.message/{txnId}
- *   - message.getAll     GET /_matrix/client/r0/rooms/{roomId}/messages
- *   - room.create        POST /_matrix/client/r0/createRoom
- *   - room.invite        POST /_matrix/client/r0/rooms/{roomId}/invite
- *   - room.leave         POST /_matrix/client/r0/rooms/{roomId}/leave
- *   - account.whoami     GET /_matrix/client/r0/account/whoami
+ *   - account.whoami     GET  /account/whoami
+ *   - event.get          GET  /rooms/{roomId}/event/{eventId}
+ *   - message.create     PUT  /rooms/{roomId}/send/m.room.message/{txnId}
+ *   - message.getAll     GET  /rooms/{roomId}/messages
+ *   - room.create        POST /createRoom
+ *   - room.invite        POST /rooms/{roomId}/invite
+ *   - room.join          POST /rooms/{roomIdOrAlias}/join
+ *   - room.kick          POST /rooms/{roomId}/kick
+ *   - room.leave         POST /rooms/{roomId}/leave
+ *   - roomMember.getAll  GET  /rooms/{roomId}/members
  *
- * Out of scope for the first port:
- *   - media upload (binary), event.get with custom event types
- *   - roomMember.getAll pagination, full event sync
+ * Out of scope: media upload — requires binary attachment plumbing the forge
+ * runtime does not expose to action handlers yet.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -134,6 +137,60 @@ async function accountWhoami(ctx: ForgeActionContext): Promise<ForgeActionResult
   return { outputs: { account: result }, logs: ['Matrix whoami'] };
 }
 
+async function roomJoin(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const roomIdOrAlias = asString(ctx.options.roomIdOrAlias);
+  if (!roomIdOrAlias) throw new Error('Matrix: roomIdOrAlias is required');
+  const result = await matrix(ctx, 'POST', `/rooms/${encodeURIComponent(roomIdOrAlias)}/join`);
+  return { outputs: { result }, logs: [`Matrix join → ${roomIdOrAlias}`] };
+}
+
+async function roomKick(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const roomId = asString(ctx.options.roomId);
+  const userId = asString(ctx.options.userId);
+  if (!roomId) throw new Error('Matrix: roomId is required');
+  if (!userId) throw new Error('Matrix: userId is required');
+  const reason = asString(ctx.options.reason);
+  const body: Record<string, unknown> = { user_id: userId };
+  if (reason) body.reason = reason;
+  const result = await matrix(ctx, 'POST', `/rooms/${encodeURIComponent(roomId)}/kick`, body);
+  return { outputs: { result }, logs: [`Matrix kick → ${userId} from ${roomId}`] };
+}
+
+async function eventGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const roomId = asString(ctx.options.roomId);
+  const eventId = asString(ctx.options.eventId);
+  if (!roomId) throw new Error('Matrix: roomId is required');
+  if (!eventId) throw new Error('Matrix: eventId is required');
+  const result = await matrix(
+    ctx,
+    'GET',
+    `/rooms/${encodeURIComponent(roomId)}/event/${encodeURIComponent(eventId)}`,
+  );
+  return { outputs: { event: result }, logs: [`Matrix event get → ${eventId}`] };
+}
+
+async function roomMemberGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const roomId = asString(ctx.options.roomId);
+  if (!roomId) throw new Error('Matrix: roomId is required');
+  const qs: Record<string, string> = {};
+  const membership = asString(ctx.options.membership);
+  const notMembership = asString(ctx.options.notMembership);
+  if (membership) qs.membership = membership;
+  if (notMembership) qs.not_membership = notMembership;
+  const result = (await matrix(
+    ctx,
+    'GET',
+    `/rooms/${encodeURIComponent(roomId)}/members`,
+    undefined,
+    qs,
+  )) as { chunk?: unknown[] } | null;
+  const members = result?.chunk ?? [];
+  return {
+    outputs: { members, raw: result },
+    logs: [`Matrix room members → ${Array.isArray(members) ? members.length : 0}`],
+  };
+}
+
 const block: ForgeBlock = {
   id: 'forge_matrix',
   name: 'Matrix',
@@ -217,10 +274,72 @@ const block: ForgeBlock = {
       run: roomInvite,
     },
     {
+      id: 'room_join',
+      label: 'Join room',
+      description: 'Join a room by id or alias.',
+      fields: [
+        { id: 'roomIdOrAlias', label: 'Room ID or alias', type: 'text', required: true },
+      ],
+      run: roomJoin,
+    },
+    {
+      id: 'room_kick',
+      label: 'Kick user from room',
+      description: 'Remove a user from a room.',
+      fields: [
+        { id: 'roomId', label: 'Room ID', type: 'text', required: true },
+        { id: 'userId', label: 'User ID', type: 'text', required: true },
+        { id: 'reason', label: 'Reason', type: 'text' },
+      ],
+      run: roomKick,
+    },
+    {
       id: 'room_leave',
       label: 'Leave room',
       fields: [{ id: 'roomId', label: 'Room ID', type: 'text', required: true }],
       run: roomLeave,
+    },
+    {
+      id: 'event_get',
+      label: 'Get event',
+      description: 'Fetch a single event from a room.',
+      fields: [
+        { id: 'roomId', label: 'Room ID', type: 'text', required: true },
+        { id: 'eventId', label: 'Event ID', type: 'text', required: true },
+      ],
+      run: eventGet,
+    },
+    {
+      id: 'room_member_get_all',
+      label: 'Get room members',
+      description: 'List members of a room with optional membership filters.',
+      fields: [
+        { id: 'roomId', label: 'Room ID', type: 'text', required: true },
+        {
+          id: 'membership',
+          label: 'Membership',
+          type: 'select',
+          options: [
+            { label: 'Any', value: '' },
+            { label: 'Join', value: 'join' },
+            { label: 'Invite', value: 'invite' },
+            { label: 'Leave', value: 'leave' },
+            { label: 'Ban', value: 'ban' },
+            { label: 'Knock', value: 'knock' },
+          ],
+        },
+        {
+          id: 'notMembership',
+          label: 'Exclude membership',
+          type: 'select',
+          options: [
+            { label: 'None', value: '' },
+            { label: 'Leave', value: 'leave' },
+            { label: 'Ban', value: 'ban' },
+          ],
+        },
+      ],
+      run: roomMemberGetAll,
     },
     {
       id: 'account_whoami',

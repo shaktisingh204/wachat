@@ -2,6 +2,7 @@
 
 import {
   ZoruButton,
+  ZoruCheckbox,
   ZoruStatCard,
   ZoruSelect,
   ZoruSelectContent,
@@ -29,6 +30,7 @@ import {
   Bug,
   CheckCircle2,
   Clock,
+  Download,
   Edit,
   Eye,
   LayoutGrid,
@@ -36,6 +38,8 @@ import {
   MoreHorizontal,
   Plus,
   Trash2,
+  UserCheck,
+  X,
   Zap,
   } from 'lucide-react';
 
@@ -61,6 +65,8 @@ import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import {
   getWsIssues,
   deleteWsIssue,
+  bulkDeleteWsIssues,
+  bulkUpdateWsIssues,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsIssue } from '@/lib/worksuite/project-types';
 
@@ -109,6 +115,9 @@ export default function ProjectIssuesPage() {
   const [projectFilter, setProjectFilter] = React.useState<string>('');
   const [view, setView] = React.useState<ViewMode>('table');
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+  const [selection, setSelection] = React.useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = React.useTransition();
+  const [confirmBulk, setConfirmBulk] = React.useState<'close' | 'delete' | null>(null);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -191,6 +200,7 @@ export default function ProjectIssuesPage() {
     const res = await deleteWsIssue(deleteTargetId);
     if (res?.success) {
       toast({ title: 'Issue deleted' });
+      setSelection((prev) => { const n = new Set(prev); n.delete(deleteTargetId); return n; });
       refresh();
     } else {
       toast({
@@ -201,6 +211,79 @@ export default function ProjectIssuesPage() {
     }
     setDeleteTargetId(null);
   }, [deleteTargetId, refresh, toast]);
+
+  /* ── Selection helpers ───────────────────────────────────────── */
+  const handleToggle = React.useCallback((id: string) => {
+    setSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAll = React.useCallback((checked: boolean) => {
+    setSelection(checked ? new Set(filtered.map((r) => r._id)) : new Set());
+  }, [filtered]);
+
+  /* ── Bulk ops ────────────────────────────────────────────────── */
+  const handleBulkClose = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkUpdateWsIssues(ids, 'close');
+      if (res.updated > 0 || res.failed === 0) {
+        toast({ title: `Closed ${res.updated} issue${res.updated === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk close failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  const handleBulkDelete = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkDeleteWsIssues(ids);
+      if (res.deleted > 0 || res.failed === 0) {
+        toast({ title: `Deleted ${res.deleted} issue${res.deleted === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk delete failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  /* ── CSV export ──────────────────────────────────────────────── */
+  const handleExport = React.useCallback(() => {
+    const exportRows = selection.size > 0
+      ? filtered.filter((r) => selection.has(r._id))
+      : filtered;
+    const lines = [
+      ['Title', 'Project', 'Priority', 'Reporter', 'Assignee', 'Status', 'Created'].join(','),
+      ...exportRows.map((r) =>
+        [
+          JSON.stringify(r.title ?? ''),
+          JSON.stringify(String(r.projectId ?? '')),
+          JSON.stringify(r.priority ?? ''),
+          JSON.stringify(r.reporterName ?? ''),
+          JSON.stringify(r.assigneeName ?? ''),
+          JSON.stringify(r.status ?? ''),
+          JSON.stringify(fmtDate(r.createdAt)),
+        ].join(','),
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'issues.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [filtered, selection]);
 
   const viewBtn = (mode: ViewMode, label: string, Icon: React.ElementType) => (
     <button
@@ -237,11 +320,35 @@ export default function ProjectIssuesPage() {
           placeholder: 'Search title, reporter, assignee…',
         }}
         primaryAction={
-          <ZoruButton asChild>
-            <Link href="/dashboard/crm/projects/issues/new">
-              <Plus className="h-4 w-4" /> New issue
-            </Link>
-          </ZoruButton>
+          <>
+            <ZoruButton variant="outline" onClick={handleExport}>
+              <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+            </ZoruButton>
+            <ZoruButton asChild>
+              <Link href="/dashboard/crm/projects/issues/new">
+                <Plus className="h-4 w-4" /> New issue
+              </Link>
+            </ZoruButton>
+          </>
+        }
+        bulkBar={
+          selection.size > 0 ? (
+            <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
+              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('close')} disabled={bulkPending}>
+                <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Close
+              </ZoruButton>
+              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+                <Download className="mr-1 h-3.5 w-3.5" /> Export
+              </ZoruButton>
+              <ZoruButton variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+                <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+              </ZoruButton>
+              <ZoruButton variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+                <X className="h-3.5 w-3.5" />
+              </ZoruButton>
+            </div>
+          ) : null
         }
         filters={
           <>
@@ -337,6 +444,9 @@ export default function ProjectIssuesPage() {
           {view === 'table' ? (
             <IssuesTable
               rows={filtered}
+              selection={selection}
+              onToggle={handleToggle}
+              onToggleAll={handleToggleAll}
               onDelete={(id) => setDeleteTargetId(id)}
             />
           ) : (
@@ -354,6 +464,27 @@ export default function ProjectIssuesPage() {
         confirmLabel="Delete"
         onConfirm={handleConfirmDelete}
       />
+
+      {/* Bulk close confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'close'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Close ${selection.size} issue${selection.size === 1 ? '' : 's'}?`}
+        description="The selected issues will be marked as closed. This can be reversed by editing each issue."
+        confirmLabel="Close issues"
+        onConfirm={handleBulkClose}
+      />
+
+      {/* Bulk delete confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'delete'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Delete ${selection.size} issue${selection.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected issues. This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={handleBulkDelete}
+      />
     </>
   );
 }
@@ -361,11 +492,20 @@ export default function ProjectIssuesPage() {
 /* ───── Table ───── */
 function IssuesTable({
   rows,
+  selection,
+  onToggle,
+  onToggleAll,
   onDelete,
 }: {
   rows: Row[];
+  selection: Set<string>;
+  onToggle: (id: string) => void;
+  onToggleAll: (checked: boolean) => void;
   onDelete: (id: string) => void;
 }) {
+  const allChecked = rows.length > 0 && rows.every((r) => selection.has(r._id));
+  const someChecked = !allChecked && rows.some((r) => selection.has(r._id));
+
   if (rows.length === 0) {
     return (
       <div className="rounded-lg border border-zoru-line p-6 text-center text-[13px] text-zoru-ink-muted">
@@ -378,6 +518,13 @@ function IssuesTable({
       <ZoruTable>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            <ZoruTableHead className="w-10">
+              <ZoruCheckbox
+                checked={allChecked || (someChecked ? 'indeterminate' : false)}
+                onCheckedChange={(v) => onToggleAll(!!v)}
+                aria-label="Select all"
+              />
+            </ZoruTableHead>
             <ZoruTableHead>Title</ZoruTableHead>
             <ZoruTableHead>Project</ZoruTableHead>
             <ZoruTableHead>Priority</ZoruTableHead>
@@ -393,6 +540,13 @@ function IssuesTable({
             const priorityLower = (r.priority ?? 'medium').toLowerCase();
             return (
               <ZoruTableRow key={r._id} className="border-zoru-line transition-colors">
+                <ZoruTableCell>
+                  <ZoruCheckbox
+                    checked={selection.has(r._id)}
+                    onCheckedChange={() => onToggle(r._id)}
+                    aria-label={`Select ${r.title}`}
+                  />
+                </ZoruTableCell>
                 <ZoruTableCell>
                   <EntityRowLink
                     href={`/dashboard/crm/projects/issues/${r._id}`}

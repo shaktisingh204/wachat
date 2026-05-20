@@ -21,6 +21,11 @@ import { getSession } from '@/app/actions/user.actions';
 import type { CrmEmailTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { crmEmailTemplatesApi } from '@/lib/rust-client/crm-email-templates';
+import type {
+    CrmEmailTemplateDoc,
+    CrmEmailTemplateListParams,
+    CrmEmailTemplateListResponse,
+} from '@/lib/rust-client/crm-email-templates';
 import { RustApiError } from '@/lib/rust-client/fetcher';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 
@@ -161,17 +166,124 @@ export async function getEmailTemplateById(
 // `src/app/dashboard/crm/settings/email-templates/**` keep compiling.
 // Drop these once every caller has been migrated to the `Crm`-prefixed
 // names.
-export async function getEmailTemplates(): Promise<WithId<CrmEmailTemplate>[]> {
-    return getCrmEmailTemplates();
+
+/**
+ * List email templates. When USE_RUST_CRM is true, delegates to the Rust BFF
+ * which supports full filter params. Otherwise falls back to the Mongo path
+ * (no filter support — params are ignored on the legacy path).
+ */
+export async function getEmailTemplates(
+    params?: CrmEmailTemplateListParams,
+): Promise<CrmEmailTemplateListResponse> {
+    const session = await getSession();
+    if (!session?.user) return { items: [], page: 1, limit: 100, hasMore: false };
+
+    if (useRustCrm()) {
+        try {
+            const res = await crmEmailTemplatesApi.list(params);
+            return res;
+        } catch (e) {
+            console.error('[getEmailTemplates] rust path failed; falling back:', e);
+        }
+    }
+
+    // Legacy Mongo fallback — filters are applied client-side in the page
+    try {
+        const { db } = await connectToDatabase();
+        const _ObjId = ObjectId;
+        const docs = await db
+            .collection('crm_email_templates')
+            .find({ userId: new _ObjId(session.user._id) })
+            .sort({ updatedAt: -1 })
+            .toArray();
+        const items = JSON.parse(JSON.stringify(docs)) as CrmEmailTemplateDoc[];
+        return { items, page: 1, limit: items.length, hasMore: false };
+    } catch {
+        return { items: [], page: 1, limit: 100, hasMore: false };
+    }
 }
+
 export async function saveEmailTemplate(
-    prevState: any,
+    prevState: unknown,
     formData: FormData,
 ): Promise<{ message?: string; error?: string }> {
-    return saveCrmEmailTemplate(prevState, formData);
+    return saveCrmEmailTemplate(prevState as Parameters<typeof saveCrmEmailTemplate>[0], formData);
 }
 export async function deleteEmailTemplate(
     templateId: string,
 ): Promise<{ success: boolean; error?: string }> {
     return deleteCrmEmailTemplate(templateId);
+}
+
+/* ─── Bulk actions ────────────────────────────────────────────────────── */
+
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+
+async function setEmailTemplatesStatus(
+    ids: string[],
+    status: 'active' | 'archived',
+): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No templates selected.' };
+
+    if (useRustCrm()) {
+        let count = 0;
+        for (const id of ids) {
+            try {
+                await crmEmailTemplatesApi.update(id, { status });
+                count++;
+            } catch (e) {
+                console.error(`[bulkSetStatus] failed for ${id}:`, e);
+            }
+        }
+        revalidatePath('/dashboard/crm/settings/email-templates');
+        return { ok: true, count };
+    }
+
+    // Legacy Mongo path
+    try {
+        const { db } = await connectToDatabase();
+        const _ObjId = ObjectId;
+        const validIds = ids.filter((id) => _ObjId.isValid(id));
+        const result = await db.collection('crm_email_templates').updateMany(
+            {
+                _id: { $in: validIds.map((id) => new _ObjId(id)) },
+                userId: new _ObjId(session.user._id),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        revalidatePath('/dashboard/crm/settings/email-templates');
+        return { ok: true, count: result.modifiedCount };
+    } catch (e) {
+        return { ok: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function bulkActivateEmailTemplates(ids: string[]): Promise<BulkResult> {
+    return setEmailTemplatesStatus(ids, 'active');
+}
+
+export async function bulkDeactivateEmailTemplates(ids: string[]): Promise<BulkResult> {
+    return setEmailTemplatesStatus(ids, 'archived');
+}
+
+export async function bulkDeleteEmailTemplates(ids: string[]): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No templates selected.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const _ObjId = ObjectId;
+        const validIds = ids.filter((id) => _ObjId.isValid(id));
+        const result = await db.collection('crm_email_templates').deleteMany({
+            _id: { $in: validIds.map((id) => new _ObjId(id)) },
+            userId: new _ObjId(session.user._id),
+        });
+        revalidatePath('/dashboard/crm/settings/email-templates');
+        return { ok: true, count: result.deletedCount };
+    } catch (e) {
+        return { ok: false, error: getErrorMessage(e) };
+    }
 }

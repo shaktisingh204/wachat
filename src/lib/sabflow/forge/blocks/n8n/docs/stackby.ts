@@ -5,7 +5,7 @@
  * Credential type: 'stackby' — fields: { apiKey }
  *
  * Operations covered (row resource):
- *   - row.list     GET    /rowlist/{stackId}/{tableName}
+ *   - row.list     GET    /rowlist/{stackId}/{tableName}        (optional ?view= filter)
  *   - row.create   POST   /rowcreate/{stackId}/{tableName}
  *   - row.update   POST   /rowupdate/{stackId}/{tableName}
  *   - row.delete   DELETE /rowdelete/{stackId}/{tableName}?rowIds[]={id}
@@ -71,7 +71,9 @@ function tablePath(ctx: ForgeActionContext, op: 'rowlist' | 'rowcreate' | 'rowup
 // ── Actions ────────────────────────────────────────────────────────────────
 
 async function rowList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const data = await stackbyApi(ctx, 'GET', tablePath(ctx, 'rowlist'));
+  const view = asString(ctx.options.view);
+  const qs = view ? `?view=${encodeURIComponent(view)}` : '';
+  const data = await stackbyApi(ctx, 'GET', `${tablePath(ctx, 'rowlist')}${qs}`);
   return { outputs: { result: data }, logs: ['Stackby row list'] };
 }
 
@@ -112,10 +114,11 @@ const block: ForgeBlock = {
     {
       id: 'row_list',
       label: 'List rows',
-      description: 'List rows in a table.',
+      description: 'List rows in a table. Optionally restrict to a saved view.',
       fields: [
         { id: 'stackId', label: 'Stack ID', type: 'text', required: true },
         { id: 'tableName', label: 'Table name', type: 'text', required: true },
+        { id: 'view', label: 'View name or ID (optional)', type: 'text', placeholder: 'All Stories' },
       ],
       run: rowList,
     },

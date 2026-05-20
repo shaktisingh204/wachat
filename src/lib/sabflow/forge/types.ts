@@ -206,18 +206,86 @@ export type ForgeActionContext = {
    * or undefined on a top-level run.
    */
   callerStack?: string[];
+  /**
+   * Current item index when the executor is iterating per-item over an
+   * upstream block's `items` array. `0` (or undefined) when the block ran
+   * once on a single upstream output. Equivalent to n8n's `itemIndex`.
+   */
+  itemIndex?: number;
+  /**
+   * Current item's JSON payload when iterating. Mirrors n8n's `$json` —
+   * the proxy reads this so `{{ $json.foo }}` resolves to the right item.
+   * Undefined when no iteration is in progress.
+   */
+  currentItem?: Record<string, unknown>;
 };
 
 export type ForgeActionResult = {
   /** Values to write back into flow variables (keyed by variable id/name). */
   outputs?: Record<string, unknown>;
+  /**
+   * Per-item output payloads — when present, the executor exposes these to
+   * the next block as an iterable array, and each downstream invocation
+   * sees one item as `$json`. Use this for `getAll` / `list` operations
+   * that naturally return multiple rows. Existing actions that return only
+   * `outputs` keep their single-result semantics.
+   */
+  items?: Array<Record<string, unknown>>;
+  /**
+   * For multi-output blocks (IF / Switch / Filter / etc.): which declared
+   * output port the run selected. Must match a `name` from the block's or
+   * action's `outputs` array. The executor uses this to pick the outgoing
+   * edge whose `sourceHandle === 'outputs/main/<index>'`. Ignored when the
+   * block declares only a single output.
+   */
+  selectedOutput?: string;
   /** Human-readable log lines appended to the run transcript. */
   logs?: string[];
+};
+
+/**
+ * One output port on a forge block. Mirrors n8n's per-node output array.
+ * Blocks default to a single `{ name: 'main' }` output when omitted, which
+ * preserves every existing block's behaviour.
+ */
+export type ForgeOutput = {
+  /** Stable key — used to look up the port in `ForgeActionResult.selectedOutput`. */
+  name: string;
+  /** Human-readable label shown on the edge handle in the editor. */
+  displayName?: string;
+};
+
+/**
+ * Back-reference from a downstream item to the upstream item that produced
+ * it. Stored in a parallel `pairedItems` array on each block's output so
+ * the expression engine can walk ancestry via `$getPairedItem('NodeName')`.
+ * Mirrors n8n's `INodeExecutionData.pairedItem`.
+ */
+export type PairedItemRef = {
+  /** Index of the producing item in the immediately-upstream node's items. */
+  item: number;
+  /** Input branch on the upstream node — always 0 today (single-input). */
+  input?: number;
 };
 
 export type ForgeAction = {
   /** Unique action id within the block. */
   id: string;
+  /**
+   * Opt OUT of per-item iteration. When upstream emits an `items` array,
+   * the default is to run this action once per item (matching n8n).
+   * Set to `false` for actions whose semantics are "process the whole
+   * batch at once" — e.g. HTTP body builders that take an array, merge
+   * nodes that aggregate, transactional sends. Defaults to `true`.
+   */
+  iteratesItems?: boolean;
+  /**
+   * Override the block's `outputs` declaration for this specific action.
+   * Useful when most actions in a block are single-output but one (e.g.
+   * `evaluate-condition`) needs branching. Defaults to the block's
+   * `outputs`, which defaults to a single `{ name: 'main' }`.
+   */
+  outputs?: ForgeOutput[];
   /** Action label shown in the action selector. */
   label: string;
   /** Short description rendered below the label. */
@@ -272,6 +340,16 @@ export type ForgeBlock = {
   fields?: ForgeField[];
   /** Multi-action blocks declare an action list and render an action selector. */
   actions?: ForgeAction[];
+  /**
+   * Output ports the block exposes. Defaults to `[{ name: 'main' }]` when
+   * omitted, which gives the existing single-output behaviour. Multi-output
+   * blocks (IF, Switch, Filter) declare e.g.
+   *   `outputs: [{ name: 'true' }, { name: 'false' }]`
+   * Edges leaving such a block carry `sourceHandle: 'outputs/main/<index>'`
+   * matching the position in this array. An action picks which port the
+   * run took via `ForgeActionResult.selectedOutput`.
+   */
+  outputs?: ForgeOutput[];
   /** Credential schema — shown above the action selector when present. */
   auth?: ForgeAuth;
 };

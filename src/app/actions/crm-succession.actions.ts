@@ -252,6 +252,42 @@ export async function saveCrmSuccessionPlan(
 
 /* ─── deleteCrmSuccessionPlan ─────────────────────────────────────────── */
 
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkDeleteCrmSuccessionPlans(
+  ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+  const session = await getSession();
+  if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+  let succeeded = 0;
+  let failed = 0;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+
+    for (const id of ids) {
+      if (!ObjectId.isValid(id)) { failed++; continue; }
+      try {
+        const res = await db.collection('crm_succession_plans').updateOne(
+          { _id: new ObjectId(id), userId },
+          { $set: { archived: true, updatedAt: new Date() } },
+        );
+        if (res.matchedCount > 0) succeeded++;
+        else failed++;
+      } catch {
+        failed++;
+      }
+    }
+  } catch {
+    return { succeeded: 0, failed: ids.length };
+  }
+
+  if (succeeded > 0) revalidateSurfaces();
+  return { succeeded, failed };
+}
+
 export async function deleteCrmSuccessionPlan(
   id: string,
 ): Promise<{ success: boolean; error?: string }> {

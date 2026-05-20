@@ -1,51 +1,65 @@
 'use client';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruStatCard,
-  useZoruToast,
-} from '@/components/zoruui';
-import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import {
-  useDebouncedCallback } from 'use-debounce';
-import { Megaphone,
-  Pin,
-  Plus,
-  Trash2,
-  X } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { StatusPill,
-  type StatusTone } from '@/components/crm/status-pill';
-
 /**
- * <AnnouncementsListClient> — interactive list with status / audience /
- * pinned filters and free-text search. Receives an initial snapshot from
- * the server page; deletes refetch via `getAnnouncements`.
+ * AnnouncementsListClient — full-feature list (§1B W7).
+ *
+ * Features:
+ *  - KPI strip: total · active/pinned · published this month · drafts
+ *  - Filters: title search · status · audience · pinned toggle · date range
+ *  - Table: Title · Published by · Audience · Pinned · Published at · Status ·
+ *           Views · Actions (edit / delete)
+ *  - Bulk: publish · archive · delete
+ *  - Export CSV via crm-list-export
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+    Archive,
+    Megaphone,
+    Pin,
+    Plus,
+    Send,
+    Trash2,
+    X,
+} from 'lucide-react';
+
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    useZoruToast,
+} from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 import {
     deleteAnnouncement,
     getAnnouncements,
+    bulkPublishAnnouncements,
+    bulkArchiveAnnouncements,
+    bulkDeleteAnnouncements,
 } from '@/app/actions/crm-announcements.actions';
 import type {
     CrmAnnouncementDoc,
     CrmAnnouncementStatus,
 } from '@/lib/rust-client/crm-announcements';
+import type { AnnouncementKpis } from '@/app/actions/crm-announcements.actions';
 
 interface ListClientProps {
     initialItems: CrmAnnouncementDoc[];
+    initialKpis: AnnouncementKpis;
 }
 
 const STATUS_TONE: Record<CrmAnnouncementStatus, StatusTone> = {
@@ -63,27 +77,61 @@ function fmtDate(v: string | undefined): string {
 
 export function AnnouncementsListClient({
     initialItems,
+    initialKpis,
 }: ListClientProps): React.JSX.Element {
     const { toast } = useZoruToast();
 
     const [items, setItems] = React.useState<CrmAnnouncementDoc[]>(initialItems);
-    const [statusFilter, setStatusFilter] = React.useState<
-        CrmAnnouncementStatus | 'all'
-    >('all');
+    const [kpis, setKpis] = React.useState<AnnouncementKpis>(initialKpis);
+
+    const [statusFilter, setStatusFilter] = React.useState<CrmAnnouncementStatus | 'all'>('all');
     const [audienceFilter, setAudienceFilter] = React.useState<string>('all');
-    const [search, setSearch] = React.useState<string>('');
-    const [searchDraft, setSearchDraft] = React.useState<string>('');
+    const [pinnedOnly, setPinnedOnly] = React.useState(false);
+    const [search, setSearch] = React.useState('');
+    const [searchDraft, setSearchDraft] = React.useState('');
+    const [fromIso, setFromIso] = React.useState('');
+    const [toIso, setToIso] = React.useState('');
+
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
     const [pendingDelete, setPendingDelete] = React.useState<string | null>(null);
+    const [bulkConfirmMode, setBulkConfirmMode] = React.useState<
+        'delete' | 'publish' | 'archive' | null
+    >(null);
     const [loading, startTransition] = React.useTransition();
 
     const refetch = React.useCallback(() => {
         startTransition(async () => {
             const r = await getAnnouncements();
             setItems(r.items);
+            // Recompute KPIs client-side from fresh items to avoid an extra round-trip.
+            const now = new Date();
+            let activeOrPinned = 0;
+            let publishedThisMonth = 0;
+            let drafts = 0;
+            for (const a of r.items) {
+                if (a.status === 'published' || a.pinned) activeOrPinned += 1;
+                if (a.status === 'draft') drafts += 1;
+                if (a.status === 'published' && a.publishedAt) {
+                    const d = new Date(a.publishedAt);
+                    if (
+                        d.getFullYear() === now.getFullYear() &&
+                        d.getMonth() === now.getMonth()
+                    ) publishedThisMonth += 1;
+                }
+            }
+            setKpis({
+                total: r.items.length,
+                activeOrPinned,
+                publishedThisMonth,
+                drafts,
+            });
         });
     }, []);
 
     const onSearch = useDebouncedCallback((v: string) => setSearch(v), 200);
+
+    const from = fromIso ? new Date(fromIso).getTime() : null;
+    const to = toIso ? new Date(toIso).getTime() : null;
 
     const visible = React.useMemo(() => {
         const q = search.trim().toLowerCase();
@@ -95,12 +143,22 @@ export function AnnouncementsListClient({
                 if (audienceFilter === 'everyone') return aud === 'all';
                 return aud === audienceFilter;
             })
+            .filter((a) => !pinnedOnly || a.pinned)
             .filter((a) => {
                 if (!q) return true;
                 return (
                     a.title.toLowerCase().includes(q) ||
                     a.body.toLowerCase().includes(q)
                 );
+            })
+            .filter((a) => {
+                if (from === null && to === null) return true;
+                const ts = a.publishedAt ?? a.publishAt ?? a.createdAt;
+                if (!ts) return false;
+                const ms = new Date(ts).getTime();
+                if (from !== null && ms < from) return false;
+                if (to !== null && ms > to) return false;
+                return true;
             })
             .sort((a, b) => {
                 const ap = a.pinned ? 1 : 0;
@@ -111,26 +169,39 @@ export function AnnouncementsListClient({
                     new Date(a.createdAt ?? 0).getTime()
                 );
             });
-    }, [items, search, statusFilter, audienceFilter]);
-
-    const kpis = React.useMemo(() => {
-        const total = items.length;
-        const pinned = items.filter((a) => a.pinned).length;
-        const published = items.filter((a) => a.status === 'published').length;
-        const drafts = items.filter((a) => a.status === 'draft').length;
-        return { total, pinned, published, drafts };
-    }, [items]);
+    }, [items, search, statusFilter, audienceFilter, pinnedOnly, from, to]);
 
     const hasActiveFilters =
-        statusFilter !== 'all' || audienceFilter !== 'all' || search !== '';
+        statusFilter !== 'all' ||
+        audienceFilter !== 'all' ||
+        pinnedOnly ||
+        search !== '' ||
+        fromIso !== '' ||
+        toIso !== '';
 
     const clear = () => {
         setStatusFilter('all');
         setAudienceFilter('all');
+        setPinnedOnly(false);
         setSearch('');
         setSearchDraft('');
+        setFromIso('');
+        setToIso('');
     };
 
+    // ── Selection ──
+    const allSelected = visible.length > 0 && visible.every((a) => selected.has(a._id));
+    const toggleOne = (id: string) =>
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    const toggleAll = (on: boolean) =>
+        setSelected(on ? new Set(visible.map((a) => a._id)) : new Set());
+
+    // ── Single delete ──
     const confirmDelete = async () => {
         if (!pendingDelete) return;
         const r = await deleteAnnouncement(pendingDelete);
@@ -138,14 +209,56 @@ export function AnnouncementsListClient({
             toast({ title: 'Announcement deleted' });
             refetch();
         } else {
-            toast({
-                title: 'Delete failed',
-                description: r.error,
-                variant: 'destructive',
-            });
+            toast({ title: 'Delete failed', description: r.error, variant: 'destructive' });
         }
         setPendingDelete(null);
     };
+
+    // ── Bulk actions ──
+    const runBulk = React.useCallback(async () => {
+        const ids = Array.from(selected);
+        if (ids.length === 0 || !bulkConfirmMode) return;
+        let result: { ok: number; fail: number };
+        if (bulkConfirmMode === 'publish') result = await bulkPublishAnnouncements(ids);
+        else if (bulkConfirmMode === 'archive') result = await bulkArchiveAnnouncements(ids);
+        else result = await bulkDeleteAnnouncements(ids);
+        toast({
+            title: `Bulk ${bulkConfirmMode}`,
+            description: `${result.ok} succeeded${result.fail ? `, ${result.fail} failed` : ''}`,
+            variant: result.fail > 0 ? 'destructive' : undefined,
+        });
+        setSelected(new Set());
+        setBulkConfirmMode(null);
+        refetch();
+    }, [selected, bulkConfirmMode, refetch, toast]);
+
+    // ── Export ──
+    const exportCsv = React.useCallback(() => {
+        const rows = (selected.size > 0 ? items.filter((a) => selected.has(a._id)) : visible).map(
+            (a) => ({
+                ID: a._id,
+                Title: a.title,
+                'Published by': a.authorName ?? a.authorId ?? '',
+                Audience: a.audience ?? '',
+                Pinned: a.pinned ? 'yes' : 'no',
+                'Published at': fmtDate(a.publishedAt ?? a.publishAt),
+                Status: a.status,
+                Views: a.viewCount ?? 0,
+            }),
+        );
+        downloadCsv(
+            `announcements-${dateStamp()}.csv`,
+            ['ID', 'Title', 'Published by', 'Audience', 'Pinned', 'Published at', 'Status', 'Views'],
+            rows,
+        );
+    }, [items, visible, selected]);
+
+    const bulkConfirmLabel =
+        bulkConfirmMode === 'publish'
+            ? `Publish ${selected.size} announcement(s)?`
+            : bulkConfirmMode === 'archive'
+              ? `Archive ${selected.size} announcement(s)?`
+              : `Delete ${selected.size} announcement(s)?`;
 
     return (
         <>
@@ -169,14 +282,23 @@ export function AnnouncementsListClient({
                 }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <EnumFilterField
-                            enumName="announcementStatus"
+                        <ZoruSelect
                             value={statusFilter}
-                            onChange={(v) =>
+                            onValueChange={(v) =>
                                 setStatusFilter(v as CrmAnnouncementStatus | 'all')
                             }
-                            allLabel="All statuses"
-                        />
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[150px]">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                                <ZoruSelectItem value="scheduled">Scheduled</ZoruSelectItem>
+                                <ZoruSelectItem value="published">Published</ZoruSelectItem>
+                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
                         <ZoruSelect
                             value={audienceFilter}
                             onValueChange={(v) => setAudienceFilter(v)}
@@ -192,12 +314,76 @@ export function AnnouncementsListClient({
                                 <ZoruSelectItem value="role">Role</ZoruSelectItem>
                             </ZoruSelectContent>
                         </ZoruSelect>
+                        <label className="flex cursor-pointer items-center gap-1.5 text-[13px] text-zoru-ink">
+                            <ZoruCheckbox
+                                checked={pinnedOnly}
+                                onCheckedChange={(v) => setPinnedOnly(!!v)}
+                                aria-label="Pinned only"
+                            />
+                            Pinned only
+                        </label>
+                        <ZoruInput
+                            type="date"
+                            value={fromIso}
+                            onChange={(e) => setFromIso(e.target.value)}
+                            className="h-9 w-[150px]"
+                            aria-label="Published from"
+                        />
+                        <ZoruInput
+                            type="date"
+                            value={toIso}
+                            onChange={(e) => setToIso(e.target.value)}
+                            className="h-9 w-[150px]"
+                            aria-label="Published to"
+                        />
                         {hasActiveFilters ? (
                             <ZoruButton variant="ghost" size="sm" onClick={clear}>
                                 <X className="h-3.5 w-3.5" /> Clear
                             </ZoruButton>
                         ) : null}
+                        <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                            Export CSV
+                        </ZoruButton>
                     </div>
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-[13px] text-zoru-ink-muted">
+                                {selected.size} selected
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setBulkConfirmMode('publish')}
+                                >
+                                    <Send className="h-3.5 w-3.5" /> Publish
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setBulkConfirmMode('archive')}
+                                >
+                                    <Archive className="h-3.5 w-3.5" /> Archive
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setBulkConfirmMode('delete')}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelected(new Set())}
+                                >
+                                    Clear
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    ) : null
                 }
                 empty={
                     !loading && items.length === 0 ? (
@@ -219,6 +405,7 @@ export function AnnouncementsListClient({
                 loading={loading && items.length === 0}
             >
                 <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <ZoruStatCard
                             label="Total"
@@ -226,32 +413,42 @@ export function AnnouncementsListClient({
                             icon={<Megaphone className="h-4 w-4" />}
                         />
                         <ZoruStatCard
-                            label="Published"
-                            value={kpis.published}
-                            icon={<Megaphone className="h-4 w-4" />}
+                            label="Active / Pinned"
+                            value={kpis.activeOrPinned}
+                            icon={<Pin className="h-4 w-4" />}
+                        />
+                        <ZoruStatCard
+                            label="Published this month"
+                            value={kpis.publishedThisMonth}
+                            icon={<Send className="h-4 w-4" />}
                         />
                         <ZoruStatCard
                             label="Drafts"
                             value={kpis.drafts}
                             icon={<Megaphone className="h-4 w-4" />}
                         />
-                        <ZoruStatCard
-                            label="Pinned"
-                            value={kpis.pinned}
-                            icon={<Pin className="h-4 w-4" />}
-                        />
                     </div>
+
+                    {/* Table */}
                     <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-                        <table className="w-full min-w-[800px] text-[13px]">
+                        <table className="w-full min-w-[900px] text-[13px]">
                             <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                 <tr>
+                                    <th className="px-3 py-2">
+                                        <ZoruCheckbox
+                                            aria-label="Select all"
+                                            checked={allSelected}
+                                            onCheckedChange={(v) => toggleAll(!!v)}
+                                        />
+                                    </th>
                                     {[
                                         'Title',
+                                        'Published by',
                                         'Audience',
                                         'Pinned',
-                                        'Published',
-                                        'Expires',
+                                        'Published at',
                                         'Status',
+                                        'Views',
                                         '',
                                     ].map((h) => (
                                         <th
@@ -267,7 +464,7 @@ export function AnnouncementsListClient({
                                 {visible.length === 0 ? (
                                     <tr>
                                         <td
-                                            colSpan={7}
+                                            colSpan={9}
                                             className="p-6 text-center text-zoru-ink-muted"
                                         >
                                             No announcements match the current filters.
@@ -278,13 +475,24 @@ export function AnnouncementsListClient({
                                     const tone =
                                         STATUS_TONE[a.status as CrmAnnouncementStatus] ??
                                         'neutral';
+                                    const checked = selected.has(a._id);
                                     return (
                                         <tr key={a._id} className="hover:bg-zoru-surface">
+                                            <td className="px-3 py-2">
+                                                <ZoruCheckbox
+                                                    aria-label={`Select ${a.title}`}
+                                                    checked={checked}
+                                                    onCheckedChange={() => toggleOne(a._id)}
+                                                />
+                                            </td>
                                             <td className="px-3 py-2">
                                                 <EntityRowLink
                                                     href={`/dashboard/crm/workspace/announcements/${a._id}`}
                                                     label={a.title}
                                                 />
+                                            </td>
+                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                                {a.authorName ?? a.authorId ?? '—'}
                                             </td>
                                             <td className="px-3 py-2 capitalize text-zoru-ink-muted">
                                                 {a.audience ?? '—'}
@@ -295,29 +503,36 @@ export function AnnouncementsListClient({
                                                         <Pin className="h-3 w-3" /> Pinned
                                                     </ZoruBadge>
                                                 ) : (
-                                                    <span className="text-zoru-ink-muted">
-                                                        —
-                                                    </span>
+                                                    <span className="text-zoru-ink-muted">—</span>
                                                 )}
                                             </td>
                                             <td className="px-3 py-2 text-zoru-ink-muted">
                                                 {fmtDate(a.publishedAt ?? a.publishAt)}
                                             </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">
-                                                {fmtDate(a.expiresAt)}
-                                            </td>
                                             <td className="px-3 py-2">
                                                 <StatusPill label={a.status} tone={tone} />
                                             </td>
+                                            <td className="px-3 py-2 text-zoru-ink-muted">
+                                                {a.viewCount ?? '—'}
+                                            </td>
                                             <td className="px-3 py-2 text-right">
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setPendingDelete(a._id)}
-                                                    aria-label={`Delete ${a.title}`}
-                                                >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                </ZoruButton>
+                                                <div className="flex justify-end gap-1">
+                                                    <ZoruButton variant="ghost" size="sm" asChild>
+                                                        <Link
+                                                            href={`/dashboard/crm/workspace/announcements/${a._id}/edit`}
+                                                        >
+                                                            Edit
+                                                        </Link>
+                                                    </ZoruButton>
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => setPendingDelete(a._id)}
+                                                        aria-label={`Delete ${a.title}`}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </ZoruButton>
+                                                </div>
                                             </td>
                                         </tr>
                                     );
@@ -328,6 +543,7 @@ export function AnnouncementsListClient({
                 </div>
             </EntityListShell>
 
+            {/* Single delete */}
             <ConfirmDialog
                 open={!!pendingDelete}
                 onOpenChange={(o) => !o && setPendingDelete(null)}
@@ -336,6 +552,30 @@ export function AnnouncementsListClient({
                 requireTyped="DELETE"
                 confirmLabel="Delete"
                 onConfirm={confirmDelete}
+            />
+
+            {/* Bulk confirm */}
+            <ConfirmDialog
+                open={!!bulkConfirmMode}
+                onOpenChange={(o) => !o && setBulkConfirmMode(null)}
+                title={bulkConfirmLabel}
+                description={
+                    bulkConfirmMode === 'delete'
+                        ? 'Selected announcements will be permanently removed.'
+                        : `All selected announcements will be ${bulkConfirmMode}d.`
+                }
+                requireTyped={bulkConfirmMode === 'delete' ? 'DELETE' : undefined}
+                confirmLabel={
+                    bulkConfirmMode === 'publish'
+                        ? 'Publish'
+                        : bulkConfirmMode === 'archive'
+                          ? 'Archive'
+                          : 'Delete'
+                }
+                confirmTone={bulkConfirmMode === 'delete' ? 'danger' : undefined}
+                onConfirm={() => {
+                    void runBulk();
+                }}
             />
         </>
     );

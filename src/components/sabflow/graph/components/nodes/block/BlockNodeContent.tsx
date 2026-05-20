@@ -49,9 +49,11 @@ import {
   LuWorkflow,
   LuMessageCircleReply,
 } from 'react-icons/lu';
+import { Icon } from '@iconify/react';
 import type { Block, BlockType } from '@/lib/sabflow/types';
 import { WithVariableContent } from './WithVariableContent';
 import type { ComponentType } from 'react';
+import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 
 /* ── icon map ────────────────────────────────────────────────────────────── */
 
@@ -172,19 +174,31 @@ type Props = {
  * - Shows a concise summary line for logic/integration types
  */
 export function BlockNodeContent({ block }: Props) {
-  const Icon = BLOCK_ICONS[block.type] ?? LuCode;
+  const FallbackIcon = BLOCK_ICONS[block.type] ?? LuCode;
   const label = BLOCK_LABELS[block.type] ?? block.type;
   const iconColor = getIconColor(block.type);
+  const brand = getBlockBrandIcon(block.type);
 
   return (
     <div className="flex items-start gap-2 flex-1 min-w-0">
-      {/* Category icon */}
-      <div
-        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md mt-0.5"
-        style={{ backgroundColor: `${iconColor}18`, color: iconColor }}
-      >
-        <Icon className="h-3.5 w-3.5" />
-      </div>
+      {/* Brand logo or category icon */}
+      {brand ? (
+        // Real provider logo (Slack, OpenAI, Notion, …) — bigger and on a
+        // transparent tile so the official multi-colour brand mark reads
+        // clearly. Matches n8n's canvas exactly.
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center mt-0.5">
+          <Icon icon={brand} className="h-5 w-5" aria-hidden />
+        </div>
+      ) : (
+        // Generic Lucide icon for built-in primitives + unmapped providers,
+        // tinted with the category colour.
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md mt-0.5"
+          style={{ backgroundColor: `${iconColor}18`, color: iconColor }}
+        >
+          <FallbackIcon className="h-3.5 w-3.5" />
+        </div>
+      )}
 
       {/* Label + preview */}
       <div className="flex-1 min-w-0">

@@ -36,6 +36,22 @@ export type BlockExecutionResult = {
    */
   forgeOutputs?: Record<string, unknown>;
   /**
+   * Per-item output array when the block produced or iterated over multiple
+   * items. Each entry is one item's `outputs` bag. Downstream blocks that
+   * iterate (the default) will run once per item with `$json` set to the
+   * matching entry. Mirrors n8n's `INodeExecutionData[]`.
+   */
+  forgeItems?: Array<Record<string, unknown>>;
+  /**
+   * Parallel array indexed the same as `forgeItems` — each entry points
+   * back to the upstream item that produced this entry. Lets downstream
+   * expressions walk ancestry via `$getPairedItem(nodeName)` to read fields
+   * from the originating webhook/list/etc. item, even after multiple hops.
+   * Stored separately so the per-item iteration code path stays unchanged
+   * (consumers that don't care about provenance just read `forgeItems`).
+   */
+  forgePairedItems?: Array<{ item: number; input?: number }>;
+  /**
    * When the block errored and `onError` is set to 'continueErrorOutput', this
    * carries the error edge's destination so `executeFlow` can jump to it.
    * When the block errored and `onError` is 'stop' (or undefined), this is
@@ -88,6 +104,23 @@ export type ExecuteBlockContext = {
   nodeOutputs?: Record<string, unknown>;
   /** Display name of the currently-executing block (the n8n "$node.name"). */
   currentNodeName?: string;
+  /**
+   * Display name of the immediately-upstream block — powers `$prevNode.name`
+   * and `$prevNode.json.<x>` in expressions. Computed by executeFlow from
+   * the inbound edge.
+   */
+  prevNodeName?: string;
+  /**
+   * Execution metadata exposed as `$execution.id` / `$execution.mode` in
+   * expressions. When omitted the expression engine substitutes a preview
+   * stub so editor evaluations don't crash.
+   */
+  execution?: { id: string; mode: 'manual' | 'trigger' | 'test' };
+  /**
+   * Allowlist of process env var names made readable via `$env.<KEY>`.
+   * Default-deny: env vars NOT in the list never appear in expressions.
+   */
+  envAllowlist?: string[];
   /** Flow doc passed through so the expression engine can expose `$workflow`. */
   flow?: SabFlowDoc;
 };
@@ -517,76 +550,191 @@ async function executeForgeBlock(
     };
   }
 
-  // Forge blocks support the full advanced expression engine (n8n-compatible):
-  //   {{ $node["Webhook"].json.email }}      → upstream block output
-  //   {{ $json.foo }}, {{ $now.toFormat() }} → current-item + Luxon helpers
-  //   {{ $vars.bar }} / bare {{ bar }}       → flow variables (legacy)
-  // Plain `{{ varName }}` references still resolve through the same engine
-  // because `resolveDeep` short-circuits to `substituteVariables` when no
-  // advanced tokens are present, preserving back-compat with every existing
-  // forge block that uses bare-identifier templating.
-  const resolvedOptions = resolveDeep(block.options ?? {}, {
+  const actionFields: ForgeField[] = action.fields ?? [];
+
+  // Resolve credential ONCE — credentialId comes from the block-level options
+  // (the editor's credential picker) and never varies per iteration. We do a
+  // single-pass resolve of the options bag here purely so we can read the
+  // credentialId; per-item iteration will re-resolve below with `$json` set
+  // to each item, so expressions inside ANY other field rev per-iteration.
+  const credentialResolveOptions = resolveDeep(block.options ?? {}, {
     variables,
     nodeOutputs: ctx?.nodeOutputs,
     flow: ctx?.flow,
     currentNodeName: ctx?.currentNodeName,
+    prevNodeName: ctx?.prevNodeName,
+    execution: ctx?.execution,
+    envAllowlist: ctx?.envAllowlist,
   }) as Record<string, unknown>;
 
-  // Normalise any `resourceLocator` values to plain id strings BEFORE the
-  // action's `run()` sees them. Actions that pre-date Phase 2 read fields
-  // as `ctx.options.channel as string`; this guarantees that contract still
-  // holds even when the editor stored a `{ mode, value }` envelope. Plain
-  // strings (legacy fields) pass through unchanged.
-  const actionFields: ForgeField[] = action.fields ?? [];
-  for (const def of actionFields) {
-    if (def.type !== 'resourceLocator') continue;
-    const raw = resolvedOptions[def.id];
-    if (raw === undefined) continue;
-    if (typeof raw === 'string' || isResourceLocatorValue(raw)) {
-      resolvedOptions[def.id] = extractValue(raw as never, def.modes);
-    }
-  }
-
-  // Resolve credential through SabFlow Connections when the block declares a
-  // credentialType (new ports) — falling back to inline auth fields baked into
-  // the options object for the legacy blocks that pre-date the picker.
   let credential: Record<string, string> | undefined;
   if (forge.auth?.credentialType) {
-    const credentialId = (resolvedOptions.credentialId as string | undefined) ?? undefined;
+    const credentialId =
+      (credentialResolveOptions.credentialId as string | undefined) ?? undefined;
     if (credentialId) {
       const record = await getCredentialById(credentialId);
       credential = record?.data;
     }
   }
 
-  const outcome = await runWithRetry(block, async () => {
-    return action.run({
-      options: resolvedOptions,
-      variables,
-      credential,
-      userId: ctx?.userId,
-      callerStack: ctx?.callerStack,
-    });
-  });
+  // Per-item iteration: when the upstream block exposed an `items` array
+  // (e.g. a `list_contacts` op returning N rows) AND this action opts in
+  // (default true), we run the action once per item with `$json` bound to
+  // that item — matching n8n's `for each input item` semantics. Otherwise
+  // we run once with no `$json` and the action sees the legacy single-shot
+  // behaviour.
+  const prevName = ctx?.prevNodeName;
+  const prevOutput = prevName
+    ? (ctx?.nodeOutputs?.[prevName] as
+        | { items?: Array<Record<string, unknown>> }
+        | undefined)
+    : undefined;
+  const upstreamItems = Array.isArray(prevOutput?.items) ? prevOutput!.items! : null;
+  const shouldIterate =
+    upstreamItems !== null &&
+    upstreamItems.length > 0 &&
+    action.iteratesItems !== false;
+  const iterations: Array<Record<string, unknown> | undefined> = shouldIterate
+    ? upstreamItems
+    : [undefined];
 
-  if (outcome.kind === 'ok') {
-    const result = outcome.value;
-    const updates = result?.outputs;
-    // The raw outputs bag is also handed back to executeFlow so it can be
-    // exposed to downstream blocks as `$node["<DisplayName>"].json.<key>`.
-    const forgeOutputs = updates ?? {};
-    if (updates && Object.keys(updates).length) {
-      const merged: Record<string, string> = { ...variables };
-      for (const [k, v] of Object.entries(updates)) {
-        merged[k] =
-          typeof v === 'string' ? v : v === undefined || v === null ? '' : JSON.stringify(v);
+  const collectedItems: Array<Record<string, unknown>> = [];
+  // Parallel ancestry array — `collectedPairedItems[N]` says which upstream
+  // item produced `collectedItems[N]`. Populated even when not iterating
+  // (single-shot blocks pair to upstream item 0) so downstream walks via
+  // `$getPairedItem` work uniformly regardless of fan-out shape.
+  const collectedPairedItems: Array<{ item: number; input?: number }> = [];
+  // Tracked across all iterations for multi-output blocks. The LAST
+  // non-null `selectedOutput` from the iteration loop decides which edge
+  // the run follows — matches n8n's "the node selected output port N"
+  // semantics for block-level (not per-item) branching.
+  let selectedOutput: string | undefined;
+
+  for (let i = 0; i < iterations.length; i++) {
+    const currentItem = iterations[i];
+
+    // Re-resolve options per iteration so {{ $json.foo }} picks up the right
+    // item. Skipped when not iterating — the credential-resolve pass above
+    // already produced a usable bag.
+    const perItemOptions = shouldIterate
+      ? (resolveDeep(block.options ?? {}, {
+          variables,
+          nodeOutputs: ctx?.nodeOutputs,
+          flow: ctx?.flow,
+          currentNodeName: ctx?.currentNodeName,
+          prevNodeName: ctx?.prevNodeName,
+          execution: ctx?.execution,
+          envAllowlist: ctx?.envAllowlist,
+          currentItemIndex: i,
+          json: currentItem,
+        }) as Record<string, unknown>)
+      : credentialResolveOptions;
+
+    // Normalise resourceLocator → id (mirrors n8n's `getNodeParameter(name,
+    // { extractValue: true })`). Done per iteration because a rL value can
+    // hold an expression that resolves differently per item.
+    for (const def of actionFields) {
+      if (def.type !== 'resourceLocator') continue;
+      const raw = perItemOptions[def.id];
+      if (raw === undefined) continue;
+      if (typeof raw === 'string' || isResourceLocatorValue(raw)) {
+        perItemOptions[def.id] = extractValue(raw as never, def.modes);
       }
-      return { messages: [], updatedVariables: merged, forgeOutputs };
     }
-    return { messages: [], forgeOutputs };
+
+    const outcome = await runWithRetry(block, async () => {
+      return action.run({
+        options: perItemOptions,
+        variables,
+        credential,
+        userId: ctx?.userId,
+        callerStack: ctx?.callerStack,
+        itemIndex: i,
+        currentItem,
+      });
+    });
+
+    if (outcome.kind !== 'ok') {
+      return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
+    }
+
+    const result = outcome.value;
+    // An action may EITHER return a single `outputs` bag (most ops) OR an
+    // `items[]` array (list/getAll ops). Both feed the same downstream items
+    // stream; arrays get flattened so a list-op upstream → forEach
+    // downstream → list-op deeper still composes naturally.
+    // Every entry pushed here also pushes a parallel `pairedItem` pointing
+    // back to upstream item `i` — the iteration index. When the action
+    // produces N items per iteration (a list-op), all N share the same
+    // upstream ancestor since they came from processing item `i`.
+    if (Array.isArray(result?.items) && result.items.length > 0) {
+      for (const it of result.items) {
+        collectedItems.push(it);
+        collectedPairedItems.push({ item: i });
+      }
+    } else if (result?.outputs) {
+      collectedItems.push(result.outputs);
+      collectedPairedItems.push({ item: i });
+    } else {
+      collectedItems.push({});
+      collectedPairedItems.push({ item: i });
+    }
+    // Capture which output port this iteration selected. Multi-output is
+    // a block-level concept right now (matches sabflow's group routing —
+    // the WHOLE block follows one branch), so the last iteration's choice
+    // is the one the executor acts on.
+    if (typeof result?.selectedOutput === 'string') {
+      selectedOutput = result.selectedOutput;
+    }
   }
 
-  return buildErrorSignal(block, edges, outcome.error, outcome.strategy);
+  // Aggregate. `forgeOutputs` keeps single-item back-compat (it's what
+  // legacy `{{ $node["X"].json.foo }}` reads); `forgeItems` is the full
+  // fan-out array consumed by downstream iteration. `forgePairedItems`
+  // tracks ancestry in parallel for `$getPairedItem`.
+  const forgeOutputs = collectedItems[0] ?? {};
+  const forgeItems = collectedItems;
+  const forgePairedItems = collectedPairedItems;
+
+  // Multi-output branch routing. When the action picked a selectedOutput
+  // AND the block declares >1 outputs AND an outgoing edge's sourceHandle
+  // matches that port, jump to that edge's target group. Falls through to
+  // single-output behaviour (sequential next block in the same group) when
+  // any of those conditions miss — preserves zero-regression for every
+  // existing forge block.
+  const outputDecls = action.outputs ?? forge.outputs;
+  let nextGroupId: string | undefined;
+  if (
+    selectedOutput &&
+    Array.isArray(outputDecls) &&
+    outputDecls.length > 1
+  ) {
+    const outputIndex = outputDecls.findIndex((o) => o.name === selectedOutput);
+    if (outputIndex >= 0) {
+      const handle = `outputs/main/${outputIndex}`;
+      const edge = edges.find(
+        (e) => e.from.blockId === block.id && e.sourceHandle === handle,
+      );
+      if (edge?.to.groupId) nextGroupId = edge.to.groupId;
+    }
+  }
+
+  if (forgeOutputs && Object.keys(forgeOutputs).length) {
+    const merged: Record<string, string> = { ...variables };
+    for (const [k, v] of Object.entries(forgeOutputs)) {
+      merged[k] =
+        typeof v === 'string' ? v : v === undefined || v === null ? '' : JSON.stringify(v);
+    }
+    return {
+      messages: [],
+      updatedVariables: merged,
+      forgeOutputs,
+      forgeItems,
+      forgePairedItems,
+      nextGroupId,
+    };
+  }
+  return { messages: [], forgeOutputs, forgeItems, forgePairedItems, nextGroupId };
 }
 
 /** Recursively substitute {{var}} tokens in any string field of an object/array. */

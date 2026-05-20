@@ -30,6 +30,7 @@ const STATUS_OPTIONS: CrmQuotationStatus[] = [
 interface QuotationBulkBarProps {
   count: number;
   onExportCsv: () => void;
+  onExportXlsx?: () => void;
   onClear: () => void;
   onArchive: () => void;
   onDelete: () => void;
@@ -41,6 +42,7 @@ interface QuotationBulkBarProps {
 export function QuotationBulkBar({
   count,
   onExportCsv,
+  onExportXlsx,
   onClear,
   onArchive,
   onDelete,
@@ -63,6 +65,11 @@ export function QuotationBulkBar({
         <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
         </ZoruButton>
+        {onExportXlsx ? (
+          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+            <Download className="h-3.5 w-3.5" /> Export XLSX
+          </ZoruButton>
+        ) : null}
         <ZoruButton size="sm" variant="outline" onClick={onSend}>
           <Send className="h-3.5 w-3.5" /> Send
         </ZoruButton>

@@ -1035,3 +1035,77 @@ export async function deleteEstimateTemplate(id: string): Promise<Result> {
   revalidatePath('/dashboard/crm/sales/estimates-templates');
   return { success: true };
 }
+
+/* ─── Bulk: Proposal Templates ───────────────────────────────────────── */
+
+export async function bulkArchiveProposalTemplates(
+  ids: string[],
+): Promise<{ processed: number; error?: string }> {
+  const userId = await requireUser();
+  if (!userId) return { processed: 0, error: 'Access denied' };
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { processed: 0, error: 'No valid ids.' };
+  const { db } = await connectToDatabase();
+  const result = await db.collection(COL.proposalTemplates).updateMany(
+    { _id: { $in: validIds.map((id) => new ObjectId(id)) }, userId },
+    { $set: { status: 'archived', updatedAt: new Date() } },
+  );
+  revalidatePath('/dashboard/crm/sales/proposals/templates');
+  return { processed: result.modifiedCount };
+}
+
+export async function bulkDeleteProposalTemplates(
+  ids: string[],
+): Promise<{ processed: number; error?: string }> {
+  const userId = await requireUser();
+  if (!userId) return { processed: 0, error: 'Access denied' };
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { processed: 0, error: 'No valid ids.' };
+  const { db } = await connectToDatabase();
+  const objectIds = validIds.map((id) => new ObjectId(id));
+  await db
+    .collection(COL.proposalTemplateItems)
+    .deleteMany({ template_id: { $in: objectIds }, userId });
+  const result = await db
+    .collection(COL.proposalTemplates)
+    .deleteMany({ _id: { $in: objectIds }, userId });
+  revalidatePath('/dashboard/crm/sales/proposals/templates');
+  return { processed: result.deletedCount };
+}
+
+/* ─── Bulk: Estimate Templates ───────────────────────────────────────── */
+
+export async function bulkArchiveEstimateTemplates(
+  ids: string[],
+): Promise<{ processed: number; error?: string }> {
+  const userId = await requireUser();
+  if (!userId) return { processed: 0, error: 'Access denied' };
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { processed: 0, error: 'No valid ids.' };
+  const { db } = await connectToDatabase();
+  const result = await db.collection(COL.estimateTemplates).updateMany(
+    { _id: { $in: validIds.map((id) => new ObjectId(id)) }, userId },
+    { $set: { status: 'archived', updatedAt: new Date() } },
+  );
+  revalidatePath('/dashboard/crm/sales/estimates-templates');
+  return { processed: result.modifiedCount };
+}
+
+export async function bulkDeleteEstimateTemplates(
+  ids: string[],
+): Promise<{ processed: number; error?: string }> {
+  const userId = await requireUser();
+  if (!userId) return { processed: 0, error: 'Access denied' };
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { processed: 0, error: 'No valid ids.' };
+  const { db } = await connectToDatabase();
+  const objectIds = validIds.map((id) => new ObjectId(id));
+  await db
+    .collection(COL.estimateTemplateItems)
+    .deleteMany({ template_id: { $in: objectIds }, userId });
+  const result = await db
+    .collection(COL.estimateTemplates)
+    .deleteMany({ _id: { $in: objectIds }, userId });
+  revalidatePath('/dashboard/crm/sales/estimates-templates');
+  return { processed: result.deletedCount };
+}

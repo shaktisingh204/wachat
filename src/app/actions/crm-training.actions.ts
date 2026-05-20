@@ -277,3 +277,55 @@ export async function deleteTraining(
         return { success: false, error: `Failed to delete training: ${msg}` };
     }
 }
+
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkArchiveTrainings(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_training', 'edit');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmTrainingApi.update(id, { status: 'archived' });
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/training');
+    return { succeeded, failed };
+}
+
+export async function bulkDeleteTrainings(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_training', 'delete');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmTrainingApi.delete(id);
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/training');
+    return { succeeded, failed };
+}

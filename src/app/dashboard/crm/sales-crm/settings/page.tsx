@@ -1,55 +1,25 @@
-'use client';
+import { getSalesCrmConfig, getLeadStatuses } from '@/app/actions/worksuite/crm-plus.actions';
+import { getCrmPipelines } from '@/app/actions/crm-pipelines.actions';
+import type { WsLeadStatus } from '@/lib/worksuite/crm-types';
+import type { WithId } from 'mongodb';
+import { SettingsClient } from './_components/settings-client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+export const dynamic = 'force-dynamic';
 
-import { Settings2 } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
-import {
-  getLeadSettings,
-  saveLeadSetting,
-  deleteLeadSetting,
-} from '@/app/actions/worksuite/crm-plus.actions';
-import type { WsLeadSetting } from '@/lib/worksuite/crm-types';
+type StatusRow = WithId<WsLeadStatus> & { _id: string };
 
-export default function LeadSettingsPage() {
+export default async function SalesCrmSettingsPage() {
+  const [config, pipelines, leadStatuses] = await Promise.all([
+    getSalesCrmConfig(),
+    getCrmPipelines(),
+    getLeadStatuses(),
+  ]);
+
   return (
-    <HrEntityPage<WsLeadSetting & { _id: string }>
-      title="Lead Capture Settings"
-      subtitle="Company profile, logo, and public share URLs for lead forms."
-      icon={Settings2}
-      singular="Setting"
-      getAllAction={getLeadSettings as any}
-      saveAction={saveLeadSetting}
-      deleteAction={deleteLeadSetting}
-      columns={[
-        { key: 'company_name', label: 'Company' },
-        { key: 'form_id', label: 'Form ID' },
-        {
-          key: 'share_link',
-          label: 'Share Link',
-          render: (row) =>
-            row.share_link ? (
-              <a
-                href={String(row.share_link)}
-                target="_blank"
-                rel="noreferrer"
-                className="text-accent-foreground underline"
-              >
-                open
-              </a>
-            ) : (
-              '—'
-            ),
-        },
-      ]}
-      fields={[
-        { name: 'company_name', label: 'Company Name', required: true, fullWidth: true },
-        { name: 'form_id', label: 'Form ID', help: 'Internal identifier of the connected lead form.' },
-        { name: 'logo', label: 'Logo URL', fullWidth: true },
-        { name: 'default_url', label: 'Redirect URL', fullWidth: true },
-        { name: 'share_link', label: 'Public Share Link', fullWidth: true },
-      ]}
+    <SettingsClient
+      config={config}
+      pipelines={pipelines}
+      leadStatuses={leadStatuses as StatusRow[]}
     />
   );
 }

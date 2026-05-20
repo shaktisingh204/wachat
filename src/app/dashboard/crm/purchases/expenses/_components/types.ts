@@ -40,6 +40,14 @@ export interface BillKpiSnapshot {
   paidThisMonthAmount: number;
   draftCount: number;
   avgDaysToPay: number | null;
+  /** Sum of totals.total for bills with billDate in the current month. */
+  mtdSpend: number;
+  /** Bills whose status is `submitted` — i.e. waiting on approval. */
+  pendingApprovalCount: number;
+  /** Vendor id with the largest sum(totals.total) across the sample. */
+  topVendorId: string | null;
+  topVendorAmount: number;
+  topVendorCount: number;
 }
 
 export type BillPresetKey =

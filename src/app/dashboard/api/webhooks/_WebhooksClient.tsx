@@ -10,6 +10,27 @@ import {
   type WebhookSubscription,
   type WebhookDelivery,
 } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardDescription,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableHead,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableCell,
+  ZoruBadge,
+  ZoruEmptyState,
+} from '@/components/zoruui';
+import { AlertCircle, TriangleAlert, Copy, Webhook, RefreshCw } from 'lucide-react';
 
 interface Props {
   initialSubs: WebhookSubscription[];
@@ -82,208 +103,196 @@ export function WebhooksClient({ initialSubs, initialDeliveries }: Props): JSX.E
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {secret ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4">
-          <div className="text-sm font-semibold text-amber-300 mb-1">Save this signing secret</div>
-          <div className="text-xs text-amber-200 mb-2">
-            Use it to verify the <code>X-SabNode-Signature</code> header on every delivery.
+        <ZoruAlert variant="warning">
+          <TriangleAlert className="h-4 w-4" />
+          <div className="space-y-2">
+            <p className="font-semibold text-sm">Save this signing secret — shown once.</p>
+            <p className="text-xs">Use it to verify the <code className="font-mono">X-SabNode-Signature</code> header on every delivery.</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+                {secret}
+              </code>
+              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
+                <Copy className="h-3 w-3 mr-1" /> Copy
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={() => setSecret(null)}>
+                Dismiss
+              </ZoruButton>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100 overflow-x-auto">
-              {secret}
-            </code>
-            <button
-              type="button"
-              onClick={() => navigator.clipboard.writeText(secret)}
-              className="px-3 py-2 text-xs border border-amber-500/40 rounded hover:bg-amber-500/20"
-            >
-              Copy
-            </button>
-            <button
-              type="button"
-              onClick={() => setSecret(null)}
-              className="px-3 py-2 text-xs border border-zinc-700 rounded hover:bg-zinc-800"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
+        </ZoruAlert>
       ) : null}
 
-      <section>
-        <h2 className="text-lg font-semibold mb-3">Subscriptions</h2>
+      <section className="space-y-4">
+        <h2 className="text-base font-semibold text-zoru-ink">Subscriptions</h2>
 
-        <div className="rounded-md border border-zinc-800 bg-zinc-900/30 p-4 mb-4">
-          <div className="text-sm font-semibold mb-2">Create subscription</div>
-          <div className="space-y-2">
-            <input
+        <ZoruCard>
+          <ZoruCardHeader>
+            <ZoruCardTitle>Create subscription</ZoruCardTitle>
+            <ZoruCardDescription>Enter your endpoint URL and the events you want to receive.</ZoruCardDescription>
+          </ZoruCardHeader>
+          <ZoruCardContent className="space-y-3">
+            <ZoruInput
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               placeholder="https://yourapp.com/webhooks/sabnode"
-              className="block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm"
               disabled={busy}
             />
-            <textarea
+            <ZoruTextarea
               value={events}
               onChange={(e) => setEvents(e.target.value)}
               rows={3}
               placeholder="event.name (one per line, * to subscribe to everything)"
-              className="block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm font-mono text-xs"
+              className="font-mono text-xs"
               disabled={busy}
             />
             <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={handleCreate}
-                disabled={busy || !url.trim()}
-                className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-zinc-900 font-semibold rounded disabled:opacity-50"
-              >
+              <ZoruButton onClick={handleCreate} disabled={busy || !url.trim()}>
                 {busy ? 'Working…' : 'Create'}
-              </button>
+              </ZoruButton>
             </div>
-          </div>
-        </div>
+          </ZoruCardContent>
+        </ZoruCard>
 
         {error ? (
-          <div className="mb-3 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-            {error}
-          </div>
+          <ZoruAlert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+          </ZoruAlert>
         ) : null}
 
-        <div className="space-y-2">
-          {subs.length === 0 ? (
-            <div className="rounded-md border border-zinc-800 p-6 text-center text-sm text-zinc-500">
-              No subscriptions yet.
-            </div>
-          ) : null}
-          {subs.map((s) => (
-            <div
-              key={s._id}
-              className={
-                'rounded-md border p-3 bg-zinc-900/30 ' +
-                (selectedSubId === s._id ? 'border-amber-500/40' : 'border-zinc-800')
-              }
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm font-mono text-zinc-100 truncate">{s.url}</div>
-                  <div className="text-xs text-zinc-500 mt-0.5 truncate">
-                    Events: <span className="font-mono">{s.events.join(' ') || '(none)'}</span>
+        {subs.length === 0 ? (
+          <ZoruEmptyState
+            icon={<Webhook className="h-8 w-8" />}
+            title="No subscriptions yet"
+            description="Create a subscription above to start receiving events."
+          />
+        ) : (
+          <div className="space-y-2">
+            {subs.map((s) => (
+              <ZoruCard
+                key={s._id}
+                className={selectedSubId === s._id ? 'border-zoru-line-strong ring-1 ring-zoru-line-strong' : ''}
+              >
+                <ZoruCardContent className="pt-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-mono text-zoru-ink truncate">{s.url}</p>
+                      <p className="text-xs text-zoru-ink-muted mt-0.5 truncate">
+                        Events: <span className="font-mono">{s.events.join(' ') || '(none)'}</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <ZoruBadge
+                        className={
+                          s.status === 'active'
+                            ? 'bg-green-600 text-white'
+                            : s.status === 'paused'
+                              ? 'bg-yellow-500 text-black'
+                              : 'bg-red-600 text-white'
+                        }
+                      >
+                        {s.status}
+                      </ZoruBadge>
+                      <ZoruButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedSubId((prev) => (prev === s._id ? null : s._id))}
+                      >
+                        {selectedSubId === s._id ? 'Hide' : 'Filter'}
+                      </ZoruButton>
+                      <ZoruButton
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleTest(s._id)}
+                        disabled={busy}
+                      >
+                        Test
+                      </ZoruButton>
+                      <ZoruButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDelete(s._id)}
+                        disabled={busy}
+                        className="text-zoru-danger hover:text-zoru-danger"
+                      >
+                        Delete
+                      </ZoruButton>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3 text-xs">
-                  <span
-                    className={
-                      s.status === 'active'
-                        ? 'text-green-400'
-                        : s.status === 'paused'
-                          ? 'text-yellow-400'
-                          : 'text-red-400'
-                    }
-                  >
-                    {s.status}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedSubId((prev) => (prev === s._id ? null : s._id))
-                    }
-                    className="text-zinc-400 hover:text-zinc-100"
-                  >
-                    {selectedSubId === s._id ? 'Hide deliveries' : 'Filter'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleTest(s._id)}
-                    disabled={busy}
-                    className="text-amber-300 hover:text-amber-200"
-                  >
-                    Test
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(s._id)}
-                    disabled={busy}
-                    className="text-red-400 hover:text-red-300"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+                </ZoruCardContent>
+              </ZoruCard>
+            ))}
+          </div>
+        )}
       </section>
 
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">Recent deliveries</h2>
-          <button
-            type="button"
-            onClick={reloadDeliveries}
-            disabled={busy}
-            className="text-xs text-amber-300 hover:text-amber-200"
-          >
-            Refresh
-          </button>
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-zoru-ink">Recent deliveries</h2>
+          <ZoruButton variant="ghost" size="sm" onClick={reloadDeliveries} disabled={busy}>
+            <RefreshCw className="h-4 w-4 mr-1" /> Refresh
+          </ZoruButton>
         </div>
-        <div className="rounded-md border border-zinc-800 overflow-hidden">
-          <table className="w-full text-xs">
-            <thead className="bg-zinc-900/50 text-zinc-400">
-              <tr>
-                <th className="text-left px-3 py-2">Event</th>
-                <th className="text-left px-3 py-2">Status</th>
-                <th className="text-left px-3 py-2">Attempts</th>
-                <th className="text-left px-3 py-2">HTTP</th>
-                <th className="text-left px-3 py-2">When</th>
-                <th className="text-right px-3 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+
+        <ZoruCard>
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow>
+                <ZoruTableHead>Event</ZoruTableHead>
+                <ZoruTableHead>Status</ZoruTableHead>
+                <ZoruTableHead>Attempts</ZoruTableHead>
+                <ZoruTableHead>HTTP</ZoruTableHead>
+                <ZoruTableHead>When</ZoruTableHead>
+                <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
               {deliveries.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-3 py-6 text-center text-zinc-500">
+                <ZoruTableRow>
+                  <ZoruTableCell colSpan={6} className="text-center text-zoru-ink-muted py-6 text-xs">
                     No deliveries yet. Click <em>Test</em> on a subscription to fire a synthetic event.
-                  </td>
-                </tr>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : null}
               {deliveries.map((d) => (
-                <tr key={d._id} className="border-t border-zinc-800">
-                  <td className="px-3 py-2 font-mono text-zinc-100">{d.event}</td>
-                  <td className="px-3 py-2">
+                <ZoruTableRow key={d._id}>
+                  <ZoruTableCell className="font-mono text-zoru-ink text-xs">{d.event}</ZoruTableCell>
+                  <ZoruTableCell>
                     <span
                       className={
                         d.status === 'success'
-                          ? 'text-green-400'
+                          ? 'text-zoru-success text-xs'
                           : d.status === 'failed'
-                            ? 'text-red-400'
-                            : 'text-zinc-400'
+                            ? 'text-zoru-danger text-xs'
+                            : 'text-zoru-ink-muted text-xs'
                       }
                     >
                       {d.status}
                     </span>
-                  </td>
-                  <td className="px-3 py-2 text-zinc-400">{d.attempts}</td>
-                  <td className="px-3 py-2 text-zinc-400">{d.responseStatus ?? '—'}</td>
-                  <td className="px-3 py-2 text-zinc-400">{new Date(d.createdAt).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-right">
+                  </ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.attempts}</ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{d.responseStatus ?? '—'}</ZoruTableCell>
+                  <ZoruTableCell className="text-xs text-zoru-ink-muted">{new Date(d.createdAt).toLocaleString()}</ZoruTableCell>
+                  <ZoruTableCell className="text-right">
                     {d.status === 'failed' ? (
-                      <button
-                        type="button"
+                      <ZoruButton
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleRetry(d._id)}
                         disabled={busy}
-                        className="text-amber-300 hover:text-amber-200"
                       >
                         Retry
-                      </button>
+                      </ZoruButton>
                     ) : null}
-                  </td>
-                </tr>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </ZoruTableBody>
+          </ZoruTable>
+        </ZoruCard>
       </section>
     </div>
   );

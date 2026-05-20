@@ -17,6 +17,7 @@ import type {
   WsRoleUser,
   WsPermission,
   WsPermissionType,
+  WsPermissionTypeName,
   WsPermissionRole,
   WsUserPermission,
   WsModule,
@@ -902,6 +903,243 @@ export async function userHasPermission(
     .find({ _id: { $in: typeIds } })
     .toArray();
   return types.some((t: any) => t.name && t.name !== 'none');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  KPI helpers — settings list pages
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface PermissionKpis {
+  total: number;
+  granted_role_count: number;
+  top_role: { role_id: string; name: string; count: number } | null;
+  last_updated_at: string | null;
+}
+
+/**
+ * KPI roll-up for /settings/permissions. Returns total permission
+ * rows, the count of distinct roles holding at least one non-`none`
+ * grant, the most-permissioned role, and the most-recent permission
+ * mutation timestamp.
+ */
+export async function getPermissionKpis(): Promise<PermissionKpis> {
+  const user = await requireSession();
+  if (!user) {
+    return {
+      total: 0,
+      granted_role_count: 0,
+      top_role: null,
+      last_updated_at: null,
+    };
+  }
+  const { db } = await connectToDatabase();
+  const tenant = new ObjectId(user._id);
+
+  const [permCount, permRows] = await Promise.all([
+    db.collection(COLS.permission).countDocuments({ userId: tenant }),
+    db
+      .collection(COLS.permission)
+      .find({ userId: tenant })
+      .project({ updatedAt: 1, createdAt: 1 })
+      .sort({ updatedAt: -1 })
+      .limit(1)
+      .toArray(),
+  ]);
+
+  // Build the {role -> grant count} map, excluding none-type grants.
+  const noneType = await db
+    .collection(COLS.permissionType)
+    .findOne({ userId: tenant, name: 'none' });
+  const noneId = noneType?._id ?? null;
+
+  const grouped = await db
+    .collection(COLS.permissionRole)
+    .aggregate([
+      {
+        $match: {
+          userId: tenant,
+          ...(noneId ? { permission_type_id: { $ne: noneId } } : {}),
+        },
+      },
+      { $group: { _id: '$role_id', count: { $sum: 1 } } },
+      { $sort: { count: -1 } },
+    ])
+    .toArray();
+
+  let topRole: PermissionKpis['top_role'] = null;
+  if (grouped.length > 0) {
+    const top = grouped[0];
+    const roleDoc = await db
+      .collection(COLS.role)
+      .findOne({ _id: top._id });
+    topRole = {
+      role_id: String(top._id),
+      name: String(
+        roleDoc?.display_name || roleDoc?.name || 'Role',
+      ),
+      count: top.count,
+    };
+  }
+
+  const last = permRows[0]?.updatedAt || permRows[0]?.createdAt || null;
+
+  return {
+    total: permCount,
+    granted_role_count: grouped.length,
+    top_role: topRole,
+    last_updated_at: last ? new Date(last).toISOString() : null,
+  };
+}
+
+export interface PermissionTypeKpis {
+  total: number;
+  by_category: { custom: number; builtin: number };
+  in_use: number;
+  last_updated_at: string | null;
+}
+
+/**
+ * KPI roll-up for /settings/permission-types. "In use" is the count
+ * of distinct permission_type_ids referenced from
+ * `crm_permission_role` for this tenant.
+ */
+export async function getPermissionTypeKpis(): Promise<PermissionTypeKpis> {
+  const user = await requireSession();
+  if (!user) {
+    return {
+      total: 0,
+      by_category: { custom: 0, builtin: 0 },
+      in_use: 0,
+      last_updated_at: null,
+    };
+  }
+  const { db } = await connectToDatabase();
+  const tenant = new ObjectId(user._id);
+
+  const KNOWN: WsPermissionTypeName[] = [
+    'none',
+    'all',
+    'added',
+    'owned',
+    'both',
+  ];
+
+  const all = (await db
+    .collection(COLS.permissionType)
+    .find({ userId: tenant })
+    .project({ name: 1, updatedAt: 1, createdAt: 1 })
+    .toArray()) as Array<{
+    _id: ObjectId;
+    name?: string;
+    updatedAt?: Date;
+    createdAt?: Date;
+  }>;
+
+  let builtin = 0;
+  let custom = 0;
+  let latest: Date | null = null;
+  for (const row of all) {
+    if (KNOWN.includes((row.name || '') as WsPermissionTypeName)) builtin += 1;
+    else custom += 1;
+    const ts = row.updatedAt || row.createdAt || null;
+    if (ts && (!latest || new Date(ts) > latest)) latest = new Date(ts);
+  }
+
+  const inUse = await db
+    .collection(COLS.permissionRole)
+    .distinct('permission_type_id', { userId: tenant });
+
+  return {
+    total: all.length,
+    by_category: { custom, builtin },
+    in_use: inUse.length,
+    last_updated_at: latest ? latest.toISOString() : null,
+  };
+}
+
+export interface CustomModuleKpis {
+  total: number;
+  by_entity_kind: Record<string, number>;
+  avg_fields_per_module: number;
+  last_updated_at: string | null;
+}
+
+/**
+ * KPI roll-up for /settings/custom-modules. Buckets by the "table"
+ * stem (entity kind), and computes the average number of custom
+ * fields registered per module from `crm_custom_fields` (if
+ * present), keyed on `entity_kind` or `module_id`.
+ */
+export async function getCustomModuleKpis(): Promise<CustomModuleKpis> {
+  const user = await requireSession();
+  if (!user) {
+    return {
+      total: 0,
+      by_entity_kind: {},
+      avg_fields_per_module: 0,
+      last_updated_at: null,
+    };
+  }
+  const { db } = await connectToDatabase();
+  const tenant = new ObjectId(user._id);
+
+  const mods = (await db
+    .collection(COLS.customModule)
+    .find({ userId: tenant })
+    .project({ name: 1, table: 1, updatedAt: 1, createdAt: 1 })
+    .toArray()) as Array<{
+    _id: ObjectId;
+    name?: string;
+    table?: string;
+    updatedAt?: Date;
+    createdAt?: Date;
+  }>;
+
+  const byKind: Record<string, number> = {};
+  let latest: Date | null = null;
+  for (const m of mods) {
+    const kind = (m.table || m.name || 'other').split('_')[0] || 'other';
+    byKind[kind] = (byKind[kind] || 0) + 1;
+    const ts = m.updatedAt || m.createdAt || null;
+    if (ts && (!latest || new Date(ts) > latest)) latest = new Date(ts);
+  }
+
+  // Average fields per module — count entries in `crm_custom_fields`
+  // grouped by `custom_module_id` or `entity_kind`. Falls back to 0 if
+  // that collection isn't present yet.
+  let avgFields = 0;
+  try {
+    const fieldsAgg = await db
+      .collection('crm_custom_fields')
+      .aggregate([
+        { $match: { userId: tenant } },
+        {
+          $group: {
+            _id: { $ifNull: ['$custom_module_id', '$entity_kind'] },
+            count: { $sum: 1 },
+          },
+        },
+      ])
+      .toArray();
+    const moduleNames = new Set(mods.map((m) => String(m.name || '')));
+    const relevant = fieldsAgg.filter((g: any) => {
+      const key = String(g._id ?? '');
+      return key && (moduleNames.has(key) || mods.some((m) => String(m._id) === key));
+    });
+    if (relevant.length > 0) {
+      const sum = relevant.reduce((a: number, b: any) => a + b.count, 0);
+      avgFields = sum / Math.max(1, mods.length);
+    }
+  } catch {
+    avgFields = 0;
+  }
+
+  return {
+    total: mods.length,
+    by_entity_kind: byKind,
+    avg_fields_per_module: Math.round(avgFields * 10) / 10,
+    last_updated_at: latest ? latest.toISOString() : null,
+  };
 }
 
 /* Unused-import guard — keeps tsc happy if an export goes unused. */

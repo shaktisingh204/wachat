@@ -2,6 +2,7 @@
 
 import {
   ZoruButton,
+  ZoruCheckbox,
   ZoruStatCard,
   ZoruSelect,
   ZoruSelectContent,
@@ -36,12 +37,14 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock,
+  Download,
   Edit,
   Flag,
   MoreHorizontal,
   Plus,
   Target,
   Trash2,
+  X,
   } from 'lucide-react';
 
 /**
@@ -69,6 +72,8 @@ import {
   getWsProjectMilestones,
   saveWsProjectMilestone,
   deleteWsProjectMilestone,
+  bulkDeleteWsMilestones,
+  bulkCompleteMilestones,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProjectMilestone } from '@/lib/worksuite/project-types';
 
@@ -115,6 +120,9 @@ export default function ProjectMilestonesPage() {
   const [createOpen, setCreateOpen] = React.useState(false);
   const [editTarget, setEditTarget] = React.useState<Row | null>(null);
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+  const [selection, setSelection] = React.useState<Set<string>>(new Set());
+  const [bulkPending, startBulkTransition] = React.useTransition();
+  const [confirmBulk, setConfirmBulk] = React.useState<'complete' | 'delete' | null>(null);
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
@@ -170,6 +178,7 @@ export default function ProjectMilestonesPage() {
     const res = await deleteWsProjectMilestone(deleteTargetId);
     if (res?.success) {
       toast({ title: 'Milestone deleted' });
+      setSelection((prev) => { const n = new Set(prev); n.delete(deleteTargetId); return n; });
       refresh();
     } else {
       toast({
@@ -180,6 +189,80 @@ export default function ProjectMilestonesPage() {
     }
     setDeleteTargetId(null);
   }, [deleteTargetId, refresh, toast]);
+
+  /* ── Selection helpers ───────────────────────────────────────── */
+  const handleToggle = React.useCallback((id: string) => {
+    setSelection((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAll = React.useCallback((checked: boolean) => {
+    setSelection(checked ? new Set(filtered.map((r) => r._id)) : new Set());
+  }, [filtered]);
+
+  /* ── Bulk complete ───────────────────────────────────────────── */
+  const handleBulkComplete = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkCompleteMilestones(ids);
+      if (res.updated > 0 || res.failed === 0) {
+        toast({ title: `Completed ${res.updated} milestone${res.updated === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk complete failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  /* ── Bulk delete ─────────────────────────────────────────────── */
+  const handleBulkDelete = React.useCallback(() => {
+    const ids = Array.from(selection);
+    startBulkTransition(async () => {
+      const res = await bulkDeleteWsMilestones(ids);
+      if (res.deleted > 0 || res.failed === 0) {
+        toast({ title: `Deleted ${res.deleted} milestone${res.deleted === 1 ? '' : 's'}` });
+        setSelection(new Set());
+        setConfirmBulk(null);
+        refresh();
+      } else {
+        toast({ title: 'Bulk delete failed', description: res.error, variant: 'destructive' });
+      }
+    });
+  }, [selection, refresh, toast]);
+
+  /* ── CSV export ──────────────────────────────────────────────── */
+  const handleExport = React.useCallback(() => {
+    const exportRows = selection.size > 0
+      ? filtered.filter((r) => selection.has(r._id))
+      : filtered;
+    const lines = [
+      ['Title', 'Project', 'Start', 'Target', 'Status', 'Payment', 'Currency'].join(','),
+      ...exportRows.map((r) =>
+        [
+          JSON.stringify(r.milestoneTitle ?? ''),
+          JSON.stringify(String(r.projectId ?? '')),
+          JSON.stringify(fmtDate(r.startDate)),
+          JSON.stringify(fmtDate(r.endDate)),
+          JSON.stringify(r.status ?? ''),
+          JSON.stringify(String(r.cost ?? '')),
+          JSON.stringify(r.currency ?? 'INR'),
+        ].join(','),
+      ),
+    ];
+    const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.setAttribute('download', 'milestones.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [filtered, selection]);
 
   return (
     <>
@@ -192,9 +275,33 @@ export default function ProjectMilestonesPage() {
           placeholder: 'Search milestone title or summary…',
         }}
         primaryAction={
-          <ZoruButton onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" /> New milestone
-          </ZoruButton>
+          <>
+            <ZoruButton variant="outline" onClick={handleExport}>
+              <Download className="mr-1.5 h-3.5 w-3.5" /> Export CSV
+            </ZoruButton>
+            <ZoruButton onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" /> New milestone
+            </ZoruButton>
+          </>
+        }
+        bulkBar={
+          selection.size > 0 ? (
+            <div className="flex items-center gap-2 rounded-md bg-secondary px-3 py-2 text-[13px]">
+              <span className="font-medium text-zoru-ink">{selection.size} selected</span>
+              <ZoruButton variant="outline" size="sm" onClick={() => setConfirmBulk('complete')} disabled={bulkPending}>
+                <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Complete
+              </ZoruButton>
+              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+                <Download className="mr-1 h-3.5 w-3.5" /> Export
+              </ZoruButton>
+              <ZoruButton variant="outline" size="sm" className="text-zoru-danger" onClick={() => setConfirmBulk('delete')} disabled={bulkPending}>
+                <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete
+              </ZoruButton>
+              <ZoruButton variant="ghost" size="icon" onClick={() => setSelection(new Set())}>
+                <X className="h-3.5 w-3.5" />
+              </ZoruButton>
+            </div>
+          ) : null
         }
         filters={
           <>
@@ -274,6 +381,19 @@ export default function ProjectMilestonesPage() {
               <ZoruTable>
                 <ZoruTableHeader>
                   <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      {(() => {
+                        const allCk = filtered.length > 0 && filtered.every((r) => selection.has(r._id));
+                        const someCk = !allCk && filtered.some((r) => selection.has(r._id));
+                        return (
+                          <ZoruCheckbox
+                            checked={allCk || (someCk ? 'indeterminate' : false)}
+                            onCheckedChange={(v) => handleToggleAll(!!v)}
+                            aria-label="Select all"
+                          />
+                        );
+                      })()}
+                    </ZoruTableHead>
                     <ZoruTableHead>Name</ZoruTableHead>
                     <ZoruTableHead>Project</ZoruTableHead>
                     <ZoruTableHead>Start</ZoruTableHead>
@@ -295,6 +415,13 @@ export default function ProjectMilestonesPage() {
                           isReached(r) ? 'opacity-70' : '',
                         ].join(' ')}
                       >
+                        <ZoruTableCell>
+                          <ZoruCheckbox
+                            checked={selection.has(r._id)}
+                            onCheckedChange={() => handleToggle(r._id)}
+                            aria-label={`Select ${r.milestoneTitle ?? 'milestone'}`}
+                          />
+                        </ZoruTableCell>
                         <ZoruTableCell>
                           <EntityRowLink
                             href={`/dashboard/crm/projects/milestones/${r._id}`}
@@ -391,6 +518,27 @@ export default function ProjectMilestonesPage() {
         requireTyped="DELETE"
         confirmLabel="Delete"
         onConfirm={handleConfirmDelete}
+      />
+
+      {/* Bulk complete confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'complete'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Mark ${selection.size} milestone${selection.size === 1 ? '' : 's'} complete?`}
+        description="The selected milestones will be marked as complete. This can be reversed by editing each milestone."
+        confirmLabel="Mark complete"
+        onConfirm={handleBulkComplete}
+      />
+
+      {/* Bulk delete confirm */}
+      <ConfirmDialog
+        open={confirmBulk === 'delete'}
+        onOpenChange={(o) => !o && setConfirmBulk(null)}
+        title={`Delete ${selection.size} milestone${selection.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected milestones. This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={handleBulkDelete}
       />
     </>
   );

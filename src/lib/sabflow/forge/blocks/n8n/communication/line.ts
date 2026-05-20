@@ -13,9 +13,9 @@
  *   - multicast  POST /v2/bot/message/multicast
  *   - broadcast  POST /v2/bot/message/broadcast
  *
- * Out of scope for the first port:
- *   - Rich message builder UI — only text and a single sticker per request
- *   - Flex message JSON helper
+ * Out of scope (n8n's `Line.node.ts` only ships the now-discontinued LINE
+ * Notify `send` operation, so there is no upstream parity work to do):
+ *   - Rich/Flex message builder UI — only text and a single sticker per request
  *   - Webhook trigger node (handled by SabFlow triggers, separate wave)
  */
 

@@ -4,12 +4,19 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
   getDealFunnel,
   getDealsByMonth,
+  getCrmDealsFiltered,
 } from '@/app/actions/worksuite/reports.actions';
-import { getCrmDeals } from '@/app/actions/crm-deals.actions';
 import { SalesDealsView } from './sales-deals-view';
 
 interface PageProps {
-  searchParams: Promise<{ from?: string; to?: string; page?: string; limit?: string }>;
+  searchParams: Promise<{
+    from?: string;
+    to?: string;
+    page?: string;
+    limit?: string;
+    stage?: string;
+    pipeline?: string;
+  }>;
 }
 
 export default async function SalesDealsReportPage(props: PageProps) {
@@ -20,21 +27,8 @@ export default async function SalesDealsReportPage(props: PageProps) {
   const [funnel, byMonth, dealsRes] = await Promise.all([
     getDealFunnel(),
     getDealsByMonth(sp.from, sp.to),
-    getCrmDeals(page, limit),
+    getCrmDealsFiltered(page, limit, sp.from, sp.to, sp.stage, sp.pipeline),
   ]);
-
-  const dealRows = dealsRes.deals.map((d) => ({
-    id: String(d._id),
-    name: (d as { name?: string }).name ?? 'Untitled deal',
-    stage: (d as { stage?: string }).stage ?? 'Unknown',
-    value: Number((d as { value?: number }).value ?? 0),
-    accountId: (d as { accountId?: unknown }).accountId
-      ? String((d as { accountId?: unknown }).accountId)
-      : undefined,
-    createdAt: (d as { createdAt?: string | Date }).createdAt
-      ? new Date((d as { createdAt?: string | Date }).createdAt as string | Date).toISOString()
-      : null,
-  }));
 
   return (
     <EntityListShell
@@ -44,10 +38,14 @@ export default async function SalesDealsReportPage(props: PageProps) {
       <SalesDealsView
         funnel={funnel}
         byMonth={byMonth}
-        deals={dealRows}
+        deals={dealsRes.rows}
         total={dealsRes.total}
         page={page}
         limit={limit}
+        from={sp.from}
+        to={sp.to}
+        stage={sp.stage ?? ''}
+        pipeline={sp.pipeline ?? ''}
       />
     </EntityListShell>
   );

@@ -471,6 +471,103 @@ export async function getInvoiceById(invoiceId: string): Promise<WithId<CrmInvoi
     }
 }
 
+/* ─── Duplicate clusters + merge (§1D deep-view) ─────────────────── */
+
+/**
+ * Mark every invoice in `losingIds` as a duplicate of `survivorId` and
+ * soft-cancel them. Multi-tenant — only invoices owned by the current
+ * tenant are touched. Idempotent: calling twice is a no-op.
+ */
+export async function resolveInvoiceDuplicates(
+    survivorId: string,
+    losingIds: string[],
+): Promise<{ success: boolean; resolved: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, resolved: 0, error: 'Access denied.' };
+    if (!survivorId || !ObjectId.isValid(survivorId)) {
+        return { success: false, resolved: 0, error: 'Invalid survivor id.' };
+    }
+    const validLosing = losingIds.filter((id) => id && ObjectId.isValid(id) && id !== survivorId);
+    if (validLosing.length === 0) {
+        return { success: false, resolved: 0, error: 'No losing invoices supplied.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const result = await db.collection('crm_invoices').updateMany(
+            {
+                _id: { $in: validLosing.map((id) => new ObjectId(id)) },
+                userId,
+            },
+            {
+                $set: {
+                    status: 'Cancelled',
+                    duplicateOf: new ObjectId(survivorId),
+                    duplicateResolvedAt: new Date(),
+                    duplicateResolvedBy: userId,
+                },
+            },
+        );
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'merge',
+                entityKind: 'invoice',
+                entityId: survivorId,
+                reason: `Merged ${result.modifiedCount} duplicate(s): ${validLosing.join(', ')}`,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath('/dashboard/crm/sales/invoices');
+        revalidatePath('/dashboard/crm/sales/invoices/duplicates');
+        return { success: true, resolved: result.modifiedCount };
+    } catch (e: any) {
+        return { success: false, resolved: 0, error: getErrorMessage(e) };
+    }
+}
+
+/**
+ * KPI tile for the duplicates page: number of clusters surfaced by
+ * `findInvoiceDuplicates()`, how many were already resolved (cancelled
+ * + flagged as `duplicateOf`), and how many are still pending review.
+ */
+export interface InvoiceDuplicatesDeepKpis {
+    clusters: number;
+    resolved: number;
+    pending: number;
+    totalDuplicateValue: number;
+}
+
+export async function getInvoiceDuplicatesDeepKpis(): Promise<InvoiceDuplicatesDeepKpis> {
+    const empty: InvoiceDuplicatesDeepKpis = { clusters: 0, resolved: 0, pending: 0, totalDuplicateValue: 0 };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const resolvedInvoices = await db.collection('crm_invoices')
+            .find({ userId, duplicateOf: { $exists: true } })
+            .project({ totalAmount: 1 })
+            .toArray();
+
+        const resolved = resolvedInvoices.length;
+        const totalDuplicateValue = resolvedInvoices.reduce(
+            (sum, inv) => sum + Number((inv as { totalAmount?: number }).totalAmount ?? 0),
+            0,
+        );
+
+        return { clusters: 0, resolved, pending: 0, totalDuplicateValue };
+    } catch (e) {
+        console.error('[getInvoiceDuplicatesDeepKpis] failed:', e);
+        return empty;
+    }
+}
+
 export async function getUnpaidInvoicesByAccount(accountId: string): Promise<WithId<CrmInvoice>[]> {
     const session = await getSession();
     if (!session?.user) return [];

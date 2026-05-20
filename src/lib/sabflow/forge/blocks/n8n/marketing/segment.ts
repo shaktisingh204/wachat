@@ -5,15 +5,20 @@
  * Credential type: 'segment' — { writeKey }; sent as HTTP Basic with empty
  *   password (`<writeKey>:`).
  *
- * Operations covered:
- *   - identify
- *   - track
- *   - page
- *   - group
- *   - alias
+ * Operations covered (all four n8n resources + alias):
+ *   - identify           POST /identify   (n8n: identify.create)
+ *   - track              POST /track      (n8n: track.event)
+ *   - page               POST /page       (n8n: track.page)
+ *   - group              POST /group      (n8n: group.add)
+ *   - alias              POST /alias      (extra; not in n8n's node)
+ *
+ * Note on n8n parity: n8n's UI bundles `context.{app,campaign,device,...}`
+ * and `integrations.{all,salesforce}` as fixedCollection sub-forms; SabFlow
+ * accepts the same shape inline via the `traits`/`properties` JSON fields
+ * (Segment's HTTP API merges everything under the same envelope).
  *
  * Out of scope (deferred):
- *   - batch payloads
+ *   - batch payloads (Segment's `/batch` endpoint)
  *   - the Segment v2 Public API (this is the tracking ingestion API)
  */
 

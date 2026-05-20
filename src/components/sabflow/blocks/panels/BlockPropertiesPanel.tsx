@@ -8,7 +8,9 @@ import {
   getBlockColor,
   getBlockCategory,
 } from '@/lib/sabflow/blocks';
+import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { cn } from '@/lib/utils';
+import { Icon as IconifyIcon } from '@iconify/react';
 import { LuX, LuSettings } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 
@@ -35,6 +37,7 @@ export function BlockPropertiesPanel({ block, onUpdate, variables = [] }: Props)
   const Icon = getBlockIcon(block.type);
   const label = getBlockLabel(block.type);
   const color = getBlockColor(block.type);
+  const brand = getBlockBrandIcon(block.type);
   const variableNames = variables.map((v) => v.name);
 
   return (
@@ -50,10 +53,17 @@ export function BlockPropertiesPanel({ block, onUpdate, variables = [] }: Props)
       {/* ── Panel header ────────────────────────────────────── */}
       <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
         <div
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
-          style={{ background: `${color}22`, color }}
+          className={cn(
+            'flex h-7 w-7 shrink-0 items-center justify-center rounded-lg',
+            brand && 'bg-[var(--gray-2)]',
+          )}
+          style={brand ? undefined : { background: `${color}22`, color }}
         >
-          {Icon && <Icon className="h-4 w-4" />}
+          {brand ? (
+            <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
+          ) : (
+            Icon && <Icon className="h-4 w-4" />
+          )}
         </div>
         <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">
           {label}

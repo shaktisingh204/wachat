@@ -10,10 +10,14 @@
  * Operations covered:
  *   - event.capture
  *   - person.identify
+ *   - alias.create        (link an anonymous distinct_id to a known one)
+ *   - track.page          (send a $pageview / $screen event)
  *   - featureFlag.check (decide)
  *
  * Out of scope (deferred):
- *   - cohort / annotation / alias batching
+ *   - cohort / annotation: those live behind the personalApiKey-only
+ *     management API and require list-style pagination which adds noise to
+ *     the trigger-only flows that consume this block today.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -89,6 +93,56 @@ async function personIdentify(ctx: ForgeActionContext): Promise<ForgeActionResul
   return { outputs: { result: res.data }, logs: [`PostHog person identify → ${distinctId}`] };
 }
 
+async function aliasCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { baseUrl, apiKey } = getCred(ctx);
+  const distinctId = asString(ctx.options.distinctId);
+  const alias = asString(ctx.options.alias);
+  if (!distinctId) throw new Error('PostHog: distinctId is required');
+  if (!alias) throw new Error('PostHog: alias is required');
+  // n8n posts to /batch with a single `$create_alias` event — mirror that
+  // shape so the PostHog batch processor recognises the event.
+  const body = {
+    api_key: apiKey,
+    type: 'alias',
+    event: '$create_alias',
+    properties: { distinct_id: distinctId, alias },
+    timestamp: new Date().toISOString(),
+  };
+  const res = await apiRequest({
+    service: 'PostHog',
+    method: 'POST',
+    url: `${baseUrl}/batch/`,
+    json: body,
+  });
+  return { outputs: { result: res.data }, logs: [`PostHog alias create → ${alias} = ${distinctId}`] };
+}
+
+async function trackPage(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { baseUrl, apiKey } = getCred(ctx);
+  const distinctId = asString(ctx.options.distinctId);
+  const name = asString(ctx.options.name);
+  const kind = (asString(ctx.options.kind) || 'page') as 'page' | 'screen';
+  if (!distinctId) throw new Error('PostHog: distinctId is required');
+  if (!name) throw new Error('PostHog: name is required');
+  const properties = tryJson(asString(ctx.options.properties)) ?? {};
+  const body = {
+    api_key: apiKey,
+    name,
+    type: kind,
+    event: `$${kind}`,
+    distinct_id: distinctId,
+    properties,
+    timestamp: new Date().toISOString(),
+  };
+  const res = await apiRequest({
+    service: 'PostHog',
+    method: 'POST',
+    url: `${baseUrl}/batch/`,
+    json: body,
+  });
+  return { outputs: { result: res.data }, logs: [`PostHog track ${kind} → ${name}`] };
+}
+
 async function featureFlagCheck(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const { baseUrl, apiKey } = getCred(ctx);
   const distinctId = asString(ctx.options.distinctId);
@@ -135,6 +189,37 @@ const block: ForgeBlock = {
         { id: 'properties', label: 'Properties (JSON)', type: 'json' },
       ],
       run: personIdentify,
+    },
+    {
+      id: 'alias_create',
+      label: 'Create alias',
+      description: 'Link an anonymous distinct id to a known one.',
+      fields: [
+        { id: 'distinctId', label: 'Distinct ID', type: 'text', required: true },
+        { id: 'alias', label: 'Alias', type: 'text', required: true },
+      ],
+      run: aliasCreate,
+    },
+    {
+      id: 'track_page',
+      label: 'Track page / screen',
+      description: 'Send a $pageview (web) or $screen (mobile) event.',
+      fields: [
+        { id: 'distinctId', label: 'Distinct ID', type: 'text', required: true },
+        { id: 'name', label: 'Name', type: 'text', required: true },
+        {
+          id: 'kind',
+          label: 'Kind',
+          type: 'select',
+          defaultValue: 'page',
+          options: [
+            { label: 'Page (web)', value: 'page' },
+            { label: 'Screen (mobile)', value: 'screen' },
+          ],
+        },
+        { id: 'properties', label: 'Properties (JSON)', type: 'json' },
+      ],
+      run: trackPage,
     },
     {
       id: 'feature_flag_check',

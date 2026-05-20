@@ -288,3 +288,74 @@ export async function deleteOkr(
         return { success: false, error: `Failed to delete OKR: ${msg}` };
     }
 }
+
+/* ─── Bulk actions (§1D Deep-list template) ──────────────────────────── */
+
+/**
+ * Bulk-delete OKRs via the Rust BFF. The BFF has no batch endpoint so
+ * we loop single-deletes; each delete is tenant-guarded by the session.
+ */
+export async function bulkDeleteOkrs(
+    ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, deleted: 0, error: 'Access denied.' };
+    }
+    const guard = await requirePermission('crm_okr', 'delete');
+    if (!guard.ok) return { success: false, deleted: 0, error: guard.error };
+
+    let deleted = 0;
+    const filtered = ids.filter(Boolean);
+    for (const id of filtered) {
+        try {
+            const r = await crmOkrsApi.delete(id);
+            if (r?.deleted) deleted += 1;
+        } catch (e) {
+            const { code, status } = rustError(e);
+            recordRustFallback({
+                entity: 'okr',
+                op: 'delete',
+                errorCode: code,
+                status,
+            });
+        }
+    }
+    revalidatePath('/dashboard/crm/hr/okrs');
+    revalidatePath('/dashboard/hrm/hr/okrs');
+    return { success: true, deleted };
+}
+
+/**
+ * Bulk-archive OKRs by flipping each to status="archived" via the Rust
+ * update endpoint. Mirrors the soft-archive semantic used elsewhere.
+ */
+export async function bulkArchiveOkrs(
+    ids: string[],
+): Promise<{ success: boolean; archived: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, archived: 0, error: 'Access denied.' };
+    }
+    const guard = await requirePermission('crm_okr', 'edit');
+    if (!guard.ok) return { success: false, archived: 0, error: guard.error };
+
+    let archived = 0;
+    for (const id of ids.filter(Boolean)) {
+        try {
+            await crmOkrsApi.update(id, { status: 'archived' });
+            archived += 1;
+        } catch (e) {
+            const { code, status } = rustError(e);
+            recordRustFallback({
+                entity: 'okr',
+                op: 'update',
+                errorCode: code,
+                status,
+            });
+        }
+    }
+    revalidatePath('/dashboard/crm/hr/okrs');
+    revalidatePath('/dashboard/hrm/hr/okrs');
+    return { success: true, archived };
+}

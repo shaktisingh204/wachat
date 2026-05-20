@@ -32,4 +32,12 @@ export interface QuotationKpiSummary {
   expired: number;
   /** `accepted + converted` ÷ total quotations, in percent. */
   conversionRatePct: number | null;
+  /** Quotations dated on/after the first of the current month. */
+  totalThisMonth: number;
+  /** Sum of `totals.total` across the loaded window (in `currency`). */
+  totalQuotedValue: number;
+  /** Dominant currency for `totalQuotedValue` (best-effort). */
+  currency: string;
+  /** Drafts only. */
+  draft: number;
 }

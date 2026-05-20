@@ -1,5 +1,23 @@
 # SabFlow ↔ n8n Parity: Dynamic Options, ResourceLocator, Expression Globals
 
+> **Progress tracker (2026-05-20):**
+> - ✅ **Phase 1** — schema + cascading + last-node-output runtime fix (forge executor now feeds `nodeOutputs` into `resolveDeep`)
+> - ✅ **Phase 2** — `resourceLocator` type with list/id/url modes + regex extraction
+> - ✅ **Phase 3** — debounced search + cursor pagination
+> - ✅ **Bonus** — full-colour brand logos (Iconify `logos:` namespace) across canvas, picker, settings panel
+> - ▶️ **Phase 5 — IN PROGRESS** (expression globals)
+> - ⏸️ Phase 4 (helpers.requestWithAuthentication) — deferred; Phase 5 has higher user-visible ROI
+> - 📋 Phase 6 (block retrofits) — blocked on Phase 4
+>
+> **New scope unlocked by the n8n deep-dive (2026-05-20):**
+> - Phase 7 — per-item iteration loop (forge block runs once per upstream item)
+> - Phase 8 — multi-output branching (proper true/false ports for IF / Switch)
+> - Phase 9 — `pairedItem` ancestry tracking (needed before Phase 8 is safe)
+> - Phase 10 — data pinning + "run from this node" in the editor
+>
+> See "n8n architectural findings" section at the bottom for the full audit.
+
+
 > **For agentic workers:** REQUIRED SUB-SKILL — use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to execute task-by-task. Steps use checkbox (`- [ ]`) syntax. **One agent at a time** (per project memory) — never spawn parallel agents on this plan.
 
 **Goal:** Bring SabFlow's integration-node UX up to n8n parity for three pain points: (1) dynamic dropdowns that fetch options from the provider's API using the saved credential, (2) `resourceLocator` fields that accept ID, URL, or live-searched list, and (3) the full set of expression globals (`$prevNode`, `$execution`, `$env`, `$jmesPath`, Luxon classes) so users never have to type IDs by hand.
@@ -1602,3 +1620,69 @@ Two execution options:
 2. **Inline Execution** — work tasks in the current session with checkpoint commits. Best for the bulk of Phase 6 retrofits where each block is a small, identical pattern.
 
 Which approach do you want to start with — and which phase first? Phase 1 is the natural entry point since everything else depends on it.
+
+---
+
+## n8n architectural findings (added 2026-05-20 after source dive)
+
+Read n8n-master end-to-end to confirm how its data plumbing works. Confirmations + new gaps below.
+
+### How `$node["X"].json.y` resolves in n8n (verified)
+
+- **Storage**: every run holds one `IRunExecutionData`. Its `resultData.runData` is keyed by **node display name** → array of `ITaskData` (one entry per run of that node). Each `ITaskData.data.main` is `output_branch[][item_index]`.
+- **Lookup chain**: `$node` is a JS `Proxy` (`workflow-data-proxy.ts:729`). `$node["Webhook"]` returns a second proxy whose `.json` getter reads `runData["Webhook"][lastRun].data.main[0][itemIndex].json`.
+- **Two data paths**: `$json` = immediate upstream (fast, `connectionInputData`); `$node["X"].json` = any prior node by display name (slow, goes through the runData map).
+- **What sabflow does today (Phase 1 fix)**: we now feed `nodeOutputs` into the same `WorkflowDataProxy` via `expression-runner.ts`. The chain works; the lookup ends at our `nodeOutputs[displayName] = { json: ... }` map built by `executeFlow.ts`.
+
+### Confirmed-still-missing in sabflow (revised gap list)
+
+#### Phase 7 — Per-item iteration (medium)
+
+n8n runs each downstream node **once per upstream item** (`for itemIndex in 0..N-1`). Sabflow currently runs each forge block **once total**, then forwards the result as a single value. When upstream emits an array of 100 rows and the downstream is "Send email", n8n sends 100 emails; sabflow sends 1.
+
+Files to touch:
+- `src/lib/sabflow/engine/executeBlock.ts:497-545` (`executeForgeBlock`) — wrap `action.run` in an item loop.
+- `src/lib/sabflow/engine/executeFlow.ts` — store array-of-items output not just single-bag output.
+- Need a per-block opt-out flag for blocks whose semantics are "process the whole batch" (HTTP request body, aggregate, merge).
+
+#### Phase 8 — Multi-output branching (big)
+
+n8n's `data.main` is `Array<Array<INodeExecutionData>>` — multiple output ports. IF node has `main[0] = true items`, `main[1] = false items`. Sabflow's edges are single-target so condition/switch blocks can't fan items into separate branches.
+
+Files to touch:
+- `src/lib/sabflow/types.ts` — `Edge` needs an `outputIndex` field.
+- `src/components/sabflow/graph/...` — render N output ports on the block card.
+- `executeFlow.ts` — when picking child nodes, filter edges by `outputIndex`.
+
+#### Phase 9 — `pairedItem` ancestry (big, blocks Phase 8)
+
+Each `INodeExecutionData` carries `pairedItem: { item: N, input: 0 }` pointing back to which upstream item produced it. Lets `$getPairedItem()` walk back through branches.
+
+Needed before Phase 8 can be safe — without paired items, "show me which webhook row triggered this email" breaks.
+
+#### Phase 10 — Data pinning + run-from-node (medium)
+
+n8n's `pinData` injects fixed output for a node so downstream nodes can be tested without re-running the trigger. Plus partial execution to a `destinationNode`. Both reuse the same `runExecutionData` plumbing we already have.
+
+Files to touch:
+- `src/lib/sabflow/engine/executeFlow.ts` — accept optional `pinData` and `destinationNode`.
+- Editor UI — pin/unpin button on each block; "run from here" context menu item.
+
+### Quick-win checklist (next sprint after Phase 5)
+
+| Task | Effort | Files |
+|---|---|---|
+| Expose `$prevNode` (derive from current node + edges) | quick | `expression-runner.ts` |
+| Expose `$execution.id/.mode` | quick | `expression-runner.ts`, thread through `executeFlow` |
+| Expose `$env.*` (allowlist) | quick | `resolveTokens.ts` + `expression-runner.ts` |
+| Expose Luxon `DateTime/Interval/Duration` constructors | quick | `expression-runner.ts` |
+| Expose `$jmesPath(data, query)` | quick | install `jmespath`, add to proxy |
+| Surface all the above in data picker | medium | `UpstreamDataPicker.tsx` |
+| Per-item iteration on forge blocks | medium | `executeBlock.ts` + `executeFlow.ts` |
+
+### Confirmed safe pieces (we already match n8n)
+
+- ✅ Display-name-based node addressing (n8n uses node names; we built the same with `buildBlockNameMap`)
+- ✅ `nodeOutputs` map keyed by display name with `{ json: ... }` shape (matches n8n's `runData[name].data.main[0]`)
+- ✅ Forge block resolver gets `getNodeParameter()` + auto-extracted resourceLocator values (matches n8n's `IExecuteFunctions.getNodeParameter(name, { extractValue: true })`)
+- ✅ Single shared `WorkflowDataProxy` is doing the expression evaluation — we just had to give it the right shape

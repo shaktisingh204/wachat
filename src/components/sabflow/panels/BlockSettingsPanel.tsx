@@ -14,6 +14,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LuArrowRight, LuPlay } from 'react-icons/lu';
 import { useGraph } from '@/components/sabflow/graph/providers/GraphProvider';
 import { getBlockLabel, getBlockIcon, getBlockColor } from '@/lib/sabflow/blocks';
+import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
+import { Icon as IconifyIcon } from '@iconify/react';
 import type { Block, SabFlowDoc, SabFlowEvent, Variable } from '@/lib/sabflow/types';
 import { cn } from '@/lib/utils';
 import { TRIGGER_OPTIONS } from '@/components/sabflow/canvas/triggerPanel/triggerOptions';
@@ -212,11 +214,13 @@ function PanelHeader({
   let Icon: ReturnType<typeof getBlockIcon> | null = null;
   let label = '';
   let color = '#888';
+  let brand: string | null = null;
 
   if (block) {
     Icon = getBlockIcon(block.type);
     label = getBlockLabel(block.type);
     color = getBlockColor(block.type);
+    brand = getBlockBrandIcon(block.type);
   } else if (event) {
     const meta = TRIGGER_OPTIONS.find((o) => o.appEvent === event.appEvent);
     Icon = (meta?.icon as ReturnType<typeof getBlockIcon>) ?? LuPlay;
@@ -226,15 +230,19 @@ function PanelHeader({
 
   return (
     <div className="flex items-center gap-2.5 border-b border-[var(--gray-4)] px-4 py-3 shrink-0">
-      {/* Block / event icon */}
-      {Icon && (
+      {/* Block / event icon — brand logo when available, else tinted Lucide */}
+      {brand ? (
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[var(--gray-2)]">
+          <IconifyIcon icon={brand} className="h-4 w-4" aria-hidden />
+        </div>
+      ) : Icon ? (
         <div
           className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg"
           style={{ background: `${color}22`, color }}
         >
           <Icon className="h-4 w-4" />
         </div>
-      )}
+      ) : null}
 
       {/* Label */}
       <span className="flex-1 text-[13px] font-semibold text-[var(--gray-12)] truncate">

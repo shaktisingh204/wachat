@@ -242,3 +242,120 @@ export async function deleteOnboarding(
         };
     }
 }
+
+/* ─── KPI ─────────────────────────────────────────────────────────────── */
+
+export interface OnboardingKpis {
+    total: number;
+    inProgress: number;
+    completedThisMonth: number;
+    avgCompletionDays: number;
+}
+
+export async function getOnboardingKpis(): Promise<OnboardingKpis> {
+    const empty: OnboardingKpis = {
+        total: 0,
+        inProgress: 0,
+        completedThisMonth: 0,
+        avgCompletionDays: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_onboarding', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmOnboardingApi.list({ limit: 500 });
+        const items = res.items ?? [];
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const inProgress = items.filter((o) => o.status === 'in_progress').length;
+
+        const completedThisMonth = items.filter((o) => {
+            if (o.status !== 'completed') return false;
+            const d = o.completedAt ? new Date(o.completedAt) : null;
+            return d && d >= startOfMonth;
+        }).length;
+
+        const durations = items
+            .filter((o) => o.status === 'completed' && o.joiningDate && o.completedAt)
+            .map((o) => {
+                const start = new Date(o.joiningDate!).getTime();
+                const end = new Date(o.completedAt!).getTime();
+                const diff = (end - start) / 86_400_000;
+                return Number.isFinite(diff) && diff >= 0 ? diff : null;
+            })
+            .filter((d): d is number => d !== null);
+
+        const avgCompletionDays =
+            durations.length > 0
+                ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length)
+                : 0;
+
+        return { total: items.length, inProgress, completedThisMonth, avgCompletionDays };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[getOnboardingKpis] rust call failed:', msg);
+        recordRustFallback({ entity: 'onboarding', op: 'list', errorCode: code, status });
+        return empty;
+    }
+}
+
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkCompleteOnboardings(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_onboarding', 'edit');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmOnboardingApi.update(id, {
+                status: 'completed',
+                progress: 100,
+            });
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/onboarding');
+    return { succeeded, failed };
+}
+
+export async function bulkDeleteOnboardings(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_onboarding', 'delete');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmOnboardingApi.delete(id);
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/onboarding');
+    return { succeeded, failed };
+}

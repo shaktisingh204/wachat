@@ -4,17 +4,20 @@
  * Source: n8n-master/packages/nodes-base/nodes/SendGrid/SendGrid.node.ts
  * Credential type: 'sendgrid'
  *
- * Operations covered (mail + marketing contact subset):
+ * Operations covered (mail + marketing contact + list subset):
  *   - mail.send         POST  /v3/mail/send
  *   - contact.upsert    PUT   /v3/marketing/contacts          (n8n "create"/"update")
  *   - contact.get       GET   /v3/marketing/contacts/{id}
  *   - contact.search    POST  /v3/marketing/contacts/search   (by email or query)
  *   - contact.delete    DELETE /v3/marketing/contacts?ids={id}
+ *   - list.create       POST  /v3/marketing/lists
+ *   - list.get          GET   /v3/marketing/lists/{id}
+ *   - list.getAll       GET   /v3/marketing/lists             (paginated)
+ *   - list.update       PATCH /v3/marketing/lists/{id}
+ *   - list.delete       DELETE /v3/marketing/lists/{id}
  *
  * Out of scope for the first port:
- *   - List membership management
- *   - Templated send (`templateId` + dynamic_template_data is wired below but
- *     LoadOptions for template dropdowns is deferred)
+ *   - LoadOptions for template dropdowns (templateId is a free-text field)
  *   - Suppression management, stats, single-sender verification
  *
  * Note: the original `forge/blocks/sendgrid.ts` only sends a single mail.
@@ -27,7 +30,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asBoolean, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.sendgrid.com/v3';
 
@@ -142,6 +146,79 @@ async function contactSearch(ctx: ForgeActionContext): Promise<ForgeActionResult
   return { outputs: { results: res.data }, logs: ['SendGrid contact search'] };
 }
 
+async function listCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const name = asString(ctx.options.name);
+  if (!name) throw new Error('SendGrid: name is required');
+  const res = await apiRequest({
+    service: 'SendGrid',
+    method: 'POST',
+    url: `${BASE}/marketing/lists`,
+    headers: authHeaders(ctx),
+    json: { name },
+  });
+  return { outputs: { list: res.data }, logs: [`SendGrid list create → ${name}`] };
+}
+
+async function listGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  if (!listId) throw new Error('SendGrid: listId is required');
+  const contactSample = asBoolean(ctx.options.contactSample);
+  const qs = contactSample ? '?contact_sample=true' : '';
+  const res = await apiRequest({
+    service: 'SendGrid',
+    method: 'GET',
+    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`,
+    headers: authHeaders(ctx),
+  });
+  return { outputs: { list: res.data }, logs: [`SendGrid list get → ${listId}`] };
+}
+
+async function listGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const headers = authHeaders(ctx);
+  const limit = asNumber(ctx.options.limit);
+  // SendGrid uses _metadata.next as an absolute URL — paginateAll lets us
+  // hand it back unchanged on the next fetch instead of munging cursors.
+  const all = await paginateAll<unknown>({
+    fetchPage: async (cursor) => {
+      const url = cursor ?? `${BASE}/marketing/lists?page_size=100`;
+      const page = await apiRequest({ service: 'SendGrid', method: 'GET', url, headers });
+      const body = page.data as { result?: unknown[]; _metadata?: { next?: string } };
+      return { items: body.result ?? [], nextCursor: body._metadata?.next };
+    },
+    maxItems: limit && limit > 0 ? limit : undefined,
+  });
+  return { outputs: { lists: all, count: all.length }, logs: [`SendGrid list getAll → ${all.length}`] };
+}
+
+async function listUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  const name = asString(ctx.options.name);
+  if (!listId) throw new Error('SendGrid: listId is required');
+  if (!name) throw new Error('SendGrid: name is required');
+  const res = await apiRequest({
+    service: 'SendGrid',
+    method: 'PATCH',
+    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}`,
+    headers: authHeaders(ctx),
+    json: { name },
+  });
+  return { outputs: { list: res.data }, logs: [`SendGrid list update → ${listId}`] };
+}
+
+async function listDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  if (!listId) throw new Error('SendGrid: listId is required');
+  const deleteContacts = asBoolean(ctx.options.deleteContacts);
+  const qs = deleteContacts ? '?delete_contacts=true' : '';
+  await apiRequest({
+    service: 'SendGrid',
+    method: 'DELETE',
+    url: `${BASE}/marketing/lists/${encodeURIComponent(listId)}${qs}`,
+    headers: authHeaders(ctx),
+  });
+  return { outputs: { success: true }, logs: [`SendGrid list delete → ${listId}`] };
+}
+
 async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const contactId = asString(ctx.options.contactId);
   if (!contactId) throw new Error('SendGrid: contactId is required');
@@ -215,6 +292,50 @@ const block: ForgeBlock = {
       description: 'Delete a contact by ID.',
       fields: [{ id: 'contactId', label: 'Contact ID', type: 'text', required: true }],
       run: contactDelete,
+    },
+    {
+      id: 'list_create',
+      label: 'Create list',
+      description: 'Create a new marketing list.',
+      fields: [{ id: 'name', label: 'List name', type: 'text', required: true }],
+      run: listCreate,
+    },
+    {
+      id: 'list_get',
+      label: 'Get list',
+      description: 'Fetch a marketing list by ID.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'contactSample', label: 'Include contact sample', type: 'toggle' },
+      ],
+      run: listGet,
+    },
+    {
+      id: 'list_get_all',
+      label: 'List all lists',
+      description: 'Return every marketing list (paginated).',
+      fields: [{ id: 'limit', label: 'Max results (blank = all)', type: 'number' }],
+      run: listGetAll,
+    },
+    {
+      id: 'list_update',
+      label: 'Update list',
+      description: 'Rename a marketing list.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'name', label: 'New name', type: 'text', required: true },
+      ],
+      run: listUpdate,
+    },
+    {
+      id: 'list_delete',
+      label: 'Delete list',
+      description: 'Delete a marketing list, optionally cascading to its contacts.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'deleteContacts', label: 'Also delete contained contacts', type: 'toggle' },
+      ],
+      run: listDelete,
     },
   ],
 };

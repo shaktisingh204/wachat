@@ -20,6 +20,11 @@ import * as React from 'react';
 
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import {
+  dateStamp,
+  downloadXlsx,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 
 import { ItemsKpiStrip } from './items-kpi-strip';
 import { ItemsToolbar } from './items-toolbar';
@@ -215,6 +220,72 @@ export function ItemsListClient({
     });
   }, [filtered]);
 
+  /**
+   * Project visible/selected rows into the flat `ExportRow` shape used by
+   * the shared XLSX/CSV helpers. Kept colocated with `toCsv` so column
+   * ordering stays consistent across both formats.
+   */
+  const buildExportRows = React.useCallback(
+    (rows: ItemListRow[]): { headers: string[]; rows: ExportRow[] } => {
+      const headers = [
+        'name',
+        'sku',
+        'barcode',
+        'hsn',
+        'type',
+        'currency',
+        'costPrice',
+        'sellingPrice',
+        'taxRate',
+        'totalStock',
+        'reorderPoint',
+        'status',
+        'createdAt',
+      ];
+      const out: ExportRow[] = rows.map((r) => ({
+        name: r.name,
+        sku: r.sku,
+        barcode: r.barcode ?? '',
+        hsn: r.hsnSac ?? '',
+        type: r.itemType ?? '',
+        currency: r.currency,
+        costPrice: r.costPrice,
+        sellingPrice: r.sellingPrice,
+        taxRate: r.taxRate ?? '',
+        totalStock: r.totalStock,
+        reorderPoint: r.reorderPoint ?? '',
+        status: r.status ?? '',
+        createdAt: r.createdAt ?? '',
+      }));
+      return { headers, rows: out };
+    },
+    [],
+  );
+
+  const exportXlsx = React.useCallback(async () => {
+    const rows = filtered.filter(
+      (d) => selected.size === 0 || selected.has(d._id),
+    );
+    if (rows.length === 0) {
+      toast({
+        title: 'Nothing to export',
+        description: 'Filter or select rows first.',
+      });
+      return;
+    }
+    const projected = buildExportRows(rows);
+    await downloadXlsx(
+      `items-${dateStamp()}.xlsx`,
+      projected.headers,
+      projected.rows,
+      'Items',
+    );
+    toast({
+      title: 'Exported',
+      description: `${rows.length} items saved to XLSX.`,
+    });
+  }, [filtered, selected, toast, buildExportRows]);
+
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter(
       (d) => selected.size === 0 || selected.has(d._id),
@@ -368,6 +439,7 @@ export function ItemsListClient({
           count={selected.size}
           onClear={() => setSelected(new Set())}
           onExportCsv={exportCsv}
+          onExportXlsx={exportXlsx}
           onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}
           onAdjustStock={bulk.adjustStock}

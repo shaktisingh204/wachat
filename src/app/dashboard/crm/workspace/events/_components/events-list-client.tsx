@@ -24,9 +24,10 @@ import {
     deleteEvent,
 } from '@/app/actions/worksuite/knowledge.actions';
 import type { WsEvent } from '@/lib/worksuite/knowledge-types';
+import type { EventKpis } from '@/app/actions/worksuite/knowledge.actions';
 
 import { EventsKpiStrip } from './events-kpi-strip';
-import { EventsFiltersRow } from './events-filters';
+import { EventsFiltersRow, type EventsTypeFilter } from './events-filters';
 import { EventsTable } from './events-table';
 import { EventsCalendar } from './events-calendar';
 import {
@@ -39,10 +40,18 @@ import {
 
 type EventsViewMode = 'table' | 'calendar';
 
-export function EventsListClient(): React.JSX.Element {
+interface EventsListClientProps {
+    initialEvents: (WsEvent & { _id: string })[];
+    initialKpis: EventKpis;
+}
+
+export function EventsListClient({
+    initialEvents,
+    initialKpis: _initialKpis,
+}: EventsListClientProps): React.JSX.Element {
     const { toast } = useZoruToast();
 
-    const [events, setEvents] = React.useState<(WsEvent & { _id: string })[]>([]);
+    const [events, setEvents] = React.useState<(WsEvent & { _id: string })[]>(initialEvents);
     const [loading, startTransition] = React.useTransition();
 
     const [filters, setFilters] = React.useState<EventsFilterState>(EVENTS_INITIAL_FILTERS);
@@ -66,10 +75,6 @@ export function EventsListClient(): React.JSX.Element {
         });
     }, [toast]);
 
-    React.useEffect(() => {
-        fetchData();
-    }, [fetchData]);
-
     const handleSearch = useDebouncedCallback(
         (next: string) => setFilters((prev) => ({ ...prev, search: next })),
         200,
@@ -89,6 +94,7 @@ export function EventsListClient(): React.JSX.Element {
         return (
             f.kpiKey !== 'all' ||
             f.repeat !== 'all' ||
+            f.eventType !== 'all' ||
             f.location !== '' ||
             f.organizer !== '' ||
             f.rsvp !== 'all' ||
@@ -226,6 +232,8 @@ export function EventsListClient(): React.JSX.Element {
                     <EventsFiltersRow
                         repeat={filters.repeat}
                         onRepeatChange={(v) => updateFilter('repeat', v)}
+                        eventType={filters.eventType as EventsTypeFilter}
+                        onEventTypeChange={(v) => updateFilter('eventType', v)}
                         location={filters.location}
                         onLocationChange={(v) => updateFilter('location', v)}
                         organizer={filters.organizer}

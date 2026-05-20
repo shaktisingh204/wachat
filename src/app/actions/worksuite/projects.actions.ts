@@ -1,7 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { ObjectId } from 'mongodb';
+import {
+  hrList,
+  hrGetById,
+  hrSave,
+  hrDelete,
+  hrBulkDelete,
+  formToObject,
+  requireSession,
+} from '@/lib/hr-crud';
+import { connectToDatabase } from '@/lib/mongodb';
 import { isDateBefore } from '@/lib/form-validation';
 import type {
   WsProject,
@@ -454,6 +464,62 @@ export async function deleteWsTaskCategory(id: string) {
   return r;
 }
 
+export async function bulkDeleteWsTaskCategories(ids: string[]) {
+  const r = await hrBulkDelete('crm_task_categories', ids);
+  revalidatePath('/dashboard/crm/projects/task-categories');
+  return r;
+}
+
+export interface WsTaskCategoryKpis {
+  total: number;
+  inUse: number;
+  unused: number;
+  lastAddedAt: string | null;
+}
+
+export async function getWsTaskCategoryKpis(): Promise<WsTaskCategoryKpis> {
+  const user = await requireSession();
+  if (!user) return { total: 0, inUse: 0, unused: 0, lastAddedAt: null };
+  const { db } = await connectToDatabase();
+  const userObjectId = new ObjectId(user._id);
+  const collection = 'crm_task_categories';
+
+  const total = await db
+    .collection(collection)
+    .countDocuments({ userId: userObjectId });
+
+  const latest = await db
+    .collection(collection)
+    .find({ userId: userObjectId })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .toArray();
+  const lastAddedAt =
+    latest[0]?.createdAt instanceof Date
+      ? (latest[0].createdAt as Date).toISOString()
+      : latest[0]?.createdAt
+        ? String(latest[0].createdAt)
+        : null;
+
+  let inUse = 0;
+  try {
+    const ids = await db.collection('crm_tasks').distinct('taskCategoryId', {
+      userId: userObjectId,
+      taskCategoryId: { $exists: true, $ne: null },
+    });
+    const seen = new Set<string>();
+    for (const v of ids as unknown[]) {
+      if (v == null) continue;
+      seen.add(String(v));
+    }
+    inUse = seen.size;
+  } catch {
+    inUse = 0;
+  }
+
+  return { total, inUse, unused: Math.max(0, total - inUse), lastAddedAt };
+}
+
 /* ═══════════════════════════════════════════════════════════════════
  *  Task Comments
  * ══════════════════════════════════════════════════════════════════ */
@@ -795,5 +861,123 @@ export async function getCrmProjectRelatedCounts(projectId: string): Promise<{
   } catch (e) {
     console.error('[getCrmProjectRelatedCounts] failed:', e);
     return empty;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk delete helpers — used by §1D taxonomy/activity list pages.
+ *  Wrap `hrBulkDelete` (multi-tenant, single Mongo deleteMany).
+ * ══════════════════════════════════════════════════════════════════ */
+
+async function tenantBulkDelete(
+  collection: string,
+  revalidate: string,
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  const r = await hrBulkDelete(collection, ids);
+  revalidatePath(revalidate);
+  if (!r.success) {
+    return { deleted: 0, failed: ids.length, error: r.error };
+  }
+  return { deleted: r.deleted, failed: Math.max(0, ids.length - r.deleted) };
+}
+
+export async function bulkDeleteWsProjectLabels(ids: string[]) {
+  return tenantBulkDelete('crm_project_labels', '/dashboard/crm/projects/labels', ids);
+}
+export async function bulkDeleteWsProjectCategories(ids: string[]) {
+  return tenantBulkDelete('crm_project_categories', '/dashboard/crm/projects/categories', ids);
+}
+export async function bulkDeleteWsProjectSubCategories(ids: string[]) {
+  return tenantBulkDelete('crm_project_sub_categories', '/dashboard/crm/projects/categories', ids);
+}
+export async function bulkDeleteWsTaskLabels(ids: string[]) {
+  return tenantBulkDelete('crm_task_labels', '/dashboard/crm/projects/task-labels', ids);
+}
+export async function bulkDeleteWsTaskTags(ids: string[]) {
+  return tenantBulkDelete('crm_task_tags', '/dashboard/crm/projects/task-tags', ids);
+}
+export async function bulkDeleteWsProjectActivities(ids: string[]) {
+  return tenantBulkDelete('crm_project_activities', '/dashboard/crm/projects/activity', ids);
+}
+
+/* ── Issues bulk ops ─────────────────────────────────────────────── */
+
+export async function bulkDeleteWsIssues(
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  return tenantBulkDelete('crm_issues', '/dashboard/crm/projects/issues', ids);
+}
+
+export async function bulkUpdateWsIssues(
+  ids: string[],
+  op: 'close' | 'assign',
+  payload?: { assigneeUserId?: string },
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length, error: 'No valid IDs' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const filter = { _id: { $in: oids }, userId: new ObjectId(user._id) };
+
+    let update: Record<string, unknown> = {};
+    if (op === 'close') {
+      update = { $set: { status: 'closed', updatedAt: new Date() } };
+    } else if (op === 'assign' && payload?.assigneeUserId) {
+      update = {
+        $set: {
+          assigneeUserId: payload.assigneeUserId,
+          updatedAt: new Date(),
+        },
+      };
+    } else {
+      return { updated: 0, failed: ids.length, error: 'Invalid operation' };
+    }
+
+    const r = await db.collection('crm_issues').updateMany(filter, update);
+    revalidatePath('/dashboard/crm/projects/issues');
+    return {
+      updated: r.modifiedCount,
+      failed: Math.max(0, ids.length - r.modifiedCount),
+    };
+  } catch (e: any) {
+    return { updated: 0, failed: ids.length, error: e?.message || 'Bulk update failed' };
+  }
+}
+
+/* ── Milestones bulk ops ─────────────────────────────────────────── */
+
+export async function bulkDeleteWsMilestones(
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  return tenantBulkDelete('crm_project_milestones', '/dashboard/crm/projects/milestones', ids);
+}
+
+export async function bulkCompleteMilestones(
+  ids: string[],
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { updated: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length, error: 'No valid IDs' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const r = await db.collection('crm_project_milestones').updateMany(
+      { _id: { $in: oids }, userId: new ObjectId(user._id) },
+      { $set: { status: 'complete', updatedAt: new Date() } },
+    );
+    revalidatePath('/dashboard/crm/projects/milestones');
+    return {
+      updated: r.modifiedCount,
+      failed: Math.max(0, ids.length - r.modifiedCount),
+    };
+  } catch (e: any) {
+    return { updated: 0, failed: ids.length, error: e?.message || 'Bulk complete failed' };
   }
 }

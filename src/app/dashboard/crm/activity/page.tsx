@@ -1,64 +1,69 @@
 /**
- * /dashboard/crm/activity — tenant-wide audit feed (CRM_REBUILD_PLAN.md §5.4).
+ * /dashboard/crm/activity — tenant-wide activity feed + structured activities.
  *
- * Server Component. Reads `entityKind`, `actorId`, `from`, `to`, `cursor`
- * from `searchParams`, calls `getCrmActivityFeed`, and hands a fully
- * paginated page off to the `<ActivityFeedClient>` client shell.
+ * Server component. Reads `entityKind`, `actorId`, `from`, `to`, `cursor`
+ * from searchParams and pre-fetches:
+ *  - Feed (audit log rows) via getCrmActivityFeed
+ *  - Structured activities (crm_activities collection) via listCrmActivities
+ *  - KPI strip via getCrmActivityPageKpis
  *
- * Data source: `crm_audit_log` Mongo collection. The same collection
- * that powers each entity's detail-page `<EntityAuditTimeline>` footer.
+ * All reads run in parallel.
  */
 
 import { getSession } from '@/app/actions/user.actions';
 import {
-    getCrmActivityFeed,
-    type CrmActivityFeedFilters,
+  getCrmActivityFeed,
+  listCrmActivities,
+  getCrmActivityPageKpis,
+  type CrmActivityFeedFilters,
 } from '@/app/actions/crm-activity.actions';
-
-import { ActivityFeedClient } from './_components/activity-feed-client';
-
-interface PageSearchParams {
-    entityKind?: string;
-    actorId?: string;
-    from?: string;
-    to?: string;
-    cursor?: string;
-}
+import { ActivityPageClient } from './_components/activity-page-client';
 
 export const dynamic = 'force-dynamic';
 
+interface PageSearchParams {
+  entityKind?: string;
+  actorId?: string;
+  from?: string;
+  to?: string;
+  cursor?: string;
+}
+
 export default async function CrmActivityPage({
-    searchParams,
+  searchParams,
 }: {
-    searchParams: Promise<PageSearchParams>;
+  searchParams: Promise<PageSearchParams>;
 }) {
-    const sp = await searchParams;
+  const sp = await searchParams;
 
-    const filters: CrmActivityFeedFilters = {
-        entityKind: sp.entityKind || undefined,
-        actorId: sp.actorId || undefined,
-        from: sp.from || undefined,
-        to: sp.to || undefined,
-        cursor: sp.cursor || undefined,
-        limit: 50,
-    };
+  const feedFilters: CrmActivityFeedFilters = {
+    entityKind: sp.entityKind || undefined,
+    actorId: sp.actorId || undefined,
+    from: sp.from || undefined,
+    to: sp.to || undefined,
+    cursor: sp.cursor || undefined,
+    limit: 50,
+  };
 
-    // Independent reads — run in parallel.
-    const [feed, session] = await Promise.all([
-        getCrmActivityFeed(filters),
-        getSession(),
-    ]);
+  const [feed, kpis, activities, session] = await Promise.all([
+    getCrmActivityFeed(feedFilters),
+    getCrmActivityPageKpis(),
+    listCrmActivities({ page: 1, pageSize: 50 }),
+    getSession(),
+  ]);
 
-    return (
-        <ActivityFeedClient
-            initialFeed={feed}
-            currentUserId={session?.user?._id ? String(session.user._id) : undefined}
-            initialFilters={{
-                entityKind: sp.entityKind ?? '',
-                actorId: sp.actorId ?? '',
-                from: sp.from ?? '',
-                to: sp.to ?? '',
-            }}
-        />
-    );
+  return (
+    <ActivityPageClient
+      initialFeed={feed}
+      currentUserId={session?.user?._id ? String(session.user._id) : undefined}
+      initialFilters={{
+        entityKind: sp.entityKind ?? '',
+        actorId: sp.actorId ?? '',
+        from: sp.from ?? '',
+        to: sp.to ?? '',
+      }}
+      kpis={kpis}
+      initialActivities={activities}
+    />
+  );
 }

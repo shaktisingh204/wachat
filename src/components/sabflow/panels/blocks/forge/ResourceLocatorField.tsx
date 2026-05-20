@@ -11,7 +11,7 @@
  */
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type {
   ForgeField,
   ForgeFieldMode,
@@ -63,12 +63,17 @@ export function ResourceLocatorField({
   // declares a loadOptions resolver. Avoids unnecessary network round-trips
   // while the user is typing in url/id mode.
   const isListMode = activeMode?.type === 'list';
-  const { items: remote, loading, error } = useLoadOptions({
+  // Typeahead text — forwarded to the resolver as `ctx.filter`. Empty
+  // string means "no filter applied". The hook debounces internally
+  // (250ms) so each keystroke does not hit the network.
+  const [search, setSearch] = useState('');
+  const { items: remote, loading, error, hasMore, loadMore } = useLoadOptions({
     blockId,
     actionId,
     field,
     options,
     credentialId,
+    filter: isListMode ? search : undefined,
   });
 
   // Validation only applies to string modes that declared a regex.
@@ -137,23 +142,54 @@ export function ResourceLocatorField({
       )}
 
       {isListMode ? (
-        <div className="relative">
-          <select
-            className={selectClass}
-            value={current.value}
-            onChange={(e) => onChange({ mode: current.mode, value: e.target.value })}
-            disabled={loading && (!remote || remote.length === 0)}
-            required={field.required}
-          >
-            <option value="">
-              {loading ? 'Loading…' : field.placeholder ?? 'Select…'}
-            </option>
-            {(remote ?? field.options ?? []).map((opt: ForgeSelectOption) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
+        <div className="flex flex-col gap-1">
+          <input
+            type="text"
+            className={inputClass}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={
+              field.placeholder
+                ? `Search ${field.placeholder.toLowerCase()}…`
+                : 'Search…'
+            }
+            spellCheck={false}
+            aria-label={`Search ${field.label}`}
+          />
+          <div className="relative">
+            <select
+              className={selectClass}
+              value={current.value}
+              onChange={(e) =>
+                onChange({ mode: current.mode, value: e.target.value })
+              }
+              disabled={loading && (!remote || remote.length === 0)}
+              required={field.required}
+            >
+              <option value="">
+                {loading ? 'Loading…' : field.placeholder ?? 'Select…'}
               </option>
-            ))}
-          </select>
+              {(remote ?? field.options ?? []).map((opt: ForgeSelectOption) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          {hasMore && (
+            <button
+              type="button"
+              onClick={loadMore}
+              disabled={loading}
+              className={cn(
+                'self-start rounded px-2 py-0.5 text-[11px] font-medium transition-colors',
+                'text-[var(--gray-11)] hover:text-[var(--gray-12)]',
+                'disabled:cursor-wait disabled:opacity-50',
+              )}
+            >
+              {loading ? 'Loading…' : 'Load more'}
+            </button>
+          )}
         </div>
       ) : (
         <input

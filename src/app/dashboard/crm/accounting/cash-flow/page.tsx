@@ -1,75 +1,322 @@
-import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
-export const dynamic = 'force-dynamic';
+'use client';
 
-import { getCashFlowStatement } from '@/app/actions/crm-accounting-reports.actions';
+import * as React from 'react';
+import type { DateRange } from 'react-day-picker';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Legend,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
+import { ArrowDownCircle, ArrowUpCircle, Banknote, Wallet } from 'lucide-react';
 
-import { ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import {
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import {
+    getCashFlowReport,
+    type CashFlowCategoryEntry,
+} from '@/app/actions/crm-accounting-reports.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtMoney } from '@/app/dashboard/crm/reports/_components/report-toolbar';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+type FiscalChoice = 'current' | 'previous' | 'custom';
 
-export default async function CashFlowPage(props: { searchParams: Promise<{ year?: string }> }) {
-    const searchParams = await props.searchParams;
-    const year = searchParams.year ? parseInt(searchParams.year) : new Date().getFullYear();
-    const { monthly, totalIn, totalOut } = await getCashFlowStatement(year);
-    const netCashFlow = totalIn - totalOut;
+function currentFyRange(now: Date): DateRange {
+    const y = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    return { from: new Date(y, 3, 1), to: new Date(y + 1, 2, 31) };
+}
+
+function previousFyRange(now: Date): DateRange {
+    const cur = currentFyRange(now);
+    return {
+        from: new Date(cur.from!.getFullYear() - 1, 3, 1),
+        to: new Date(cur.from!.getFullYear(), 2, 31),
+    };
+}
+
+const HEADERS = ['Month', 'Operating', 'Investing', 'Financing', 'Inflow', 'Outflow', 'Net'];
+
+export default function CashFlowPage(): React.JSX.Element {
+    const now = React.useMemo(() => new Date(), []);
+    const [fyChoice, setFyChoice] = React.useState<FiscalChoice>('current');
+    const [range, setRange] = React.useState<DateRange | undefined>(() => currentFyRange(now));
+    const [period, setPeriod] = React.useState<'monthly' | 'quarterly'>('monthly');
+    const [monthly, setMonthly] = React.useState<CashFlowCategoryEntry[]>([]);
+    const [opening, setOpening] = React.useState(0);
+    const [closing, setClosing] = React.useState(0);
+    const [totalIn, setTotalIn] = React.useState(0);
+    const [totalOut, setTotalOut] = React.useState(0);
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(20);
+
+    const load = React.useCallback(async () => {
+        if (!range?.from || !range?.to) return;
+        setRefreshing(true);
+        try {
+            const data = await getCashFlowReport(
+                range.from.getFullYear(),
+                range.from.getMonth(),
+                range.to.getFullYear(),
+                range.to.getMonth(),
+            );
+            setMonthly(data.monthly);
+            setOpening(data.openingCash);
+            setClosing(data.closingCash);
+            setTotalIn(data.totalIn);
+            setTotalOut(data.totalOut);
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setRefreshing(false);
+        }
+    }, [range]);
+
+    React.useEffect(() => {
+        void load();
+    }, [load]);
+
+    const aggregated = React.useMemo(() => {
+        if (period === 'monthly') return monthly;
+        // Quarterly aggregation
+        const out: CashFlowCategoryEntry[] = [];
+        for (let i = 0; i < monthly.length; i += 3) {
+            const slice = monthly.slice(i, i + 3);
+            if (slice.length === 0) continue;
+            const label = `${slice[0].month}–${slice[slice.length - 1].month}`;
+            out.push(
+                slice.reduce<CashFlowCategoryEntry>(
+                    (acc, m) => ({
+                        month: acc.month,
+                        operating: acc.operating + m.operating,
+                        investing: acc.investing + m.investing,
+                        financing: acc.financing + m.financing,
+                        inflow: acc.inflow + m.inflow,
+                        outflow: acc.outflow + m.outflow,
+                        net: acc.net + m.net,
+                    }),
+                    { month: label, operating: 0, investing: 0, financing: 0, inflow: 0, outflow: 0, net: 0 },
+                ),
+            );
+        }
+        return out;
+    }, [monthly, period]);
+
+    const handleFyChange = (value: string) => {
+        setFyChoice(value as FiscalChoice);
+        if (value === 'current') setRange(currentFyRange(now));
+        else if (value === 'previous') setRange(previousFyRange(now));
+    };
+
+    const handleDateRangeChange = (next: DateRange | undefined) => {
+        setRange(next);
+        setFyChoice('custom');
+    };
+
+    const start = (page - 1) * limit;
+    const pageRows = aggregated.slice(start, start + limit);
+    const hasMore = start + limit < aggregated.length;
+
+    const kpis: ReportKpiCard[] = [
+        {
+            label: 'Opening cash',
+            value: fmtMoney(opening),
+            hint: 'Carried from prior periods',
+            icon: Wallet,
+        },
+        {
+            label: 'Total inflow',
+            value: fmtMoney(totalIn),
+            tone: 'success',
+            icon: ArrowDownCircle,
+        },
+        {
+            label: 'Total outflow',
+            value: fmtMoney(totalOut),
+            tone: 'danger',
+            icon: ArrowUpCircle,
+        },
+        {
+            label: 'Closing cash',
+            value: fmtMoney(closing),
+            tone: closing >= 0 ? 'success' : 'danger',
+            icon: Banknote,
+        },
+    ];
+
+    const exportRows = React.useMemo(
+        () =>
+            aggregated.map((m) => ({
+                Month: m.month,
+                Operating: m.operating,
+                Investing: m.investing,
+                Financing: m.financing,
+                Inflow: m.inflow,
+                Outflow: m.outflow,
+                Net: m.net,
+            })),
+        [aggregated],
+    );
+
+    const onCsv = () => downloadCsv(`cash-flow-${dateStamp()}.csv`, HEADERS, exportRows);
+    const onXlsx = () =>
+        downloadXlsx(`cash-flow-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Cash Flow');
+
+    const filters = (
+        <div className="flex flex-wrap items-center gap-2">
+            <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+                <ZoruSelectTrigger className="w-[180px]">
+                    <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
+                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
+                    <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect value={period} onValueChange={(v) => setPeriod(v as typeof period)}>
+                <ZoruSelectTrigger className="w-[150px]">
+                    <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
+                    <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+        </div>
+    );
+
+    const chart = (
+        <div>
+            <h2 className="text-[15px] font-semibold text-foreground">
+                Cash flow by category (stacked)
+            </h2>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+                Operating / investing / financing components per {period === 'monthly' ? 'month' : 'quarter'}.
+            </p>
+            <div className="mt-4 h-72 w-full">
+                {aggregated.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        No cash movement in this range.
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={aggregated} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                            <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => fmtMoney(v).replace('₹', '')} />
+                            <Tooltip
+                                cursor={{ fill: 'rgba(0,0,0,0.04)' }}
+                                formatter={(v: number) => fmtMoney(v)}
+                            />
+                            <Legend wrapperStyle={{ fontSize: 12 }} />
+                            <Bar stackId="cf" dataKey="operating" name="Operating" fill="hsl(var(--primary))" radius={[0, 0, 0, 0]} />
+                            <Bar stackId="cf" dataKey="investing" name="Investing" fill="#f97316" radius={[0, 0, 0, 0]} />
+                            <Bar stackId="cf" dataKey="financing" name="Financing" fill="#a855f7" radius={[4, 4, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
+            </div>
+        </div>
+    );
+
+    const table = (
+        <ZoruTable>
+            <ZoruTableHeader>
+                <ZoruTableRow className="border-border hover:bg-transparent">
+                    <ZoruTableHead className="text-muted-foreground">Period</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Operating</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Investing</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Financing</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Inflow</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Outflow</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Net</ZoruTableHead>
+                </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+                {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-border">
+                        <ZoruTableCell colSpan={7} className="h-24 text-center text-muted-foreground">
+                            No data in this range.
+                        </ZoruTableCell>
+                    </ZoruTableRow>
+                ) : (
+                    pageRows.map((m) => (
+                        <ZoruTableRow key={m.month} className="border-border">
+                            <ZoruTableCell className="font-medium text-foreground">{m.month}</ZoruTableCell>
+                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                {fmtMoney(m.operating)}
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                {fmtMoney(m.investing)}
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-right font-mono text-foreground">
+                                {fmtMoney(m.financing)}
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-right font-mono text-emerald-500">
+                                {fmtMoney(m.inflow)}
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-right font-mono text-destructive">
+                                {fmtMoney(m.outflow)}
+                            </ZoruTableCell>
+                            <ZoruTableCell
+                                className={`text-right font-mono font-semibold ${m.net >= 0 ? 'text-emerald-500' : 'text-destructive'}`}
+                            >
+                                {fmtMoney(m.net)}
+                            </ZoruTableCell>
+                        </ZoruTableRow>
+                    ))
+                )}
+            </ZoruTableBody>
+        </ZoruTable>
+    );
 
     return (
-        <EntityListShell
+        <ReportShell
             title="Cash Flow Statement"
-            subtitle={`Inflow vs Outflow Analysis for ${year}`}
-        >
-
-            <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Inflow</p>
-                    <div className="mt-2 text-[22px] font-semibold flex items-center gap-2 text-emerald-500">
-                        <ArrowUpCircle className="h-5 w-5" />
-                        ₹{totalIn.toLocaleString()}
-                    </div>
-                </ZoruCard>
-                <ZoruCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Total Outflow</p>
-                    <div className="mt-2 text-[22px] font-semibold flex items-center gap-2 text-destructive">
-                        <ArrowDownCircle className="h-5 w-5" />
-                        ₹{totalOut.toLocaleString()}
-                    </div>
-                </ZoruCard>
-                <ZoruCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Net Cash Flow</p>
-                    <div className={`mt-2 text-[22px] font-semibold flex items-center gap-2 ${netCashFlow >= 0 ? 'text-accent-foreground' : 'text-destructive'}`}>
-                        ₹{netCashFlow.toLocaleString()}
-                    </div>
-                </ZoruCard>
-            </div>
-
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Monthly Breakdown</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">Detailed view of cash movement by month.</p>
-                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Month</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Inflow</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Outflow</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Net Change</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {monthly.map((m) => (
-                                <ZoruTableRow key={m.month} className="border-border">
-                                    <ZoruTableCell className="font-medium text-foreground">{m.month}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-foreground">₹{m.inflow.toLocaleString()}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right text-foreground">₹{m.outflow.toLocaleString()}</ZoruTableCell>
-                                    <ZoruTableCell className={`text-right font-semibold ${m.net >= 0 ? 'text-emerald-500' : 'text-destructive'}`}>
-                                        ₹{m.net.toLocaleString()}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
-    )
+            subtitle="Operating, investing, and financing cash movements with opening and closing cash positions."
+            back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
+            dateRange={range}
+            onDateRangeChange={handleDateRangeChange}
+            onRefresh={() => void load()}
+            refreshing={refreshing}
+            onExportCsv={onCsv}
+            onExportXlsx={onXlsx}
+            filters={filters}
+            kpis={<ReportKpiStrip cards={kpis} />}
+            chart={chart}
+            table={<div className="overflow-x-auto">{table}</div>}
+            pagination={
+                <PaginationBar
+                    page={page}
+                    limit={limit}
+                    hasMore={hasMore}
+                    total={aggregated.length}
+                    controlled={{
+                        onChange: (next) => {
+                            setPage(next.page);
+                            setLimit(next.limit);
+                        },
+                    }}
+                />
+            }
+        />
+    );
 }

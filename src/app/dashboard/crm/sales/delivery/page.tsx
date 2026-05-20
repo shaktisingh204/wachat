@@ -5,7 +5,10 @@
  * and hands off to `<DeliveryListClient>` which composes EntityListShell.
  */
 
-import { getDeliveryChallans } from '@/app/actions/crm-delivery-challans.actions';
+import {
+  getDeliveryChallanKpis,
+  getDeliveryChallans,
+} from '@/app/actions/crm-delivery-challans.actions';
 import {
   DeliveryListClient,
   type DcStatus,
@@ -47,15 +50,23 @@ export default async function DeliveryChallansPage({
   // sensible page (200) and slice down. This is a temporary
   // approximation — a Rust crate + dedicated /counts endpoint is the
   // future state (see CRM_REBUILD_PLAN.md Phase 2 W4).
-  const wide = await getDeliveryChallans(1, 200, q || undefined);
+  const [wide, kpiSnapshot] = await Promise.all([
+    getDeliveryChallans(1, 200, q || undefined),
+    getDeliveryChallanKpis(),
+  ]);
   const all = wide.challans;
 
-  // KPI counts across the loaded window.
+  // KPI counts. Headline numbers (`totalChallans` + `deliveredToday`)
+  // come from a dedicated tenant-scoped aggregate so we don't undercount
+  // when the loaded window is < total. The window-derived buckets are
+  // kept as a useful "in this view" hint.
   const kpis = {
     draft: all.filter((c) => c.status === 'Draft').length,
-    inTransit: all.filter((c) => c.status === 'In Transit').length,
+    inTransit: kpiSnapshot.inTransit,
     delivered: all.filter((c) => c.status === 'Delivered').length,
-    returned: all.filter((c) => c.status === 'Returned').length,
+    returned: kpiSnapshot.returned,
+    totalChallans: kpiSnapshot.totalChallans,
+    deliveredToday: kpiSnapshot.deliveredToday,
   };
 
   // Server-side filter (Mongo action doesn't yet expose these filters).

@@ -1,7 +1,7 @@
 'use client';
 
 import { ZoruStatCard } from '@/components/zoruui';
-import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet } from 'lucide-react';
+import { Boxes, CheckCircle2, AlertTriangle, XCircle, Wallet, PackageCheck } from 'lucide-react';
 
 /**
  * <ItemsKpiStrip> — KPI strip for the canonical items list.
@@ -35,7 +35,7 @@ function fmtMoney(value: number, currency: string): string {
 
 export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStripProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
       <KpiButton
         active={active === 'all'}
         onClick={() => onSelect('all')}
@@ -60,6 +60,12 @@ export function ItemsKpiStrip({ kpi, currency, active, onSelect }: ItemsKpiStrip
           icon={<CheckCircle2 />}
         />
       </KpiButton>
+      <ZoruStatCard
+        label="In stock"
+        value={kpi.inStockCount.toLocaleString()}
+        period="on-hand > 0"
+        icon={<PackageCheck />}
+      />
       <KpiButton
         active={active === 'low-stock'}
         onClick={() => onSelect('low-stock')}

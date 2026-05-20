@@ -10,6 +10,8 @@
  */
 
 import { useState } from 'react';
+import { ZoruButton } from '@/components/zoruui';
+import { Copy, Check } from 'lucide-react';
 
 export interface CodeSample {
   /** Human label shown in the tab. */
@@ -39,9 +41,9 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
   };
 
   return (
-    <div className="rounded-md border border-zinc-800 bg-zinc-950 overflow-hidden">
-      <div className="flex items-center border-b border-zinc-800 bg-zinc-900/50">
-        <div className="flex" role="tablist">
+    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg overflow-hidden">
+      <div className="flex items-center justify-between border-b border-zoru-line bg-zoru-surface">
+        <div className="flex overflow-x-auto" role="tablist">
           {samples.map((s, i) => (
             <button
               key={s.lang}
@@ -49,25 +51,24 @@ export function CodeSamplesTabs({ samples }: Props): JSX.Element {
               aria-selected={i === active}
               onClick={() => setActive(i)}
               className={
-                'px-3 py-2 text-xs font-medium border-r border-zinc-800 ' +
+                'px-3 py-2 text-xs font-medium border-r border-zoru-line whitespace-nowrap transition-colors ' +
                 (i === active
-                  ? 'text-amber-300 bg-zinc-950'
-                  : 'text-zinc-400 hover:text-zinc-200')
+                  ? 'text-zoru-ink bg-zoru-bg'
+                  : 'text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-2')
               }
             >
               {s.lang}
             </button>
           ))}
         </div>
-        <button
-          type="button"
-          onClick={copy}
-          className="ml-auto mr-2 my-1 text-xs text-zinc-400 hover:text-zinc-100 px-2 py-1 rounded border border-zinc-800"
-        >
-          {copied ? 'Copied' : 'Copy'}
-        </button>
+        <div className="px-2 flex-shrink-0">
+          <ZoruButton variant="ghost" size="sm" onClick={copy}>
+            {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+            <span className="ml-1 text-xs">{copied ? 'Copied' : 'Copy'}</span>
+          </ZoruButton>
+        </div>
       </div>
-      <pre className="p-4 text-xs leading-relaxed text-zinc-100 overflow-x-auto m-0">
+      <pre className="px-4 py-3 text-xs text-zinc-100 m-0 overflow-x-auto leading-relaxed">
         <code>{sample.source}</code>
       </pre>
     </div>

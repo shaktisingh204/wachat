@@ -65,6 +65,9 @@ import {
   BookingSingleDeleteDialog,
 } from './booking-list-dialogs';
 
+import type { BookingKpis } from '@/app/actions/crm/bookings.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+
 interface BookingListClientProps {
   bookings: CrmBookingDoc[];
   page: number;
@@ -72,6 +75,7 @@ interface BookingListClientProps {
   hasMore: boolean;
   initialQuery: string;
   error?: string;
+  kpis?: BookingKpis;
 }
 
 
@@ -110,6 +114,32 @@ function inToday(slotStart?: string): boolean {
 
 type ViewMode = 'table' | 'calendar';
 
+const BOOKING_CSV_HEADERS = [
+  'Id',
+  'Customer',
+  'Service',
+  'Slot Start',
+  'Slot End',
+  'Status',
+  'Payment',
+  'Amount',
+  'Notes',
+];
+
+function bookingToExportRow(b: CrmBookingDoc): Record<string, unknown> {
+  return {
+    Id: String(b._id),
+    Customer: b.customerId ?? '',
+    Service: b.service ?? '',
+    'Slot Start': b.slotStart ?? '',
+    'Slot End': b.slotEnd ?? '',
+    Status: b.status ?? '',
+    Payment: b.paymentStatus ?? '',
+    Amount: b.totalAmount ?? '',
+    Notes: b.notes ?? '',
+  };
+}
+
 export function BookingListClient({
   bookings,
   page,
@@ -117,6 +147,7 @@ export function BookingListClient({
   hasMore,
   initialQuery,
   error,
+  kpis,
 }: BookingListClientProps) {
   const { toast } = useZoruToast();
   const router = useRouter();
@@ -252,40 +283,24 @@ export function BookingListClient({
       selected.size > 0
         ? filtered.filter((b) => selected.has(String(b._id)))
         : filtered;
-    const header = [
-      'Id',
-      'Customer',
-      'Service',
-      'Slot start',
-      'Slot end',
-      'Status',
-      'Payment',
-      'Notes',
-    ];
-    const esc = (v: unknown) =>
-      `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const csv = [
-      header.join(','),
-      ...rows.map((b) =>
-        [
-          esc(b._id),
-          esc(b.customerId),
-          esc(b.service),
-          esc(b.slotStart),
-          esc(b.slotEnd),
-          esc(b.status ?? ''),
-          esc(b.paymentStatus ?? ''),
-          esc(b.notes ?? ''),
-        ].join(','),
-      ),
-    ].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `bookings-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadCsv(
+      `bookings-${dateStamp()}.csv`,
+      BOOKING_CSV_HEADERS,
+      rows.map(bookingToExportRow),
+    );
+  };
+
+  const exportXlsx = () => {
+    const rows =
+      selected.size > 0
+        ? filtered.filter((b) => selected.has(String(b._id)))
+        : filtered;
+    void downloadXlsx(
+      `bookings-${dateStamp()}.xlsx`,
+      BOOKING_CSV_HEADERS,
+      rows.map(bookingToExportRow),
+      'Bookings',
+    );
   };
 
   const runBulkDelete = () => {
@@ -318,6 +333,29 @@ export function BookingListClient({
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Server-side absolute KPI strip */}
+      {kpis ? (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
+          {[
+            { label: 'Total bookings', value: kpis.total },
+            { label: 'Confirmed', value: kpis.confirmed },
+            { label: 'Pending', value: kpis.pending },
+            { label: 'Cancelled', value: kpis.cancelled },
+            { label: "Today's bookings", value: kpis.today },
+          ].map(({ label, value }) => (
+            <div
+              key={label}
+              className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface-2 px-4 py-3"
+            >
+              <p className="text-xl font-semibold tabular-nums text-zoru-ink">
+                {value.toLocaleString()}
+              </p>
+              <p className="text-[11.5px] text-zoru-ink-muted">{label}</p>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       <BookingsKpiStrip counts={kpiCounts} active={kpiKey} onPick={setKpiKey} />
 
       {/* Toolbar */}
@@ -384,6 +422,9 @@ export function BookingListClient({
           <div className="flex items-center gap-1">
             <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
               Export CSV
+            </ZoruButton>
+            <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+              Export XLSX
             </ZoruButton>
             <ZoruButton
               size="sm"

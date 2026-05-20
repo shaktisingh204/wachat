@@ -8,9 +8,11 @@
  *   - hash   — hash a value with a chosen algorithm (md5/sha1/sha256/sha512)
  *   - hmac   — HMAC a value with a secret + algorithm
  *   - random — generate a hex/base64 random string of n bytes
+ *   - uuid   — generate a v4 UUID (n8n's `generate` action)
  *
- * Out of scope: sign/verify with key pairs, generate-uuid (use a dedicated
- * UUID block), file-stream hashing — deferred.
+ * Out of scope: sign/verify with key pairs (no engine-level keystore yet),
+ * file-stream hashing — deferred until SabFlow exposes binary refs in
+ * ForgeActionContext.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {
@@ -62,6 +64,12 @@ async function hmac(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     outputs: { result: digest, algorithm, encoding },
     logs: [`Crypto hmac ${algorithm} (${encoding})`],
   };
+}
+
+async function uuid(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { randomUUID } = await import('node:crypto');
+  const result = randomUUID();
+  return { outputs: { result }, logs: ['Crypto uuid v4'] };
 }
 
 async function random(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -134,6 +142,13 @@ const block: ForgeBlock = {
         encodingField,
       ],
       run: random,
+    },
+    {
+      id: 'uuid',
+      label: 'Generate UUID',
+      description: 'Return a fresh v4 UUID — useful for idempotency keys or trace IDs.',
+      fields: [],
+      run: uuid,
     },
   ],
 };

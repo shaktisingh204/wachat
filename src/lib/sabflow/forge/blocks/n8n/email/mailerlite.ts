@@ -9,6 +9,7 @@
  * Operations covered (subscriber resource):
  *   - subscriber.create  POST   /api/subscribers
  *   - subscriber.get     GET    /api/subscribers/{email_or_id}
+ *   - subscriber.getAll  GET    /api/subscribers              (cursor pagination via meta.next_cursor)
  *   - subscriber.update  PUT    /api/subscribers/{email_or_id}
  *   - subscriber.delete  DELETE /api/subscribers/{email_or_id}
  *
@@ -24,7 +25,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://connect.mailerlite.com/api';
 
@@ -99,6 +101,37 @@ async function subscriberUpdate(ctx: ForgeActionContext): Promise<ForgeActionRes
   return { outputs: { subscriber: res.data }, logs: [`MailerLite subscriber update → ${identifier}`] };
 }
 
+async function subscriberGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 100;
+  const status = asString(ctx.options.status);
+
+  const subscribers = await paginateAll<unknown>({
+    maxItems,
+    async fetchPage(cursor) {
+      const qs = new URLSearchParams();
+      qs.set('limit', String(pageSize));
+      if (cursor) qs.set('cursor', cursor);
+      if (status) qs.set('filter[status]', status);
+      const res = await apiRequest({
+        service: 'MailerLite',
+        method: 'GET',
+        url: `${BASE}/subscribers?${qs.toString()}`,
+        headers: authHeaders(ctx),
+      });
+      const body = res.data as {
+        data?: unknown[];
+        meta?: { next_cursor?: string | null };
+        links?: { next?: string | null };
+      } | null;
+      const items = (body?.data ?? []) as unknown[];
+      const nextCursor = body?.links?.next ? body?.meta?.next_cursor ?? undefined : undefined;
+      return { items, nextCursor: nextCursor ?? undefined };
+    },
+  });
+  return { outputs: { subscribers, count: subscribers.length }, logs: [`MailerLite subscriber list → ${subscribers.length}`] };
+}
+
 async function subscriberDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const identifier = asString(ctx.options.identifier);
   if (!identifier) throw new Error('MailerLite: identifier is required');
@@ -157,6 +190,17 @@ const block: ForgeBlock = {
         { id: 'status', label: 'Status', type: 'select', options: [{ label: 'Unchanged', value: '' }, ...STATUS_OPTIONS] },
       ],
       run: subscriberUpdate,
+    },
+    {
+      id: 'subscriber_get_all',
+      label: 'List subscribers (paginated)',
+      description: 'Walk MailerLite Connect cursor pagination.',
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (limit, max 1000)', type: 'number', defaultValue: '100' },
+        { id: 'status', label: 'Status filter (optional)', type: 'select', options: [{ label: 'Any', value: '' }, ...STATUS_OPTIONS] },
+      ],
+      run: subscriberGetAll,
     },
     {
       id: 'subscriber_delete',

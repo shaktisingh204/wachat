@@ -28,10 +28,7 @@ import { getCredentialById } from '@/lib/sabflow/credentials/db';
 import '@/lib/sabflow/forge';
 import { getForgeBlock } from '@/lib/sabflow/forge/registry';
 import { buildLoadOptionsContext } from './buildContext';
-import type {
-  ForgeField,
-  ForgeSelectOption,
-} from '@/lib/sabflow/forge/types';
+import type { ForgeField } from '@/lib/sabflow/forge/types';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -56,6 +53,8 @@ type LoadOptionsBody = {
   actionId?: string;
   credentialId?: string;
   options: Record<string, unknown>;
+  filter?: string;
+  paginationToken?: string | null;
 };
 
 function parseBody(raw: unknown): LoadOptionsBody | null {
@@ -70,7 +69,22 @@ function parseBody(raw: unknown): LoadOptionsBody | null {
     r.options && typeof r.options === 'object' && !Array.isArray(r.options)
       ? (r.options as Record<string, unknown>)
       : {};
-  return { blockId: r.blockId, fieldId: r.fieldId, actionId, credentialId, options };
+  const filter = typeof r.filter === 'string' ? r.filter : undefined;
+  // paginationToken: accept string (forwarded back to resolver) or null
+  // (caller explicitly says "first page"); reject other shapes.
+  const paginationToken =
+    typeof r.paginationToken === 'string' || r.paginationToken === null
+      ? (r.paginationToken as string | null)
+      : undefined;
+  return {
+    blockId: r.blockId,
+    fieldId: r.fieldId,
+    actionId,
+    credentialId,
+    options,
+    filter,
+    paginationToken,
+  };
 }
 
 /** Find a field on the block, scoped to an action when one is provided. */
@@ -153,11 +167,22 @@ export async function POST(req: NextRequest) {
     actionId: body.actionId,
     options: body.options,
     credential,
+    filter: body.filter,
+    paginationToken: body.paginationToken,
   });
 
   try {
-    const options: ForgeSelectOption[] = await field.loadOptions(ctx);
-    return NextResponse.json({ options: Array.isArray(options) ? options : [] });
+    const raw = await field.loadOptions(ctx);
+    // Resolvers may return a plain array (legacy/back-compat) or a paged
+    // envelope `{ results, paginationToken }`. Normalise to a single
+    // response shape the client always handles the same way.
+    if (Array.isArray(raw)) {
+      return NextResponse.json({ options: raw, paginationToken: null });
+    }
+    return NextResponse.json({
+      options: Array.isArray(raw?.results) ? raw.results : [],
+      paginationToken: raw?.paginationToken ?? null,
+    });
   } catch (err) {
     console.error('[SABFLOW LOAD-OPTIONS] resolver error:', err);
     const message = err instanceof Error ? err.message : 'Resolver failed';

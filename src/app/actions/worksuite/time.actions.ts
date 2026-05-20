@@ -564,3 +564,180 @@ export async function getTimeReport(
   rows.sort((a, b) => b.totalHours * 60 + b.totalMinutes - (a.totalHours * 60 + a.totalMinutes));
   return serialize(rows);
 }
+
+/* ─────────────────────────────────────────────
+ *  Bulk actions — Time Logs
+ * ──────────────────────────────────────────── */
+
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+
+/**
+ * Bulk mark time log entries as billable or non-billable.
+ */
+export async function bulkMarkBillable(
+  ids: string[],
+  billable: boolean,
+): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No logs selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid log IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_LOG).updateMany(
+      {
+        _id: { $in: validIds.map((id) => new ObjectId(id)) },
+        userId: new ObjectId(user._id),
+      },
+      { $set: { billable, updatedAt: new Date() } },
+    );
+    revalidatePath(`${ROUTE_BASE}/time-logs`);
+    return { ok: true, count: result.modifiedCount };
+  } catch (e) {
+    console.error('[bulkMarkBillable] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/**
+ * Bulk delete time log entries.
+ */
+export async function bulkDeleteTimeLogs(ids: string[]): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No logs selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid log IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_LOG).deleteMany({
+      _id: { $in: validIds.map((id) => new ObjectId(id)) },
+      userId: new ObjectId(user._id),
+    });
+    revalidatePath(`${ROUTE_BASE}/time-logs`);
+    return { ok: true, count: result.deletedCount };
+  } catch (e) {
+    console.error('[bulkDeleteTimeLogs] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+/* ─────────────────────────────────────────────
+ *  Bulk actions — Weekly Timesheets
+ * ──────────────────────────────────────────── */
+
+export async function bulkSubmitTimesheets(ids: string[]): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No timesheets selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid timesheet IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_TS).updateMany(
+      {
+        _id: { $in: validIds.map((id) => new ObjectId(id)) },
+        userId: new ObjectId(user._id),
+        status: 'draft',
+      },
+      { $set: { status: 'submitted', submitted_at: new Date(), updatedAt: new Date() } },
+    );
+    revalidatePath(`${ROUTE_BASE}/weekly-timesheets`);
+    return { ok: true, count: result.modifiedCount };
+  } catch (e) {
+    console.error('[bulkSubmitTimesheets] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+export async function bulkApproveTimesheets(ids: string[]): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No timesheets selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid timesheet IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_TS).updateMany(
+      {
+        _id: { $in: validIds.map((id) => new ObjectId(id)) },
+        userId: new ObjectId(user._id),
+        status: 'submitted',
+      },
+      {
+        $set: {
+          status: 'approved',
+          approved_by: new ObjectId(user._id),
+          approved_at: new Date(),
+          reason: '',
+          updatedAt: new Date(),
+        },
+      },
+    );
+    revalidatePath(`${ROUTE_BASE}/weekly-timesheets`);
+    return { ok: true, count: result.modifiedCount };
+  } catch (e) {
+    console.error('[bulkApproveTimesheets] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+export async function bulkRejectTimesheets(
+  ids: string[],
+  reason: string,
+): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No timesheets selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid timesheet IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_TS).updateMany(
+      {
+        _id: { $in: validIds.map((id) => new ObjectId(id)) },
+        userId: new ObjectId(user._id),
+        status: 'submitted',
+      },
+      { $set: { status: 'rejected', reason, updatedAt: new Date() } },
+    );
+    revalidatePath(`${ROUTE_BASE}/weekly-timesheets`);
+    return { ok: true, count: result.modifiedCount };
+  } catch (e) {
+    console.error('[bulkRejectTimesheets] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}
+
+export async function bulkDeleteTimesheets(ids: string[]): Promise<BulkResult> {
+  const user = await requireSession();
+  if (!user) return { ok: false, error: 'Access denied' };
+  if (ids.length === 0) return { ok: false, error: 'No timesheets selected.' };
+
+  const validIds = ids.filter((id) => ObjectId.isValid(id));
+  if (validIds.length === 0) return { ok: false, error: 'No valid timesheet IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const result = await db.collection(COL_TS).deleteMany({
+      _id: { $in: validIds.map((id) => new ObjectId(id)) },
+      userId: new ObjectId(user._id),
+    });
+    revalidatePath(`${ROUTE_BASE}/weekly-timesheets`);
+    return { ok: true, count: result.deletedCount };
+  } catch (e) {
+    console.error('[bulkDeleteTimesheets] failed:', e);
+    return { ok: false, error: e instanceof Error ? e.message : 'Unknown error' };
+  }
+}

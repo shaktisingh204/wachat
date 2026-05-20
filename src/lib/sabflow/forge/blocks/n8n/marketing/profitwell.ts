@@ -5,11 +5,16 @@
  * Credential type: 'profitwell' — { apiToken } sent as `Authorization: <token>`.
  *
  * Operations covered:
- *   - metric.list (account / daily / monthly aggregates)
- *   - churn.list  (monthly churn report)
+ *   - metric.list           (account / daily / monthly aggregates)
+ *   - metric.plans          (list configured plan ids — needed for per-plan
+ *                            calls in any downstream block)
+ *   - company.settings      (workspace currency / counted-events config)
+ *   - churn.list            (monthly churn report)
  *
  * Out of scope (deferred):
- *   - per-plan metric breakdowns
+ *   - per-plan metric breakdowns: those need a plan-id-aware UI (currently
+ *     we only expose flat metric names), so they'd just confuse flow authors
+ *     without dynamic option loading. Revisit once forge supports loadOptions.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -60,6 +65,16 @@ async function metricList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   return { outputs: { result: data }, logs: [`ProfitWell metrics (${period})`] };
 }
 
+async function metricPlans(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const data = await get(ctx, '/metrics/plans');
+  return { outputs: { result: data }, logs: ['ProfitWell metric plans'] };
+}
+
+async function companySettings(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const data = await get(ctx, '/company/settings/');
+  return { outputs: { result: data }, logs: ['ProfitWell company settings'] };
+}
+
 async function churnList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const month = asString(ctx.options.month);
   const query: Record<string, string> = {};
@@ -100,6 +115,20 @@ const block: ForgeBlock = {
         { id: 'day', label: 'Day (YYYY-MM-DD)', type: 'text' },
       ],
       run: metricList,
+    },
+    {
+      id: 'metric_plans',
+      label: 'List plan ids',
+      description: 'Fetch the configured plan ids for this workspace.',
+      fields: [],
+      run: metricPlans,
+    },
+    {
+      id: 'company_settings',
+      label: 'Get company settings',
+      description: 'Fetch the ProfitWell workspace-level settings (currency, etc.).',
+      fields: [],
+      run: companySettings,
     },
     {
       id: 'churn_list',

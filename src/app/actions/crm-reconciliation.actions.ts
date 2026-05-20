@@ -167,6 +167,77 @@ export async function getReconciliationById(
     }
 }
 
+/* ─── KPIs (used by reconciliation list page) ───────────────────────── */
+
+export interface CrmReconciliationKpis {
+  reconciled: number;
+  unreconciled: number;
+  lastReconciledDate: string | null;
+  totalDifference: number;
+}
+
+export async function getCrmReconciliationKpis(): Promise<CrmReconciliationKpis> {
+  const empty: CrmReconciliationKpis = {
+    reconciled: 0,
+    unreconciled: 0,
+    lastReconciledDate: null,
+    totalDifference: 0,
+  };
+
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id);
+
+    const [reconciled, unreconciled, lastDoc, diffAgg] = await Promise.all([
+      db.collection('crm_reconciliations').countDocuments({
+        userId,
+        status: { $in: ['Completed', 'completed'] },
+      }),
+      db.collection('crm_reconciliations').countDocuments({
+        userId,
+        status: { $nin: ['Completed', 'completed'] },
+      }),
+      db
+        .collection('crm_reconciliations')
+        .findOne(
+          { userId, status: { $in: ['Completed', 'completed'] } },
+          { sort: { reconciledDate: -1 }, projection: { reconciledDate: 1 } },
+        ),
+      db
+        .collection('crm_reconciliations')
+        .aggregate([
+          { $match: { userId } },
+          {
+            $group: {
+              _id: null,
+              diff: {
+                $sum: { $subtract: ['$closingBalance', '$openingBalance'] },
+              },
+            },
+          },
+        ])
+        .toArray(),
+    ]);
+
+    return {
+      reconciled,
+      unreconciled,
+      lastReconciledDate:
+        lastDoc?.reconciledDate
+          ? new Date(lastDoc.reconciledDate as Date).toISOString()
+          : null,
+      totalDifference:
+        (diffAgg[0] as { diff?: number } | undefined)?.diff ?? 0,
+    };
+  } catch (e) {
+    console.error('[getCrmReconciliationKpis] failed:', e);
+    return empty;
+  }
+}
+
 /* ─── Legacy-name wrapper used by the ReconciliationForm UI ─────────── */
 
 /**

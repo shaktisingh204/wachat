@@ -1,230 +1,385 @@
 'use client';
 
-import {
-  ZoruAlert,
-  ZoruAlertDescription,
-  ZoruAlertTitle,
-  ZoruButton,
-  ZoruCard,
-  ZoruDropdownMenu,
-  ZoruDropdownMenuContent,
-  ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
-import { Download, ChevronDown, AlertCircle } from 'lucide-react';
-
-import { useState, useEffect, useTransition, Fragment } from 'react';
-import { generateIncomeStatementData } from "@/app/actions/crm-accounting.actions";
-import { LoaderCircle } from "lucide-react";
-
-import Papa from "papaparse";
-import { getSession } from "@/app/actions";
-
+import * as React from 'react';
+import { Fragment, useTransition } from 'react';
+import type { DateRange } from 'react-day-picker';
 import Link from 'next/link';
+import {
+    CartesianGrid,
+    Legend,
+    Line,
+    LineChart,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
+import { AlertCircle, LoaderCircle, Percent, TrendingDown, TrendingUp, Wallet } from 'lucide-react';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    ZoruAlert,
+    ZoruAlertDescription,
+    ZoruAlertTitle,
+    ZoruButton,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { generateIncomeStatementData } from '@/app/actions/crm-accounting.actions';
+import {
+    getMonthlyRevenueExpense,
+    type MonthlyPnLEntry,
+} from '@/app/actions/crm-accounting-reports.actions';
+import { getSession } from '@/app/actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtMoney } from '@/app/dashboard/crm/reports/_components/report-toolbar';
 
-type AccountData = {
-    accountName: string;
-    balance: number;
-}
-
+type AccountData = { accountName: string; balance: number };
 type GroupData = {
     groupName: string;
     category: string;
     accounts: AccountData[];
     total: number;
+};
+type StatementData = {
+    incomeData: GroupData[];
+    expenseData: GroupData[];
+    netSurplus: number;
+};
+
+type FiscalChoice = 'current' | 'previous' | 'custom';
+
+function currentFyRange(now: Date): DateRange {
+    const y = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    return { from: new Date(y, 3, 1), to: new Date(y + 1, 2, 31) };
 }
 
-const DataRow = ({ label, value, level = 0 }: { label: string; value?: number; level?: number }) => (
-    <ZoruTableRow className={`border-border ${level === 0 ? 'font-semibold bg-secondary' : ''}`}>
-        <ZoruTableCell className="text-foreground" style={{ paddingLeft: `${1 + level * 1.5}rem` }}>{label}</ZoruTableCell>
-        <ZoruTableCell className="text-right font-mono text-foreground">
-            {value !== undefined ? new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(value) : ''}
-        </ZoruTableCell>
-    </ZoruTableRow>
-);
-
-const Section = ({ title, data }: { title: string, data: GroupData[] }) => {
-    const total = data.reduce((sum, group) => sum + group.total, 0);
-    const mainGroups = [...new Set(data.map(g => g.category.replace(/_/g, ' ')))];
-
-    return (
-        <>
-            <DataRow label={title} />
-            {mainGroups.map(mainGroup => {
-                const subGroups = data.filter(g => g.category.replace(/_/g, ' ') === mainGroup);
-                const subGroupTotal = subGroups.reduce((sum, g) => sum + g.total, 0);
-
-                return (
-                    <Fragment key={mainGroup}>
-                        <DataRow label={mainGroup} level={1} value={-subGroupTotal} />
-                        {subGroups.map(group => (
-                            <Fragment key={group.groupName}>
-                                {group.accounts.map(acc => (
-                                    <DataRow key={acc.accountName} label={acc.accountName} value={-acc.balance} level={2} />
-                                ))}
-                            </Fragment>
-                        ))}
-                    </Fragment>
-                )
-            })}
-            <DataRow label={`Total for ${title}`} value={-total} />
-        </>
-    );
+function previousFyRange(now: Date): DateRange {
+    const cur = currentFyRange(now);
+    return {
+        from: new Date(cur.from!.getFullYear() - 1, 3, 1),
+        to: new Date(cur.from!.getFullYear(), 2, 31),
+    };
 }
 
-export default function IncomeStatementPage() {
-    const [data, setData] = useState<{ incomeData: GroupData[], expenseData: GroupData[], netSurplus: number } | null>(null);
-    const [user, setUser] = useState<any>(null);
-    const [isLoading, startTransition] = useTransition();
-    const { toast } = useZoruToast();
+type Row = {
+    label: string;
+    level: number;
+    value?: number;
+    kind: 'section' | 'group' | 'account' | 'subtotal' | 'total';
+};
 
-    useEffect(() => {
-        startTransition(async () => {
-            const [dataResult, session] = await Promise.all([
-                generateIncomeStatementData(),
-                getSession()
-            ]);
-            setData(dataResult);
-            setUser(session?.user);
-        });
-    }, []);
-
-    const handleDownload = (format: 'csv' | 'xls' | 'pdf') => {
-        if (!data) return;
-        if (format === 'csv') {
-            let csvData: any[] = [];
-            const addSectionToCsv = (title: string, sectionData: GroupData[]) => {
-                csvData.push({ Account: title, Balance: '' });
-                const total = sectionData.reduce((sum, group) => sum + group.total, 0);
-                 sectionData.forEach(group => {
-                     csvData.push({ Account: `  ${group.groupName}`, Balance: '' });
-                     group.accounts.forEach(acc => {
-                         csvData.push({ Account: `    ${acc.accountName}`, Balance: (-acc.balance).toFixed(2) });
-                     });
-                     csvData.push({ Account: `  Total for ${group.groupName}`, Balance: (-group.total).toFixed(2) });
-                });
-                csvData.push({ Account: `Total for ${title}`, Balance: (-total).toFixed(2) });
-            };
-
-            addSectionToCsv("Income", data.incomeData);
-            addSectionToCsv("Expense", data.expenseData);
-            csvData.push({ Account: 'Net Surplus', Balance: data.netSurplus.toFixed(2) });
-
-            const csv = Papa.unparse(csvData);
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.setAttribute('download', 'income-statement.csv');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-             toast({ title: "Not Implemented", description: `Export to ${format.toUpperCase()} is not yet available.`});
+function flattenStatement(stmt: StatementData): Row[] {
+    const rows: Row[] = [];
+    const addSection = (title: string, sectionData: GroupData[]) => {
+        rows.push({ label: title, level: 0, kind: 'section' });
+        const groupsByCategory = new Map<string, GroupData[]>();
+        for (const g of sectionData) {
+            const key = g.category.replace(/_/g, ' ');
+            const list = groupsByCategory.get(key) ?? [];
+            list.push(g);
+            groupsByCategory.set(key, list);
         }
+        let sectionTotal = 0;
+        for (const [category, groups] of groupsByCategory) {
+            const subTotal = groups.reduce((s, g) => s + g.total, 0);
+            sectionTotal += subTotal;
+            rows.push({ label: category, level: 1, kind: 'group', value: -subTotal });
+            for (const g of groups) {
+                for (const acc of g.accounts) {
+                    rows.push({
+                        label: acc.accountName,
+                        level: 2,
+                        kind: 'account',
+                        value: -acc.balance,
+                    });
+                }
+            }
+        }
+        rows.push({ label: `Total ${title}`, level: 0, kind: 'subtotal', value: -sectionTotal });
     };
 
-    if (isLoading || !data || !user) {
+    addSection('Income', stmt.incomeData);
+    addSection('Expense', stmt.expenseData);
+    rows.push({ label: 'Net Surplus', level: 0, kind: 'total', value: stmt.netSurplus });
+    return rows;
+}
+
+const HEADERS = ['Account', 'Level', 'Balance'];
+
+export default function IncomeStatementPage(): React.JSX.Element {
+    const now = React.useMemo(() => new Date(), []);
+    const [fyChoice, setFyChoice] = React.useState<FiscalChoice>('current');
+    const [range, setRange] = React.useState<DateRange | undefined>(() => currentFyRange(now));
+    const [data, setData] = React.useState<StatementData | null>(null);
+    const [series, setSeries] = React.useState<MonthlyPnLEntry[]>([]);
+    const [user, setUser] = React.useState<any>(null);
+    const [isLoading, startTransition] = useTransition();
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(50);
+
+    const load = React.useCallback(() => {
+        if (!range?.from || !range?.to) return;
+        startTransition(async () => {
+            setRefreshing(true);
+            try {
+                const [stmt, monthly, session] = await Promise.all([
+                    generateIncomeStatementData(range.from, range.to),
+                    getMonthlyRevenueExpense(
+                        range.from!.getFullYear(),
+                        range.from!.getMonth(),
+                        range.to!.getFullYear(),
+                        range.to!.getMonth(),
+                    ),
+                    getSession(),
+                ]);
+                setData(stmt);
+                setSeries(monthly);
+                setUser(session?.user);
+            } finally {
+                setRefreshing(false);
+            }
+        });
+    }, [range]);
+
+    React.useEffect(() => {
+        load();
+    }, [load]);
+
+    const handleFyChange = (value: string) => {
+        setFyChoice(value as FiscalChoice);
+        if (value === 'current') setRange(currentFyRange(now));
+        else if (value === 'previous') setRange(previousFyRange(now));
+    };
+
+    const handleDateRangeChange = (next: DateRange | undefined) => {
+        setRange(next);
+        setFyChoice('custom');
+    };
+
+    if (isLoading && !data) {
         return (
-            <div className="flex justify-center items-center h-full">
+            <div className="flex h-full items-center justify-center py-16">
                 <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
         );
     }
 
-     if (!user.businessProfile?.name || !user.businessProfile.address) {
+    if (user && (!user.businessProfile?.name || !user.businessProfile.address)) {
         return (
             <ZoruAlert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <ZoruAlertTitle>Business Profile Incomplete</ZoruAlertTitle>
                 <ZoruAlertDescription>
                     Please complete your business profile in the user settings to view accounting reports.
-                    <ZoruButton asChild variant="link" className="p-0 h-auto ml-2"><Link href="/dashboard/user/settings/profile">Go to Settings</Link></ZoruButton>
+                    <ZoruButton asChild variant="link" className="ml-2 h-auto p-0">
+                        <Link href="/dashboard/user/settings/profile">Go to Settings</Link>
+                    </ZoruButton>
                 </ZoruAlertDescription>
             </ZoruAlert>
         );
     }
 
-    const { incomeData, expenseData, netSurplus } = data;
-    const businessProfile = user.businessProfile;
+    const safe: StatementData = data ?? { incomeData: [], expenseData: [], netSurplus: 0 };
+    const totalRevenue = -safe.incomeData.reduce((s, g) => s + g.total, 0);
+    const totalExpense = -safe.expenseData.reduce((s, g) => s + g.total, 0);
+    const netIncome = safe.netSurplus;
+    const operatingMargin = totalRevenue > 0 ? (netIncome / totalRevenue) * 100 : 0;
+
+    const rows = flattenStatement(safe);
+    const start = (page - 1) * limit;
+    const pageRows = rows.slice(start, start + limit);
+    const hasMore = start + limit < rows.length;
+
+    const kpis: ReportKpiCard[] = [
+        {
+            label: 'Total revenue',
+            value: fmtMoney(totalRevenue),
+            tone: 'success',
+            icon: TrendingUp,
+        },
+        {
+            label: 'Total expenses',
+            value: fmtMoney(totalExpense),
+            tone: 'danger',
+            icon: TrendingDown,
+        },
+        {
+            label: 'Net income',
+            value: fmtMoney(netIncome),
+            tone: netIncome >= 0 ? 'success' : 'danger',
+            icon: Wallet,
+        },
+        {
+            label: 'Operating margin',
+            value: `${operatingMargin.toFixed(1)}%`,
+            tone: operatingMargin >= 0 ? 'success' : 'danger',
+            icon: Percent,
+        },
+    ];
+
+    const exportRows = rows.map((r) => ({
+        Account: r.label,
+        Level: r.level,
+        Balance: r.value ?? '',
+    }));
+
+    const onCsv = () => downloadCsv(`income-statement-${dateStamp()}.csv`, HEADERS, exportRows);
+    const onXlsx = () =>
+        downloadXlsx(`income-statement-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Income Statement');
+
+    const filters = (
+        <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+            <ZoruSelectTrigger className="w-[180px]">
+                <ZoruSelectValue />
+            </ZoruSelectTrigger>
+            <ZoruSelectContent>
+                <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
+                <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
+                <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
+            </ZoruSelectContent>
+        </ZoruSelect>
+    );
+
+    const chart = (
+        <div>
+            <h2 className="text-[15px] font-semibold text-foreground">
+                Monthly revenue vs expense
+            </h2>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+                Trend line across the selected fiscal range.
+            </p>
+            <div className="mt-4 h-64 w-full">
+                {series.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        No data in this range.
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={series} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                            <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} tickFormatter={(v: number) => fmtMoney(v).replace('₹', '')} />
+                            <Tooltip formatter={(v: number) => fmtMoney(v)} />
+                            <Legend wrapperStyle={{ fontSize: 12 }} />
+                            <Line
+                                type="monotone"
+                                dataKey="revenue"
+                                name="Revenue"
+                                stroke="hsl(var(--primary))"
+                                strokeWidth={2}
+                                dot={false}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="expense"
+                                name="Expense"
+                                stroke="#ef4444"
+                                strokeWidth={2}
+                                dot={false}
+                            />
+                            <Line
+                                type="monotone"
+                                dataKey="net"
+                                name="Net"
+                                stroke="#10b981"
+                                strokeWidth={2}
+                                strokeDasharray="4 3"
+                                dot={false}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                )}
+            </div>
+        </div>
+    );
+
+    const renderRow = (r: Row, idx: number) => {
+        const indent = `${1 + r.level * 1.5}rem`;
+        const isSection = r.kind === 'section';
+        const isTotal = r.kind === 'total';
+        const isSubtotal = r.kind === 'subtotal';
+        const cls = isTotal
+            ? 'border-border bg-accent font-semibold'
+            : isSection
+                ? 'border-border bg-secondary font-semibold'
+                : isSubtotal
+                    ? 'border-border font-semibold'
+                    : 'border-border';
+        return (
+            <ZoruTableRow key={`${r.label}-${idx}`} className={cls}>
+                <ZoruTableCell className="text-foreground" style={{ paddingLeft: indent }}>
+                    {r.label}
+                </ZoruTableCell>
+                <ZoruTableCell className="text-right font-mono text-foreground">
+                    {r.value !== undefined ? fmtMoney(r.value) : ''}
+                </ZoruTableCell>
+            </ZoruTableRow>
+        );
+    };
+
+    const table = (
+        <ZoruTable>
+            <ZoruTableHeader>
+                <ZoruTableRow className="border-border hover:bg-transparent">
+                    <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Balance</ZoruTableHead>
+                </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+                {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-border">
+                        <ZoruTableCell colSpan={2} className="h-24 text-center text-muted-foreground">
+                            No accounts in this range.
+                        </ZoruTableCell>
+                    </ZoruTableRow>
+                ) : (
+                    pageRows.map((r, i) => <Fragment key={i}>{renderRow(r, i)}</Fragment>)
+                )}
+            </ZoruTableBody>
+        </ZoruTable>
+    );
 
     return (
-        <EntityListShell
+        <ReportShell
             title="Income Statement"
-            subtitle="Profitability snapshot from income & expense accounts."
-            primaryAction={
-                <div className="flex items-center gap-2">
-                    {/* TODO §1E: fiscal year picker — static year list, no matching enum; needs fiscalYearRange enum or date-range input */}
-                    <ZoruSelect defaultValue="fy2526">
-                        <ZoruSelectTrigger className="w-[180px]"><ZoruSelectValue /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="fy2526">FY 2025-2026</ZoruSelectItem>
-                            <ZoruSelectItem value="fy2425">FY 2024-2025</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
-                    <ZoruDropdownMenu>
-                        <ZoruDropdownMenuTrigger asChild>
-                            <ZoruButton variant="outline">
-                                Download As
-                            </ZoruButton>
-                        </ZoruDropdownMenuTrigger>
-                        <ZoruDropdownMenuContent>
-                            <ZoruDropdownMenuItem onSelect={() => handleDownload('csv')}>CSV</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem disabled>XLS</ZoruDropdownMenuItem>
-                            <ZoruDropdownMenuItem disabled>PDF</ZoruDropdownMenuItem>
-                        </ZoruDropdownMenuContent>
-                    </ZoruDropdownMenu>
-                </div>
+            subtitle="Profitability snapshot grouped by income & expense accounts for the selected fiscal range."
+            back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
+            dateRange={range}
+            onDateRangeChange={handleDateRangeChange}
+            onRefresh={load}
+            refreshing={refreshing || isLoading}
+            onExportCsv={onCsv}
+            onExportXlsx={onXlsx}
+            filters={filters}
+            kpis={<ReportKpiStrip cards={kpis} />}
+            chart={chart}
+            table={<div className="overflow-x-auto">{table}</div>}
+            pagination={
+                <PaginationBar
+                    page={page}
+                    limit={limit}
+                    hasMore={hasMore}
+                    total={rows.length}
+                    controlled={{
+                        onChange: (next) => {
+                            setPage(next.page);
+                            setLimit(next.limit);
+                        },
+                    }}
+                />
             }
-        >
-
-            <ZoruCard>
-                <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-xl font-semibold">
-                        {businessProfile?.name?.charAt(0) || 'B'}
-                    </div>
-                    <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">{businessProfile.name}</h2>
-                        <p className="text-[12.5px] text-muted-foreground">GSTIN: {businessProfile.gstin}</p>
-                    </div>
-                </div>
-            </ZoruCard>
-
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Income Statement</h2>
-                <div className="mt-4 overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Account</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Balance</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            <Section title="Income" data={incomeData} />
-                            <Section title="Expense" data={expenseData} />
-                            <ZoruTableRow className="border-border bg-accent font-semibold">
-                                <ZoruTableCell className="text-accent-foreground">Net Surplus</ZoruTableCell>
-                                <ZoruTableCell className="text-right font-mono text-accent-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(netSurplus)}</ZoruTableCell>
-                            </ZoruTableRow>
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-                <p className="mt-4 text-[11.5px] text-muted-foreground">* Reports are in your business currency INR</p>
-            </ZoruCard>
-        </EntityListShell>
-    )
+        />
+    );
 }

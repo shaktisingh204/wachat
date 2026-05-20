@@ -5,16 +5,22 @@
  * Credential type: 'mautic' — { baseUrl, username, password } (Basic auth).
  *
  * Operations covered:
- *   - contact.create
- *   - contact.get
- *   - contact.update
+ *   - contact.create / get / update / delete
+ *   - contact.sendEmail              (transactional, by campaign-email id)
+ *   - contactSegment.add / remove
+ *   - campaignContact.add / remove
+ *   - segmentEmail.send              (broadcast to whole segment)
  *   - campaign.list
  *   - form.list
  *
  * Out of scope (deferred):
- *   - OAuth2 flow (we only port the Basic-auth path)
- *   - Segment/company/campaign-contact membership ops
- *   - Paginated `getAll` — single page only for now
+ *   - OAuth2 flow: n8n ships `MauticOAuth2Api.credentials.ts` as a separate
+ *     credential type; sabflow would need a second credentialType binding,
+ *     which is its own batch concern. Basic auth covers self-hosted Mautic.
+ *   - Paginated `getAll` for contacts/companies — Mautic returns a `total`
+ *     plus a page cursor; revisit once we have a real consumer with > 200
+ *     records per query.
+ *   - Company / contact-points / DNC mutations: covered by raw HTTP for now.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -106,6 +112,85 @@ async function contactUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult
   return { outputs: { contact: data }, logs: [`Mautic contact update → ${id}`] };
 }
 
+async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.contactId);
+  if (!id) throw new Error('Mautic: contactId is required');
+  const data = await call(ctx, 'DELETE', `/contacts/${encodeURIComponent(id)}/delete`);
+  return { outputs: { contact: data }, logs: [`Mautic contact delete → ${id}`] };
+}
+
+async function contactSendEmail(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const contactId = asString(ctx.options.contactId);
+  const campaignEmailId = asString(ctx.options.campaignEmailId);
+  if (!contactId) throw new Error('Mautic: contactId is required');
+  if (!campaignEmailId) throw new Error('Mautic: campaignEmailId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/emails/${encodeURIComponent(campaignEmailId)}/contact/${encodeURIComponent(contactId)}/send`,
+  );
+  return { outputs: { result: data }, logs: [`Mautic contact sendEmail → ${contactId}`] };
+}
+
+async function contactSegmentAdd(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const contactId = asString(ctx.options.contactId);
+  const segmentId = asString(ctx.options.segmentId);
+  if (!contactId) throw new Error('Mautic: contactId is required');
+  if (!segmentId) throw new Error('Mautic: segmentId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/segments/${encodeURIComponent(segmentId)}/contact/${encodeURIComponent(contactId)}/add`,
+  );
+  return { outputs: { result: data }, logs: [`Mautic segment add → ${contactId}@${segmentId}`] };
+}
+
+async function contactSegmentRemove(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const contactId = asString(ctx.options.contactId);
+  const segmentId = asString(ctx.options.segmentId);
+  if (!contactId) throw new Error('Mautic: contactId is required');
+  if (!segmentId) throw new Error('Mautic: segmentId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/segments/${encodeURIComponent(segmentId)}/contact/${encodeURIComponent(contactId)}/remove`,
+  );
+  return { outputs: { result: data }, logs: [`Mautic segment remove → ${contactId}@${segmentId}`] };
+}
+
+async function campaignContactAdd(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const contactId = asString(ctx.options.contactId);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!contactId) throw new Error('Mautic: contactId is required');
+  if (!campaignId) throw new Error('Mautic: campaignId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/campaigns/${encodeURIComponent(campaignId)}/contact/${encodeURIComponent(contactId)}/add`,
+  );
+  return { outputs: { result: data }, logs: [`Mautic campaign add → ${contactId}@${campaignId}`] };
+}
+
+async function campaignContactRemove(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const contactId = asString(ctx.options.contactId);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!contactId) throw new Error('Mautic: contactId is required');
+  if (!campaignId) throw new Error('Mautic: campaignId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/campaigns/${encodeURIComponent(campaignId)}/contact/${encodeURIComponent(contactId)}/remove`,
+  );
+  return { outputs: { result: data }, logs: [`Mautic campaign remove → ${contactId}@${campaignId}`] };
+}
+
+async function segmentEmailSend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const segmentEmailId = asString(ctx.options.segmentEmailId);
+  if (!segmentEmailId) throw new Error('Mautic: segmentEmailId is required');
+  const data = await call(ctx, 'POST', `/emails/${encodeURIComponent(segmentEmailId)}/send`);
+  return { outputs: { result: data }, logs: [`Mautic segment-email send → ${segmentEmailId}`] };
+}
+
 async function campaignList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const data = await call(ctx, 'GET', '/campaigns');
   return { outputs: { result: data }, logs: ['Mautic campaign list'] };
@@ -166,6 +251,74 @@ const block: ForgeBlock = {
         { id: 'mobile', label: 'Mobile', type: 'text' },
       ],
       run: contactUpdate,
+    },
+    {
+      id: 'contact_delete',
+      label: 'Delete contact',
+      description: 'Delete a contact by id.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+      ],
+      run: contactDelete,
+    },
+    {
+      id: 'contact_send_email',
+      label: 'Send transactional email to contact',
+      description: 'Send a pre-built campaign email to a single contact.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'campaignEmailId', label: 'Campaign email ID', type: 'text', required: true },
+      ],
+      run: contactSendEmail,
+    },
+    {
+      id: 'contact_segment_add',
+      label: 'Add contact to segment',
+      description: 'Add a contact to a Mautic segment.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'segmentId', label: 'Segment ID', type: 'text', required: true },
+      ],
+      run: contactSegmentAdd,
+    },
+    {
+      id: 'contact_segment_remove',
+      label: 'Remove contact from segment',
+      description: 'Remove a contact from a Mautic segment.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'segmentId', label: 'Segment ID', type: 'text', required: true },
+      ],
+      run: contactSegmentRemove,
+    },
+    {
+      id: 'campaign_contact_add',
+      label: 'Add contact to campaign',
+      description: 'Add a contact to a Mautic campaign.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'campaignId', label: 'Campaign ID', type: 'text', required: true },
+      ],
+      run: campaignContactAdd,
+    },
+    {
+      id: 'campaign_contact_remove',
+      label: 'Remove contact from campaign',
+      description: 'Remove a contact from a Mautic campaign.',
+      fields: [
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'campaignId', label: 'Campaign ID', type: 'text', required: true },
+      ],
+      run: campaignContactRemove,
+    },
+    {
+      id: 'segment_email_send',
+      label: 'Send segment email',
+      description: 'Send a segment email to every member of the targeted segment.',
+      fields: [
+        { id: 'segmentEmailId', label: 'Segment email ID', type: 'text', required: true },
+      ],
+      run: segmentEmailSend,
     },
     {
       id: 'campaign_list',

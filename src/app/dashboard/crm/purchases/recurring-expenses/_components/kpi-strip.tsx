@@ -1,7 +1,7 @@
 'use client';
 
 import { ZoruStatCard } from '@/components/zoruui';
-import { Activity, CalendarClock, PauseCircle, Wallet } from 'lucide-react';
+import { Activity, Building2, CalendarClock, CalendarX, PauseCircle, TrendingUp, Wallet } from 'lucide-react';
 
 /**
  * <RecurringExpensesKpiStrip> — 4-card KPI strip for Recurring Expenses.
@@ -30,12 +30,35 @@ function fmtMoney(value: number, currency: string): string {
 
 export function RecurringExpensesKpiStrip({ kpi, currency }: KpiStripProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
       <ZoruStatCard
         label="Active"
         value={kpi.active.toLocaleString()}
         period="schedules running"
         icon={<Activity />}
+      />
+      <ZoruStatCard
+        label="MTD spend"
+        value={fmtMoney(kpi.mtdSpend, currency)}
+        period="recurring this month"
+        icon={<TrendingUp />}
+      />
+      <ZoruStatCard
+        label="Expiring"
+        value={kpi.expiringCount.toLocaleString()}
+        period="within 30 days"
+        icon={<CalendarX />}
+        invertDelta
+      />
+      <ZoruStatCard
+        label="Top vendor"
+        value={kpi.topVendor ?? '—'}
+        period={
+          kpi.topVendor
+            ? `${fmtMoney(kpi.topVendorAmount, currency)} · ${kpi.topVendorCount}`
+            : 'no data'
+        }
+        icon={<Building2 />}
       />
       <ZoruStatCard
         label="Paused"

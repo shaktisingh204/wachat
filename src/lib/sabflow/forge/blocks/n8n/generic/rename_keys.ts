@@ -5,11 +5,12 @@
  * Credential type: none — pure data transform.
  *
  * Operations covered:
- *   - rename — rewrite top-level keys of an object (or each object in an
- *     array) according to a list of { currentKey → newKey } pairs.
+ *   - rename       — rewrite top-level keys via { currentKey → newKey } pairs
+ *   - rename_regex — replace matched substrings in every top-level key
+ *                    according to a regex + replacement (n8n's `regexReplace`)
  *
- * Out of scope: regex-based replacement and dot-path nested renames —
- * deferred. Use the Code block for complex rewrites.
+ * Out of scope: dot-path nested renames — deferred. Use the Code block for
+ * complex rewrites.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {
@@ -47,6 +48,54 @@ function parseInput(raw: unknown): unknown {
   } catch (err) {
     throw new Error(`Rename Keys: invalid input JSON — ${(err as Error).message}`);
   }
+}
+
+function applyRegex<T extends Record<string, unknown>>(
+  input: T,
+  pattern: RegExp,
+  replacement: string,
+): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(input)) {
+    const next = k.replace(pattern, replacement);
+    // Preserve the original entry when the regex doesn't match — otherwise we
+    // would silently drop keys that the user didn't intend to touch.
+    out[next || k] = v;
+  }
+  return out;
+}
+
+async function renameRegex(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const input = parseInput(ctx.options.input);
+  const pattern = asString(ctx.options.regex);
+  const replacement = asString(ctx.options.replacement);
+  const flags = asString(ctx.options.flags) || 'g';
+  if (!pattern) throw new Error('Rename Keys: regex is required');
+
+  let re: RegExp;
+  try {
+    re = new RegExp(pattern, flags);
+  } catch (err) {
+    throw new Error(`Rename Keys: invalid regex — ${(err as Error).message}`);
+  }
+
+  let result: unknown;
+  if (Array.isArray(input)) {
+    result = input.map((item) =>
+      item && typeof item === 'object'
+        ? applyRegex(item as Record<string, unknown>, re, replacement)
+        : item,
+    );
+  } else if (input && typeof input === 'object') {
+    result = applyRegex(input as Record<string, unknown>, re, replacement);
+  } else {
+    throw new Error('Rename Keys: input must be an object or an array of objects');
+  }
+
+  return {
+    outputs: { result },
+    logs: [`Rename Keys regex /${pattern}/${flags}`],
+  };
 }
 
 async function rename(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -102,6 +151,40 @@ const block: ForgeBlock = {
         },
       ],
       run: rename,
+    },
+    {
+      id: 'rename_regex',
+      label: 'Rename keys (regex)',
+      description: 'Replace matching substrings inside every top-level key.',
+      fields: [
+        {
+          id: 'input',
+          label: 'Input (object or array of objects)',
+          type: 'json',
+          required: true,
+        },
+        {
+          id: 'regex',
+          label: 'Regex pattern',
+          type: 'text',
+          required: true,
+          placeholder: '^old_',
+        },
+        {
+          id: 'replacement',
+          label: 'Replacement',
+          type: 'text',
+          placeholder: 'new_',
+        },
+        {
+          id: 'flags',
+          label: 'Regex flags',
+          type: 'text',
+          defaultValue: 'g',
+          helperText: 'Defaults to "g". Add "i" for case-insensitive.',
+        },
+      ],
+      run: renameRegex,
     },
   ],
 };

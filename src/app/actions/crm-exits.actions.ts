@@ -318,3 +318,127 @@ export async function deleteExit(
         return { success: false, error: `Failed to delete exit: ${msg}` };
     }
 }
+
+/* ─── KPI ─────────────────────────────────────────────────────────────── */
+
+export interface ExitKpis {
+    total: number;
+    pendingClearance: number;
+    completedThisMonth: number;
+    avgNoticeDays: number;
+}
+
+export async function getExitKpis(): Promise<ExitKpis> {
+    const empty: ExitKpis = {
+        total: 0,
+        pendingClearance: 0,
+        completedThisMonth: 0,
+        avgNoticeDays: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_exit', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmExitsApi.list({ limit: 500 });
+        const items = res.items ?? [];
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const pendingClearance = items.filter(
+            (e) => e.status === 'open' && (e.fnfStatus === 'pending' || e.nocStatus === 'pending'),
+        ).length;
+
+        const completedThisMonth = items.filter((e) => {
+            if (e.status !== 'complete') return false;
+            const d = e.updatedAt ? new Date(e.updatedAt) : null;
+            return d && d >= startOfMonth;
+        }).length;
+
+        const noticeDurations = items
+            .filter((e) => e.noticeStart && e.lastDay)
+            .map((e) => {
+                const start = new Date(e.noticeStart!).getTime();
+                const end = new Date(e.lastDay!).getTime();
+                const diff = (end - start) / 86_400_000;
+                return Number.isFinite(diff) && diff >= 0 ? diff : null;
+            })
+            .filter((d): d is number => d !== null);
+
+        const avgNoticeDays =
+            noticeDurations.length > 0
+                ? Math.round(
+                      noticeDurations.reduce((a, b) => a + b, 0) / noticeDurations.length,
+                  )
+                : 0;
+
+        return {
+            total: items.length,
+            pendingClearance,
+            completedThisMonth,
+            avgNoticeDays,
+        };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[getExitKpis] rust call failed:', msg);
+        recordRustFallback({ entity: 'exit', op: 'list', errorCode: code, status });
+        return empty;
+    }
+}
+
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkUpdateExitStatus(
+    ids: string[],
+    status: CrmExitStatus,
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_exit', 'edit');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmExitsApi.update(id, { status });
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/exits');
+    return { succeeded, failed };
+}
+
+export async function bulkDeleteExits(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_exit', 'delete');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmExitsApi.delete(id);
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/exits');
+    return { succeeded, failed };
+}

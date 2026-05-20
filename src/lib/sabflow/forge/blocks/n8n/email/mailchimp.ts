@@ -5,15 +5,24 @@
  * Credential type: 'mailchimp' (apiKey + serverPrefix, e.g. "us1")
  *
  * Operations covered (member-centric subset of the 2205-LOC source):
- *   - member.get         GET    /3.0/lists/{listId}/members/{subscriberHash}
- *   - member.create      POST   /3.0/lists/{listId}/members
- *   - member.update      PATCH  /3.0/lists/{listId}/members/{subscriberHash}
- *   - member.delete      DELETE /3.0/lists/{listId}/members/{subscriberHash}
- *   - campaign.send      POST   /3.0/campaigns/{campaignId}/actions/send
+ *   - member.get             GET    /3.0/lists/{listId}/members/{subscriberHash}
+ *   - member.create          POST   /3.0/lists/{listId}/members
+ *   - member.upsert          PUT    /3.0/lists/{listId}/members/{subscriberHash}
+ *   - member.update          PATCH  /3.0/lists/{listId}/members/{subscriberHash}
+ *   - member.delete          DELETE /3.0/lists/{listId}/members/{subscriberHash}
+ *   - member.deletePermanent POST   /3.0/lists/{listId}/members/{subscriberHash}/actions/delete-permanent
+ *   - memberTag.add          POST   /3.0/lists/{listId}/members/{subscriberHash}/tags  (status: active)
+ *   - memberTag.remove       POST   /3.0/lists/{listId}/members/{subscriberHash}/tags  (status: inactive)
+ *   - campaign.get           GET    /3.0/campaigns/{campaignId}
+ *   - campaign.getAll        GET    /3.0/campaigns                                     (count/offset)
+ *   - campaign.delete        DELETE /3.0/campaigns/{campaignId}
+ *   - campaign.send          POST   /3.0/campaigns/{campaignId}/actions/send
+ *   - campaign.replicate     POST   /3.0/campaigns/{campaignId}/actions/replicate
+ *   - campaign.resend        POST   /3.0/campaigns/{campaignId}/actions/create-resend
  *
  * Out of scope for the first port:
  *   - LoadOptions (list/template/segment dropdowns)
- *   - Member tags add/remove, batch ops, campaign content/template create
+ *   - Batch ops, campaign content/template create
  *   - Webhook lifecycle (handled by SabFlow trigger nodes)
  */
 
@@ -191,6 +200,164 @@ async function memberListAll(ctx: ForgeActionContext): Promise<ForgeActionResult
   };
 }
 
+async function memberUpsert(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const listId = asString(ctx.options.listId);
+  const email = asString(ctx.options.email);
+  const status = asString(ctx.options.status) || 'subscribed';
+  if (!listId) throw new Error('Mailchimp: listId is required');
+  if (!email) throw new Error('Mailchimp: email is required');
+
+  const body: Record<string, unknown> = {
+    email_address: email,
+    status_if_new: status,
+    status,
+  };
+  const firstName = asString(ctx.options.firstName);
+  const lastName = asString(ctx.options.lastName);
+  if (firstName || lastName) {
+    const merge_fields: Record<string, string> = {};
+    if (firstName) merge_fields.FNAME = firstName;
+    if (lastName) merge_fields.LNAME = lastName;
+    body.merge_fields = merge_fields;
+  }
+  const hash = await subscriberHash(email);
+  const res = await apiRequest({
+    service: 'Mailchimp',
+    method: 'PUT',
+    url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}`,
+    headers: authHeaders(cred),
+    json: body,
+  });
+  return { outputs: { member: res.data }, logs: [`Mailchimp member upsert → ${email}`] };
+}
+
+async function memberDeletePermanent(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const listId = asString(ctx.options.listId);
+  const email = asString(ctx.options.email);
+  if (!listId) throw new Error('Mailchimp: listId is required');
+  if (!email) throw new Error('Mailchimp: email is required');
+  const hash = await subscriberHash(email);
+  await apiRequest({
+    service: 'Mailchimp',
+    method: 'POST',
+    url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}/actions/delete-permanent`,
+    headers: authHeaders(cred),
+  });
+  return { outputs: { success: true }, logs: [`Mailchimp member delete-permanent → ${email}`] };
+}
+
+async function memberTagSet(ctx: ForgeActionContext, status: 'active' | 'inactive', label: string): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const listId = asString(ctx.options.listId);
+  const email = asString(ctx.options.email);
+  const tagsRaw = asString(ctx.options.tags);
+  if (!listId) throw new Error('Mailchimp: listId is required');
+  if (!email) throw new Error('Mailchimp: email is required');
+  if (!tagsRaw) throw new Error('Mailchimp: at least one tag is required');
+  const tags = tagsRaw.split(',').map((s) => s.trim()).filter(Boolean).map((name) => ({ name, status }));
+  const hash = await subscriberHash(email);
+  await apiRequest({
+    service: 'Mailchimp',
+    method: 'POST',
+    url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}/tags`,
+    headers: authHeaders(cred),
+    json: { tags },
+  });
+  return { outputs: { success: true, applied: tags.length }, logs: [`Mailchimp member tag ${label} → ${email}`] };
+}
+
+async function memberTagAdd(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return memberTagSet(ctx, 'active', 'add');
+}
+async function memberTagRemove(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return memberTagSet(ctx, 'inactive', 'remove');
+}
+
+async function campaignGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Mailchimp: campaignId is required');
+  const res = await apiRequest({
+    service: 'Mailchimp',
+    method: 'GET',
+    url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}`,
+    headers: authHeaders(cred),
+  });
+  return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign get → ${campaignId}`] };
+}
+
+async function campaignDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Mailchimp: campaignId is required');
+  await apiRequest({
+    service: 'Mailchimp',
+    method: 'DELETE',
+    url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}`,
+    headers: authHeaders(cred),
+  });
+  return { outputs: { success: true, campaignId }, logs: [`Mailchimp campaign delete → ${campaignId}`] };
+}
+
+async function campaignReplicate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Mailchimp: campaignId is required');
+  const res = await apiRequest({
+    service: 'Mailchimp',
+    method: 'POST',
+    url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}/actions/replicate`,
+    headers: authHeaders(cred),
+  });
+  return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign replicate → ${campaignId}`] };
+}
+
+async function campaignResend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Mailchimp: campaignId is required');
+  const res = await apiRequest({
+    service: 'Mailchimp',
+    method: 'POST',
+    url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}/actions/create-resend`,
+    headers: authHeaders(cred),
+  });
+  return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign resend → ${campaignId}`] };
+}
+
+async function campaignGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const cred = getCred(ctx);
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSizeNum = asNumber(ctx.options.pageSize) ?? 500;
+  const status = asString(ctx.options.status);
+
+  const campaigns = await paginateAll<unknown>({
+    maxItems,
+    async fetchPage(cursor) {
+      const offset = cursor ?? '0';
+      const qs = new URLSearchParams();
+      qs.set('count', String(pageSizeNum));
+      qs.set('offset', offset);
+      if (status) qs.set('status', status);
+      const res = await apiRequest({
+        service: 'Mailchimp',
+        method: 'GET',
+        url: `${baseUrl(cred)}/campaigns?${qs.toString()}`,
+        headers: authHeaders(cred),
+      });
+      const body = res.data as { campaigns?: unknown[]; total_items?: number } | null;
+      const items = (body?.campaigns ?? []) as unknown[];
+      const consumed = Number(offset) + items.length;
+      const total = typeof body?.total_items === 'number' ? body.total_items : undefined;
+      const more = items.length === pageSizeNum && (total === undefined || consumed < total);
+      return { items, nextCursor: more ? String(consumed) : undefined };
+    },
+  });
+  return { outputs: { campaigns, count: campaigns.length }, logs: [`Mailchimp campaign list → ${campaigns.length}`] };
+}
+
 async function campaignSend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
@@ -284,6 +451,102 @@ const block: ForgeBlock = {
         },
       ],
       run: memberListAll,
+    },
+    {
+      id: 'member_upsert',
+      label: 'Add or update member',
+      description: 'Insert a member or update if email already exists (PUT).',
+      fields: [
+        { id: 'listId', label: 'Audience (list) ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text', required: true },
+        { id: 'status', label: 'Status (status_if_new + status)', type: 'select', options: STATUS_OPTIONS, defaultValue: 'subscribed' },
+        { id: 'firstName', label: 'First name', type: 'text' },
+        { id: 'lastName', label: 'Last name', type: 'text' },
+      ],
+      run: memberUpsert,
+    },
+    {
+      id: 'member_delete_permanent',
+      label: 'Permanently delete member',
+      description: 'Permanently delete a member (irreversible).',
+      fields: [
+        { id: 'listId', label: 'Audience (list) ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text', required: true },
+      ],
+      run: memberDeletePermanent,
+    },
+    {
+      id: 'member_tag_add',
+      label: 'Add tags to member',
+      description: 'Apply one or more tags to a member (active status).',
+      fields: [
+        { id: 'listId', label: 'Audience (list) ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text', required: true },
+        { id: 'tags', label: 'Tag names (comma separated)', type: 'text', required: true },
+      ],
+      run: memberTagAdd,
+    },
+    {
+      id: 'member_tag_remove',
+      label: 'Remove tags from member',
+      description: 'Remove one or more tags from a member (inactive status).',
+      fields: [
+        { id: 'listId', label: 'Audience (list) ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text', required: true },
+        { id: 'tags', label: 'Tag names (comma separated)', type: 'text', required: true },
+      ],
+      run: memberTagRemove,
+    },
+    {
+      id: 'campaign_get',
+      label: 'Get campaign',
+      description: 'Fetch a campaign by id.',
+      fields: [{ id: 'campaignId', label: 'Campaign ID', type: 'text', required: true }],
+      run: campaignGet,
+    },
+    {
+      id: 'campaign_get_all',
+      label: 'List campaigns (paginated)',
+      description: 'Walk Mailchimp\'s count/offset pagination over all campaigns.',
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (count)', type: 'number', defaultValue: '500' },
+        {
+          id: 'status',
+          label: 'Status filter (optional)',
+          type: 'select',
+          options: [
+            { label: 'Any', value: '' },
+            { label: 'Save', value: 'save' },
+            { label: 'Paused', value: 'paused' },
+            { label: 'Schedule', value: 'schedule' },
+            { label: 'Sending', value: 'sending' },
+            { label: 'Sent', value: 'sent' },
+          ],
+        },
+      ],
+      run: campaignGetAll,
+    },
+    {
+      id: 'campaign_delete',
+      label: 'Delete campaign',
+      description: 'Delete a campaign by id.',
+      fields: [{ id: 'campaignId', label: 'Campaign ID', type: 'text', required: true }],
+      run: campaignDelete,
+    },
+    {
+      id: 'campaign_replicate',
+      label: 'Replicate campaign',
+      description: 'Create a copy of an existing campaign.',
+      fields: [{ id: 'campaignId', label: 'Campaign ID', type: 'text', required: true }],
+      run: campaignReplicate,
+    },
+    {
+      id: 'campaign_resend',
+      label: 'Resend campaign',
+      description: 'Create a resend of a previously sent campaign to non-openers.',
+      fields: [{ id: 'campaignId', label: 'Campaign ID', type: 'text', required: true }],
+      run: campaignResend,
     },
     {
       id: 'campaign_send',

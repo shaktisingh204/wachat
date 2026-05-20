@@ -49,10 +49,70 @@ export const PRESET_OPTIONS: { key: PresetKey; label: string }[] = [
 
 interface KpiStripProps {
   kpi: QuotationKpiSummary;
-  onSegmentClick: (segment: 'open' | 'accepted' | 'rejected' | 'expired' | 'converted') => void;
+  onSegmentClick: (
+    segment: 'open' | 'accepted' | 'rejected' | 'expired' | 'converted' | 'draft',
+  ) => void;
+}
+
+function fmtMoneyShort(value: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency || 'INR',
+      notation: value >= 100_000 ? 'compact' : 'standard',
+      maximumFractionDigits: 1,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
 }
 
 export function QuotationKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
+  return (
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ZoruStatCard
+        label="Total this month"
+        value={kpi.totalThisMonth.toLocaleString()}
+        period="quotations dated this month"
+        icon={<FileText />}
+      />
+      <button
+        type="button"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        onClick={() => onSegmentClick('draft')}
+        aria-label="Filter to draft quotations"
+      >
+        <ZoruStatCard
+          label="Drafts"
+          value={kpi.draft.toLocaleString()}
+          period="status = draft"
+        />
+      </button>
+      <button
+        type="button"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        onClick={() => onSegmentClick('accepted')}
+        aria-label="Filter to accepted quotations"
+      >
+        <ZoruStatCard
+          label="Accepted"
+          value={kpi.accepted.toLocaleString()}
+          period="status = accepted"
+        />
+      </button>
+      <ZoruStatCard
+        label="Total quoted value"
+        value={fmtMoneyShort(kpi.totalQuotedValue, kpi.currency)}
+        period="sum across loaded window"
+      />
+    </div>
+  );
+}
+
+// Legacy 5-tile strip preserved for parity with deals — exposed but no
+// longer rendered by the canonical list. Kept for downstream callers
+// that still expect the granular status breakdown.
+export function QuotationKpiStripLegacy({ kpi, onSegmentClick }: KpiStripProps) {
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
       <button

@@ -74,6 +74,60 @@ export async function listSalesOrders(
   }
 }
 
+/* ─── KPIs ────────────────────────────────────────────────────── */
+
+export interface SalesOrderKpis {
+  totalOrders: number;
+  pending: number;
+  fulfilledThisMonth: number;
+  totalOrderValue: number;
+  currency: string;
+}
+
+/**
+ * Derive list-page KPIs from a 200-row window. The Rust BFF doesn't
+ * expose an aggregate yet (see CRM_REBUILD_PLAN.md Phase 2 W4); when
+ * `/sales-orders/counts` lands we'll switch to that.
+ */
+export async function getSalesOrderKpis(): Promise<SalesOrderKpis> {
+  const empty: SalesOrderKpis = {
+    totalOrders: 0,
+    pending: 0,
+    fulfilledThisMonth: 0,
+    totalOrderValue: 0,
+    currency: 'INR',
+  };
+  try {
+    const docs = await crmSalesOrdersApi.list({ page: 1, limit: 200 });
+    if (!Array.isArray(docs) || docs.length === 0) return empty;
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    let pending = 0;
+    let fulfilledThisMonth = 0;
+    let totalOrderValue = 0;
+    let currency = 'INR';
+    for (const d of docs) {
+      const s = (d.status ?? '').toLowerCase();
+      if (s === 'open' || s === 'partial') pending += 1;
+      if (typeof d.totals?.total === 'number') totalOrderValue += d.totals.total;
+      if (d.currency) currency = d.currency;
+      const dt = d.date ? new Date(d.date).getTime() : NaN;
+      if (s === 'fulfilled' && !Number.isNaN(dt) && dt >= monthStart) {
+        fulfilledThisMonth += 1;
+      }
+    }
+    return {
+      totalOrders: docs.length,
+      pending,
+      fulfilledThisMonth,
+      totalOrderValue: Math.round(totalOrderValue),
+      currency,
+    };
+  } catch {
+    return empty;
+  }
+}
+
 export async function getSalesOrder(
   id: string,
 ): Promise<{ order: CrmSalesOrderDoc | null; error?: string }> {

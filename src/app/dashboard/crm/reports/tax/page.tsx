@@ -8,15 +8,33 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  ZoruBadge,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatCard, fmtMoney } from '../_components/report-toolbar';
 import { FyReportToolbar } from '../_components/fy-report-toolbar';
 import { TaxBar } from '../_components/finance-charts';
 import { getTaxReportDeep } from '@/app/actions/worksuite/reports.actions';
+import type { TaxMonthlyRow } from '@/lib/worksuite/report-types';
 
 const PAGE_SIZES = [10, 20, 50, 100];
+
+type TaxType = 'GST' | 'TDS' | 'Income Tax' | '';
+type TaxStatus = 'Filed' | 'Pending' | 'Due' | '';
+
+function labelTaxType(row: TaxMonthlyRow): TaxType {
+  // Heuristic: rows from the invoices collection represent GST/VAT (output).
+  // Without a dedicated crm_tax_filings collection we classify all rows as GST.
+  return 'GST';
+}
+
+function labelTaxStatus(row: TaxMonthlyRow): TaxStatus {
+  if (row.net <= 0) return 'Filed';
+  if (row.net > 0 && row.collected > 0) return 'Pending';
+  return 'Due';
+}
 
 export default async function TaxReportPage(props: {
   searchParams: Promise<{
@@ -24,6 +42,9 @@ export default async function TaxReportPage(props: {
     to?: string;
     page?: string;
     limit?: string;
+    taxType?: string;
+    period?: string;
+    status?: string;
   }>;
 }) {
   const sp = await props.searchParams;
@@ -33,12 +54,26 @@ export default async function TaxReportPage(props: {
   const anchor = sp.from || undefined;
   const { kpis, monthly, fyLabel } = await getTaxReportDeep(anchor);
 
-  const pageRows = monthly.slice((page - 1) * limit, page * limit);
-  const hasMore = page * limit < monthly.length;
+  // Apply client-side filters on the monthly rows
+  const filtered = monthly.filter((r) => {
+    if (sp.period && !r.period.startsWith(sp.period)) return false;
+    if (sp.status) {
+      const s = labelTaxStatus(r);
+      if (s !== sp.status) return false;
+    }
+    // taxType filter — currently all rows are GST; keep for future extension
+    if (sp.taxType && sp.taxType !== 'GST') return false;
+    return true;
+  });
 
-  const exportHeaders = ['Period', 'Collected', 'Paid', 'Net'];
-  const exportRows = monthly.map((r) => ({
+  const pageRows = filtered.slice((page - 1) * limit, page * limit);
+  const hasMore = page * limit < filtered.length;
+
+  const exportHeaders = ['Period', 'Tax Type', 'Status', 'Collected', 'Paid', 'Net'];
+  const exportRows = filtered.map((r) => ({
     Period: r.period,
+    'Tax Type': labelTaxType(r),
+    Status: labelTaxStatus(r),
     Collected: r.collected,
     Paid: r.paid,
     Net: r.net,
@@ -46,6 +81,13 @@ export default async function TaxReportPage(props: {
 
   const netTone: 'green' | 'amber' | 'red' =
     kpis.netLiability === 0 ? 'green' : kpis.netLiability > 0 ? 'amber' : 'red';
+
+  const statusVariant: Record<TaxStatus, 'success' | 'warning' | 'danger' | 'secondary'> = {
+    Filed: 'success',
+    Pending: 'warning',
+    Due: 'danger',
+    '': 'secondary',
+  };
 
   return (
     <EntityListShell
@@ -60,8 +102,70 @@ export default async function TaxReportPage(props: {
           exportRows={exportRows}
         />
       }
-      pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} total={monthly.length} />}
+      pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} total={filtered.length} />}
     >
+      {/* Supplementary filter bar — URL-driven GET form */}
+      <form
+        method="get"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-surface px-3 py-2"
+      >
+        {/* Preserve FY range */}
+        {sp.from && <input type="hidden" name="from" value={sp.from} />}
+        {sp.to && <input type="hidden" name="to" value={sp.to} />}
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Tax type</span>
+          <select
+            name="taxType"
+            defaultValue={sp.taxType ?? ''}
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+          >
+            <option value="">All</option>
+            <option value="GST">GST</option>
+            <option value="TDS">TDS</option>
+            <option value="Income Tax">Income Tax</option>
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Period (YYYY-MM)</span>
+          <input
+            type="month"
+            name="period"
+            defaultValue={sp.period ?? ''}
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+          />
+        </label>
+
+        <label className="flex flex-col gap-1">
+          <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">Status</span>
+          <select
+            name="status"
+            defaultValue={sp.status ?? ''}
+            className="h-9 rounded-lg border border-zoru-line bg-zoru-surface px-2 text-[13px] text-zoru-ink"
+          >
+            <option value="">All</option>
+            <option value="Filed">Filed</option>
+            <option value="Pending">Pending</option>
+            <option value="Due">Due</option>
+          </select>
+        </label>
+
+        <button
+          type="submit"
+          className="h-9 rounded-lg bg-primary px-4 text-[13px] font-medium text-primary-foreground"
+        >
+          Apply
+        </button>
+        <a
+          href="?"
+          className="inline-flex h-9 items-center rounded-lg border border-zoru-line px-3 text-[13px] text-zoru-ink-muted"
+        >
+          Reset
+        </a>
+      </form>
+
+      {/* KPI cards */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label="Tax collected"
@@ -79,7 +183,7 @@ export default async function TaxReportPage(props: {
           label="Net liability"
           value={fmtMoney(kpis.netLiability)}
           tone={netTone}
-          hint="Collected − Paid"
+          hint="Collected - Paid"
         />
         <StatCard
           label="Pending filings"
@@ -89,6 +193,7 @@ export default async function TaxReportPage(props: {
         />
       </div>
 
+      {/* Chart */}
       <ZoruCard className="p-6">
         <div className="mb-3">
           <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly collected vs paid</h2>
@@ -103,12 +208,15 @@ export default async function TaxReportPage(props: {
         )}
       </ZoruCard>
 
+      {/* Table */}
       <ZoruCard className="p-0">
         <div className="overflow-x-auto rounded-lg border border-zoru-line">
           <ZoruTable>
             <ZoruTableHeader>
               <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                 <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Tax type</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Collected</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Paid</ZoruTableHead>
                 <ZoruTableHead className="text-right text-zoru-ink-muted">Net</ZoruTableHead>
@@ -117,29 +225,45 @@ export default async function TaxReportPage(props: {
             <ZoruTableBody>
               {pageRows.length === 0 ? (
                 <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell colSpan={4} className="h-20 text-center text-[13px] text-zoru-ink-muted">
-                    No data.
+                  <ZoruTableCell
+                    colSpan={6}
+                    className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                  >
+                    No data for selected filters.
                   </ZoruTableCell>
                 </ZoruTableRow>
               ) : (
-                pageRows.map((r) => (
-                  <ZoruTableRow key={r.period} className="border-zoru-line">
-                    <ZoruTableCell className="font-medium text-zoru-ink">{r.period}</ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
-                      {fmtMoney(r.collected)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
-                      {fmtMoney(r.paid)}
-                    </ZoruTableCell>
-                    <ZoruTableCell
-                      className={`text-right text-[13px] font-medium ${
-                        r.net >= 0 ? 'text-zoru-warning-ink' : 'text-zoru-success-ink'
-                      }`}
-                    >
-                      {fmtMoney(r.net)}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
+                pageRows.map((r) => {
+                  const taxType = labelTaxType(r);
+                  const taxStatus = labelTaxStatus(r);
+                  return (
+                    <ZoruTableRow key={r.period} className="border-zoru-line">
+                      <ZoruTableCell>
+                        <EntityRowLink
+                          href={`/dashboard/crm/reports/gstr-1?period=${r.period}`}
+                          label={r.period}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">{taxType}</ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={statusVariant[taxStatus]}>{taxStatus}</ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
+                        {fmtMoney(r.collected)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right text-[13px] text-zoru-danger-ink">
+                        {fmtMoney(r.paid)}
+                      </ZoruTableCell>
+                      <ZoruTableCell
+                        className={`text-right text-[13px] font-medium ${
+                          r.net >= 0 ? 'text-zoru-warning-ink' : 'text-zoru-success-ink'
+                        }`}
+                      >
+                        {fmtMoney(r.net)}
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  );
+                })
               )}
             </ZoruTableBody>
           </ZoruTable>

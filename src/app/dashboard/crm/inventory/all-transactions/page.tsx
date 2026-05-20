@@ -1,31 +1,76 @@
 'use client';
 
+/**
+ * Inventory — All Transactions deep view.
+ *
+ * Combines KPI tiles (txn this month + by type + top item + total value)
+ * with a 6-month bar chart and the existing transaction log table. Filters
+ * collapse into a popover; export ships via the shared CSV/XLSX helpers in
+ * `src/lib/crm-list-export.ts`. Multi-tenant — all reads scope to the
+ * current session user via the server actions.
+ */
+
 import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruDatePicker,
-  ZoruLabel,
-  ZoruPopover,
-  ZoruPopoverContent,
-  ZoruPopoverTrigger,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
-import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import { Download, SlidersHorizontal, LoaderCircle } from "lucide-react";
-import { useState, useEffect, useTransition, useCallback } from 'react';
-import { generateAllTransactionsReport } from "@/app/actions/crm-reports.actions";
+    Bar,
+    BarChart,
+    CartesianGrid,
+    Legend,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
+import {
+    ArrowLeftRight,
+    BadgeIndianRupee,
+    Boxes,
+    Download,
+    LoaderCircle,
+    Package,
+    Receipt,
+    TrendingDown,
+} from 'lucide-react';
+import { format } from 'date-fns';
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+    useTransition,
+} from 'react';
 
-import Papa from "papaparse";
-import { format } from "date-fns";
-
+import {
+    generateAllTransactionsReport,
+} from '@/app/actions/crm-reports.actions';
+import {
+    getAllTransactionsDeepKpis,
+    type AllTransactionsDeepKpis,
+} from '@/app/actions/crm-inventory.actions';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruDatePicker,
+    ZoruLabel,
+    ZoruPopover,
+    ZoruPopoverContent,
+    ZoruPopoverTrigger,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+import {
+    dateStamp,
+    downloadCsv,
+    downloadXlsx,
+    type ExportRow,
+} from '@/lib/crm-list-export';
 
 type Transaction = {
     date: Date;
@@ -37,10 +82,53 @@ type Transaction = {
     warehouseName: string;
 };
 
-export default function AllTransactionsReportPage() {
-    const [reportData, setReportData] = useState<Transaction[]>([]);
-    const [isLoading, startTransition] = useTransition();
+const fmtCurrency = (amount: number): string =>
+    new Intl.NumberFormat('en-IN', {
+        style: 'currency',
+        currency: 'INR',
+        maximumFractionDigits: 0,
+    }).format(amount);
+
+const fmtNumber = (n: number): string => n.toLocaleString('en-IN');
+
+const KPI_EMPTY: AllTransactionsDeepKpis = {
+    txnThisMonth: 0,
+    saleCount: 0,
+    returnCount: 0,
+    adjustmentCount: 0,
+    topItem: null,
+    totalValue: 0,
+    monthlySeries: [],
+};
+
+function KpiTile({
+    label,
+    value,
+    sub,
+    icon: Icon,
+}: {
+    label: string;
+    value: string;
+    sub?: string;
+    icon: React.ElementType;
+}): React.JSX.Element {
+    return (
+        <ZoruCard>
+            <div className="flex items-center justify-between">
+                <p className="text-[12.5px] font-medium text-muted-foreground">{label}</p>
+                <Icon className="h-4 w-4 text-muted-foreground" strokeWidth={1.75} />
+            </div>
+            <p className="mt-2 truncate text-[22px] font-semibold text-foreground">{value}</p>
+            {sub ? <p className="mt-0.5 truncate text-[11.5px] text-muted-foreground">{sub}</p> : null}
+        </ZoruCard>
+    );
+}
+
+export default function AllTransactionsDeepPage(): React.JSX.Element {
     const { toast } = useZoruToast();
+    const [reportData, setReportData] = useState<Transaction[]>([]);
+    const [kpis, setKpis] = useState<AllTransactionsDeepKpis>(KPI_EMPTY);
+    const [isLoading, startTransition] = useTransition();
 
     const [startDate, setStartDate] = useState<Date | undefined>();
     const [endDate, setEndDate] = useState<Date | undefined>();
@@ -48,16 +136,24 @@ export default function AllTransactionsReportPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const result = await generateAllTransactionsReport({
-                startDate,
-                endDate,
-                type: transactionType === 'all' ? undefined : transactionType,
-            });
-            if (result.error) {
-                toast({ title: "Error generating report", description: result.error, variant: 'destructive' });
+            const [reportResult, kpiResult] = await Promise.all([
+                generateAllTransactionsReport({
+                    startDate,
+                    endDate,
+                    type: transactionType === 'all' ? undefined : transactionType,
+                }),
+                getAllTransactionsDeepKpis(),
+            ]);
+            if (reportResult.error) {
+                toast({
+                    title: 'Error generating report',
+                    description: reportResult.error,
+                    variant: 'destructive',
+                });
             } else {
-                setReportData(result.data || []);
+                setReportData((reportResult.data as Transaction[]) ?? []);
             }
+            setKpis(kpiResult);
         });
     }, [startDate, endDate, transactionType, toast]);
 
@@ -65,69 +161,172 @@ export default function AllTransactionsReportPage() {
         fetchData();
     }, [fetchData]);
 
-    const handleDownload = () => {
-        if (reportData.length === 0) {
-            toast({ title: 'No Data', description: 'There is no data to download.' });
+    const exportRows = useMemo<ExportRow[]>(
+        () =>
+            reportData.map((d) => ({
+                Date: format(new Date(d.date), 'PPP p'),
+                Type: d.type,
+                Reference: d.reference,
+                'Item Name': d.itemName,
+                Quantity: d.quantity,
+                Warehouse: d.warehouseName || 'N/A',
+                Party: d.partyName || 'N/A',
+            })),
+        [reportData],
+    );
+
+    const exportHeaders = [
+        'Date',
+        'Type',
+        'Reference',
+        'Item Name',
+        'Quantity',
+        'Warehouse',
+        'Party',
+    ];
+
+    const handleCsv = useCallback(() => {
+        if (exportRows.length === 0) {
+            toast({ title: 'No data', description: 'Nothing to export.' });
             return;
         }
-        const csv = Papa.unparse(reportData.map(d => ({
-            "Date": format(new Date(d.date), 'PPP p'),
-            "Type": d.type,
-            "Reference": d.reference,
-            "Item Name": d.itemName,
-            "Quantity": d.quantity,
-            "Warehouse": d.warehouseName || 'N/A',
-            "Party": d.partyName || 'N/A',
-        })));
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.setAttribute('download', 'all_inventory_transactions.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
+        downloadCsv(
+            `inventory_transactions_${dateStamp()}.csv`,
+            exportHeaders,
+            exportRows,
+        );
+    }, [exportRows, toast]);
+
+    const handleXlsx = useCallback(() => {
+        if (exportRows.length === 0) {
+            toast({ title: 'No data', description: 'Nothing to export.' });
+            return;
+        }
+        void downloadXlsx(
+            `inventory_transactions_${dateStamp()}.xlsx`,
+            exportHeaders,
+            exportRows,
+            'Transactions',
+        );
+    }, [exportRows, toast]);
 
     const getTypeTone = (type: string): 'rose-soft' | 'red' | 'neutral' => {
-        if (type.includes('Sale')) return 'rose-soft';
+        if (type.includes('Sale') && !type.includes('Return')) return 'rose-soft';
         if (type.includes('Return')) return 'red';
         return 'neutral';
-    }
+    };
 
     return (
         <EntityListShell
-            title="All Inventory Transactions"
-            subtitle="A complete log of all stock movements."
+            title="All inventory transactions"
+            subtitle="Every stock movement across sales, returns, and adjustments."
             primaryAction={
                 <div className="flex items-center gap-2">
                     <ZoruPopover>
                         <ZoruPopoverTrigger asChild>
-                            <ZoruButton variant="outline">
-                                Filters
-                            </ZoruButton>
+                            <ZoruButton variant="outline">Filters</ZoruButton>
                         </ZoruPopoverTrigger>
                         <ZoruPopoverContent className="w-80 space-y-4">
-                            <div className="space-y-2"><ZoruLabel>Start Date</ZoruLabel><ZoruDatePicker value={startDate} onChange={setStartDate} /></div>
-                            <div className="space-y-2"><ZoruLabel>End Date</ZoruLabel><ZoruDatePicker value={endDate} onChange={setEndDate} /></div>
-                            <div className="space-y-2"><ZoruLabel>Transaction Type</ZoruLabel><EnumFilterField enumName="inventoryTransactionType" value={transactionType} onChange={setTransactionType} allLabel="All Types" /></div>
-                            <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">Apply</ZoruButton>
+                            <div className="space-y-2">
+                                <ZoruLabel>Start date</ZoruLabel>
+                                <ZoruDatePicker value={startDate} onChange={setStartDate} />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel>End date</ZoruLabel>
+                                <ZoruDatePicker value={endDate} onChange={setEndDate} />
+                            </div>
+                            <div className="space-y-2">
+                                <ZoruLabel>Type</ZoruLabel>
+                                <EnumFilterField
+                                    enumName="inventoryTransactionType"
+                                    value={transactionType}
+                                    onChange={setTransactionType}
+                                    allLabel="All types"
+                                />
+                            </div>
+                            <ZoruButton onClick={fetchData} disabled={isLoading} className="w-full">
+                                Apply
+                            </ZoruButton>
                         </ZoruPopoverContent>
                     </ZoruPopover>
-                    <ZoruButton variant="outline" onClick={handleDownload} disabled={isLoading || reportData.length === 0}>
-                        Download CSV
+                    <ZoruButton
+                        variant="outline"
+                        onClick={handleCsv}
+                        disabled={isLoading || exportRows.length === 0}
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        CSV
+                    </ZoruButton>
+                    <ZoruButton
+                        variant="outline"
+                        onClick={handleXlsx}
+                        disabled={isLoading || exportRows.length === 0}
+                    >
+                        XLSX
                     </ZoruButton>
                 </div>
             }
         >
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+                <KpiTile
+                    label="Transactions this month"
+                    value={fmtNumber(kpis.txnThisMonth)}
+                    sub={`Sales ${kpis.saleCount} · Returns ${kpis.returnCount} · Adj ${kpis.adjustmentCount}`}
+                    icon={Receipt}
+                />
+                <KpiTile
+                    label="Total value (6 months)"
+                    value={fmtCurrency(kpis.totalValue)}
+                    icon={BadgeIndianRupee}
+                />
+                <KpiTile
+                    label="Top item by volume"
+                    value={kpis.topItem ? kpis.topItem.name : '—'}
+                    sub={kpis.topItem ? `${fmtNumber(kpis.topItem.quantity)} units moved` : 'No data'}
+                    icon={Package}
+                />
+                <KpiTile
+                    label="Breakdown by type"
+                    value={fmtNumber(kpis.saleCount + kpis.returnCount + kpis.adjustmentCount)}
+                    sub="Last 6 months"
+                    icon={ArrowLeftRight}
+                />
+            </div>
 
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Transaction Log</h2>
+            <ZoruCard className="mt-4">
+                <h2 className="text-[16px] font-semibold text-foreground">Monthly volume</h2>
+                <p className="mt-0.5 text-[12.5px] text-muted-foreground">
+                    Transaction count and gross value across the last six months.
+                </p>
+                <div className="mt-4 h-[260px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={kpis.monthlySeries}>
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                            <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} />
+                            <Tooltip
+                                cursor={{ opacity: 0.1 }}
+                                formatter={(value, name) => {
+                                    const n = Number(value);
+                                    return name === 'Value (INR)' ? fmtCurrency(n) : fmtNumber(n);
+                                }}
+                            />
+                            <Legend wrapperStyle={{ fontSize: 12 }} />
+                            <Bar dataKey="count" name="Transactions" fill="hsl(var(--primary))" />
+                            <Bar dataKey="value" name="Value (INR)" fill="hsl(var(--muted-foreground))" />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
+            </ZoruCard>
+
+            <ZoruCard className="mt-4">
+                <h2 className="text-[16px] font-semibold text-foreground">Transaction log</h2>
                 <div className="mt-4 overflow-x-auto rounded-lg border border-border">
                     <ZoruTable>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
                                 <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Item Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Item</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Quantity</ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">Party</ZoruTableHead>
@@ -137,21 +336,56 @@ export default function AllTransactionsReportPage() {
                         </ZoruTableHeader>
                         <ZoruTableBody>
                             {isLoading ? (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-48 text-center"><LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground"/></ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={7} className="h-48 text-center">
+                                        <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             ) : reportData.length > 0 ? (
                                 reportData.map((row, index) => (
-                                    <ZoruTableRow key={index} className="border-border">
-                                        <ZoruTableCell className="text-[11.5px] text-foreground">{format(new Date(row.date), 'PP p')}</ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">{row.itemName}</ZoruTableCell>
-                                        <ZoruTableCell><ZoruBadge variant={(getTypeTone(row.type)) as any}>{row.type}</ZoruBadge></ZoruTableCell>
-                                        <ZoruTableCell className={`font-semibold ${row.quantity < 0 ? 'text-destructive' : 'text-emerald-500'}`}>{row.quantity}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.partyName || 'N/A'}</ZoruTableCell>
-                                        <ZoruTableCell className="font-mono text-[11.5px] text-foreground">{row.reference}</ZoruTableCell>
-                                        <ZoruTableCell className="text-foreground">{row.warehouseName || 'Default'}</ZoruTableCell>
+                                    <ZoruTableRow
+                                        key={`${row.reference}-${index}`}
+                                        className="border-border"
+                                    >
+                                        <ZoruTableCell className="text-[11.5px] text-foreground">
+                                            {format(new Date(row.date), 'PP p')}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-medium text-foreground">
+                                            {row.itemName}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <ZoruBadge variant={getTypeTone(row.type) as any}>
+                                                {row.type}
+                                            </ZoruBadge>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell
+                                            className={`font-semibold ${
+                                                row.quantity < 0 ? 'text-destructive' : 'text-emerald-500'
+                                            }`}
+                                        >
+                                            {row.quantity}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.partyName || 'N/A'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-mono text-[11.5px] text-foreground">
+                                            {row.reference}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {row.warehouseName || 'Default'}
+                                        </ZoruTableCell>
                                     </ZoruTableRow>
                                 ))
                             ) : (
-                                <ZoruTableRow className="border-border"><ZoruTableCell colSpan={7} className="h-48 text-center text-muted-foreground">No transactions found for the selected filters.</ZoruTableCell></ZoruTableRow>
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={7} className="h-48 text-center text-muted-foreground">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <TrendingDown className="h-6 w-6 text-muted-foreground" />
+                                            <Boxes className="hidden h-6 w-6" />
+                                            <p>No transactions match the current filters.</p>
+                                        </div>
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
                             )}
                         </ZoruTableBody>
                     </ZoruTable>

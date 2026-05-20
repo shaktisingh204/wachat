@@ -1,35 +1,83 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Ticket Agent Groups — settings-list mapping agents to support groups.
+ *
+ * KPI · search/status filter · bulk delete · CSV/XLSX export ·
+ * RowDrawer inline summary · inline-edit dialog · PaginationBar.
+ *
+ * Backed by the worksuite `crm_ticket_agent_groups` collection through
+ * `worksuite/tickets-ext.actions.ts`.
+ */
 
-import { UsersRound } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import * as React from 'react';
+
 import {
+  SettingsDeepPage,
+  type SettingsColumn,
+} from '../../_components/settings-deep-page';
+import {
+  bulkDeleteTicketAgentGroups,
+  deleteTicketAgentGroup,
+  getTicketAgentGroupKpis,
   getTicketAgentGroups,
   saveTicketAgentGroup,
-  deleteTicketAgentGroup,
 } from '@/app/actions/worksuite/tickets-ext.actions';
 import type { WsTicketAgentGroup } from '@/lib/worksuite/tickets-ext-types';
 
-export default function TicketAgentGroupsPage() {
+type Row = Omit<WsTicketAgentGroup, '_id' | 'userId' | 'createdAt' | 'updatedAt'> & {
+  _id: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  archived?: boolean;
+};
+
+const columns: SettingsColumn<Row>[] = [
+  {
+    key: 'agent_user_id',
+    label: 'Agent',
+    exportValue: (r) => r.agent_user_id,
+  },
+  {
+    key: 'group_id',
+    label: 'Group',
+    exportValue: (r) => r.group_id,
+  },
+];
+
+export default function TicketAgentGroupsPage(): React.JSX.Element {
   return (
-    <HrEntityPage<WsTicketAgentGroup & { _id: string }>
+    <SettingsDeepPage<Row>
       title="Agent Groups"
-      subtitle="Map support agents to ticket groups."
-      icon={UsersRound}
+      subtitle="Map support agents to ticket groups for routing."
       singular="Mapping"
-      getAllAction={getTicketAgentGroups as any}
+      drawerKind="Agent Group Mapping"
+      exportBaseName="ticket-agent-groups"
+      columns={columns}
+      fields={[
+        {
+          name: 'agent_user_id',
+          label: 'Agent (user id)',
+          required: true,
+          placeholder: 'User id',
+        },
+        {
+          name: 'group_id',
+          label: 'Group id',
+          required: true,
+          placeholder: 'Ticket group id',
+        },
+      ]}
+      getAllAction={getTicketAgentGroups as unknown as () => Promise<Row[]>}
+      getKpisAction={getTicketAgentGroupKpis}
       saveAction={saveTicketAgentGroup}
       deleteAction={deleteTicketAgentGroup}
-      columns={[
-        { key: 'agent_user_id', label: 'Agent' },
-        { key: 'group_id', label: 'Group' },
-      ]}
-      fields={[
-        { name: 'agent_user_id', label: 'Agent', type: 'entity', entity: 'user', required: true },
-        { name: 'group_id', label: 'Group ID', required: true },
-      ]}
+      bulkDeleteAction={bulkDeleteTicketAgentGroups}
+      displayName={(r) =>
+        `${r.agent_user_id ?? '—'} → ${r.group_id ?? '—'}`
+      }
+      searchText={(r) => `${r.agent_user_id ?? ''} ${r.group_id ?? ''}`}
     />
   );
 }

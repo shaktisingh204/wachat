@@ -10,11 +10,12 @@
  *   - issue.create       GraphQL `issueCreate(...)`
  *   - issue.update       GraphQL `issueUpdate($id, input)`
  *   - issue.delete       GraphQL `issueDelete($id)`
+ *   - issue.getAll       GraphQL `issues(first, after)` walked via paginateAll
+ *   - issue.addLink      GraphQL `attachmentLinkURL`
  *   - issue.addComment   GraphQL `commentCreate({ issueId, body })`
  *
  * Out of scope for the first port:
- *   - getAll with pagination (defer to W2 once we have a shared paginator helper)
- *   - addLink, label assignment, project ops — re-add when needed
+ *   - label assignment, project ops — re-add when needed (no callers yet)
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -23,7 +24,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const ENDPOINT = 'https://api.linear.app/graphql';
 
@@ -154,6 +156,59 @@ async function issueDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   return { outputs: { success: data.issueDelete.success }, logs: [`Linear issue delete → ${issueId}`] };
 }
 
+// Mirrors n8n's `query.getIssues()` with `pageInfo.endCursor` cursor.
+async function issueGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const returnAll = ctx.options.returnAll === true;
+  const limit = asNumber(ctx.options.limit);
+  const maxItems = returnAll ? undefined : limit ?? 50;
+
+  const items = await paginateAll<unknown>({
+    maxItems,
+    async fetchPage(cursor) {
+      const data = await gql<{
+        issues: { nodes: unknown[]; pageInfo: { hasNextPage: boolean; endCursor: string | null } };
+      }>(
+        ctx,
+        `query Issues($first: Int, $after: String) {
+          issues(first: $first, after: $after) {
+            nodes {
+              id identifier title priority archivedAt createdAt description dueDate
+              assignee { id displayName }
+              state { id name }
+              creator { id displayName }
+              cycle { id name }
+            }
+            pageInfo { hasNextPage endCursor }
+          }
+        }`,
+        { first: 50, after: cursor ?? null },
+      );
+      return {
+        items: data.issues.nodes,
+        nextCursor: data.issues.pageInfo.hasNextPage ? data.issues.pageInfo.endCursor ?? undefined : undefined,
+      };
+    },
+  });
+
+  return { outputs: { issues: items, count: items.length }, logs: [`Linear issues list → ${items.length}`] };
+}
+
+// Linear stores external links via `attachmentLinkURL`, the same call n8n uses for `issue.addLink`.
+async function issueAddLink(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const issueId = asString(ctx.options.issueId);
+  const link = asString(ctx.options.link);
+  if (!issueId) throw new Error('Linear: issueId is required');
+  if (!link) throw new Error('Linear: link is required');
+  const data = await gql<{ attachmentLinkURL: { success: boolean } }>(
+    ctx,
+    `mutation AttachmentLinkURL($url: String!, $issueId: String!) {
+      attachmentLinkURL(url: $url, issueId: $issueId) { success }
+    }`,
+    { issueId, url: link },
+  );
+  return { outputs: { success: data.attachmentLinkURL.success }, logs: [`Linear addLink → ${issueId}`] };
+}
+
 async function issueAddComment(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const issueId = asString(ctx.options.issueId);
   const bodyText = asString(ctx.options.body);
@@ -258,6 +313,26 @@ const block: ForgeBlock = {
         { id: 'issueId', label: 'Issue ID', type: 'text', required: true },
       ],
       run: issueDelete,
+    },
+    {
+      id: 'issue_get_all',
+      label: 'List issues',
+      description: 'List issues across the workspace, optionally capped at a limit.',
+      fields: [
+        { id: 'returnAll', label: 'Return all', type: 'toggle', defaultValue: false },
+        { id: 'limit', label: 'Limit', type: 'number', defaultValue: 50 },
+      ],
+      run: issueGetAll,
+    },
+    {
+      id: 'issue_add_link',
+      label: 'Add link to issue',
+      description: 'Attach an external URL to an issue (Linear Attachment).',
+      fields: [
+        { id: 'issueId', label: 'Issue ID', type: 'text', required: true },
+        { id: 'link', label: 'URL', type: 'text', required: true, placeholder: 'https://...' },
+      ],
+      run: issueAddLink,
     },
     {
       id: 'issue_add_comment',

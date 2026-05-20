@@ -9,9 +9,11 @@
  * Operations covered:
  *   - request — generic call (method + url + headers + body)
  *
+ * Body shapes: none / json / text / form (application/x-www-form-urlencoded).
+ *
  * Out of scope for the first port:
  *   - OAuth2 / digest auth blocks (use HTTP Header Auth credential from Connections instead)
- *   - File upload via binary data
+ *   - Multipart file upload (binary refs not yet exposed in ForgeActionContext)
  *   - Built-in retry/redirect tuning (handled by SabFlow engine runWithRetry already)
  */
 
@@ -23,6 +25,16 @@ import type {
   ForgeKeyValuePair,
 } from '../../../types';
 import { apiRequest, asString } from '../_shared/http';
+
+function pairsToRecord(raw: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!Array.isArray(raw)) return out;
+  for (const pair of raw as ForgeKeyValuePair[]) {
+    if (!pair?.key) continue;
+    out[pair.key] = asString(pair.value);
+  }
+  return out;
+}
 
 function buildHeaders(ctx: ForgeActionContext): Record<string, string> {
   const headers: Record<string, string> = {};
@@ -63,6 +75,16 @@ async function doRequest(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     }
   } else if (bodyType === 'text') {
     body = asString(ctx.options.textBody);
+  } else if (bodyType === 'form') {
+    // n8n's `form-urlencoded` body type — URLSearchParams encodes keys/values
+    // and we tag the content-type so the receiver parses it correctly.
+    const pairs = pairsToRecord(ctx.options.formBody);
+    const sp = new URLSearchParams();
+    for (const [k, v] of Object.entries(pairs)) sp.append(k, v);
+    body = sp.toString();
+    if (!headers['Content-Type'] && !headers['content-type']) {
+      headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    }
   }
 
   const res = await apiRequest({
@@ -129,6 +151,7 @@ const block: ForgeBlock = {
             { label: 'None', value: 'none' },
             { label: 'JSON', value: 'json' },
             { label: 'Raw text', value: 'text' },
+            { label: 'Form (URL-encoded)', value: 'form' },
           ],
         },
         {
@@ -143,6 +166,13 @@ const block: ForgeBlock = {
           label: 'Body',
           type: 'textarea',
           showIf: { field: 'bodyType', equals: 'text' },
+        },
+        {
+          id: 'formBody',
+          label: 'Form fields',
+          type: 'key-value-list',
+          showIf: { field: 'bodyType', equals: 'form' },
+          helperText: 'Sent as application/x-www-form-urlencoded.',
         },
       ],
       run: doRequest,

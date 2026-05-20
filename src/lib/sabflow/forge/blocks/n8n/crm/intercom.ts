@@ -9,9 +9,18 @@
  * Operations covered:
  *   - user.get             GET    /users/{id}
  *   - user.upsert          POST   /users    (Intercom upserts by email/external_id)
+ *   - user.delete          DELETE /users/{id}
+ *   - user.list_all        GET    /users    (paginated via next.page link)
  *   - contact.create       POST   /contacts (visitor → lead/user contact API)
+ *   - contact.get          GET    /contacts/{id}
+ *   - contact.delete       DELETE /contacts/{id}
+ *   - contact.list_all     GET    /contacts (paginated)
  *   - lead.create          POST   /contacts (role=lead)
- *   - company.create       POST   /companies
+ *   - lead.delete          DELETE /contacts/{id}
+ *   - company.create       POST   /companies (also updates by company_id)
+ *   - company.get          GET    /companies/{id}
+ *   - company.list_all     GET    /companies (paginated)
+ *   - company.users        GET    /companies/{id}/users (paginated)
  *   - tag.tagUsers         POST   /tags     (attach a tag to one or more users)
  *
  * Out of scope: conversations, segments, articles, notes — re-add as needed.
@@ -23,7 +32,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.intercom.io';
 
@@ -155,6 +165,126 @@ async function tagTagUsers(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   return { outputs: { tag: data, id: data?.id ?? null }, logs: [`Intercom tag → ${tagName} (${users.length})`] };
 }
 
+// Generic paginated list over Intercom's classic v1 collections. Intercom
+// returns `{ <responseKey>: [...], pages: { next: <url> | { page } } }`. We
+// follow `pages.next.page` (integer) up to maxItems.
+async function listPaginated<T>(
+  ctx: ForgeActionContext,
+  path: string,
+  responseKey: string,
+  maxItems: number,
+  pageSize: number,
+): Promise<T[]> {
+  return paginateAll<T>({
+    maxItems,
+    async fetchPage(cursor) {
+      const page = cursor ? Number(cursor) : 1;
+      const qs = new URLSearchParams({ per_page: String(pageSize), page: String(page) });
+      const res = await apiRequest({
+        service: 'Intercom',
+        method: 'GET',
+        url: `${BASE}${path}?${qs.toString()}`,
+        headers: authHeaders(ctx),
+      });
+      const body = res.data as Record<string, unknown> & {
+        pages?: { next?: { page?: number } | string; total_pages?: number };
+      };
+      const items = ((body?.[responseKey] as T[] | undefined) ?? []) as T[];
+      const next = body?.pages?.next;
+      // Intercom returns either an object {page: N} or a URL string with ?page=N.
+      let nextPage: number | undefined;
+      if (next && typeof next === 'object' && typeof next.page === 'number') {
+        nextPage = next.page;
+      } else if (typeof next === 'string') {
+        try {
+          const u = new URL(next);
+          const p = u.searchParams.get('page');
+          if (p) nextPage = Number(p);
+        } catch {
+          /* ignore malformed next URL */
+        }
+      }
+      return { items, nextCursor: nextPage ? String(nextPage) : undefined };
+    },
+  });
+}
+
+async function userDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.userId);
+  if (!id) throw new Error('Intercom: userId is required');
+  await icApi(ctx, 'DELETE', `/users/${encodeURIComponent(id)}`);
+  return { outputs: { success: true, id }, logs: [`Intercom user delete → ${id}`] };
+}
+
+async function userListAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 60;
+  const items = await listPaginated<unknown>(ctx, '/users', 'users', maxItems, pageSize);
+  return { outputs: { users: items, count: items.length }, logs: [`Intercom user list all → ${items.length}`] };
+}
+
+async function contactGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.contactId);
+  if (!id) throw new Error('Intercom: contactId is required');
+  const data = await icApi(ctx, 'GET', `/contacts/${encodeURIComponent(id)}`);
+  return { outputs: { contact: data }, logs: [`Intercom contact get → ${id}`] };
+}
+
+async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.contactId);
+  if (!id) throw new Error('Intercom: contactId is required');
+  await icApi(ctx, 'DELETE', `/contacts/${encodeURIComponent(id)}`);
+  return { outputs: { success: true, id }, logs: [`Intercom contact delete → ${id}`] };
+}
+
+async function contactListAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 60;
+  const items = await listPaginated<unknown>(ctx, '/contacts', 'contacts', maxItems, pageSize);
+  return { outputs: { contacts: items, count: items.length }, logs: [`Intercom contact list all → ${items.length}`] };
+}
+
+async function leadDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  // Leads in classic Intercom v1 are contacts with role=lead; deletion goes
+  // through the same /contacts/{id} endpoint.
+  const id = asString(ctx.options.leadId);
+  if (!id) throw new Error('Intercom: leadId is required');
+  await icApi(ctx, 'DELETE', `/contacts/${encodeURIComponent(id)}`);
+  return { outputs: { success: true, id }, logs: [`Intercom lead delete → ${id}`] };
+}
+
+async function companyGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.id);
+  if (!id) throw new Error('Intercom: id is required');
+  const data = await icApi(ctx, 'GET', `/companies/${encodeURIComponent(id)}`);
+  return { outputs: { company: data }, logs: [`Intercom company get → ${id}`] };
+}
+
+async function companyListAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 60;
+  const items = await listPaginated<unknown>(ctx, '/companies', 'companies', maxItems, pageSize);
+  return { outputs: { companies: items, count: items.length }, logs: [`Intercom company list all → ${items.length}`] };
+}
+
+async function companyUsers(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.id);
+  if (!id) throw new Error('Intercom: id is required');
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 60;
+  const items = await listPaginated<unknown>(
+    ctx,
+    `/companies/${encodeURIComponent(id)}/users`,
+    'users',
+    maxItems,
+    pageSize,
+  );
+  return {
+    outputs: { users: items, count: items.length, companyId: id },
+    logs: [`Intercom company users → ${id} (${items.length})`],
+  };
+}
+
 // ── Block ──────────────────────────────────────────────────────────────────
 
 const block: ForgeBlock = {
@@ -241,6 +371,82 @@ const block: ForgeBlock = {
         { id: 'userIds', label: 'User IDs (comma-separated)', type: 'text', required: true },
       ],
       run: tagTagUsers,
+    },
+    {
+      id: 'user_delete',
+      label: 'Delete user',
+      description: 'Delete a user by Intercom id.',
+      fields: [{ id: 'userId', label: 'User ID', type: 'text', required: true }],
+      run: userDelete,
+    },
+    {
+      id: 'user_list_all',
+      label: 'List all users (paginated)',
+      description: 'Walk Intercom v1 page-based pagination and return every user up to the cap.',
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 60)', type: 'number', defaultValue: '60' },
+      ],
+      run: userListAll,
+    },
+    {
+      id: 'contact_get',
+      label: 'Get contact',
+      description: 'Fetch a contact by Intercom id.',
+      fields: [{ id: 'contactId', label: 'Contact ID', type: 'text', required: true }],
+      run: contactGet,
+    },
+    {
+      id: 'contact_delete',
+      label: 'Delete contact',
+      description: 'Delete a contact by id.',
+      fields: [{ id: 'contactId', label: 'Contact ID', type: 'text', required: true }],
+      run: contactDelete,
+    },
+    {
+      id: 'contact_list_all',
+      label: 'List all contacts (paginated)',
+      description: 'Walk Intercom v1 page-based pagination and return every contact up to the cap.',
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 60)', type: 'number', defaultValue: '60' },
+      ],
+      run: contactListAll,
+    },
+    {
+      id: 'lead_delete',
+      label: 'Delete lead',
+      description: 'Delete a lead (contact with role=lead) by id.',
+      fields: [{ id: 'leadId', label: 'Lead ID', type: 'text', required: true }],
+      run: leadDelete,
+    },
+    {
+      id: 'company_get',
+      label: 'Get company',
+      description: 'Fetch a company by Intercom id.',
+      fields: [{ id: 'id', label: 'Company ID (Intercom id)', type: 'text', required: true }],
+      run: companyGet,
+    },
+    {
+      id: 'company_list_all',
+      label: 'List all companies (paginated)',
+      description: 'Walk Intercom v1 page-based pagination and return every company up to the cap.',
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 60)', type: 'number', defaultValue: '60' },
+      ],
+      run: companyListAll,
+    },
+    {
+      id: 'company_users',
+      label: 'List company users (paginated)',
+      description: 'Walk pagination of users attached to a company.',
+      fields: [
+        { id: 'id', label: 'Company ID (Intercom id)', type: 'text', required: true },
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 60)', type: 'number', defaultValue: '60' },
+      ],
+      run: companyUsers,
     },
   ],
 };

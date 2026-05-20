@@ -39,19 +39,25 @@ import {
   useEffect,
   useState,
   useTransition,
-  useCallback } from 'react';
-import { LoaderCircle,
-  Save,
-  Plus,
-  Trash2 } from 'lucide-react';
+  useCallback,
+  useMemo,
+} from 'react';
+import { Download, LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { getSession } from '@/app/actions/user.actions';
-import { saveRolePermissions,
-  saveRole,
-  deleteRole } from '@/app/actions/crm-roles.actions';
-import type { WithId,
-  User } from '@/lib/definitions';
+import { saveRolePermissions, saveRole, deleteRole } from '@/app/actions/crm-roles.actions';
+import type { WithId, User } from '@/lib/definitions';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
+
+/**
+ * Manage Roles — list page.
+ *
+ * Additions over the original:
+ *  - ZoruCheckbox multi-select per role row (in the accordion header)
+ *  - Bulk delete with confirm (only non-system roles)
+ *  - Export CSV (role names + permission counts)
+ */
 
 const initialState = { message: undefined, error: undefined };
 
@@ -62,7 +68,7 @@ function PageSkeleton() {
             <ZoruSkeleton className="h-4 w-96" />
             <ZoruSkeleton className="h-80 w-full" />
         </div>
-    )
+    );
 }
 
 const crmModules = [
@@ -76,13 +82,25 @@ const crmModules = [
 
 const actions = ['view', 'create', 'edit', 'delete'];
 
+function countPermissions(permissions: Record<string, unknown>): number {
+    let count = 0;
+    for (const modulePerms of Object.values(permissions)) {
+        if (modulePerms && typeof modulePerms === 'object') {
+            for (const v of Object.values(modulePerms as Record<string, unknown>)) {
+                if (v === true) count++;
+            }
+        }
+    }
+    return count;
+}
+
 function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
     const [open, setOpen] = useState(false);
     const [roleName, setRoleName] = useState('');
     const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
-    const handleAddRole = async () => {
+    const handleAddRole = () => {
         if (!roleName.trim()) {
             toast({ title: 'Error', description: 'Role name cannot be empty.', variant: 'destructive' });
             return;
@@ -93,11 +111,12 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 toast({ title: 'Success', description: 'New role created.' });
                 onRoleAdded();
                 setOpen(false);
+                setRoleName('');
             } else {
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
-    }
+    };
 
     return (
         <ZoruDialog open={open} onOpenChange={setOpen}>
@@ -111,7 +130,12 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </ZoruDialogHeader>
                 <div className="py-4">
                     <ZoruLabel htmlFor="roleName">Role Name</ZoruLabel>
-                    <ZoruInput id="roleName" value={roleName} onChange={(e) => setRoleName(e.target.value)} className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
+                    <ZoruInput
+                        id="roleName"
+                        value={roleName}
+                        onChange={(e) => setRoleName(e.target.value)}
+                        className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]"
+                    />
                 </div>
                 <ZoruDialogFooter>
                     <ZoruButton variant="ghost" onClick={() => setOpen(false)}>Cancel</ZoruButton>
@@ -122,10 +146,16 @@ function AddRoleDialog({ onRoleAdded }: { onRoleAdded: () => void }) {
                 </ZoruDialogFooter>
             </ZoruDialogContent>
         </ZoruDialog>
-    )
+    );
 }
 
-function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: () => void }) {
+function DeleteRoleButton({
+    role,
+    onRoleDeleted,
+}: {
+    role: { id: string; name: string };
+    onRoleDeleted: () => void;
+}) {
     const { toast } = useZoruToast();
     const [isPending, startTransition] = useTransition();
 
@@ -141,17 +171,27 @@ function DeleteRoleButton({ role, onRoleDeleted }: { role: any, onRoleDeleted: (
                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
             }
         });
-    }
+    };
 
     return (
         <ZoruAlertDialog>
             <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-zoru-danger-ink" /></ZoruButton>
+                <ZoruButton
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                </ZoruButton>
             </ZoruAlertDialogTrigger>
             <ZoruAlertDialogContent>
                 <ZoruAlertDialogHeader>
                     <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>This will permanently delete the &ldquo;{role.name}&rdquo; role. Team members with this role will lose their special permissions.</ZoruAlertDialogDescription>
+                    <ZoruAlertDialogDescription>
+                        This will permanently delete the &ldquo;{role.name}&rdquo; role. Team
+                        members with this role will lose their special permissions.
+                    </ZoruAlertDialogDescription>
                 </ZoruAlertDialogHeader>
                 <ZoruAlertDialogFooter>
                     <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
@@ -168,7 +208,12 @@ export default function ManageRolesPage() {
     const [user, setUser] = useState<WithId<User> | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [state, formAction] = useActionState(saveRolePermissions, initialState);
+    const [bulkPending, startBulkTransition] = useTransition();
     const { toast } = useZoruToast();
+
+    // Selection — tracks role ids (strings like 'agent' or custom uuids)
+    const [selected, setSelected] = useState<Set<string>>(new Set());
+    const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
     const fetchUser = useCallback(() => {
         startLoading(async () => {
@@ -191,55 +236,244 @@ export default function ManageRolesPage() {
         }
     }, [state, toast, fetchUser]);
 
+    const allRoles = useMemo(() => {
+        if (!user) return [];
+        const customRolesWithPermissions = (user.crm?.customRoles || []).map((role) => ({
+            ...role,
+            permissions: user.crm?.permissions?.[role.id] as Record<string, unknown> | undefined,
+        }));
+        return [
+            {
+                id: 'agent',
+                name: 'Agent',
+                permissions: user.crm?.permissions?.agent as Record<string, unknown> | undefined,
+            },
+            ...customRolesWithPermissions,
+        ];
+    }, [user]);
+
+    // Only non-system roles can be bulk-deleted
+    const customRoleIds = useMemo(
+        () => allRoles.filter((r) => r.id !== 'agent').map((r) => r.id),
+        [allRoles],
+    );
+    const selectedIds = useMemo(
+        () => [...selected].filter((id) => customRoleIds.includes(id)),
+        [selected, customRoleIds],
+    );
+    const hasSelection = selectedIds.length > 0;
+
+    const toggleOne = (id: string) => {
+        if (id === 'agent') return; // system role — not selectable
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const allCustomChecked =
+        customRoleIds.length > 0 && customRoleIds.every((id) => selected.has(id));
+    const someCustomChecked = customRoleIds.some((id) => selected.has(id));
+
+    const toggleAllCustom = () => {
+        if (allCustomChecked) {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                customRoleIds.forEach((id) => next.delete(id));
+                return next;
+            });
+        } else {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                customRoleIds.forEach((id) => next.add(id));
+                return next;
+            });
+        }
+    };
+
+    // Bulk delete — fire sequentially, fail fast on first error
+    const handleBulkDelete = () => {
+        startBulkTransition(async () => {
+            let count = 0;
+            for (const id of selectedIds) {
+                const res = await deleteRole(id);
+                if (!res.success) {
+                    toast({ title: 'Partial failure', description: res.error, variant: 'destructive' });
+                    break;
+                }
+                count++;
+            }
+            if (count > 0) {
+                toast({ title: `${count} role(s) deleted` });
+                setSelected(new Set());
+                fetchUser();
+            }
+            setBulkDeleteOpen(false);
+        });
+    };
+
+    // Export CSV: role name + permission count (no actual perm values)
+    const handleExport = () => {
+        const exportRows = allRoles.map((r) => ({
+            'Role name': r.name,
+            'Role ID': r.id,
+            'Is system': r.id === 'agent' ? 'Yes' : 'No',
+            'Permission count': countPermissions(r.permissions ?? {}),
+        }));
+        downloadCsv(
+            `roles-${dateStamp()}.csv`,
+            Object.keys(exportRows[0] ?? {}),
+            exportRows,
+        );
+        toast({ title: 'CSV exported' });
+    };
+
     if (isLoading || !user) {
         return <PageSkeleton />;
     }
-
-    const customRolesWithPermissions = (user.crm?.customRoles || []).map(role => ({
-        ...role,
-        permissions: user.crm?.permissions?.[role.id]
-    }));
-
-    const allRoles = [{ id: 'agent', name: 'Agent', permissions: user.crm?.permissions?.agent }, ...customRolesWithPermissions];
 
     return (
         <EntityListShell
             title="Manage Team Roles"
             subtitle="Define what different roles can access and do across the platform."
-            primaryAction={<AddRoleDialog onRoleAdded={fetchUser} />}
+            primaryAction={
+                <div className="flex items-center gap-2">
+                    <ZoruButton
+                        variant="outline"
+                        onClick={handleExport}
+                        disabled={allRoles.length === 0}
+                    >
+                        <Download className="mr-1.5 h-3.5 w-3.5" />
+                        Export CSV
+                    </ZoruButton>
+                    <AddRoleDialog onRoleAdded={fetchUser} />
+                </div>
+            }
         >
+            {/* Bulk selection header for custom roles */}
+            {customRoleIds.length > 0 && (
+                <div className="mb-3 flex items-center gap-3">
+                    <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
+                        <ZoruCheckbox
+                            checked={allCustomChecked}
+                            aria-checked={someCustomChecked && !allCustomChecked ? 'mixed' : allCustomChecked}
+                            onCheckedChange={toggleAllCustom}
+                            aria-label="Select all custom roles"
+                        />
+                        Select all custom roles
+                    </label>
+                </div>
+            )}
+
+            {/* Bulk action bar */}
+            {hasSelection && (
+                <div className="mb-3 flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm">
+                    <span className="font-medium text-foreground">
+                        {selectedIds.length} selected
+                    </span>
+                    <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                        <ZoruButton
+                            variant="destructive"
+                            size="sm"
+                            disabled={bulkPending}
+                            onClick={() => setBulkDeleteOpen(true)}
+                        >
+                            <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                            Delete selected
+                        </ZoruButton>
+                        <ZoruAlertDialogContent>
+                            <ZoruAlertDialogHeader>
+                                <ZoruAlertDialogTitle>
+                                    Delete {selectedIds.length} role(s)?
+                                </ZoruAlertDialogTitle>
+                                <ZoruAlertDialogDescription>
+                                    Team members with these roles will lose their special
+                                    permissions. System roles (Agent) are never deleted.
+                                </ZoruAlertDialogDescription>
+                            </ZoruAlertDialogHeader>
+                            <ZoruAlertDialogFooter>
+                                <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                <ZoruAlertDialogAction
+                                    onClick={handleBulkDelete}
+                                    disabled={bulkPending}
+                                >
+                                    {bulkPending ? (
+                                        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : null}
+                                    Delete
+                                </ZoruAlertDialogAction>
+                            </ZoruAlertDialogFooter>
+                        </ZoruAlertDialogContent>
+                    </ZoruAlertDialog>
+                    <ZoruButton
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelected(new Set())}
+                    >
+                        Clear selection
+                    </ZoruButton>
+                </div>
+            )}
 
             <form action={formAction}>
                 <ZoruAccordion type="single" collapsible className="w-full space-y-4">
-                    {allRoles.map(role => {
-                        const crmPermissions = role.permissions || {};
+                    {allRoles.map((role) => {
+                        const crmPermissions = (role.permissions || {}) as Record<string, Record<string, boolean>>;
+                        const isSystem = role.id === 'agent';
 
                         return (
-                            <ZoruAccordionItem key={role.id} value={role.id} className="rounded-lg border border-zoru-line bg-zoru-bg">
+                            <ZoruAccordionItem
+                                key={role.id}
+                                value={role.id}
+                                className="rounded-lg border border-zoru-line bg-zoru-bg"
+                            >
                                 <ZoruAccordionTrigger className="p-4 font-semibold text-[15px] hover:no-underline">
-                                    <div className="flex items-center gap-2">
-                                        {role.name}
-                                        {role.id !== 'agent' && <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />}
+                                    <div className="flex items-center gap-3">
+                                        {!isSystem && (
+                                            <ZoruCheckbox
+                                                checked={selected.has(role.id)}
+                                                onCheckedChange={() => toggleOne(role.id)}
+                                                aria-label={`Select ${role.name}`}
+                                                onClick={(e) => e.stopPropagation()}
+                                            />
+                                        )}
+                                        <span>{role.name}</span>
+                                        {!isSystem && (
+                                            <DeleteRoleButton role={role} onRoleDeleted={fetchUser} />
+                                        )}
                                     </div>
                                 </ZoruAccordionTrigger>
                                 <ZoruAccordionContent className="p-4 pt-0">
-                                    <input type="hidden" name={`roleId`} value={role.id} />
+                                    <input type="hidden" name="roleId" value={role.id} />
                                     <ZoruTable>
                                         <ZoruTableHeader>
                                             <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                                                 <ZoruTableHead className="text-zoru-ink-muted">Module</ZoruTableHead>
-                                                {actions.map(action => <ZoruTableHead key={action} className="text-center capitalize text-zoru-ink-muted">{action}</ZoruTableHead>)}
+                                                {actions.map((action) => (
+                                                    <ZoruTableHead
+                                                        key={action}
+                                                        className="text-center capitalize text-zoru-ink-muted"
+                                                    >
+                                                        {action}
+                                                    </ZoruTableHead>
+                                                ))}
                                             </ZoruTableRow>
                                         </ZoruTableHeader>
                                         <ZoruTableBody>
-                                            {crmModules.map(module => (
+                                            {crmModules.map((module) => (
                                                 <ZoruTableRow key={module.id} className="border-zoru-line">
-                                                    <ZoruTableCell className="font-medium text-zoru-ink">{module.name}</ZoruTableCell>
-                                                    {actions.map(action => (
+                                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                                        {module.name}
+                                                    </ZoruTableCell>
+                                                    {actions.map((action) => (
                                                         <ZoruTableCell key={action} className="text-center">
                                                             <ZoruCheckbox
                                                                 name={`${role.id}_${module.id}_${action}`}
-                                                                defaultChecked={(crmPermissions[module.id as keyof typeof crmPermissions] as any)?.[action] ?? false}
+                                                                defaultChecked={
+                                                                    crmPermissions[module.id]?.[action] ?? false
+                                                                }
                                                             />
                                                         </ZoruTableCell>
                                                     ))}
@@ -249,10 +483,10 @@ export default function ManageRolesPage() {
                                     </ZoruTable>
                                 </ZoruAccordionContent>
                             </ZoruAccordionItem>
-                        )
+                        );
                     })}
                 </ZoruAccordion>
-                <div className="flex justify-end mt-6">
+                <div className="mt-6 flex justify-end">
                     <ZoruButton type="submit">
                         <Save className="h-4 w-4" strokeWidth={1.75} />
                         Save Permissions

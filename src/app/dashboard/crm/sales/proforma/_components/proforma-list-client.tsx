@@ -20,8 +20,12 @@ import {
   usePathname,
 } from 'next/navigation';
 import {
+  CalendarRange,
+  Download,
   FileText,
   Plus,
+  Search,
+  X,
 } from 'lucide-react';
 import {
   ZoruButton,
@@ -49,6 +53,7 @@ import {
   deleteProformaInvoice,
   type ProformaKpis,
 } from '@/app/actions/crm-proforma-invoices.actions';
+import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
 import type { CrmProformaInvoiceDoc } from '@/lib/rust-client/crm-proforma-invoices';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
@@ -60,6 +65,8 @@ export interface ProformaListClientProps {
   hasMore: boolean;
   initialQuery: string;
   initialStatus: string;
+  initialDateFrom?: string;
+  initialDateTo?: string;
   kpi: ProformaKpis;
   error?: string;
 }
@@ -145,6 +152,8 @@ export function ProformaListClient({
   hasMore,
   initialQuery,
   initialStatus,
+  initialDateFrom = '',
+  initialDateTo = '',
   kpi,
   error,
 }: ProformaListClientProps) {
@@ -160,31 +169,33 @@ export function ProformaListClient({
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
   const [busy, startBusy] = React.useTransition();
 
+  function pushParams(updates: Record<string, string | undefined>) {
+    const params = new URLSearchParams(sp?.toString() ?? '');
+    for (const [k, v] of Object.entries(updates)) {
+      if (v == null || v === '') params.delete(k);
+      else params.set(k, v);
+    }
+    const qs = params.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
+  }
+
   /* Push search to URL (debounced) */
   React.useEffect(() => {
     if (query === initialQuery) return;
     const t = setTimeout(() => {
-      const params = new URLSearchParams(sp?.toString() ?? '');
-      if (query.trim()) params.set('q', query.trim());
-      else params.delete('q');
-      params.set('page', '1');
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
+      pushParams({ q: query.trim() || undefined, page: '1' });
     }, 300);
     return () => clearTimeout(t);
-  }, [query, initialQuery, sp, pathname, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, initialQuery]);
 
   /* Push status filter to URL */
   const applyStatusFilter = React.useCallback(
     (val: string) => {
       setStatusFilter(val);
-      const params = new URLSearchParams(sp?.toString() ?? '');
-      if (val && val !== ALL) params.set('status', val);
-      else params.delete('status');
-      params.set('page', '1');
-      const qs = params.toString();
-      router.push(qs ? `${pathname}?${qs}` : pathname);
+      pushParams({ status: val && val !== ALL ? val : undefined, page: '1' });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [sp, pathname, router],
   );
 
@@ -192,9 +203,17 @@ export function ProformaListClient({
   const filtered = React.useMemo(() => {
     return serverRows.filter((inv) => {
       if (statusFilter !== ALL && inv.status !== statusFilter) return false;
+      if (initialDateFrom) {
+        const d = inv.proformaDate ? new Date(inv.proformaDate).toISOString().slice(0, 10) : '';
+        if (!d || d < initialDateFrom) return false;
+      }
+      if (initialDateTo) {
+        const d = inv.proformaDate ? new Date(inv.proformaDate).toISOString().slice(0, 10) : '';
+        if (!d || d > initialDateTo) return false;
+      }
       return true;
     });
-  }, [serverRows, statusFilter]);
+  }, [serverRows, statusFilter, initialDateFrom, initialDateTo]);
 
   /* Selection helpers */
   const allIds = React.useMemo(() => filtered.map((inv) => String(inv._id)), [filtered]);
@@ -303,7 +322,30 @@ export function ProformaListClient({
     toast({ title: 'Exported', description: `${rows.length} proforma invoices saved to CSV.` });
   }, [filtered, selected, toast]);
 
-  const filtersActive = statusFilter !== ALL;
+  /* XLSX export */
+  const bulkExportXlsx = React.useCallback(() => {
+    const rows = filtered.filter((inv) => selected.size === 0 || selected.has(String(inv._id)));
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    const headers = ['id', 'proformaNumber', 'accountId', 'proformaDate', 'validTillDate', 'status', 'currency', 'total', 'createdAt'];
+    const exportRows = rows.map((r) => ({
+      id: String(r._id),
+      proformaNumber: r.proformaNumber ?? '',
+      accountId: r.accountId ?? '',
+      proformaDate: r.proformaDate ?? '',
+      validTillDate: r.validTillDate ?? '',
+      status: r.status ?? '',
+      currency: r.currency ?? '',
+      total: r.total ?? '',
+      createdAt: r.createdAt ?? '',
+    }));
+    void downloadXlsx(`proforma-invoices-${dateStamp()}.xlsx`, headers, exportRows, 'Proformas');
+    toast({ title: 'Exported', description: `${rows.length} proforma invoices saved to XLSX.` });
+  }, [filtered, selected, toast]);
+
+  const filtersActive = statusFilter !== ALL || Boolean(initialDateFrom) || Boolean(initialDateTo);
 
   return (
     <>
@@ -330,7 +372,10 @@ export function ProformaListClient({
                 Archive
               </ZoruButton>
               <ZoruButton size="sm" variant="outline" onClick={bulkExport}>
-                Export CSV
+                <Download className="h-3.5 w-3.5" /> Export CSV
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={bulkExportXlsx}>
+                <Download className="h-3.5 w-3.5" /> Export XLSX
               </ZoruButton>
               <ZoruButton
                 size="sm"
@@ -342,7 +387,7 @@ export function ProformaListClient({
                 Delete
               </ZoruButton>
               <ZoruButton size="sm" variant="ghost" onClick={clearSelection}>
-                Clear
+                <X className="h-3.5 w-3.5" /> Clear
               </ZoruButton>
             </div>
           ) : null
@@ -384,7 +429,17 @@ export function ProformaListClient({
           <ZoruCard className="overflow-hidden p-0">
             {/* Filter bar */}
             <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line px-3 py-2">
-              <div className="w-48">
+              <div className="relative max-w-xs flex-1">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search proformas…"
+                  className="h-9 w-full rounded-md border border-zoru-line bg-transparent pl-9 pr-3 text-[13px] text-zoru-ink placeholder:text-zoru-ink-muted focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                />
+              </div>
+              <div className="w-44">
                 <EnumFilterField
                   enumName="quotationStatus"
                   value={statusFilter}
@@ -393,14 +448,40 @@ export function ProformaListClient({
                   placeholder="Status"
                 />
               </div>
+              <details className="relative">
+                <summary className="list-none">
+                  <ZoruButton variant="outline" size="sm" className="h-9 text-[12.5px]">
+                    <CalendarRange className="h-3.5 w-3.5" /> Date range
+                  </ZoruButton>
+                </summary>
+                <div className="absolute left-0 z-20 mt-2 grid w-[260px] gap-2 rounded-md border border-zoru-line bg-zoru-surface p-3 shadow-md">
+                  <label className="text-[11px] text-zoru-ink-muted">From</label>
+                  <input
+                    type="date"
+                    defaultValue={initialDateFrom}
+                    onChange={(e) => pushParams({ dateFrom: e.target.value || undefined, page: '1' })}
+                    className="h-8 w-full rounded-md border border-zoru-line bg-transparent px-2 text-[12.5px] text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                  />
+                  <label className="text-[11px] text-zoru-ink-muted">To</label>
+                  <input
+                    type="date"
+                    defaultValue={initialDateTo}
+                    onChange={(e) => pushParams({ dateTo: e.target.value || undefined, page: '1' })}
+                    className="h-8 w-full rounded-md border border-zoru-line bg-transparent px-2 text-[12.5px] text-zoru-ink focus:outline-none focus:ring-1 focus:ring-zoru-accent"
+                  />
+                </div>
+              </details>
               {filtersActive ? (
                 <ZoruButton
                   size="sm"
                   variant="ghost"
-                  onClick={() => applyStatusFilter(ALL)}
+                  onClick={() => {
+                    applyStatusFilter(ALL);
+                    pushParams({ dateFrom: undefined, dateTo: undefined, page: '1' });
+                  }}
                   className="text-[12px] text-zoru-ink-muted"
                 >
-                  Clear filters
+                  <X className="h-3.5 w-3.5" /> Clear filters
                 </ZoruButton>
               ) : null}
             </div>

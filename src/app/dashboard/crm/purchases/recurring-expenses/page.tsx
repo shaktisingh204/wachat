@@ -62,10 +62,19 @@ function toRow(doc: WsRecurringExpense & { _id: unknown }): RecurringExpenseRow 
 function computeKpis(rows: RecurringExpenseRow[]): RecurringExpenseKpiSnapshot {
   const now = Date.now();
   const week = now + 7 * 86_400_000;
+  const month = now + 30 * 86_400_000;
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const monthStartTs = monthStart.getTime();
+
   let active = 0;
   let paused = 0;
   let dueNext7 = 0;
   let totalMonthlyValue = 0;
+  let mtdSpend = 0;
+  let expiringCount = 0;
+  const vendorTotals = new Map<string, { amount: number; count: number }>();
 
   for (const r of rows) {
     if (r.status === 'active') {
@@ -92,19 +101,93 @@ function computeKpis(rows: RecurringExpenseRow[]): RecurringExpenseKpiSnapshot {
           break;
       }
       totalMonthlyValue += perMonth;
+
+      // MTD spend — booked once a schedule has fired this month.
+      const lastRun = r.last_run_date ? new Date(r.last_run_date).getTime() : NaN;
+      if (!Number.isNaN(lastRun) && lastRun >= monthStartTs) {
+        mtdSpend += amt;
+      }
+
+      // Expiring within 30 days — either explicit until_date or the
+      // remaining-runs counter has reached 1 of its cap.
+      if (r.until_date) {
+        const u = new Date(r.until_date).getTime();
+        if (!Number.isNaN(u) && u >= now && u <= month) expiringCount += 1;
+      } else if (
+        typeof r.stop_at_count === 'number' &&
+        r.stop_at_count > 0 &&
+        typeof r.run_count === 'number' &&
+        r.stop_at_count - r.run_count <= 1
+      ) {
+        expiringCount += 1;
+      }
+
+      const vendorKey = (r.vendor ?? '').trim();
+      if (vendorKey) {
+        const prev = vendorTotals.get(vendorKey) ?? { amount: 0, count: 0 };
+        prev.amount += amt;
+        prev.count += 1;
+        vendorTotals.set(vendorKey, prev);
+      }
     } else if (r.status === 'paused') {
       paused += 1;
     }
   }
-  return { active, paused, dueNext7, totalMonthlyValue };
+
+  let topVendor: string | null = null;
+  let topVendorAmount = 0;
+  let topVendorCount = 0;
+  for (const [v, agg] of vendorTotals) {
+    if (agg.amount > topVendorAmount) {
+      topVendor = v;
+      topVendorAmount = agg.amount;
+      topVendorCount = agg.count;
+    }
+  }
+
+  return {
+    active,
+    paused,
+    dueNext7,
+    totalMonthlyValue,
+    mtdSpend,
+    expiringCount,
+    topVendor,
+    topVendorAmount,
+    topVendorCount,
+  };
 }
 
-export default async function RecurringExpensesPage() {
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+}
+
+interface PageProps {
+  searchParams: Promise<SearchParams>;
+}
+
+export default async function RecurringExpensesPage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 25), 100);
+  const q = (sp.q ?? '').trim();
+
   const docs = (await getRecurringExpenses()) as unknown as Array<
     WsRecurringExpense & { _id: unknown }
   >;
-  const rows = (Array.isArray(docs) ? docs : []).map(toRow);
-  const kpi = computeKpis(rows);
+  // KPIs are derived from the whole window so totals don't shrink as the
+  // user paginates. The list itself is sliced below.
+  const allRows = (Array.isArray(docs) ? docs : []).map(toRow);
+  const kpi = computeKpis(allRows);
+
+  // Client-side pagination — the worksuite action doesn't yet expose a
+  // page/limit cursor, so we hand the slice to the client and rely on
+  // PaginationBar's URL writes for navigation.
+  const start = (page - 1) * limit;
+  const pageRows = allRows.slice(start, start + limit);
+  const hasMore = start + limit < allRows.length;
 
   return (
     <EntityListShell
@@ -112,9 +195,13 @@ export default async function RecurringExpensesPage() {
       subtitle="Templates that auto-generate expense entries on a schedule."
     >
       <RecurringExpensesListClient
-        rows={rows}
+        rows={pageRows}
         kpi={kpi}
         defaultCurrency="INR"
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
       />
     </EntityListShell>
   );

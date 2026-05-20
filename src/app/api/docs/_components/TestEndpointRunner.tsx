@@ -17,6 +17,12 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import {
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+} from '@/components/zoruui';
 
 interface ParamSpec {
   name: string;
@@ -166,38 +172,40 @@ export function TestEndpointRunner({
   };
 
   return (
-    <div className="rounded-md border border-zinc-800 bg-zinc-950 p-4 space-y-3">
+    <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg p-4 space-y-4">
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2">
-        <input
+        <ZoruInput
           type="password"
           placeholder="Paste your SabNode API key…"
           value={apiKey}
           onChange={(e) => setApiKey(e.target.value)}
-          className="bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 font-mono placeholder-zinc-500"
+          className="font-mono text-sm"
         />
-        <input
+        <ZoruInput
           type="text"
           placeholder="Base URL"
           value={baseUrl}
           onChange={(e) => setBaseUrl(e.target.value)}
-          className="bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 font-mono placeholder-zinc-500"
+          className="font-mono text-sm"
         />
       </div>
 
       {pathParams.length > 0 ? (
         <div>
-          <div className="text-xs text-zinc-400 mb-1">Path parameters</div>
+          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">Path parameters</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {pathParams.map((p) => (
-              <label key={p.name} className="text-xs text-zinc-400">
-                <span className="font-mono text-amber-300">{p.name}</span>
-                {p.description ? <span className="ml-1 text-zinc-500">— {p.description}</span> : null}
-                <input
+              <div key={p.name} className="space-y-1">
+                <ZoruLabel className="text-xs font-normal text-zoru-ink-muted">
+                  <span className="font-mono text-amber-400">{p.name}</span>
+                  {p.description ? <span className="ml-1">— {p.description}</span> : null}
+                </ZoruLabel>
+                <ZoruInput
                   value={pathValues[p.name] ?? ''}
                   onChange={(e) => setPathValues({ ...pathValues, [p.name]: e.target.value })}
-                  className="mt-1 block w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-sm font-mono text-zinc-100"
+                  className="font-mono text-sm"
                 />
-              </label>
+              </div>
             ))}
           </div>
         </div>
@@ -205,19 +213,21 @@ export function TestEndpointRunner({
 
       {queryParams.length > 0 ? (
         <div>
-          <div className="text-xs text-zinc-400 mb-1">Query parameters</div>
+          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">Query parameters</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {queryParams.map((q) => (
-              <label key={q.name} className="text-xs text-zinc-400">
-                <span className="font-mono text-amber-300">{q.name}</span>
-                {q.required ? <span className="ml-1 text-red-300">*</span> : null}
-                {q.description ? <span className="ml-1 text-zinc-500">— {q.description}</span> : null}
-                <input
+              <div key={q.name} className="space-y-1">
+                <ZoruLabel className="text-xs font-normal text-zoru-ink-muted">
+                  <span className="font-mono text-amber-400">{q.name}</span>
+                  {q.required ? <span className="ml-1 text-zoru-danger">*</span> : null}
+                  {q.description ? <span className="ml-1">— {q.description}</span> : null}
+                </ZoruLabel>
+                <ZoruInput
                   value={queryValues[q.name] ?? ''}
                   onChange={(e) => setQueryValues({ ...queryValues, [q.name]: e.target.value })}
-                  className="mt-1 block w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-sm font-mono text-zinc-100"
+                  className="font-mono text-sm"
                 />
-              </label>
+              </div>
             ))}
           </div>
         </div>
@@ -225,32 +235,27 @@ export function TestEndpointRunner({
 
       {hasBody ? (
         <div>
-          <div className="text-xs text-zinc-400 mb-1">JSON body</div>
-          <textarea
+          <p className="text-xs font-medium text-zoru-ink-muted mb-1.5">JSON body</p>
+          <ZoruTextarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
             rows={6}
-            className="block w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-100 font-mono"
+            className="font-mono text-xs"
             spellCheck={false}
           />
         </div>
       ) : null}
 
-      <div className="rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-xs font-mono text-zinc-300 break-all">
-        <span className="text-amber-300">{method}</span>{' '}
+      <div className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 text-xs font-mono text-zoru-ink break-all">
+        <span className="text-amber-400">{method}</span>{' '}
         <span>{builtUrl}</span>
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={run}
-          disabled={busy}
-          className="bg-amber-500 hover:bg-amber-400 text-zinc-900 font-semibold rounded px-4 py-2 text-sm disabled:opacity-50"
-        >
+        <ZoruButton onClick={run} disabled={busy}>
           {busy ? 'Sending…' : 'Send request'}
-        </button>
-        {error ? <span className="text-xs text-red-400">{error}</span> : null}
+        </ZoruButton>
+        {error ? <span className="text-xs text-zoru-danger">{error}</span> : null}
       </div>
 
       {result ? (
@@ -259,35 +264,35 @@ export function TestEndpointRunner({
             <span
               className={
                 result.status >= 500
-                  ? 'text-red-400'
+                  ? 'text-zoru-danger'
                   : result.status >= 400
-                    ? 'text-amber-300'
+                    ? 'text-zoru-warning'
                     : result.status >= 300
-                      ? 'text-blue-300'
-                      : 'text-green-400'
+                      ? 'text-blue-400'
+                      : 'text-zoru-success'
               }
             >
               <strong>{result.status}</strong> {result.statusText}
             </span>
-            <span className="text-zinc-500">· {result.elapsedMs} ms</span>
+            <span className="text-zoru-ink-subtle">· {result.elapsedMs} ms</span>
           </div>
 
-          <details className="border border-zinc-800 rounded">
-            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zinc-300 bg-zinc-900/50">
+          <details className="border border-zoru-line rounded-[var(--zoru-radius)]">
+            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zoru-ink bg-zoru-surface">
               Response headers ({Object.keys(result.headers).length})
             </summary>
-            <pre className="px-3 py-2 text-[11px] text-zinc-300 m-0 overflow-x-auto">
+            <pre className="px-3 py-2 text-[11px] text-zoru-ink m-0 overflow-x-auto">
 {Object.entries(result.headers)
   .map(([k, v]) => `${k}: ${v}`)
   .join('\n')}
             </pre>
           </details>
 
-          <details open className="border border-zinc-800 rounded">
-            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zinc-300 bg-zinc-900/50">
+          <details open className="border border-zoru-line rounded-[var(--zoru-radius)]">
+            <summary className="cursor-pointer px-3 py-1.5 text-xs text-zoru-ink bg-zoru-surface">
               Response body
             </summary>
-            <pre className="px-3 py-2 text-[11px] text-zinc-100 m-0 overflow-x-auto max-h-96">
+            <pre className="px-3 py-2 text-[11px] text-zoru-ink m-0 overflow-x-auto max-h-96">
 {typeof result.parsedBody === 'object' && result.parsedBody !== null
   ? JSON.stringify(result.parsedBody, null, 2)
   : result.body}

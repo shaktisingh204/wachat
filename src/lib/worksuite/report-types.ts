@@ -318,3 +318,55 @@ export interface PaymentReceiptRow {
   invoiceNumber: string;
   invoiceId: string;
 }
+
+/* ─── Top Clients / Products deepened ───────────────────────────── */
+
+export interface TopClientDeepRow {
+  clientId: string;
+  clientName: string;
+  industry: string;
+  revenue: number;
+  invoices: number;
+  avgOrderValue: number;
+  lastOrderDate: string;
+}
+
+export interface TopProductDeepRow {
+  productName: string;
+  category: string;
+  units: number;
+  revenue: number;
+  avgPrice: number;
+}
+
+/* ─── Lead conversion by source ────────────────────────────────── */
+
+export interface LeadsBySourceRow {
+  source: string;
+  total: number;
+  converted: number;
+  conversionRate: number;
+}
+
+/* ─── Deals filtered ────────────────────────────────────────────── */
+
+export interface DealsFilteredRow {
+  id: string;
+  name: string;
+  stage: string;
+  value: number;
+  owner: string;
+  pipeline: string;
+  accountId?: string;
+  createdAt: string | null;
+}
+
+/* ─── P&L granularity rows ──────────────────────────────────────── */
+
+export interface ProfitLossQuarterRow {
+  period: string;
+  revenue: number;
+  cogs: number;
+  expense: number;
+  profit: number;
+}

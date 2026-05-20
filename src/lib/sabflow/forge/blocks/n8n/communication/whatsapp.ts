@@ -5,13 +5,17 @@
  * Credential type: 'whatsapp' — { phoneNumberId, accessToken, businessAccountId } from CREDENTIAL_FIELD_SCHEMAS.
  *
  * Operations covered (selected from the message resource):
- *   - send_text       POST /{phone-id}/messages   { type: 'text' }
- *   - send_template   POST /{phone-id}/messages   { type: 'template' }
- *   - send_media      POST /{phone-id}/messages   { type: 'image'|'document'|'video'|'audio' }
+ *   - send_text       POST   /{phone-id}/messages   { type: 'text' }
+ *   - send_template   POST   /{phone-id}/messages   { type: 'template' }
+ *   - send_media      POST   /{phone-id}/messages   { type: 'image'|'document'|'video'|'audio' }
+ *   - send_location   POST   /{phone-id}/messages   { type: 'location' }
+ *   - send_contacts   POST   /{phone-id}/messages   { type: 'contacts' }
+ *   - media_get       GET    /{media-id}            (resolve to download URL)
+ *   - media_delete    DELETE /{media-id}
  *
  * Out of scope for the first port:
- *   - Binary media upload (only URL/id passthrough supported)
- *   - Contacts / location / interactive button builders
+ *   - Binary media upload (POST /{phone-id}/media — requires multipart binary support)
+ *   - Interactive button / list builders (callers can hand-craft via send_template `components`)
  *   - sendTemplate component builder UI — accept a JSON `components` blob instead
  *   - SEND_AND_WAIT_OPERATION
  */
@@ -130,6 +134,76 @@ async function sendMedia(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   return { outputs: { result }, logs: [`WhatsApp ${mediaType} → ${to}`] };
 }
 
+async function sendLocation(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const to = asString(ctx.options.to);
+  const latitude = asString(ctx.options.latitude);
+  const longitude = asString(ctx.options.longitude);
+  if (!to) throw new Error('WhatsApp: recipient `to` is required');
+  if (!latitude) throw new Error('WhatsApp: latitude is required');
+  if (!longitude) throw new Error('WhatsApp: longitude is required');
+
+  const location: Record<string, unknown> = {
+    latitude: Number(latitude),
+    longitude: Number(longitude),
+  };
+  const name = asString(ctx.options.name);
+  if (name) location.name = name;
+  const address = asString(ctx.options.address);
+  if (address) location.address = address;
+
+  const result = await send(ctx, {
+    to: cleanRecipient(to),
+    type: 'location',
+    location,
+  });
+  return { outputs: { result }, logs: [`WhatsApp location → ${to}`] };
+}
+
+async function sendContacts(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const to = asString(ctx.options.to);
+  const contactsRaw = ctx.options.contacts;
+  if (!to) throw new Error('WhatsApp: recipient `to` is required');
+  if (contactsRaw === undefined || contactsRaw === null || contactsRaw === '') {
+    throw new Error('WhatsApp: contacts (JSON array of contact objects) is required');
+  }
+  const contacts = typeof contactsRaw === 'string' ? JSON.parse(contactsRaw) : contactsRaw;
+  if (!Array.isArray(contacts)) {
+    throw new Error('WhatsApp: contacts must be a JSON array');
+  }
+  const result = await send(ctx, {
+    to: cleanRecipient(to),
+    type: 'contacts',
+    contacts,
+  });
+  return { outputs: { result }, logs: [`WhatsApp contacts → ${to}`] };
+}
+
+async function mediaGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { accessToken } = credsOrThrow(ctx);
+  const mediaId = asString(ctx.options.mediaId);
+  if (!mediaId) throw new Error('WhatsApp: mediaId is required');
+  const res = await apiRequest({
+    service: 'WhatsApp',
+    method: 'GET',
+    url: `${WHATSAPP_BASE}/${encodeURIComponent(mediaId)}`,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return { outputs: { media: res.data }, logs: [`WhatsApp media get → ${mediaId}`] };
+}
+
+async function mediaDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const { accessToken } = credsOrThrow(ctx);
+  const mediaId = asString(ctx.options.mediaId);
+  if (!mediaId) throw new Error('WhatsApp: mediaId is required');
+  const res = await apiRequest({
+    service: 'WhatsApp',
+    method: 'DELETE',
+    url: `${WHATSAPP_BASE}/${encodeURIComponent(mediaId)}`,
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  return { outputs: { result: res.data }, logs: [`WhatsApp media delete → ${mediaId}`] };
+}
+
 const block: ForgeBlock = {
   id: 'forge_whatsapp',
   name: 'WhatsApp',
@@ -190,6 +264,49 @@ const block: ForgeBlock = {
         { id: 'filename', label: 'Filename (document only)', type: 'text' },
       ],
       run: sendMedia,
+    },
+    {
+      id: 'send_location',
+      label: 'Send location',
+      description: 'Send a geographic location message.',
+      fields: [
+        { id: 'to', label: "Recipient's phone number", type: 'text', required: true },
+        { id: 'latitude', label: 'Latitude', type: 'text', required: true },
+        { id: 'longitude', label: 'Longitude', type: 'text', required: true },
+        { id: 'name', label: 'Place name', type: 'text' },
+        { id: 'address', label: 'Address', type: 'text' },
+      ],
+      run: sendLocation,
+    },
+    {
+      id: 'send_contacts',
+      label: 'Send contacts',
+      description: 'Send one or more contact cards. `contacts` accepts a JSON array of contact objects.',
+      fields: [
+        { id: 'to', label: "Recipient's phone number", type: 'text', required: true },
+        {
+          id: 'contacts',
+          label: 'Contacts (JSON array)',
+          type: 'json',
+          required: true,
+          placeholder: '[{"name":{"formatted_name":"Jane Doe","first_name":"Jane"},"phones":[{"phone":"+15551234567"}]}]',
+        },
+      ],
+      run: sendContacts,
+    },
+    {
+      id: 'media_get',
+      label: 'Get media URL',
+      description: 'Resolve a media ID to its temporary download URL and metadata.',
+      fields: [{ id: 'mediaId', label: 'Media ID', type: 'text', required: true }],
+      run: mediaGet,
+    },
+    {
+      id: 'media_delete',
+      label: 'Delete media',
+      description: 'Delete a previously uploaded media item from WhatsApp servers.',
+      fields: [{ id: 'mediaId', label: 'Media ID', type: 'text', required: true }],
+      run: mediaDelete,
     },
   ],
 };

@@ -1,240 +1,419 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { Folder, HardDrive, Sparkles, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import {
+  useActionState,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
+import {
+  AlertCircle,
+  Archive,
+  Cloud,
+  Database,
+  HardDrive,
+  LoaderCircle,
+  Upload,
+} from 'lucide-react';
 
 import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
   ZoruCardContent,
-  ZoruRadioCard,
-  ZoruRadioGroup,
-  ZoruSkeleton,
-  ZoruSwitch,
+  ZoruInput,
   ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSkeleton,
 } from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  ModuleConnectionWizard,
-  type ModuleWizardStep,
-} from '@/components/crm/module-connection-wizard';
+  ConnectionHeader,
+  IntegrationActivityFeed,
+  IntegrationKpiGrid,
+  IntegrationSection,
+  useIntegrationToast,
+  type ConnectionState,
+} from '@/components/crm/integration-console';
+import {
+  getStorageSetting,
+  saveStorageSetting,
+  testIntegration,
+  disconnectIntegration,
+  getIntegrationEvents,
+  getIntegrationStats,
+  type IntegrationEvent,
+  type IntegrationStats,
+} from '@/app/actions/worksuite/integrations.actions';
+import type {
+  WsStorageDriver,
+  WsStorageSetting,
+} from '@/lib/worksuite/integrations-types';
 
-import { listNodes } from '@/app/actions/sabfiles.actions';
+type Doc = (WsStorageSetting & { _id: unknown }) | null;
 
-type StorageDraft = {
-  rootFolderId: string | null;
-  rootFolderName: string;
-  autoOrganize: boolean;
+const DRIVER_LABELS: Record<WsStorageDriver, string> = {
+  local: 'Local disk',
+  s3: 'Amazon S3 / R2',
+  'google-drive': 'Google Drive',
+  azure: 'Azure Blob',
 };
-
-const DEFAULT_DRAFT: StorageDraft = {
-  rootFolderId: null,
-  rootFolderName: 'My files (root)',
-  autoOrganize: true,
-};
-
-function FolderPicker({
-  draft,
-  setDraft,
-}: {
-  draft: StorageDraft;
-  setDraft: (next: Partial<StorageDraft>) => void;
-}) {
-  const [folders, setFolders] = React.useState<
-    { id: string; name: string }[] | null
-  >(null);
-
-  React.useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const res = await listNodes({ parent: null });
-      if (cancelled) return;
-      const list = (res.nodes ?? [])
-        .filter((n) => n.type === 'folder' && !n.trashed)
-        .map((n) => ({ id: n.id, name: n.name }));
-      setFolders([{ id: '__root__', name: 'My files (root)' }, ...list]);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  if (!folders) {
-    return (
-      <div className="space-y-2">
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-        <ZoruSkeleton className="h-12 w-full" />
-      </div>
-    );
-  }
-
-  return (
-    <ZoruRadioGroup
-      value={draft.rootFolderId ?? '__root__'}
-      onValueChange={(val) => {
-        const match = folders.find((f) => f.id === val);
-        setDraft({
-          rootFolderId: val === '__root__' ? null : val,
-          rootFolderName: match?.name ?? 'My files (root)',
-        });
-      }}
-      className="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-72 overflow-y-auto pr-1"
-    >
-      {folders.map((f) => (
-        <ZoruRadioCard
-          key={f.id}
-          value={f.id}
-          icon={<Folder className="h-4 w-4 text-zoru-ink-muted" />}
-          label={f.name}
-        />
-      ))}
-    </ZoruRadioGroup>
-  );
-}
 
 export default function StorageIntegrationPage() {
-  const steps = React.useMemo<ModuleWizardStep<StorageDraft>[]>(
-    () => [
-      {
-        id: 'intro',
-        title: 'Welcome',
-        description:
-          'The CRM stores invoices, quote PDFs, contract files, and lead attachments in SabFiles — your tenant-scoped R2 file library.',
-        render: () => (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {[
-              { icon: HardDrive, title: 'One backend', body: 'Reuses SabFiles’ R2-backed storage. No extra credentials.' },
-              { icon: Sparkles, title: 'Auto-organized', body: 'CRM uploads land in dated subfolders inside the folder you pick.' },
-              { icon: CheckCircle2, title: 'Shareable', body: 'Share-link controls and download gating come from SabFiles.' },
-            ].map((p) => (
-              <div
-                key={p.title}
-                className="rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-4"
-              >
-                <p.icon className="h-5 w-5 text-zoru-ink" />
-                <p className="mt-2 text-sm font-medium text-zoru-ink">
-                  {p.title}
-                </p>
-                <p className="mt-1 text-xs text-zoru-ink-muted">{p.body}</p>
-              </div>
-            ))}
-          </div>
-        ),
-      },
-      {
-        id: 'folder',
-        title: 'Pick a root folder',
-        description:
-          'New CRM uploads will land inside this folder. You can change it later.',
-        render: ({ draft, setDraft }) => (
-          <FolderPicker draft={draft} setDraft={setDraft} />
-        ),
-      },
-      {
-        id: 'options',
-        title: 'Options',
-        description: 'Fine-tune how files are organized.',
-        render: ({ draft, setDraft }) => (
-          <div className="space-y-3">
-            <label className="flex items-start gap-3 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface p-3">
-              <ZoruSwitch
-                checked={draft.autoOrganize}
-                onCheckedChange={(v) => setDraft({ autoOrganize: v })}
-                className="mt-1"
-              />
-              <div>
-                <ZoruLabel className="text-sm">Auto-organize uploads</ZoruLabel>
-                <p className="text-xs text-zoru-ink-muted">
-                  Place files into <code>YYYY/MM/&lt;module&gt;/</code>{' '}
-                  subfolders so they don&apos;t crowd the root.
-                </p>
-              </div>
-            </label>
-          </div>
-        ),
-      },
-      {
-        id: 'review',
-        title: 'Review',
-        description: 'Confirm your storage binding.',
-        render: ({ draft }) => (
-          <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-            <div>
-              <dt className="text-xs text-zoru-ink-muted">Root folder</dt>
-              <dd className="mt-0.5 font-medium">{draft.rootFolderName}</dd>
-            </div>
-            <div>
-              <dt className="text-xs text-zoru-ink-muted">Auto-organize</dt>
-              <dd className="mt-0.5 font-medium">
-                {draft.autoOrganize ? 'On' : 'Off'}
-              </dd>
-            </div>
-          </dl>
-        ),
-      },
-    ],
-    [],
+  const { reportResult } = useIntegrationToast();
+  const [doc, setDoc] = useState<Doc>(null);
+  const [driver, setDriver] = useState<WsStorageDriver>('local');
+  const [events, setEvents] = useState<IntegrationEvent[]>([]);
+  const [stats, setStats] = useState<IntegrationStats | null>(null);
+  const [, startLoading] = useTransition();
+  const [isTesting, startTesting] = useTransition();
+  const [isDisconnecting, startDisconnect] = useTransition();
+  const [saveState, saveFormAction, isSaving] = useActionState(
+    saveStorageSetting,
+    { message: '', error: '' } as {
+      message?: string;
+      error?: string;
+      id?: string;
+    },
   );
+
+  const refresh = useCallback(() => {
+    startLoading(async () => {
+      const [d, ev, st] = await Promise.all([
+        getStorageSetting() as Promise<Doc>,
+        getIntegrationEvents('storage', 10),
+        getIntegrationStats('storage'),
+      ]);
+      setDoc(d);
+      setDriver((d?.storage_driver as WsStorageDriver) || 'local');
+      setEvents(ev);
+      setStats(st);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (saveState?.message) {
+      reportResult('storage', saveState);
+      refresh();
+    } else if (saveState?.error) {
+      reportResult('storage', saveState);
+    }
+  }, [saveState, reportResult, refresh]);
+
+  const v = (k: keyof WsStorageSetting) => {
+    const val = doc ? (doc as any)[k] : undefined;
+    return val == null ? '' : String(val);
+  };
+
+  const docId = doc && (doc as any)._id ? String((doc as any)._id) : '';
+
+  const bucketLabel = useMemo(() => {
+    if (driver === 's3') return doc?.aws_bucket || 'no bucket';
+    if (driver === 'google-drive') return 'Google Drive root';
+    if (driver === 'azure') return doc?.azure_account || 'no container';
+    return 'Local /storage';
+  }, [driver, doc]);
+
+  const isConfigured = useMemo(() => {
+    if (!doc) return false;
+    if (driver === 's3') {
+      return Boolean(doc.aws_access_key && doc.aws_secret && doc.aws_bucket);
+    }
+    if (driver === 'google-drive') {
+      return Boolean(doc.gd_client_id && doc.gd_client_secret);
+    }
+    if (driver === 'azure') return Boolean(doc.azure_account);
+    return true; // local driver always usable
+  }, [doc, driver]);
+
+  const state: ConnectionState = isConfigured
+    ? stats?.lastErrorMessage
+      ? 'error'
+      : 'connected'
+    : 'disconnected';
+
+  // Files stored / MB used derive from "upload" events on this provider.
+  const filesStored = useMemo(() => {
+    return events
+      .filter((e) => e.kind === 'upload' && e.status === 'success')
+      .reduce((n, e) => n + (e.count ?? 1), 0);
+  }, [events]);
+
+  const mbUsed = useMemo(() => {
+    return events
+      .filter((e) => e.kind === 'upload' && e.status === 'success')
+      .reduce((n, e) => {
+        const mb = (e.meta as any)?.sizeMb;
+        return n + (typeof mb === 'number' ? mb : 0);
+      }, 0);
+  }, [events]);
+
+  const lastUpload = events.find(
+    (e) => e.kind === 'upload' && e.status === 'success',
+  );
+  const lastUploadLabel = lastUpload
+    ? new Date(lastUpload.createdAt).toLocaleString()
+    : 'Never';
+
+  const onTest = () => {
+    startTesting(async () => {
+      const res = await testIntegration('storage');
+      reportResult('storage', res);
+      refresh();
+    });
+  };
+
+  const onDisconnect = () => {
+    startDisconnect(async () => {
+      const res = await disconnectIntegration('storage');
+      reportResult('storage', res);
+      refresh();
+    });
+  };
 
   return (
     <EntityListShell
       title="Storage"
-      subtitle="Bind the CRM to SabFiles as its file backend."
+      subtitle="Filesystem driver and bucket for CRM uploads."
     >
-      <ModuleConnectionWizard<StorageDraft>
-        moduleKey="storage"
-        title="Storage"
-        subtitle="Where CRM uploads (invoices, contracts, lead attachments) are stored."
-        icon={HardDrive}
-        targetModuleLabel="SabFiles"
-        defaultDraft={DEFAULT_DRAFT}
-        steps={steps}
-        manageView={({ connection, onReconnect }) => (
-          <ZoruCard>
-            <ZoruCardContent className="p-6 space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="space-y-4">
+        <ConnectionHeader
+          name="Storage"
+          description="Where CRM files (invoices, attachments, exports) are persisted."
+          icon={HardDrive}
+          state={state}
+          connectedAs={`${DRIVER_LABELS[driver]} · ${bucketLabel}`}
+          connectedAt={(doc as any)?.updatedAt || (doc as any)?.createdAt || null}
+          scopes={[driver]}
+          onTest={isConfigured ? onTest : undefined}
+          isTesting={isTesting}
+          onDisconnect={onDisconnect}
+          isDisconnecting={isDisconnecting}
+        />
+
+        <IntegrationKpiGrid
+          kpis={[
+            {
+              label: 'Bucket / driver',
+              value: (
+                <span className="inline-flex items-center gap-1.5">
+                  <Cloud className="h-4 w-4" />
+                  {DRIVER_LABELS[driver]}
+                </span>
+              ),
+              period: bucketLabel,
+              icon: <Database />,
+            },
+            {
+              label: 'Files stored',
+              value: filesStored,
+              period: 'Tracked via upload events',
+              icon: <Archive />,
+            },
+            {
+              label: 'Storage used',
+              value: `${mbUsed.toFixed(1)} MB`,
+              period: `${stats?.deliveriesThisMonth ?? 0} uploads / month`,
+              icon: <HardDrive />,
+            },
+            {
+              label: 'Last upload',
+              value: lastUploadLabel,
+              period: stats?.failuresToday
+                ? `${stats.failuresToday} failed today`
+                : 'Healthy',
+              icon: <Upload />,
+              invertDelta: true,
+              delta: stats?.failuresToday ?? 0,
+            },
+          ]}
+        />
+
+        <IntegrationSection
+          title="Driver & credentials"
+          description="Pick a storage driver and provide the credentials it needs."
+          actions={
+            <ZoruBadge variant="secondary">
+              Active: {DRIVER_LABELS[driver]}
+            </ZoruBadge>
+          }
+        >
+          {!doc && !docId ? (
+            <div className="space-y-4">
+              <ZoruSkeleton className="h-10 w-full" />
+              <ZoruSkeleton className="h-10 w-full" />
+            </div>
+          ) : null}
+
+          <form action={saveFormAction} className="space-y-4">
+            {docId ? <input type="hidden" name="_id" value={docId} /> : null}
+            <input type="hidden" name="storage_driver" value={driver} />
+
+            <div>
+              <ZoruLabel htmlFor="storage_driver_select">
+                Storage driver
+              </ZoruLabel>
+              <div className="mt-1.5">
+                <ZoruSelect
+                  value={driver}
+                  onValueChange={(val) => setDriver(val as WsStorageDriver)}
+                >
+                  <ZoruSelectTrigger id="storage_driver_select">
+                    <ZoruSelectValue />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    {(Object.keys(DRIVER_LABELS) as WsStorageDriver[]).map(
+                      (k) => (
+                        <ZoruSelectItem key={k} value={k}>
+                          {DRIVER_LABELS[k]}
+                        </ZoruSelectItem>
+                      ),
+                    )}
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
+            </div>
+
+            {driver === 's3' ? (
+              <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <p className="text-sm text-zoru-ink-muted">Root folder</p>
-                  <p className="mt-0.5 text-sm font-medium flex items-center gap-1.5">
-                    <Folder className="h-4 w-4 text-zoru-ink-muted" />
-                    {connection.config.rootFolderName ?? 'My files (root)'}
-                  </p>
+                  <ZoruLabel htmlFor="aws_access_key">Access key</ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="aws_access_key"
+                      name="aws_access_key"
+                      defaultValue={v('aws_access_key')}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <p className="text-sm text-zoru-ink-muted">Auto-organize</p>
-                  <ZoruBadge
-                    variant={connection.config.autoOrganize ? 'default' : 'outline'}
-                  >
-                    {connection.config.autoOrganize ? 'On' : 'Off'}
-                  </ZoruBadge>
+                  <ZoruLabel htmlFor="aws_secret">Secret key</ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="aws_secret"
+                      name="aws_secret"
+                      type="password"
+                      defaultValue={v('aws_secret')}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <p className="text-sm text-zoru-ink-muted">Connected at</p>
-                  <p className="mt-0.5 text-sm font-medium">
-                    {connection.connectedAt
-                      ? new Date(connection.connectedAt).toLocaleString()
-                      : '—'}
-                  </p>
+                  <ZoruLabel htmlFor="aws_region">Region</ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="aws_region"
+                      name="aws_region"
+                      defaultValue={v('aws_region')}
+                      placeholder="us-east-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <ZoruLabel htmlFor="aws_bucket">Bucket</ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="aws_bucket"
+                      name="aws_bucket"
+                      defaultValue={v('aws_bucket')}
+                      placeholder="sabnode-prod"
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-end gap-2">
-                <ZoruButton variant="outline" asChild>
-                  <Link href="/dashboard/sabfiles">
-                    Open SabFiles
-                    <ArrowUpRight className="h-4 w-4" />
-                  </Link>
-                </ZoruButton>
-                <ZoruButton variant="ghost" onClick={onReconnect}>
-                  Edit
-                </ZoruButton>
+            ) : null}
+
+            {driver === 'google-drive' ? (
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <ZoruLabel htmlFor="gd_client_id">Client ID</ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="gd_client_id"
+                      name="gd_client_id"
+                      defaultValue={v('gd_client_id')}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <ZoruLabel htmlFor="gd_client_secret">
+                    Client secret
+                  </ZoruLabel>
+                  <div className="mt-1.5">
+                    <ZoruInput
+                      id="gd_client_secret"
+                      name="gd_client_secret"
+                      type="password"
+                      defaultValue={v('gd_client_secret')}
+                    />
+                  </div>
+                </div>
+              </div>
+            ) : null}
+
+            {driver === 'azure' ? (
+              <div>
+                <ZoruLabel htmlFor="azure_account">Account / container</ZoruLabel>
+                <div className="mt-1.5">
+                  <ZoruInput
+                    id="azure_account"
+                    name="azure_account"
+                    defaultValue={v('azure_account')}
+                  />
+                </div>
+              </div>
+            ) : null}
+
+            {driver === 'local' ? (
+              <div className="rounded-lg border border-dashed border-zoru-line bg-zoru-bg p-4 text-xs text-zoru-ink-muted">
+                Local driver writes to the application&apos;s storage folder.
+                No credentials required.
+              </div>
+            ) : null}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : null}
+                Save changes
+              </ZoruButton>
+            </div>
+          </form>
+        </IntegrationSection>
+
+        {stats?.lastErrorMessage ? (
+          <ZoruCard>
+            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
+              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+              <div>
+                <p className="text-sm font-medium text-zoru-ink">
+                  Last upload error
+                </p>
+                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
+                  {stats.lastErrorMessage}
+                </p>
               </div>
             </ZoruCardContent>
           </ZoruCard>
-        )}
-      />
+        ) : null}
+
+        <IntegrationActivityFeed
+          title="Upload activity"
+          description="Uploads, deletes and driver health checks."
+          events={events}
+          emptyMessage="No uploads yet."
+        />
+      </div>
     </EntityListShell>
   );
 }

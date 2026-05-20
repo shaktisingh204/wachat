@@ -2,16 +2,15 @@
  * CRM HR — Onboarding list (`/dashboard/crm/hr/onboarding`).
  *
  * Server component shell. Reads page/limit/q/status from the URL,
- * fetches via the Rust-backed `getOnboardings` action, and hands the
- * result to `<OnboardingView>` for client interactions (search,
- * status filter, delete).
+ * fetches onboardings + KPIs in parallel via Rust-backed actions, and
+ * passes the result to `<OnboardingView>` for client interactions
+ * (search, status filter, bulk actions, export, delete).
  *
- * Falls back to an empty list when the user lacks the
- * `crm_onboarding:view` permission or the Rust service is unreachable
- * (the action already records a fallback metric).
+ * Falls back to empty data when the user lacks the
+ * `crm_onboarding:view` permission or the Rust service is unreachable.
  */
 
-import { getOnboardings } from '@/app/actions/crm-onboarding.actions';
+import { getOnboardings, getOnboardingKpis } from '@/app/actions/crm-onboarding.actions';
 import { OnboardingView } from './_components/onboarding-view';
 
 export const dynamic = 'force-dynamic';
@@ -34,21 +33,25 @@ export default async function OnboardingPage({
   const q = (sp.q ?? '').trim();
   const statusParam = (sp.status ?? '').trim();
 
-  const { items, hasMore } = await getOnboardings({
-    page,
-    limit,
-    ...(q ? { q } : {}),
-    ...(statusParam ? { status: statusParam as never } : {}),
-  });
+  const [listResult, kpis] = await Promise.all([
+    getOnboardings({
+      page,
+      limit,
+      ...(q ? { q } : {}),
+      ...(statusParam ? { status: statusParam as never } : {}),
+    }),
+    getOnboardingKpis(),
+  ]);
 
   return (
     <OnboardingView
-      items={items}
+      items={listResult.items}
       page={page}
       limit={limit}
-      hasMore={hasMore}
+      hasMore={listResult.hasMore}
       initialQuery={q}
       initialStatus={statusParam}
+      kpis={kpis}
     />
   );
 }

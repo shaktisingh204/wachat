@@ -194,6 +194,66 @@ export async function saveExpenseCategory(
     }
 }
 
+/* ─── Bulk actions ────────────────────────────────────────────────────── */
+
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+
+export async function bulkDeleteExpenseCategories(ids: string[]): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No categories selected.' };
+
+    const guard = await requirePermission(RBAC_KEY, 'delete');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await crmExpenseCategoriesApi.delete(id);
+            count++;
+        } catch (e) {
+            if (e instanceof RustApiError && e.status === 404) continue;
+            console.error(`[bulkDeleteExpenseCategories] failed for ${id}:`, e);
+            recordFallback('delete', e);
+        }
+    }
+    revalidatePath(LIST_PATH);
+    return { ok: true, count };
+}
+
+async function bulkSetExpenseCategoryStatus(
+    ids: string[],
+    isActive: boolean,
+): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No categories selected.' };
+
+    const guard = await requirePermission(RBAC_KEY, 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await crmExpenseCategoriesApi.update(id, { isActive });
+            count++;
+        } catch (e) {
+            console.error(`[bulkSetExpenseCategoryStatus] failed for ${id}:`, e);
+            recordFallback('update', e);
+        }
+    }
+    revalidatePath(LIST_PATH);
+    return { ok: true, count };
+}
+
+export async function bulkActivateExpenseCategories(ids: string[]): Promise<BulkResult> {
+    return bulkSetExpenseCategoryStatus(ids, true);
+}
+
+export async function bulkDeactivateExpenseCategories(ids: string[]): Promise<BulkResult> {
+    return bulkSetExpenseCategoryStatus(ids, false);
+}
+
 export async function deleteExpenseCategory(
     id: string,
 ): Promise<{ success: boolean; error?: string }> {

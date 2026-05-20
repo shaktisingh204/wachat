@@ -165,6 +165,42 @@ test('legacy plain-string field value still passes through unchanged', () => {
   assert.equal(ctx.getNodeParameter?.('databaseId'), 'plain_id');
 });
 
+/* ── Phase 3: filter + paginationToken passthrough ─────────────────────── */
+
+test('filter is forwarded to ctx (undefined when omitted)', () => {
+  const ctxWith = buildLoadOptionsContext({
+    block: blockStub,
+    options: {},
+    filter: 'general',
+  });
+  assert.equal(ctxWith.filter, 'general');
+
+  const ctxWithout = buildLoadOptionsContext({
+    block: blockStub,
+    options: {},
+  });
+  assert.equal(ctxWithout.filter, undefined);
+});
+
+test('paginationToken is forwarded to ctx (string, null, or undefined)', () => {
+  const a = buildLoadOptionsContext({
+    block: blockStub,
+    options: {},
+    paginationToken: 'cursor_42',
+  });
+  assert.equal(a.paginationToken, 'cursor_42');
+
+  const b = buildLoadOptionsContext({
+    block: blockStub,
+    options: {},
+    paginationToken: null,
+  });
+  assert.equal(b.paginationToken, null);
+
+  const c = buildLoadOptionsContext({ block: blockStub, options: {} });
+  assert.equal(c.paginationToken, undefined);
+});
+
 test('resourceLocator declared at the action level (not block level)', () => {
   const multiAction: ForgeBlock = {
     id: 'multi',

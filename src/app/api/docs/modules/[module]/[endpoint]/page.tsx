@@ -7,10 +7,25 @@ import { notFound } from 'next/navigation';
 import { CodeSamplesTabs } from '../../../_components/CodeSamplesTabs';
 import { TestEndpointRunner } from '../../../_components/TestEndpointRunner';
 import { buildSamples } from '@/lib/api-platform/sample-builder';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbPage,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableHead,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableCell,
+} from '@/components/zoruui';
 
-// Render on-demand and cache for an hour. Pre-rendering all 11k+
-// endpoints at build time is wasteful; rendering on first request +
-// caching keeps the build fast and the page fresh.
 export const revalidate = 3600;
 export const dynamicParams = true;
 
@@ -34,8 +49,6 @@ interface Row {
 const rows = catalog as Row[];
 
 export async function generateStaticParams() {
-  // For 11k+ endpoints we render on-demand and let Next.js cache after
-  // first hit (`dynamicParams = true`).
   return [];
 }
 
@@ -48,34 +61,46 @@ function MethodBadge({ method }: { method: string }) {
     DELETE: 'bg-red-500/20 text-red-300 border-red-500/40',
   };
   const cls = colors[method] ?? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/40';
-  return <span className={'inline-block text-xs font-bold px-2 py-0.5 rounded border ' + cls}>{method}</span>;
+  return (
+    <span className={'inline-block text-xs font-bold px-2 py-0.5 rounded border ' + cls}>
+      {method}
+    </span>
+  );
 }
 
-function ParamTable({ title, rows: r }: { title: string; rows: Array<{ name: string; type: string; required?: boolean; description: string }> }) {
+function ParamTable({
+  title,
+  rows: r,
+}: {
+  title: string;
+  rows: Array<{ name: string; type: string; required?: boolean; description: string }>;
+}) {
   if (!r.length) return null;
   return (
-    <div className="my-3">
-      <div className="text-xs font-semibold text-zinc-300 mb-1">{title}</div>
-      <table className="w-full text-xs border border-zinc-800 rounded-md overflow-hidden">
-        <thead className="bg-zinc-900/50 text-zinc-400">
-          <tr>
-            <th className="text-left px-2 py-1.5">Name</th>
-            <th className="text-left px-2 py-1.5">Type</th>
-            <th className="text-left px-2 py-1.5">Req.</th>
-            <th className="text-left px-2 py-1.5">Description</th>
-          </tr>
-        </thead>
-        <tbody>
-          {r.map((p) => (
-            <tr key={p.name} className="border-t border-zinc-800">
-              <td className="px-2 py-1.5 font-mono text-amber-300">{p.name}</td>
-              <td className="px-2 py-1.5 font-mono text-zinc-400">{p.type}</td>
-              <td className="px-2 py-1.5 text-zinc-400">{p.required ? '✓' : ''}</td>
-              <td className="px-2 py-1.5 text-zinc-300">{p.description}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="my-4">
+      <p className="text-xs font-semibold text-zoru-ink mb-2">{title}</p>
+      <div className="rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden">
+        <ZoruTable>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead>Name</ZoruTableHead>
+              <ZoruTableHead>Type</ZoruTableHead>
+              <ZoruTableHead>Req.</ZoruTableHead>
+              <ZoruTableHead>Description</ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
+            {r.map((p) => (
+              <ZoruTableRow key={p.name}>
+                <ZoruTableCell className="font-mono text-xs text-amber-400">{p.name}</ZoruTableCell>
+                <ZoruTableCell className="font-mono text-xs text-zoru-ink-muted">{p.type}</ZoruTableCell>
+                <ZoruTableCell className="text-xs text-zoru-ink-muted">{p.required ? '✓' : ''}</ZoruTableCell>
+                <ZoruTableCell className="text-xs text-zoru-ink">{p.description}</ZoruTableCell>
+              </ZoruTableRow>
+            ))}
+          </ZoruTableBody>
+        </ZoruTable>
+      </div>
     </div>
   );
 }
@@ -89,10 +114,6 @@ export default async function Page({
   const e = rows.find((r) => r.module === module && r.slug === endpoint);
   if (!e) notFound();
 
-  // Build samples on-demand from the slim catalog row. The builder lives
-  // under `src/lib/api-platform/sample-builder.ts` so the docs page
-  // never needs to reach into `tools/` (Turbopack production builds
-  // don't include code outside `src/`).
   const samples = buildSamples({
     module: e.module,
     method: e.method,
@@ -104,53 +125,91 @@ export default async function Page({
   });
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 text-zinc-100">
-      <nav className="text-xs text-zinc-500 mb-4 flex items-center gap-2">
-        <a href="/api/docs/modules" className="hover:text-amber-300">All modules</a>
-        <span>›</span>
-        <a href={'/api/docs/modules/' + module} className="hover:text-amber-300 capitalize">{module}</a>
-        <span>›</span>
-        <span className="text-zinc-300 truncate">{e.method} {e.path}</span>
-      </nav>
+    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <div className="flex flex-col gap-6">
+          <ZoruBreadcrumb>
+            <ZoruBreadcrumbList>
+              <ZoruBreadcrumbItem>
+                <ZoruBreadcrumbLink href="/api/docs/modules">All modules</ZoruBreadcrumbLink>
+              </ZoruBreadcrumbItem>
+              <ZoruBreadcrumbSeparator />
+              <ZoruBreadcrumbItem>
+                <ZoruBreadcrumbLink href={'/api/docs/modules/' + module} className="capitalize">
+                  {module}
+                </ZoruBreadcrumbLink>
+              </ZoruBreadcrumbItem>
+              <ZoruBreadcrumbSeparator />
+              <ZoruBreadcrumbItem>
+                <ZoruBreadcrumbPage className="truncate max-w-[200px]">
+                  {e.method} {e.path}
+                </ZoruBreadcrumbPage>
+              </ZoruBreadcrumbItem>
+            </ZoruBreadcrumbList>
+          </ZoruBreadcrumb>
 
-      <header className="mb-6">
-        <div className="flex items-center gap-2 mb-2">
-          <MethodBadge method={e.method} />
-          <code className="text-sm font-mono">{e.path}</code>
+          <ZoruPageHeader>
+            <ZoruPageHeading>
+              <div className="flex items-center gap-2 mb-1">
+                <MethodBadge method={e.method} />
+                <code className="text-sm font-mono text-zoru-ink">{e.path}</code>
+              </div>
+              <ZoruPageTitle>{e.summary}</ZoruPageTitle>
+              {e.description ? (
+                <ZoruPageDescription>{e.description}</ZoruPageDescription>
+              ) : null}
+            </ZoruPageHeading>
+          </ZoruPageHeader>
+
+          <div className="flex flex-wrap gap-2">
+            <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+              Scope: <code className="font-mono text-amber-400">{e.scope}</code>
+            </span>
+            <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+              Tier: {e.tier}
+            </span>
+            {e.credits ? (
+              <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+                {e.credits} credit{e.credits === 1 ? '' : 's'}
+              </span>
+            ) : null}
+            {e.idempotent ? (
+              <span className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+                Idempotent
+              </span>
+            ) : null}
+            {e.emits.map((ev) => (
+              <span key={ev} className="text-xs px-2 py-0.5 rounded border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+                emits <code className="font-mono text-amber-400">{ev}</code>
+              </span>
+            ))}
+          </div>
+
+          <ParamTable title="Path parameters" rows={e.pathParams.map((p) => ({ ...p, required: true }))} />
+          <ParamTable title="Query parameters" rows={e.queryParams} />
+          {e.hasBody ? (
+            <p className="text-xs text-zoru-ink-muted">
+              Request body: <span className="font-mono">application/json</span>
+            </p>
+          ) : null}
+
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-zoru-ink">Code samples</h2>
+            <CodeSamplesTabs samples={samples} />
+          </section>
+
+          <section className="space-y-2">
+            <h2 className="text-sm font-semibold text-zoru-ink">Try it</h2>
+            <TestEndpointRunner
+              method={e.method}
+              path={e.path}
+              pathParams={e.pathParams}
+              queryParams={e.queryParams}
+              hasBody={e.hasBody}
+            />
+          </section>
         </div>
-        <h1 className="text-2xl font-bold">{e.summary}</h1>
-        {e.description ? <p className="text-sm text-zinc-400 mt-1">{e.description}</p> : null}
-      </header>
-
-      <div className="flex flex-wrap gap-2 mb-6 text-xs">
-        <span className="px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50">Scope: <code className="text-amber-300">{e.scope}</code></span>
-        <span className="px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50">Tier: {e.tier}</span>
-        {e.credits ? <span className="px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50">{e.credits} credit{e.credits === 1 ? '' : 's'}</span> : null}
-        {e.idempotent ? <span className="px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50">Idempotent</span> : null}
-        {e.emits.map((ev) => (
-          <span key={ev} className="px-2 py-0.5 rounded border border-zinc-800 bg-zinc-900/50">emits <code className="text-amber-300">{ev}</code></span>
-        ))}
       </div>
-
-      <ParamTable title="Path parameters" rows={e.pathParams.map((p) => ({ ...p, required: true }))} />
-      <ParamTable title="Query parameters" rows={e.queryParams} />
-      {e.hasBody ? <p className="text-xs text-zinc-400 my-2">Request body: <span className="font-mono">application/json</span></p> : null}
-
-      <section className="mt-8">
-        <h2 className="text-sm font-semibold text-zinc-300 mb-2">Code samples</h2>
-        <CodeSamplesTabs samples={samples} />
-      </section>
-
-      <section className="mt-8">
-        <h2 className="text-sm font-semibold text-zinc-300 mb-2">Try it</h2>
-        <TestEndpointRunner
-          method={e.method}
-          path={e.path}
-          pathParams={e.pathParams}
-          queryParams={e.queryParams}
-          hasBody={e.hasBody}
-        />
-      </section>
     </div>
   );
 }

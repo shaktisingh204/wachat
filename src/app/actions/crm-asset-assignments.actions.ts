@@ -366,3 +366,167 @@ export async function deleteAssetAssignment(
         return { success: false, error: msg };
     }
 }
+
+/* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
+
+export interface CrmAssetAssignmentKpis {
+    assigned: number;
+    returned: number;
+    lostOrDamaged: number;
+    topAssetType?: string;
+}
+
+/**
+ * Aggregate top-line KPI counts for the asset-assignments list page.
+ *
+ * Falls back to zeros on failure so the KPI strip degrades gracefully.
+ * "Top asset type" is derived from `asset_category` if present, otherwise
+ * `asset_name`'s first token — best-effort since assets live in the Rust
+ * crate and aren't joined here.
+ */
+export async function getAssetAssignmentKpis(): Promise<CrmAssetAssignmentKpis> {
+    const empty: CrmAssetAssignmentKpis = {
+        assigned: 0,
+        returned: 0,
+        lostOrDamaged: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission(RBAC_KEY, 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const rows = await db
+            .collection(COLLECTION)
+            .find({ userId: new ObjectId(session.user._id as string) })
+            .project({
+                status: 1,
+                asset_category: 1,
+                asset_type: 1,
+                asset_name: 1,
+            })
+            .limit(2000)
+            .toArray();
+
+        let assigned = 0;
+        let returned = 0;
+        let lostOrDamaged = 0;
+        const typeCounts: Record<string, number> = {};
+        for (const r of rows) {
+            const s = String((r as { status?: unknown }).status ?? '');
+            if (s === 'assigned') assigned += 1;
+            else if (s === 'returned') returned += 1;
+            else if (s === 'lost' || s === 'damaged') lostOrDamaged += 1;
+
+            const cat = String(
+                (r as { asset_category?: unknown; asset_type?: unknown }).asset_category ??
+                    (r as { asset_type?: unknown }).asset_type ??
+                    '',
+            ).trim();
+            const name = String((r as { asset_name?: unknown }).asset_name ?? '').trim();
+            const key = cat || name.split(/\s+/)[0] || '';
+            if (key) typeCounts[key] = (typeCounts[key] ?? 0) + 1;
+        }
+
+        let topAssetType: string | undefined;
+        let topCount = 0;
+        for (const [k, v] of Object.entries(typeCounts)) {
+            if (v > topCount) {
+                topCount = v;
+                topAssetType = k;
+            }
+        }
+
+        return { assigned, returned, lostOrDamaged, topAssetType };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        console.error('[getAssetAssignmentKpis] failed:', msg);
+        return empty;
+    }
+}
+
+export type CrmAssetAssignmentBulkOp = 'delete' | 'archive' | 'return';
+
+export interface CrmAssetAssignmentBulkResult {
+    success: boolean;
+    affected: number;
+    error?: string;
+}
+
+/**
+ * Apply a bulk operation across a set of asset-assignment ids.
+ *
+ * `delete` — hard delete; `archive` — patch status → archived;
+ * `return`  — patch status → returned + stamp returned_at.
+ */
+export async function bulkAssetAssignmentAction(
+    ids: string[],
+    op: CrmAssetAssignmentBulkOp,
+): Promise<CrmAssetAssignmentBulkResult> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, affected: 0, error: 'Access denied.' };
+    }
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return { success: true, affected: 0 };
+    }
+    const guard = await requirePermission(
+        RBAC_KEY,
+        op === 'delete' ? 'delete' : 'edit',
+    );
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    const objectIds = ids
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: true, affected: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter = {
+            _id: { $in: objectIds },
+            userId: new ObjectId(session.user._id as string),
+        };
+
+        let affected = 0;
+        if (op === 'delete') {
+            const res = await db.collection(COLLECTION).deleteMany(filter);
+            affected = res.deletedCount;
+        } else if (op === 'archive') {
+            const res = await db.collection(COLLECTION).updateMany(filter, {
+                $set: {
+                    status: 'archived' as CrmAssetAssignmentStatus,
+                    updatedAt: new Date(),
+                },
+            });
+            affected = res.modifiedCount;
+        } else {
+            const res = await db.collection(COLLECTION).updateMany(filter, {
+                $set: {
+                    status: 'returned' as CrmAssetAssignmentStatus,
+                    returned_at: new Date().toISOString(),
+                    updatedAt: new Date(),
+                },
+            });
+            affected = res.modifiedCount;
+        }
+
+        void writeAuditEntry({
+            tenantUserId: session.user._id as string,
+            action: op,
+            entityKind: ENTITY_KIND,
+            entityId: ids.join(','),
+        });
+
+        revalidatePath(BASE_PATH);
+        revalidatePath('/dashboard/crm/hr/asset-assignments');
+        return { success: true, affected };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        console.error('[bulkAssetAssignmentAction] failed:', msg);
+        return { success: false, affected: 0, error: msg };
+    }
+}

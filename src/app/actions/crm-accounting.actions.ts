@@ -756,6 +756,40 @@ export async function generateIncomeStatementData(startDate?: Date, endDate?: Da
     return { incomeData, expenseData, netSurplus };
 }
 
+/* ─── Bulk delete: account groups ──────────────────────────────── */
+
+export async function bulkDeleteCrmAccountGroups(
+  ids: string[],
+): Promise<{ deleted: number; failed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user) return { deleted: 0, failed: ids.length, error: 'Access denied' };
+
+  const oids = ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { deleted: 0, failed: ids.length, error: 'No valid IDs' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const r = await db.collection('crm_account_groups').deleteMany({
+      _id: { $in: oids },
+      userId: new ObjectId(session.user._id),
+    });
+    for (const id of ids) {
+      await writeAuditEntry({
+        tenantUserId: session.user._id,
+        action: 'delete',
+        entityKind: 'account_group',
+        entityId: id,
+        reason: 'bulk',
+      });
+    }
+    revalidatePath('/dashboard/crm/accounting/groups');
+    const deleted = r.deletedCount ?? 0;
+    return { deleted, failed: Math.max(0, ids.length - deleted) };
+  } catch (e) {
+    return { deleted: 0, failed: ids.length, error: getErrorMessage(e) };
+  }
+}
+
 /**
  * Convenience alias for {@link getCrmChartOfAccountById} that matches the
  * naming convention used by the Rust BFF layer (`getChartOfAccountById`).

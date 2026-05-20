@@ -289,3 +289,103 @@ export async function deleteDocument(
         return { success: false, error: `Failed to delete document: ${msg}` };
     }
 }
+
+/* ─── KPI ─────────────────────────────────────────────────────────────── */
+
+export interface DocumentKpis {
+    total: number;
+    verified: number;
+    pendingVerification: number;
+    expiringIn30Days: number;
+}
+
+export async function getDocumentKpis(): Promise<DocumentKpis> {
+    const empty: DocumentKpis = {
+        total: 0,
+        verified: 0,
+        pendingVerification: 0,
+        expiringIn30Days: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_document', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmDocumentsApi.list({ limit: 500 });
+        const items = res.items ?? [];
+
+        const now = Date.now();
+        const thirtyDaysMs = 30 * 86_400_000;
+
+        const verified = items.filter((d) => d.status === 'verified').length;
+        const pendingVerification = items.filter((d) => d.status === 'pending').length;
+        const expiringIn30Days = items.filter((d) => {
+            if (!d.expiryDate) return false;
+            const exp = new Date(d.expiryDate).getTime();
+            return Number.isFinite(exp) && exp > now && exp - now <= thirtyDaysMs;
+        }).length;
+
+        return { total: items.length, verified, pendingVerification, expiringIn30Days };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[getDocumentKpis] rust call failed:', msg);
+        recordRustFallback({ entity: 'document', op: 'list', errorCode: code, status });
+        return empty;
+    }
+}
+
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkUpdateDocumentStatus(
+    ids: string[],
+    status: CrmDocumentStatus,
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_document', 'edit');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmDocumentsApi.update(id, { status });
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/documents');
+    return { succeeded, failed };
+}
+
+export async function bulkDeleteDocuments(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_document', 'delete');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    for (const id of ids) {
+        try {
+            await crmDocumentsApi.delete(id);
+            succeeded++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/documents');
+    return { succeeded, failed };
+}

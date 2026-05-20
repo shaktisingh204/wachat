@@ -1,21 +1,26 @@
 /**
  * Announcements — list page (§1B W7).
  *
- * Server component that pre-fetches via the Rust-backed action then hands
- * off to the client list for filtering/sorting/delete. Permission checks
- * live in the actions; this page renders an empty list on guard failure.
+ * Server component that pre-fetches announcements + KPIs in parallel,
+ * then hands off to the client list for filtering / bulk actions / export.
  */
 
-import { getAnnouncements } from '@/app/actions/crm-announcements.actions';
+import {
+    getAnnouncements,
+    getAnnouncementKpis,
+} from '@/app/actions/crm-announcements.actions';
 import { AnnouncementsListClient } from './_components/announcements-list-client';
 
 export const dynamic = 'force-dynamic';
 
 export default async function AnnouncementsPage() {
-    const { items } = await getAnnouncements();
+    const [{ items }, kpis] = await Promise.all([
+        getAnnouncements(),
+        getAnnouncementKpis(),
+    ]);
     return (
         <div className="flex w-full flex-col gap-6 p-4 md:p-6">
-            <AnnouncementsListClient initialItems={items} />
+            <AnnouncementsListClient initialItems={items} initialKpis={kpis} />
         </div>
     );
 }

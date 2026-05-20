@@ -7,11 +7,20 @@
  * Operations covered (message subset — Mandrill's only resource here):
  *   - message.send           POST /api/1.0/messages/send.json
  *   - message.sendTemplate   POST /api/1.0/messages/send-template.json
+ *   - template.list          POST /api/1.0/templates/list.json
+ *   - template.info          POST /api/1.0/templates/info.json
+ *
+ * Send/sendTemplate accept JSON-array attachments + JSON headers (parity with
+ * n8n's `attachmentsJson` and `headersJson` options).
  *
  * Out of scope for the first port:
- *   - Attachments (binary)
- *   - LoadOptions for template dropdown
- *   - Sub-account, webhook, tag analytics ops
+ *   - Binary-property attachments (would require engine-level binary refs we
+ *     don't expose through ForgeActionContext)
+ *   - LoadOptions for template dropdown — sabflow forge supports loadOptions,
+ *     but Mandrill's template list is a POST not a GET so it doesn't fit the
+ *     simple loader contract; flow authors enter the template name directly.
+ *   - Sub-account, webhook, tag analytics ops — distinct resources that
+ *     belong in their own ports.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -59,7 +68,59 @@ function buildMessage(ctx: ForgeActionContext): Record<string, unknown> {
   if (trackOpens) message.track_opens = trackOpens === 'true';
   const trackClicks = asString(ctx.options.trackClicks);
   if (trackClicks) message.track_clicks = trackClicks === 'true';
+
+  const attachmentsRaw = asString(ctx.options.attachments);
+  if (attachmentsRaw) {
+    try {
+      const parsed = JSON.parse(attachmentsRaw);
+      if (!Array.isArray(parsed)) throw new Error('not an array');
+      message.attachments = parsed;
+    } catch (err) {
+      throw new Error(`Mandrill: attachments must be a JSON array — ${(err as Error).message}`);
+    }
+  }
+
+  const headersRaw = asString(ctx.options.headers);
+  if (headersRaw) {
+    try {
+      const parsed = JSON.parse(headersRaw);
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        throw new Error('not an object');
+      }
+      message.headers = parsed;
+    } catch (err) {
+      throw new Error(`Mandrill: headers must be a JSON object — ${(err as Error).message}`);
+    }
+  }
   return message;
+}
+
+async function templateList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const key = getApiKey(ctx);
+  const label = asString(ctx.options.label);
+  const body: Record<string, unknown> = { key };
+  if (label) body.label = label;
+  const res = await apiRequest({
+    service: 'Mandrill',
+    method: 'POST',
+    url: `${BASE}/templates/list.json`,
+    json: body,
+  });
+  const items = Array.isArray(res.data) ? res.data : [];
+  return { outputs: { templates: items, count: items.length }, logs: [`Mandrill template list → ${items.length}`] };
+}
+
+async function templateInfo(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const key = getApiKey(ctx);
+  const name = asString(ctx.options.name);
+  if (!name) throw new Error('Mandrill: name is required');
+  const res = await apiRequest({
+    service: 'Mandrill',
+    method: 'POST',
+    url: `${BASE}/templates/info.json`,
+    json: { key, name },
+  });
+  return { outputs: { template: res.data }, logs: [`Mandrill template info → ${name}`] };
 }
 
 async function messageSend(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -148,6 +209,16 @@ const COMMON_FIELDS = [
       { label: 'Off', value: 'false' },
     ],
   },
+  {
+    id: 'attachments',
+    label: 'Attachments (JSON array of {type,name,content-base64})',
+    type: 'json' as const,
+  },
+  {
+    id: 'headers',
+    label: 'Custom headers (JSON object, e.g. { "Reply-To": "x@y.com" })',
+    type: 'json' as const,
+  },
 ];
 
 const block: ForgeBlock = {
@@ -176,6 +247,20 @@ const block: ForgeBlock = {
         { id: 'mergeVars', label: 'Global merge vars (JSON array)', type: 'json' },
       ],
       run: messageSendTemplate,
+    },
+    {
+      id: 'template_list',
+      label: 'List templates',
+      description: 'Return all stored templates, optionally filtered by label.',
+      fields: [{ id: 'label', label: 'Label filter (optional)', type: 'text' }],
+      run: templateList,
+    },
+    {
+      id: 'template_info',
+      label: 'Get template info',
+      description: 'Return the stored template object by name (slug).',
+      fields: [{ id: 'name', label: 'Template name (slug)', type: 'text', required: true }],
+      run: templateInfo,
     },
   ],
 };

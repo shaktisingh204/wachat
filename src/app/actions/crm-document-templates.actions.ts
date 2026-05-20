@@ -408,3 +408,138 @@ export async function deleteDocumentTemplate(
         return { success: false, error: `Failed to delete template: ${msg}` };
     }
 }
+
+/* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
+
+export interface CrmDocumentTemplateKpis {
+    total: number;
+    byCategory: Record<string, number>;
+    lastGeneratedAt?: string;
+}
+
+/**
+ * Aggregate top-line KPI counts for the document-templates list page.
+ *
+ * Falls back to zeros on failure so the KPI strip degrades gracefully.
+ */
+export async function getDocumentTemplateKpis(): Promise<CrmDocumentTemplateKpis> {
+    const empty: CrmDocumentTemplateKpis = { total: 0, byCategory: {} };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_document_template', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const rows = await db
+            .collection('crm_document_templates')
+            .find({
+                userId: new ObjectId(session.user._id as string),
+                status: { $ne: 'archived' },
+            })
+            .project({ category: 1, updatedAt: 1 })
+            .sort({ updatedAt: -1 })
+            .limit(1000)
+            .toArray();
+
+        const byCategory: Record<string, number> = {};
+        let lastGeneratedAt: string | undefined;
+        for (const r of rows) {
+            const cat = String((r as { category?: unknown }).category ?? 'other');
+            byCategory[cat] = (byCategory[cat] ?? 0) + 1;
+            const updated = (r as { updatedAt?: unknown }).updatedAt;
+            if (!lastGeneratedAt && updated) {
+                lastGeneratedAt =
+                    updated instanceof Date
+                        ? updated.toISOString()
+                        : String(updated);
+            }
+        }
+        return { total: rows.length, byCategory, lastGeneratedAt };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        console.error('[getDocumentTemplateKpis] failed:', msg);
+        return empty;
+    }
+}
+
+export type CrmDocumentTemplateBulkOp = 'delete' | 'archive' | 'publish';
+
+export interface CrmDocumentTemplateBulkResult {
+    success: boolean;
+    affected: number;
+    error?: string;
+}
+
+/**
+ * Apply a bulk operation across a set of template ids in the same tenant.
+ *
+ * `delete`/`archive` — soft-archive (status → archived, isActive false)
+ * `publish`         — flip status → "active" + isActive true
+ */
+export async function bulkDocumentTemplateAction(
+    ids: string[],
+    op: CrmDocumentTemplateBulkOp,
+): Promise<CrmDocumentTemplateBulkResult> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, affected: 0, error: 'Access denied.' };
+    }
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return { success: true, affected: 0 };
+    }
+
+    const guard = await requirePermission(
+        'crm_document_template',
+        op === 'publish' ? 'edit' : 'delete',
+    );
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    const objectIds = ids
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+    if (objectIds.length === 0) return { success: true, affected: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter = {
+            _id: { $in: objectIds },
+            userId: new ObjectId(session.user._id as string),
+        };
+
+        const update: Record<string, unknown> =
+            op === 'publish'
+                ? {
+                      status: 'active' as CrmDocumentTemplateStatus,
+                      isActive: true,
+                      updatedAt: new Date(),
+                  }
+                : {
+                      status: 'archived' as CrmDocumentTemplateStatus,
+                      isActive: false,
+                      updatedAt: new Date(),
+                  };
+
+        const res = await db
+            .collection('crm_document_templates')
+            .updateMany(filter, { $set: update });
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: op,
+            entityKind: 'document_template',
+            entityId: ids.join(','),
+        });
+
+        revalidatePath('/dashboard/hrm/hr/document-templates');
+        revalidatePath('/dashboard/crm/hr/document-templates');
+        return { success: true, affected: res.modifiedCount };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        console.error('[bulkDocumentTemplateAction] failed:', msg);
+        return { success: false, affected: 0, error: msg };
+    }
+}

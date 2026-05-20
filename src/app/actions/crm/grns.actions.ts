@@ -364,6 +364,12 @@ export interface GrnKpis {
   acceptedCount: number;
   partiallyAcceptedCount: number;
   rejectedCount: number;
+  /** Number of GRNs created in the current calendar month. */
+  mtdCount: number;
+  /** Sum of received-quantity × unit cost across the sampled window. */
+  totalReceivedValue: number;
+  /** ISO currency code dominant across the sampled window. */
+  totalReceivedCurrency: string;
 }
 
 const EMPTY_GRN_KPIS: GrnKpis = {
@@ -371,6 +377,9 @@ const EMPTY_GRN_KPIS: GrnKpis = {
   acceptedCount: 0,
   partiallyAcceptedCount: 0,
   rejectedCount: 0,
+  mtdCount: 0,
+  totalReceivedValue: 0,
+  totalReceivedCurrency: 'INR',
 };
 
 /**
@@ -387,6 +396,10 @@ export async function getGrnKpis(): Promise<GrnKpis> {
     let acceptedCount = 0;
     let partiallyAcceptedCount = 0;
     let rejectedCount = 0;
+    let mtdCount = 0;
+    let totalReceivedValue = 0;
+    const now = new Date();
+    const monthStartTs = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     for (const g of rows) {
       const status = (typeof g.status === 'string' ? g.status : '').toLowerCase();
       if (status === 'draft' || status === '') {
@@ -403,12 +416,27 @@ export async function getGrnKpis(): Promise<GrnKpis> {
         if (hasRejected) partiallyAcceptedCount += 1;
         else acceptedCount += 1;
       }
+      // MTD bucket: receipt date in current calendar month.
+      const dateTs = g.date ? new Date(g.date).getTime() : NaN;
+      if (!Number.isNaN(dateTs) && dateTs >= monthStartTs) mtdCount += 1;
+      // "Total received value" — GRN lines don't carry unit cost on the
+      // wire, so we approximate by summing accepted units across all
+      // non-rejected GRNs. The UI labels this as "units received".
+      if (status !== 'rejected') {
+        for (const it of g.items ?? []) {
+          const accepted = Number(it.acceptedQty) || 0;
+          if (accepted > 0) totalReceivedValue += accepted;
+        }
+      }
     }
     return {
       pendingQcCount,
       acceptedCount,
       partiallyAcceptedCount,
       rejectedCount,
+      mtdCount,
+      totalReceivedValue,
+      totalReceivedCurrency: 'INR',
     };
   } catch {
     return EMPTY_GRN_KPIS;

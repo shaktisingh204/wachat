@@ -1,7 +1,7 @@
 'use client';
 
 import { ZoruStatCard } from '@/components/zoruui';
-import { AlertCircle, Banknote, Clock, FileEdit, Wallet, } from 'lucide-react';
+import { AlertCircle, Banknote, Building2, Clock, FileEdit, Hourglass, TrendingUp, Wallet } from 'lucide-react';
 
 /**
  * <BillsKpiStrip> — KPI strip for the canonical bills list (§1D).
@@ -106,6 +106,33 @@ export function BillsKpiStrip({
         }
         period="receive → paid"
         icon={<Clock />}
+      />
+      <ZoruStatCard
+        label="Total MTD"
+        value={fmtMoney(kpi.mtdSpend, currency)}
+        period="this month billed"
+        icon={<TrendingUp />}
+      />
+      <ZoruStatCard
+        label="Pending approval"
+        value={kpi.pendingApprovalCount.toLocaleString()}
+        period="awaiting approver"
+        icon={<Hourglass />}
+        invertDelta
+      />
+      <ZoruStatCard
+        label="Top vendor"
+        value={
+          kpi.topVendorId
+            ? fmtMoney(kpi.topVendorAmount, currency)
+            : '—'
+        }
+        period={
+          kpi.topVendorId
+            ? `${kpi.topVendorCount} bill${kpi.topVendorCount === 1 ? '' : 's'}`
+            : 'no data'
+        }
+        icon={<Building2 />}
       />
     </div>
   );

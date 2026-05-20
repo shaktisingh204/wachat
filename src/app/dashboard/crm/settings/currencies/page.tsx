@@ -10,6 +10,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogFooter,
@@ -45,14 +46,9 @@ import { AlertTriangle,
 /**
  * Currencies — settings-style list (§1D.4 specialized: settings list).
  *
- * Mirrors `accounting/groups/page.tsx`: a single client component with
- * inline-create dialog, edit dialog, and delete confirmation. No
- * `/new` or `/[id]` subroutes — settings master-data uses dialogs.
- *
- * Backed by `crmCurrenciesApi` (Rust `/v1/crm/currencies`) through the
- * `crm-currencies.actions.ts` server actions. ISO 4217 fields plus a
- * per-tenant `isBase` flag with a warning that flipping it demotes any
- * other currency currently marked as base.
+ * Additions over the original:
+ *  - ZoruCheckbox multi-select column
+ *  - Bulk bar: delete (non-default only) + set active + set inactive
  */
 
 import * as React from 'react';
@@ -62,6 +58,8 @@ import { RowDrawer } from '@/components/crm/row-drawer';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 
 import {
+    bulkDeleteCurrencies,
+    bulkSetCurrencyStatus,
     deleteCurrency,
     getCurrencies,
     saveCurrency,
@@ -103,7 +101,6 @@ function CurrencyDialog({
     onOpenChange: (open: boolean) => void;
     onSave: () => void;
     initialData: Row | null;
-    /** Another currency in the table is already isBase — used to drive the warning. */
     hasExistingBase: boolean;
 }) {
     const isEditing = !!initialData;
@@ -134,9 +131,6 @@ function CurrencyDialog({
         }
     }, [state, toast, onSave, onOpenChange]);
 
-    // Warning shows when the user is about to set isBase=true while another
-    // currency is currently the base. (Suppressed when editing the existing
-    // base currency since toggling its own flag is the intent.)
     const wouldDemoteOthers =
         isBase && hasExistingBase && !(initialData?.isBase ?? false);
 
@@ -147,7 +141,6 @@ function CurrencyDialog({
                     {isEditing ? (
                         <input type="hidden" name="_id" value={initialData!._id} />
                     ) : null}
-                    {/* Hidden mirrors of the controlled toggles so they post via FormData. */}
                     <input type="hidden" name="isBase" value={isBase ? 'true' : 'false'} />
                     <input type="hidden" name="isActive" value={isActive ? 'true' : 'false'} />
                     <input type="hidden" name="displayFormat" value={displayFormat} />
@@ -330,7 +323,14 @@ export default function CurrenciesPage() {
     const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('active');
     const [pendingDelete, setPendingDelete] = React.useState<Row | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
+    const [bulkPending, startBulkTransition] = React.useTransition();
     const { toast } = useZoruToast();
+
+    // Selection
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+    // Bulk dialog state
+    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -357,6 +357,54 @@ export default function CurrenciesPage() {
         [rows],
     );
 
+    // Selection helpers
+    const filteredIds = React.useMemo(
+        () => filtered.map((r) => r._id),
+        [filtered],
+    );
+    const allChecked =
+        filteredIds.length > 0 && filteredIds.every((id) => selected.has(id));
+    const someChecked = filteredIds.some((id) => selected.has(id));
+
+    const toggleAll = () => {
+        if (allChecked) {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                filteredIds.forEach((id) => next.delete(id));
+                return next;
+            });
+        } else {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                filteredIds.forEach((id) => next.add(id));
+                return next;
+            });
+        }
+    };
+
+    const toggleOne = (id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const selectedIds = React.useMemo(
+        () => [...selected].filter((id) => filteredIds.includes(id)),
+        [selected, filteredIds],
+    );
+    // For bulk delete: only non-base currencies can be deleted in bulk
+    const selectedNonBaseIds = React.useMemo(
+        () => selectedIds.filter((id) => {
+            const r = rows.find((row) => row._id === id);
+            return r && !r.isBase;
+        }),
+        [selectedIds, rows],
+    );
+    const hasSelection = selectedIds.length > 0;
+
     const handleOpenDialog = (row: Row | null) => {
         setEditing(row);
         setIsDialogOpen(true);
@@ -376,6 +424,35 @@ export default function CurrenciesPage() {
                     description: result.error,
                     variant: 'destructive',
                 });
+            }
+        });
+    };
+
+    // Bulk delete — only non-base currencies
+    const handleBulkDelete = () => {
+        startBulkTransition(async () => {
+            const res = await bulkDeleteCurrencies(selectedNonBaseIds);
+            if (res.ok) {
+                toast({ title: `${res.count} currency/currencies deleted` });
+                setSelected(new Set());
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            }
+            setBulkDeleteOpen(false);
+            await refresh();
+        });
+    };
+
+    // Bulk set active/inactive
+    const handleBulkSetStatus = (status: 'active' | 'archived') => {
+        startBulkTransition(async () => {
+            const res = await bulkSetCurrencyStatus(selectedIds, status);
+            if (res.ok) {
+                toast({ title: `${res.count} currency/currencies updated` });
+                setSelected(new Set());
+                await refresh();
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
             }
         });
     };
@@ -412,188 +489,270 @@ export default function CurrenciesPage() {
             />
 
             <EntityListShell
-                    title="Currencies"
-                    subtitle="Manage ISO 4217 currencies, symbols, exchange rates, and display formatting."
-                    primaryAction={
-                        <>
-                            <ZoruButton variant="outline" onClick={handleExport}>
-                                Export CSV
-                            </ZoruButton>
-                            <ZoruButton onClick={() => handleOpenDialog(null)}>
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New Currency
-                            </ZoruButton>
-                        </>
-                    }
-                    search={{
-                        value: search,
-                        onChange: setSearch,
-                        placeholder: 'Search by code, name, or symbol…',
-                    }}
-                    filters={
-                        <ZoruSelect
-                            value={statusFilter}
-                            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                title="Currencies"
+                subtitle="Manage ISO 4217 currencies, symbols, exchange rates, and display formatting."
+                primaryAction={
+                    <>
+                        <ZoruButton variant="outline" onClick={handleExport}>
+                            Export CSV
+                        </ZoruButton>
+                        <ZoruButton onClick={() => handleOpenDialog(null)}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New Currency
+                        </ZoruButton>
+                    </>
+                }
+                search={{
+                    value: search,
+                    onChange: setSearch,
+                    placeholder: 'Search by code, name, or symbol…',
+                }}
+                filters={
+                    <ZoruSelect
+                        value={statusFilter}
+                        onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                    >
+                        <ZoruSelectTrigger className="h-9 w-[180px]">
+                            <ZoruSelectValue placeholder="Status" />
+                        </ZoruSelectTrigger>
+                        <ZoruSelectContent>
+                            <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                            <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                            <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                        </ZoruSelectContent>
+                    </ZoruSelect>
+                }
+                loading={isLoading && rows.length === 0}
+            >
+                {/* Bulk bar */}
+                {hasSelection && (
+                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">
+                        <span className="font-medium text-foreground">
+                            {selectedIds.length} selected
+                        </span>
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            disabled={bulkPending}
+                            onClick={() => handleBulkSetStatus('active')}
                         >
-                            <ZoruSelectTrigger className="h-9 w-[180px]">
-                                <ZoruSelectValue placeholder="Status" />
-                            </ZoruSelectTrigger>
-                            <ZoruSelectContent>
-                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                            </ZoruSelectContent>
-                        </ZoruSelect>
-                    }
-                    loading={isLoading && rows.length === 0}
-                >
-                    <div className="overflow-x-auto rounded-lg border border-border">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Symbol</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Exchange rate
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Decimals
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-center">
-                                        Base
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Actions
-                                    </ZoruTableHead>
+                            {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+                            Set active
+                        </ZoruButton>
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            disabled={bulkPending}
+                            onClick={() => handleBulkSetStatus('archived')}
+                        >
+                            Set inactive
+                        </ZoruButton>
+
+                        {selectedNonBaseIds.length > 0 && (
+                            <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                                <ZoruButton
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={bulkPending}
+                                    onClick={() => setBulkDeleteOpen(true)}
+                                >
+                                    <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                    Delete {selectedNonBaseIds.length} non-base
+                                </ZoruButton>
+                                <ZoruAlertDialogContent>
+                                    <ZoruAlertDialogHeader>
+                                        <ZoruAlertDialogTitle>
+                                            Delete {selectedNonBaseIds.length} currency/currencies?
+                                        </ZoruAlertDialogTitle>
+                                        <ZoruAlertDialogDescription>
+                                            Base currencies are skipped. Existing documents that
+                                            reference deleted currencies keep their saved values.
+                                        </ZoruAlertDialogDescription>
+                                    </ZoruAlertDialogHeader>
+                                    <ZoruAlertDialogFooter>
+                                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                        <ZoruAlertDialogAction onClick={handleBulkDelete} disabled={bulkPending}>
+                                            {bulkPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                            Delete
+                                        </ZoruAlertDialogAction>
+                                    </ZoruAlertDialogFooter>
+                                </ZoruAlertDialogContent>
+                            </ZoruAlertDialog>
+                        )}
+
+                        <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelected(new Set())}
+                        >
+                            Clear selection
+                        </ZoruButton>
+                    </div>
+                )}
+
+                <div className="overflow-x-auto rounded-lg border border-border">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="w-10">
+                                    <ZoruCheckbox
+                                        checked={allChecked}
+                                        aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
+                                        onCheckedChange={toggleAll}
+                                        aria-label="Select all"
+                                        disabled={filtered.length === 0}
+                                    />
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Symbol</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Exchange rate
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Decimals
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-center">
+                                    Base
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Actions
+                                </ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
+                            {isLoading ? (
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={9} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
                                 </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                            ) : filtered.length === 0 ? (
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell
+                                        colSpan={9}
+                                        className="h-24 text-center text-muted-foreground"
+                                    >
+                                        No currencies match this filter.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
+                            ) : (
+                                filtered.map((r) => (
+                                    <ZoruTableRow key={r._id} className="border-border">
+                                        <ZoruTableCell>
+                                            <ZoruCheckbox
+                                                checked={selected.has(r._id)}
+                                                onCheckedChange={() => toggleOne(r._id)}
+                                                aria-label={`Select ${r.code}`}
+                                            />
                                         </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell
-                                            colSpan={8}
-                                            className="h-24 text-center text-muted-foreground"
-                                        >
-                                            No currencies match this filter.
+                                        <ZoruTableCell className="font-mono font-medium text-foreground">
+                                            {r.code}
                                         </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    filtered.map((r) => (
-                                        <ZoruTableRow key={r._id} className="border-border">
-                                            <ZoruTableCell className="font-mono font-medium text-foreground">
-                                                {r.code}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">
-                                                <RowDrawer
-                                                    label={r.name}
-                                                    subtitle={`${r.code}${r.symbol ? ` · ${r.symbol}` : ''}`}
-                                                    title={`Currency · ${r.name}`}
-                                                    description="Review currency settings, then open the editor to change them."
-                                                >
-                                                    <div className="space-y-3 text-sm">
-                                                        <div className="grid grid-cols-2 gap-3">
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Code</div>
-                                                                <div className="font-mono">{r.code}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Symbol</div>
-                                                                <div className="font-mono">{r.symbol ?? '—'}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Exchange rate</div>
-                                                                <div className="font-mono">
-                                                                    {Number(r.exchangeRate).toLocaleString(undefined, {
-                                                                        maximumFractionDigits: 6,
-                                                                    })}
-                                                                </div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Decimals</div>
-                                                                <div className="font-mono">{r.decimalPlaces}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Display</div>
-                                                                <div>{r.displayFormat}</div>
-                                                            </div>
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Base</div>
-                                                                <div>{r.isBase ? 'Yes' : 'No'}</div>
+                                        <ZoruTableCell className="text-foreground">
+                                            <RowDrawer
+                                                label={r.name}
+                                                subtitle={`${r.code}${r.symbol ? ` · ${r.symbol}` : ''}`}
+                                                title={`Currency · ${r.name}`}
+                                                description="Review currency settings, then open the editor to change them."
+                                            >
+                                                <div className="space-y-3 text-sm">
+                                                    <div className="grid grid-cols-2 gap-3">
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Code</div>
+                                                            <div className="font-mono">{r.code}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Symbol</div>
+                                                            <div className="font-mono">{r.symbol ?? '—'}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Exchange rate</div>
+                                                            <div className="font-mono">
+                                                                {Number(r.exchangeRate).toLocaleString(undefined, {
+                                                                    maximumFractionDigits: 6,
+                                                                })}
                                                             </div>
                                                         </div>
-                                                        <div className="pt-2">
-                                                            <ZoruButton
-                                                                size="sm"
-                                                                onClick={() => handleOpenDialog(r)}
-                                                            >
-                                                                <Edit className="mr-1.5 h-3.5 w-3.5" />
-                                                                Open editor
-                                                            </ZoruButton>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Decimals</div>
+                                                            <div className="font-mono">{r.decimalPlaces}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Display</div>
+                                                            <div>{r.displayFormat}</div>
+                                                        </div>
+                                                        <div>
+                                                            <div className="text-muted-foreground text-xs">Base</div>
+                                                            <div>{r.isBase ? 'Yes' : 'No'}</div>
                                                         </div>
                                                     </div>
-                                                </RowDrawer>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">
-                                                {r.symbol ?? '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
-                                                {Number(r.exchangeRate).toLocaleString(undefined, {
-                                                    maximumFractionDigits: 6,
-                                                })}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
-                                                {r.decimalPlaces}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-center">
-                                                {r.isBase ? (
-                                                    <Check
-                                                        className="mx-auto h-4 w-4 text-emerald-500"
-                                                        aria-label="Base currency"
-                                                    />
-                                                ) : (
-                                                    <span aria-hidden className="text-muted-foreground">
-                                                        —
-                                                    </span>
-                                                )}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill
-                                                    label={r.status}
-                                                    tone={STATUS_TONE[r.status] ?? 'neutral'}
+                                                    <div className="pt-2">
+                                                        <ZoruButton
+                                                            size="sm"
+                                                            onClick={() => handleOpenDialog(r)}
+                                                        >
+                                                            <Edit className="mr-1.5 h-3.5 w-3.5" />
+                                                            Open editor
+                                                        </ZoruButton>
+                                                    </div>
+                                                </div>
+                                            </RowDrawer>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {r.symbol ?? '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                            {Number(r.exchangeRate).toLocaleString(undefined, {
+                                                maximumFractionDigits: 6,
+                                            })}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                            {r.decimalPlaces}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-center">
+                                            {r.isBase ? (
+                                                <Check
+                                                    className="mx-auto h-4 w-4 text-emerald-500"
+                                                    aria-label="Base currency"
                                                 />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleOpenDialog(r)}
-                                                    aria-label={`Edit ${r.code}`}
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setPendingDelete(r)}
-                                                    aria-label={`Delete ${r.code}`}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </ZoruButton>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    ))
-                                )}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-                </EntityListShell>
+                                            ) : (
+                                                <span aria-hidden className="text-muted-foreground">
+                                                    —
+                                                </span>
+                                            )}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <StatusPill
+                                                label={r.status}
+                                                tone={STATUS_TONE[r.status] ?? 'neutral'}
+                                            />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <ZoruButton
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleOpenDialog(r)}
+                                                aria-label={`Edit ${r.code}`}
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </ZoruButton>
+                                            <ZoruButton
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setPendingDelete(r)}
+                                                aria-label={`Delete ${r.code}`}
+                                            >
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </ZoruButton>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))
+                            )}
+                        </ZoruTableBody>
+                    </ZoruTable>
+                </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}

@@ -1,121 +1,744 @@
 'use client';
 
-import { ListChecks } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../../_components/hr-entity-page';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruCheckbox,
+  ZoruDialog,
+  ZoruDialogContent,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruInput,
+  ZoruLabel,
+  ZoruStatCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruTextarea,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  LoaderCircle,
+  ListChecks,
+  CheckCircle2,
+  FileText,
+  Clock,
+  Download,
+  X,
+  FileSpreadsheet,
+} from 'lucide-react';
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
+
+import * as React from 'react';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { RowDrawer } from '@/components/crm/row-drawer';
+import {
+  downloadCsv,
+  downloadXlsx,
+  dateStamp,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 import {
   getPurposeConsents,
+  getPurposeConsentKpis,
   savePurposeConsent,
   deletePurposeConsent,
+  type PurposeConsentKpis,
 } from '@/app/actions/worksuite/gdpr.actions';
-import type { WsPurposeConsent } from '@/lib/worksuite/gdpr-types';
+import type {
+  WsPurposeConsent,
+  WsConsentAppliesTo,
+} from '@/lib/worksuite/gdpr-types';
 
-/**
- * Purpose Consents — tenant-defined processing purposes that leads or
- * users can grant/revoke consent for. Mirrors Worksuite's
- * `/gdpr/purpose-consent` screen.
- */
+type Row = WsPurposeConsent & { _id: string };
+type StatusFilter = 'all' | 'active' | 'inactive';
+type AppliesFilter = 'all' | WsConsentAppliesTo;
+
+const EMPTY_KPIS: PurposeConsentKpis = {
+  total: 0,
+  active: 0,
+  with_consent_text: 0,
+  last_updated_at: null,
+};
+
+function formatRelative(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  const diff = Date.now() - d.getTime();
+  const day = 24 * 60 * 60 * 1000;
+  if (diff < day) return 'today';
+  if (diff < 2 * day) return 'yesterday';
+  const days = Math.floor(diff / day);
+  if (days < 30) return `${days}d ago`;
+  return d.toISOString().slice(0, 10);
+}
+
 export default function PurposeConsentsPage() {
+  const { toast } = useZoruToast();
+  const [rows, setRows] = useState<Row[]>([]);
+  const [kpis, setKpis] = useState<PurposeConsentKpis>(EMPTY_KPIS);
+  const [isLoading, startLoading] = useTransition();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editing, setEditing] = useState<Row | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [appliesFilter, setAppliesFilter] = useState<AppliesFilter>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  const [saveState, saveAction, isSaving] = useActionState(savePurposeConsent, {
+    message: undefined,
+    error: undefined,
+  } as { message?: string; error?: string });
+
+  const refresh = React.useCallback(() => {
+    startLoading(async () => {
+      const [list, k] = await Promise.all([
+        getPurposeConsents(),
+        getPurposeConsentKpis(),
+      ]);
+      setRows((list as Row[]) || []);
+      setKpis((k as PurposeConsentKpis) || EMPTY_KPIS);
+    });
+  }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    if (saveState?.message) {
+      toast({ title: 'Saved', description: saveState.message });
+      setDialogOpen(false);
+      setEditing(null);
+      refresh();
+    }
+    if (saveState?.error) {
+      toast({
+        title: 'Error',
+        description: saveState.error,
+        variant: 'destructive',
+      });
+    }
+  }, [saveState, toast, refresh]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (q) {
+        const hay = `${r.title || ''} ${r.description || ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (statusFilter === 'active' && r.is_active === false) return false;
+      if (statusFilter === 'inactive' && r.is_active !== false) return false;
+      if (
+        appliesFilter !== 'all' &&
+        (r.applies_to || 'both') !== appliesFilter
+      )
+        return false;
+      return true;
+    });
+  }, [rows, search, statusFilter, appliesFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageRows = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const hasMore = page < totalPages;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const handleDelete = async () => {
+    if (!deletingId) return;
+    const res = await deletePurposeConsent(deletingId);
+    if (res.success) {
+      toast({ title: 'Deleted', description: 'Purpose removed.' });
+      setDeletingId(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(deletingId);
+        return next;
+      });
+      refresh();
+    } else {
+      toast({
+        title: 'Error',
+        description: res.error || 'Failed',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    setBulkDeleting(true);
+    let ok = 0;
+    let failed = 0;
+    for (const id of ids) {
+      try {
+        const r = await deletePurposeConsent(id);
+        if (r.success) ok += 1;
+        else failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    setBulkDeleting(false);
+    setSelected(new Set());
+    setBulkDeleteOpen(false);
+    toast({
+      title: 'Bulk delete',
+      description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
+      variant: failed ? 'destructive' : undefined,
+    });
+    refresh();
+  };
+
+  const exportRowsFor = (subset: Row[]): ExportRow[] =>
+    subset.map((r) => ({
+      Title: r.title || '',
+      Description: r.description || '',
+      AppliesTo: r.applies_to || 'both',
+      Required: r.is_required ? 'Yes' : 'No',
+      Active: r.is_active === false ? 'No' : 'Yes',
+      Order: r.sort_order ?? 0,
+    }));
+
+  const doExport = (format: 'csv' | 'xlsx') => {
+    const subset = selected.size
+      ? filtered.filter((r) => selected.has(r._id))
+      : filtered;
+    const headers = [
+      'Title',
+      'Description',
+      'AppliesTo',
+      'Required',
+      'Active',
+      'Order',
+    ];
+    const filename = `purpose-consents-${dateStamp()}.${format}`;
+    if (format === 'csv') downloadCsv(filename, headers, exportRowsFor(subset));
+    else
+      void downloadXlsx(filename, headers, exportRowsFor(subset), 'Purposes');
+  };
+
+  const toggleAllOnPage = () => {
+    setSelected((prev) => {
+      const ids = pageRows.map((r) => r._id);
+      const allSelected = ids.every((id) => prev.has(id));
+      const next = new Set(prev);
+      if (allSelected) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allOnPageSelected =
+    pageRows.length > 0 && pageRows.every((r) => selected.has(r._id));
+
   return (
-    <HrEntityPage<WsPurposeConsent & { _id: string }>
+    <EntityListShell
       title="Purpose Consents"
       subtitle="Processing purposes leads and users can grant or revoke consent for."
-      icon={ListChecks}
-      singular="Purpose"
-      getAllAction={getPurposeConsents as any}
-      saveAction={savePurposeConsent}
-      deleteAction={deletePurposeConsent}
-      columns={[
-        { key: 'title', label: 'Title' },
-        {
-          key: 'applies_to',
-          label: 'Applies to',
-          render: (row) => (
-            <ClayBadge tone="neutral">
-              {row.applies_to
-                ? row.applies_to.charAt(0).toUpperCase() +
-                  row.applies_to.slice(1)
-                : 'Both'}
-            </ClayBadge>
-          ),
-        },
-        {
-          key: 'is_required',
-          label: 'Required',
-          render: (row) => (
-            <ClayBadge tone={row.is_required ? 'amber' : 'neutral'}>
-              {row.is_required ? 'Required' : 'Optional'}
-            </ClayBadge>
-          ),
-        },
-        {
-          key: 'is_active',
-          label: 'Status',
-          render: (row) => (
-            <ClayBadge tone={row.is_active ? 'green' : 'neutral'}>
-              {row.is_active ? 'Active' : 'Inactive'}
-            </ClayBadge>
-          ),
-        },
-        {
-          key: 'sort_order',
-          label: 'Order',
-          render: (row) => String(row.sort_order ?? 0),
-        },
-      ]}
-      fields={[
-        {
-          name: 'title',
-          label: 'Title',
-          required: true,
-          placeholder: 'Marketing communications',
-          fullWidth: true,
-        },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          placeholder:
-            'We process your data to send product updates and newsletters.',
-          fullWidth: true,
-        },
-        {
-          name: 'applies_to',
-          label: 'Applies to',
-          type: 'select',
-          options: [
-            { value: 'both', label: 'Both leads and users' },
-            { value: 'lead', label: 'Leads only' },
-            { value: 'user', label: 'Users only' },
-          ],
-          defaultValue: 'both',
-        },
-        {
-          name: 'sort_order',
-          label: 'Sort order',
-          type: 'number',
-          defaultValue: '0',
-        },
-        {
-          name: 'is_required',
-          label: 'Required',
-          type: 'select',
-          options: [
-            { value: 'false', label: 'Optional' },
-            { value: 'true', label: 'Required' },
-          ],
-          defaultValue: 'false',
-        },
-        {
-          name: 'is_active',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'true', label: 'Active' },
-            { value: 'false', label: 'Inactive' },
-          ],
-          defaultValue: 'true',
-        },
-      ]}
-    />
+      primaryAction={
+        <ZoruButton
+          onClick={() => {
+            setEditing(null);
+            setDialogOpen(true);
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          Add Purpose
+        </ZoruButton>
+      }
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: 'Search purposes…',
+      }}
+      filters={
+        <>
+          {(['all', 'active', 'inactive'] as StatusFilter[]).map((s) => (
+            <ZoruButton
+              key={s}
+              variant={statusFilter === s ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setStatusFilter(s);
+                setPage(1);
+              }}
+            >
+              {s === 'all' ? 'All' : s === 'active' ? 'Active' : 'Inactive'}
+            </ZoruButton>
+          ))}
+          <span className="mx-1 h-4 w-px bg-zoru-line" />
+          {(['all', 'both', 'lead', 'user'] as AppliesFilter[]).map((a) => (
+            <ZoruButton
+              key={a}
+              variant={appliesFilter === a ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setAppliesFilter(a);
+                setPage(1);
+              }}
+            >
+              {a === 'all'
+                ? 'Any'
+                : a.charAt(0).toUpperCase() + a.slice(1)}
+            </ZoruButton>
+          ))}
+        </>
+      }
+      bulkBar={
+        selected.size > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className="font-medium text-zoru-ink">
+              {selected.size} selected
+            </span>
+            <span className="text-zoru-ink-muted">·</span>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              disabled={bulkDeleting}
+              onClick={() => setBulkDeleteOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              Delete
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('csv')}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('xlsx')}
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Export XLSX
+            </ZoruButton>
+            <span className="ml-auto" />
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelected(new Set())}
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear
+            </ZoruButton>
+          </div>
+        ) : null
+      }
+      loading={isLoading && rows.length === 0}
+    >
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <ZoruStatCard
+            label="Total purposes"
+            value={kpis.total}
+            icon={<ListChecks className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Active"
+            value={kpis.active}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="With consent text"
+            value={kpis.with_consent_text}
+            icon={<FileText className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Last updated"
+            value={formatRelative(kpis.last_updated_at)}
+            icon={<Clock className="h-4 w-4" />}
+          />
+        </div>
+
+        <ZoruCard className="p-0">
+          <div className="overflow-x-auto">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="w-[40px]">
+                    <ZoruCheckbox
+                      checked={allOnPageSelected}
+                      onCheckedChange={toggleAllOnPage}
+                      aria-label="Select all on page"
+                    />
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Title
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Applies to
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Required
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Status
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Order
+                  </ZoruTableHead>
+                  <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                    Actions
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && rows.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={7}
+                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : pageRows.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={7}
+                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      No purposes match the current filters.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  pageRows.map((row) => (
+                    <ZoruTableRow key={row._id}>
+                      <ZoruTableCell>
+                        <ZoruCheckbox
+                          checked={selected.has(row._id)}
+                          onCheckedChange={() => toggleOne(row._id)}
+                          aria-label={`Select ${row.title}`}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <RowDrawer
+                          label={row.title}
+                          subtitle={row.description || undefined}
+                          title={`Purpose · ${row.title}`}
+                          description="Inline detail. Use Edit to modify."
+                        >
+                          <div className="space-y-3 text-sm">
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Title
+                              </div>
+                              <div>{row.title}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Description
+                              </div>
+                              <div className="whitespace-pre-wrap">
+                                {row.description || '—'}
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Applies to
+                                </div>
+                                <div>{row.applies_to || 'both'}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Required
+                                </div>
+                                <div>{row.is_required ? 'Yes' : 'No'}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Active
+                                </div>
+                                <div>
+                                  {row.is_active === false ? 'No' : 'Yes'}
+                                </div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground text-xs">
+                                  Sort order
+                                </div>
+                                <div>{row.sort_order ?? 0}</div>
+                              </div>
+                            </div>
+                            <div className="pt-2">
+                              <ZoruButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditing(row);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                                Edit
+                              </ZoruButton>
+                            </div>
+                          </div>
+                        </RowDrawer>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant="ghost">
+                          {row.applies_to
+                            ? row.applies_to.charAt(0).toUpperCase() +
+                              row.applies_to.slice(1)
+                            : 'Both'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={row.is_required ? 'default' : 'ghost'}>
+                          {row.is_required ? 'Required' : 'Optional'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge
+                          variant={
+                            row.is_active === false ? 'ghost' : 'success'
+                          }
+                        >
+                          {row.is_active === false ? 'Inactive' : 'Active'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        {row.sort_order ?? 0}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingId(row._id)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+          <PaginationBar
+            page={page}
+            limit={pageSize}
+            hasMore={hasMore}
+            total={filtered.length}
+            controlled={{
+              onChange: ({ page: p, limit: l }) => {
+                setPage(p);
+                setPageSize(l);
+              },
+            }}
+          />
+        </ZoruCard>
+      </div>
+
+      <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <ZoruDialogContent className="max-w-lg">
+          <ZoruDialogHeader>
+            <ZoruDialogTitle>
+              {editing ? 'Edit Purpose' : 'Add Purpose'}
+            </ZoruDialogTitle>
+            <ZoruDialogDescription>
+              Purposes appear on consent prompts to leads and users.
+            </ZoruDialogDescription>
+          </ZoruDialogHeader>
+          <form action={saveAction} className="space-y-4">
+            {editing?._id ? (
+              <input type="hidden" name="_id" value={editing._id} />
+            ) : null}
+            <div>
+              <ZoruLabel htmlFor="title">
+                Title <span className="text-zoru-danger-ink">*</span>
+              </ZoruLabel>
+              <ZoruInput
+                id="title"
+                name="title"
+                required
+                defaultValue={editing?.title || ''}
+                placeholder="Marketing communications"
+              />
+            </div>
+            <div>
+              <ZoruLabel htmlFor="description">Description</ZoruLabel>
+              <ZoruTextarea
+                id="description"
+                name="description"
+                rows={3}
+                defaultValue={editing?.description || ''}
+                placeholder="We process your data to send product updates and newsletters."
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <ZoruLabel htmlFor="applies_to">Applies to</ZoruLabel>
+                <select
+                  id="applies_to"
+                  name="applies_to"
+                  defaultValue={editing?.applies_to || 'both'}
+                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                >
+                  <option value="both">Both leads and users</option>
+                  <option value="lead">Leads only</option>
+                  <option value="user">Users only</option>
+                </select>
+              </div>
+              <div>
+                <ZoruLabel htmlFor="sort_order">Sort order</ZoruLabel>
+                <ZoruInput
+                  id="sort_order"
+                  name="sort_order"
+                  type="number"
+                  defaultValue={String(editing?.sort_order ?? 0)}
+                />
+              </div>
+              <div>
+                <ZoruLabel htmlFor="is_required">Required</ZoruLabel>
+                <select
+                  id="is_required"
+                  name="is_required"
+                  defaultValue={editing?.is_required ? 'true' : 'false'}
+                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                >
+                  <option value="false">Optional</option>
+                  <option value="true">Required</option>
+                </select>
+              </div>
+              <div>
+                <ZoruLabel htmlFor="is_active">Status</ZoruLabel>
+                <select
+                  id="is_active"
+                  name="is_active"
+                  defaultValue={editing?.is_active === false ? 'false' : 'true'}
+                  className="h-10 w-full rounded-lg border border-zoru-line bg-zoru-bg px-3 text-[13px] text-zoru-ink"
+                >
+                  <option value="true">Active</option>
+                  <option value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+            <ZoruDialogFooter className="gap-2">
+              <ZoruButton
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+              >
+                Cancel
+              </ZoruButton>
+              <ZoruButton type="submit" disabled={isSaving}>
+                {isSaving ? (
+                  <LoaderCircle className="h-4 w-4 animate-spin" />
+                ) : null}
+                Save
+              </ZoruButton>
+            </ZoruDialogFooter>
+          </form>
+        </ZoruDialogContent>
+      </ZoruDialog>
+
+      <ZoruAlertDialog
+        open={deletingId !== null}
+        onOpenChange={(o) => !o && setDeletingId(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>Delete purpose?</ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              Lead and user consent records pointing to this purpose will be
+              orphaned.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleDelete}>
+              Delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
+      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Delete {selected.size} purpose(s)?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              All consent records referencing the selected purposes will be
+              orphaned.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+              {bulkDeleting ? 'Deleting…' : 'Delete'}
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+    </EntityListShell>
   );
 }

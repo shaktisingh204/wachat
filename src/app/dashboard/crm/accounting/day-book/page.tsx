@@ -1,124 +1,310 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruCard, ZoruPopover, ZoruPopoverContent, ZoruPopoverTrigger } from '@/components/zoruui';
-import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
-import { Calendar as CalendarIcon, ArrowDownCircle, ArrowUpCircle, LoaderCircle } from 'lucide-react';
-import { cn } from "@/lib/utils";
-import { Calendar } from '@/components/ui/calendar';
+import * as React from 'react';
+import type { DateRange } from 'react-day-picker';
+import {
+    Bar,
+    BarChart,
+    CartesianGrid,
+    ResponsiveContainer,
+    Tooltip,
+    XAxis,
+    YAxis,
+} from 'recharts';
+import { ArrowDownCircle, ArrowUpCircle, ListChecks, Scale } from 'lucide-react';
 
-import { getDayBookTransactions, type DayBookTransaction } from "@/app/actions/crm-accounting-reports.actions";
+import {
+    ZoruBadge,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+} from '@/components/zoruui';
+import { ReportShell, ReportKpiStrip, type ReportKpiCard } from '@/components/crm/report-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import {
+    getDayBookRange,
+    type DayBookTransaction,
+} from '@/app/actions/crm-accounting-reports.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { fmtMoney, fmtNumber } from '@/app/dashboard/crm/reports/_components/report-toolbar';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
+type FiscalChoice = 'current' | 'previous' | 'custom';
 
-export default function DayBookPage() {
-    const [date, setDate] = useState<Date>(new Date());
-    const [transactions, setTransactions] = useState<DayBookTransaction[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [totals, setTotals] = useState({ in: 0, out: 0 });
+function currentFyRange(now: Date): DateRange {
+    const y = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+    return { from: new Date(y, 3, 1), to: new Date(y + 1, 2, 31) };
+}
 
-    useEffect(() => {
-        loadData();
-    }, [date]);
+function previousFyRange(now: Date): DateRange {
+    const cur = currentFyRange(now);
+    return {
+        from: new Date(cur.from!.getFullYear() - 1, 3, 1),
+        to: new Date(cur.from!.getFullYear(), 2, 31),
+    };
+}
 
-    async function loadData() {
-        setLoading(true);
+function vendorPathFor(type: DayBookTransaction['type'], id: string): string {
+    switch (type) {
+        case 'Invoice':
+            return `/dashboard/crm/sales-crm/invoices/${id}`;
+        case 'Receipt':
+            return `/dashboard/crm/sales-crm/payment-receipts/${id}`;
+        case 'Bill':
+            return `/dashboard/crm/purchases/${id}`;
+        case 'Payout':
+            return `/dashboard/crm/purchases/payouts/${id}`;
+        case 'Expense':
+            return `/dashboard/crm/purchases/expenses/${id}`;
+        default:
+            return '#';
+    }
+}
+
+const HEADERS = ['Date', 'Type', 'Number', 'Party', 'Flow', 'Amount', 'Status'];
+
+export default function DayBookPage(): React.JSX.Element {
+    const now = React.useMemo(() => new Date(), []);
+    const [fyChoice, setFyChoice] = React.useState<FiscalChoice>('current');
+    const [range, setRange] = React.useState<DateRange | undefined>(() => currentFyRange(now));
+    const [voucherType, setVoucherType] = React.useState<string>('all');
+    const [transactions, setTransactions] = React.useState<DayBookTransaction[]>([]);
+    const [totals, setTotals] = React.useState({ in: 0, out: 0 });
+    const [countsByType, setCountsByType] = React.useState<Record<string, number>>({});
+    const [refreshing, setRefreshing] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(20);
+
+    const load = React.useCallback(async () => {
+        if (!range?.from || !range?.to) return;
+        setRefreshing(true);
         try {
-            const data = await getDayBookTransactions(date);
+            const data = await getDayBookRange(range.from, range.to);
             setTransactions(data.transactions);
             setTotals({ in: data.totalIn, out: data.totalOut });
+            setCountsByType(data.countsByType);
         } catch (e) {
             console.error(e);
         } finally {
-            setLoading(false);
+            setRefreshing(false);
         }
-    }
+    }, [range]);
+
+    React.useEffect(() => {
+        void load();
+    }, [load]);
+
+    const handleFyChange = (value: string) => {
+        setFyChoice(value as FiscalChoice);
+        if (value === 'current') setRange(currentFyRange(now));
+        else if (value === 'previous') setRange(previousFyRange(now));
+    };
+
+    const handleDateRangeChange = (next: DateRange | undefined) => {
+        setRange(next);
+        setFyChoice('custom');
+    };
+
+    const filtered = React.useMemo(
+        () => (voucherType === 'all' ? transactions : transactions.filter((t) => t.type === voucherType)),
+        [transactions, voucherType],
+    );
+
+    const start = (page - 1) * limit;
+    const pageRows = filtered.slice(start, start + limit);
+    const hasMore = start + limit < filtered.length;
+
+    const chartData = React.useMemo(
+        () =>
+            Object.entries(countsByType).map(([type, count]) => ({
+                type,
+                count,
+            })),
+        [countsByType],
+    );
+
+    const net = totals.in - totals.out;
+    const kpis: ReportKpiCard[] = [
+        {
+            label: 'Total entries',
+            value: fmtNumber(transactions.length),
+            hint: `${Object.keys(countsByType).length} voucher type(s)`,
+            icon: ListChecks,
+        },
+        {
+            label: 'Total debits (In)',
+            value: fmtMoney(totals.in),
+            tone: 'success',
+            icon: ArrowDownCircle,
+        },
+        {
+            label: 'Total credits (Out)',
+            value: fmtMoney(totals.out),
+            tone: 'danger',
+            icon: ArrowUpCircle,
+        },
+        {
+            label: 'Net movement',
+            value: fmtMoney(net),
+            tone: net >= 0 ? 'success' : 'danger',
+            icon: Scale,
+        },
+    ];
+
+    const exportRows = React.useMemo(
+        () =>
+            filtered.map((t) => ({
+                Date: new Date(t.date).toISOString().slice(0, 10),
+                Type: t.type,
+                Number: t.number,
+                Party: t.partyName,
+                Flow: t.flow,
+                Amount: t.amount,
+                Status: t.status,
+            })),
+        [filtered],
+    );
+
+    const onCsv = () => downloadCsv(`day-book-${dateStamp()}.csv`, HEADERS, exportRows);
+    const onXlsx = () => downloadXlsx(`day-book-${dateStamp()}.xlsx`, HEADERS, exportRows, 'Day Book');
+
+    const filters = (
+        <div className="flex flex-wrap items-center gap-2">
+            <ZoruSelect value={fyChoice} onValueChange={handleFyChange}>
+                <ZoruSelectTrigger className="w-[180px]">
+                    <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="current">Current FY (Apr–Mar)</ZoruSelectItem>
+                    <ZoruSelectItem value="previous">Previous FY</ZoruSelectItem>
+                    <ZoruSelectItem value="custom">Custom range</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect value={voucherType} onValueChange={setVoucherType}>
+                <ZoruSelectTrigger className="w-[160px]">
+                    <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All voucher types</ZoruSelectItem>
+                    <ZoruSelectItem value="Invoice">Invoices</ZoruSelectItem>
+                    <ZoruSelectItem value="Receipt">Receipts</ZoruSelectItem>
+                    <ZoruSelectItem value="Bill">Bills</ZoruSelectItem>
+                    <ZoruSelectItem value="Payout">Payouts</ZoruSelectItem>
+                    <ZoruSelectItem value="Expense">Expenses</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+        </div>
+    );
+
+    const chart = (
+        <div>
+            <h2 className="text-[15px] font-semibold text-foreground">Entries by voucher type</h2>
+            <p className="mt-0.5 text-[12px] text-muted-foreground">
+                Distribution of {transactions.length} entries in the selected range.
+            </p>
+            <div className="mt-4 h-64 w-full">
+                {chartData.length === 0 ? (
+                    <div className="flex h-full items-center justify-center text-[13px] text-muted-foreground">
+                        No entries in this range.
+                    </div>
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData} margin={{ top: 8, right: 12, left: 0, bottom: 8 }}>
+                            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                            <XAxis dataKey="type" tick={{ fontSize: 12 }} />
+                            <YAxis tick={{ fontSize: 12 }} allowDecimals={false} />
+                            <Tooltip cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
+                            <Bar dataKey="count" fill="hsl(var(--primary))" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
+            </div>
+        </div>
+    );
+
+    const table = (
+        <ZoruTable>
+            <ZoruTableHeader>
+                <ZoruTableRow className="border-border hover:bg-transparent">
+                    <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Type</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Number</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Party</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground text-right">Amount</ZoruTableHead>
+                    <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+                {pageRows.length === 0 ? (
+                    <ZoruTableRow className="border-border">
+                        <ZoruTableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                            No transactions in this range.
+                        </ZoruTableCell>
+                    </ZoruTableRow>
+                ) : (
+                    pageRows.map((t) => (
+                        <ZoruTableRow key={t.id} className="border-border">
+                            <ZoruTableCell className="text-foreground">
+                                {new Date(t.date).toLocaleDateString('en-IN')}
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-foreground">{t.type}</ZoruTableCell>
+                            <ZoruTableCell>
+                                <EntityRowLink href={vendorPathFor(t.type, t.id)} label={t.number} />
+                            </ZoruTableCell>
+                            <ZoruTableCell className="text-foreground">{t.partyName}</ZoruTableCell>
+                            <ZoruTableCell
+                                className={`text-right font-mono ${t.flow === 'In' ? 'text-emerald-500' : 'text-destructive'}`}
+                            >
+                                {t.flow === 'In' ? '+' : '-'}
+                                {fmtMoney(t.amount)}
+                            </ZoruTableCell>
+                            <ZoruTableCell>
+                                <ZoruBadge variant="ghost">{t.status}</ZoruBadge>
+                            </ZoruTableCell>
+                        </ZoruTableRow>
+                    ))
+                )}
+            </ZoruTableBody>
+        </ZoruTable>
+    );
 
     return (
-        <EntityListShell
+        <ReportShell
             title="Day Book"
-            subtitle={`Transactions for ${format(date, 'PPP')}`}
-            primaryAction={
-                <ZoruPopover>
-                    <ZoruPopoverTrigger asChild>
-                        <ZoruButton
-                            variant="outline"
-                        >
-                            {date ? format(date, "PPP") : 'Pick a date'}
-                        </ZoruButton>
-                    </ZoruPopoverTrigger>
-                    <ZoruPopoverContent className="w-auto p-0" align="end">
-                        <Calendar
-                            mode="single"
-                            selected={date}
-                            onSelect={(d) => d && setDate(d)}
-                            initialFocus
-                        />
-                    </ZoruPopoverContent>
-                </ZoruPopover>
+            subtitle="Chronological log of every accounting entry across vouchers, invoices, bills, receipts, payouts and expenses."
+            back={{ href: '/dashboard/crm/accounting', label: 'Back to Accounting' }}
+            dateRange={range}
+            onDateRangeChange={handleDateRangeChange}
+            onRefresh={() => void load()}
+            refreshing={refreshing}
+            onExportCsv={onCsv}
+            onExportXlsx={onXlsx}
+            filters={filters}
+            kpis={<ReportKpiStrip cards={kpis} />}
+            chart={chart}
+            table={<div className="overflow-x-auto">{table}</div>}
+            pagination={
+                <PaginationBar
+                    page={page}
+                    limit={limit}
+                    hasMore={hasMore}
+                    total={filtered.length}
+                    controlled={{
+                        onChange: (next) => {
+                            setPage(next.page);
+                            setLimit(next.limit);
+                        },
+                    }}
+                />
             }
-        >
-
-            <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard>
-                    <div className="flex items-center justify-between">
-                        <p className="text-[12.5px] font-medium text-muted-foreground">Total In (Receipts)</p>
-                        <ArrowDownCircle className="h-4 w-4 text-emerald-500" strokeWidth={1.75} />
-                    </div>
-                    <div className="mt-2 text-[24px] font-semibold text-emerald-500">+{totals.in.toLocaleString()}</div>
-                </ZoruCard>
-                <ZoruCard>
-                    <div className="flex items-center justify-between">
-                        <p className="text-[12.5px] font-medium text-muted-foreground">Total Out (Payouts/Exp)</p>
-                        <ArrowUpCircle className="h-4 w-4 text-destructive" strokeWidth={1.75} />
-                    </div>
-                    <div className="mt-2 text-[24px] font-semibold text-destructive">-{totals.out.toLocaleString()}</div>
-                </ZoruCard>
-                <ZoruCard>
-                    <p className="text-[12.5px] font-medium text-muted-foreground">Net Cash Flow</p>
-                    <div className={cn("mt-2 text-[24px] font-semibold", (totals.in - totals.out) >= 0 ? "text-emerald-500" : "text-destructive")}>
-                        {(totals.in - totals.out).toLocaleString()}
-                    </div>
-                </ZoruCard>
-            </div>
-
-            <ZoruCard>
-                <h2 className="text-[16px] font-semibold text-foreground">Transactions</h2>
-                <p className="mt-0.5 text-[12.5px] text-muted-foreground">All financial activity for the selected day.</p>
-                <div className="mt-4">
-                    {loading ? (
-                        <div className="flex justify-center py-8">
-                            <LoaderCircle className="animate-spin h-8 w-8 text-muted-foreground" />
-                        </div>
-                    ) : transactions.length === 0 ? (
-                        <div className="text-center py-10 text-[13px] text-muted-foreground">
-                            No transactions found for this date.
-                        </div>
-                    ) : (
-                        <div className="space-y-4">
-                            {transactions.map((tx) => (
-                                <div key={tx.id} className="flex items-center justify-between border-b border-border pb-4 last:border-0 last:pb-0">
-                                    <div className="flex items-start gap-3">
-                                        <div className={cn("p-2 rounded-full mt-1", tx.flow === 'In' ? "bg-emerald-50 text-emerald-500" : "bg-rose-50 text-destructive")}>
-                                            {tx.flow === 'In' ? <ArrowDownCircle className="h-4 w-4" /> : <ArrowUpCircle className="h-4 w-4" />}
-                                        </div>
-                                        <div>
-                                            <p className="text-[13px] font-medium text-foreground">{tx.partyName}</p>
-                                            <p className="text-[11.5px] text-muted-foreground">{tx.type} • {tx.number}</p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className={cn("font-semibold text-[13px]", tx.flow === 'In' ? "text-emerald-500" : "text-destructive")}>
-                                            {tx.flow === 'In' ? '+' : '-'}{tx.amount.toLocaleString()}
-                                        </p>
-                                        <ZoruBadge variant="ghost" className="mt-1">{tx.status}</ZoruBadge>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </ZoruCard>
-        </EntityListShell>
-    )
+        />
+    );
 }

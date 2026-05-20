@@ -241,6 +241,75 @@ export async function saveCurrency(
     }
 }
 
+/* ─── Bulk actions ────────────────────────────────────────────────────── */
+
+type BulkResult = { ok: true; count: number } | { ok: false; error: string };
+
+/**
+ * Bulk delete currencies. Only non-base currencies should be passed — the
+ * server does NOT enforce this for flexibility, but the UI enforces it by
+ * filtering selected IDs before calling.
+ */
+export async function bulkDeleteCurrencies(ids: string[]): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No currencies selected.' };
+
+    const guard = await requirePermission('crm_currency', 'delete');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await crmCurrenciesApi.delete(id);
+            count++;
+        } catch (e) {
+            console.error(`[bulkDeleteCurrencies] failed for ${id}:`, e);
+            recordRustFallback({
+                entity: 'currency',
+                op: 'delete',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+    revalidatePath(REVALIDATE_PATH);
+    return { ok: true, count };
+}
+
+/**
+ * Bulk set currency status (active | archived).
+ */
+export async function bulkSetCurrencyStatus(
+    ids: string[],
+    status: CrmCurrencyStatus,
+): Promise<BulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { ok: false, error: 'Access denied' };
+    if (ids.length === 0) return { ok: false, error: 'No currencies selected.' };
+
+    const guard = await requirePermission('crm_currency', 'edit');
+    if (!guard.ok) return { ok: false, error: guard.error };
+
+    let count = 0;
+    for (const id of ids) {
+        try {
+            await crmCurrenciesApi.update(id, { status });
+            count++;
+        } catch (e) {
+            console.error(`[bulkSetCurrencyStatus] failed for ${id}:`, e);
+            recordRustFallback({
+                entity: 'currency',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+    revalidatePath(REVALIDATE_PATH);
+    return { ok: true, count };
+}
+
 export async function deleteCurrency(
     id: string,
 ): Promise<{ success: boolean; error?: string }> {

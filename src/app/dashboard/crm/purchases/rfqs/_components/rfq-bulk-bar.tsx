@@ -29,6 +29,8 @@ const STATUS_OPTIONS: CrmRfqStatus[] = [
 interface RfqBulkBarProps {
   count: number;
   onExportCsv: () => void;
+  /** Optional XLSX export — hidden when omitted. */
+  onExportXlsx?: () => void;
   onClear: () => void;
   onArchive: () => void;
   onDelete: () => void;
@@ -39,6 +41,7 @@ interface RfqBulkBarProps {
 export function RfqBulkBar({
   count,
   onExportCsv,
+  onExportXlsx,
   onClear,
   onArchive,
   onDelete,
@@ -60,6 +63,11 @@ export function RfqBulkBar({
         <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
         </ZoruButton>
+        {onExportXlsx ? (
+          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+            <Download className="h-3.5 w-3.5" /> Export XLSX
+          </ZoruButton>
+        ) : null}
         <ZoruButton size="sm" variant="outline" onClick={onClose}>
           <Lock className="h-3.5 w-3.5" /> Close
         </ZoruButton>

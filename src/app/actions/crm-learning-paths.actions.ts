@@ -419,3 +419,49 @@ export async function deleteLearningPath(
         };
     }
 }
+
+/* ─── Bulk ────────────────────────────────────────────────────────────── */
+
+export async function bulkArchiveLearningPaths(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    const session = await getSession();
+    if (!session?.user) return { succeeded: 0, failed: ids.length };
+
+    const guard = await requirePermission('crm_learning_path', 'edit');
+    if (!guard.ok) return { succeeded: 0, failed: ids.length };
+
+    let succeeded = 0;
+    let failed = 0;
+
+    let db: Awaited<ReturnType<typeof connectToDatabase>>['db'] | null = null;
+    try {
+        db = (await connectToDatabase()).db;
+    } catch {
+        return { succeeded: 0, failed: ids.length };
+    }
+
+    for (const id of ids) {
+        if (!ObjectId.isValid(id)) { failed++; continue; }
+        try {
+            const res = await db.collection('crm_learning_paths').updateOne(
+                { _id: new ObjectId(id), userId: new ObjectId(session.user._id as string) },
+                { $set: { status: 'archived' as CrmLearningPathStatus, updatedAt: new Date() } },
+            );
+            if (res.matchedCount > 0) succeeded++;
+            else failed++;
+        } catch {
+            failed++;
+        }
+    }
+
+    if (succeeded > 0) revalidatePath('/dashboard/crm/hr/learning-paths');
+    return { succeeded, failed };
+}
+
+export async function bulkDeleteLearningPaths(
+    ids: string[],
+): Promise<{ succeeded: number; failed: number }> {
+    // Re-uses archive pattern (soft-delete = status: archived)
+    return bulkArchiveLearningPaths(ids);
+}

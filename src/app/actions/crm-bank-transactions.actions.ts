@@ -870,6 +870,76 @@ export async function bulkUpdateBankTransactions(
     }
 }
 
+/* ─── KPIs (used by bank-transactions list page) ─────────────────────── */
+
+export interface CrmBankTransactionListKpis {
+  total: number;
+  totalCredits: number;
+  totalDebits: number;
+  unreconciled: number;
+  creditSum: number;
+  debitSum: number;
+}
+
+export async function getCrmBankTransactionListKpis(): Promise<CrmBankTransactionListKpis> {
+  const empty: CrmBankTransactionListKpis = {
+    total: 0,
+    totalCredits: 0,
+    totalDebits: 0,
+    unreconciled: 0,
+    creditSum: 0,
+    debitSum: 0,
+  };
+
+  const session = await getSession();
+  if (!session?.user) return empty;
+
+  const guard = await requirePermission('crm_bank_transaction', 'view');
+  if (!guard.ok) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id);
+
+    const [total, totalCredits, totalDebits, unreconciled, creditAgg, debitAgg] =
+      await Promise.all([
+        db.collection(COLL).countDocuments({ userId }),
+        db.collection(COLL).countDocuments({ userId, type: 'credit' }),
+        db.collection(COLL).countDocuments({ userId, type: 'debit' }),
+        db.collection(COLL).countDocuments({
+          userId,
+          status: { $in: ['pending', 'cleared'] },
+        }),
+        db
+          .collection(COLL)
+          .aggregate([
+            { $match: { userId, type: 'credit' } },
+            { $group: { _id: null, sum: { $sum: '$amount' } } },
+          ])
+          .toArray(),
+        db
+          .collection(COLL)
+          .aggregate([
+            { $match: { userId, type: 'debit' } },
+            { $group: { _id: null, sum: { $sum: '$amount' } } },
+          ])
+          .toArray(),
+      ]);
+
+    return {
+      total,
+      totalCredits,
+      totalDebits,
+      unreconciled,
+      creditSum: (creditAgg[0] as { sum?: number } | undefined)?.sum ?? 0,
+      debitSum: (debitAgg[0] as { sum?: number } | undefined)?.sum ?? 0,
+    };
+  } catch (e) {
+    console.error('[getCrmBankTransactionListKpis] failed:', e);
+    return empty;
+  }
+}
+
 /* ─── KPIs (used by banking landing dashboard) ───────────────────────── */
 
 export interface CrmBankingDashboardKpis {

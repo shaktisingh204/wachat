@@ -406,3 +406,48 @@ export async function deleteRemovalRequestLead(id: string) {
   revalidatePath(`${ROUTE_BASE}/removal-requests`);
   return r;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Purpose-consent KPIs
+ * ══════════════════════════════════════════════════════════════════ */
+
+export interface PurposeConsentKpis {
+  total: number;
+  active: number;
+  with_consent_text: number;
+  last_updated_at: string | null;
+}
+
+/**
+ * KPI roll-up for /settings/gdpr/purposes. Returns total purposes,
+ * the count flagged active, the count carrying a description (the
+ * "consent text" presented to the user), and the most-recent
+ * mutation timestamp.
+ */
+export async function getPurposeConsentKpis(): Promise<PurposeConsentKpis> {
+  const all = (await getPurposeConsents()) as unknown as Array<{
+    _id: string;
+    is_active?: boolean;
+    description?: string;
+    updatedAt?: string | Date;
+    createdAt?: string | Date;
+  }>;
+  let active = 0;
+  let withText = 0;
+  let latest: Date | null = null;
+  for (const row of all) {
+    if (row.is_active !== false) active += 1;
+    if ((row.description || '').trim().length > 0) withText += 1;
+    const ts = row.updatedAt || row.createdAt;
+    if (ts) {
+      const d = new Date(ts);
+      if (!Number.isNaN(d.getTime()) && (!latest || d > latest)) latest = d;
+    }
+  }
+  return {
+    total: all.length,
+    active,
+    with_consent_text: withText,
+    last_updated_at: latest ? latest.toISOString() : null,
+  };
+}

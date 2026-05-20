@@ -18,6 +18,7 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCheckbox,
+  ZoruInput,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -26,13 +27,15 @@ import {
   ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
-import { FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
+import { Archive, Download, FileText, LayoutTemplate, Plus, Trash2, X } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { deleteProposal } from '@/app/actions/worksuite/proposals.actions';
+import { bulkArchiveProposals } from '@/app/actions/crm-proposals.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 import type { WsProposal, WsProposalStatus } from '@/lib/worksuite/proposals-types';
 import { WS_PROPOSAL_STATUSES } from '@/lib/worksuite/proposals-types';
 
@@ -174,6 +177,8 @@ export function ProposalListClient({
 
   /* Filters */
   const [statusFilter, setStatusFilter] = React.useState<string>(ALL);
+  const [dateFrom, setDateFrom] = React.useState('');
+  const [dateTo, setDateTo] = React.useState('');
 
   /* Selection */
   const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -181,6 +186,7 @@ export function ProposalListClient({
   /* Dialogs */
   const [pendingDelete, setPendingDelete] = React.useState<ProposalRow | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
+  const [pendingBulkArchive, setPendingBulkArchive] = React.useState(false);
 
   const [busy, startBusy] = React.useTransition();
 
@@ -199,11 +205,21 @@ export function ProposalListClient({
 
   /* In-memory filter */
   const filtered = React.useMemo(() => {
-    if (statusFilter === ALL) return serverRows;
-    return serverRows.filter((p) => p.status === statusFilter);
-  }, [serverRows, statusFilter]);
+    return serverRows.filter((p) => {
+      if (statusFilter !== ALL && p.status !== statusFilter) return false;
+      if (dateFrom) {
+        const sentAt = p.issue_date ? new Date(p.issue_date as string).toISOString().slice(0, 10) : null;
+        if (!sentAt || sentAt < dateFrom) return false;
+      }
+      if (dateTo) {
+        const sentAt = p.issue_date ? new Date(p.issue_date as string).toISOString().slice(0, 10) : null;
+        if (!sentAt || sentAt > dateTo) return false;
+      }
+      return true;
+    });
+  }, [serverRows, statusFilter, dateFrom, dateTo]);
 
-  const filtersActive = statusFilter !== ALL;
+  const filtersActive = statusFilter !== ALL || !!dateFrom || !!dateTo;
 
   /* Selection helpers */
   const allIds = React.useMemo(() => filtered.map((p) => String(p._id)), [filtered]);
@@ -272,6 +288,25 @@ export function ProposalListClient({
       router.refresh();
     });
 
+  const PROPOSAL_HEADERS = [
+    'id', 'proposal_number', 'title', 'status', 'issue_date',
+    'valid_until', 'subtotal', 'tax', 'discount', 'total', 'currency',
+  ] as const;
+
+  const toExportRow = (r: ProposalRow): Record<string, unknown> => ({
+    id: String(r._id),
+    proposal_number: r.proposal_number,
+    title: r.title,
+    status: r.status,
+    issue_date: r.issue_date ? new Date(r.issue_date as string).toLocaleDateString('en-IN') : '',
+    valid_until: r.valid_until ? new Date(r.valid_until as string).toLocaleDateString('en-IN') : '',
+    subtotal: r.subtotal,
+    tax: r.tax,
+    discount: r.discount,
+    total: r.total,
+    currency: r.currency || 'INR',
+  });
+
   /* CSV export */
   const bulkExport = React.useCallback(() => {
     const rows = filtered.filter(
@@ -281,18 +316,37 @@ export function ProposalListClient({
       toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
       return;
     }
-    const csv = toCsv(rows);
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `proposals-${new Date().toISOString().slice(0, 10)}.csv`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadCsv(`proposals-${dateStamp()}.csv`, [...PROPOSAL_HEADERS], rows.map(toExportRow));
     toast({ title: 'Exported', description: `${rows.length} proposals saved to CSV.` });
   }, [filtered, selected, toast]);
+
+  /* XLSX export */
+  const bulkExportXlsx = React.useCallback(() => {
+    const rows = filtered.filter(
+      (p) => selected.size === 0 || selected.has(String(p._id)),
+    );
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    void downloadXlsx(`proposals-${dateStamp()}.xlsx`, [...PROPOSAL_HEADERS], rows.map(toExportRow), 'Proposals');
+    toast({ title: 'Exported', description: `${rows.length} proposals saved to XLSX.` });
+  }, [filtered, selected, toast]);
+
+  /* Bulk archive */
+  const bulkArchive = () =>
+    startBusy(async () => {
+      const ids = Array.from(selected);
+      const res = await bulkArchiveProposals(ids);
+      if (res.success) {
+        toast({ title: 'Archived', description: `${res.archived ?? 0} proposals archived.` });
+        clearSelection();
+        setPendingBulkArchive(false);
+        router.refresh();
+      } else {
+        toast({ title: 'Archive failed', description: res.error, variant: 'destructive' });
+      }
+    });
 
   /* Status filter labels */
   const statusLabels: Record<string, string> = {
@@ -347,6 +401,30 @@ export function ProposalListClient({
                 {s === ALL ? 'All' : statusLabels[s] ?? s}
               </ZoruButton>
             ))}
+            <ZoruInput
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="h-7 w-[140px] text-[12px]"
+              aria-label="From date"
+            />
+            <ZoruInput
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="h-7 w-[140px] text-[12px]"
+              aria-label="To date"
+            />
+            {filtersActive ? (
+              <ZoruButton
+                size="sm"
+                variant="ghost"
+                onClick={() => { setStatusFilter(ALL); setDateFrom(''); setDateTo(''); }}
+                className="h-7 text-[12px]"
+              >
+                <X className="h-3 w-3" /> Clear
+              </ZoruButton>
+            ) : null}
           </div>
         }
         bulkBar={
@@ -356,7 +434,17 @@ export function ProposalListClient({
                 {selected.size} selected
               </span>
               <ZoruButton size="sm" variant="ghost" onClick={bulkExport}>
-                Export CSV
+                <Download className="h-3.5 w-3.5" /> Export CSV
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={bulkExportXlsx}>
+                <Download className="h-3.5 w-3.5" /> Export XLSX
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => setPendingBulkArchive(true)}
+              >
+                <Archive className="h-3.5 w-3.5" /> Archive
               </ZoruButton>
               <ZoruButton
                 size="sm"
@@ -522,6 +610,16 @@ export function ProposalListClient({
         requireTyped="DELETE"
         confirmLabel="Delete"
         onConfirm={async () => bulkDelete()}
+      />
+
+      {/* Bulk archive */}
+      <ConfirmDialog
+        open={pendingBulkArchive}
+        onOpenChange={setPendingBulkArchive}
+        title={`Archive ${selected.size} proposal${selected.size === 1 ? '' : 's'}?`}
+        description="Archived proposals are hidden from the default list view but not permanently deleted."
+        confirmLabel="Archive"
+        onConfirm={async () => bulkArchive()}
       />
 
       {busy ? <span className="sr-only">Working…</span> : null}

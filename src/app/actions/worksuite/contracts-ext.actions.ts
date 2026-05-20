@@ -1,7 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { ObjectId } from 'mongodb';
+import {
+  hrList,
+  hrGetById,
+  hrSave,
+  hrDelete,
+  hrBulkDelete,
+  formToObject,
+  requireSession,
+} from '@/lib/hr-crud';
+import { connectToDatabase } from '@/lib/mongodb';
 import type {
   WsContractDiscussion,
   WsContractFile,
@@ -45,6 +55,64 @@ async function genericSave(
   }
 }
 
+/* ── Settings-list KPI helper ───────────────────────────────────── */
+
+export interface ContractSettingsKpis {
+  total: number;
+  inUse: number;
+  unused: number;
+  lastAddedAt: string | null;
+}
+
+async function settingsKpis(
+  collection: string,
+  usedBy: { collection: string; field: string } | null,
+): Promise<ContractSettingsKpis> {
+  const user = await requireSession();
+  if (!user) return { total: 0, inUse: 0, unused: 0, lastAddedAt: null };
+  const { db } = await connectToDatabase();
+  const userObjectId = new ObjectId(user._id);
+
+  const total = await db
+    .collection(collection)
+    .countDocuments({ userId: userObjectId });
+
+  const latest = await db
+    .collection(collection)
+    .find({ userId: userObjectId })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .toArray();
+  const lastAddedAt =
+    latest[0]?.createdAt instanceof Date
+      ? (latest[0].createdAt as Date).toISOString()
+      : latest[0]?.createdAt
+        ? String(latest[0].createdAt)
+        : null;
+
+  let inUse = 0;
+  if (usedBy) {
+    try {
+      const ids = await db
+        .collection(usedBy.collection)
+        .distinct(usedBy.field, {
+          userId: userObjectId,
+          [usedBy.field]: { $exists: true, $ne: null },
+        });
+      const seen = new Set<string>();
+      for (const v of ids as unknown[]) {
+        if (v == null) continue;
+        seen.add(String(v));
+      }
+      inUse = seen.size;
+    } catch {
+      inUse = 0;
+    }
+  }
+
+  return { total, inUse, unused: Math.max(0, total - inUse), lastAddedAt };
+}
+
 /* ── Contract Types ─────────────────────────────────────────────── */
 
 const COL_TYPES = 'crm_contract_types';
@@ -59,6 +127,17 @@ export async function deleteContractType(id: string) {
   const r = await hrDelete(COL_TYPES, id);
   revalidatePath(`${ROUTE_BASE}/types`);
   return r;
+}
+export async function bulkDeleteContractTypes(ids: string[]) {
+  const r = await hrBulkDelete(COL_TYPES, ids);
+  revalidatePath(`${ROUTE_BASE}/types`);
+  return r;
+}
+export async function getContractTypeKpis(): Promise<ContractSettingsKpis> {
+  return settingsKpis(COL_TYPES, {
+    collection: 'crm_contracts',
+    field: 'contract_type_id',
+  });
 }
 
 /* ── Contract Templates ─────────────────────────────────────────── */
@@ -76,6 +155,12 @@ export async function saveContractTemplate(_prev: any, formData: FormData) {
 }
 export async function deleteContractTemplate(id: string) {
   const r = await hrDelete(COL_TEMPLATES, id);
+  revalidatePath(`${ROUTE_BASE}/templates`);
+  return r;
+}
+
+export async function bulkDeleteContractTemplates(ids: string[]) {
+  const r = await hrBulkDelete(COL_TEMPLATES, ids);
   revalidatePath(`${ROUTE_BASE}/templates`);
   return r;
 }

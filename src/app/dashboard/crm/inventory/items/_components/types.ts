@@ -52,6 +52,9 @@ export interface ItemKpiSnapshot {
   lowStockCount: number;
   outOfStockCount: number;
   inventoryValue: number;
+  /** Items with `totalStock > 0` (or untracked items, which are always
+   *  considered in-stock since they aren't inventory-managed). */
+  inStockCount: number;
 }
 
 export type ItemPresetKey =

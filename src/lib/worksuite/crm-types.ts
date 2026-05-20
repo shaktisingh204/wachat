@@ -85,6 +85,8 @@ export interface WsLeadNote extends WsCrmBase {
   title: string;
   details?: string;
   added_by_user_id?: ObjectId | string;
+  tags?: string[];
+  pinned?: boolean;
 }
 
 export interface WsLeadProduct extends WsCrmBase {
@@ -125,12 +127,15 @@ export interface WsClientContact extends WsCrmBase {
   is_primary?: boolean;
 }
 
+export type WsClientDocumentType = 'contract' | 'invoice' | 'proposal' | 'kyc' | 'other';
+
 export interface WsClientDocument extends WsCrmBase {
   client_id: ObjectId | string;
   filename: string;
   url?: string;
   size?: number;
   uploaded_at?: Date | string;
+  doc_type?: WsClientDocumentType;
 }
 
 export interface WsClientNote extends WsCrmBase {
@@ -138,6 +143,7 @@ export interface WsClientNote extends WsCrmBase {
   title: string;
   details?: string;
   added_by_user_id?: ObjectId | string;
+  pinned?: boolean;
 }
 
 export interface WsClientDetails extends WsCrmBase {

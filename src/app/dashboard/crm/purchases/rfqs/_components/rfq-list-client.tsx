@@ -25,6 +25,11 @@ import * as React from 'react';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import type { CrmRfqStatus } from '@/lib/rust-client/crm-rfqs';
+import {
+  dateStamp,
+  downloadXlsx,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 
 import { RfqTable } from './rfq-table';
 import { RfqBulkBar } from './rfq-bulk-bar';
@@ -233,6 +238,42 @@ export function RfqListClient({
     [filtered],
   );
 
+  /* XLSX export — wraps the shared list-export helper. Kept beside
+     `exportCsv` so column ordering stays identical across formats. */
+  const exportXlsx = React.useCallback(async () => {
+    const rows = filtered.filter((r) => selected.size === 0 || selected.has(r._id));
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    const headers = [
+      'rfq_no',
+      'title',
+      'vendors_invited',
+      'deadline',
+      'required_by',
+      'currency',
+      'estimated_value',
+      'status',
+      'owner_id',
+      'created_at',
+    ];
+    const out: ExportRow[] = rows.map((r) => ({
+      rfq_no: r._id,
+      title: r.title,
+      vendors_invited: r.vendorsInvitedCount,
+      deadline: r.deadline ?? '',
+      required_by: r.requiredBy ?? '',
+      currency: r.currency ?? '',
+      estimated_value: r.estimatedValue ?? '',
+      status: r.status,
+      owner_id: r.ownerId ?? '',
+      created_at: r.createdAt ?? '',
+    }));
+    await downloadXlsx(`rfqs-${dateStamp()}.xlsx`, headers, out, 'RFQs');
+    toast({ title: 'Exported', description: `${rows.length} RFQs saved to XLSX.` });
+  }, [filtered, selected, toast]);
+
   /* CSV export */
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter((r) => selected.size === 0 || selected.has(r._id));
@@ -366,6 +407,7 @@ export function RfqListClient({
         <RfqBulkBar
           count={selected.size}
           onExportCsv={exportCsv}
+          onExportXlsx={exportXlsx}
           onClear={() => setSelected(new Set())}
           onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}

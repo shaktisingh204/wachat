@@ -143,6 +143,16 @@ export interface WsMessageSetting extends Owned {
   max_file_size_mb?: number;
 }
 
+/* ── Facebook Ads ────────────────────────────────────────────────── */
+export interface WsFacebookAdsSetting extends Owned {
+  ad_account_id?: string;
+  ad_account_name?: string;
+  lead_form_ids?: string;
+  default_pipeline?: string;
+  default_stage?: string;
+  is_active?: boolean;
+}
+
 /* ── Ticket Email ────────────────────────────────────────────────── */
 export interface WsTicketEmailSetting extends Owned {
   email_address?: string;

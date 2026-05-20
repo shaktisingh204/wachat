@@ -18,7 +18,7 @@ import {
   useSearchParams,
   usePathname,
 } from 'next/navigation';
-import { RefreshCw, Plus } from 'lucide-react';
+import { Download, PauseCircle, RefreshCw, Plus, XCircle } from 'lucide-react';
 import {
   ZoruButton,
   ZoruCard,
@@ -41,10 +41,12 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 
 import {
+  bulkSetRecurringInvoiceStatus,
   deleteRecurringInvoice,
   type CrmRecurringInvoiceDoc,
   type CrmRecurringInvoiceStatus,
 } from '@/app/actions/crm-recurring-invoices.actions';
+import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -272,6 +274,24 @@ export function RecurringInvoiceListClient({
     });
   }
 
+  /* Bulk status helpers */
+  const bulkSetStatus = React.useCallback(
+    (status: CrmRecurringInvoiceStatus) => {
+      if (selected.size === 0) return;
+      startBusy(async () => {
+        const res = await bulkSetRecurringInvoiceStatus(Array.from(selected), status);
+        toast({
+          title: `Updated ${res.processed}`,
+          description: res.error ?? `Status set to ${status}.`,
+          variant: res.error ? 'destructive' : undefined,
+        });
+        clearSelection();
+        router.refresh();
+      });
+    },
+    [selected, toast, clearSelection, router],
+  );
+
   /* CSV export */
   const bulkExport = React.useCallback(() => {
     const rows = filtered.filter((inv) => selected.size === 0 || selected.has(inv._id));
@@ -290,6 +310,30 @@ export function RecurringInvoiceListClient({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast({ title: 'Exported', description: `${rows.length} schedules saved to CSV.` });
+  }, [filtered, selected, toast]);
+
+  /* XLSX export */
+  const bulkExportXlsx = React.useCallback(() => {
+    const rows = filtered.filter((inv) => selected.size === 0 || selected.has(inv._id));
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    const headers = ['id', 'title', 'customerId', 'frequency', 'status', 'startDate', 'nextRunAt', 'lastRunAt', 'totalRuns', 'createdAt'];
+    const exportRows = rows.map((r) => ({
+      id: r._id,
+      title: r.title ?? '',
+      customerId: r.customerId ?? '',
+      frequency: r.frequency,
+      status: r.status,
+      startDate: r.startDate ?? '',
+      nextRunAt: r.nextRunAt ?? '',
+      lastRunAt: r.lastRunAt ?? '',
+      totalRuns: r.totalRuns ?? '',
+      createdAt: r.createdAt ?? '',
+    }));
+    void downloadXlsx(`recurring-invoices-${dateStamp()}.xlsx`, headers, exportRows, 'Recurring');
+    toast({ title: 'Exported', description: `${rows.length} schedules saved to XLSX.` });
   }, [filtered, selected, toast]);
 
   const filtersActive = statusFilter !== ALL || frequencyFilter !== ALL;
@@ -315,8 +359,27 @@ export function RecurringInvoiceListClient({
           selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
               <span className="font-medium text-zoru-ink">{selected.size} selected</span>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => bulkSetStatus('paused')}
+                disabled={busy}
+              >
+                <PauseCircle className="h-3.5 w-3.5" /> Pause
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => bulkSetStatus('stopped')}
+                disabled={busy}
+              >
+                <XCircle className="h-3.5 w-3.5" /> Cancel
+              </ZoruButton>
               <ZoruButton size="sm" variant="outline" onClick={bulkExport}>
-                Export CSV
+                <Download className="h-3.5 w-3.5" /> Export CSV
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={bulkExportXlsx}>
+                <Download className="h-3.5 w-3.5" /> Export XLSX
               </ZoruButton>
               <ZoruButton
                 size="sm"

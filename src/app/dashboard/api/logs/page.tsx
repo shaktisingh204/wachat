@@ -1,14 +1,30 @@
-/**
- * Request log explorer.
- *
- * Query params drive filtering — pure server-rendered so the URL stays
- * shareable. A small client component would be nice for incremental
- * cursor pagination later; for now the page links to "next page" via
- * a regular anchor that adds the cursor to the query string.
- */
-
 import Link from 'next/link';
 import { getUsageLogs } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbPage,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruCard,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruInput,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableHead,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableCell,
+} from '@/components/zoruui';
+import { AlertCircle, Filter } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,107 +65,121 @@ export default async function LogsPage({
     : null;
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-8">
-      <header className="mb-6">
-        <a href="/dashboard/api" className="text-xs text-amber-300 hover:text-amber-200">
-          ← Developer platform
-        </a>
-        <h1 className="text-3xl font-bold mt-2">Request log</h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Last 30 days. Filter via query string: <code>?keyId=…</code>, <code>?path=…</code>,
-          <code> ?minStatus=400</code>.
-        </p>
-      </header>
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Request log</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
 
-      <form method="get" className="mb-4 grid grid-cols-1 sm:grid-cols-4 gap-2">
-        <input
-          name="path"
-          defaultValue={params.path ?? ''}
-          placeholder="path (e.g. /api/v1/me)"
-          className="bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm font-mono"
-        />
-        <input
-          name="keyId"
-          defaultValue={params.keyId ?? ''}
-          placeholder="key id"
-          className="bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm font-mono"
-        />
-        <input
-          name="minStatus"
-          type="number"
-          defaultValue={params.minStatus ?? ''}
-          placeholder="min status (e.g. 400)"
-          className="bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm"
-        />
-        <button
-          type="submit"
-          className="bg-amber-500 hover:bg-amber-400 text-zinc-900 font-semibold rounded px-4 py-2 text-sm"
-        >
-          Filter
-        </button>
-      </form>
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Request log</ZoruPageTitle>
+          <ZoruPageDescription>
+            Last 30 days. Filter via query string:{' '}
+            <code className="font-mono">?keyId=…</code>,{' '}
+            <code className="font-mono">?path=…</code>,{' '}
+            <code className="font-mono">?minStatus=400</code>.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
+      <ZoruCard>
+        <ZoruCardContent className="pt-4">
+          <form method="get" className="grid grid-cols-1 sm:grid-cols-4 gap-2 items-end">
+            <ZoruInput
+              name="path"
+              defaultValue={params.path ?? ''}
+              placeholder="path (e.g. /api/v1/me)"
+              className="font-mono"
+            />
+            <ZoruInput
+              name="keyId"
+              defaultValue={params.keyId ?? ''}
+              placeholder="key id"
+              className="font-mono"
+            />
+            <ZoruInput
+              name="minStatus"
+              type="number"
+              defaultValue={params.minStatus ?? ''}
+              placeholder="min status (e.g. 400)"
+            />
+            <ZoruButton type="submit">
+              <Filter className="h-4 w-4 mr-1" /> Filter
+            </ZoruButton>
+          </form>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {!res.success ? (
-        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          {res.error}
-        </div>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertDescription>{res.error}</ZoruAlertDescription>
+        </ZoruAlert>
       ) : (
         <>
-          <div className="rounded-md border border-zinc-800 overflow-hidden">
-            <table className="w-full text-xs">
-              <thead className="bg-zinc-900/50 text-zinc-400">
-                <tr>
-                  <th className="text-left px-3 py-2">When</th>
-                  <th className="text-left px-3 py-2">Method</th>
-                  <th className="text-left px-3 py-2">Path</th>
-                  <th className="text-left px-3 py-2">Status</th>
-                  <th className="text-left px-3 py-2">Latency</th>
-                  <th className="text-left px-3 py-2">Key</th>
-                  <th className="text-left px-3 py-2">Error</th>
-                </tr>
-              </thead>
-              <tbody>
+          <ZoruCard>
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead>When</ZoruTableHead>
+                  <ZoruTableHead>Method</ZoruTableHead>
+                  <ZoruTableHead>Path</ZoruTableHead>
+                  <ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead>Latency</ZoruTableHead>
+                  <ZoruTableHead>Key</ZoruTableHead>
+                  <ZoruTableHead>Error</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
                 {res.rows.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="px-3 py-8 text-center text-zinc-500">
+                  <ZoruTableRow>
+                    <ZoruTableCell colSpan={7} className="text-center text-zoru-ink-muted py-8 text-sm">
                       No requests match the current filter.
-                    </td>
-                  </tr>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ) : null}
                 {res.rows.map((r) => (
-                  <tr key={r._id} className="border-t border-zinc-800">
-                    <td className="px-3 py-2 text-zinc-400">{new Date(r.ts).toLocaleString()}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-300">{r.method}</td>
-                    <td className="px-3 py-2 font-mono text-zinc-200">{r.path}</td>
-                    <td className="px-3 py-2">
+                  <ZoruTableRow key={r._id}>
+                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{new Date(r.ts).toLocaleString()}</ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.method}</ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-xs text-zoru-ink">{r.path}</ZoruTableCell>
+                    <ZoruTableCell>
                       <span
                         className={
                           r.status >= 500
-                            ? 'text-red-400'
+                            ? 'text-zoru-danger text-xs font-medium'
                             : r.status >= 400
-                              ? 'text-amber-300'
+                              ? 'text-zoru-warning text-xs font-medium'
                               : r.status >= 300
-                                ? 'text-blue-300'
-                                : 'text-green-400'
+                                ? 'text-blue-400 text-xs font-medium'
+                                : 'text-zoru-success text-xs font-medium'
                         }
                       >
                         {r.status}
                       </span>
-                    </td>
-                    <td className="px-3 py-2 text-zinc-400">{r.latencyMs} ms</td>
-                    <td className="px-3 py-2 font-mono text-zinc-500">{r.keyId.slice(0, 10)}…</td>
-                    <td className="px-3 py-2 text-zinc-400">{r.errorType ?? ''}</td>
-                  </tr>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.latencyMs} ms</ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-xs text-zoru-ink-subtle">{r.keyId.slice(0, 10)}…</ZoruTableCell>
+                    <ZoruTableCell className="text-xs text-zoru-ink-muted">{r.errorType ?? ''}</ZoruTableCell>
+                  </ZoruTableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </ZoruTableBody>
+            </ZoruTable>
+          </ZoruCard>
 
           {nextUrl ? (
-            <div className="mt-4 flex justify-end">
+            <div className="flex justify-end">
               <Link
                 href={nextUrl}
-                className="text-xs text-amber-300 hover:text-amber-200"
+                className="text-xs text-zoru-ink-muted hover:text-zoru-ink underline underline-offset-2"
               >
                 Next page →
               </Link>

@@ -621,3 +621,77 @@ export async function cancelStockTransfer(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+/* ─── Bulk ─────────────────────────────────────────────────────────── */
+
+/**
+ * Bulk action on stock transfers owned by the current user.
+ *
+ * Operations:
+ *   - `approve`  → sets status to `Approved`
+ *   - `cancel`   → sets status to `Cancelled`
+ *   - `delete`   → hard-deletes documents
+ */
+export async function bulkStockTransferAction(
+    ids: string[],
+    op: 'approve' | 'cancel' | 'delete',
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    if (!ids.length) {
+        return { success: false, processed: 0, error: 'No IDs provided.' };
+    }
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, processed: 0, error: 'Access denied.' };
+    }
+
+    const permission = op === 'delete' ? 'delete' : 'edit';
+    const guard = await requirePermission('crm_stock_transfer', permission);
+    if (!guard.ok) {
+        return { success: false, processed: 0, error: guard.error };
+    }
+
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) {
+        return { success: false, processed: 0, error: 'No valid IDs.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const objectIds = validIds.map((id) => new ObjectId(id));
+        const filter = { _id: { $in: objectIds }, userId };
+
+        let processed = 0;
+
+        if (op === 'delete') {
+            const res = await db.collection(COLLECTION).deleteMany(filter);
+            processed = res.deletedCount ?? 0;
+        } else {
+            const status =
+                op === 'approve' ? 'Approved' : 'Cancelled';
+            const res = await db.collection(COLLECTION).updateMany(filter, {
+                $set: { status, updatedAt: new Date() },
+            });
+            processed = res.modifiedCount ?? 0;
+        }
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: op === 'delete' ? 'delete' : 'status_change',
+                entityKind: 'stock_transfer',
+                entityId: validIds.join(','),
+                reason: `bulk_${op} on ${processed} transfers`,
+            });
+        } catch {
+            /* non-fatal */
+        }
+
+        revalidatePath('/dashboard/crm/inventory/stock-transfers');
+        return { success: true, processed };
+    } catch (e) {
+        recordRustFallback({ entity: 'stock_transfer', op: 'update' });
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}

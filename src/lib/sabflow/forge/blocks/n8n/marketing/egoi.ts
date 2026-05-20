@@ -7,11 +7,16 @@
  * Operations covered:
  *   - contact.create
  *   - contact.get
+ *   - contact.update
+ *   - contact.attach_tag (n8n folds this into create/update; sabflow exposes it
+ *     as a first-class op so flow authors can tag without re-PATCHing the base
+ *     fields)
  *   - list.list
  *
  * Out of scope (deferred):
- *   - contact.update / contact.addToList
- *   - extra-fields / consent collections
+ *   - extra-fields / consent collections: each E-goi list has a custom schema
+ *     so a generic forge UI can't pre-fill them; revisit once sabflow has
+ *     dynamic field discovery.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -79,6 +84,46 @@ async function contactGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   return { outputs: { contact: data }, logs: [`E-goi contact get → ${contactId}`] };
 }
 
+async function contactUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  const contactId = asString(ctx.options.contactId);
+  if (!listId) throw new Error('E-goi: listId is required');
+  if (!contactId) throw new Error('E-goi: contactId is required');
+  const base: Record<string, unknown> = {};
+  for (const k of ['email', 'firstName', 'lastName', 'cellphone'] as const) {
+    const v = asString(ctx.options[k]);
+    if (!v) continue;
+    // E-goi API field names use snake_case; map ours.
+    base[k === 'firstName' ? 'first_name' : k === 'lastName' ? 'last_name' : k] = v;
+  }
+  if (Object.keys(base).length === 0) {
+    throw new Error('E-goi: at least one base field must be set');
+  }
+  const data = await call(
+    ctx,
+    'PATCH',
+    `/v3/lists/${encodeURIComponent(listId)}/contacts/${encodeURIComponent(contactId)}`,
+    { base },
+  );
+  return { outputs: { contact: data }, logs: [`E-goi contact update → ${contactId}`] };
+}
+
+async function contactAttachTag(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  const tagId = asString(ctx.options.tagId);
+  const contactId = asString(ctx.options.contactId);
+  if (!listId) throw new Error('E-goi: listId is required');
+  if (!tagId) throw new Error('E-goi: tagId is required');
+  if (!contactId) throw new Error('E-goi: contactId is required');
+  const data = await call(
+    ctx,
+    'POST',
+    `/v3/lists/${encodeURIComponent(listId)}/contacts/actions/attach-tag`,
+    { tag_id: tagId, contacts: [contactId] },
+  );
+  return { outputs: { result: data }, logs: [`E-goi attach tag ${tagId} → ${contactId}`] };
+}
+
 async function listList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const data = await call(ctx, 'GET', '/v3/lists');
   return { outputs: { result: data }, logs: ['E-goi list list'] };
@@ -119,6 +164,31 @@ const block: ForgeBlock = {
         { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
       ],
       run: contactGet,
+    },
+    {
+      id: 'contact_update',
+      label: 'Update contact',
+      description: 'Patch a contact within a list. Only set base fields are sent.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text' },
+        { id: 'firstName', label: 'First name', type: 'text' },
+        { id: 'lastName', label: 'Last name', type: 'text' },
+        { id: 'cellphone', label: 'Cellphone', type: 'text' },
+      ],
+      run: contactUpdate,
+    },
+    {
+      id: 'contact_attach_tag',
+      label: 'Attach tag to contact',
+      description: 'Attach an existing tag to a contact within a list.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'contactId', label: 'Contact ID', type: 'text', required: true },
+        { id: 'tagId', label: 'Tag ID', type: 'text', required: true },
+      ],
+      run: contactAttachTag,
     },
     {
       id: 'list_list',

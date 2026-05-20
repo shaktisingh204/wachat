@@ -2,6 +2,21 @@ import {
   listWebhookSubscriptions,
   listWebhookDeliveries,
 } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbPage,
+  ZoruAlert,
+  ZoruAlertDescription,
+} from '@/components/zoruui';
+import { AlertCircle } from 'lucide-react';
 import { WebhooksClient } from './_WebhooksClient';
 
 export const dynamic = 'force-dynamic';
@@ -20,23 +35,37 @@ export default async function WebhooksPage(): Promise<JSX.Element> {
       : null;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <header className="mb-6">
-        <a href="/dashboard/api" className="text-xs text-amber-300 hover:text-amber-200">
-          ← Developer platform
-        </a>
-        <h1 className="text-3xl font-bold mt-2">Webhooks</h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Outbound HMAC-signed deliveries. Retries follow{' '}
-          <code>0s → 30s → 5m → 1h → 6h → 24h</code>; the worker auto-pauses a subscription
-          after 50 consecutive failures.
-        </p>
-      </header>
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>Webhooks</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>Webhooks</ZoruPageTitle>
+          <ZoruPageDescription>
+            Outbound HMAC-signed deliveries. Retries follow{' '}
+            <code className="font-mono">0s → 30s → 5m → 1h → 6h → 24h</code>; the worker
+            auto-pauses a subscription after 50 consecutive failures.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
       {loadError ? (
-        <div className="mb-4 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          {loadError}
-        </div>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertDescription>{loadError}</ZoruAlertDescription>
+        </ZoruAlert>
       ) : null}
+
       <WebhooksClient initialSubs={initialSubs} initialDeliveries={initialDeliveries} />
     </div>
   );

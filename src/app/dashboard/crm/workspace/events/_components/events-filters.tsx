@@ -14,11 +14,15 @@ import {
 
 import * as React from 'react';
 
-import type { EventsRepeatFilter, EventsRsvpFilter } from './events-shared';
+import type { EventsRepeatFilter, EventsRsvpFilter, EventsTypeFilter } from './events-shared';
+
+export type { EventsTypeFilter };
 
 export interface EventsFiltersRowProps {
     repeat: EventsRepeatFilter;
     onRepeatChange: (v: EventsRepeatFilter) => void;
+    eventType: EventsTypeFilter;
+    onEventTypeChange: (v: EventsTypeFilter) => void;
     location: string;
     onLocationChange: (v: string) => void;
     organizer: string;
@@ -36,6 +40,8 @@ export interface EventsFiltersRowProps {
 export function EventsFiltersRow({
     repeat,
     onRepeatChange,
+    eventType,
+    onEventTypeChange,
     location,
     onLocationChange,
     organizer,
@@ -51,6 +57,23 @@ export function EventsFiltersRow({
 }: EventsFiltersRowProps): React.JSX.Element {
     return (
         <div className="flex flex-wrap items-center gap-2">
+            <ZoruSelect
+                value={eventType}
+                onValueChange={(v) => onEventTypeChange(v as EventsTypeFilter)}
+            >
+                <ZoruSelectTrigger className="h-9 w-[150px]">
+                    <ZoruSelectValue placeholder="Event type" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="all">Any type</ZoruSelectItem>
+                    <ZoruSelectItem value="meeting">Meeting</ZoruSelectItem>
+                    <ZoruSelectItem value="webinar">Webinar</ZoruSelectItem>
+                    <ZoruSelectItem value="workshop">Workshop</ZoruSelectItem>
+                    <ZoruSelectItem value="social">Social</ZoruSelectItem>
+                    <ZoruSelectItem value="training">Training</ZoruSelectItem>
+                    <ZoruSelectItem value="other">Other</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
             <ZoruSelect value={repeat} onValueChange={(v) => onRepeatChange(v as EventsRepeatFilter)}>
                 <ZoruSelectTrigger className="h-9 w-[140px]">
                     <ZoruSelectValue placeholder="Repeat" />

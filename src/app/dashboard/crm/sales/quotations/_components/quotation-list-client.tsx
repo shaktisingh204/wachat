@@ -30,6 +30,7 @@ import Link from 'next/link';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
 import type { CrmQuotationStatus } from '@/lib/rust-client/crm-quotations';
 
 import { QuotationTable } from './quotation-table';
@@ -258,6 +259,46 @@ export function QuotationListClient({
     toast({ title: 'Exported', description: `${rows.length} quotations saved to CSV.` });
   }, [filtered, selected, toast]);
 
+  /* XLSX export */
+  const exportXlsx = React.useCallback(() => {
+    const rows = filtered.filter((r) => selected.size === 0 || selected.has(r._id));
+    if (rows.length === 0) {
+      toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
+      return;
+    }
+    const headers = [
+      'quotation_no',
+      'subject',
+      'customer_id',
+      'date',
+      'valid_until',
+      'currency',
+      'total',
+      'status',
+      'sales_agent_id',
+      'created_at',
+    ];
+    const exportRows = rows.map((r) => ({
+      quotation_no: r.quotationNo,
+      subject: r.subject ?? '',
+      customer_id: r.clientId ?? '',
+      date: r.date ?? '',
+      valid_until: r.validUntil ?? '',
+      currency: r.currency ?? '',
+      total: r.total ?? '',
+      status: r.status,
+      sales_agent_id: r.salesAgentId ?? '',
+      created_at: r.createdAt ?? '',
+    }));
+    void downloadXlsx(
+      `quotations-${dateStamp()}.xlsx`,
+      headers,
+      exportRows,
+      'Quotations',
+    );
+    toast({ title: 'Exported', description: `${rows.length} quotations saved to XLSX.` });
+  }, [filtered, selected, toast]);
+
   /* Clear all filters */
   const clearFilters = React.useCallback(() => {
     setQuery('');
@@ -336,7 +377,7 @@ export function QuotationListClient({
 
   /* KPI segment clicks update the status filter. */
   const onKpiSegmentClick = React.useCallback(
-    (segment: 'open' | 'accepted' | 'rejected' | 'expired' | 'converted') => {
+    (segment: 'open' | 'accepted' | 'rejected' | 'expired' | 'converted' | 'draft') => {
       if (segment === 'open') {
         // "Total open" = draft + sent; closest single-status pick is sent.
         setStatusFilter('sent');
@@ -366,6 +407,7 @@ export function QuotationListClient({
             <QuotationBulkBar
               count={selected.size}
               onExportCsv={exportCsv}
+              onExportXlsx={exportXlsx}
               onClear={() => setSelected(new Set())}
               onArchive={() => setArchivePending(true)}
               onDelete={() => setDeletePending(true)}

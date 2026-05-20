@@ -24,6 +24,11 @@ import * as React from 'react';
 
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import {
+  dateStamp,
+  downloadXlsx,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 
 import { BillsKpiStrip } from './bills-kpi-strip';
 import { BillsToolbar } from './bills-toolbar';
@@ -249,6 +254,63 @@ export function BillListClient({
     });
   }, [filtered]);
 
+  const buildExportRows = React.useCallback(
+    (rows: BillListRow[]): { headers: string[]; rows: ExportRow[] } => {
+      const headers = [
+        'billNo',
+        'vendorInvoiceNo',
+        'vendor',
+        'billDate',
+        'dueDate',
+        'currency',
+        'total',
+        'paid',
+        'balance',
+        'status',
+        'createdAt',
+      ];
+      const out: ExportRow[] = rows.map((r) => ({
+        billNo: r.billNo,
+        vendorInvoiceNo: r.vendorInvoiceNo ?? '',
+        vendor: r.vendorLabel ?? r.vendorId ?? '',
+        billDate: r.billDate ?? '',
+        dueDate: r.dueDate ?? '',
+        currency: r.currency ?? '',
+        total: r.total ?? '',
+        paid: r.paid ?? '',
+        balance: r.balance ?? '',
+        status: r.status ?? '',
+        createdAt: r.createdAt ?? '',
+      }));
+      return { headers, rows: out };
+    },
+    [],
+  );
+
+  const exportXlsx = React.useCallback(async () => {
+    const rows = filtered.filter(
+      (d) => selected.size === 0 || selected.has(d._id),
+    );
+    if (rows.length === 0) {
+      toast({
+        title: 'Nothing to export',
+        description: 'Filter or select rows first.',
+      });
+      return;
+    }
+    const projected = buildExportRows(rows);
+    await downloadXlsx(
+      `bills-${dateStamp()}.xlsx`,
+      projected.headers,
+      projected.rows,
+      'Bills',
+    );
+    toast({
+      title: 'Exported',
+      description: `${rows.length} bills saved to XLSX.`,
+    });
+  }, [filtered, selected, toast, buildExportRows]);
+
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter(
       (d) => selected.size === 0 || selected.has(d._id),
@@ -412,6 +474,7 @@ export function BillListClient({
           count={selected.size}
           onClear={() => setSelected(new Set())}
           onExportCsv={exportCsv}
+          onExportXlsx={exportXlsx}
           onArchive={() => setArchivePending(true)}
           onDelete={() => setDeletePending(true)}
           onMarkPaid={() => setMarkPaidPending(true)}

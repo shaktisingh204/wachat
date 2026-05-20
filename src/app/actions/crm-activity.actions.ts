@@ -1,30 +1,233 @@
 'use server';
 
 /**
- * CRM tenant-wide activity feed — read-side server actions for the
- * `/dashboard/crm/activity` page (per CRM_REBUILD_PLAN.md §5.4).
+ * CRM tenant-wide activity feed — read/write server actions.
  *
- * The write side is `src/lib/audit-log.ts::writeAuditEntry`, which drops
- * rows into `crm_audit_log` from every mutating CRM server action. This
- * file is the matching read side: tenant-scoped, filterable, paginated.
+ * Two data sources:
+ *  1. `crm_audit_log` — tenant-wide audit trail (existing, read-only here).
+ *     Powers the Feed view at `/dashboard/crm/activity`.
+ *  2. `crm_activities` — structured activity records (calls, emails,
+ *     meetings, tasks, notes) with status + due-date tracking.
+ *     Powers the Table view and the KPI strip.
  *
- * Cursor pagination by `createdAt` timestamp: each page returns
- * `nextCursor` = ISO string of the oldest row in the page. To fetch the
- * next page, pass that back as `filters.cursor`.
+ * Cursor pagination (feed): each page returns `nextCursor` = ISO string of
+ * the oldest row. Pass back as `filters.cursor` for the next page.
  *
- * RBAC gap: no `crm_audit_log` module key exists in
- * `src/lib/permission-modules.ts` today. As an interim gate we require
- * `crm_lead` 'view' — every CRM-using role has it as a baseline and a
- * user without it has no reason to see audit rows. Filed for follow-up:
- * add `crm_audit_log` to permission-modules.ts before GA.
+ * RBAC: interim gate on `crm_lead` 'view' (see inline comment).
  */
 
 import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
 
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { requirePermission } from '@/lib/rbac-server';
 import { getErrorMessage } from '@/lib/utils';
+
+/* ─── crm_activities collection types ───────────────────────────────────── */
+
+export type CrmActivityType = 'call' | 'email' | 'meeting' | 'task' | 'note';
+export type CrmActivityStatus = 'open' | 'completed' | 'overdue';
+
+export interface CrmActivityDoc {
+  _id?: string;
+  type: CrmActivityType;
+  subject: string;
+  notes?: string;
+  status: CrmActivityStatus;
+  relatedEntityKind?: string;
+  relatedEntityId?: string;
+  assignedUserId?: string;
+  dueDate?: string;
+  completedAt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CrmActivityListFilters {
+  type?: CrmActivityType | string;
+  status?: CrmActivityStatus | string;
+  assignedUserId?: string;
+  from?: string;
+  to?: string;
+  search?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface CrmActivityListResult {
+  items: CrmActivityDoc[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface CrmActivityPageKpis {
+  activitiesToday: number;
+  openActivities: number;
+  overdueActivities: number;
+  completedThisWeek: number;
+}
+
+const COL_ACTIVITIES = 'crm_activities';
+const ACTIVITY_PATH = '/dashboard/crm/activity';
+
+/* ─── Activities list + KPIs ─────────────────────────────────────────────── */
+
+export async function listCrmActivities(
+  filters: CrmActivityListFilters = {},
+): Promise<CrmActivityListResult> {
+  const session = await getSession();
+  if (!session?.user?._id) return { items: [], total: 0, page: 1, pageSize: 50 };
+
+  const pageSize = Math.min(Math.max(filters.pageSize ?? 50, 1), 200);
+  const page = Math.max(1, filters.page ?? 1);
+  const skip = (page - 1) * pageSize;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const q: Record<string, unknown> = { userId };
+
+    if (filters.type && filters.type !== 'all') q.type = filters.type;
+    if (filters.status && filters.status !== 'all') q.status = filters.status;
+    if (filters.assignedUserId && ObjectId.isValid(filters.assignedUserId)) {
+      q.assignedUserId = filters.assignedUserId;
+    }
+    if (filters.from || filters.to) {
+      const range: Record<string, Date> = {};
+      if (filters.from) range.$gte = new Date(filters.from);
+      if (filters.to) {
+        const d = new Date(filters.to);
+        d.setHours(23, 59, 59, 999);
+        range.$lte = d;
+      }
+      q.dueDate = range;
+    }
+    if (filters.search) {
+      const escaped = filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      q.$or = [
+        { subject: { $regex: escaped, $options: 'i' } },
+        { notes: { $regex: escaped, $options: 'i' } },
+      ];
+    }
+
+    const coll = db.collection(COL_ACTIVITIES);
+    const [docs, total] = await Promise.all([
+      coll.find(q).sort({ dueDate: 1, createdAt: -1 }).skip(skip).limit(pageSize).toArray(),
+      coll.countDocuments(q),
+    ]);
+
+    return {
+      items: JSON.parse(JSON.stringify(docs)) as CrmActivityDoc[],
+      total,
+      page,
+      pageSize,
+    };
+  } catch (e) {
+    console.error('[listCrmActivities] failed:', e);
+    return { items: [], total: 0, page, pageSize };
+  }
+}
+
+export async function getCrmActivityPageKpis(): Promise<CrmActivityPageKpis> {
+  const empty: CrmActivityPageKpis = {
+    activitiesToday: 0,
+    openActivities: 0,
+    overdueActivities: 0,
+    completedThisWeek: 0,
+  };
+  const session = await getSession();
+  if (!session?.user?._id) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const now = new Date();
+    const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+    const coll = db.collection(COL_ACTIVITIES);
+    const [activitiesToday, openActivities, overdueActivities, completedThisWeek] =
+      await Promise.all([
+        coll.countDocuments({
+          userId,
+          createdAt: { $gte: startToday },
+        } as Record<string, unknown>),
+        coll.countDocuments({ userId, status: 'open' } as Record<string, unknown>),
+        coll.countDocuments({ userId, status: 'overdue' } as Record<string, unknown>),
+        coll.countDocuments({
+          userId,
+          status: 'completed',
+          completedAt: { $gte: startWeek },
+        } as Record<string, unknown>),
+      ]);
+
+    return {
+      activitiesToday: Number(activitiesToday) || 0,
+      openActivities: Number(openActivities) || 0,
+      overdueActivities: Number(overdueActivities) || 0,
+      completedThisWeek: Number(completedThisWeek) || 0,
+    };
+  } catch (e) {
+    console.error('[getCrmActivityPageKpis] failed:', e);
+    return empty;
+  }
+}
+
+/* ─── Activities mutations ───────────────────────────────────────────────── */
+
+export async function bulkCompleteActivities(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, processed: 0, error: 'Access denied.' };
+
+  const valid = ids.filter((id) => ObjectId.isValid(id));
+  if (valid.length === 0) return { success: false, processed: 0, error: 'No valid ids.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const result = await db.collection(COL_ACTIVITIES).updateMany(
+      { _id: { $in: valid.map((id) => new ObjectId(id)) }, userId } as Record<string, unknown>,
+      {
+        $set: {
+          status: 'completed',
+          completedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      },
+    );
+    revalidatePath(ACTIVITY_PATH);
+    return { success: true, processed: result.modifiedCount ?? 0 };
+  } catch (e) {
+    return { success: false, processed: 0, error: getErrorMessage(e) };
+  }
+}
+
+export async function bulkDeleteActivities(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, processed: 0, error: 'Access denied.' };
+
+  const valid = ids.filter((id) => ObjectId.isValid(id));
+  if (valid.length === 0) return { success: false, processed: 0, error: 'No valid ids.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const result = await db.collection(COL_ACTIVITIES).deleteMany({
+      _id: { $in: valid.map((id) => new ObjectId(id)) },
+      userId,
+    } as Record<string, unknown>);
+    revalidatePath(ACTIVITY_PATH);
+    return { success: true, processed: result.deletedCount ?? 0 };
+  } catch (e) {
+    return { success: false, processed: 0, error: getErrorMessage(e) };
+  }
+}
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 

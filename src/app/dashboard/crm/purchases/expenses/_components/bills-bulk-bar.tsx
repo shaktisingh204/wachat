@@ -33,6 +33,8 @@ interface BillsBulkBarProps {
   count: number;
   onClear: () => void;
   onExportCsv: () => void;
+  /** Optional XLSX export — hidden when omitted. */
+  onExportXlsx?: () => void;
   onArchive: () => void;
   onDelete: () => void;
   onMarkPaid: () => void;
@@ -43,6 +45,7 @@ export function BillsBulkBar({
   count,
   onClear,
   onExportCsv,
+  onExportXlsx,
   onArchive,
   onDelete,
   onMarkPaid,
@@ -62,6 +65,11 @@ export function BillsBulkBar({
         <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
         </ZoruButton>
+        {onExportXlsx ? (
+          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+            <Download className="h-3.5 w-3.5" /> Export XLSX
+          </ZoruButton>
+        ) : null}
         <ZoruButton size="sm" variant="outline" onClick={onMarkPaid}>
           <Banknote className="h-3.5 w-3.5" /> Mark paid
         </ZoruButton>

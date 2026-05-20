@@ -1,134 +1,116 @@
-'use client';
+import { ZoruButton } from '@/components/zoruui';
+import { Plus } from 'lucide-react';
 
-import { ZoruBadge } from '@/components/zoruui';
+/**
+ * CRM Promotions list — `/dashboard/crm/sales/promotions`.
+ *
+ * §1D deep-list shell. Server component reads search/status/type/date
+ * params from the URL, fetches the canonical Mongo-backed promotions
+ * via `getPromotions`, fetches KPIs via `getPromotionKpis`, and hands
+ * off to `<PromotionListClient>` for KPI strip, filter row, bulk-bar,
+ * CSV/XLSX export.
+ *
+ * Pagination is hasMore-driven over a window slice (the Mongo action
+ * uses `limit`, not skip/limit pages, so we ask for `page * limit + 1`
+ * and slice — same pattern as the delivery list).
+ */
+
+import Link from 'next/link';
+
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  Tag } from 'lucide-react';
-
-import { HrEntityPage } from '../../_components/hr-entity-page';
-
-import {
+  getPromotionKpis,
   getPromotions,
-  savePromotion,
-  deletePromotion,
-} from '@/app/actions/worksuite/billing.actions';
-import type { WsPromotion } from '@/lib/worksuite/billing-types';
+  type CrmPromotionDoc,
+  type CrmPromotionStatus,
+  type CrmPromotionType,
+} from '@/app/actions/crm-promotions.actions';
 
-type PromotionRow = Omit<WsPromotion, '_id' | 'userId' | 'applies_to_ids'> & {
-  _id: string;
-  [k: string]: any;
-};
+import { PromotionListClient } from './_components/promotion-list-client';
 
-const STATUS_VARIANTS: Record<string, 'success' | 'ghost'> = {
-  active: 'success',
-  inactive: 'ghost',
-};
+export const dynamic = 'force-dynamic';
 
-const TYPE_VARIANTS: Record<string, 'info' | 'warning'> = {
-  percent: 'info',
-  fixed: 'warning',
-};
+interface SearchParams {
+  page?: string;
+  limit?: string;
+  q?: string;
+  status?: string;
+  type?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
 
-export default function PromotionsPage() {
+export default async function PromotionsPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
+  const q = (sp.q ?? '').trim();
+  const status = (sp.status ?? '').trim();
+  const type = (sp.type ?? '').trim();
+  const dateFrom = (sp.dateFrom ?? '').trim();
+  const dateTo = (sp.dateTo ?? '').trim();
+
+  // Load a wide window so we can slice for pagination, then apply
+  // client-side date filters that the action doesn't yet expose.
+  const wideLimit = Math.max(200, page * limit + 1);
+  const [listResult, kpis] = await Promise.all([
+    getPromotions({
+      q: q || undefined,
+      status: (status || 'all') as CrmPromotionStatus | 'all',
+      type: (type || 'all') as CrmPromotionType | 'all',
+      limit: wideLimit,
+    }),
+    getPromotionKpis(),
+  ]);
+
+  const all: CrmPromotionDoc[] = listResult.items.filter((row) => {
+    if (dateFrom) {
+      const t = row.validFrom ? new Date(row.validFrom).getTime() : NaN;
+      const cutoff = new Date(dateFrom).getTime();
+      if (Number.isFinite(t) && Number.isFinite(cutoff) && t < cutoff) return false;
+    }
+    if (dateTo) {
+      const t = row.validTo ? new Date(row.validTo).getTime() : NaN;
+      const cutoff = new Date(`${dateTo}T23:59:59`).getTime();
+      if (Number.isFinite(t) && Number.isFinite(cutoff) && t > cutoff) return false;
+    }
+    return true;
+  });
+
+  const skip = (page - 1) * limit;
+  const pageSlice = all.slice(skip, skip + limit);
+  const hasMore = all.length > skip + limit;
+
   return (
-    <HrEntityPage<PromotionRow>
+    <EntityListShell
       title="Promotions"
-      subtitle="Discount codes and promotional offers."
-      icon={Tag}
-      singular="Promotion"
-      basePath="/dashboard/crm/sales/promotions"
-      rowLinksToDetail
-      emptyText="No promotions yet — click Add to create your first one."
-      getAllAction={async () => {
-        const rows = await getPromotions();
-        return rows as unknown as PromotionRow[];
-      }}
-      saveAction={savePromotion}
-      deleteAction={deletePromotion}
-      columns={[
-        { key: 'code', label: 'Code' },
-        {
-          key: 'type',
-          label: 'Type',
-          render: (row) => (
-            <ZoruBadge variant={TYPE_VARIANTS[row.type] || 'ghost'}>
-              {row.type}
-            </ZoruBadge>
-          ),
-        },
-        {
-          key: 'value',
-          label: 'Value',
-          render: (row) =>
-            row.type === 'percent' ? `${row.value}%` : `${row.currency || ''} ${row.value}`,
-        },
-        {
-          key: 'applies_to',
-          label: 'Applies to',
-          render: (row) => row.applies_to || 'all',
-        },
-        {
-          key: 'usage_count',
-          label: 'Used',
-          render: (row) =>
-            `${row.usage_count || 0}${row.usage_limit ? ` / ${row.usage_limit}` : ''}`,
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          render: (row) => (
-            <ZoruBadge variant={STATUS_VARIANTS[row.status] || 'ghost'}>
-              {row.status}
-            </ZoruBadge>
-          ),
-        },
-      ]}
-      fields={[
-        { name: 'code', label: 'Promo Code', required: true, placeholder: 'e.g. WELCOME10' },
-        {
-          name: 'type',
-          label: 'Type',
-          type: 'select',
-          required: true,
-          options: [
-            { value: 'percent', label: 'Percent' },
-            { value: 'fixed', label: 'Fixed amount' },
-          ],
-        },
-        { name: 'value', label: 'Value', type: 'number', required: true },
-        { name: 'currency', label: 'Currency', placeholder: 'INR' },
-        { name: 'start_date', label: 'Start Date', type: 'date' },
-        { name: 'end_date', label: 'End Date', type: 'date' },
-        { name: 'usage_limit', label: 'Usage Limit', type: 'number' },
-        { name: 'per_customer_limit', label: 'Per-customer Limit', type: 'number' },
-        { name: 'minimum_subtotal', label: 'Minimum Subtotal', type: 'number' },
-        {
-          name: 'applies_to',
-          label: 'Applies To',
-          type: 'select',
-          options: [
-            { value: 'all', label: 'All products' },
-            { value: 'category', label: 'Specific category' },
-            { value: 'product', label: 'Specific product' },
-          ],
-          defaultValue: 'all',
-        },
-        {
-          name: 'status',
-          label: 'Status',
-          type: 'select',
-          options: [
-            { value: 'active', label: 'Active' },
-            { value: 'inactive', label: 'Inactive' },
-          ],
-          defaultValue: 'active',
-        },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
-    />
+      subtitle="Manage discount codes, scheduled offers, and redemption windows."
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href="/dashboard/crm/sales/promotions/new">
+            <Plus className="h-4 w-4" />
+            New promotion
+          </Link>
+        </ZoruButton>
+      }
+    >
+      <PromotionListClient
+        promotions={pageSlice}
+        page={page}
+        limit={limit}
+        hasMore={hasMore}
+        initialQuery={q}
+        initialStatus={status}
+        initialType={type}
+        initialDateFrom={dateFrom}
+        initialDateTo={dateTo}
+        kpis={kpis}
+        error={listResult.error}
+      />
+    </EntityListShell>
   );
 }

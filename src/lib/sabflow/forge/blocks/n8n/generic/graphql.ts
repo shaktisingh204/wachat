@@ -8,9 +8,10 @@
  *
  * Operations covered:
  *   - request — POST a GraphQL query (and optional variables) to an endpoint
+ *   - requestGet — GET a GraphQL query with `query` + URL-encoded `variables`
  *
- * Out of scope: GET-style GraphQL requests, OAuth1/2 credentials, digest auth,
- * file-upload mutations. For non-header auth, use the HTTP Request block.
+ * Out of scope: OAuth1/2 credentials, digest auth, file-upload mutations.
+ * For non-header auth, use the HTTP Request block.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {
@@ -51,6 +52,42 @@ function parseVariables(raw: unknown): Record<string, unknown> | undefined {
   } catch (err) {
     throw new Error(`GraphQL: invalid variables — ${(err as Error).message}`);
   }
+}
+
+async function requestGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const endpoint = asString(ctx.options.endpoint);
+  const query = asString(ctx.options.query);
+  if (!endpoint) throw new Error('GraphQL: endpoint is required');
+  if (!query) throw new Error('GraphQL: query is required');
+
+  const variables = parseVariables(ctx.options.variables);
+  const headers = collectHeaders(ctx);
+
+  // n8n's GET handler URL-encodes query + JSON-encoded variables into the
+  // querystring, which matches the GraphQL HTTP transport spec.
+  const url = new URL(endpoint);
+  url.searchParams.set('query', query);
+  if (variables) url.searchParams.set('variables', JSON.stringify(variables));
+
+  const res = await apiRequest({
+    service: 'GraphQL',
+    method: 'GET',
+    url: url.toString(),
+    headers,
+  });
+
+  const body = res.data as { data?: unknown; errors?: Array<{ message: string }> } | unknown;
+  if (body && typeof body === 'object' && Array.isArray((body as { errors?: unknown[] }).errors)) {
+    const errs = (body as { errors: Array<{ message: string }> }).errors;
+    if (errs.length) {
+      throw new Error(`GraphQL: ${errs.map((e) => e.message).join('; ')}`);
+    }
+  }
+  const data = (body as { data?: unknown })?.data ?? body;
+  return {
+    outputs: { data, status: res.status },
+    logs: [`GraphQL GET ${endpoint} → ${res.status}`],
+  };
 }
 
 async function request(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -129,6 +166,38 @@ const block: ForgeBlock = {
         },
       ],
       run: request,
+    },
+    {
+      id: 'request_get',
+      label: 'Send query (GET)',
+      description: 'Issue a GraphQL GET request — query/variables are URL-encoded.',
+      fields: [
+        {
+          id: 'endpoint',
+          label: 'Endpoint',
+          type: 'text',
+          required: true,
+          placeholder: 'https://api.example.com/graphql',
+        },
+        {
+          id: 'query',
+          label: 'Query',
+          type: 'textarea',
+          required: true,
+        },
+        {
+          id: 'variables',
+          label: 'Variables (JSON)',
+          type: 'json',
+        },
+        {
+          id: 'headers',
+          label: 'Extra headers',
+          type: 'key-value-list',
+          helperText: 'Merged with the credential header (if any).',
+        },
+      ],
+      run: requestGet,
     },
   ],
 };

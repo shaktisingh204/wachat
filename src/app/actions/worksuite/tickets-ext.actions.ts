@@ -1,7 +1,17 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { hrList, hrGetById, hrSave, hrDelete, formToObject } from '@/lib/hr-crud';
+import { ObjectId } from 'mongodb';
+import {
+  hrList,
+  hrGetById,
+  hrSave,
+  hrDelete,
+  hrBulkDelete,
+  formToObject,
+  requireSession,
+} from '@/lib/hr-crud';
+import { connectToDatabase } from '@/lib/mongodb';
 import type {
   WsTicketChannel,
   WsTicketGroup,
@@ -58,6 +68,72 @@ async function genericSave(
   }
 }
 
+/* ── Settings-list KPI helper ───────────────────────────────────── */
+
+export interface SettingsKpis {
+  total: number;
+  inUse: number;
+  unused: number;
+  lastAddedAt: string | null;
+}
+
+/**
+ * Compute KPIs for a settings-list (lookup/category) entity:
+ *   - total       : count of tenant docs
+ *   - inUse       : count of distinct ids referenced in `usedBy.collection.field`
+ *   - unused      : total - inUse
+ *   - lastAddedAt : ISO of the most-recently-created doc (or null)
+ */
+async function settingsKpis(
+  collection: string,
+  usedBy: { collection: string; field: string } | null,
+): Promise<SettingsKpis> {
+  const user = await requireSession();
+  if (!user) return { total: 0, inUse: 0, unused: 0, lastAddedAt: null };
+  const { db } = await connectToDatabase();
+  const userObjectId = new ObjectId(user._id);
+
+  const total = await db
+    .collection(collection)
+    .countDocuments({ userId: userObjectId });
+
+  const latest = await db
+    .collection(collection)
+    .find({ userId: userObjectId })
+    .sort({ createdAt: -1 })
+    .limit(1)
+    .toArray();
+  const lastAddedAt =
+    latest[0]?.createdAt instanceof Date
+      ? (latest[0].createdAt as Date).toISOString()
+      : latest[0]?.createdAt
+        ? String(latest[0].createdAt)
+        : null;
+
+  let inUse = 0;
+  if (usedBy) {
+    try {
+      const ids = await db
+        .collection(usedBy.collection)
+        .distinct(usedBy.field, {
+          userId: userObjectId,
+          [usedBy.field]: { $exists: true, $ne: null },
+        });
+      // distinct may return ObjectIds or strings — normalise to strings.
+      const seen = new Set<string>();
+      for (const v of ids as unknown[]) {
+        if (v == null) continue;
+        seen.add(String(v));
+      }
+      inUse = seen.size;
+    } catch {
+      inUse = 0;
+    }
+  }
+
+  return { total, inUse, unused: Math.max(0, total - inUse), lastAddedAt };
+}
+
 /* ── Ticket Channels ────────────────────────────────────────────── */
 
 const COL_CHANNELS = 'crm_ticket_channels';
@@ -72,6 +148,17 @@ export async function deleteTicketChannel(id: string) {
   const r = await hrDelete(COL_CHANNELS, id);
   revalidatePath(`${ROUTE_BASE}/channels`);
   return r;
+}
+export async function bulkDeleteTicketChannels(ids: string[]) {
+  const r = await hrBulkDelete(COL_CHANNELS, ids);
+  revalidatePath(`${ROUTE_BASE}/channels`);
+  return r;
+}
+export async function getTicketChannelKpis(): Promise<SettingsKpis> {
+  return settingsKpis(COL_CHANNELS, {
+    collection: 'crm_tickets',
+    field: 'channel_id',
+  });
 }
 
 /* ── Ticket Groups ──────────────────────────────────────────────── */
@@ -120,6 +207,20 @@ export async function deleteTicketTag(id: string) {
   const r = await hrDelete(COL_TAGS, id);
   revalidatePath(`${ROUTE_BASE}/tags`);
   return r;
+}
+export async function bulkDeleteTicketTags(ids: string[]) {
+  const r = await hrBulkDelete(COL_TAGS, ids);
+  revalidatePath(`${ROUTE_BASE}/tags`);
+  return r;
+}
+export async function getTicketTagKpis(): Promise<SettingsKpis> {
+  // Tags are stored as an array per ticket; counting "in use" requires
+  // scanning the join collection. We use the `crm_ticket_tag_list`
+  // pivot collection (Laravel-era) when present, falling back to 0.
+  return settingsKpis(COL_TAGS, {
+    collection: 'crm_ticket_tag_list',
+    field: 'tag_id',
+  });
 }
 
 /* ── Ticket Reply Templates ────────────────────────────────────── */
@@ -170,6 +271,19 @@ export async function deleteTicketAgentGroup(id: string) {
   const r = await hrDelete(COL_AGENT_GROUPS, id);
   revalidatePath(`${ROUTE_BASE}/agent-groups`);
   return r;
+}
+export async function bulkDeleteTicketAgentGroups(ids: string[]) {
+  const r = await hrBulkDelete(COL_AGENT_GROUPS, ids);
+  revalidatePath(`${ROUTE_BASE}/agent-groups`);
+  return r;
+}
+export async function getTicketAgentGroupKpis(): Promise<SettingsKpis> {
+  // Agent-group mappings ARE the join rows — "in use" means the
+  // referenced ticket group is currently active.
+  return settingsKpis(COL_AGENT_GROUPS, {
+    collection: 'crm_ticket_groups',
+    field: '_id',
+  });
 }
 
 /* ── Ticket Replies ─────────────────────────────────────────────── */

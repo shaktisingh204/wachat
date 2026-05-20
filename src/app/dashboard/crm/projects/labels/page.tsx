@@ -1,27 +1,37 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Project Labels — taxonomy lookup (§1D).
+ * KPI (total / with color / recent 7d) · search + color filter · bulk
+ * delete + bulk export · RowDrawer · PaginationBar.
+ */
 
 import { Tag } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import { TaxonomyLookupPage } from '../_components/taxonomy-lookup-page';
 import {
   getWsProjectLabels,
   saveWsProjectLabel,
   deleteWsProjectLabel,
+  bulkDeleteWsProjectLabels,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsProjectLabelList } from '@/lib/worksuite/project-types';
 
+type Row = WsProjectLabelList & { _id: string };
+
 export default function ProjectLabelsPage() {
   return (
-    <HrEntityPage<WsProjectLabelList & { _id: string }>
+    <TaxonomyLookupPage<Row>
       title="Project Labels"
       subtitle="Reusable labels you can assign to any project."
       icon={Tag}
       singular="Label"
-      getAllAction={getWsProjectLabels as any}
+      nameKey="labelName"
+      hasColor
+      exportFilenameStem="project-labels"
+      getList={() => getWsProjectLabels() as unknown as Promise<Row[]>}
       saveAction={saveWsProjectLabel}
       deleteAction={deleteWsProjectLabel}
+      bulkDelete={bulkDeleteWsProjectLabels}
       columns={[
         { key: 'labelName', label: 'Name' },
         {
@@ -31,7 +41,7 @@ export default function ProjectLabelsPage() {
             r.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="h-3 w-3 rounded-full border border-border"
+                  className="h-3 w-3 rounded-full border border-zoru-line"
                   style={{ backgroundColor: r.color }}
                 />
                 {r.color}
@@ -43,19 +53,9 @@ export default function ProjectLabelsPage() {
         { key: 'description', label: 'Description' },
       ]}
       fields={[
-        {
-          name: 'labelName',
-          label: 'Label Name',
-          required: true,
-          fullWidth: true,
-        },
-        { name: 'color', label: 'Color (hex)', placeholder: '#2563eb' },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
+        { name: 'labelName', label: 'Label name', required: true, fullWidth: true },
+        { name: 'color', label: 'Color (hex)', type: 'color', placeholder: '#2563eb' },
+        { name: 'description', label: 'Description', type: 'textarea', fullWidth: true },
       ]}
     />
   );

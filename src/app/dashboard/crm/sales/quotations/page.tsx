@@ -10,7 +10,7 @@
  * Per `docs/ecosystem/CRM_REBUILD_PLAN.md` §1D.
  */
 
-import { listQuotations } from '@/app/actions/crm/quotations.actions';
+import { getQuotationKpis, listQuotations } from '@/app/actions/crm/quotations.actions';
 import type { CrmQuotationDoc } from '@/lib/rust-client/crm-quotations';
 
 import { QuotationListClient } from './_components/quotation-list-client';
@@ -64,17 +64,40 @@ function computeKpi(rows: QuotationListRow[]): QuotationKpiSummary {
   let rejected = 0;
   let expired = 0;
   let converted = 0;
+  let draft = 0;
+  let totalThisMonth = 0;
+  let totalQuotedValue = 0;
+  let currency = 'INR';
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
   for (const r of rows) {
+    if (r.status === 'draft') draft += 1;
     if (r.status === 'draft' || r.status === 'sent') totalOpen += 1;
     if (r.status === 'accepted') accepted += 1;
     if (r.status === 'rejected') rejected += 1;
     if (r.expired) expired += 1;
     if (r.status === 'converted') converted += 1;
+    if (r.currency) currency = r.currency;
+    if (typeof r.total === 'number') totalQuotedValue += r.total;
+    if (typeof r.date === 'string') {
+      const t = new Date(r.date).getTime();
+      if (!Number.isNaN(t) && t >= monthStart) totalThisMonth += 1;
+    }
   }
   const conversionRatePct = rows.length > 0
     ? Math.round(((accepted + converted) / rows.length) * 1000) / 10
     : null;
-  return { totalOpen, accepted, rejected, expired, conversionRatePct };
+  return {
+    totalOpen,
+    accepted,
+    rejected,
+    expired,
+    conversionRatePct,
+    draft,
+    totalThisMonth,
+    totalQuotedValue: Math.round(totalQuotedValue),
+    currency,
+  };
 }
 
 /* ─── Page ────────────────────────────────────────────────────────── */
@@ -85,14 +108,32 @@ export default async function QuotationsPage({ searchParams }: PageProps) {
   const limit = Math.min(Math.max(1, Number(sp.limit) || 50), 200);
   const q = (sp.q ?? '').trim();
 
-  const { quotations, hasMore, error } = await listQuotations({
-    page,
-    limit,
-    q: q || undefined,
-  });
+  const [listRes, snapshot] = await Promise.all([
+    listQuotations({ page, limit, q: q || undefined }),
+    getQuotationKpis(),
+  ]);
+  const { quotations, hasMore, error } = listRes;
 
   const rows = quotations.map(toRow);
-  const kpi = computeKpi(rows);
+  const pageKpi = computeKpi(rows);
+  // Prefer the broader 200-row snapshot's MTD + value totals over the
+  // per-page numbers, but keep status counts from whichever yields more
+  // signal.
+  const kpi: QuotationKpiSummary = {
+    ...pageKpi,
+    totalOpen: snapshot.totalOpen || pageKpi.totalOpen,
+    accepted: snapshot.accepted || pageKpi.accepted,
+    rejected: snapshot.rejected || pageKpi.rejected,
+    expired: snapshot.expired || pageKpi.expired,
+    draft: snapshot.draft || pageKpi.draft,
+    conversionRatePct:
+      snapshot.conversionRatePct !== null
+        ? snapshot.conversionRatePct
+        : pageKpi.conversionRatePct,
+    totalThisMonth: snapshot.totalThisMonth || pageKpi.totalThisMonth,
+    totalQuotedValue: snapshot.totalQuotedValue || pageKpi.totalQuotedValue,
+    currency: snapshot.currency || pageKpi.currency,
+  };
 
   return (
     <QuotationListClient

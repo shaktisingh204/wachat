@@ -317,6 +317,125 @@ export async function saveAnnouncement(
     }
 }
 
+/* ─── KPIs ───────────────────────────────────────────────────────────── */
+
+export interface AnnouncementKpis {
+    total: number;
+    activeOrPinned: number;
+    publishedThisMonth: number;
+    drafts: number;
+}
+
+export async function getAnnouncementKpis(): Promise<AnnouncementKpis> {
+    const empty: AnnouncementKpis = {
+        total: 0,
+        activeOrPinned: 0,
+        publishedThisMonth: 0,
+        drafts: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    const guard = await requirePermission('crm_announcement', 'view');
+    if (!guard.ok) return empty;
+    try {
+        const res = await crmAnnouncementsApi.list({ limit: 500 });
+        const items = res.items;
+        const now = new Date();
+        let activeOrPinned = 0;
+        let publishedThisMonth = 0;
+        let drafts = 0;
+        for (const a of items) {
+            if (a.status === 'published' || a.pinned) activeOrPinned += 1;
+            if (a.status === 'draft') drafts += 1;
+            if (a.status === 'published' && a.publishedAt) {
+                const d = new Date(a.publishedAt);
+                if (
+                    d.getFullYear() === now.getFullYear() &&
+                    d.getMonth() === now.getMonth()
+                ) {
+                    publishedThisMonth += 1;
+                }
+            }
+        }
+        return { total: items.length, activeOrPinned, publishedThisMonth, drafts };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        recordRustFallback({ entity: 'announcement', op: 'list', errorCode: code, status });
+        console.error('[getAnnouncementKpis] failed:', msg);
+        return empty;
+    }
+}
+
+/* ─── Bulk actions ───────────────────────────────────────────────────── */
+
+export async function bulkPublishAnnouncements(
+    ids: string[],
+): Promise<{ ok: number; fail: number }> {
+    const session = await getSession();
+    if (!session?.user) return { ok: 0, fail: ids.length };
+    const guard = await requirePermission('crm_announcement', 'edit');
+    if (!guard.ok) return { ok: 0, fail: ids.length };
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+        try {
+            await crmAnnouncementsApi.update(id, {
+                status: 'published',
+                publishAt: new Date().toISOString(),
+            } as CrmAnnouncementUpdateInput);
+            ok += 1;
+        } catch {
+            fail += 1;
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { ok, fail };
+}
+
+export async function bulkArchiveAnnouncements(
+    ids: string[],
+): Promise<{ ok: number; fail: number }> {
+    const session = await getSession();
+    if (!session?.user) return { ok: 0, fail: ids.length };
+    const guard = await requirePermission('crm_announcement', 'edit');
+    if (!guard.ok) return { ok: 0, fail: ids.length };
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+        try {
+            await crmAnnouncementsApi.update(id, {
+                status: 'archived',
+            } as CrmAnnouncementUpdateInput);
+            ok += 1;
+        } catch {
+            fail += 1;
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { ok, fail };
+}
+
+export async function bulkDeleteAnnouncements(
+    ids: string[],
+): Promise<{ ok: number; fail: number }> {
+    const session = await getSession();
+    if (!session?.user) return { ok: 0, fail: ids.length };
+    const guard = await requirePermission('crm_announcement', 'delete');
+    if (!guard.ok) return { ok: 0, fail: ids.length };
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+        try {
+            await crmAnnouncementsApi.delete(id);
+            ok += 1;
+        } catch {
+            fail += 1;
+        }
+    }
+    revalidatePath(BASE_PATH);
+    return { ok, fail };
+}
+
 export async function deleteAnnouncement(
     id: string,
 ): Promise<{ success: boolean; error?: string }> {

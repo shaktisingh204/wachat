@@ -41,10 +41,15 @@ export interface DcRow {
 }
 
 export interface DcKpis {
+  /** Legacy: count of `Draft` challans (still shown in the strip-legacy). */
   draft: number;
   inTransit: number;
   delivered: number;
   returned: number;
+  /** Total challans (across all statuses). Headline KPI. */
+  totalChallans: number;
+  /** Count of challans delivered today (status=Delivered, date=today). */
+  deliveredToday: number;
 }
 
 export interface DcFilters {
@@ -107,10 +112,16 @@ export function DcKpiStrip({
 }) {
   return (
     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-      <KpiCard label="Pending" value={kpis.draft} tone="amber" active={currentStatus === 'Draft'} onClick={() => onClick('Draft')} />
+      <KpiCard
+        label="Total challans"
+        value={kpis.totalChallans}
+        tone="neutral"
+        active={false}
+        onClick={() => onClick(currentStatus as DcStatus)}
+      />
       <KpiCard label="In transit" value={kpis.inTransit} tone="amber" active={currentStatus === 'In Transit'} onClick={() => onClick('In Transit')} />
-      <KpiCard label="Delivered" value={kpis.delivered} tone="green" active={currentStatus === 'Delivered'} onClick={() => onClick('Delivered')} />
-      <KpiCard label="Cancelled" value={kpis.returned} tone="red" active={currentStatus === 'Returned'} onClick={() => onClick('Returned')} />
+      <KpiCard label="Delivered today" value={kpis.deliveredToday} tone="green" active={currentStatus === 'Delivered'} onClick={() => onClick('Delivered')} />
+      <KpiCard label="Returned" value={kpis.returned} tone="red" active={currentStatus === 'Returned'} onClick={() => onClick('Returned')} />
     </div>
   );
 }
@@ -274,12 +285,16 @@ export function DcBulkBar({
   count,
   onClear,
   onExport,
+  onExportXlsx,
+  onStatus,
   onConvertToInvoice,
   onDelete,
 }: {
   count: number;
   onClear: () => void;
   onExport: () => void;
+  onExportXlsx?: () => void;
+  onStatus?: (s: DcStatus) => void;
   onConvertToInvoice: () => void;
   onDelete: () => void;
 }) {
@@ -291,9 +306,27 @@ export function DcBulkBar({
         <X className="h-3.5 w-3.5" /> Clear
       </ZoruButton>
       <span className="mx-1 h-4 w-px bg-zoru-line" />
+      {onStatus ? (
+        <ZoruSelect onValueChange={(v) => onStatus(v as DcStatus)}>
+          <ZoruSelectTrigger className="h-8 w-[160px] text-[12px]">
+            <ZoruSelectValue placeholder="Change status…" />
+          </ZoruSelectTrigger>
+          <ZoruSelectContent>
+            <ZoruSelectItem value="Draft">Draft</ZoruSelectItem>
+            <ZoruSelectItem value="In Transit">In Transit</ZoruSelectItem>
+            <ZoruSelectItem value="Delivered">Delivered</ZoruSelectItem>
+            <ZoruSelectItem value="Returned">Returned</ZoruSelectItem>
+          </ZoruSelectContent>
+        </ZoruSelect>
+      ) : null}
       <ZoruButton variant="outline" size="sm" onClick={onExport}>
-        <Download className="h-3.5 w-3.5" /> Export
+        <Download className="h-3.5 w-3.5" /> Export CSV
       </ZoruButton>
+      {onExportXlsx ? (
+        <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          <Download className="h-3.5 w-3.5" /> Export XLSX
+        </ZoruButton>
+      ) : null}
       <ZoruButton variant="outline" size="sm" onClick={onConvertToInvoice}>
         <ArrowRightCircle className="h-3.5 w-3.5" /> To invoice
       </ZoruButton>

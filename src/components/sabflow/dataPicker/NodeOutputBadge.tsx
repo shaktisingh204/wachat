@@ -1,6 +1,8 @@
 'use client';
 
+import { Icon as IconifyIcon } from '@iconify/react';
 import { getBlockColor, getBlockIcon } from '@/lib/sabflow/blocks';
+import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 import { cn } from '@/lib/utils';
 
 type Props = {
@@ -32,6 +34,7 @@ export function NodeOutputBadge({
 }: Props) {
   const Icon = getBlockIcon(blockType);
   const color = getBlockColor(blockType);
+  const brand = getBlockBrandIcon(blockType);
 
   return (
     <button
@@ -46,10 +49,17 @@ export function NodeOutputBadge({
       )}
     >
       <div
-        className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
-        style={{ background: `${color}22`, color }}
+        className={cn(
+          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md',
+          brand && 'bg-[var(--gray-1)]',
+        )}
+        style={brand ? undefined : { background: `${color}22`, color }}
       >
-        {Icon && <Icon className="h-3.5 w-3.5" />}
+        {brand ? (
+          <IconifyIcon icon={brand} className="h-3.5 w-3.5" aria-hidden />
+        ) : (
+          Icon && <Icon className="h-3.5 w-3.5" />
+        )}
       </div>
       <div className="flex flex-1 flex-col leading-tight min-w-0">
         <span className="flex items-center gap-1.5 truncate text-[12.5px] font-medium text-[var(--gray-12)]">

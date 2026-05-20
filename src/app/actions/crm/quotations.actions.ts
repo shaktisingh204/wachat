@@ -58,6 +58,11 @@ export interface QuotationKpiSnapshot {
   expired: number;
   draft: number;
   conversionRatePct: number | null;
+  /** Count of quotations dated on/after the first of the current month. */
+  totalThisMonth: number;
+  /** Sum of `totals.total` (in the dominant currency) across the loaded window. */
+  totalQuotedValue: number;
+  currency: string;
 }
 
 /**
@@ -77,28 +82,42 @@ export async function getQuotationKpis(): Promise<QuotationKpiSnapshot> {
     expired: 0,
     draft: 0,
     conversionRatePct: null,
+    totalThisMonth: 0,
+    totalQuotedValue: 0,
+    currency: 'INR',
   };
   try {
     const docs = await crmQuotationsApi.list({ page: 1, limit: 200 });
-    const now = Date.now();
+    const now = new Date();
+    const nowTs = now.getTime();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
     let open = 0;
     let accepted = 0;
     let rejected = 0;
     let expired = 0;
     let draft = 0;
     let converted = 0;
+    let totalThisMonth = 0;
+    let totalQuotedValue = 0;
+    let currency = 'INR';
     for (const d of docs) {
       const s = (d.status ?? 'draft').toLowerCase();
       const isExpired =
         s === 'expired' ||
         (typeof d.validUntil === 'string' &&
-          new Date(d.validUntil).getTime() < now);
+          new Date(d.validUntil).getTime() < nowTs);
       if (s === 'draft') draft += 1;
       if (s === 'draft' || s === 'sent') open += 1;
       if (s === 'accepted') accepted += 1;
       if (s === 'rejected') rejected += 1;
       if (s === 'converted') converted += 1;
       if (isExpired) expired += 1;
+      if (d.currency) currency = d.currency;
+      if (typeof d.totals?.total === 'number') totalQuotedValue += d.totals.total;
+      if (typeof d.date === 'string') {
+        const t = new Date(d.date).getTime();
+        if (!Number.isNaN(t) && t >= monthStart) totalThisMonth += 1;
+      }
     }
     const conversionRatePct =
       docs.length > 0
@@ -111,6 +130,9 @@ export async function getQuotationKpis(): Promise<QuotationKpiSnapshot> {
       expired,
       draft,
       conversionRatePct,
+      totalThisMonth,
+      totalQuotedValue: Math.round(totalQuotedValue),
+      currency,
     };
   } catch (e) {
     recordRustFallback({

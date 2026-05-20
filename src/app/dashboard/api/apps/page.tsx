@@ -1,4 +1,19 @@
 import { listOAuthApps } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbPage,
+  ZoruAlert,
+  ZoruAlertDescription,
+} from '@/components/zoruui';
+import { AlertCircle } from 'lucide-react';
 import { AppsClient } from './_AppsClient';
 
 export const dynamic = 'force-dynamic';
@@ -9,22 +24,36 @@ export default async function OAuthAppsPage(): Promise<JSX.Element> {
   const loadError = res.success ? null : res.error;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <header className="mb-6">
-        <a href="/dashboard/api" className="text-xs text-amber-300 hover:text-amber-200">
-          ← Developer platform
-        </a>
-        <h1 className="text-3xl font-bold mt-2">OAuth apps</h1>
-        <p className="text-sm text-zinc-500 mt-1">
-          Register third-party clients to issue scoped access tokens via the Authorization
-          Code + PKCE flow. Token endpoint: <code className="text-amber-300">/api/v1/oauth/token</code>.
-        </p>
-      </header>
+    <div className="flex min-h-full flex-col gap-6">
+      <ZoruBreadcrumb>
+        <ZoruBreadcrumbList>
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbLink href="/dashboard/api">Developer platform</ZoruBreadcrumbLink>
+          </ZoruBreadcrumbItem>
+          <ZoruBreadcrumbSeparator />
+          <ZoruBreadcrumbItem>
+            <ZoruBreadcrumbPage>OAuth apps</ZoruBreadcrumbPage>
+          </ZoruBreadcrumbItem>
+        </ZoruBreadcrumbList>
+      </ZoruBreadcrumb>
+
+      <ZoruPageHeader>
+        <ZoruPageHeading>
+          <ZoruPageTitle>OAuth apps</ZoruPageTitle>
+          <ZoruPageDescription>
+            Register third-party clients to issue scoped access tokens via the Authorization
+            Code + PKCE flow. Token endpoint: <code className="font-mono">/api/v1/oauth/token</code>.
+          </ZoruPageDescription>
+        </ZoruPageHeading>
+      </ZoruPageHeader>
+
       {loadError ? (
-        <div className="mb-4 rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          Failed to load apps: {loadError}
-        </div>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertDescription>Failed to load apps: {loadError}</ZoruAlertDescription>
+        </ZoruAlert>
       ) : null}
+
       <AppsClient initialApps={initial} />
     </div>
   );

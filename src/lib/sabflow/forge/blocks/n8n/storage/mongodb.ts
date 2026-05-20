@@ -5,14 +5,23 @@
  * Credential type: 'mongodb' (CREDENTIAL_FIELD_SCHEMAS expects { connectionString }).
  *
  * Operations covered:
- *   - find       collection.find(filter).limit(limit) → array
- *   - findOne    collection.findOne(filter)
- *   - insert     collection.insertMany(docs)
- *   - update     collection.updateMany(filter, update)
- *   - delete     collection.deleteMany(filter)
+ *   - find                 collection.find(filter).limit(limit) → array
+ *   - findOne              collection.findOne(filter)
+ *   - insert               collection.insertMany(docs)
+ *   - update               collection.updateMany(filter, update)
+ *   - delete               collection.deleteMany(filter)
+ *   - aggregate            collection.aggregate(pipeline)
+ *   - listSearchIndexes    collection.listSearchIndexes([name])
+ *   - createSearchIndex    collection.createSearchIndex({ name, definition, type })
+ *   - updateSearchIndex    collection.updateSearchIndex(name, definition)
+ *   - dropSearchIndex      collection.dropSearchIndex(name)
  *
  * Out of scope for the first port:
- *   - Aggregation pipelines (add a separate `aggregate` action when needed)
+ *   - findOneAndReplace / findOneAndUpdate — n8n's port leans on its
+ *     `prepareItems` per-row helpers (item-paired updates keyed by
+ *     `updateKey`); SabFlow doesn't have an equivalent row-fanout abstraction
+ *     in the forge surface yet, so users should call `update` with their own
+ *     filter/update JSON in the meantime.
  *   - Transactions, change streams (those belong to triggers)
  *
  * Note: the connection is built per-call with `MongoClient` and closed in
@@ -126,6 +135,55 @@ async function deleteDocs(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   });
 }
 
+async function aggregateDocs(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return withCollection(ctx, async (col) => {
+    // n8n parses a single JSON parameter and passes it through as a pipeline array.
+    const raw = parseJsonField<Document | Document[]>(ctx.options.pipeline, 'pipeline');
+    const pipeline = Array.isArray(raw) ? raw : [raw];
+    const docs = await col.aggregate(pipeline).toArray();
+    return { outputs: { docs, count: docs.length }, logs: [`MongoDB aggregate → ${docs.length}`] };
+  });
+}
+
+async function listSearchIndexes(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return withCollection(ctx, async (col) => {
+    const name = asString(ctx.options.indexName);
+    const cursor = name ? col.listSearchIndexes(name) : col.listSearchIndexes();
+    const indexes = await cursor.toArray();
+    return { outputs: { indexes, count: indexes.length }, logs: [`MongoDB listSearchIndexes → ${indexes.length}`] };
+  });
+}
+
+async function createSearchIndex(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return withCollection(ctx, async (col) => {
+    const name = asString(ctx.options.indexName);
+    const type = asString(ctx.options.indexType) || 'search';
+    if (!name) throw new Error('MongoDB: index name is required');
+    const definition = parseJsonField<Record<string, unknown>>(ctx.options.definition, 'definition');
+    await col.createSearchIndex({ name, definition, type });
+    return { outputs: { indexName: name }, logs: [`MongoDB createSearchIndex → ${name}`] };
+  });
+}
+
+async function updateSearchIndex(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return withCollection(ctx, async (col) => {
+    const name = asString(ctx.options.indexName);
+    if (!name) throw new Error('MongoDB: index name is required');
+    const definition = parseJsonField<Record<string, unknown>>(ctx.options.definition, 'definition');
+    await col.updateSearchIndex(name, definition);
+    return { outputs: { indexName: name, updated: true }, logs: [`MongoDB updateSearchIndex → ${name}`] };
+  });
+}
+
+async function dropSearchIndex(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return withCollection(ctx, async (col) => {
+    const name = asString(ctx.options.indexName);
+    if (!name) throw new Error('MongoDB: index name is required');
+    await col.dropSearchIndex(name);
+    return { outputs: { indexName: name, dropped: true }, logs: [`MongoDB dropSearchIndex → ${name}`] };
+  });
+}
+
 // ── Block ─────────────────────────────────────────────────────────────────
 
 const COMMON_FIELDS = [
@@ -215,6 +273,80 @@ const block: ForgeBlock = {
         },
       ],
       run: deleteDocs,
+    },
+    {
+      id: 'aggregate',
+      label: 'Aggregate',
+      description: 'Run an aggregation pipeline on a collection.',
+      fields: [
+        ...COMMON_FIELDS,
+        {
+          id: 'pipeline',
+          label: 'Pipeline (JSON array)',
+          type: 'json',
+          required: true,
+          placeholder: '[{ "$match": { "status": "open" } }, { "$count": "n" }]',
+        },
+      ],
+      run: aggregateDocs,
+    },
+    {
+      id: 'list_search_indexes',
+      label: 'List search indexes',
+      description: 'List Atlas Search / vector search indexes on a collection.',
+      fields: [
+        ...COMMON_FIELDS,
+        { id: 'indexName', label: 'Index name (optional)', type: 'text' },
+      ],
+      run: listSearchIndexes,
+    },
+    {
+      id: 'create_search_index',
+      label: 'Create search index',
+      description: 'Create an Atlas Search or vector search index.',
+      fields: [
+        ...COMMON_FIELDS,
+        { id: 'indexName', label: 'Index name', type: 'text', required: true },
+        {
+          id: 'indexType',
+          label: 'Type',
+          type: 'select',
+          defaultValue: 'search',
+          options: [
+            { label: 'Search', value: 'search' },
+            { label: 'Vector search', value: 'vectorSearch' },
+          ],
+        },
+        {
+          id: 'definition',
+          label: 'Definition (JSON)',
+          type: 'json',
+          required: true,
+          placeholder: '{ "mappings": { "dynamic": true } }',
+        },
+      ],
+      run: createSearchIndex,
+    },
+    {
+      id: 'update_search_index',
+      label: 'Update search index',
+      description: 'Replace the definition of an existing search index.',
+      fields: [
+        ...COMMON_FIELDS,
+        { id: 'indexName', label: 'Index name', type: 'text', required: true },
+        { id: 'definition', label: 'Definition (JSON)', type: 'json', required: true },
+      ],
+      run: updateSearchIndex,
+    },
+    {
+      id: 'drop_search_index',
+      label: 'Drop search index',
+      description: 'Delete an Atlas Search index by name.',
+      fields: [
+        ...COMMON_FIELDS,
+        { id: 'indexName', label: 'Index name', type: 'text', required: true },
+      ],
+      run: dropSearchIndex,
     },
   ],
 };

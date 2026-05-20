@@ -84,14 +84,49 @@ function computeKpi(rows: RfqListRow[]): RfqKpiSummary {
   let closed = 0;
   let awarded = 0;
   let cancelled = 0;
+  let awaitingResponses = 0;
+  let responseHoursTotal = 0;
+  let responseHoursCount = 0;
   for (const r of rows) {
     if (r.status === 'draft') draft += 1;
     else if (r.status === 'open') open += 1;
     else if (r.status === 'closed') closed += 1;
     else if (r.status === 'awarded') awarded += 1;
     else if (r.status === 'cancelled') cancelled += 1;
+    // "Awaiting responses" = open RFQs with an unexpired deadline. If
+    // the deadline isn't set, count it (vendors are still expected to
+    // respond) — matches the open-list semantics.
+    if (r.status === 'open' && !r.deadlinePassed) {
+      awaitingResponses += 1;
+    }
+    // Avg response time proxy: hours between createdAt and updatedAt for
+    // rows that have moved off draft. Skips rows still in draft and rows
+    // missing either timestamp.
+    if (
+      r.status !== 'draft' &&
+      r.createdAt &&
+      r.updatedAt &&
+      r.createdAt !== r.updatedAt
+    ) {
+      const c = new Date(r.createdAt).getTime();
+      const u = new Date(r.updatedAt).getTime();
+      if (!Number.isNaN(c) && !Number.isNaN(u) && u >= c) {
+        responseHoursTotal += (u - c) / 3_600_000;
+        responseHoursCount += 1;
+      }
+    }
   }
-  return { draft, open, closed, awarded, cancelled };
+  return {
+    draft,
+    open,
+    closed,
+    awarded,
+    cancelled,
+    awaitingResponses,
+    avgResponseHours:
+      responseHoursCount > 0 ? responseHoursTotal / responseHoursCount : null,
+    totalActive: open,
+  };
 }
 
 /* ─── Page ────────────────────────────────────────────────────────── */

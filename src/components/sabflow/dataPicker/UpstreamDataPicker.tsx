@@ -32,7 +32,7 @@ import {
   useState,
   type KeyboardEvent,
 } from 'react';
-import { LuSearch, LuX, LuVariable } from 'react-icons/lu';
+import { LuSearch, LuX, LuVariable, LuSparkles } from 'react-icons/lu';
 import {
   tokenForField,
   type NodeOutputField,
@@ -52,13 +52,109 @@ type Props = {
   onClose: () => void;
 };
 
+/**
+ * Built-in globals available in every expression scope. Mirrors the n8n
+ * data-proxy globals our runner now exposes (see `expression-runner.ts`).
+ * Surfaced here so users can discover them without memorising syntax.
+ */
+type GlobalEntry = {
+  id: string;
+  label: string;
+  description: string;
+  /** Token inserted into the input when picked. */
+  insert: string;
+  /** Free-text tokens used for fuzzy search matching. */
+  searchTokens: string;
+};
+
+const GLOBAL_ENTRIES: GlobalEntry[] = [
+  {
+    id: 'prevNode-json',
+    label: 'Previous node output',
+    description: '$prevNode.json — JSON from the immediately upstream block.',
+    insert: '{{ $prevNode.json. }}',
+    searchTokens: 'prevnode previous upstream json',
+  },
+  {
+    id: 'prevNode-name',
+    label: 'Previous node name',
+    description: '$prevNode.name — display name of the upstream block.',
+    insert: '{{ $prevNode.name }}',
+    searchTokens: 'prevnode previous name upstream',
+  },
+  {
+    id: 'now',
+    label: 'Now (formatted)',
+    description: 'Current timestamp, Luxon-formatted (defaults to ISO).',
+    insert: "{{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+    searchTokens: 'now today date time timestamp datetime',
+  },
+  {
+    id: 'today',
+    label: 'Today (UTC date)',
+    description: "Today's date in UTC, ISO format.",
+    insert: '{{ $today.toISODate() }}',
+    searchTokens: 'today date day',
+  },
+  {
+    id: 'workflow-id',
+    label: 'Workflow id',
+    description: '$workflow.id — id of the current flow.',
+    insert: '{{ $workflow.id }}',
+    searchTokens: 'workflow flow id',
+  },
+  {
+    id: 'workflow-name',
+    label: 'Workflow name',
+    description: '$workflow.name — human-readable flow name.',
+    insert: '{{ $workflow.name }}',
+    searchTokens: 'workflow flow name',
+  },
+  {
+    id: 'execution-id',
+    label: 'Execution id',
+    description: '$execution.id — id of the current run.',
+    insert: '{{ $execution.id }}',
+    searchTokens: 'execution run id',
+  },
+  {
+    id: 'execution-mode',
+    label: 'Execution mode',
+    description: '$execution.mode — manual | trigger | test.',
+    insert: '{{ $execution.mode }}',
+    searchTokens: 'execution mode trigger manual',
+  },
+  {
+    id: 'env',
+    label: 'Environment variable',
+    description: 'Read a whitelisted env var ($env.MY_KEY).',
+    insert: '{{ $env.KEY_NAME }}',
+    searchTokens: 'env environment variable secret config',
+  },
+  {
+    id: 'jmespath',
+    label: 'JMESPath query',
+    description: 'Run a JMESPath query over JSON data.',
+    insert: "{{ $jmesPath($json, '<query>') }}",
+    searchTokens: 'jmespath jmes query path filter',
+  },
+  {
+    id: 'datetime-now',
+    label: 'DateTime.now()',
+    description: 'Luxon DateTime instance — full formatting + math.',
+    insert: "{{ DateTime.now().toFormat('yyyy-MM-dd') }}",
+    searchTokens: 'datetime luxon date time',
+  },
+];
+
 type FlatRow =
   | {
       kind: 'field';
       node: UpstreamNode;
       field: NodeOutputField;
     }
-  | { kind: 'variable'; variable: Variable };
+  | { kind: 'variable'; variable: Variable }
+  | { kind: 'global'; entry: GlobalEntry };
 
 export function UpstreamDataPicker({
   upstream,
@@ -80,6 +176,7 @@ export function UpstreamDataPicker({
 
   const matchingFields = useMemo(() => filterNodes(upstream, search), [upstream, search]);
   const matchingVars = useMemo(() => filterVars(variables, search), [variables, search]);
+  const matchingGlobals = useMemo(() => filterGlobals(GLOBAL_ENTRIES, search), [search]);
 
   /* Flatten visible rows for keyboard navigation. */
   const flatRows = useMemo<FlatRow[]>(() => {
@@ -91,8 +188,9 @@ export function UpstreamDataPicker({
       }
     }
     for (const v of matchingVars) out.push({ kind: 'variable', variable: v });
+    for (const g of matchingGlobals) out.push({ kind: 'global', entry: g });
     return out;
-  }, [matchingFields, collapsed, matchingVars]);
+  }, [matchingFields, collapsed, matchingVars, matchingGlobals]);
 
   // Reset focus when the search changes.
   useEffect(() => {
@@ -113,6 +211,11 @@ export function UpstreamDataPicker({
 
   const insertVar = (variable: Variable) => {
     onPick(`{{ ${variable.name} }}`);
+    onClose();
+  };
+
+  const insertGlobal = (entry: GlobalEntry) => {
+    onPick(entry.insert);
     onClose();
   };
 
@@ -137,7 +240,8 @@ export function UpstreamDataPicker({
       const row = flatRows[focusIdx];
       if (!row) return;
       if (row.kind === 'field') insertField(row.node, row.field);
-      else insertVar(row.variable);
+      else if (row.kind === 'variable') insertVar(row.variable);
+      else insertGlobal(row.entry);
     }
   };
 
@@ -194,15 +298,17 @@ export function UpstreamDataPicker({
 
       {/* List */}
       <div ref={listRef} className="max-h-[360px] overflow-y-auto p-1.5 space-y-1">
-        {matchingFields.length === 0 && matchingVars.length === 0 && (
-          <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-            <p className="text-[12px] text-[var(--gray-10)]">
-              {upstream.length === 0
-                ? 'Connect this node to an upstream node to pick its output.'
-                : 'No matching fields.'}
-            </p>
-          </div>
-        )}
+        {matchingFields.length === 0 &&
+          matchingVars.length === 0 &&
+          matchingGlobals.length === 0 && (
+            <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+              <p className="text-[12px] text-[var(--gray-10)]">
+                {upstream.length === 0
+                  ? 'Connect this node to an upstream node to pick its output.'
+                  : 'No matching fields.'}
+              </p>
+            </div>
+          )}
 
         {matchingFields.map((node) => {
           const open = !collapsed.has(node.blockId);
@@ -292,6 +398,50 @@ export function UpstreamDataPicker({
           </div>
         )}
 
+        {matchingGlobals.length > 0 && (
+          <div className="space-y-0.5 pt-2">
+            <div className="flex items-center gap-2 px-2 py-1 text-[10.5px] font-semibold uppercase tracking-wide text-[var(--gray-9)]">
+              <LuSparkles className="h-3 w-3" />
+              Globals
+            </div>
+            {matchingGlobals.map((entry) => {
+              const key = `global:${entry.id}`;
+              return (
+                <div
+                  key={entry.id}
+                  role="option"
+                  aria-selected={focusedKey === key}
+                  onMouseEnter={() => {
+                    const idx = flatRows.findIndex(
+                      (r) => r.kind === 'global' && r.entry.id === entry.id,
+                    );
+                    if (idx >= 0) setFocusIdx(idx);
+                  }}
+                  onClick={() => insertGlobal(entry)}
+                  className={cn(
+                    'group flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5',
+                    focusedKey === key
+                      ? 'bg-[#f76808]/10'
+                      : 'hover:bg-[var(--gray-3)]',
+                  )}
+                >
+                  <span className="shrink-0 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-600 dark:bg-sky-950/40 dark:text-sky-400">
+                    Glb
+                  </span>
+                  <div className="flex flex-1 flex-col min-w-0 leading-tight">
+                    <span className="truncate text-[12px] font-medium text-[var(--gray-12)]">
+                      {entry.label}
+                    </span>
+                    <span className="truncate text-[10.5px] text-[var(--gray-9)]">
+                      {entry.description}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {noResults && search && (
           <div className="px-2 py-2 text-[11px] text-[var(--gray-9)]">
             Tip: connect more nodes upstream to expand this list.
@@ -337,8 +487,20 @@ function filterVars(variables: Variable[], q: string): Variable[] {
   return variables.filter((v) => v.name.toLowerCase().includes(needle));
 }
 
+function filterGlobals(entries: GlobalEntry[], q: string): GlobalEntry[] {
+  if (!q.trim()) return entries;
+  const needle = q.toLowerCase();
+  return entries.filter(
+    (e) =>
+      e.label.toLowerCase().includes(needle) ||
+      e.description.toLowerCase().includes(needle) ||
+      e.searchTokens.includes(needle),
+  );
+}
+
 function flatRowKey(row: FlatRow | undefined): string | null {
   if (!row) return null;
   if (row.kind === 'field') return `field:${row.node.blockId}:${row.field.key}`;
-  return `var:${row.variable.id}`;
+  if (row.kind === 'variable') return `var:${row.variable.id}`;
+  return `global:${row.entry.id}`;
 }

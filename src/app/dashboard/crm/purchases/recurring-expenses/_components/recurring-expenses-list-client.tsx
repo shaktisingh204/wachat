@@ -37,6 +37,7 @@ import Link from 'next/link';
 
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
@@ -44,6 +45,11 @@ import {
   pauseRecurringExpense,
   resumeRecurringExpense,
 } from '@/app/actions/worksuite/billing.actions';
+import {
+  dateStamp,
+  downloadXlsx,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 
 import { RecurringExpensesKpiStrip } from './kpi-strip';
 import type { RecurringExpenseKpiSnapshot, RecurringExpenseRow } from './types';
@@ -52,6 +58,11 @@ interface ListClientProps {
   rows: RecurringExpenseRow[];
   kpi: RecurringExpenseKpiSnapshot;
   defaultCurrency: string;
+  /** Pagination state — defaults preserve the pre-pagination call sites. */
+  page?: number;
+  limit?: number;
+  hasMore?: boolean;
+  initialQuery?: string;
 }
 
 function fmtMoney(value: number, currency: string): string {
@@ -111,12 +122,16 @@ export function RecurringExpensesListClient({
   rows: serverRows,
   kpi,
   defaultCurrency,
+  page = 1,
+  limit = 25,
+  hasMore = false,
+  initialQuery = '',
 }: ListClientProps) {
   const router = useRouter();
   const { toast } = useZoruToast();
   const [pending, startTransition] = React.useTransition();
 
-  const [query, setQuery] = React.useState('');
+  const [query, setQuery] = React.useState(initialQuery);
   const [statusFilter, setStatusFilter] = React.useState('all');
   const [frequencyFilter, setFrequencyFilter] = React.useState('all');
   const [nextFrom, setNextFrom] = React.useState('');
@@ -176,6 +191,53 @@ export function RecurringExpensesListClient({
       return next;
     });
   }, [filtered]);
+
+  const exportXlsx = React.useCallback(async () => {
+    const rows = filtered.filter(
+      (d) => selected.size === 0 || selected.has(d._id),
+    );
+    if (rows.length === 0) {
+      toast({
+        title: 'Nothing to export',
+        description: 'Filter or select rows first.',
+      });
+      return;
+    }
+    const headers = [
+      'name',
+      'vendor',
+      'frequency',
+      'frequency_count',
+      'amount',
+      'currency',
+      'next_run',
+      'until',
+      'last_run',
+      'status',
+    ];
+    const out: ExportRow[] = rows.map((r) => ({
+      name: r.name,
+      vendor: r.vendor ?? '',
+      frequency: r.frequency,
+      frequency_count: r.frequency_count,
+      amount: r.amount,
+      currency: r.currency,
+      next_run: r.next_run_date ?? '',
+      until: r.until_date ?? '',
+      last_run: r.last_run_date ?? '',
+      status: r.status,
+    }));
+    await downloadXlsx(
+      `recurring-expenses-${dateStamp()}.xlsx`,
+      headers,
+      out,
+      'Schedules',
+    );
+    toast({
+      title: 'Exported',
+      description: `${rows.length} schedules saved to XLSX.`,
+    });
+  }, [filtered, selected, toast]);
 
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter(
@@ -275,7 +337,10 @@ export function RecurringExpensesListClient({
           </div>
           <div className="flex flex-wrap items-center gap-1.5">
             <ZoruButton variant="outline" size="sm" onClick={exportCsv}>
-              <Download className="h-3.5 w-3.5" /> Export
+              <Download className="h-3.5 w-3.5" /> CSV
+            </ZoruButton>
+            <ZoruButton variant="outline" size="sm" onClick={exportXlsx}>
+              <Download className="h-3.5 w-3.5" /> XLSX
             </ZoruButton>
             <ZoruButton size="sm" asChild>
               <Link href="/dashboard/crm/purchases/recurring-expenses/new">
@@ -353,7 +418,10 @@ export function RecurringExpensesListClient({
                 <Play className="h-3.5 w-3.5" /> Resume
               </ZoruButton>
               <ZoruButton size="sm" variant="outline" onClick={exportCsv}>
-                <Download className="h-3.5 w-3.5" /> Export
+                <Download className="h-3.5 w-3.5" /> CSV
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={exportXlsx}>
+                <Download className="h-3.5 w-3.5" /> XLSX
               </ZoruButton>
               <ZoruButton
                 size="sm"
@@ -469,6 +537,10 @@ export function RecurringExpensesListClient({
               )}
             </tbody>
           </table>
+        </div>
+
+        <div className="border-t border-zoru-line p-3">
+          <PaginationBar page={page} limit={limit} hasMore={hasMore} />
         </div>
       </ZoruCard>
 

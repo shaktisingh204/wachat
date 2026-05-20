@@ -10,6 +10,7 @@ import {
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
   ZoruButton,
+  ZoruCheckbox,
   ZoruColorPicker,
   ZoruDialog,
   ZoruDialogContent,
@@ -40,16 +41,11 @@ import { useFormStatus } from 'react-dom';
 import { Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 /**
- * Expense Categories — settings-style list (§1D.4 specialized: settings list).
+ * Expense Categories — settings-style list.
  *
- * Mirrors `dashboard/crm/accounting/groups/page.tsx`:
- *   - EntityListShell + ZoruTable for the row surface
- *   - Inline-create / edit ZoruDialog with the full field set
- *   - ZoruAlertDialog for delete confirmation
- *   - Filters: search · status · billable · reimbursable
- *
- * Backed by the Rust BFF (`crmExpenseCategoriesApi`) via the
- * `crm-expense-categories.actions.ts` server actions.
+ * Additions over the original:
+ *  - ZoruCheckbox multi-select column
+ *  - Bulk bar: delete with confirm + activate + deactivate
  */
 
 import * as React from 'react';
@@ -60,6 +56,9 @@ import { RowDrawer } from '@/components/crm/row-drawer';
 import { StatusPill } from '@/components/crm/status-pill';
 
 import {
+    bulkActivateExpenseCategories,
+    bulkDeactivateExpenseCategories,
+    bulkDeleteExpenseCategories,
     deleteExpenseCategory,
     getExpenseCategories,
     saveExpenseCategory,
@@ -145,7 +144,6 @@ function ExpenseCategoryDialog({
         }
     }, [state, toast, onSave, onOpenChange]);
 
-    // Filter out self when editing so a category can't be its own parent.
     const parentOptions = React.useMemo(
         () => parents.filter((p) => !initialData || p._id !== initialData._id),
         [parents, initialData],
@@ -158,7 +156,6 @@ function ExpenseCategoryDialog({
                     {isEditing ? (
                         <input type="hidden" name="_id" value={initialData!._id} />
                     ) : null}
-                    {/* ZoruSwitch is controlled — mirror its value into the form. */}
                     <input type="hidden" name="isBillable" value={isBillable ? 'true' : 'false'} />
                     <input
                         type="hidden"
@@ -201,7 +198,6 @@ function ExpenseCategoryDialog({
 
                         <div className="space-y-2">
                             <ZoruLabel htmlFor="parentId">Parent category</ZoruLabel>
-                            {/* TODO 1E.sweep: dynamic list — needs EntityKey */}
                             <ZoruSelect
                                 value={parentId || 'none'}
                                 onValueChange={(v) => setParentId(v === 'none' ? '' : v)}
@@ -368,7 +364,14 @@ export default function ExpenseCategoriesPage() {
     const [reimbursableFilter, setReimbursableFilter] = React.useState<BoolFilter>('all');
     const [pendingDelete, setPendingDelete] = React.useState<Category | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
+    const [bulkPending, startBulkTransition] = React.useTransition();
     const { toast } = useZoruToast();
+
+    // Selection
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+    // Bulk dialog state
+    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -406,6 +409,46 @@ export default function ExpenseCategoriesPage() {
         });
     }, [categories, search, statusFilter, billableFilter, reimbursableFilter]);
 
+    // Selection helpers
+    const filteredIds = React.useMemo(
+        () => filtered.map((c) => c._id),
+        [filtered],
+    );
+    const allChecked =
+        filteredIds.length > 0 && filteredIds.every((id) => selected.has(id));
+    const someChecked = filteredIds.some((id) => selected.has(id));
+
+    const toggleAll = () => {
+        if (allChecked) {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                filteredIds.forEach((id) => next.delete(id));
+                return next;
+            });
+        } else {
+            setSelected((prev) => {
+                const next = new Set(prev);
+                filteredIds.forEach((id) => next.add(id));
+                return next;
+            });
+        }
+    };
+
+    const toggleOne = (id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const selectedIds = React.useMemo(
+        () => [...selected].filter((id) => filteredIds.includes(id)),
+        [selected, filteredIds],
+    );
+    const hasSelection = selectedIds.length > 0;
+
     const handleOpenDialog = (cat: Category | null) => {
         setEditing(cat);
         setIsDialogOpen(true);
@@ -429,6 +472,49 @@ export default function ExpenseCategoriesPage() {
         });
     };
 
+    // Bulk delete
+    const handleBulkDelete = () => {
+        startBulkTransition(async () => {
+            const res = await bulkDeleteExpenseCategories(selectedIds);
+            if (res.ok) {
+                toast({ title: `${res.count} category/categories deleted` });
+                setSelected(new Set());
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            }
+            setBulkDeleteOpen(false);
+            await refresh();
+        });
+    };
+
+    // Bulk activate
+    const handleBulkActivate = () => {
+        startBulkTransition(async () => {
+            const res = await bulkActivateExpenseCategories(selectedIds);
+            if (res.ok) {
+                toast({ title: `${res.count} category/categories activated` });
+                setSelected(new Set());
+                await refresh();
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            }
+        });
+    };
+
+    // Bulk deactivate
+    const handleBulkDeactivate = () => {
+        startBulkTransition(async () => {
+            const res = await bulkDeactivateExpenseCategories(selectedIds);
+            if (res.ok) {
+                toast({ title: `${res.count} category/categories deactivated` });
+                setSelected(new Set());
+                await refresh();
+            } else {
+                toast({ title: 'Error', description: res.error, variant: 'destructive' });
+            }
+        });
+    };
+
     const formatMoney = (n?: number) =>
         typeof n === 'number' && Number.isFinite(n)
             ? new Intl.NumberFormat('en-IN', {
@@ -448,226 +534,309 @@ export default function ExpenseCategoriesPage() {
             />
 
             <EntityListShell
-                    title="Expense Categories"
-                    subtitle="Classify expenses for accounting, billing, and reimbursement."
-                    primaryAction={
-                        <ZoruButton onClick={() => handleOpenDialog(null)}>
-                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
+                title="Expense Categories"
+                subtitle="Classify expenses for accounting, billing, and reimbursement."
+                primaryAction={
+                    <ZoruButton onClick={() => handleOpenDialog(null)}>
+                        <Plus className="mr-1.5 h-3.5 w-3.5" /> New Category
+                    </ZoruButton>
+                }
+                search={{
+                    value: search,
+                    onChange: setSearch,
+                    placeholder: 'Search categories…',
+                }}
+                filters={
+                    <div className="flex flex-wrap items-center gap-2">
+                        <ZoruSelect
+                            value={statusFilter}
+                            onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[150px]">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruSelect
+                            value={billableFilter}
+                            onValueChange={(v) => setBillableFilter(v as BoolFilter)}
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[150px]">
+                                <ZoruSelectValue placeholder="Billable" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">Billable: any</ZoruSelectItem>
+                                <ZoruSelectItem value="true">Billable: yes</ZoruSelectItem>
+                                <ZoruSelectItem value="false">Billable: no</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruSelect
+                            value={reimbursableFilter}
+                            onValueChange={(v) => setReimbursableFilter(v as BoolFilter)}
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[170px]">
+                                <ZoruSelectValue placeholder="Reimbursable" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">Reimbursable: any</ZoruSelectItem>
+                                <ZoruSelectItem value="true">Reimbursable: yes</ZoruSelectItem>
+                                <ZoruSelectItem value="false">Reimbursable: no</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                }
+                loading={isLoading && categories.length === 0}
+            >
+                {/* Bulk bar */}
+                {hasSelection && (
+                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">
+                        <span className="font-medium text-foreground">
+                            {selectedIds.length} selected
+                        </span>
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            disabled={bulkPending}
+                            onClick={handleBulkActivate}
+                        >
+                            {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
+                            Activate
                         </ZoruButton>
-                    }
-                    search={{
-                        value: search,
-                        onChange: setSearch,
-                        placeholder: 'Search categories…',
-                    }}
-                    filters={
-                        <div className="flex flex-wrap items-center gap-2">
-                            <ZoruSelect
-                                value={statusFilter}
-                                onValueChange={(v) => setStatusFilter(v as StatusFilter)}
+                        <ZoruButton
+                            variant="outline"
+                            size="sm"
+                            disabled={bulkPending}
+                            onClick={handleBulkDeactivate}
+                        >
+                            Deactivate
+                        </ZoruButton>
+                        <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+                            <ZoruButton
+                                variant="destructive"
+                                size="sm"
+                                disabled={bulkPending}
+                                onClick={() => setBulkDeleteOpen(true)}
                             >
-                                <ZoruSelectTrigger className="h-9 w-[150px]">
-                                    <ZoruSelectValue placeholder="Status" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
-                                    <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
-                                value={billableFilter}
-                                onValueChange={(v) => setBillableFilter(v as BoolFilter)}
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[150px]">
-                                    <ZoruSelectValue placeholder="Billable" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">Billable: any</ZoruSelectItem>
-                                    <ZoruSelectItem value="true">Billable: yes</ZoruSelectItem>
-                                    <ZoruSelectItem value="false">Billable: no</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                            <ZoruSelect
-                                value={reimbursableFilter}
-                                onValueChange={(v) => setReimbursableFilter(v as BoolFilter)}
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[170px]">
-                                    <ZoruSelectValue placeholder="Reimbursable" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">Reimbursable: any</ZoruSelectItem>
-                                    <ZoruSelectItem value="true">Reimbursable: yes</ZoruSelectItem>
-                                    <ZoruSelectItem value="false">Reimbursable: no</ZoruSelectItem>
-                                </ZoruSelectContent>
-                            </ZoruSelect>
-                        </div>
-                    }
-                    loading={isLoading && categories.length === 0}
-                >
-                    <div className="overflow-x-auto rounded-lg border border-border">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-border hover:bg-transparent">
-                                    <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Parent</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Tax %
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Reimbursable</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Billable</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Max Amount
-                                    </ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-muted-foreground text-right">
-                                        Actions
-                                    </ZoruTableHead>
+                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+                                Delete selected
+                            </ZoruButton>
+                            <ZoruAlertDialogContent>
+                                <ZoruAlertDialogHeader>
+                                    <ZoruAlertDialogTitle>
+                                        Delete {selectedIds.length} category/categories?
+                                    </ZoruAlertDialogTitle>
+                                    <ZoruAlertDialogDescription>
+                                        This will affect any expense records that reference these
+                                        categories. This action cannot be undone.
+                                    </ZoruAlertDialogDescription>
+                                </ZoruAlertDialogHeader>
+                                <ZoruAlertDialogFooter>
+                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+                                    <ZoruAlertDialogAction
+                                        onClick={handleBulkDelete}
+                                        disabled={bulkPending}
+                                    >
+                                        {bulkPending ? (
+                                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                        ) : null}
+                                        Delete
+                                    </ZoruAlertDialogAction>
+                                </ZoruAlertDialogFooter>
+                            </ZoruAlertDialogContent>
+                        </ZoruAlertDialog>
+                        <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelected(new Set())}
+                        >
+                            Clear selection
+                        </ZoruButton>
+                    </div>
+                )}
+
+                <div className="overflow-x-auto rounded-lg border border-border">
+                    <ZoruTable>
+                        <ZoruTableHeader>
+                            <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="w-10">
+                                    <ZoruCheckbox
+                                        checked={allChecked}
+                                        aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
+                                        onCheckedChange={toggleAll}
+                                        aria-label="Select all"
+                                        disabled={filtered.length === 0}
+                                    />
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Code</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Parent</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Tax %
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Reimbursable</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Billable</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Max Amount
+                                </ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                <ZoruTableHead className="text-muted-foreground text-right">
+                                    Actions
+                                </ZoruTableHead>
+                            </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
+                            {isLoading ? (
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell colSpan={10} className="h-24 text-center">
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                    </ZoruTableCell>
                                 </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell colSpan={9} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                            ) : filtered.length === 0 ? (
+                                <ZoruTableRow className="border-border">
+                                    <ZoruTableCell
+                                        colSpan={10}
+                                        className="h-24 text-center text-muted-foreground"
+                                    >
+                                        No expense categories match this filter.
+                                    </ZoruTableCell>
+                                </ZoruTableRow>
+                            ) : (
+                                filtered.map((c) => (
+                                    <ZoruTableRow key={c._id} className="border-border">
+                                        <ZoruTableCell>
+                                            <ZoruCheckbox
+                                                checked={selected.has(c._id)}
+                                                onCheckedChange={() => toggleOne(c._id)}
+                                                aria-label={`Select ${c.name}`}
+                                            />
                                         </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-border">
-                                        <ZoruTableCell
-                                            colSpan={9}
-                                            className="h-24 text-center text-muted-foreground"
-                                        >
-                                            No expense categories match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    filtered.map((c) => (
-                                        <ZoruTableRow key={c._id} className="border-border">
-                                            <ZoruTableCell className="font-medium text-foreground">
-                                                <RowDrawer
-                                                    label={
-                                                        <span className="inline-flex items-center gap-2">
-                                                            {c.color ? (
-                                                                <span
-                                                                    className="inline-block h-2.5 w-2.5 rounded-full"
-                                                                    style={{ backgroundColor: c.color }}
-                                                                    aria-hidden="true"
-                                                                />
-                                                            ) : null}
-                                                            {c.name}
-                                                        </span>
-                                                    }
-                                                    subtitle={c.code ?? undefined}
-                                                    title={`Expense Category · ${c.name}`}
-                                                    description="Read-only category details. Use the row Edit action to modify."
-                                                >
-                                                    <div className="space-y-3 text-sm">
-                                                        {c.description ? (
-                                                            <div>
-                                                                <div className="text-muted-foreground text-xs">Description</div>
-                                                                <div>{c.description}</div>
-                                                            </div>
+                                        <ZoruTableCell className="font-medium text-foreground">
+                                            <RowDrawer
+                                                label={
+                                                    <span className="inline-flex items-center gap-2">
+                                                        {c.color ? (
+                                                            <span
+                                                                className="inline-block h-2.5 w-2.5 rounded-full"
+                                                                style={{ backgroundColor: c.color }}
+                                                                aria-hidden="true"
+                                                            />
                                                         ) : null}
+                                                        {c.name}
+                                                    </span>
+                                                }
+                                                subtitle={c.code ?? undefined}
+                                                title={`Expense Category · ${c.name}`}
+                                                description="Read-only category details. Use the row Edit action to modify."
+                                            >
+                                                <div className="space-y-3 text-sm">
+                                                    {c.description ? (
                                                         <div>
-                                                            <div className="text-muted-foreground text-xs">Code</div>
-                                                            <div className="font-mono">{c.code ?? '—'}</div>
+                                                            <div className="text-muted-foreground text-xs">Description</div>
+                                                            <div>{c.description}</div>
                                                         </div>
+                                                    ) : null}
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Code</div>
+                                                        <div className="font-mono">{c.code ?? '—'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Parent</div>
                                                         <div>
-                                                            <div className="text-muted-foreground text-xs">Parent</div>
-                                                            <div>
-                                                                {c.parentId
-                                                                    ? parentNameById.get(c.parentId) ?? '—'
-                                                                    : '—'}
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-muted-foreground text-xs">Tax rate</div>
-                                                            <div className="font-mono">
-                                                                {typeof c.taxRate === 'number'
-                                                                    ? `${c.taxRate.toFixed(2)}%`
-                                                                    : '—'}
-                                                            </div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-muted-foreground text-xs">Max amount</div>
-                                                            <div className="font-mono">{formatMoney(c.maxAmount)}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-muted-foreground text-xs">Billable</div>
-                                                            <div>{c.isBillable ? 'Yes' : 'No'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-muted-foreground text-xs">Reimbursable</div>
-                                                            <div>{c.isReimbursable ? 'Yes' : 'No'}</div>
-                                                        </div>
-                                                        <div>
-                                                            <div className="text-muted-foreground text-xs">Status</div>
-                                                            <div>{c.status === 'active' ? 'Active' : 'Archived'}</div>
+                                                            {c.parentId
+                                                                ? parentNameById.get(c.parentId) ?? '—'
+                                                                : '—'}
                                                         </div>
                                                     </div>
-                                                </RowDrawer>
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-foreground">
-                                                {c.code ?? '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-foreground">
-                                                {c.parentId
-                                                    ? parentNameById.get(c.parentId) ?? '—'
-                                                    : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
-                                                {typeof c.taxRate === 'number'
-                                                    ? `${c.taxRate.toFixed(2)}%`
-                                                    : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill
-                                                    label={c.isReimbursable ? 'Yes' : 'No'}
-                                                    tone={c.isReimbursable ? 'green' : 'neutral'}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill
-                                                    label={c.isBillable ? 'Yes' : 'No'}
-                                                    tone={c.isBillable ? 'blue' : 'neutral'}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right font-mono text-foreground">
-                                                {formatMoney(c.maxAmount)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill
-                                                    label={c.status === 'active' ? 'Active' : 'Archived'}
-                                                    tone={c.status === 'active' ? 'green' : 'neutral'}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleOpenDialog(c)}
-                                                    aria-label={`Edit ${c.name}`}
-                                                >
-                                                    <Edit className="h-4 w-4" />
-                                                </ZoruButton>
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setPendingDelete(c)}
-                                                    aria-label={`Delete ${c.name}`}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </ZoruButton>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    ))
-                                )}
-                            </ZoruTableBody>
-                        </ZoruTable>
-                    </div>
-                </EntityListShell>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Tax rate</div>
+                                                        <div className="font-mono">
+                                                            {typeof c.taxRate === 'number'
+                                                                ? `${c.taxRate.toFixed(2)}%`
+                                                                : '—'}
+                                                        </div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Max amount</div>
+                                                        <div className="font-mono">{formatMoney(c.maxAmount)}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Billable</div>
+                                                        <div>{c.isBillable ? 'Yes' : 'No'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Reimbursable</div>
+                                                        <div>{c.isReimbursable ? 'Yes' : 'No'}</div>
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-muted-foreground text-xs">Status</div>
+                                                        <div>{c.status === 'active' ? 'Active' : 'Archived'}</div>
+                                                    </div>
+                                                </div>
+                                            </RowDrawer>
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="font-mono text-foreground">
+                                            {c.code ?? '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-foreground">
+                                            {c.parentId
+                                                ? parentNameById.get(c.parentId) ?? '—'
+                                                : '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                            {typeof c.taxRate === 'number'
+                                                ? `${c.taxRate.toFixed(2)}%`
+                                                : '—'}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <StatusPill
+                                                label={c.isReimbursable ? 'Yes' : 'No'}
+                                                tone={c.isReimbursable ? 'green' : 'neutral'}
+                                            />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <StatusPill
+                                                label={c.isBillable ? 'Yes' : 'No'}
+                                                tone={c.isBillable ? 'blue' : 'neutral'}
+                                            />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right font-mono text-foreground">
+                                            {formatMoney(c.maxAmount)}
+                                        </ZoruTableCell>
+                                        <ZoruTableCell>
+                                            <StatusPill
+                                                label={c.status === 'active' ? 'Active' : 'Archived'}
+                                                tone={c.status === 'active' ? 'green' : 'neutral'}
+                                            />
+                                        </ZoruTableCell>
+                                        <ZoruTableCell className="text-right">
+                                            <ZoruButton
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleOpenDialog(c)}
+                                                aria-label={`Edit ${c.name}`}
+                                            >
+                                                <Edit className="h-4 w-4" />
+                                            </ZoruButton>
+                                            <ZoruButton
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => setPendingDelete(c)}
+                                                aria-label={`Delete ${c.name}`}
+                                            >
+                                                <Trash2 className="h-4 w-4 text-destructive" />
+                                            </ZoruButton>
+                                        </ZoruTableCell>
+                                    </ZoruTableRow>
+                                ))
+                            )}
+                        </ZoruTableBody>
+                    </ZoruTable>
+                </div>
+            </EntityListShell>
 
             <ZoruAlertDialog
                 open={!!pendingDelete}
@@ -698,4 +867,3 @@ export default function ExpenseCategoriesPage() {
         </>
     );
 }
-

@@ -1,64 +1,17 @@
-'use client';
-
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { Radio } from 'lucide-react';
-import { ClayBadge, HrEntityPage } from '../../_components/hr-entity-page';
-import {
-  getLeadSources,
-  saveLeadSource,
-  deleteLeadSource,
-} from '@/app/actions/worksuite/crm-plus.actions';
+import { getLeadSources, getLeadSourceKpis } from '@/app/actions/worksuite/crm-plus.actions';
 import type { WsLeadSource } from '@/lib/worksuite/crm-types';
+import type { WithId } from 'mongodb';
+import { SourcesClient } from './_components/sources-client';
 
-export default function LeadSourcesPage() {
-  return (
-    <HrEntityPage<WsLeadSource & { _id: string }>
-      title="Lead Sources"
-      subtitle="Track where your leads come from (e.g. website, referral, ads)."
-      icon={Radio}
-      singular="Source"
-      getAllAction={getLeadSources as any}
-      saveAction={saveLeadSource}
-      deleteAction={deleteLeadSource}
-      columns={[
-        { key: 'type', label: 'Source' },
-        {
-          key: 'color',
-          label: 'Color',
-          render: (row) => {
-            const color = row.color || '#64748b';
-            return (
-              <span className="inline-flex items-center gap-2">
-                <span
-                  className="inline-block h-3 w-3 rounded-full border border-border"
-                  style={{ backgroundColor: color }}
-                />
-                <ClayBadge
-                  tone="neutral"
-                  style={{
-                    backgroundColor: color + '20',
-                    color,
-                    borderColor: color + '40',
-                  }}
-                >
-                  {color}
-                </ClayBadge>
-              </span>
-            );
-          },
-        },
-      ]}
-      fields={[
-        { name: 'type', label: 'Source Name', required: true, fullWidth: true },
-        {
-          name: 'color',
-          label: 'Color (hex)',
-          placeholder: '#64748b',
-          defaultValue: '#64748b',
-        },
-      ]}
-    />
-  );
+export const dynamic = 'force-dynamic';
+
+type Row = WithId<WsLeadSource> & { _id: string };
+
+export default async function LeadSourcesPage() {
+  const [rows, kpi] = await Promise.all([
+    getLeadSources(),
+    getLeadSourceKpis(),
+  ]);
+
+  return <SourcesClient rows={rows as Row[]} kpi={kpi} />;
 }

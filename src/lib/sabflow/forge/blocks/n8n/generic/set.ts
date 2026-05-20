@@ -7,9 +7,15 @@
  * Operations covered:
  *   - set — write a list of key/value pairs into the flow variables
  *
- * Out of scope: dot-path notation, type coercion modes, "keep only set
- * fields" filter — all deferred. SabFlow has a native Set block; this port
- * exists for muscle-memory parity with n8n flow authors.
+ * Out of scope (blocked on sabflow Phase 7 — per-item iteration):
+ *   - "Edit Fields (Set) v3 / JSON mode" — n8n's raw JSON mode rewrites every
+ *     item in the input stream; sabflow forge blocks emit a single output
+ *     object, so each item-level transform would silently collapse.
+ *   - typed values (boolean / number coercion), dot-path notation, and the
+ *     "include input fields" passthrough modes — same Phase 7 dependency.
+ *
+ * SabFlow has a native Set block; this port exists for muscle-memory parity
+ * with n8n flow authors.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {

@@ -69,13 +69,16 @@ import {
   SoActiveFilterChips,
   SoBulkBar,
   SoFiltersBar,
+  SoHeadlineKpiStrip,
   SoKpiStrip,
   SoPresetBar,
   soToCsv,
   type SoFilters,
+  type SoHeadlineKpis,
   type SoKpis,
   type SoPreset,
 } from './sales-orders-list-bits';
+import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
 
 export interface SalesOrdersListClientProps {
   orders: CrmSalesOrderDoc[];
@@ -91,6 +94,7 @@ export interface SalesOrdersListClientProps {
   initialShipFrom: string;
   initialShipTo: string;
   kpis: SoKpis;
+  headlineKpis?: SoHeadlineKpis;
   error?: string;
 }
 
@@ -127,6 +131,7 @@ export function SalesOrdersListClient({
   initialShipFrom,
   initialShipTo,
   kpis,
+  headlineKpis,
   error,
 }: SalesOrdersListClientProps) {
   const { toast } = useZoruToast();
@@ -274,6 +279,39 @@ export function SalesOrdersListClient({
     URL.revokeObjectURL(url);
   }
 
+  function bulkExportXlsx() {
+    const rows = orders.filter((o) => selected.has(String(o._id)));
+    if (rows.length === 0) return;
+    const headers = [
+      'so_no',
+      'date',
+      'expected_shipment',
+      'customer_id',
+      'po_no',
+      'quotation_ref',
+      'status',
+      'currency',
+      'total',
+    ];
+    const exportRows = rows.map((r) => ({
+      so_no: r.soNo ?? '',
+      date: r.date ?? '',
+      expected_shipment: r.expectedShipmentDate ?? '',
+      customer_id: r.clientId ?? '',
+      po_no: r.poNo ?? '',
+      quotation_ref: r.quotationRef ?? '',
+      status: r.status ?? '',
+      currency: r.currency ?? '',
+      total: r.totals?.total ?? '',
+    }));
+    void downloadXlsx(
+      `sales-orders-${dateStamp()}.xlsx`,
+      headers,
+      exportRows,
+      'Orders',
+    );
+  }
+
   function bulkConvertToDc() {
     for (const id of selected) {
       window.open(
@@ -294,6 +332,8 @@ export function SalesOrdersListClient({
 
   return (
     <div className="flex flex-col gap-4">
+      {headlineKpis ? <SoHeadlineKpiStrip kpis={headlineKpis} /> : null}
+
       <SoKpiStrip
         kpis={kpis}
         currentStatus={initialStatus}
@@ -330,6 +370,7 @@ export function SalesOrdersListClient({
           onClear={clearSelection}
           onStatus={bulkStatus}
           onExport={bulkExport}
+          onExportXlsx={bulkExportXlsx}
           onConvertToDc={bulkConvertToDc}
           onArchive={() => bulkStatus('closed')}
           onDelete={() => setPendingBulkDelete(true)}

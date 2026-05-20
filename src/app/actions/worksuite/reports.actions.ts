@@ -57,6 +57,10 @@ import type {
   PaymentMtdRow,
   PaymentMethodRow,
   PaymentReceiptRow,
+  TopClientDeepRow,
+  TopProductDeepRow,
+  LeadsBySourceRow,
+  DealsFilteredRow,
 } from '@/lib/worksuite/report-types';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
@@ -1905,6 +1909,234 @@ export async function getInvoiceAgingDeep(): Promise<{
   return { kpis, byClient, rows };
 }
 
+/* ─── Top Clients deep ───────────────────────────────────────── */
+
+export async function getTopClientsDeep(
+  limit = 100,
+  from?: string,
+  to?: string,
+  minRevenue = 0,
+  industry?: string,
+): Promise<TopClientDeepRow[]> {
+  const user = await requireSession();
+  if (!user) return [];
+  const { db } = await connectToDatabase();
+
+  const invoiceMatch: Record<string, unknown> = {
+    userId: toOid(user),
+    status: { $in: ['Paid', 'Partially Paid'] },
+  };
+  if (from || to) {
+    const { start, end } = defaultRange(from, to);
+    invoiceMatch.invoiceDate = { $gte: start, $lte: end };
+  }
+
+  const rows = await db.collection('crm_invoices').aggregate([
+    { $match: invoiceMatch },
+    {
+      $group: {
+        _id: '$accountId',
+        revenue: { $sum: { $ifNull: ['$paidAmount', '$total'] } },
+        invoices: { $sum: 1 },
+        lastOrderDate: { $max: '$invoiceDate' },
+      },
+    },
+    { $match: { revenue: { $gte: minRevenue } } },
+    { $sort: { revenue: -1 } },
+    { $limit: limit },
+  ]).toArray();
+
+  const accountIds = (rows as Array<{ _id: unknown }>)
+    .map((r) => r._id)
+    .filter(Boolean);
+
+  const accountMatch: Record<string, unknown> = {
+    userId: toOid(user),
+    _id: { $in: accountIds },
+  };
+  if (industry) accountMatch.industry = industry;
+
+  const accounts = accountIds.length
+    ? await db.collection('crm_accounts').find(accountMatch).toArray()
+    : [];
+
+  const accountMap = new Map<string, { name: string; industry: string }>();
+  for (const a of accounts as Array<{ _id: { toString(): string }; name?: string; industry?: string }>) {
+    accountMap.set(a._id.toString(), {
+      name: a.name || '—',
+      industry: a.industry || '—',
+    });
+  }
+
+  const result: TopClientDeepRow[] = [];
+  for (const r of rows as Array<{
+    _id: unknown;
+    revenue: number;
+    invoices: number;
+    lastOrderDate: Date | null;
+  }>) {
+    const id = r._id ? String(r._id) : '';
+    const acct = id ? accountMap.get(id) : undefined;
+    // If an industry filter is set, skip rows whose account wasn't in the filtered result
+    if (industry && id && !accountMap.has(id)) continue;
+    result.push({
+      clientId: id,
+      clientName: acct?.name || '—',
+      industry: acct?.industry || '—',
+      revenue: r.revenue || 0,
+      invoices: r.invoices || 0,
+      avgOrderValue: r.invoices > 0 ? (r.revenue || 0) / r.invoices : 0,
+      lastOrderDate: r.lastOrderDate
+        ? new Date(r.lastOrderDate).toISOString().slice(0, 10)
+        : '',
+    });
+  }
+
+  return result;
+}
+
+/* ─── Top Products deep ──────────────────────────────────────── */
+
+export async function getTopProductsDeep(
+  limit = 100,
+  from?: string,
+  to?: string,
+  category?: string,
+  minQuantity = 0,
+): Promise<TopProductDeepRow[]> {
+  const user = await requireSession();
+  if (!user) return [];
+  const { db } = await connectToDatabase();
+
+  const match: Record<string, unknown> = { userId: toOid(user) };
+  if (from || to) {
+    const { start, end } = defaultRange(from, to);
+    match.invoiceDate = { $gte: start, $lte: end };
+  }
+
+  const rows = await db.collection('crm_invoices').aggregate([
+    { $match: match },
+    { $unwind: { path: '$lineItems', preserveNullAndEmptyArrays: false } },
+    {
+      $group: {
+        _id: { $ifNull: ['$lineItems.name', 'Unnamed'] },
+        category: { $first: { $ifNull: ['$lineItems.category', '—'] } },
+        units: { $sum: { $ifNull: ['$lineItems.quantity', 0] } },
+        revenue: {
+          $sum: {
+            $multiply: [
+              { $ifNull: ['$lineItems.quantity', 0] },
+              { $ifNull: ['$lineItems.rate', 0] },
+            ],
+          },
+        },
+      },
+    },
+    { $match: { units: { $gte: minQuantity } } },
+    { $sort: { revenue: -1 } },
+    { $limit: limit },
+  ]).toArray();
+
+  return (rows as Array<{
+    _id: string;
+    category: string;
+    units: number;
+    revenue: number;
+  }>)
+    .filter((r) => !category || r.category === category)
+    .map((r) => ({
+      productName: r._id || 'Unnamed',
+      category: r.category || '—',
+      units: r.units || 0,
+      revenue: r.revenue || 0,
+      avgPrice: r.units > 0 ? (r.revenue || 0) / r.units : 0,
+    }));
+}
+
+/* ─── Leads by source ────────────────────────────────────────── */
+
+export async function getLeadsBySource(
+  from?: string,
+  to?: string,
+  owner?: string,
+): Promise<LeadsBySourceRow[]> {
+  const user = await requireSession();
+  if (!user) return [];
+  const { db } = await connectToDatabase();
+  const { start, end } = defaultRange(from, to);
+
+  const match: Record<string, unknown> = {
+    userId: toOid(user),
+    createdAt: { $gte: start, $lte: end },
+  };
+  if (owner) match.assignedTo = owner;
+
+  const rows = await db.collection('crm_leads').aggregate([
+    { $match: match },
+    {
+      $group: {
+        _id: { $ifNull: ['$source', 'Direct'] },
+        total: { $sum: 1 },
+        converted: {
+          $sum: { $cond: [{ $eq: ['$status', 'Converted'] }, 1, 0] },
+        },
+      },
+    },
+    { $sort: { total: -1 } },
+  ]).toArray();
+
+  return (rows as Array<{ _id: string; total: number; converted: number }>).map((r) => ({
+    source: r._id || 'Direct',
+    total: r.total || 0,
+    converted: r.converted || 0,
+    conversionRate: r.total > 0 ? (r.converted / r.total) * 100 : 0,
+  }));
+}
+
+/* ─── Deals filtered ─────────────────────────────────────────── */
+
+export async function getCrmDealsFiltered(
+  page = 1,
+  limit = 20,
+  from?: string,
+  to?: string,
+  stage?: string,
+  pipeline?: string,
+): Promise<{ rows: DealsFilteredRow[]; total: number }> {
+  const user = await requireSession();
+  if (!user) return { rows: [], total: 0 };
+  const { db } = await connectToDatabase();
+
+  const match: Record<string, unknown> = { userId: toOid(user) };
+  if (from || to) {
+    const { start, end } = defaultRange(from, to);
+    match.createdAt = { $gte: start, $lte: end };
+  }
+  if (stage) match.stage = stage;
+  if (pipeline) match.pipeline = pipeline;
+
+  const safeLimit = Math.min(Math.max(1, limit), 200);
+  const skip = Math.max(0, (page - 1) * safeLimit);
+
+  const [docs, total] = await Promise.all([
+    db.collection('crm_deals').find(match).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).toArray(),
+    db.collection('crm_deals').countDocuments(match),
+  ]);
+
+  const rows: DealsFilteredRow[] = (docs as Array<Record<string, unknown> & { _id: { toString(): string } }>).map((d) => ({
+    id: String(d._id),
+    name: String(d.name || 'Untitled deal'),
+    stage: String(d.stage || 'Unknown'),
+    value: Number(d.value || 0),
+    owner: String(d.ownerName || d.owner || '—'),
+    pipeline: String(d.pipeline || '—'),
+    accountId: d.accountId ? String(d.accountId) : undefined,
+    createdAt: d.createdAt ? new Date(d.createdAt as string | Date).toISOString() : null,
+  }));
+
+  return { rows, total };
+}
+
 /* ─── Payment Report deep ────────────────────────────────────── */
 
 export async function getPaymentReportDeep(
@@ -2099,3 +2331,373 @@ export async function getPaymentReportDeep(
   };
 }
 
+/* ─── Overdue Tasks deep ─────────────────────────────────────── */
+
+export interface OverdueTasksDeepFilters {
+  projectId?: string;
+  assigneeId?: string;
+  priority?: string;
+  minDaysOverdue?: number;
+  maxDaysOverdue?: number;
+}
+
+export interface OverdueTaskDetailRow {
+  _id: string;
+  title: string;
+  projectName: string;
+  assignedTo: string;
+  dueDate: string | null;
+  daysOverdue: number;
+  priority: string;
+  status: string;
+}
+
+export interface OverdueTasksDeepResult {
+  kpis: {
+    total: number;
+    overdueToday: number;
+    overdueThisWeek: number;
+    avgOverdueDays: number;
+  };
+  byAssignee: Array<{ assignee: string; count: number }>;
+  rows: OverdueTaskDetailRow[];
+}
+
+export async function getOverdueTasksDeep(
+  filters: OverdueTasksDeepFilters = {},
+): Promise<OverdueTasksDeepResult> {
+  const user = await requireSession();
+  const empty: OverdueTasksDeepResult = {
+    kpis: { total: 0, overdueToday: 0, overdueThisWeek: 0, avgOverdueDays: 0 },
+    byAssignee: [],
+    rows: [],
+  };
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+
+  const now = new Date();
+  const todayEnd = new Date(now);
+  todayEnd.setHours(23, 59, 59, 999);
+  const todayStart = new Date(now);
+  todayStart.setHours(0, 0, 0, 0);
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const match: Record<string, unknown> = {
+    userId: toOid(user),
+    dueDate: { $lt: todayEnd },
+    status: { $ne: 'Completed' },
+  };
+  if (filters.assigneeId && ObjectId.isValid(filters.assigneeId)) {
+    match.assignedTo = new ObjectId(filters.assigneeId);
+  }
+  if (filters.priority) match.priority = filters.priority;
+  if (filters.projectId && ObjectId.isValid(filters.projectId)) {
+    match.projectId = new ObjectId(filters.projectId);
+  }
+
+  const tasks = await db
+    .collection('crm_tasks')
+    .find(match)
+    .sort({ dueDate: 1 })
+    .limit(500)
+    .toArray();
+  const nowMs = now.getTime();
+
+  const filtered = tasks.filter((t: any) => {
+    const due = t.dueDate ? new Date(t.dueDate).getTime() : nowMs;
+    const days = Math.max(0, Math.floor((nowMs - due) / 86400000));
+    if (filters.minDaysOverdue != null && days < filters.minDaysOverdue) return false;
+    if (filters.maxDaysOverdue != null && days > filters.maxDaysOverdue) return false;
+    return true;
+  });
+
+  const assigneeIdSet = new Set<string>();
+  const projectIdSet = new Set<string>();
+  for (const t of filtered as any[]) {
+    if (t.assignedTo) assigneeIdSet.add(t.assignedTo.toString());
+    if (t.projectId) projectIdSet.add(t.projectId.toString());
+  }
+
+  const [employees, projects] = await Promise.all([
+    assigneeIdSet.size > 0
+      ? db
+          .collection('crm_employees')
+          .find({
+            userId: toOid(user),
+            _id: {
+              $in: Array.from(assigneeIdSet)
+                .filter(ObjectId.isValid)
+                .map((id) => new ObjectId(id)),
+            },
+          })
+          .project({ firstName: 1, lastName: 1, email: 1 })
+          .toArray()
+      : Promise.resolve([]),
+    projectIdSet.size > 0
+      ? db
+          .collection('crm_projects')
+          .find({
+            userId: toOid(user),
+            _id: {
+              $in: Array.from(projectIdSet)
+                .filter(ObjectId.isValid)
+                .map((id) => new ObjectId(id)),
+            },
+          })
+          .project({ title: 1, name: 1 })
+          .toArray()
+      : Promise.resolve([]),
+  ]);
+
+  const empName = new Map<string, string>();
+  for (const e of employees as any[]) {
+    empName.set(
+      e._id.toString(),
+      `${e.firstName || ''} ${e.lastName || ''}`.trim() || e.email || 'Unknown',
+    );
+  }
+  const projName = new Map<string, string>();
+  for (const p of projects as any[]) {
+    projName.set(p._id.toString(), String(p.title || p.name || 'Unknown'));
+  }
+
+  let daysSum = 0;
+  let overdueToday = 0;
+  let overdueThisWeek = 0;
+  const byAssigneeMap = new Map<string, number>();
+  const rows: OverdueTaskDetailRow[] = [];
+
+  for (const t of filtered as any[]) {
+    const due = t.dueDate ? new Date(t.dueDate) : null;
+    const dueMs = due ? due.getTime() : nowMs;
+    const days = Math.max(0, Math.floor((nowMs - dueMs) / 86400000));
+    daysSum += days;
+
+    if (due && due >= todayStart && due <= todayEnd) overdueToday += 1;
+    if (due && due >= weekAgo) overdueThisWeek += 1;
+
+    const assigneeIdStr = t.assignedTo ? t.assignedTo.toString() : '';
+    const assigneeName = assigneeIdStr
+      ? (empName.get(assigneeIdStr) || 'Unknown')
+      : 'Unassigned';
+    byAssigneeMap.set(assigneeName, (byAssigneeMap.get(assigneeName) || 0) + 1);
+
+    rows.push({
+      _id: t._id.toString(),
+      title: String(t.title || '(untitled)'),
+      projectName: t.projectId ? (projName.get(t.projectId.toString()) || '—') : '—',
+      assignedTo: assigneeName,
+      dueDate: due ? due.toISOString() : null,
+      daysOverdue: days,
+      priority: String(t.priority || 'Medium'),
+      status: String(t.status || 'To-Do'),
+    });
+  }
+
+  const byAssignee = Array.from(byAssigneeMap.entries())
+    .map(([assignee, count]) => ({ assignee, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  return {
+    kpis: {
+      total: filtered.length,
+      overdueToday,
+      overdueThisWeek,
+      avgOverdueDays:
+        filtered.length > 0 ? Math.round(daysSum / filtered.length) : 0,
+    },
+    byAssignee,
+    rows,
+  };
+}
+
+/* ─── Task Report deep (with table rows) ────────────────────── */
+
+export interface TaskDetailFilters {
+  projectId?: string;
+  assigneeId?: string;
+  status?: string;
+  priority?: string;
+  from?: string;
+  to?: string;
+}
+
+export interface TaskDetailRow {
+  _id: string;
+  title: string;
+  projectName: string;
+  assignedTo: string;
+  status: string;
+  priority: string;
+  createdAt: string;
+  dueDate: string | null;
+  completedAt: string | null;
+}
+
+export interface TaskReportDeepResult {
+  kpis: {
+    total: number;
+    completed: number;
+    inProgress: number;
+    overdue: number;
+    completionRatePct: number;
+  };
+  weeklyCompleted: Array<{ week: string; count: number }>;
+  rows: TaskDetailRow[];
+}
+
+export async function getTaskReportDeep(
+  filters: TaskDetailFilters = {},
+): Promise<TaskReportDeepResult> {
+  const user = await requireSession();
+  const empty: TaskReportDeepResult = {
+    kpis: { total: 0, completed: 0, inProgress: 0, overdue: 0, completionRatePct: 0 },
+    weeklyCompleted: [],
+    rows: [],
+  };
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+
+  const match: Record<string, unknown> = { userId: toOid(user) };
+  if (filters.status) match.status = filters.status;
+  if (filters.priority) match.priority = filters.priority;
+  if (filters.assigneeId && ObjectId.isValid(filters.assigneeId)) {
+    match.assignedTo = new ObjectId(filters.assigneeId);
+  }
+  if (filters.projectId && ObjectId.isValid(filters.projectId)) {
+    match.projectId = new ObjectId(filters.projectId);
+  }
+  if (filters.from || filters.to) {
+    const range: Record<string, Date> = {};
+    if (filters.from) range.$gte = new Date(filters.from);
+    if (filters.to) range.$lte = new Date(filters.to);
+    match.createdAt = range;
+  }
+
+  const completedMatch = { ...match, status: 'Completed' };
+
+  const [tasks, weeklyAgg] = await Promise.all([
+    db.collection('crm_tasks').find(match).sort({ createdAt: -1 }).limit(500).toArray(),
+    db
+      .collection('crm_tasks')
+      .aggregate([
+        { $match: completedMatch },
+        {
+          $group: {
+            _id: {
+              $dateToString: {
+                format: '%G-W%V',
+                date: { $ifNull: ['$updatedAt', '$createdAt'] },
+              },
+            },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { _id: 1 } },
+        { $limit: 26 },
+      ])
+      .toArray(),
+  ]);
+
+  const nowMs = Date.now();
+
+  const assigneeIdSet = new Set<string>();
+  const projectIdSet = new Set<string>();
+  for (const t of tasks as any[]) {
+    if (t.assignedTo) assigneeIdSet.add(t.assignedTo.toString());
+    if (t.projectId) projectIdSet.add(t.projectId.toString());
+  }
+
+  const [employees, projects] = await Promise.all([
+    assigneeIdSet.size > 0
+      ? db
+          .collection('crm_employees')
+          .find({
+            userId: toOid(user),
+            _id: {
+              $in: Array.from(assigneeIdSet)
+                .filter(ObjectId.isValid)
+                .map((id) => new ObjectId(id)),
+            },
+          })
+          .project({ firstName: 1, lastName: 1, email: 1 })
+          .toArray()
+      : Promise.resolve([]),
+    projectIdSet.size > 0
+      ? db
+          .collection('crm_projects')
+          .find({
+            userId: toOid(user),
+            _id: {
+              $in: Array.from(projectIdSet)
+                .filter(ObjectId.isValid)
+                .map((id) => new ObjectId(id)),
+            },
+          })
+          .project({ title: 1, name: 1 })
+          .toArray()
+      : Promise.resolve([]),
+  ]);
+
+  const empName = new Map<string, string>();
+  for (const e of employees as any[]) {
+    empName.set(
+      e._id.toString(),
+      `${e.firstName || ''} ${e.lastName || ''}`.trim() || e.email || 'Unknown',
+    );
+  }
+  const projName = new Map<string, string>();
+  for (const p of projects as any[]) {
+    projName.set(p._id.toString(), String(p.title || p.name || 'Unknown'));
+  }
+
+  let completed = 0;
+  let inProgress = 0;
+  let overdue = 0;
+  const rows: TaskDetailRow[] = [];
+
+  for (const t of tasks as any[]) {
+    const status = String(t.status || 'To-Do');
+    if (status === 'Completed') completed += 1;
+    else if (status === 'In Progress') inProgress += 1;
+
+    const due = t.dueDate ? new Date(t.dueDate) : null;
+    if (due && due.getTime() < nowMs && status !== 'Completed') overdue += 1;
+
+    const assigneeIdStr = t.assignedTo ? t.assignedTo.toString() : '';
+    const assigneeName = assigneeIdStr ? (empName.get(assigneeIdStr) || 'Unknown') : '—';
+    const pName = t.projectId ? (projName.get(t.projectId.toString()) || '—') : '—';
+
+    rows.push({
+      _id: t._id.toString(),
+      title: String(t.title || '(untitled)'),
+      projectName: pName,
+      assignedTo: assigneeName,
+      status,
+      priority: String(t.priority || 'Medium'),
+      createdAt: t.createdAt ? new Date(t.createdAt).toISOString() : '',
+      dueDate: due ? due.toISOString() : null,
+      completedAt: t.completedAt ? new Date(t.completedAt).toISOString() : null,
+    });
+  }
+
+  const total = tasks.length;
+
+  return {
+    kpis: {
+      total,
+      completed,
+      inProgress,
+      overdue,
+      completionRatePct:
+        total > 0 ? Math.round((completed / total) * 1000) / 10 : 0,
+    },
+    weeklyCompleted: (weeklyAgg as any[]).map((r) => ({
+      week: String(r._id || ''),
+      count: Number(r.count || 0),
+    })),
+    rows,
+  };
+}

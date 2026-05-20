@@ -6,12 +6,17 @@
  *
  * Operations covered:
  *   - user.upsert
+ *   - user.get        (by email or userId)
+ *   - user.delete     (by email or userId)
  *   - event.track
  *   - campaign.list
+ *   - userList.subscribe
+ *   - userList.unsubscribe
  *
  * Out of scope (deferred):
- *   - region selection (we use `https://api.iterable.com`; EU is `.eu.iterable.com`)
- *   - user-list subscribe/unsubscribe (use the dedicated endpoints when needed)
+ *   - region selection: we use `https://api.iterable.com`; EU tenants need
+ *     `.eu.iterable.com`. Folding this into the credential shape would
+ *     require a credential-type bump, which is a separate batch concern.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -91,6 +96,69 @@ async function eventTrack(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   return { outputs: { result: data }, logs: [`Iterable event track → ${eventName}`] };
 }
 
+async function userGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const email = asString(ctx.options.email);
+  const userId = asString(ctx.options.userId);
+  if (!email && !userId) {
+    throw new Error('Iterable: email or userId is required');
+  }
+  // n8n uses GET /users/getByEmail?email= for email lookups and the path-style
+  // /users/byUserId/{id} for userId lookups — mirror both precisely.
+  let path: string;
+  if (email) {
+    path = `/users/getByEmail?email=${encodeURIComponent(email)}`;
+  } else {
+    path = `/users/byUserId/${encodeURIComponent(userId)}`;
+  }
+  const data = await call(ctx, 'GET', path);
+  return { outputs: { user: (data as { user?: unknown })?.user ?? data }, logs: [`Iterable user get → ${email || userId}`] };
+}
+
+async function userDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const email = asString(ctx.options.email);
+  const userId = asString(ctx.options.userId);
+  if (!email && !userId) {
+    throw new Error('Iterable: email or userId is required');
+  }
+  const path = email
+    ? `/users/${encodeURIComponent(email)}`
+    : `/users/byUserId/${encodeURIComponent(userId)}`;
+  const data = await call(ctx, 'DELETE', path);
+  return { outputs: { result: data }, logs: [`Iterable user delete → ${email || userId}`] };
+}
+
+async function userListSubscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  const email = asString(ctx.options.email);
+  const userId = asString(ctx.options.userId);
+  if (!listId) throw new Error('Iterable: listId is required');
+  if (!email && !userId) throw new Error('Iterable: email or userId is required');
+  // Iterable expects `listId` as an integer; matches n8n's `parseInt(listId, 10)`.
+  const subscriber = email ? { email } : { userId };
+  const data = await call(ctx, 'POST', '/lists/subscribe', {
+    listId: parseInt(listId, 10),
+    subscribers: [subscriber],
+  });
+  return { outputs: { result: data }, logs: [`Iterable list subscribe → ${listId}`] };
+}
+
+async function userListUnsubscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const listId = asString(ctx.options.listId);
+  const email = asString(ctx.options.email);
+  const userId = asString(ctx.options.userId);
+  const campaignId = asString(ctx.options.campaignId);
+  if (!listId) throw new Error('Iterable: listId is required');
+  if (!email && !userId) throw new Error('Iterable: email or userId is required');
+  const subscriber = email ? { email } : { userId };
+  const body: Record<string, unknown> = {
+    listId: parseInt(listId, 10),
+    subscribers: [subscriber],
+  };
+  if (campaignId) body.campaignId = parseInt(campaignId, 10);
+  const data = await call(ctx, 'POST', '/lists/unsubscribe', body);
+  return { outputs: { result: data }, logs: [`Iterable list unsubscribe → ${listId}`] };
+}
+
 async function campaignList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const data = await call(ctx, 'GET', '/campaigns');
   return { outputs: { result: data }, logs: ['Iterable campaign list'] };
@@ -121,6 +189,26 @@ const block: ForgeBlock = {
       run: userUpsert,
     },
     {
+      id: 'user_get',
+      label: 'Get user',
+      description: 'Fetch a user by email or userId.',
+      fields: [
+        { id: 'email', label: 'Email', type: 'text' },
+        { id: 'userId', label: 'User ID', type: 'text' },
+      ],
+      run: userGet,
+    },
+    {
+      id: 'user_delete',
+      label: 'Delete user',
+      description: 'Delete a user by email or userId.',
+      fields: [
+        { id: 'email', label: 'Email', type: 'text' },
+        { id: 'userId', label: 'User ID', type: 'text' },
+      ],
+      run: userDelete,
+    },
+    {
       id: 'event_track',
       label: 'Track event',
       description: 'Record a custom event for a user.',
@@ -138,6 +226,29 @@ const block: ForgeBlock = {
       description: 'List campaigns in the Iterable workspace.',
       fields: [],
       run: campaignList,
+    },
+    {
+      id: 'user_list_subscribe',
+      label: 'Subscribe to list',
+      description: 'Add a user (email or userId) to an Iterable list.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text' },
+        { id: 'userId', label: 'User ID', type: 'text' },
+      ],
+      run: userListSubscribe,
+    },
+    {
+      id: 'user_list_unsubscribe',
+      label: 'Unsubscribe from list',
+      description: 'Remove a user (email or userId) from an Iterable list.',
+      fields: [
+        { id: 'listId', label: 'List ID', type: 'text', required: true },
+        { id: 'email', label: 'Email', type: 'text' },
+        { id: 'userId', label: 'User ID', type: 'text' },
+        { id: 'campaignId', label: 'Campaign ID', type: 'text' },
+      ],
+      run: userListUnsubscribe,
     },
   ],
 };

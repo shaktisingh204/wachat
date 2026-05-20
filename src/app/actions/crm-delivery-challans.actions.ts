@@ -271,6 +271,91 @@ export async function saveDeliveryChallan(prevState: any, formData: FormData): P
 }
 
 /**
+ * KPI snapshot for the delivery list page. Multi-tenant: only counts
+ * challans owned by the calling session's user.
+ */
+export interface DeliveryChallanKpis {
+    totalChallans: number;
+    inTransit: number;
+    deliveredToday: number;
+    returned: number;
+}
+
+export async function getDeliveryChallanKpis(): Promise<DeliveryChallanKpis> {
+    const empty: DeliveryChallanKpis = {
+        totalChallans: 0,
+        inTransit: 0,
+        deliveredToday: 0,
+        returned: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const dayStart = new Date();
+        dayStart.setHours(0, 0, 0, 0);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setDate(dayEnd.getDate() + 1);
+        const [totalChallans, inTransit, deliveredToday, returned] =
+            await Promise.all([
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                }),
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                    status: 'In Transit',
+                }),
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                    status: 'Delivered',
+                    challanDate: { $gte: dayStart, $lt: dayEnd },
+                }),
+                db.collection('crm_delivery_challans').countDocuments({
+                    userId: userObjectId,
+                    status: 'Returned',
+                }),
+            ]);
+        return { totalChallans, inTransit, deliveredToday, returned };
+    } catch (e) {
+        console.error('[getDeliveryChallanKpis] failed:', e);
+        return empty;
+    }
+}
+
+/**
+ * Update the workflow status of a delivery challan. Tenant-scoped.
+ * Used by the list-page bulk-status select.
+ */
+export async function setDeliveryChallanStatus(
+    challanId: string,
+    status: 'Draft' | 'In Transit' | 'Delivered' | 'Returned',
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    if (!ObjectId.isValid(challanId)) {
+        return { success: false, error: 'Invalid challan id.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const res = await db.collection('crm_delivery_challans').updateOne(
+            {
+                _id: new ObjectId(challanId),
+                userId: new ObjectId(session.user._id),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        if (res.matchedCount === 0) {
+            return { success: false, error: 'Challan not found.' };
+        }
+        revalidatePath('/dashboard/crm/sales/delivery');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+/**
  * Hard-delete a delivery challan. Used by the §1D list-page row actions
  * and bulk-delete dialog. Tenant-scoped: only deletes when the
  * `userId` matches the session.

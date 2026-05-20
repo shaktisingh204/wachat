@@ -1,55 +1,49 @@
-'use client';
+/**
+ * /dashboard/crm/files/folders
+ *
+ * Server component — fetches folder tree, root files, and stats, then
+ * hands off to the interactive <FoldersBrowserClient>.
+ *
+ * Features:
+ *  - KPI strip: total folders, total files, storage used, added this month
+ *  - Collapsible folder tree (left panel)
+ *  - File list with Name, Type, Size, Owner, Uploaded at, Actions
+ *  - Breadcrumb navigation
+ *  - Upload via <SabFilePickerButton> (never a free-text URL)
+ *  - Create folder action
+ *  - Bulk delete files/folders
+ *  - Filter by file type and date range
+ *  - Export CSV
+ */
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
-
-import { FolderTree } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  getFileFolders,
-  saveFileFolder,
-  deleteFileFolder,
+  getFolderTree,
+  getFiles,
+  getFileBrowserStats,
 } from '@/app/actions/worksuite/files.actions';
-import type { WsFileFolder } from '@/lib/worksuite/file-types';
+import type { WsFileStorage } from '@/lib/worksuite/file-types';
+import { FoldersBrowserClient } from './_components/folders-browser-client';
 
-export default function FileFoldersPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function FileFoldersPage() {
+  const [folderTree, rootFiles, stats] = await Promise.all([
+    getFolderTree(),
+    getFiles(null),
+    getFileBrowserStats(),
+  ]);
+
   return (
-    <HrEntityPage<WsFileFolder & { _id: string }>
-      title="File Folders"
-      subtitle="Organize files into a nested folder tree."
-      icon={FolderTree}
-      singular="Folder"
-      getAllAction={getFileFolders as any}
-      saveAction={saveFileFolder}
-      deleteAction={deleteFileFolder}
-      columns={[
-        { key: 'name', label: 'Folder' },
-        {
-          key: 'parent_folder_id',
-          label: 'Parent',
-          render: (row) => row.parent_folder_id || '—',
-        },
-        {
-          key: 'description',
-          label: 'Description',
-          render: (row) => row.description || '—',
-        },
-      ]}
-      fields={[
-        { name: 'name', label: 'Folder Name', required: true, fullWidth: true },
-        {
-          name: 'parent_folder_id',
-          label: 'Parent Folder ID',
-          placeholder: 'Leave blank for root',
-          help: 'Paste an existing folder id to nest this folder underneath it.',
-        },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
-      ]}
-    />
+    <EntityListShell
+      title="Files &amp; Folders"
+      subtitle="Organize and browse all CRM files. Upload via the library — no external URLs."
+    >
+      <FoldersBrowserClient
+        folderTree={folderTree}
+        initialFiles={rootFiles as WsFileStorage[]}
+        stats={stats}
+      />
+    </EntityListShell>
   );
 }

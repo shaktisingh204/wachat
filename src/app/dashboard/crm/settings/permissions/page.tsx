@@ -12,6 +12,7 @@ import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -20,6 +21,12 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -34,20 +41,40 @@ import {
   Pencil,
   Trash2,
   LoaderCircle,
-  } from 'lucide-react';
-import { useActionState,
+  KeyRound,
+  Users,
+  Crown,
+  Clock,
+  Download,
+  X,
+  FileSpreadsheet,
+} from 'lucide-react';
+import {
+  useActionState,
   useEffect,
+  useMemo,
   useState,
-  useTransition } from 'react';
+  useTransition,
+} from 'react';
 
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { RowDrawer } from '@/components/crm/row-drawer';
+import {
+  downloadCsv,
+  downloadXlsx,
+  dateStamp,
+  type ExportRow,
+} from '@/lib/crm-list-export';
 import {
   getPermissionsGroupedByModule,
+  getPermissionKpis,
   getModules,
   savePermission,
   deletePermission,
+  type PermissionKpis,
 } from '@/app/actions/worksuite/rbac.actions';
 import type {
   WsPermission,
@@ -57,28 +84,62 @@ import type {
 type PermRow = WsPermission & { _id: string };
 type ModRow = WsModule & { _id: string };
 type Group = { module: ModRow | null; permissions: PermRow[] };
+type FilterKind = 'all' | 'custom' | 'builtin';
+
+const EMPTY_KPIS: PermissionKpis = {
+  total: 0,
+  granted_role_count: 0,
+  top_role: null,
+  last_updated_at: null,
+};
+
+function formatRelative(iso: string | null): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  const diff = Date.now() - d.getTime();
+  const day = 24 * 60 * 60 * 1000;
+  if (diff < day) return 'today';
+  if (diff < 2 * day) return 'yesterday';
+  const days = Math.floor(diff / day);
+  if (days < 30) return `${days}d ago`;
+  return d.toISOString().slice(0, 10);
+}
 
 export default function PermissionsPage() {
   const { toast } = useZoruToast();
   const [groups, setGroups] = useState<Group[]>([]);
   const [modules, setModules] = useState<ModRow[]>([]);
+  const [kpis, setKpis] = useState<PermissionKpis>(EMPTY_KPIS);
   const [isLoading, startLoading] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<PermRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  const [search, setSearch] = useState('');
+  const [moduleFilter, setModuleFilter] = useState<string>('all');
+  const [kindFilter, setKindFilter] = useState<FilterKind>('all');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
   const [saveState, saveAction, isSaving] = useActionState(savePermission, {
     message: '',
     error: '',
-  } as any);
+  } as { message?: string; error?: string });
 
   const refresh = React.useCallback(() => {
     startLoading(async () => {
-      const [g, m] = await Promise.all([
+      const [g, m, k] = await Promise.all([
         getPermissionsGroupedByModule(),
         getModules(),
+        getPermissionKpis(),
       ]);
       setGroups((g as Group[]) || []);
       setModules((m as ModRow[]) || []);
+      setKpis((k as PermissionKpis) || EMPTY_KPIS);
     });
   }, []);
 
@@ -102,12 +163,60 @@ export default function PermissionsPage() {
     }
   }, [saveState, toast, refresh]);
 
+  const flatRows = useMemo(() => {
+    const out: Array<PermRow & { module_name: string }> = [];
+    for (const g of groups) {
+      const mName =
+        g.module?.display_name || g.module?.module_name || 'Uncategorised';
+      for (const p of g.permissions) {
+        out.push({ ...p, module_name: mName });
+      }
+    }
+    return out;
+  }, [groups]);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return flatRows.filter((r) => {
+      if (q) {
+        const hay = `${r.display_name || ''} ${r.name || ''} ${
+          r.description || ''
+        } ${r.module_name}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      if (moduleFilter !== 'all') {
+        if (moduleFilter === '__none' && r.module_id) return false;
+        if (
+          moduleFilter !== '__none' &&
+          String(r.module_id ?? '') !== moduleFilter
+        )
+          return false;
+      }
+      if (kindFilter === 'custom' && !r.is_custom) return false;
+      if (kindFilter === 'builtin' && r.is_custom) return false;
+      return true;
+    });
+  }, [flatRows, search, moduleFilter, kindFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const pageRows = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const hasMore = page < totalPages;
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
   const handleDelete = async () => {
     if (!deletingId) return;
     const res = await deletePermission(deletingId);
     if (res.success) {
       toast({ title: 'Deleted', description: 'Permission removed.' });
       setDeletingId(null);
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(deletingId);
+        return next;
+      });
       refresh();
     } else {
       toast({
@@ -118,10 +227,78 @@ export default function PermissionsPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    const ids = Array.from(selected);
+    if (!ids.length) return;
+    setBulkDeleting(true);
+    let ok = 0;
+    let failed = 0;
+    for (const id of ids) {
+      try {
+        const r = await deletePermission(id);
+        if (r.success) ok += 1;
+        else failed += 1;
+      } catch {
+        failed += 1;
+      }
+    }
+    setBulkDeleting(false);
+    setSelected(new Set());
+    setBulkDeleteOpen(false);
+    toast({
+      title: 'Bulk delete',
+      description: `${ok} removed${failed ? `, ${failed} failed` : ''}.`,
+      variant: failed ? 'destructive' : undefined,
+    });
+    refresh();
+  };
+
+  const exportRowsFor = (rows: typeof filtered): ExportRow[] =>
+    rows.map((r) => ({
+      Name: r.display_name || r.name,
+      Slug: r.name,
+      Module: r.module_name,
+      Custom: r.is_custom ? 'Yes' : 'No',
+      Description: r.description || '',
+    }));
+
+  const doExport = (format: 'csv' | 'xlsx') => {
+    const subset = selected.size
+      ? filtered.filter((r) => selected.has(r._id))
+      : filtered;
+    const headers = ['Name', 'Slug', 'Module', 'Custom', 'Description'];
+    const filename = `permissions-${dateStamp()}.${format}`;
+    if (format === 'csv') downloadCsv(filename, headers, exportRowsFor(subset));
+    else void downloadXlsx(filename, headers, exportRowsFor(subset), 'Permissions');
+  };
+
+  const toggleAllOnPage = () => {
+    setSelected((prev) => {
+      const ids = pageRows.map((r) => r._id);
+      const allSelected = ids.every((id) => prev.has(id));
+      const next = new Set(prev);
+      if (allSelected) ids.forEach((id) => next.delete(id));
+      else ids.forEach((id) => next.add(id));
+      return next;
+    });
+  };
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const allOnPageSelected =
+    pageRows.length > 0 && pageRows.every((r) => selected.has(r._id));
+
   return (
     <EntityListShell
       title="Permissions"
-      subtitle="Grouped by module. Create granular permissions to reference from roles."
+      subtitle="Granular access keys grouped by module. Assign to roles to grant capability."
       primaryAction={
         <ZoruButton
           onClick={() => {
@@ -133,108 +310,288 @@ export default function PermissionsPage() {
           Add Permission
         </ZoruButton>
       }
+      search={{
+        value: search,
+        onChange: setSearch,
+        placeholder: 'Search permissions…',
+      }}
+      filters={
+        <>
+          <div className="flex items-center gap-2">
+            <ZoruLabel className="text-[12px] text-zoru-ink-muted">
+              Module
+            </ZoruLabel>
+            <ZoruSelect
+              value={moduleFilter}
+              onValueChange={(v) => {
+                setModuleFilter(v);
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-8 w-[180px] text-[12px]">
+                <ZoruSelectValue />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All modules</ZoruSelectItem>
+                <ZoruSelectItem value="__none">Uncategorised</ZoruSelectItem>
+                {modules.map((m) => (
+                  <ZoruSelectItem key={m._id} value={m._id}>
+                    {m.display_name || m.module_name}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+          </div>
+          {(['all', 'custom', 'builtin'] as FilterKind[]).map((k) => (
+            <ZoruButton
+              key={k}
+              variant={kindFilter === k ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => {
+                setKindFilter(k);
+                setPage(1);
+              }}
+            >
+              {k === 'all' ? 'All' : k === 'custom' ? 'Custom' : 'Built-in'}
+            </ZoruButton>
+          ))}
+        </>
+      }
+      bulkBar={
+        selected.size > 0 ? (
+          <div className="flex flex-wrap items-center gap-2 text-[13px]">
+            <span className="font-medium text-zoru-ink">
+              {selected.size} selected
+            </span>
+            <span className="text-zoru-ink-muted">·</span>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              disabled={bulkDeleting}
+              onClick={() => setBulkDeleteOpen(true)}
+            >
+              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+              Delete
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('csv')}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => doExport('xlsx')}
+            >
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Export XLSX
+            </ZoruButton>
+            <span className="ml-auto" />
+            <ZoruButton
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelected(new Set())}
+            >
+              <X className="h-3.5 w-3.5" />
+              Clear
+            </ZoruButton>
+          </div>
+        ) : null
+      }
+      loading={isLoading && groups.length === 0}
     >
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
+          <ZoruStatCard
+            label="Total permissions"
+            value={kpis.total}
+            icon={<KeyRound className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Granted to roles"
+            value={kpis.granted_role_count}
+            icon={<Users className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Top role"
+            value={kpis.top_role ? kpis.top_role.name : '—'}
+            period={
+              kpis.top_role
+                ? `${kpis.top_role.count} grants`
+                : 'no grants yet'
+            }
+            icon={<Crown className="h-4 w-4" />}
+          />
+          <ZoruStatCard
+            label="Last updated"
+            value={formatRelative(kpis.last_updated_at)}
+            icon={<Clock className="h-4 w-4" />}
+          />
+        </div>
 
-      {isLoading && groups.length === 0 ? (
-        <ZoruCard className="p-6">
-          <div className="flex h-40 items-center justify-center">
-            <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
-          </div>
-        </ZoruCard>
-      ) : groups.length === 0 ? (
-        <ZoruCard className="p-6">
-          <div className="p-8 text-center text-[13px] text-zoru-ink-muted">
-            No permissions yet.
-          </div>
-        </ZoruCard>
-      ) : (
-        groups.map((g, gi) => (
-          <ZoruCard key={g.module?._id || `orphan-${gi}`} className="p-0">
-            <div className="flex items-center justify-between border-b border-zoru-line p-4">
-              <div>
-                <h2 className="text-[15px] text-zoru-ink">
-                  {g.module?.display_name ||
-                    g.module?.module_name ||
-                    'Uncategorised'}
-                </h2>
-                <p className="text-[12px] text-zoru-ink-muted">
-                  {g.permissions.length} permission(s)
-                </p>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <ZoruTable>
-                <ZoruTableHeader>
-                  <ZoruTableRow className="hover:bg-transparent">
-                    <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Slug</ZoruTableHead>
-                    <ZoruTableHead className="text-zoru-ink-muted">Custom</ZoruTableHead>
-                    <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
-                      Actions
-                    </ZoruTableHead>
+        <ZoruCard className="p-0">
+          <div className="overflow-x-auto">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="hover:bg-transparent">
+                  <ZoruTableHead className="w-[40px]">
+                    <ZoruCheckbox
+                      checked={allOnPageSelected}
+                      onCheckedChange={toggleAllOnPage}
+                      aria-label="Select all on page"
+                    />
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Name
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Slug
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Module
+                  </ZoruTableHead>
+                  <ZoruTableHead className="text-zoru-ink-muted">
+                    Type
+                  </ZoruTableHead>
+                  <ZoruTableHead className="w-[140px] text-right text-zoru-ink-muted">
+                    Actions
+                  </ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && flatRows.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={6}
+                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      <LoaderCircle className="mx-auto h-4 w-4 animate-spin" />
+                    </ZoruTableCell>
                   </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
-                  {g.permissions.length === 0 ? (
-                    <ZoruTableRow>
-                      <ZoruTableCell
-                        colSpan={4}
-                        className="h-14 text-center text-[13px] text-zoru-ink-muted"
-                      >
-                        No permissions.
+                ) : pageRows.length === 0 ? (
+                  <ZoruTableRow>
+                    <ZoruTableCell
+                      colSpan={6}
+                      className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      No permissions match the current filters.
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  pageRows.map((p) => (
+                    <ZoruTableRow key={p._id}>
+                      <ZoruTableCell>
+                        <ZoruCheckbox
+                          checked={selected.has(p._id)}
+                          onCheckedChange={() => toggleOne(p._id)}
+                          aria-label={`Select ${p.name}`}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[13px] text-zoru-ink">
+                        <RowDrawer
+                          label={p.display_name || p.name}
+                          subtitle={p.description || undefined}
+                          title={`Permission · ${p.display_name || p.name}`}
+                          description="Inline detail. Use Edit to modify fields."
+                        >
+                          <div className="space-y-3 text-sm">
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Slug
+                              </div>
+                              <div className="font-mono">{p.name}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Module
+                              </div>
+                              <div>{p.module_name}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Description
+                              </div>
+                              <div>{p.description || '—'}</div>
+                            </div>
+                            <div>
+                              <div className="text-muted-foreground text-xs">
+                                Kind
+                              </div>
+                              <div>{p.is_custom ? 'Custom' : 'Built-in'}</div>
+                            </div>
+                            <div className="pt-2">
+                              <ZoruButton
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  setEditing(p);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                                Edit
+                              </ZoruButton>
+                            </div>
+                          </div>
+                        </RowDrawer>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        <code>{p.name}</code>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
+                        {p.module_name}
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <ZoruBadge variant={p.is_custom ? 'success' : 'ghost'}>
+                          {p.is_custom ? 'Custom' : 'Built-in'}
+                        </ZoruBadge>
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditing(p);
+                              setDialogOpen(true);
+                            }}
+                            aria-label="Edit"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingId(p._id)}
+                            aria-label="Delete"
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
+                          </ZoruButton>
+                        </div>
                       </ZoruTableCell>
                     </ZoruTableRow>
-                  ) : (
-                    g.permissions.map((p) => (
-                      <ZoruTableRow key={p._id}>
-                        <ZoruTableCell className="text-[13px] text-zoru-ink">
-                          {p.display_name || p.name}
-                          {p.description ? (
-                            <div className="text-[12px] text-zoru-ink-muted">
-                              {p.description}
-                            </div>
-                          ) : null}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12px] text-zoru-ink-muted">
-                          <code>{p.name}</code>
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <ZoruBadge variant={p.is_custom ? 'success' : 'ghost'}>
-                            {p.is_custom ? 'Custom' : 'Built-in'}
-                          </ZoruBadge>
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right">
-                          <div className="flex justify-end gap-1">
-                            <ZoruButton
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                setEditing(p);
-                                setDialogOpen(true);
-                              }}
-                              aria-label="Edit"
-                            >
-                              <Pencil className="h-3.5 w-3.5" />
-                            </ZoruButton>
-                            <ZoruButton
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setDeletingId(p._id)}
-                              aria-label="Delete"
-                            >
-                              <Trash2 className="h-3.5 w-3.5 text-zoru-danger-ink" />
-                            </ZoruButton>
-                          </div>
-                        </ZoruTableCell>
-                      </ZoruTableRow>
-                    ))
-                  )}
-                </ZoruTableBody>
-              </ZoruTable>
-            </div>
-          </ZoruCard>
-        ))
-      )}
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+          <PaginationBar
+            page={page}
+            limit={pageSize}
+            hasMore={hasMore}
+            total={filtered.length}
+            controlled={{
+              onChange: ({ page: p, limit: l }) => {
+                setPage(p);
+                setPageSize(l);
+              },
+            }}
+          />
+        </ZoruCard>
+      </div>
 
       <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-lg">
@@ -343,7 +700,29 @@ export default function PermissionsPage() {
           </ZoruAlertDialogHeader>
           <ZoruAlertDialogFooter>
             <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-            <ZoruAlertDialogAction onClick={handleDelete}>Delete</ZoruAlertDialogAction>
+            <ZoruAlertDialogAction onClick={handleDelete}>
+              Delete
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
+      <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Delete {selected.size} permission(s)?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              All role and user grants for the selected permissions will be
+              removed. This cannot be undone.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction onClick={handleBulkDelete}>
+              {bulkDeleting ? 'Deleting…' : 'Delete'}
+            </ZoruAlertDialogAction>
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>

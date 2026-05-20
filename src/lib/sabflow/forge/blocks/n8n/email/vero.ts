@@ -7,13 +7,16 @@
  * Auth: every endpoint accepts the auth token as a body field `auth_token`.
  *
  * Operations covered:
- *   - user.identify    POST /api/v2/users/track       (create or update a user)
- *   - event.track      POST /api/v2/events/track
- *   - user.unsubscribe POST /api/v2/users/unsubscribe
+ *   - user.identify     POST /api/v2/users/track       (create or update a user)
+ *   - user.alias        PUT  /api/v2/users/reidentify
+ *   - user.unsubscribe  POST /api/v2/users/unsubscribe
+ *   - user.resubscribe  POST /api/v2/users/resubscribe
+ *   - user.delete       POST /api/v2/users/delete
+ *   - user.add_tags     PUT  /api/v2/users/tags/edit  (body.add)
+ *   - user.remove_tags  PUT  /api/v2/users/tags/edit  (body.remove)
+ *   - event.track       POST /api/v2/events/track
  *
- * Out of scope for the first port:
- *   - User alias (reidentify), addTags/removeTags
- *   - Resubscribe / delete user — easy follow-up clones of unsubscribe
+ * Out of scope: nothing — every n8n Vero operation is covered.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -88,17 +91,85 @@ async function eventTrack(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   return { outputs: { result: res.data, success: true }, logs: [`Vero event → ${eventName}`] };
 }
 
-async function userUnsubscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+// Three Vero "lifecycle" endpoints (/users/unsubscribe, /users/resubscribe,
+// /users/delete) share the same body shape, so the executor is factored once
+// and the public actions just pick the path.
+async function userLifecycle(
+  ctx: ForgeActionContext,
+  path: 'unsubscribe' | 'resubscribe' | 'delete',
+): Promise<ForgeActionResult> {
   const auth_token = getAuthToken(ctx);
   const id = asString(ctx.options.id);
   if (!id) throw new Error('Vero: id is required');
   const res = await apiRequest({
     service: 'Vero',
     method: 'POST',
-    url: `${BASE}/users/unsubscribe`,
+    url: `${BASE}/users/${path}`,
     json: { auth_token, id },
   });
-  return { outputs: { result: res.data, success: true }, logs: [`Vero unsubscribe → ${id}`] };
+  return { outputs: { result: res.data, success: true }, logs: [`Vero ${path} → ${id}`] };
+}
+
+async function userUnsubscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return userLifecycle(ctx, 'unsubscribe');
+}
+
+async function userResubscribe(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return userLifecycle(ctx, 'resubscribe');
+}
+
+async function userDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return userLifecycle(ctx, 'delete');
+}
+
+async function userAlias(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const auth_token = getAuthToken(ctx);
+  const id = asString(ctx.options.id);
+  const newId = asString(ctx.options.newId);
+  if (!id) throw new Error('Vero: id is required');
+  if (!newId) throw new Error('Vero: newId is required');
+  const res = await apiRequest({
+    service: 'Vero',
+    method: 'PUT',
+    url: `${BASE}/users/reidentify`,
+    json: { auth_token, id, new_id: newId },
+  });
+  return { outputs: { result: res.data, success: true }, logs: [`Vero alias → ${id}→${newId}`] };
+}
+
+// n8n sends the tag list as a JSON-encoded string in body.add / body.remove —
+// the Vero docs require that exact shape, hence the JSON.stringify here.
+async function userTags(
+  ctx: ForgeActionContext,
+  mode: 'add' | 'remove',
+): Promise<ForgeActionResult> {
+  const auth_token = getAuthToken(ctx);
+  const id = asString(ctx.options.id);
+  const tagsRaw = asString(ctx.options.tags);
+  if (!id) throw new Error('Vero: id is required');
+  if (!tagsRaw) throw new Error('Vero: tags is required');
+  const tags = tagsRaw.split(',').map((s) => s.trim()).filter(Boolean);
+  const body: Record<string, unknown> = { auth_token, id };
+  if (mode === 'add') body.add = JSON.stringify(tags);
+  else body.remove = JSON.stringify(tags);
+  const res = await apiRequest({
+    service: 'Vero',
+    method: 'PUT',
+    url: `${BASE}/users/tags/edit`,
+    json: body,
+  });
+  return {
+    outputs: { result: res.data, success: true },
+    logs: [`Vero tags ${mode} → ${id} (${tags.length})`],
+  };
+}
+
+async function userAddTags(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return userTags(ctx, 'add');
+}
+
+async function userRemoveTags(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  return userTags(ctx, 'remove');
 }
 
 const block: ForgeBlock = {
@@ -139,6 +210,50 @@ const block: ForgeBlock = {
       description: 'Mark a user as unsubscribed.',
       fields: [{ id: 'id', label: 'User ID', type: 'text', required: true }],
       run: userUnsubscribe,
+    },
+    {
+      id: 'user_resubscribe',
+      label: 'Resubscribe user',
+      description: 'Reverse a previous unsubscribe.',
+      fields: [{ id: 'id', label: 'User ID', type: 'text', required: true }],
+      run: userResubscribe,
+    },
+    {
+      id: 'user_delete',
+      label: 'Delete user',
+      description: 'Permanently delete a Vero user.',
+      fields: [{ id: 'id', label: 'User ID', type: 'text', required: true }],
+      run: userDelete,
+    },
+    {
+      id: 'user_alias',
+      label: 'Alias user ID',
+      description: 'Re-identify an existing user under a new ID.',
+      fields: [
+        { id: 'id', label: 'Current user ID', type: 'text', required: true },
+        { id: 'newId', label: 'New user ID', type: 'text', required: true },
+      ],
+      run: userAlias,
+    },
+    {
+      id: 'user_add_tags',
+      label: 'Add tags',
+      description: 'Attach one or more tags to a user (comma-separated).',
+      fields: [
+        { id: 'id', label: 'User ID', type: 'text', required: true },
+        { id: 'tags', label: 'Tags (comma separated)', type: 'text', required: true },
+      ],
+      run: userAddTags,
+    },
+    {
+      id: 'user_remove_tags',
+      label: 'Remove tags',
+      description: 'Detach one or more tags from a user (comma-separated).',
+      fields: [
+        { id: 'id', label: 'User ID', type: 'text', required: true },
+        { id: 'tags', label: 'Tags (comma separated)', type: 'text', required: true },
+      ],
+      run: userRemoveTags,
     },
   ],
 };

@@ -3,26 +3,20 @@
  *
  * Source: n8n-master/packages/nodes-base/nodes/ReadBinaryFile/ReadBinaryFile.node.ts
  *
- * STATUS:
- *   • `read`             — disk-IO stub; remains disabled. Tenant isolation
- *                          prevents arbitrary server-side disk access.
- *   • `read_from_url`    — HTTPS fetcher; works for any public URL including
- *                          a `/api/sabfiles/raw/<id>` link issued in-session.
- *   • `read_sabfile`     — NEW: pulls a SabFile by its public share token via
- *                          the Rust BFF's `/v1/sabfiles/share/<token>/...`
- *                          endpoints. No session cookie needed (forge blocks
- *                          run inside the BullMQ worker, which has no Next.js
- *                          request context).
+ * Routes every read through SabFiles instead of the host filesystem.
+ * SabNode runs on Vercel Fluid Compute, which has no persistent disk and no
+ * tenant-isolated filesystem; SabFiles is the canonical storage layer and
+ * also enforces workspace scoping.
  *
- *   Calling `rustClient.sabfiles.*` directly is NOT viable from a forge
- *   action: that path mints a session-scoped JWT via `cookies()`, which is
- *   undefined in the worker. The share-token surface is the safe bridge —
- *   the user explicitly opts a file in by sharing it.
+ * Modes:
+ *   • `read_sabfile`      — fetch by SabFile id (authenticated via the
+ *                           worker-safe Rust JWT minted from `ctx.userId`).
+ *   • `read_sabfile_share`— fetch by public share token (no `ctx.userId`
+ *                           required, useful for cross-workspace handoffs).
+ *   • `read_from_url`     — plain HTTPS fetch for arbitrary remote URLs.
  */
 
 import { registerForgeBlock } from '../../../registry';
-// `rust-client/fetcher` is server-only (depends on `next/headers`). Loaded
-// dynamically inside `readSabfileShare` so this module stays import-safe.
 import type {
   ForgeActionContext,
   ForgeActionResult,
@@ -30,10 +24,74 @@ import type {
 } from '../../../types';
 import { asString } from '../_shared/http';
 
-async function read(_ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  throw new Error(
-    'ReadBinaryFile: server-side file IO is disabled in SabFlow. Use the read_sabfile action or SabFiles via @/components/sabfiles.',
+/**
+ * Worker-safe Rust BFF call. Forge actions execute inside the BullMQ worker
+ * which has no Next.js request context, so the standard `rustFetch`
+ * (depends on `cookies()`) is unusable here. We mint a short-lived JWT
+ * from `ctx.userId` instead.
+ */
+async function rustWorkerGet<T>(ctx: ForgeActionContext, path: string): Promise<T> {
+  if (!ctx.userId) {
+    throw new Error('ReadBinaryFile: ctx.userId missing — cannot mint Rust JWT.');
+  }
+  const { issueRustJwt } = await import('@/lib/jwt-for-rust');
+  const token = await issueRustJwt({
+    userId: ctx.userId,
+    tenantId: ctx.userId,
+    roles: [],
+  });
+  const base = process.env.RUST_API_URL || 'http://localhost:8080';
+  const res = await fetch(`${base}${path}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+    cache: 'no-store',
+  });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const body = await res.text();
+      detail = body.length > 300 ? `${body.slice(0, 300)}…` : body;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(`ReadBinaryFile: Rust BFF ${res.status} ${res.statusText} — ${detail}`);
+  }
+  return (await res.json()) as T;
+}
+
+/** Resolve a presigned URL into a buffer + content-type. */
+async function fetchPresigned(presignedUrl: string): Promise<{ buf: Buffer; contentType: string }> {
+  const res = await fetch(presignedUrl);
+  if (!res.ok) {
+    throw new Error(`ReadBinaryFile: SabFile fetch failed (${res.status})`);
+  }
+  const buf = Buffer.from(await res.arrayBuffer());
+  const contentType = res.headers.get('content-type') ?? 'application/octet-stream';
+  return { buf, contentType };
+}
+
+async function readSabfile(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.fileId).trim();
+  if (!id) throw new Error('ReadBinaryFile: fileId is required');
+
+  const { url } = await rustWorkerGet<{ url: string }>(
+    ctx,
+    `/v1/sabfiles/nodes/${encodeURIComponent(id)}/download`,
   );
+  const { buf, contentType } = await fetchPresigned(url);
+
+  return {
+    outputs: {
+      id,
+      base64: buf.toString('base64'),
+      bytes: buf.length,
+      contentType,
+    },
+    logs: [`ReadBinaryFile read_sabfile → ${id} (${buf.length}B, ${contentType})`],
+  };
 }
 
 async function readFromUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -56,18 +114,12 @@ async function readFromUrl(ctx: ForgeActionContext): Promise<ForgeActionResult> 
 }
 
 /**
- * Read a SabFile by its public share token via the Rust BFF.
+ * Read a SabFile by its public share token.
  *
- * The Rust BFF exposes `/v1/sabfiles/share/<token>/download` which returns
- * `{ url }` — a short-lived presigned R2 GET URL. We resolve it and then
- * stream the bytes back as base64. Optional `password` is forwarded as a
- * query param for password-protected shares.
- *
- * Why a share token (not a file id)? Tenant scoping. Forge actions run in
- * the BullMQ worker with no Next.js request context, so the session-cookie
- * fetcher (`rustClient.sabfiles.download(id)`) is unavailable. The
- * share-token endpoints are explicitly public on the BFF side, so the user
- * opts a file in by sharing it before referencing it from a flow.
+ * The share-token surface is explicitly public on the BFF side; the user
+ * opts a file in by minting a share token from the SabFiles UI before
+ * referencing it from a flow. No `ctx.userId` required, which makes this
+ * suitable for cross-workspace or unauthenticated-trigger handoffs.
  */
 async function readSabfileShare(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const token = asString(ctx.options.shareToken);
@@ -80,12 +132,7 @@ async function readSabfileShare(ctx: ForgeActionContext): Promise<ForgeActionRes
     `/v1/sabfiles/share/${encodeURIComponent(token)}/download${qs}`,
   );
 
-  const res = await fetch(url);
-  if (!res.ok) {
-    throw new Error(`ReadBinaryFile: SabFile fetch failed (${res.status})`);
-  }
-  const buf = Buffer.from(await res.arrayBuffer());
-  const contentType = res.headers.get('content-type') ?? 'application/octet-stream';
+  const { buf, contentType } = await fetchPresigned(url);
 
   return {
     outputs: {
@@ -94,41 +141,49 @@ async function readSabfileShare(ctx: ForgeActionContext): Promise<ForgeActionRes
       contentType,
       shareToken: token,
     },
-    logs: [`ReadBinaryFile read_sabfile → ${buf.length}B (${contentType})`],
+    logs: [`ReadBinaryFile read_sabfile_share → ${buf.length}B (${contentType})`],
   };
 }
 
 const block: ForgeBlock = {
   id: 'forge_read_binary_file',
   name: 'Read Binary File',
-  description: 'Read a binary file from a SabFiles share, a URL, or (disabled) the host disk.',
+  description: 'Read a binary file from SabFiles (by id or share token) or any HTTPS URL.',
   iconName: 'LuFileDown',
   category: 'Integration',
   auth: { type: 'none' },
   actions: [
     {
-      id: 'read',
-      label: 'Read from disk (disabled)',
-      description: 'Disabled in SabFlow. Use SabFiles for tenant-isolated storage.',
-      fields: [
-        { id: 'filePath', label: 'File path', type: 'text', placeholder: '/tmp/disabled' },
-      ],
-      run: read,
-    },
-    {
-      id: 'read_from_url',
-      label: 'Read from URL',
-      description: 'Fetch an HTTPS URL and return its bytes as base64.',
-      fields: [
-        { id: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://...' },
-      ],
-      run: readFromUrl,
-    },
-    {
       id: 'read_sabfile',
+      label: 'Read SabFile (by id)',
+      description:
+        'Fetch a SabFile from the workspace library by its id. Returns the raw bytes as base64.',
+      fields: [
+        {
+          id: 'fileId',
+          label: 'SabFile id',
+          type: 'resourceLocator',
+          required: true,
+          placeholder: 'sf_…',
+          modes: [
+            { name: 'id', displayName: 'By id', type: 'string', placeholder: 'sf_…' },
+            {
+              name: 'url',
+              displayName: 'By URL',
+              type: 'string',
+              placeholder: 'https://.../sabfiles/.../<id>',
+              extractValue: { type: 'regex', regex: '/sabfiles/[^/]+/([^/?#]+)' },
+            },
+          ],
+        },
+      ],
+      run: readSabfile,
+    },
+    {
+      id: 'read_sabfile_share',
       label: 'Read SabFile (by share token)',
       description:
-        'Pull bytes for a SabFile via its public share token. Create the share in @/components/sabfiles before referencing it here.',
+        'Pull bytes for a SabFile via its public share token. Mint the share in @/components/sabfiles before referencing it.',
       fields: [
         {
           id: 'shareToken',
@@ -145,6 +200,15 @@ const block: ForgeBlock = {
         },
       ],
       run: readSabfileShare,
+    },
+    {
+      id: 'read_from_url',
+      label: 'Read from URL',
+      description: 'Fetch an HTTPS URL and return its bytes as base64.',
+      fields: [
+        { id: 'url', label: 'URL', type: 'text', required: true, placeholder: 'https://...' },
+      ],
+      run: readFromUrl,
     },
   ],
 };

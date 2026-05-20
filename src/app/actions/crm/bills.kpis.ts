@@ -15,6 +15,14 @@ export interface BillKpiSummary {
   draftCount: number;
   /** Average days between bill date and full-pay across paid bills. */
   avgDaysToPay: number | null;
+  /** Sum of `totals.total` for bills with `billDate` in the current month. */
+  mtdSpend: number;
+  /** Bills currently in `submitted` status — awaiting approver action. */
+  pendingApprovalCount: number;
+  /** Vendor id with the largest sum(totals.total) across the sample window. */
+  topVendorId: string | null;
+  topVendorAmount: number;
+  topVendorCount: number;
 }
 
 /**
@@ -33,6 +41,7 @@ export function computeBillKpis(
     | 'billDate'
     | 'amountPaid'
     | 'updatedAt'
+    | 'vendorId'
   >[],
 ): BillKpiSummary {
   const now = new Date();
@@ -46,6 +55,9 @@ export function computeBillKpis(
   let draftCount = 0;
   let daysToPayTotal = 0;
   let daysToPayCount = 0;
+  let mtdSpend = 0;
+  let pendingApprovalCount = 0;
+  const vendorTotals = new Map<string, { amount: number; count: number }>();
 
   for (const r of rows) {
     const status = (r.status ?? '').toLowerCase();
@@ -54,6 +66,7 @@ export function computeBillKpis(
     const total = typeof r.totals?.total === 'number' ? r.totals.total : 0;
 
     if (status === 'draft') draftCount += 1;
+    if (status === 'submitted') pendingApprovalCount += 1;
     if (status !== 'paid' && status !== 'cancelled') {
       outstanding += balance;
       const due = r.dueDate ? new Date(r.dueDate).getTime() : NaN;
@@ -74,6 +87,33 @@ export function computeBillKpis(
         daysToPayCount += 1;
       }
     }
+    // MTD spend uses `billDate`, not `updatedAt`, so it reflects accrual.
+    if (status !== 'cancelled' && r.billDate) {
+      const billTs = new Date(r.billDate).getTime();
+      if (!Number.isNaN(billTs) && billTs >= monthStart.getTime()) {
+        mtdSpend += total;
+      }
+    }
+    // Top vendor accumulator. Skips cancelled to avoid inflating the
+    // ranking with voided documents.
+    if (status !== 'cancelled' && r.vendorId) {
+      const key = String(r.vendorId);
+      const prev = vendorTotals.get(key) ?? { amount: 0, count: 0 };
+      prev.amount += total;
+      prev.count += 1;
+      vendorTotals.set(key, prev);
+    }
+  }
+
+  let topVendorId: string | null = null;
+  let topVendorAmount = 0;
+  let topVendorCount = 0;
+  for (const [vid, agg] of vendorTotals) {
+    if (agg.amount > topVendorAmount) {
+      topVendorId = vid;
+      topVendorAmount = agg.amount;
+      topVendorCount = agg.count;
+    }
   }
 
   return {
@@ -84,5 +124,10 @@ export function computeBillKpis(
     paidThisMonthAmount,
     draftCount,
     avgDaysToPay: daysToPayCount > 0 ? daysToPayTotal / daysToPayCount : null,
+    mtdSpend,
+    pendingApprovalCount,
+    topVendorId,
+    topVendorAmount,
+    topVendorCount,
   };
 }

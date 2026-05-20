@@ -22,7 +22,11 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { listSalesOrders } from '@/app/actions/crm/sales-orders.actions';
+import {
+  getSalesOrderKpis,
+  listSalesOrders,
+  type SalesOrderKpis,
+} from '@/app/actions/crm/sales-orders.actions';
 import { crmSalesOrdersApi } from '@/lib/rust-client/crm-sales-orders';
 import { SalesOrdersListClient } from './_components/sales-orders-list-client';
 
@@ -87,7 +91,7 @@ export default async function SalesOrdersPage({
   const shipFrom = (sp.shipFrom ?? '').trim();
   const shipTo = (sp.shipTo ?? '').trim();
 
-  const [listResult, kpis] = await Promise.all([
+  const [listResult, kpis, headlineKpis] = await Promise.all([
     listSalesOrders({
       page,
       limit,
@@ -96,6 +100,7 @@ export default async function SalesOrdersPage({
       clientId: clientId || undefined,
     }),
     fetchKpis(),
+    getSalesOrderKpis(),
   ]);
 
   // Client-side filter for the dimensions the Rust list endpoint
@@ -137,6 +142,7 @@ export default async function SalesOrdersPage({
         initialShipFrom={shipFrom}
         initialShipTo={shipTo}
         kpis={kpis}
+        headlineKpis={headlineKpis satisfies SalesOrderKpis}
         error={listResult.error}
       />
     </EntityListShell>

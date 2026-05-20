@@ -1,31 +1,71 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Ticket Channels — settings-list with light Deep treatment.
+ *
+ * KPI · search/status filter · bulk delete · CSV/XLSX export ·
+ * RowDrawer inline summary · inline-edit dialog · PaginationBar.
+ *
+ * Backed by the worksuite `crm_ticket_channels` collection through
+ * `worksuite/tickets-ext.actions.ts`.
+ */
 
-import { Radio } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import * as React from 'react';
+
 import {
+  SettingsDeepPage,
+  type SettingsColumn,
+} from '../../_components/settings-deep-page';
+import {
+  bulkDeleteTicketChannels,
+  deleteTicketChannel,
+  getTicketChannelKpis,
   getTicketChannels,
   saveTicketChannel,
-  deleteTicketChannel,
 } from '@/app/actions/worksuite/tickets-ext.actions';
 import type { WsTicketChannel } from '@/lib/worksuite/tickets-ext-types';
 
-export default function TicketChannelsPage() {
+type Row = Omit<WsTicketChannel, '_id' | 'userId' | 'createdAt' | 'updatedAt'> & {
+  _id: string;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  archived?: boolean;
+};
+
+const columns: SettingsColumn<Row>[] = [
+  {
+    key: 'name',
+    label: 'Name',
+    exportValue: (r) => r.name,
+  },
+];
+
+export default function TicketChannelsPage(): React.JSX.Element {
   return (
-    <HrEntityPage<WsTicketChannel & { _id: string }>
+    <SettingsDeepPage<Row>
       title="Ticket Channels"
-      subtitle="Inbound channels where tickets can originate."
-      icon={Radio}
+      subtitle="Inbound channels where tickets can originate (email, web, chat…)."
       singular="Channel"
-      getAllAction={getTicketChannels as any}
+      drawerKind="Ticket Channel"
+      exportBaseName="ticket-channels"
+      columns={columns}
+      fields={[
+        {
+          name: 'name',
+          label: 'Channel name',
+          required: true,
+          fullWidth: true,
+          placeholder: 'e.g. Email inbox',
+        },
+      ]}
+      getAllAction={getTicketChannels as unknown as () => Promise<Row[]>}
+      getKpisAction={getTicketChannelKpis}
       saveAction={saveTicketChannel}
       deleteAction={deleteTicketChannel}
-      columns={[{ key: 'name', label: 'Name' }]}
-      fields={[
-        { name: 'name', label: 'Channel Name', required: true, fullWidth: true },
-      ]}
+      bulkDeleteAction={bulkDeleteTicketChannels}
+      displayName={(r) => r.name ?? '—'}
+      searchText={(r) => `${r.name ?? ''}`}
     />
   );
 }

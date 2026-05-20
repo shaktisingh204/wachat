@@ -18,6 +18,8 @@ interface SearchParams {
   limit?: string;
   q?: string;
   status?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 interface PageProps {
@@ -30,13 +32,15 @@ export default async function ProformaInvoicesPage({ searchParams }: PageProps) 
   const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
   const q = (sp.q ?? '').trim();
   const status = (sp.status ?? '').trim();
+  const dateFrom = (sp.dateFrom ?? '').trim();
+  const dateTo = (sp.dateTo ?? '').trim();
 
   const [{ items, hasMore }, kpi] = await Promise.all([
     listProformaInvoices({
       page,
       limit,
       q: q || undefined,
-      status: (status as any) || undefined,
+      status: (status as 'all') || undefined,
     }),
     getProformaInvoiceKpis(),
   ]);
@@ -49,6 +53,8 @@ export default async function ProformaInvoicesPage({ searchParams }: PageProps) 
       hasMore={hasMore}
       initialQuery={q}
       initialStatus={status}
+      initialDateFrom={dateFrom}
+      initialDateTo={dateTo}
       kpi={kpi}
     />
   );

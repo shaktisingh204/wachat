@@ -272,6 +272,94 @@ export async function getApplicableSlaRule(ticketId: string): Promise<{
  * field (`lastSlaBreachCheckAt`) is also reset so the next run can
  * re-trigger if the ticket is still over the line.
  */
+/* ── List SLA policies ──────────────────────────────────────────── */
+
+export async function getSlaPolicies(): Promise<Record<string, unknown>[]> {
+  const session = await getSession();
+  if (!session?.user?._id) return [];
+  try {
+    const { db } = await connectToDatabase();
+    const docs = await db
+      .collection('crm_slas')
+      .find({ userId: new ObjectId(session.user._id as string) })
+      .sort({ createdAt: -1 })
+      .toArray();
+    return JSON.parse(JSON.stringify(docs));
+  } catch (e) {
+    console.error('[getSlaPolicies]', e);
+    return [];
+  }
+}
+
+/* ── Delete single SLA policy ──────────────────────────────────── */
+
+export async function deleteSlaPolicy(
+  id: string,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id || !ObjectId.isValid(id)) return { success: false, error: 'Invalid id.' };
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('crm_slas').deleteOne({
+      _id: new ObjectId(id),
+      userId: new ObjectId(session.user._id as string),
+    });
+    await writeAuditEntry({
+      tenantUserId: String(session.user._id),
+      action: 'delete',
+      entityKind: 'sla',
+      entityId: id,
+    });
+    revalidatePath('/dashboard/crm/tickets/sla');
+    return { success: true };
+  } catch (e: any) {
+    return { success: false, error: e?.message || 'Delete failed.' };
+  }
+}
+
+/* ── Bulk activate / deactivate / delete ────────────────────────── */
+
+export async function bulkUpdateSlas(
+  ids: string[],
+  op: 'activate' | 'deactivate' | 'delete',
+): Promise<{ updated: number; failed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { updated: 0, failed: ids.length, error: 'Access denied.' };
+  const oids = ids.filter(ObjectId.isValid).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { updated: 0, failed: ids.length, error: 'No valid IDs.' };
+
+  try {
+    const { db } = await connectToDatabase();
+    const filter = {
+      _id: { $in: oids },
+      userId: new ObjectId(session.user._id as string),
+    };
+    let count = 0;
+    if (op === 'delete') {
+      const r = await db.collection('crm_slas').deleteMany(filter);
+      count = r.deletedCount ?? 0;
+    } else {
+      const r = await db.collection('crm_slas').updateMany(filter, {
+        $set: {
+          active: op === 'activate',
+          status: op === 'activate' ? 'active' : 'archived',
+          updatedAt: new Date(),
+        },
+      });
+      count = r.modifiedCount ?? 0;
+    }
+    revalidatePath('/dashboard/crm/tickets/sla');
+    return { updated: count, failed: Math.max(0, ids.length - count) };
+  } catch (e: any) {
+    return { updated: 0, failed: ids.length, error: e?.message || 'Bulk op failed.' };
+  }
+}
+
+/* ── SaveSlaState type (re-export for form components) ───────────── */
+
+export type SaveSlaState = { message?: string; error?: string; id?: string };
+
 export async function acknowledgeSlaBreach(
   ticketId: string,
   note?: string,

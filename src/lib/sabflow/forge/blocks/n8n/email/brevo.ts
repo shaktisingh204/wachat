@@ -7,12 +7,21 @@
  * Auth header: `api-key: <KEY>`.
  *
  * Operations covered:
- *   - contact.create        POST   /v3/contacts
- *   - contact.get           GET    /v3/contacts/{identifier}
- *   - contact.update        PUT    /v3/contacts/{identifier}
- *   - contact.delete        DELETE /v3/contacts/{identifier}
- *   - transactional.sendEmail POST /v3/smtp/email
- *   - campaign.create       POST   /v3/emailCampaigns
+ *   - contact.create          POST   /v3/contacts
+ *   - contact.upsert          POST   /v3/contacts                  (updateEnabled=true)
+ *   - contact.get             GET    /v3/contacts/{identifier}
+ *   - contact.getAll          GET    /v3/contacts                  (paginated)
+ *   - contact.update          PUT    /v3/contacts/{identifier}
+ *   - contact.delete          DELETE /v3/contacts/{identifier}
+ *   - transactional.sendEmail POST   /v3/smtp/email
+ *   - transactional.sendTemplate POST /v3/smtp/email               (templateId only)
+ *   - campaign.create         POST   /v3/emailCampaigns
+ *   - sender.create           POST   /v3/senders
+ *   - sender.delete           DELETE /v3/senders/{id}
+ *   - sender.getAll           GET    /v3/senders
+ *   - attribute.create        POST   /v3/contacts/attributes/{category}/{name}
+ *   - attribute.delete        DELETE /v3/contacts/attributes/{category}/{name}
+ *   - attribute.getAll        GET    /v3/contacts/attributes
  *
  * Out of scope for the first port:
  *   - LoadOptions for list/template IDs
@@ -26,7 +35,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.brevo.com/v3';
 
@@ -160,6 +170,179 @@ async function transactionalSendEmail(ctx: ForgeActionContext): Promise<ForgeAct
   return { outputs: { result: res.data }, logs: [`Brevo send → ${toEmail}`] };
 }
 
+async function contactUpsert(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const email = asString(ctx.options.email);
+  if (!email) throw new Error('Brevo: email is required');
+  const body: Record<string, unknown> = { email, updateEnabled: true };
+  const attributesRaw = asString(ctx.options.attributes);
+  if (attributesRaw) {
+    try {
+      body.attributes = JSON.parse(attributesRaw);
+    } catch {
+      throw new Error('Brevo: attributes must be valid JSON');
+    }
+  }
+  const listIdsRaw = asString(ctx.options.listIds);
+  if (listIdsRaw) {
+    body.listIds = listIdsRaw.split(',').map((s) => Number(s.trim())).filter((n) => Number.isFinite(n));
+  }
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'POST',
+    url: `${BASE}/contacts`,
+    headers: authHeaders(ctx),
+    json: body,
+  });
+  return { outputs: { result: res.data, success: true }, logs: [`Brevo contact upsert → ${email}`] };
+}
+
+async function contactGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const pageSize = asNumber(ctx.options.pageSize) ?? 50;
+  const listId = asString(ctx.options.listId);
+  // Brevo uses offset+limit pagination; total is in `count`. Walk until items drain or cap hit.
+  const contacts = await paginateAll<unknown>({
+    maxItems,
+    async fetchPage(cursor) {
+      const offset = cursor ?? '0';
+      const qs = new URLSearchParams();
+      qs.set('limit', String(pageSize));
+      qs.set('offset', offset);
+      const url = listId
+        ? `${BASE}/contacts/lists/${encodeURIComponent(listId)}/contacts?${qs.toString()}`
+        : `${BASE}/contacts?${qs.toString()}`;
+      const res = await apiRequest({
+        service: 'Brevo',
+        method: 'GET',
+        url,
+        headers: authHeaders(ctx),
+      });
+      const body = res.data as { contacts?: unknown[]; count?: number } | null;
+      const items = (body?.contacts ?? []) as unknown[];
+      const consumed = Number(offset) + items.length;
+      const total = typeof body?.count === 'number' ? body.count : undefined;
+      const more = items.length === pageSize && (total === undefined || consumed < total);
+      return { items, nextCursor: more ? String(consumed) : undefined };
+    },
+  });
+  return { outputs: { contacts, count: contacts.length }, logs: [`Brevo contact list → ${contacts.length}`] };
+}
+
+async function transactionalSendTemplate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const toEmail = asString(ctx.options.toEmail);
+  const templateId = asString(ctx.options.templateId);
+  const paramsRaw = asString(ctx.options.params);
+  if (!toEmail) throw new Error('Brevo: toEmail is required');
+  if (!templateId) throw new Error('Brevo: templateId is required');
+  const body: Record<string, unknown> = {
+    to: toEmail.split(',').map((s) => s.trim()).filter(Boolean).map((email) => ({ email })),
+    templateId: Number(templateId),
+  };
+  if (paramsRaw) {
+    try {
+      body.params = JSON.parse(paramsRaw);
+    } catch {
+      throw new Error('Brevo: params must be valid JSON');
+    }
+  }
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'POST',
+    url: `${BASE}/smtp/email`,
+    headers: authHeaders(ctx),
+    json: body,
+  });
+  return { outputs: { result: res.data }, logs: [`Brevo template send → ${toEmail}`] };
+}
+
+async function senderCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const name = asString(ctx.options.name);
+  const email = asString(ctx.options.email);
+  if (!name) throw new Error('Brevo: name is required');
+  if (!email) throw new Error('Brevo: email is required');
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'POST',
+    url: `${BASE}/senders`,
+    headers: authHeaders(ctx),
+    json: { name, email },
+  });
+  return { outputs: { result: res.data }, logs: [`Brevo sender create → ${email}`] };
+}
+
+async function senderDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.id);
+  if (!id) throw new Error('Brevo: sender id is required');
+  await apiRequest({
+    service: 'Brevo',
+    method: 'DELETE',
+    url: `${BASE}/senders/${encodeURIComponent(id)}`,
+    headers: authHeaders(ctx),
+  });
+  return { outputs: { success: true, id }, logs: [`Brevo sender delete → ${id}`] };
+}
+
+async function senderGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'GET',
+    url: `${BASE}/senders`,
+    headers: authHeaders(ctx),
+  });
+  const body = res.data as { senders?: unknown[] } | null;
+  const senders = body?.senders ?? [];
+  return { outputs: { senders, count: Array.isArray(senders) ? senders.length : 0 }, logs: ['Brevo sender list'] };
+}
+
+async function attributeCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const category = asString(ctx.options.category);
+  const name = asString(ctx.options.name);
+  const type = asString(ctx.options.type);
+  if (!category) throw new Error('Brevo: category is required');
+  if (!name) throw new Error('Brevo: name is required');
+  const body: Record<string, unknown> = {};
+  if (type) body.type = type;
+  const value = asString(ctx.options.value);
+  if (value) body.value = value;
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'POST',
+    url: `${BASE}/contacts/attributes/${encodeURIComponent(category)}/${encodeURIComponent(name)}`,
+    headers: authHeaders(ctx),
+    json: body,
+  });
+  return { outputs: { result: res.data, success: true }, logs: [`Brevo attribute create → ${category}/${name}`] };
+}
+
+async function attributeDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const category = asString(ctx.options.category);
+  const name = asString(ctx.options.name);
+  if (!category) throw new Error('Brevo: category is required');
+  if (!name) throw new Error('Brevo: name is required');
+  await apiRequest({
+    service: 'Brevo',
+    method: 'DELETE',
+    url: `${BASE}/contacts/attributes/${encodeURIComponent(category)}/${encodeURIComponent(name)}`,
+    headers: authHeaders(ctx),
+  });
+  return { outputs: { success: true }, logs: [`Brevo attribute delete → ${category}/${name}`] };
+}
+
+async function attributeGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const res = await apiRequest({
+    service: 'Brevo',
+    method: 'GET',
+    url: `${BASE}/contacts/attributes`,
+    headers: authHeaders(ctx),
+  });
+  const body = res.data as { attributes?: unknown[] } | null;
+  const attributes = body?.attributes ?? [];
+  return {
+    outputs: { attributes, count: Array.isArray(attributes) ? attributes.length : 0 },
+    logs: ['Brevo attribute list'],
+  };
+}
+
 async function campaignCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const name = asString(ctx.options.name);
   const subject = asString(ctx.options.subject);
@@ -280,6 +463,119 @@ const block: ForgeBlock = {
         { id: 'params', label: 'Template params (JSON)', type: 'json' },
       ],
       run: transactionalSendEmail,
+    },
+    {
+      id: 'contact_upsert',
+      label: 'Create or update contact',
+      description: 'Insert a contact, or update if email already exists.',
+      fields: [
+        { id: 'email', label: 'Email', type: 'text', required: true },
+        { id: 'attributes', label: 'Attributes (JSON)', type: 'json' },
+        { id: 'listIds', label: 'List IDs (comma separated)', type: 'text' },
+      ],
+      run: contactUpsert,
+    },
+    {
+      id: 'contact_get_all',
+      label: 'List contacts (paginated)',
+      description: 'Walk Brevo contact pagination (optionally inside a list).',
+      fields: [
+        { id: 'listId', label: 'List ID (optional)', type: 'text' },
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 50)', type: 'number', defaultValue: '50' },
+      ],
+      run: contactGetAll,
+    },
+    {
+      id: 'transactional_send_template',
+      label: 'Send transactional template',
+      description: 'Send a pre-saved Brevo template by id.',
+      fields: [
+        { id: 'toEmail', label: 'To email (comma separated)', type: 'text', required: true },
+        { id: 'templateId', label: 'Template ID', type: 'text', required: true },
+        { id: 'params', label: 'Template params (JSON)', type: 'json' },
+      ],
+      run: transactionalSendTemplate,
+    },
+    {
+      id: 'sender_create',
+      label: 'Create sender',
+      description: 'Register a new sender email address.',
+      fields: [
+        { id: 'name', label: 'Sender name', type: 'text', required: true },
+        { id: 'email', label: 'Sender email', type: 'text', required: true },
+      ],
+      run: senderCreate,
+    },
+    {
+      id: 'sender_delete',
+      label: 'Delete sender',
+      description: 'Remove a sender by id.',
+      fields: [{ id: 'id', label: 'Sender ID', type: 'text', required: true }],
+      run: senderDelete,
+    },
+    {
+      id: 'sender_get_all',
+      label: 'List senders',
+      description: 'List all registered senders.',
+      fields: [],
+      run: senderGetAll,
+    },
+    {
+      id: 'attribute_create',
+      label: 'Create contact attribute',
+      description: 'Create a new contact attribute under a category (normal | category | calculated | global | transactional).',
+      fields: [
+        {
+          id: 'category', label: 'Category', type: 'select', required: true,
+          options: [
+            { label: 'Normal', value: 'normal' },
+            { label: 'Category', value: 'category' },
+            { label: 'Calculated', value: 'calculated' },
+            { label: 'Global', value: 'global' },
+            { label: 'Transactional', value: 'transactional' },
+          ],
+        },
+        { id: 'name', label: 'Attribute name', type: 'text', required: true },
+        {
+          id: 'type', label: 'Type (normal/transactional only)', type: 'select',
+          options: [
+            { label: '(unset)', value: '' },
+            { label: 'Text', value: 'text' },
+            { label: 'Date', value: 'date' },
+            { label: 'Float', value: 'float' },
+            { label: 'Boolean', value: 'boolean' },
+          ],
+        },
+        { id: 'value', label: 'Value (calculated/global only)', type: 'text' },
+      ],
+      run: attributeCreate,
+    },
+    {
+      id: 'attribute_delete',
+      label: 'Delete contact attribute',
+      description: 'Delete a contact attribute by category + name.',
+      fields: [
+        {
+          id: 'category', label: 'Category', type: 'select', required: true,
+          options: [
+            { label: 'Normal', value: 'normal' },
+            { label: 'Category', value: 'category' },
+            { label: 'Calculated', value: 'calculated' },
+            { label: 'Global', value: 'global' },
+            { label: 'Transactional', value: 'transactional' },
+          ],
+        },
+        { id: 'name', label: 'Attribute name', type: 'text', required: true },
+      ],
+      run: attributeDelete,
+    },
+    {
+      id: 'attribute_get_all',
+      label: 'List contact attributes',
+      description: 'List every contact attribute.',
+      fields: [],
+      run: attributeGetAll,
     },
     {
       id: 'campaign_create',

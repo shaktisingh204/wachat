@@ -1,10 +1,32 @@
 'use client';
 
+/**
+ * CRM Forms list — `/dashboard/crm/sales-crm/forms`.
+ *
+ * Ships:
+ *   - KPI strip: total forms, published, draft, total submissions
+ *   - Filter: search by name, status (published/draft/archived)
+ *   - ZoruCheckbox row selection
+ *   - Bulk publish, bulk archive, bulk delete with confirm
+ *   - Export CSV
+ *   - EntityRowLink on form name → submissions page
+ */
+
+import * as React from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
+
 import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruInput,
+  ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruSkeleton,
   ZoruTable,
   ZoruTableBody,
@@ -12,146 +34,549 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  useZoruToast,
 } from '@/components/zoruui';
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import {
+  Archive,
+  ClipboardList,
+  Download,
+  Edit,
+  Eye,
+  Globe,
+  Plus,
+  Trash2,
+  X,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { WithId } from 'mongodb';
-import { getCrmForms } from '@/app/actions/crm-forms.actions';
-import type { CrmForm } from '@/lib/definitions';
-
-import { Search, Plus, ClipboardList, Eye, Edit, Trash2 } from 'lucide-react';
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-
 import { useDebouncedCallback } from 'use-debounce';
 import { formatDistanceToNow } from 'date-fns';
 
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
+
+import {
+  getCrmForms,
+  getCrmFormKpis,
+  bulkFormAction,
+  deleteCrmForm,
+  type CrmFormKpis,
+} from '@/app/actions/crm-forms.actions';
+import type { CrmForm } from '@/lib/definitions';
+
+/* ─── Helpers ──────────────────────────────────────────────────────── */
+
+function resolveStatus(form: WithId<CrmForm>): string {
+  return (form.settings as Record<string, unknown> | undefined)?.status as string ?? 'published';
+}
+
+function StatusBadge({ form }: { form: WithId<CrmForm> }) {
+  const s = resolveStatus(form);
+  if (s === 'published') return <ZoruBadge variant="success">Published</ZoruBadge>;
+  if (s === 'draft') return <ZoruBadge variant="outline">Draft</ZoruBadge>;
+  if (s === 'archived') return <ZoruBadge variant="default">Archived</ZoruBadge>;
+  return <ZoruBadge variant="outline">{s}</ZoruBadge>;
+}
+
+/* ─── KPI card ─────────────────────────────────────────────────────── */
+
+function KpiCard({
+  label,
+  value,
+  icon,
+}: {
+  label: string;
+  value: React.ReactNode;
+  icon: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-1 rounded-lg border border-zoru-line bg-zoru-surface p-3">
+      <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+        {icon}
+        {label}
+      </div>
+      <span className="text-xl font-semibold text-zoru-ink">{value}</span>
+    </div>
+  );
+}
 
 const FORMS_PER_PAGE = 20;
 
+/* ─── Component ────────────────────────────────────────────────────── */
+
 export default function CrmFormsPage() {
-    const [forms, setForms] = useState<WithId<CrmForm>[]>([]);
-    const [isLoading, startTransition] = useTransition();
-    const router = useRouter();
+  const router = useRouter();
+  const { toast } = useZoruToast();
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
-    const [totalPages, setTotalPages] = useState(0);
+  const [forms, setForms] = useState<WithId<CrmForm>[]>([]);
+  const [kpi, setKpi] = useState<CrmFormKpis>({
+    total: 0,
+    published: 0,
+    drafts: 0,
+    totalSubmissions: 0,
+  });
+  const [isLoading, startTransition] = useTransition();
+  const [bulkPending, startBulkTransition] = useTransition();
 
-    const fetchData = useCallback(() => {
-        startTransition(async () => {
-            const { forms: data, total } = await getCrmForms(currentPage, FORMS_PER_PAGE, searchQuery);
-            setForms(data);
-            setTotalPages(Math.ceil(total / FORMS_PER_PAGE));
-        });
-    }, [currentPage, searchQuery]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [totalPages, setTotalPages] = useState(0);
 
-    useEffect(() => {
+  /* Selection */
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  /* Dialogs */
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeletePending, setBulkDeletePending] = useState(false);
+  const [bulkPublishPending, setBulkPublishPending] = useState(false);
+  const [bulkArchivePending, setBulkArchivePending] = useState(false);
+
+  const fetchData = useCallback(() => {
+    startTransition(async () => {
+      const [{ forms: data, total }, kpiData] = await Promise.all([
+        getCrmForms(currentPage, FORMS_PER_PAGE, searchQuery || undefined),
+        getCrmFormKpis(),
+      ]);
+      setForms(data);
+      setKpi(kpiData);
+      setTotalPages(Math.ceil(total / FORMS_PER_PAGE));
+    });
+  }, [currentPage, searchQuery]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const handleSearch = useDebouncedCallback((term: string) => {
+    setSearchQuery(term);
+    setCurrentPage(1);
+  }, 300);
+
+  /* Client-side status filter */
+  const filtered = React.useMemo(() => {
+    if (statusFilter === 'all') return forms;
+    return forms.filter((f) => resolveStatus(f) === statusFilter);
+  }, [forms, statusFilter]);
+
+  const allSelectedOnPage =
+    filtered.length > 0 && filtered.every((f) => selected.has(f._id.toString()));
+
+  const toggleRow = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(() => {
+    setSelected((prev) => {
+      const allSel = filtered.every((f) => prev.has(f._id.toString()));
+      if (allSel) {
+        const next = new Set(prev);
+        for (const f of filtered) next.delete(f._id.toString());
+        return next;
+      }
+      const next = new Set(prev);
+      for (const f of filtered) next.add(f._id.toString());
+      return next;
+    });
+  }, [filtered]);
+
+  /* Single delete */
+  const handleDelete = useCallback(async () => {
+    if (!deletingId) return;
+    const res = await deleteCrmForm(deletingId);
+    if (res.message) {
+      toast({ title: 'Deleted', description: res.message });
+      setDeletingId(null);
+      fetchData();
+    } else {
+      toast({ title: 'Error', description: res.error ?? 'Failed to delete', variant: 'destructive' });
+    }
+  }, [deletingId, fetchData, toast]);
+
+  /* Bulk handlers */
+  const selectedIds = React.useMemo(() => Array.from(selected), [selected]);
+
+  const runBulkPublish = useCallback(() => {
+    if (selectedIds.length === 0) return;
+    startBulkTransition(async () => {
+      const res = await bulkFormAction(selectedIds, 'publish');
+      toast({
+        title: res.success
+          ? `${res.processed ?? selectedIds.length} form${selectedIds.length === 1 ? '' : 's'} published`
+          : 'Publish failed',
+        description: res.error,
+        variant: res.success ? 'default' : 'destructive',
+      });
+      if (res.success) {
+        setSelected(new Set());
+        router.refresh();
         fetchData();
-    }, [fetchData]);
+      }
+    });
+  }, [selectedIds, router, toast, fetchData]);
 
-    const handleSearch = useDebouncedCallback((term: string) => {
-        setSearchQuery(term);
-        setCurrentPage(1);
-    }, 300);
+  const runBulkArchive = useCallback(() => {
+    if (selectedIds.length === 0) return;
+    startBulkTransition(async () => {
+      const res = await bulkFormAction(selectedIds, 'draft');
+      toast({
+        title: res.success
+          ? `${res.processed ?? selectedIds.length} form${selectedIds.length === 1 ? '' : 's'} archived`
+          : 'Archive failed',
+        description: res.error,
+        variant: res.success ? 'default' : 'destructive',
+      });
+      if (res.success) {
+        setSelected(new Set());
+        router.refresh();
+        fetchData();
+      }
+    });
+  }, [selectedIds, router, toast, fetchData]);
 
-    if (isLoading && forms.length === 0) {
-        return <ZoruSkeleton className="h-96 w-full" />;
-    }
+  const runBulkDelete = useCallback(() => {
+    if (selectedIds.length === 0) return;
+    startBulkTransition(async () => {
+      const res = await bulkFormAction(selectedIds, 'delete');
+      toast({
+        title: res.success
+          ? `${res.processed ?? selectedIds.length} form${selectedIds.length === 1 ? '' : 's'} deleted`
+          : 'Delete failed',
+        description: res.error,
+        variant: res.success ? 'default' : 'destructive',
+      });
+      if (res.success) {
+        setSelected(new Set());
+        router.refresh();
+        fetchData();
+      }
+    });
+  }, [selectedIds, router, toast, fetchData]);
 
-    if (forms.length === 0 && !isLoading) {
-        return (
-            <EntityListShell
-                title="Forms"
-                subtitle="Create and embed forms on your website to capture leads directly into your CRM."
-            >
-                <ZoruCard variant="outline" className="border-dashed">
-                    <div className="flex flex-col items-center gap-3 py-12 text-center">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
-                            <ClipboardList className="h-6 w-6 text-accent-foreground" strokeWidth={1.75} />
-                        </div>
-                        <h3 className="text-[15px] font-semibold text-foreground">Lead Capture Forms</h3>
-                        <p className="max-w-md text-[12.5px] text-muted-foreground">
-                            Create and embed forms on your website to capture leads directly into your CRM.
-                        </p>
-                        <Link href="/dashboard/crm/sales-crm/forms/new">
-                            <ZoruButton>
-                                Create First Form
-                            </ZoruButton>
-                        </Link>
-                    </div>
-                </ZoruCard>
-            </EntityListShell>
-        );
-    }
-
-    return (
-        <EntityListShell
-            title="Forms"
-            subtitle="Manage your lead capture forms."
-            primaryAction={
-                <Link href="/dashboard/crm/sales-crm/forms/new">
-                    <ZoruButton>
-                        New Form
-                    </ZoruButton>
-                </Link>
-            }
-        >
-
-            <ZoruCard>
-                <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-                    <div>
-                        <h2 className="text-[16px] font-semibold text-foreground">All Forms</h2>
-                    </div>
-                    <div className="relative w-full max-w-sm">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                        <ZoruInput
-                            placeholder="Search by name..."
-                            className="h-10 rounded-lg border-border bg-card pl-9 text-[13px]"
-                            onChange={(e) => handleSearch(e.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Form Name</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Submissions</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Created</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {forms.map((form) => (
-                                <ZoruTableRow key={form._id.toString()} className="border-border">
-                                    <ZoruTableCell className="font-medium text-foreground">
-                                        <EntityRowLink
-                                            href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/submissions`}
-                                            label={form.name}
-                                            subtitle={`${form.submissionCount || 0} submission${(form.submissionCount || 0) === 1 ? '' : 's'}`}
-                                        />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-foreground">{form.submissionCount || 0}</ZoruTableCell>
-                                    <ZoruTableCell><ZoruBadge variant="success">Published</ZoruBadge></ZoruTableCell>
-                                    <ZoruTableCell className="text-foreground">{formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
-                                        <a href={`/embed/crm-form/${form._id.toString()}`} target="_blank" rel="noopener noreferrer">
-                                            <ZoruButton variant="ghost" size="icon"><Eye className="h-4 w-4" /></ZoruButton>
-                                        </a>
-                                        <Link href={`/dashboard/crm/sales-crm/forms/${form._id.toString()}/edit`}>
-                                            <ZoruButton variant="ghost" size="icon"><Edit className="h-4 w-4" /></ZoruButton>
-                                        </Link>
-                                        <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-red-600" /></ZoruButton>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
+  /* Export CSV */
+  const handleExportCsv = useCallback(() => {
+    const exportForms = filtered.filter(
+      (f) => selected.size === 0 || selected.has(f._id.toString()),
     );
+    if (exportForms.length === 0) {
+      toast({ title: 'Nothing to export' });
+      return;
+    }
+    downloadCsv(
+      `crm-forms-${dateStamp()}.csv`,
+      ['Name', 'Status', 'Submissions', 'Created'],
+      exportForms.map((f) => ({
+        Name: f.name,
+        Status: resolveStatus(f),
+        Submissions: f.submissionCount ?? 0,
+        Created: f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '',
+      })),
+    );
+    toast({ title: 'Exported', description: `${exportForms.length} forms saved to CSV.` });
+  }, [filtered, selected, toast]);
+
+  /* ─── Render ─────────────────────────────────────────────────────── */
+
+  return (
+    <>
+      <EntityListShell
+        title="Forms"
+        subtitle="Create and embed forms on your website to capture leads directly into your CRM."
+        search={{ value: searchQuery, onChange: handleSearch, placeholder: 'Search forms…' }}
+        primaryAction={
+          <Link href="/dashboard/crm/sales-crm/forms/new">
+            <ZoruButton>
+              <Plus className="h-4 w-4" /> New Form
+            </ZoruButton>
+          </Link>
+        }
+        filters={
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                Status
+              </ZoruLabel>
+              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+                <ZoruSelectTrigger className="h-8 w-[150px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                  <ZoruSelectItem value="published">Published</ZoruSelectItem>
+                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                  <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            {statusFilter !== 'all' ? (
+              <ZoruButton variant="ghost" size="sm" onClick={() => setStatusFilter('all')}>
+                <X className="h-3.5 w-3.5" /> Clear
+              </ZoruButton>
+            ) : null}
+          </div>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => setBulkPublishPending(true)}
+                disabled={bulkPending}
+              >
+                <Globe className="h-3.5 w-3.5" /> Publish
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => setBulkArchivePending(true)}
+                disabled={bulkPending}
+              >
+                <Archive className="h-3.5 w-3.5" /> Archive
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+                <Download className="h-3.5 w-3.5" /> CSV
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="destructive"
+                onClick={() => setBulkDeletePending(true)}
+                disabled={bulkPending}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                <X className="h-3.5 w-3.5" /> Clear
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+      >
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <KpiCard
+            label="Total forms"
+            value={isLoading ? '…' : kpi.total.toLocaleString()}
+            icon={<ClipboardList className="h-3.5 w-3.5" />}
+          />
+          <KpiCard
+            label="Published"
+            value={isLoading ? '…' : kpi.published.toLocaleString()}
+            icon={<Globe className="h-3.5 w-3.5" />}
+          />
+          <KpiCard
+            label="Draft"
+            value={isLoading ? '…' : kpi.drafts.toLocaleString()}
+            icon={<Edit className="h-3.5 w-3.5" />}
+          />
+          <KpiCard
+            label="Total submissions"
+            value={isLoading ? '…' : kpi.totalSubmissions.toLocaleString()}
+            icon={<ClipboardList className="h-3.5 w-3.5" />}
+          />
+        </div>
+
+        {/* Export bar */}
+        <div className="flex items-center justify-end">
+          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </ZoruButton>
+        </div>
+
+        {isLoading && forms.length === 0 ? (
+          <div className="space-y-2">
+            {[...Array(4)].map((_, i) => (
+              <ZoruSkeleton key={i} className="h-12 w-full" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <ZoruCard variant="outline" className="border-dashed">
+            <div className="flex flex-col items-center gap-3 py-12 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                <ClipboardList
+                  className="h-6 w-6 text-accent-foreground"
+                  strokeWidth={1.75}
+                />
+              </div>
+              <h3 className="text-[15px] font-semibold text-foreground">No forms found</h3>
+              <p className="max-w-md text-[12.5px] text-muted-foreground">
+                {statusFilter !== 'all'
+                  ? 'No forms match the current status filter.'
+                  : 'Create your first form to start capturing leads.'}
+              </p>
+              <Link href="/dashboard/crm/sales-crm/forms/new">
+                <ZoruButton>
+                  <Plus className="h-4 w-4" /> Create Form
+                </ZoruButton>
+              </Link>
+            </div>
+          </ZoruCard>
+        ) : (
+          <ZoruCard className="overflow-hidden p-0">
+            <div className="overflow-x-auto">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10 pl-3">
+                      <ZoruCheckbox
+                        checked={allSelectedOnPage}
+                        onCheckedChange={toggleAll}
+                        aria-label="Select all on page"
+                      />
+                    </ZoruTableHead>
+                    <ZoruTableHead>Form Name</ZoruTableHead>
+                    <ZoruTableHead>Status</ZoruTableHead>
+                    <ZoruTableHead className="text-right">Submissions</ZoruTableHead>
+                    <ZoruTableHead>Created</ZoruTableHead>
+                    <ZoruTableHead className="text-right">Actions</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {filtered.map((form) => {
+                    const id = form._id.toString();
+                    return (
+                      <ZoruTableRow key={id} className="border-zoru-line">
+                        <ZoruTableCell className="pl-3">
+                          <ZoruCheckbox
+                            checked={selected.has(id)}
+                            onCheckedChange={() => toggleRow(id)}
+                            aria-label={`Select ${form.name}`}
+                          />
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <EntityRowLink
+                            href={`/dashboard/crm/sales-crm/forms/${id}/submissions`}
+                            label={form.name}
+                            subtitle={`${form.submissionCount ?? 0} submission${(form.submissionCount ?? 0) === 1 ? '' : 's'}`}
+                          />
+                        </ZoruTableCell>
+                        <ZoruTableCell>
+                          <StatusBadge form={form} />
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-ink">
+                          {(form.submissionCount ?? 0).toLocaleString()}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-[13px] text-zoru-ink-muted">
+                          {form.createdAt
+                            ? formatDistanceToNow(new Date(form.createdAt), { addSuffix: true })
+                            : '—'}
+                        </ZoruTableCell>
+                        <ZoruTableCell className="text-right">
+                          <div className="flex justify-end gap-1">
+                            <a
+                              href={`/embed/crm-form/${id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              aria-label="Preview embed"
+                            >
+                              <ZoruButton variant="ghost" size="icon">
+                                <Eye className="h-4 w-4" />
+                              </ZoruButton>
+                            </a>
+                            <Link href={`/dashboard/crm/sales-crm/forms/${id}/edit`}>
+                              <ZoruButton variant="ghost" size="icon" aria-label="Edit">
+                                <Edit className="h-4 w-4" />
+                              </ZoruButton>
+                            </Link>
+                            <ZoruButton
+                              variant="ghost"
+                              size="icon"
+                              aria-label="Delete"
+                              onClick={() => setDeletingId(id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </ZoruButton>
+                          </div>
+                        </ZoruTableCell>
+                      </ZoruTableRow>
+                    );
+                  })}
+                </ZoruTableBody>
+              </ZoruTable>
+            </div>
+          </ZoruCard>
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 ? (
+          <div className="flex items-center justify-between">
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((p) => p - 1)}
+            >
+              Previous
+            </ZoruButton>
+            <span className="text-[13px] text-zoru-ink-muted">
+              Page {currentPage} of {totalPages}
+            </span>
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage((p) => p + 1)}
+            >
+              Next
+            </ZoruButton>
+          </div>
+        ) : null}
+      </EntityListShell>
+
+      {/* Single delete */}
+      <ConfirmDialog
+        open={deletingId !== null}
+        onOpenChange={(o) => !o && setDeletingId(null)}
+        title="Delete this form?"
+        description="This permanently removes the form and all its submissions. This action cannot be undone."
+        confirmLabel="Delete"
+        requireTyped="DELETE"
+        onConfirm={handleDelete}
+      />
+
+      {/* Bulk publish */}
+      <ConfirmDialog
+        open={bulkPublishPending}
+        onOpenChange={setBulkPublishPending}
+        title={`Publish ${selected.size} form${selected.size === 1 ? '' : 's'}?`}
+        description="The selected forms will be marked as published and will accept new submissions."
+        confirmLabel="Publish"
+        confirmTone="primary"
+        onConfirm={runBulkPublish}
+      />
+
+      {/* Bulk archive */}
+      <ConfirmDialog
+        open={bulkArchivePending}
+        onOpenChange={setBulkArchivePending}
+        title={`Archive ${selected.size} form${selected.size === 1 ? '' : 's'}?`}
+        description="The selected forms will be set to draft and will stop accepting new submissions."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={runBulkArchive}
+      />
+
+      {/* Bulk delete */}
+      <ConfirmDialog
+        open={bulkDeletePending}
+        onOpenChange={setBulkDeletePending}
+        title={`Delete ${selected.size} form${selected.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected forms and all their submissions. This action cannot be undone."
+        confirmLabel="Delete"
+        requireTyped="DELETE"
+        onConfirm={runBulkDelete}
+      />
+
+      {bulkPending ? <span className="sr-only">Working…</span> : null}
+    </>
+  );
 }

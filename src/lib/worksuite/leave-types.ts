@@ -91,6 +91,16 @@ export interface WsLeaveSetting {
   allow_future_leave: boolean;
   max_days_advance: number;
   hours_per_day: number;
+  /** Carry-forward policy across leave years. */
+  carry_forward_enabled?: boolean;
+  /** Maximum days that can be carried into the next leave year. */
+  carry_forward_max_days?: number;
+  /** Hard cap on total accrued balance per leave type (0 = no cap). */
+  max_accrual_days?: number;
+  /** How carry-forward balance expires: 'never', 'end_of_year', 'fixed_months'. */
+  expiry_rule?: 'never' | 'end_of_year' | 'fixed_months';
+  /** When expiry_rule === 'fixed_months': months until expiry. */
+  expiry_months?: number;
   createdAt?: string | Date;
   updatedAt?: string | Date;
 }

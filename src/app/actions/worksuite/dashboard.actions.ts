@@ -605,3 +605,53 @@ export async function getPinnedById(id: string) {
 export async function listDashboardWidgets() {
   return hrList<WsDashboardWidget>(COLS.widgets, { sortBy: { position: 1 } });
 }
+
+/* ─────────────────────────────────────────────────────────────────
+ * Dashboard widget KPIs
+ * ──────────────────────────────────────────────────────────────── */
+
+export interface DashboardWidgetKpis {
+  total: number;
+  by_type: Record<string, number>;
+  by_owner: Array<{ user_id: string; count: number }>;
+  visible: number;
+}
+
+/**
+ * KPI roll-up for /settings/dashboard-widgets. Widget rows are
+ * per-user — for the current viewer we count totals, type buckets,
+ * and the visible subset; the "by_owner" array is a single-element
+ * roll-up for parity with the multi-tenant widget admin view.
+ */
+export async function getDashboardWidgetKpis(): Promise<DashboardWidgetKpis> {
+  const user = await requireSession();
+  if (!user) {
+    return { total: 0, by_type: {}, by_owner: [], visible: 0 };
+  }
+  const { db } = await connectToDatabase();
+  const docs = (await db
+    .collection(COLS.widgets)
+    .find({
+      userId: new ObjectId(user._id),
+      user_id: new ObjectId(user._id),
+    })
+    .project({ type: 1, is_visible: 1, user_id: 1 })
+    .toArray()) as Array<{
+    type?: WsDashboardWidgetType;
+    is_visible?: boolean;
+    user_id?: ObjectId | string;
+  }>;
+  const byType: Record<string, number> = {};
+  let visible = 0;
+  for (const w of docs) {
+    const t = w.type || 'custom';
+    byType[t] = (byType[t] || 0) + 1;
+    if (w.is_visible !== false) visible += 1;
+  }
+  return {
+    total: docs.length,
+    by_type: byType,
+    by_owner: [{ user_id: String(user._id), count: docs.length }],
+    visible,
+  };
+}

@@ -1,71 +1,111 @@
 'use client';
 
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruInput,
-  ZoruStatCard,
-  useZoruToast,
-} from '@/components/zoruui';
-import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import {
-  useDebouncedCallback } from 'use-debounce';
-import {
-    Award as AwardIcon,
-  Heart,
-  Plus,
-  Trash2,
-  Trophy,
-  Users,
-  X,
-  } from 'lucide-react';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { ConfirmDialog } from '@/components/crm/confirm-dialog';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { StatusPill } from '@/components/crm/status-pill';
-
 /**
- * Awards list (§1D.1) — KPI strip (4) · filter chips · table.
+ * AwardsListClient — full-feature list (§1D.1 bar).
  *
- * The "program" entity here maps to `WsAward` (a recurring program with a
- * frequency). Nomination volume / winners / points are derived from the
- * companion `appreciations` collection.
+ * Features:
+ *  - KPI strip: total programs · this month nominations · unique recipients ·
+ *               award types
+ *  - Tab switcher: Programs | Appreciations (given awards)
+ *  - Programs table: Program name · Icon · Frequency · Nominations · Actions
+ *  - Appreciations table: Award name · Recipient · Given by · Date · Message ·
+ *                         Actions (delete)
+ *  - Filters: search · frequency (programs tab) / award (appreciations tab) ·
+ *             date range (appreciations tab)
+ *  - Bulk delete
+ *  - Export CSV
  */
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+    Award as AwardIcon,
+    Heart,
+    Plus,
+    Trash2,
+    Trophy,
+    Users,
+    X,
+} from 'lucide-react';
+
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCheckbox,
+    ZoruInput,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    useZoruToast,
+} from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { StatusPill } from '@/components/crm/status-pill';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 import {
     deleteAward,
-    getAppreciations,
+    deleteAppreciation,
     getAwards,
+    getAppreciations,
 } from '@/app/actions/worksuite/knowledge.actions';
-import type { WsAppreciation, WsAward, WsAwardFrequency } from '@/lib/worksuite/knowledge-types';
+import type { WsAward, WsAppreciation, WsAwardFrequency } from '@/lib/worksuite/knowledge-types';
+import type { AwardKpis } from '@/app/actions/worksuite/knowledge.actions';
 
+type Tab = 'programs' | 'appreciations';
 type FrequencyFilter = 'all' | WsAwardFrequency;
 
-interface FilterState {
-    search: string;
-    frequency: FrequencyFilter;
+interface AwardsListClientProps {
+    initialAwards: (WsAward & { _id: string })[];
+    initialAppreciations: (WsAppreciation & { _id: string })[];
+    initialKpis: AwardKpis;
 }
 
-const INITIAL: FilterState = { search: '', frequency: 'all' };
-
-function isThisMonth(d: Date): boolean {
-    const now = new Date();
-    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+function fmtDate(v: unknown): string {
+    if (!v) return '—';
+    const d = new Date(v as string);
+    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
 }
 
-export function AwardsListClient(): React.JSX.Element {
+export function AwardsListClient({
+    initialAwards,
+    initialAppreciations,
+    initialKpis,
+}: AwardsListClientProps): React.JSX.Element {
     const { toast } = useZoruToast();
-    const [awards, setAwards] = React.useState<(WsAward & { _id: string })[]>([]);
-    const [apps, setApps] = React.useState<(WsAppreciation & { _id: string })[]>([]);
-    const [loading, startTransition] = React.useTransition();
-    const [filters, setFilters] = React.useState<FilterState>(INITIAL);
-    const [deleteId, setDeleteId] = React.useState<string | null>(null);
 
-    const fetchData = React.useCallback(() => {
+    const [awards, setAwards] = React.useState<(WsAward & { _id: string })[]>(initialAwards);
+    const [apps, setApps] = React.useState<(WsAppreciation & { _id: string })[]>(
+        initialAppreciations,
+    );
+    const [kpis] = React.useState<AwardKpis>(initialKpis);
+    const [loading, startTransition] = React.useTransition();
+
+    const [tab, setTab] = React.useState<Tab>('programs');
+    const [searchDraft, setSearchDraft] = React.useState('');
+    const [search, setSearch] = React.useState('');
+    const [frequency, setFrequency] = React.useState<FrequencyFilter>('all');
+    const [awardFilter, setAwardFilter] = React.useState<string>('all');
+    const [fromIso, setFromIso] = React.useState('');
+    const [toIso, setToIso] = React.useState('');
+
+    const [selectedPrograms, setSelectedPrograms] = React.useState<Set<string>>(new Set());
+    const [selectedApps, setSelectedApps] = React.useState<Set<string>>(new Set());
+    const [deleteId, setDeleteId] = React.useState<string | null>(null);
+    const [deleteMode, setDeleteMode] = React.useState<Tab>('programs');
+    const [bulkDeleteMode, setBulkDeleteMode] = React.useState<Tab | null>(null);
+
+    const handleSearch = useDebouncedCallback(
+        (v: string) => setSearch(v),
+        200,
+    );
+
+    const refetch = React.useCallback(() => {
         startTransition(async () => {
             try {
                 const [aw, ap] = await Promise.all([getAwards(), getAppreciations()]);
@@ -73,7 +113,7 @@ export function AwardsListClient(): React.JSX.Element {
                 setApps(ap as (WsAppreciation & { _id: string })[]);
             } catch (err) {
                 toast({
-                    title: 'Could not load awards',
+                    title: 'Could not reload awards',
                     description: err instanceof Error ? err.message : 'Unknown',
                     variant: 'destructive',
                 });
@@ -81,81 +121,155 @@ export function AwardsListClient(): React.JSX.Element {
         });
     }, [toast]);
 
-    React.useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+    const from = fromIso ? new Date(fromIso).getTime() : null;
+    const to = toIso ? new Date(toIso).getTime() : null;
 
-    const handleSearch = useDebouncedCallback(
-        (v: string) => setFilters((p) => ({ ...p, search: v })),
-        200,
-    );
-
-    const visible = React.useMemo(() => {
-        const q = filters.search.trim().toLowerCase();
+    const visiblePrograms = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
         return awards.filter((a) => {
             if (q) {
                 const hay = `${a.title ?? ''} ${a.summary ?? ''}`.toLowerCase();
                 if (!hay.includes(q)) return false;
             }
-            if (filters.frequency !== 'all' && a.frequency !== filters.frequency) return false;
+            if (frequency !== 'all' && a.frequency !== frequency) return false;
             return true;
         });
-    }, [awards, filters]);
+    }, [awards, search, frequency]);
 
-    const kpis = React.useMemo(() => {
-        let thisMonth = 0;
-        let winners = 0;
-        for (const ap of apps) {
-            const d = new Date(ap.given_on as string);
-            if (Number.isFinite(d.getTime()) && isThisMonth(d)) thisMonth += 1;
-        }
-        // Winners = unique recipients across appreciations.
-        const winnerSet = new Set(apps.map((a) => a.given_to_user_id));
-        winners = winnerSet.size;
-        return {
-            programs: awards.length,
-            thisMonth,
-            winners,
-            totalAppreciations: apps.length,
-        };
-    }, [awards, apps]);
+    const visibleApps = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        return apps.filter((a) => {
+            if (q) {
+                const hay =
+                    `${a.award_title ?? ''} ${a.given_to_user_name ?? ''} ${a.given_by_user_name ?? ''} ${a.summary ?? ''}`.toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
+            if (awardFilter !== 'all' && a.award_id !== awardFilter) return false;
+            if (from !== null || to !== null) {
+                const ms = new Date(a.given_on as string).getTime();
+                if (from !== null && ms < from) return false;
+                if (to !== null && ms > to) return false;
+            }
+            return true;
+        });
+    }, [apps, search, awardFilter, from, to]);
 
-    const handleDelete = React.useCallback(async () => {
+    const hasActiveFilters =
+        search !== '' ||
+        frequency !== 'all' ||
+        awardFilter !== 'all' ||
+        fromIso !== '' ||
+        toIso !== '';
+
+    const clearFilters = () => {
+        setSearch('');
+        setSearchDraft('');
+        setFrequency('all');
+        setAwardFilter('all');
+        setFromIso('');
+        setToIso('');
+    };
+
+    // ── Single delete ──
+    const handleConfirmDelete = React.useCallback(async () => {
         if (!deleteId) return;
-        const r = await deleteAward(deleteId);
+        const r =
+            deleteMode === 'programs'
+                ? await deleteAward(deleteId)
+                : await deleteAppreciation(deleteId);
         if (r.success) {
-            toast({ title: 'Award deleted' });
-            fetchData();
+            toast({ title: deleteMode === 'programs' ? 'Award deleted' : 'Appreciation deleted' });
+            refetch();
         } else {
             toast({ title: 'Delete failed', description: r.error, variant: 'destructive' });
         }
         setDeleteId(null);
-    }, [deleteId, fetchData, toast]);
+    }, [deleteId, deleteMode, refetch, toast]);
 
+    // ── Bulk delete ──
+    const runBulkDelete = React.useCallback(async () => {
+        const ids = Array.from(
+            bulkDeleteMode === 'programs' ? selectedPrograms : selectedApps,
+        );
+        if (ids.length === 0) return;
+        let ok = 0;
+        let fail = 0;
+        for (const id of ids) {
+            const r =
+                bulkDeleteMode === 'programs'
+                    ? await deleteAward(id)
+                    : await deleteAppreciation(id);
+            if (r.success) ok += 1;
+            else fail += 1;
+        }
+        toast({
+            title: 'Bulk delete',
+            description: `${ok} deleted${fail ? `, ${fail} failed` : ''}`,
+            variant: fail > 0 ? 'destructive' : undefined,
+        });
+        if (bulkDeleteMode === 'programs') setSelectedPrograms(new Set());
+        else setSelectedApps(new Set());
+        setBulkDeleteMode(null);
+        refetch();
+    }, [bulkDeleteMode, selectedPrograms, selectedApps, refetch, toast]);
+
+    // ── Export ──
     const exportCsv = React.useCallback(() => {
-        const header = ['ID', 'Title', 'Icon', 'Frequency', 'Nominations'];
-        const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-        const csv = [
-            header.join(','),
-            ...visible.map((a) => {
-                const noms = apps.filter((x) => x.award_id === a._id).length;
-                return [
-                    esc(a._id),
-                    esc(a.title),
-                    esc(a.icon),
-                    esc(a.frequency),
-                    esc(noms),
-                ].join(',');
-            }),
-        ].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const aEl = document.createElement('a');
-        aEl.href = url;
-        aEl.download = `awards-${new Date().toISOString().slice(0, 10)}.csv`;
-        aEl.click();
-        URL.revokeObjectURL(url);
-    }, [visible, apps]);
+        if (tab === 'programs') {
+            const rows = (
+                selectedPrograms.size > 0
+                    ? visiblePrograms.filter((a) => selectedPrograms.has(a._id))
+                    : visiblePrograms
+            ).map((a) => ({
+                ID: a._id,
+                Title: a.title,
+                Icon: a.icon,
+                Frequency: a.frequency,
+                Nominations: apps.filter((x) => x.award_id === a._id).length,
+            }));
+            downloadCsv(
+                `award-programs-${dateStamp()}.csv`,
+                ['ID', 'Title', 'Icon', 'Frequency', 'Nominations'],
+                rows,
+            );
+        } else {
+            const rows = (
+                selectedApps.size > 0
+                    ? visibleApps.filter((a) => selectedApps.has(a._id))
+                    : visibleApps
+            ).map((a) => ({
+                ID: a._id,
+                'Award name': a.award_title ?? awards.find((aw) => aw._id === a.award_id)?.title ?? a.award_id,
+                Recipient: a.given_to_user_name ?? a.given_to_user_id,
+                'Given by': a.given_by_user_name ?? a.given_by_user_id,
+                Date: fmtDate(a.given_on),
+                Message: (a.summary ?? '').replace(/\n/g, ' '),
+            }));
+            downloadCsv(
+                `appreciations-${dateStamp()}.csv`,
+                ['ID', 'Award name', 'Recipient', 'Given by', 'Date', 'Message'],
+                rows,
+            );
+        }
+    }, [tab, visiblePrograms, visibleApps, selectedPrograms, selectedApps, apps, awards]);
+
+    const selectedSet = tab === 'programs' ? selectedPrograms : selectedApps;
+    const setSelected = tab === 'programs' ? setSelectedPrograms : setSelectedApps;
+    const visibleList = tab === 'programs' ? visiblePrograms : visibleApps;
+
+    const allSelected =
+        visibleList.length > 0 && visibleList.every((a) => selectedSet.has(a._id));
+
+    const toggleOne = (id: string) =>
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+
+    const toggleAll = (on: boolean) =>
+        setSelected(on ? new Set(visibleList.map((a) => a._id)) : new Set());
 
     return (
         <>
@@ -163,9 +277,15 @@ export function AwardsListClient(): React.JSX.Element {
                 title="Awards"
                 subtitle="Recognition programs and appreciations for your team."
                 search={{
-                    value: filters.search,
-                    onChange: (v) => handleSearch(v),
-                    placeholder: 'Search award programs…',
+                    value: searchDraft,
+                    onChange: (v) => {
+                        setSearchDraft(v);
+                        handleSearch(v);
+                    },
+                    placeholder:
+                        tab === 'programs'
+                            ? 'Search award programs…'
+                            : 'Search recipient, giver, or message…',
                 }}
                 primaryAction={
                     <div className="flex gap-2">
@@ -181,22 +301,80 @@ export function AwardsListClient(): React.JSX.Element {
                         </ZoruButton>
                     </div>
                 }
+                viewSwitcher={
+                    <div className="inline-flex rounded-md border border-zoru-line p-0.5">
+                        {(['programs', 'appreciations'] as Tab[]).map((t) => (
+                            <button
+                                key={t}
+                                type="button"
+                                onClick={() => setTab(t)}
+                                aria-pressed={tab === t}
+                                className={[
+                                    'inline-flex items-center gap-1 rounded-sm px-2 py-1 text-[12px] capitalize',
+                                    tab === t
+                                        ? 'bg-zoru-surface text-zoru-ink'
+                                        : 'text-zoru-ink-muted hover:text-zoru-ink',
+                                ].join(' ')}
+                            >
+                                {t}
+                            </button>
+                        ))}
+                    </div>
+                }
                 filters={
                     <div className="flex flex-wrap items-center gap-2">
-                        <EnumFilterField
-                            enumName="awardFrequency"
-                            value={filters.frequency}
-                            onChange={(v) =>
-                                setFilters((p) => ({ ...p, frequency: v as FrequencyFilter }))
-                            }
-                            allLabel="Any frequency"
-                        />
-                        {filters.frequency !== 'all' || filters.search !== '' ? (
-                            <ZoruButton
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setFilters(INITIAL)}
+                        {tab === 'programs' ? (
+                            <ZoruSelect
+                                value={frequency}
+                                onValueChange={(v) => setFrequency(v as FrequencyFilter)}
                             >
+                                <ZoruSelectTrigger className="h-9 w-[160px]">
+                                    <ZoruSelectValue placeholder="Frequency" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="all">Any frequency</ZoruSelectItem>
+                                    <ZoruSelectItem value="one-time">One-time</ZoruSelectItem>
+                                    <ZoruSelectItem value="monthly">Monthly</ZoruSelectItem>
+                                    <ZoruSelectItem value="quarterly">Quarterly</ZoruSelectItem>
+                                    <ZoruSelectItem value="annual">Annual</ZoruSelectItem>
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                        ) : (
+                            <>
+                                <ZoruSelect
+                                    value={awardFilter}
+                                    onValueChange={(v) => setAwardFilter(v)}
+                                >
+                                    <ZoruSelectTrigger className="h-9 w-[180px]">
+                                        <ZoruSelectValue placeholder="Award program" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">Any program</ZoruSelectItem>
+                                        {awards.map((a) => (
+                                            <ZoruSelectItem key={a._id} value={a._id}>
+                                                {a.title}
+                                            </ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                                <ZoruInput
+                                    type="date"
+                                    value={fromIso}
+                                    onChange={(e) => setFromIso(e.target.value)}
+                                    className="h-9 w-[150px]"
+                                    aria-label="Given from"
+                                />
+                                <ZoruInput
+                                    type="date"
+                                    value={toIso}
+                                    onChange={(e) => setToIso(e.target.value)}
+                                    className="h-9 w-[150px]"
+                                    aria-label="Given to"
+                                />
+                            </>
+                        )}
+                        {hasActiveFilters ? (
+                            <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
                                 <X className="h-3.5 w-3.5" /> Clear
                             </ZoruButton>
                         ) : null}
@@ -205,16 +383,47 @@ export function AwardsListClient(): React.JSX.Element {
                         </ZoruButton>
                     </div>
                 }
+                bulkBar={
+                    selectedSet.size > 0 ? (
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                            <span className="text-[13px] text-zoru-ink-muted">
+                                {selectedSet.size} selected
+                            </span>
+                            <div className="flex flex-wrap gap-2">
+                                <ZoruButton variant="ghost" size="sm" onClick={exportCsv}>
+                                    Export CSV
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setBulkDeleteMode(tab)}
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelected(new Set())}
+                                >
+                                    Clear
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    ) : null
+                }
                 empty={
-                    !loading && awards.length === 0 ? (
+                    !loading && visibleList.length === 0 ? (
                         <div className="flex flex-col items-center gap-3 p-4">
                             <AwardIcon className="h-6 w-6 text-zoru-ink-muted" />
                             <h3 className="text-base font-medium text-zoru-ink">
-                                No award programs yet
+                                {tab === 'programs'
+                                    ? 'No award programs yet'
+                                    : 'No appreciations yet'}
                             </h3>
                             <p className="max-w-sm text-sm text-zoru-ink-muted">
-                                Define a recognition program — “Star of the month”, “Top sales”,
-                                anything — and grant appreciations against it.
+                                {tab === 'programs'
+                                    ? 'Define a recognition program and grant appreciations against it.'
+                                    : 'Give your first appreciation from the Appreciations page.'}
                             </p>
                             <ZoruButton asChild>
                                 <Link href="/dashboard/crm/workspace/awards/new">
@@ -227,10 +436,11 @@ export function AwardsListClient(): React.JSX.Element {
                 loading={loading && awards.length === 0}
             >
                 <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <ZoruStatCard
                             label="Active programs"
-                            value={kpis.programs}
+                            value={kpis.totalPrograms}
                             icon={<AwardIcon className="h-4 w-4" />}
                         />
                         <ZoruStatCard
@@ -239,94 +449,239 @@ export function AwardsListClient(): React.JSX.Element {
                             icon={<Heart className="h-4 w-4" />}
                         />
                         <ZoruStatCard
-                            label="Winners"
-                            value={kpis.winners}
+                            label="Unique recipients"
+                            value={kpis.uniqueRecipients}
                             icon={<Trophy className="h-4 w-4" />}
                         />
                         <ZoruStatCard
-                            label="Total appreciations"
-                            value={kpis.totalAppreciations}
+                            label="Award types"
+                            value={kpis.awardTypes}
                             icon={<Users className="h-4 w-4" />}
                         />
                     </div>
 
-                    <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-                        <table className="w-full min-w-[700px] text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-                                <tr>
-                                    {[
-                                        'Program',
-                                        'Icon',
-                                        'Frequency',
-                                        'Nominations',
-                                        'Status',
-                                        '',
-                                    ].map((h) => (
-                                        <th key={h} className="px-3 py-2 text-left font-medium">
-                                            {h}
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-zoru-line bg-zoru-bg">
-                                {visible.length === 0 ? (
+                    {/* Programs table */}
+                    {tab === 'programs' ? (
+                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                            <table className="w-full min-w-[700px] text-[13px]">
+                                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
                                     <tr>
-                                        <td colSpan={6} className="p-6 text-center text-zoru-ink-muted">
-                                            No awards match the current filters.
-                                        </td>
-                                    </tr>
-                                ) : null}
-                                {visible.map((a) => {
-                                    const nominations = apps.filter(
-                                        (x) => x.award_id === a._id,
-                                    ).length;
-                                    return (
-                                        <tr key={a._id} className="hover:bg-zoru-surface">
-                                            <td className="px-3 py-2">
-                                                <EntityRowLink
-                                                    href={`/dashboard/crm/workspace/awards/${a._id}`}
-                                                    label={a.title}
-                                                    subtitle={a.summary || undefined}
-                                                />
-                                            </td>
-                                            <td className="px-3 py-2 text-[18px]">
-                                                {a.icon || '🏆'}
-                                            </td>
-                                            <td className="px-3 py-2">
-                                                <ZoruBadge variant="warning" className="capitalize">
-                                                    {a.frequency}
-                                                </ZoruBadge>
-                                            </td>
-                                            <td className="px-3 py-2 text-zoru-ink-muted">{nominations}</td>
-                                            <td className="px-3 py-2">
-                                                <StatusPill label="Active" tone="green" />
-                                            </td>
-                                            <td className="px-3 py-2 text-right">
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => setDeleteId(a._id)}
+                                        <th className="px-3 py-2">
+                                            <ZoruCheckbox
+                                                aria-label="Select all"
+                                                checked={allSelected}
+                                                onCheckedChange={(v) => toggleAll(!!v)}
+                                            />
+                                        </th>
+                                        {['Program', 'Icon', 'Frequency', 'Nominations', 'Status', ''].map(
+                                            (h) => (
+                                                <th
+                                                    key={h}
+                                                    className="px-3 py-2 text-left font-medium"
                                                 >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                </ZoruButton>
+                                                    {h}
+                                                </th>
+                                            ),
+                                        )}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                                    {visiblePrograms.length === 0 ? (
+                                        <tr>
+                                            <td
+                                                colSpan={7}
+                                                className="p-6 text-center text-zoru-ink-muted"
+                                            >
+                                                No awards match the current filters.
                                             </td>
                                         </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
+                                    ) : null}
+                                    {visiblePrograms.map((a) => {
+                                        const nominations = apps.filter(
+                                            (x) => x.award_id === a._id,
+                                        ).length;
+                                        const checked = selectedPrograms.has(a._id);
+                                        return (
+                                            <tr key={a._id} className="hover:bg-zoru-surface">
+                                                <td className="px-3 py-2">
+                                                    <ZoruCheckbox
+                                                        aria-label={`Select ${a.title}`}
+                                                        checked={checked}
+                                                        onCheckedChange={() => toggleOne(a._id)}
+                                                    />
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/workspace/awards/${a._id}`}
+                                                        label={a.title}
+                                                        subtitle={a.summary || undefined}
+                                                    />
+                                                </td>
+                                                <td className="px-3 py-2 text-[18px]">
+                                                    {a.icon || ''}
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <ZoruBadge
+                                                        variant="warning"
+                                                        className="capitalize"
+                                                    >
+                                                        {a.frequency}
+                                                    </ZoruBadge>
+                                                </td>
+                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                    {nominations}
+                                                </td>
+                                                <td className="px-3 py-2">
+                                                    <StatusPill label="Active" tone="green" />
+                                                </td>
+                                                <td className="px-3 py-2 text-right">
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            setDeleteMode('programs');
+                                                            setDeleteId(a._id);
+                                                        }}
+                                                        aria-label={`Delete ${a.title}`}
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </ZoruButton>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    ) : (
+                        /* Appreciations table */
+                        <div className="overflow-x-auto rounded-[var(--zoru-radius-lg)] border border-zoru-line">
+                            <table className="w-full min-w-[800px] text-[13px]">
+                                <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
+                                    <tr>
+                                        <th className="px-3 py-2">
+                                            <ZoruCheckbox
+                                                aria-label="Select all"
+                                                checked={allSelected}
+                                                onCheckedChange={(v) => toggleAll(!!v)}
+                                            />
+                                        </th>
+                                        {[
+                                            'Award name',
+                                            'Recipient',
+                                            'Given by',
+                                            'Date',
+                                            'Message',
+                                            '',
+                                        ].map((h) => (
+                                            <th
+                                                key={h}
+                                                className="px-3 py-2 text-left font-medium"
+                                            >
+                                                {h}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-zoru-line bg-zoru-bg">
+                                    {visibleApps.length === 0 ? (
+                                        <tr>
+                                            <td
+                                                colSpan={7}
+                                                className="p-6 text-center text-zoru-ink-muted"
+                                            >
+                                                No appreciations match the current filters.
+                                            </td>
+                                        </tr>
+                                    ) : null}
+                                    {visibleApps.map((a) => {
+                                        const awardTitle =
+                                            a.award_title ??
+                                            awards.find((aw) => aw._id === a.award_id)?.title ??
+                                            a.award_id;
+                                        const checked = selectedApps.has(a._id);
+                                        return (
+                                            <tr key={a._id} className="hover:bg-zoru-surface">
+                                                <td className="px-3 py-2">
+                                                    <ZoruCheckbox
+                                                        aria-label={`Select appreciation ${a._id}`}
+                                                        checked={checked}
+                                                        onCheckedChange={() => toggleOne(a._id)}
+                                                    />
+                                                </td>
+                                                <td className="px-3 py-2 font-medium text-zoru-ink">
+                                                    {awardTitle}
+                                                </td>
+                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                    {a.given_to_user_name ?? a.given_to_user_id}
+                                                </td>
+                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                    {a.given_by_user_name ?? a.given_by_user_id}
+                                                </td>
+                                                <td className="px-3 py-2 text-zoru-ink-muted">
+                                                    {fmtDate(a.given_on)}
+                                                </td>
+                                                <td className="max-w-[200px] truncate px-3 py-2 text-zoru-ink-muted">
+                                                    {a.summary
+                                                        ? a.summary.length > 60
+                                                            ? `${a.summary.slice(0, 60)}…`
+                                                            : a.summary
+                                                        : '—'}
+                                                </td>
+                                                <td className="px-3 py-2 text-right">
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            setDeleteMode('appreciations');
+                                                            setDeleteId(a._id);
+                                                        }}
+                                                        aria-label="Delete appreciation"
+                                                    >
+                                                        <Trash2 className="h-3.5 w-3.5" />
+                                                    </ZoruButton>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                    )}
                 </div>
             </EntityListShell>
 
+            {/* Single delete */}
             <ConfirmDialog
                 open={!!deleteId}
                 onOpenChange={(o) => !o && setDeleteId(null)}
-                title="Delete this award program?"
-                description="The program will be permanently removed. Existing appreciations are kept but lose their program reference."
+                title={
+                    deleteMode === 'programs'
+                        ? 'Delete this award program?'
+                        : 'Delete this appreciation?'
+                }
+                description={
+                    deleteMode === 'programs'
+                        ? 'The program will be permanently removed. Existing appreciations are kept but lose their program reference.'
+                        : 'The appreciation will be permanently removed.'
+                }
                 requireTyped="DELETE"
                 confirmLabel="Delete"
-                onConfirm={handleDelete}
+                onConfirm={handleConfirmDelete}
+            />
+
+            {/* Bulk delete */}
+            <ConfirmDialog
+                open={!!bulkDeleteMode}
+                onOpenChange={(o) => !o && setBulkDeleteMode(null)}
+                title={`Delete ${selectedSet.size} item(s)?`}
+                description="The selected items will be permanently removed."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                confirmTone="danger"
+                onConfirm={() => {
+                    void runBulkDelete();
+                }}
             />
         </>
     );

@@ -10,13 +10,19 @@
  *     Used for transactional sends, campaign triggers, etc.
  *
  * Operations covered:
- *   - customer.upsert      PUT    /api/v1/customers/{id}    (tracking)
- *   - customer.delete      DELETE /api/v1/customers/{id}    (tracking)
- *   - event.track          POST   /api/v1/customers/{id}/events (tracking)
- *   - event.trackAnonymous POST   /api/v1/events            (tracking)
- *   - campaign.trigger     POST   /v1/api/campaigns/{id}/triggers (app)
+ *   - customer.upsert         PUT    /api/v1/customers/{id}                 (tracking)
+ *   - customer.delete         DELETE /api/v1/customers/{id}                 (tracking)
+ *   - event.track             POST   /api/v1/customers/{id}/events          (tracking)
+ *   - event.track_anonymous   POST   /api/v1/events                         (tracking)
+ *   - segment.add_customers   POST   /api/v1/segments/{id}/add_customers    (tracking)
+ *   - segment.remove_customers POST  /api/v1/segments/{id}/remove_customers (tracking)
+ *   - campaign.trigger        POST   /v1/api/campaigns/{id}/triggers        (app)
+ *   - campaign.get            GET    /v1/campaigns/{id}                     (app)
+ *   - campaign.list           GET    /v1/campaigns                          (app)
+ *   - campaign.get_metrics    GET    /v1/campaigns/{id}/metrics             (app)
  *
- * Out of scope: segment APIs, transactional sends, app-side reports.
+ * Out of scope: transactional message sends, manual/segment-triggered
+ * journeys, app-side reporting, push subscription management.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -182,6 +188,64 @@ async function campaignTrigger(ctx: ForgeActionContext): Promise<ForgeActionResu
   };
 }
 
+// ── Segment ────────────────────────────────────────────────────────────────
+
+async function segmentAddCustomers(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const segmentId = asString(ctx.options.segmentId);
+  const ids = asString(ctx.options.customerIds);
+  if (!segmentId) throw new Error('Customer.io: segmentId is required');
+  if (!ids) throw new Error('Customer.io: customerIds is required');
+  const idList = ids.split(',').map((s) => s.trim()).filter(Boolean);
+  await trackApi(ctx, 'POST', `/segments/${encodeURIComponent(segmentId)}/add_customers`, { ids: idList });
+  return {
+    outputs: { success: true, segmentId, count: idList.length },
+    logs: [`Customer.io segment add → ${segmentId} (${idList.length})`],
+  };
+}
+
+async function segmentRemoveCustomers(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const segmentId = asString(ctx.options.segmentId);
+  const ids = asString(ctx.options.customerIds);
+  if (!segmentId) throw new Error('Customer.io: segmentId is required');
+  if (!ids) throw new Error('Customer.io: customerIds is required');
+  const idList = ids.split(',').map((s) => s.trim()).filter(Boolean);
+  await trackApi(ctx, 'POST', `/segments/${encodeURIComponent(segmentId)}/remove_customers`, { ids: idList });
+  return {
+    outputs: { success: true, segmentId, count: idList.length },
+    logs: [`Customer.io segment remove → ${segmentId} (${idList.length})`],
+  };
+}
+
+// ── Campaign read ──────────────────────────────────────────────────────────
+
+async function campaignGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Customer.io: campaignId is required');
+  const data = (await appApi(ctx, 'GET', `/campaigns/${encodeURIComponent(campaignId)}`)) as {
+    campaign?: unknown;
+  } | null;
+  return { outputs: { campaign: data?.campaign ?? data }, logs: [`Customer.io campaign get → ${campaignId}`] };
+}
+
+async function campaignList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const data = (await appApi(ctx, 'GET', '/campaigns')) as { campaigns?: unknown[] } | null;
+  const campaigns = data?.campaigns ?? [];
+  return { outputs: { campaigns, count: Array.isArray(campaigns) ? campaigns.length : 0 }, logs: ['Customer.io campaign list'] };
+}
+
+async function campaignGetMetrics(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const campaignId = asString(ctx.options.campaignId);
+  if (!campaignId) throw new Error('Customer.io: campaignId is required');
+  const period = asString(ctx.options.period);
+  const qs = period && period !== 'days' ? `?period=${encodeURIComponent(period)}` : '';
+  const data = (await appApi(
+    ctx,
+    'GET',
+    `/campaigns/${encodeURIComponent(campaignId)}/metrics${qs}`,
+  )) as { metric?: unknown } | null;
+  return { outputs: { metric: data?.metric ?? data }, logs: [`Customer.io campaign metrics → ${campaignId}`] };
+}
+
 // ── Block ──────────────────────────────────────────────────────────────────
 
 const block: ForgeBlock = {
@@ -244,6 +308,61 @@ const block: ForgeBlock = {
         { id: 'recipients', label: 'Recipients filter (JSON)', type: 'json' },
       ],
       run: campaignTrigger,
+    },
+    {
+      id: 'segment_add_customers',
+      label: 'Add customers to segment',
+      description: 'Manually add a list of customers to a manual segment.',
+      fields: [
+        { id: 'segmentId', label: 'Segment ID', type: 'text', required: true },
+        { id: 'customerIds', label: 'Customer IDs (comma-separated)', type: 'textarea', required: true },
+      ],
+      run: segmentAddCustomers,
+    },
+    {
+      id: 'segment_remove_customers',
+      label: 'Remove customers from segment',
+      description: 'Manually remove a list of customers from a manual segment.',
+      fields: [
+        { id: 'segmentId', label: 'Segment ID', type: 'text', required: true },
+        { id: 'customerIds', label: 'Customer IDs (comma-separated)', type: 'textarea', required: true },
+      ],
+      run: segmentRemoveCustomers,
+    },
+    {
+      id: 'campaign_get',
+      label: 'Get campaign',
+      description: 'Fetch a campaign by id. Requires `appApiKey`.',
+      fields: [{ id: 'campaignId', label: 'Campaign ID', type: 'text', required: true }],
+      run: campaignGet,
+    },
+    {
+      id: 'campaign_list',
+      label: 'List campaigns',
+      description: 'List all campaigns. Requires `appApiKey`.',
+      fields: [],
+      run: campaignList,
+    },
+    {
+      id: 'campaign_get_metrics',
+      label: 'Get campaign metrics',
+      description: 'Fetch metrics for a campaign. Requires `appApiKey`.',
+      fields: [
+        { id: 'campaignId', label: 'Campaign ID', type: 'text', required: true },
+        {
+          id: 'period',
+          label: 'Period',
+          type: 'select',
+          options: [
+            { label: 'Days (default)', value: 'days' },
+            { label: 'Hours', value: 'hours' },
+            { label: 'Weeks', value: 'weeks' },
+            { label: 'Months', value: 'months' },
+          ],
+          defaultValue: 'days',
+        },
+      ],
+      run: campaignGetMetrics,
     },
   ],
 };

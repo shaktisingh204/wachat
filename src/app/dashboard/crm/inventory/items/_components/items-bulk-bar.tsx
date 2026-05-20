@@ -27,6 +27,8 @@ interface ItemsBulkBarProps {
   count: number;
   onClear: () => void;
   onExportCsv: () => void;
+  /** Optional XLSX export. When omitted the XLSX button is hidden. */
+  onExportXlsx?: () => void;
   onArchive: () => void;
   onDelete: () => void;
   onAdjustStock: () => void;
@@ -45,6 +47,7 @@ export function ItemsBulkBar({
   count,
   onClear,
   onExportCsv,
+  onExportXlsx,
   onArchive,
   onDelete,
   onAdjustStock,
@@ -65,6 +68,11 @@ export function ItemsBulkBar({
         <ZoruButton size="sm" variant="outline" onClick={onExportCsv}>
           <Download className="h-3.5 w-3.5" /> Export CSV
         </ZoruButton>
+        {onExportXlsx ? (
+          <ZoruButton size="sm" variant="outline" onClick={onExportXlsx}>
+            <Download className="h-3.5 w-3.5" /> Export XLSX
+          </ZoruButton>
+        ) : null}
         <ZoruButton size="sm" variant="outline" onClick={onAdjustStock}>
           <Warehouse className="h-3.5 w-3.5" /> Adjust stock
         </ZoruButton>

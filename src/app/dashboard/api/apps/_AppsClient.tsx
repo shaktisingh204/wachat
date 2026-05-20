@@ -6,6 +6,21 @@ import {
   deleteOAuthApp,
   type OAuthAppRow,
 } from '@/app/actions/developer-platform.actions';
+import {
+  ZoruCard,
+  ZoruCardHeader,
+  ZoruCardTitle,
+  ZoruCardContent,
+  ZoruButton,
+  ZoruInput,
+  ZoruTextarea,
+  ZoruLabel,
+  ZoruAlert,
+  ZoruAlertDescription,
+  ZoruEmptyState,
+  ZoruSeparator,
+} from '@/components/zoruui';
+import { AlertCircle, TriangleAlert, Copy, Boxes, Trash2 } from 'lucide-react';
 
 interface Props {
   initialApps: OAuthAppRow[];
@@ -63,146 +78,134 @@ export function AppsClient({ initialApps }: Props): JSX.Element {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {secret ? (
-        <div className="rounded-md border border-amber-500/40 bg-amber-500/10 p-4">
-          <div className="text-sm font-semibold text-amber-300 mb-1">
-            Save this client secret
+        <ZoruAlert variant="warning">
+          <TriangleAlert className="h-4 w-4" />
+          <div className="space-y-2">
+            <p className="font-semibold text-sm">Save this client secret — shown once.</p>
+            <p className="text-xs">Configure it alongside the client_id in your OAuth client.</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 text-xs font-mono bg-zoru-surface border border-zoru-line rounded px-3 py-2 text-zoru-ink overflow-x-auto">
+                {secret}
+              </code>
+              <ZoruButton size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(secret)}>
+                <Copy className="h-3 w-3 mr-1" /> Copy
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={() => setSecret(null)}>
+                Dismiss
+              </ZoruButton>
+            </div>
           </div>
-          <div className="text-xs text-amber-200 mb-2">
-            Shown once. Configure it in your OAuth client alongside the client_id.
-          </div>
-          <div className="flex items-center gap-2">
-            <code className="flex-1 text-xs font-mono bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-zinc-100 overflow-x-auto">
-              {secret}
-            </code>
-            <button
-              type="button"
-              onClick={() => navigator.clipboard.writeText(secret)}
-              className="px-3 py-2 text-xs border border-amber-500/40 rounded hover:bg-amber-500/20"
-            >
-              Copy
-            </button>
-            <button
-              type="button"
-              onClick={() => setSecret(null)}
-              className="px-3 py-2 text-xs border border-zinc-700 rounded hover:bg-zinc-800"
-            >
-              Dismiss
-            </button>
-          </div>
-        </div>
+        </ZoruAlert>
       ) : null}
 
-      <div className="rounded-md border border-zinc-800 bg-zinc-900/30 p-4">
-        <div className="text-sm font-semibold mb-3">Register OAuth app</div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label className="text-xs text-zinc-400">
-            Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="mt-1 block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100"
-              disabled={busy}
-            />
-          </label>
-          <label className="text-xs text-zinc-400">
-            Description
-            <input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100"
-              disabled={busy}
-            />
-          </label>
-          <label className="text-xs text-zinc-400 sm:col-span-2">
-            Redirect URIs (one per line)
-            <textarea
-              value={redirects}
-              onChange={(e) => setRedirects(e.target.value)}
-              rows={2}
-              placeholder="https://yourapp.com/oauth/callback"
-              className="mt-1 block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 font-mono"
-              disabled={busy}
-            />
-          </label>
-          <label className="text-xs text-zinc-400 sm:col-span-2">
-            Requested scopes (space-separated)
-            <input
-              value={scopes}
-              onChange={(e) => setScopes(e.target.value)}
-              className="mt-1 block w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-sm text-zinc-100 font-mono"
-              disabled={busy}
-            />
-          </label>
-        </div>
-        <div className="mt-3 flex items-center justify-end">
-          <button
-            type="button"
-            onClick={handleCreate}
-            disabled={busy || !name.trim()}
-            className="px-4 py-2 text-sm bg-amber-500 hover:bg-amber-400 text-zinc-900 font-semibold rounded disabled:opacity-50"
-          >
-            {busy ? 'Working…' : 'Register'}
-          </button>
-        </div>
-      </div>
+      <ZoruCard>
+        <ZoruCardHeader>
+          <ZoruCardTitle>Register OAuth app</ZoruCardTitle>
+        </ZoruCardHeader>
+        <ZoruCardContent className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <ZoruLabel>Name</ZoruLabel>
+              <ZoruInput value={name} onChange={(e) => setName(e.target.value)} disabled={busy} />
+            </div>
+            <div className="space-y-1.5">
+              <ZoruLabel>Description</ZoruLabel>
+              <ZoruInput value={description} onChange={(e) => setDescription(e.target.value)} disabled={busy} />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <ZoruLabel>Redirect URIs (one per line)</ZoruLabel>
+              <ZoruTextarea
+                value={redirects}
+                onChange={(e) => setRedirects(e.target.value)}
+                rows={2}
+                placeholder="https://yourapp.com/oauth/callback"
+                className="font-mono"
+                disabled={busy}
+              />
+            </div>
+            <div className="space-y-1.5 sm:col-span-2">
+              <ZoruLabel>Requested scopes (space-separated)</ZoruLabel>
+              <ZoruInput
+                value={scopes}
+                onChange={(e) => setScopes(e.target.value)}
+                className="font-mono"
+                disabled={busy}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end">
+            <ZoruButton onClick={handleCreate} disabled={busy || !name.trim()}>
+              {busy ? 'Working…' : 'Register'}
+            </ZoruButton>
+          </div>
+        </ZoruCardContent>
+      </ZoruCard>
 
       {error ? (
-        <div className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
-          {error}
-        </div>
+        <ZoruAlert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <ZoruAlertDescription>{error}</ZoruAlertDescription>
+        </ZoruAlert>
       ) : null}
 
-      <div className="space-y-3">
-        {apps.length === 0 ? (
-          <div className="rounded-md border border-zinc-800 p-6 text-center text-sm text-zinc-500">
-            No OAuth apps yet.
-          </div>
-        ) : null}
-        {apps.map((a) => (
-          <div key={a._id} className="rounded-md border border-zinc-800 p-4 bg-zinc-900/30">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-zinc-100">{a.name}</div>
-                {a.description ? (
-                  <div className="text-xs text-zinc-400 mt-0.5">{a.description}</div>
-                ) : null}
-              </div>
-              <button
-                type="button"
-                onClick={() => handleDelete(a._id)}
-                disabled={busy}
-                className="text-xs text-red-400 hover:text-red-300"
-              >
-                Delete
-              </button>
-            </div>
-            <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-              <div>
-                <div className="text-zinc-500">Client ID</div>
-                <code className="font-mono text-zinc-200">{a.clientId}</code>
-              </div>
-              <div>
-                <div className="text-zinc-500">Created</div>
-                <div className="text-zinc-300">{new Date(a.createdAt).toLocaleString()}</div>
-              </div>
-              <div className="sm:col-span-2">
-                <div className="text-zinc-500">Redirect URIs</div>
-                <ul className="font-mono text-zinc-200">
-                  {a.redirectUris.map((u) => (
-                    <li key={u}>{u}</li>
-                  ))}
-                </ul>
-              </div>
-              <div className="sm:col-span-2">
-                <div className="text-zinc-500">Allowed scopes</div>
-                <code className="font-mono text-zinc-200">{a.scopes.join(' ')}</code>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+      {apps.length === 0 ? (
+        <ZoruEmptyState
+          icon={<Boxes className="h-8 w-8" />}
+          title="No OAuth apps yet"
+          description="Register an app above to get started."
+        />
+      ) : (
+        <div className="space-y-3">
+          {apps.map((a) => (
+            <ZoruCard key={a._id}>
+              <ZoruCardContent className="pt-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-zoru-ink">{a.name}</p>
+                    {a.description ? (
+                      <p className="text-xs text-zoru-ink-muted mt-0.5">{a.description}</p>
+                    ) : null}
+                  </div>
+                  <ZoruButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(a._id)}
+                    disabled={busy}
+                    className="text-zoru-danger hover:text-zoru-danger"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </ZoruButton>
+                </div>
+                <ZoruSeparator className="my-3" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div>
+                    <p className="text-zoru-ink-subtle mb-0.5">Client ID</p>
+                    <code className="font-mono text-zoru-ink">{a.clientId}</code>
+                  </div>
+                  <div>
+                    <p className="text-zoru-ink-subtle mb-0.5">Created</p>
+                    <p className="text-zoru-ink">{new Date(a.createdAt).toLocaleString()}</p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <p className="text-zoru-ink-subtle mb-0.5">Redirect URIs</p>
+                    <ul className="font-mono text-zoru-ink space-y-0.5">
+                      {a.redirectUris.map((u) => (
+                        <li key={u}>{u}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <p className="text-zoru-ink-subtle mb-0.5">Allowed scopes</p>
+                    <code className="font-mono text-zoru-ink">{a.scopes.join(' ')}</code>
+                  </div>
+                </div>
+              </ZoruCardContent>
+            </ZoruCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

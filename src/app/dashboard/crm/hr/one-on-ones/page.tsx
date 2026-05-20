@@ -1,35 +1,47 @@
 'use client';
 
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useTransition } from 'react';
-import { Users } from 'lucide-react';
+/**
+ * One-on-ones — §1D Deep-list page.
+ *
+ * KPI strip:
+ *   - Total scheduled
+ *   - Completed this month
+ *   - Overdue (scheduled in past, not completed)
+ *   - Avg duration (minutes)
+ *
+ * Filters: search · status · department · manager · date range
+ * Bulk:    archive · delete · send-reminder · export CSV / XLSX
+ *
+ * View switcher (Table | Calendar) preserved from previous shell.
+ */
 
-import { getOneOnOnes,
-  deleteOneOnOne } from '@/app/actions/hr.actions';
+import * as React from 'react';
+import Link from 'next/link';
+import { Plus, Users } from 'lucide-react';
+
+import {
+  ZoruButton,
+  ZoruCard,
+} from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+
+import {
+  bulkArchiveOneOnOnes,
+  bulkDeleteOneOnOnes,
+  bulkRemindOneOnOnes,
+  deleteOneOnOne,
+  getOneOnOnes,
+} from '@/app/actions/hr.actions';
 import type { HrOneOnOne } from '@/lib/hr-types';
 
 import {
   HrDateCell,
-  HrListShell,
   HrStatusCell,
-  } from '../_components/hr-list-shell';
-
-/**
- * One-on-ones — list page rebuilt to §1D.1 bar.
- *
- * KPI strip: Today · This week · Upcoming · Completed.
- * (Pending action-item rollups would need a server aggregate — TODO 1D.1.)
- *
- * View switcher: Table | Calendar (lightweight month grid).
- * Server actions preserved: getOneOnOnes / deleteOneOnOne.
- */
-
-import * as React from 'react';
+} from '../_components/hr-list-shell';
+import {
+  HrDeepListBody,
+  type DeepColumn,
+} from '../_components/hr-deep-list-body';
 
 type Row = HrOneOnOne & {
   _id: string;
@@ -38,9 +50,19 @@ type Row = HrOneOnOne & {
   managerName?: string;
   duration_minutes?: number;
   durationMinutes?: number;
+  department?: string;
   agenda?: string;
   notes?: string;
 };
+
+const BASE = '/dashboard/crm/hr/one-on-ones';
+
+const STATUS_FILTERS = [
+  { value: 'all', label: 'All' },
+  { value: 'scheduled', label: 'Scheduled' },
+  { value: 'completed', label: 'Completed' },
+  { value: 'cancelled', label: 'Cancelled' },
+];
 
 function ymd(d: Date | string): string {
   const dt = new Date(d);
@@ -53,6 +75,20 @@ function startOfDay(t: number) {
   return d.getTime();
 }
 
+function rowScheduled(r: Row): number | null {
+  const v = r.scheduled_date ?? r.scheduledAt;
+  if (!v) return null;
+  const t = new Date(v as string | Date).getTime();
+  return Number.isFinite(t) ? t : null;
+}
+
+function rowDuration(r: Row): number | null {
+  const d = r.duration_minutes ?? r.durationMinutes;
+  return typeof d === 'number' && Number.isFinite(d) ? d : null;
+}
+
+/* ─── Calendar view (preserved) ─────────────────────────────────────── */
+
 function CalendarView({ rows }: { rows: Row[] }) {
   const today = new Date();
   const year = today.getFullYear();
@@ -60,7 +96,7 @@ function CalendarView({ rows }: { rows: Row[] }) {
   const first = new Date(year, month, 1);
   const startDow = first.getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const byDay = useMemo(() => {
+  const byDay = React.useMemo(() => {
     const map = new Map<string, Row[]>();
     for (const r of rows) {
       const ts = r.scheduled_date ?? r.scheduledAt;
@@ -128,73 +164,159 @@ function CalendarView({ rows }: { rows: Row[] }) {
   );
 }
 
-export default function OneOnOnesPage() {
-  const [rows, setRows] = useState<Row[]>([]);
-  const [isLoading, startTransition] = useTransition();
-  const [view, setView] = useState<'table' | 'calendar'>('table');
+/* ─── Page ──────────────────────────────────────────────────────────── */
 
-  const refresh = useCallback(() => {
+export default function OneOnOnesPage(): React.JSX.Element {
+  const [rows, setRows] = React.useState<Row[]>([]);
+  const [isLoading, startTransition] = React.useTransition();
+  const [view, setView] = React.useState<'table' | 'calendar'>('table');
+
+  const [search, setSearch] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<string>('all');
+  const [dept, setDept] = React.useState<string>('all');
+  const [manager, setManager] = React.useState<string>('all');
+  const [dateFrom, setDateFrom] = React.useState('');
+  const [dateTo, setDateTo] = React.useState('');
+
+  const refresh = React.useCallback(() => {
     startTransition(async () => {
       const data = (await getOneOnOnes()) as Row[];
       setRows(Array.isArray(data) ? data : []);
     });
   }, []);
 
-  useEffect(() => {
+  React.useEffect(() => {
     refresh();
   }, [refresh]);
 
-  const now = Date.now();
-  const todayStart = startOfDay(now);
-  const weekEnd = todayStart + 7 * 24 * 60 * 60 * 1000;
+  /* ── KPIs ──────────────────────────────────────────────────────── */
 
   const kpis = React.useMemo(() => {
-    let today = 0;
-    let thisWeek = 0;
-    let upcoming = 0;
-    let completed = 0;
+    const now = Date.now();
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime();
+    let completedThisMonth = 0;
+    let overdue = 0;
+    let totalDuration = 0;
+    let durationN = 0;
     for (const r of rows) {
-      const ts = r.scheduled_date ?? r.scheduledAt;
-      const t = ts ? new Date(ts).getTime() : NaN;
-      if (Number.isFinite(t)) {
-        if (t >= todayStart && t < todayStart + 24 * 60 * 60 * 1000) today += 1;
-        if (t >= todayStart && t < weekEnd) thisWeek += 1;
-        if (t >= now) upcoming += 1;
+      const status = String(r.status ?? '').toLowerCase();
+      const t = rowScheduled(r);
+      if (status === 'completed') {
+        if (t !== null && t >= monthStart) completedThisMonth += 1;
+      } else if (status !== 'cancelled' && t !== null && t < now) {
+        overdue += 1;
       }
-      if (String(r.status ?? '').toLowerCase() === 'completed') completed += 1;
+      const d = rowDuration(r);
+      if (d !== null) {
+        totalDuration += d;
+        durationN += 1;
+      }
     }
-    return [
-      { label: 'Today', value: today, tone: 'blue' as const },
-      { label: 'This week', value: thisWeek },
-      { label: 'Upcoming', value: upcoming, hint: 'From today onward' },
-      { label: 'Completed', value: completed, tone: 'green' as const },
-    ];
-  }, [rows, now, todayStart, weekEnd]);
+    return {
+      totalScheduled: rows.length,
+      completedThisMonth,
+      overdue,
+      avgDuration: durationN ? Math.round(totalDuration / durationN) : 0,
+    };
+  }, [rows]);
+
+  /* ── filter options ────────────────────────────────────────────── */
+
+  const deptOptions = React.useMemo(() => {
+    const set = new Set<string>();
+    for (const r of rows) if (r.department) set.add(r.department);
+    return Array.from(set).sort().map((v) => ({ value: v, label: v }));
+  }, [rows]);
+
+  const ownerOptions = React.useMemo(() => {
+    const seen = new Map<string, string>();
+    for (const r of rows) {
+      const id = String(r.manager_id ?? r.managerName ?? '');
+      if (id && !seen.has(id)) seen.set(id, r.managerName ?? id);
+    }
+    return Array.from(seen.entries()).map(([value, label]) => ({ value, label }));
+  }, [rows]);
+
+  /* ── filtered rows ──────────────────────────────────────────────── */
+
+  const filtered = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    const from = dateFrom ? new Date(dateFrom).getTime() : null;
+    const to = dateTo ? new Date(`${dateTo}T23:59:59`).getTime() : null;
+    return rows.filter((r) => {
+      const status = String(r.status ?? '').toLowerCase();
+      if (statusFilter !== 'all' && status !== statusFilter) return false;
+      if (dept !== 'all' && (r.department ?? '') !== dept) return false;
+      if (manager !== 'all') {
+        const id = String(r.manager_id ?? r.managerName ?? '');
+        if (id !== manager) return false;
+      }
+      if (q) {
+        const hay = `${r.managerName ?? ''} ${r.agenda ?? ''}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      const ts = rowScheduled(r);
+      if (from !== null && (ts == null || ts < from)) return false;
+      if (to !== null && (ts == null || ts > to)) return false;
+      return true;
+    });
+  }, [rows, search, statusFilter, dept, manager, dateFrom, dateTo]);
+
+  const columns: DeepColumn<Row>[] = React.useMemo(
+    () => [
+      { key: 'manager', label: 'Manager', render: (r) => r.managerName ?? '—' },
+      {
+        key: 'employee',
+        label: 'Employee',
+        render: (r) => String(r.employeeId ?? '—'),
+      },
+      {
+        key: 'scheduled',
+        label: 'Scheduled',
+        render: (r) => <HrDateCell value={r.scheduled_date ?? r.scheduledAt} />,
+      },
+      {
+        key: 'duration',
+        label: 'Duration',
+        numeric: true,
+        render: (r) => {
+          const d = rowDuration(r);
+          return d !== null ? (
+            <span className="tabular-nums">{d}m</span>
+          ) : (
+            <span className="text-zoru-ink-muted">—</span>
+          );
+        },
+      },
+      {
+        key: 'agenda',
+        label: 'Agenda',
+        render: (r) => (
+          <span className="block max-w-[260px] truncate text-zoru-ink-muted">
+            {r.agenda ?? '—'}
+          </span>
+        ),
+      },
+      {
+        key: 'status',
+        label: 'Status',
+        render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
+      },
+    ],
+    [],
+  );
 
   return (
-    <HrListShell<Row>
+    <EntityListShell
       title="One-on-ones"
       subtitle="Scheduled manager-employee check-ins with agendas, notes, and action items."
-      icon={Users}
-      newHref="/dashboard/crm/hr/one-on-ones/new"
-      editHref={(r) => `/dashboard/crm/hr/one-on-ones/${r._id}/edit`}
-      rows={rows}
-      loading={isLoading}
-      kpis={kpis}
-      statusOptions={[
-        { value: 'scheduled', label: 'Scheduled' },
-        { value: 'completed', label: 'Completed' },
-        { value: 'cancelled', label: 'Cancelled' },
-      ]}
-      getRowStatus={(r) => String(r.status ?? '')}
-      searchPlaceholder="Search by manager or agenda…"
-      searchPredicate={(r, q) =>
-        String(r.managerName ?? '').toLowerCase().includes(q) ||
-        String(r.agenda ?? '').toLowerCase().includes(q)
+      primaryAction={
+        <ZoruButton asChild>
+          <Link href={`${BASE}/new`}>
+            <Plus className="h-4 w-4" /> New 1:1
+          </Link>
+        </ZoruButton>
       }
-      onDelete={deleteOneOnOne}
-      onAfterChange={refresh}
-      emptyText="No 1:1s yet"
       viewSwitcher={
         <div className="inline-flex overflow-hidden rounded-[var(--zoru-radius)] border border-zoru-line">
           <ZoruButton
@@ -213,43 +335,103 @@ export default function OneOnOnesPage() {
           </ZoruButton>
         </div>
       }
-      columns={[
-        { key: 'manager', label: 'Manager', render: (r) => r.managerName ?? '—' },
-        {
-          key: 'employee',
-          label: 'Employee',
-          render: (r) => String(r.employeeId ?? '—'),
-        },
-        {
-          key: 'scheduled',
-          label: 'Scheduled',
-          render: (r) => <HrDateCell value={r.scheduled_date ?? r.scheduledAt} />,
-        },
-        {
-          key: 'duration',
-          label: 'Duration',
-          render: (r) => {
-            const d = r.duration_minutes ?? r.durationMinutes;
-            return d ? <span className="tabular-nums">{d}m</span> : <span className="text-zoru-ink-muted">—</span>;
-          },
-        },
-        {
-          key: 'agenda',
-          label: 'Agenda',
-          render: (r) => (
-            <span className="block max-w-[260px] truncate text-zoru-ink-muted">
-              {r.agenda ?? '—'}
-            </span>
-          ),
-        },
-        {
-          key: 'status',
-          label: 'Status',
-          render: (r) => <HrStatusCell value={String(r.status ?? '')} />,
-        },
-      ]}
+      filters={
+        <div className="flex flex-wrap items-center gap-2">
+          {STATUS_FILTERS.map((opt) => (
+            <ZoruButton
+              key={opt.value}
+              variant={statusFilter === opt.value ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setStatusFilter(opt.value)}
+            >
+              {opt.label}
+            </ZoruButton>
+          ))}
+        </div>
+      }
+      loading={isLoading && rows.length === 0}
     >
-      {view === 'calendar' ? <CalendarView rows={rows} /> : undefined}
-    </HrListShell>
+      <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          <ZoruCard className="p-3">
+            <p className="text-xs text-zoru-ink-muted">Total scheduled</p>
+            <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.totalScheduled}</p>
+          </ZoruCard>
+          <ZoruCard className="p-3">
+            <p className="text-xs text-zoru-ink-muted">Completed this month</p>
+            <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.completedThisMonth}</p>
+          </ZoruCard>
+          <ZoruCard className="p-3">
+            <p className="text-xs text-zoru-ink-muted">Overdue</p>
+            <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.overdue}</p>
+          </ZoruCard>
+          <ZoruCard className="p-3">
+            <p className="text-xs text-zoru-ink-muted">Avg duration</p>
+            <p className="mt-1 text-xl font-semibold text-zoru-ink">{kpis.avgDuration}m</p>
+          </ZoruCard>
+        </div>
+
+        {view === 'calendar' ? (
+          <CalendarView rows={filtered} />
+        ) : rows.length === 0 && !isLoading ? (
+          <ZoruCard className="flex min-h-[180px] flex-col items-center justify-center gap-3 p-6">
+            <Users className="h-8 w-8 text-zoru-ink-muted" aria-hidden="true" />
+            <p className="text-sm text-zoru-ink-muted">No 1:1s yet.</p>
+            <ZoruButton asChild>
+              <Link href={`${BASE}/new`}>
+                <Plus className="h-4 w-4" /> Schedule a 1:1
+              </Link>
+            </ZoruButton>
+          </ZoruCard>
+        ) : (
+          <HrDeepListBody<Row>
+            rows={filtered}
+            columns={columns}
+            getRowId={(r) => String(r._id)}
+            detailHref={(r) => `${BASE}/${r._id}/edit`}
+            editHref={(r) => `${BASE}/${r._id}/edit`}
+            onDeleteOne={deleteOneOnOne}
+            onBulkDelete={bulkDeleteOneOnOnes}
+            onBulkArchive={bulkArchiveOneOnOnes}
+            onBulkReminder={bulkRemindOneOnOnes}
+            reminderLabel="Remind attendees"
+            onAfterChange={refresh}
+            search={search}
+            setSearch={setSearch}
+            searchPlaceholder="Search by manager or agenda…"
+            deptOptions={deptOptions}
+            dept={dept}
+            setDept={setDept}
+            ownerOptions={ownerOptions}
+            owner={manager}
+            setOwner={setManager}
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            setDateFrom={setDateFrom}
+            setDateTo={setDateTo}
+            exportColumns={[
+              { header: 'Manager', value: (r) => r.managerName ?? '' },
+              { header: 'Employee', value: (r) => String(r.employeeId ?? '') },
+              {
+                header: 'Scheduled',
+                value: (r) => {
+                  const t = rowScheduled(r);
+                  return t === null ? '' : new Date(t).toISOString().slice(0, 10);
+                },
+              },
+              {
+                header: 'Duration (min)',
+                value: (r) => rowDuration(r) ?? '',
+              },
+              { header: 'Agenda', value: (r) => r.agenda ?? '' },
+              { header: 'Status', value: (r) => String(r.status ?? '') },
+              { header: 'Department', value: (r) => r.department ?? '' },
+            ]}
+            exportName="one-on-ones"
+            emptyText="No 1:1s match these filters."
+          />
+        )}
+      </div>
+    </EntityListShell>
   );
 }

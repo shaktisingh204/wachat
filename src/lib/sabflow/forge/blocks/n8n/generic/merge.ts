@@ -8,9 +8,16 @@
  *   - append      — concatenate left + right
  *   - mergeByKey  — outer-join two arrays of objects on a shared key
  *
- * Out of scope: chooseBranch, multiplex, combine-with-positions modes —
- * deferred. The native SabFlow Merge block covers most flow-author needs;
- * this port exists for n8n parity.
+ * Out of scope:
+ *   - chooseBranch, multiplex, combine-with-positions: all require multiple
+ *     distinct upstream input ports (n8n's two-input merge). Blocked on
+ *     sabflow Phase 8 multi-input port support; today every block has a
+ *     single upstream output channel exposed via `ctx.input`, so the two
+ *     arrays in this port arrive as `left` / `right` JSON fields instead.
+ *   - paired-item tracking (n8n preserves item-index lineage across the
+ *     merge). Blocked on sabflow Phase 9 lineage propagation.
+ * The native SabFlow Merge block covers most flow-author needs; this port
+ * exists for n8n parity on the two compositional modes we can express.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {

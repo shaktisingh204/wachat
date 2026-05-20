@@ -133,6 +133,95 @@ export async function hrDelete(
   return { success: true };
 }
 
+/** Bulk-delete a list of ids within the tenant. Returns success+count. */
+export async function hrBulkDelete(
+  collection: string,
+  ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, deleted: 0, error: 'Access denied' };
+  const objectIds = ids
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { success: true, deleted: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection(collection).deleteMany({
+    _id: { $in: objectIds },
+    userId: new ObjectId(user._id),
+  });
+  return { success: true, deleted: res.deletedCount };
+}
+
+/**
+ * Bulk-archive: sets `archived: true` and `archivedAt: now` on every doc.
+ * Soft-archive is preferred over delete for HR records (audit trail).
+ */
+export async function hrBulkArchive(
+  collection: string,
+  ids: string[],
+): Promise<{ success: boolean; archived: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, archived: 0, error: 'Access denied' };
+  const objectIds = ids
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { success: true, archived: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection(collection).updateMany(
+    { _id: { $in: objectIds }, userId: new ObjectId(user._id) },
+    { $set: { archived: true, archivedAt: new Date(), updatedAt: new Date() } },
+  );
+  return { success: true, archived: res.modifiedCount };
+}
+
+/**
+ * Bulk update an explicit `status` field across a list of docs (tenant-scoped).
+ * Used by approve/reject bulk actions on expense-claims / travel / probation.
+ */
+export async function hrBulkUpdateStatus(
+  collection: string,
+  ids: string[],
+  status: string,
+  extra: Record<string, unknown> = {},
+): Promise<{ success: boolean; updated: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, updated: 0, error: 'Access denied' };
+  if (!status) return { success: false, updated: 0, error: 'Missing status' };
+  const objectIds = ids
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { success: true, updated: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection(collection).updateMany(
+    { _id: { $in: objectIds }, userId: new ObjectId(user._id) },
+    { $set: { ...extra, status, updatedAt: new Date() } },
+  );
+  return { success: true, updated: res.modifiedCount };
+}
+
+/**
+ * Append a `reminderSentAt` timestamp on a list of docs. Used by
+ * "Send reminder" bulk actions on feedback-360 / one-on-ones / surveys.
+ * No external email is sent here — the workers pick this up.
+ */
+export async function hrBulkMarkReminder(
+  collection: string,
+  ids: string[],
+): Promise<{ success: boolean; notified: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, notified: 0, error: 'Access denied' };
+  const objectIds = ids
+    .filter((id) => ObjectId.isValid(id))
+    .map((id) => new ObjectId(id));
+  if (objectIds.length === 0) return { success: true, notified: 0 };
+  const { db } = await connectToDatabase();
+  const res = await db.collection(collection).updateMany(
+    { _id: { $in: objectIds }, userId: new ObjectId(user._id) },
+    { $set: { reminderSentAt: new Date(), updatedAt: new Date() } },
+  );
+  return { success: true, notified: res.modifiedCount };
+}
+
 /** Parse FormData into a plain object, converting known numeric keys. */
 export function formToObject(
   formData: FormData,

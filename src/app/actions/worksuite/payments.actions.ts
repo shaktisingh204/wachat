@@ -601,6 +601,86 @@ export async function deleteOfflinePaymentMethod(id: string) {
   return r;
 }
 
+export async function bulkDeleteOfflinePaymentMethods(
+  ids: string[],
+): Promise<{ success: boolean; deleted: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, deleted: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, deleted: 0 };
+  const res = await db
+    .collection('crm_offline_payment_methods')
+    .deleteMany({ _id: { $in: oids }, userId: new ObjectId(user._id) });
+  revalidatePath(OK_OFFLINE);
+  return { success: true, deleted: res.deletedCount };
+}
+
+export async function bulkToggleOfflinePaymentMethods(
+  ids: string[],
+  active: boolean,
+): Promise<{ success: boolean; updated: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, updated: 0, error: 'Access denied' };
+  const { db } = await connectToDatabase();
+  const oids = ids.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  if (oids.length === 0) return { success: true, updated: 0 };
+  const res = await db
+    .collection('crm_offline_payment_methods')
+    .updateMany(
+      { _id: { $in: oids }, userId: new ObjectId(user._id) },
+      { $set: { is_active: active, updatedAt: new Date() } },
+    );
+  revalidatePath(OK_OFFLINE);
+  return { success: true, updated: res.modifiedCount };
+}
+
+export async function getOfflinePaymentMethodKpis(): Promise<{
+  total: number;
+  enabled: number;
+  disabled: number;
+  defaultName: string;
+}> {
+  const user = await requireSession();
+  if (!user) return { total: 0, enabled: 0, disabled: 0, defaultName: '—' };
+  const { db } = await connectToDatabase();
+  const uid = new ObjectId(user._id);
+  const [total, enabled, firstActive] = await Promise.all([
+    db.collection('crm_offline_payment_methods').countDocuments({ userId: uid }),
+    db.collection('crm_offline_payment_methods').countDocuments({ userId: uid, is_active: true }),
+    db
+      .collection('crm_offline_payment_methods')
+      .findOne({ userId: uid, is_active: true }, { sort: { name: 1 } }),
+  ]);
+  return {
+    total,
+    enabled,
+    disabled: total - enabled,
+    defaultName: firstActive ? String((firstActive as Record<string, unknown>).name ?? '—') : '—',
+  };
+}
+
+export async function getPublicPaymentKpis(): Promise<{
+  configured: number;
+  active: number;
+  testMode: number;
+}> {
+  const user = await requireSession();
+  if (!user) return { configured: 0, active: 0, testMode: 0 };
+  const { db } = await connectToDatabase();
+  const uid = new ObjectId(user._id);
+  const [configured, active, testMode] = await Promise.all([
+    db.collection('crm_payment_gateway_credentials').countDocuments({ userId: uid }),
+    db
+      .collection('crm_payment_gateway_credentials')
+      .countDocuments({ userId: uid, is_active: true }),
+    db
+      .collection('crm_payment_gateway_credentials')
+      .countDocuments({ userId: uid, mode: 'test' }),
+  ]);
+  return { configured, active, testMode };
+}
+
 /* ═══════════════════════════════════════════════════════════════
  *  Bank Account extension (patches existing crm_bank_accounts)
  * ══════════════════════════════════════════════════════════════ */

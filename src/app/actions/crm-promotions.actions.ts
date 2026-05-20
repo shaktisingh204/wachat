@@ -354,6 +354,142 @@ export async function setPromotionStatus(
     }
 }
 
+/* ─── KPIs ───────────────────────────────────────────────────────────── */
+
+export interface PromotionKpis {
+    totalActive: number;
+    expiringThisWeek: number;
+    totalRedemptions: number;
+    avgDiscountPct: number;
+}
+
+const EMPTY_PROMO_KPIS: PromotionKpis = {
+    totalActive: 0,
+    expiringThisWeek: 0,
+    totalRedemptions: 0,
+    avgDiscountPct: 0,
+};
+
+/**
+ * KPI snapshot for the promotions list page. Tenant-scoped on
+ * `userId`. Computed in a single query window — for tenants with > 200
+ * promotions a dedicated aggregate would be more accurate.
+ */
+export async function getPromotionKpis(): Promise<PromotionKpis> {
+    const session = await getSession();
+    if (!session?.user?._id) return EMPTY_PROMO_KPIS;
+    const guard = await requirePermission('crm_promotion', 'view');
+    if (!guard.ok) return EMPTY_PROMO_KPIS;
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id as string);
+        const now = new Date();
+        const inOneWeek = new Date(now.getTime() + 7 * 86_400_000);
+
+        const [totalActive, expiringThisWeek, allDocs] = await Promise.all([
+            db.collection(COLLECTION).countDocuments({
+                userId: userObjectId,
+                status: 'active',
+            }),
+            db.collection(COLLECTION).countDocuments({
+                userId: userObjectId,
+                status: 'active',
+                validTo: { $gte: now, $lte: inOneWeek },
+            }),
+            db
+                .collection(COLLECTION)
+                .find({ userId: userObjectId })
+                .project({ usedCount: 1, type: 1, value: 1 })
+                .limit(500)
+                .toArray(),
+        ]);
+
+        let totalRedemptions = 0;
+        let pctSum = 0;
+        let pctSamples = 0;
+        for (const d of allDocs) {
+            const used = Number((d as { usedCount?: number }).usedCount ?? 0);
+            if (Number.isFinite(used)) totalRedemptions += used;
+            const type = (d as { type?: string }).type;
+            const value = Number((d as { value?: number }).value ?? 0);
+            if (type === 'percent' && Number.isFinite(value) && value > 0) {
+                pctSum += value;
+                pctSamples += 1;
+            }
+        }
+        return {
+            totalActive,
+            expiringThisWeek,
+            totalRedemptions,
+            avgDiscountPct:
+                pctSamples > 0 ? Math.round((pctSum / pctSamples) * 10) / 10 : 0,
+        };
+    } catch (e) {
+        console.error('[getPromotionKpis] error:', e);
+        return EMPTY_PROMO_KPIS;
+    }
+}
+
+/* ─── Bulk mutators ──────────────────────────────────────────────────── */
+
+export async function bulkDeletePromotions(
+    ids: string[],
+): Promise<{ processed: number; error?: string }> {
+    if (!Array.isArray(ids) || ids.length === 0)
+        return { processed: 0, error: 'No promotions selected.' };
+    const session = await getSession();
+    if (!session?.user?._id) return { processed: 0, error: 'Unauthorized.' };
+    const guard = await requirePermission('crm_promotion', 'delete');
+    if (!guard.ok) return { processed: 0, error: guard.error };
+    try {
+        const { db } = await connectToDatabase();
+        const valid = ids.filter((id) => ObjectId.isValid(id));
+        const res = await db.collection(COLLECTION).deleteMany({
+            _id: { $in: valid.map((id) => new ObjectId(id)) },
+            userId: new ObjectId(session.user._id as string),
+        });
+        revalidatePath(BASE_PATH);
+        return { processed: res.deletedCount ?? 0 };
+    } catch (e) {
+        return {
+            processed: 0,
+            error: e instanceof Error ? e.message : 'Failed.',
+        };
+    }
+}
+
+export async function bulkSetPromotionStatus(
+    ids: string[],
+    status: CrmPromotionStatus,
+): Promise<{ processed: number; error?: string }> {
+    if (!Array.isArray(ids) || ids.length === 0)
+        return { processed: 0, error: 'No promotions selected.' };
+    if (!VALID_STATUSES.has(status))
+        return { processed: 0, error: 'Invalid status.' };
+    const session = await getSession();
+    if (!session?.user?._id) return { processed: 0, error: 'Unauthorized.' };
+    const guard = await requirePermission('crm_promotion', 'edit');
+    if (!guard.ok) return { processed: 0, error: guard.error };
+    try {
+        const { db } = await connectToDatabase();
+        const valid = ids.filter((id) => ObjectId.isValid(id));
+        const res = await db.collection(COLLECTION).updateMany(
+            {
+                _id: { $in: valid.map((id) => new ObjectId(id)) },
+                userId: new ObjectId(session.user._id as string),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        revalidatePath(BASE_PATH);
+        return { processed: res.modifiedCount ?? 0 };
+    } catch (e) {
+        return {
+            processed: 0,
+            error: e instanceof Error ? e.message : 'Failed.',
+        };
+    }
+}
+
 export async function deletePromotion(
     id: string,
 ): Promise<{ success: boolean; error?: string }> {

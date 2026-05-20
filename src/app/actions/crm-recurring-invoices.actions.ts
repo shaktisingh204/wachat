@@ -531,6 +531,97 @@ export async function deleteRecurringInvoice(
     }
 }
 
+/* ─── setRecurringInvoiceStatus ──────────────────────────────────────── */
+
+export async function setRecurringInvoiceStatus(
+    id: string,
+    status: CrmRecurringInvoiceStatus,
+): Promise<{ success: boolean; error?: string }> {
+    if (!id || !ObjectId.isValid(id)) return { success: false, error: 'Invalid id.' };
+
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_recurring_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!VALID_STATUSES.has(status)) {
+        return { success: false, error: `Invalid status: ${status}` };
+    }
+
+    if (useRustCrm()) {
+        try {
+            await crmRecurringInvoicesApi.update(id, { status } as CrmRecurringInvoiceUpdateInput);
+            revalidatePath('/dashboard/crm/sales/recurring-invoices');
+            return { success: true };
+        } catch (e) {
+            console.error('[setRecurringInvoiceStatus] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'recurring_invoice',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_recurring_invoices').updateOne(
+            { _id: new ObjectId(id), userId: new ObjectId(session.user._id as string) },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Recurring invoice not found.' };
+        }
+        revalidatePath('/dashboard/crm/sales/recurring-invoices');
+        return { success: true };
+    } catch (e) {
+        return {
+            success: false,
+            error: e instanceof Error ? e.message : 'Failed to update status.',
+        };
+    }
+}
+
+/* ─── bulkSetRecurringInvoiceStatus ──────────────────────────────────── */
+
+export async function bulkSetRecurringInvoiceStatus(
+    ids: string[],
+    status: CrmRecurringInvoiceStatus,
+): Promise<{ processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user?._id) return { processed: 0, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_recurring_invoice', 'edit');
+    if (!guard.ok) return { processed: 0, error: guard.error };
+
+    if (!VALID_STATUSES.has(status)) {
+        return { processed: 0, error: `Invalid status: ${status}` };
+    }
+
+    const validIds = ids.filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+    if (validIds.length === 0) return { processed: 0, error: 'No valid ids.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_recurring_invoices').updateMany(
+            {
+                _id: { $in: validIds.map((id) => new ObjectId(id)) },
+                userId: new ObjectId(session.user._id as string),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        revalidatePath('/dashboard/crm/sales/recurring-invoices');
+        return { processed: result.modifiedCount };
+    } catch (e) {
+        return {
+            processed: 0,
+            error: e instanceof Error ? e.message : 'Failed to update status.',
+        };
+    }
+}
+
 /**
  * Helper exposed for the daily cron — advances `nextRunAt` to the
  * subsequent calendar slot and bumps `totalRuns`. Not directly bound

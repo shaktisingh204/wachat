@@ -1,6 +1,6 @@
 'use client';
 
-import { ZoruBadge, ZoruButton, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
+import { ZoruBadge, ZoruButton, ZoruCheckbox, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 import {
   Check,
   Square,
@@ -49,6 +49,9 @@ interface TimeLogsTableProps {
   onApprove: (id: string) => void;
   onReject: (log: WsProjectTimeLog) => void;
   onDelete: (id: string) => void;
+  /** Optional selection state passed from the parent page for bulk operations. */
+  selected?: Set<string>;
+  onToggleRow?: (id: string) => void;
 }
 
 export function TimeLogsTable({
@@ -58,6 +61,8 @@ export function TimeLogsTable({
   onApprove,
   onReject,
   onDelete,
+  selected,
+  onToggleRow,
 }: TimeLogsTableProps) {
   if (rows.length === 0) {
     return (
@@ -71,6 +76,7 @@ export function TimeLogsTable({
       <ZoruTable>
         <ZoruTableHeader>
           <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            {selected !== undefined ? <ZoruTableHead className="w-10" /> : null}
             <ZoruTableHead>Memo</ZoruTableHead>
             <ZoruTableHead>Employee</ZoruTableHead>
             <ZoruTableHead>Project</ZoruTableHead>
@@ -90,6 +96,15 @@ export function TimeLogsTable({
                 key={log._id}
                 className="border-zoru-line transition-colors"
               >
+                {selected !== undefined && log._id ? (
+                  <ZoruTableCell>
+                    <ZoruCheckbox
+                      checked={selected.has(log._id)}
+                      onCheckedChange={() => onToggleRow?.(log._id!)}
+                      aria-label={`Select log ${log.memo || log._id}`}
+                    />
+                  </ZoruTableCell>
+                ) : null}
                 <ZoruTableCell>
                   <EntityRowLink
                     href={`/dashboard/crm/time-tracking/time-logs/${log._id}`}

@@ -64,6 +64,7 @@ import {
   exportAuditLogCsv,
   type AuditLogQuery,
   type AuditLogRow,
+  type AuditLogKpis,
 } from '@/app/actions/crm-audit-log.actions';
 
 export type { AuditLogRow };
@@ -168,12 +169,24 @@ export interface AuditLogBrowserProps {
   initialQuery?: AuditLogQuery;
   /** If true, trigger CSV download on mount (driven by `?export=csv`). */
   autoExportCsv?: boolean;
+  /** Server-computed KPIs. Falls back to client-computed slice if absent. */
+  kpis?: AuditLogKpis;
+  /** Total matching rows (across all pages). Used for pagination. */
+  total?: number;
+  /** Current 1-based page. */
+  page?: number;
+  /** Rows per page (server default: 50). */
+  pageSize?: number;
 }
 
 export function AuditLogBrowser({
   entries,
   initialQuery,
   autoExportCsv,
+  kpis: serverKpis,
+  total = 0,
+  page: initialPage = 1,
+  pageSize = 50,
 }: AuditLogBrowserProps): React.JSX.Element {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -192,8 +205,9 @@ export function AuditLogBrowser({
   const [drawerRow, setDrawerRow] = React.useState<AuditLogRow | null>(null);
   const [isExporting, setIsExporting] = React.useState(false);
 
-  // ── KPIs (computed from the rendered slice) ────────────────────────────
-  const kpis = React.useMemo(() => {
+  // ── KPIs — prefer server-computed; fall back to slice computation ──────
+  const clientKpis = React.useMemo(() => {
+    if (serverKpis) return null; // server KPIs take priority
     const todayMs = startOfTodayMs();
     const weekMs = startOfWeekMs();
     const entityCounts = new Map<string, number>();
@@ -211,12 +225,34 @@ export function AuditLogBrowser({
     const topEntity = [...entityCounts.entries()].sort((a, b) => b[1] - a[1])[0];
     const topActor = [...actorCounts.entries()].sort((a, b) => b[1] - a[1])[0];
     return {
-      today,
-      week,
+      eventsToday: today,
+      eventsThisWeek: week,
+      uniqueActorsToday: actorCounts.size,
+      errorEvents: 0,
+      total: entries.length,
       topEntity: topEntity ? `${topEntity[0]} (${topEntity[1]})` : '—',
       topActor: topActor ? `${topActor[0]} (${topActor[1]})` : '—',
     };
-  }, [entries]);
+  }, [entries, serverKpis]);
+
+  const kpis = serverKpis
+    ? {
+        today: serverKpis.eventsToday,
+        week: serverKpis.eventsThisWeek,
+        topActor: `${serverKpis.uniqueActorsToday} unique`,
+        topEntity: `${serverKpis.errorEvents} errors`,
+      }
+    : clientKpis
+      ? {
+          today: clientKpis.eventsToday,
+          week: clientKpis.eventsThisWeek,
+          topActor: clientKpis.topActor,
+          topEntity: clientKpis.topEntity,
+        }
+      : { today: 0, week: 0, topActor: '—', topEntity: '—' };
+
+  // ── Pagination ─────────────────────────────────────────────────────────
+  const totalPages = pageSize > 0 ? Math.ceil(total / pageSize) : 1;
 
   // ── URL sync ───────────────────────────────────────────────────────────
   /**
@@ -225,7 +261,7 @@ export function AuditLogBrowser({
    * background; `useSearchParams` is the dependency keying that.
    */
   const pushToUrl = React.useCallback(
-    (patch: Partial<AuditLogQuery & { export?: string }>) => {
+    (patch: Partial<AuditLogQuery & { export?: string; page?: number }>) => {
       const next = new URLSearchParams(searchParams?.toString() ?? '');
       const apply = (k: string, v: string | undefined) => {
         if (v === undefined || v === '' || v === 'all') next.delete(k);
@@ -237,6 +273,11 @@ export function AuditLogBrowser({
       apply('from', patch.from);
       apply('to', patch.to);
       apply('search', patch.search);
+      if (patch.page !== undefined && patch.page > 1) {
+        next.set('page', String(patch.page));
+      } else if (patch.page === 1 || patch.page === undefined) {
+        next.delete('page');
+      }
       // Never persist export trigger in pushed URL — it's one-shot.
       next.delete('export');
       const qs = next.toString();
@@ -253,6 +294,7 @@ export function AuditLogBrowser({
       from: dateFrom || undefined,
       to: dateTo || undefined,
       search: search || undefined,
+      page: 1,
     });
   }, [pushToUrl, entityKindFilter, actorId, actionFilter, dateFrom, dateTo, search]);
 
@@ -265,6 +307,21 @@ export function AuditLogBrowser({
     setSearch('');
     router.replace('?');
   }, [router]);
+
+  const goToPage = React.useCallback(
+    (p: number) => {
+      pushToUrl({
+        entityKind: entityKindFilter === 'all' ? undefined : entityKindFilter,
+        actorId: actorId || undefined,
+        action: actionFilter === 'all' ? undefined : actionFilter,
+        from: dateFrom || undefined,
+        to: dateTo || undefined,
+        search: search || undefined,
+        page: p,
+      });
+    },
+    [pushToUrl, entityKindFilter, actorId, actionFilter, dateFrom, dateTo, search],
+  );
 
   const hasActiveFilters =
     !!actorId ||
@@ -442,6 +499,52 @@ export function AuditLogBrowser({
               </ZoruTable>
             </div>
           </ZoruCard>
+
+          {/* Pagination bar */}
+          {totalPages > 1 && (
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
+              <span className="text-[12.5px] text-zoru-ink-muted">
+                Page {initialPage} of {totalPages} &middot; {total.toLocaleString()} events
+              </span>
+              <div className="flex items-center gap-1">
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  disabled={initialPage <= 1}
+                  onClick={() => goToPage(initialPage - 1)}
+                >
+                  Prev
+                </ZoruButton>
+                {Array.from({ length: Math.min(7, totalPages) }, (_, i) => {
+                  // Show pages around current page.
+                  const half = 3;
+                  let start = Math.max(1, initialPage - half);
+                  const end = Math.min(totalPages, start + 6);
+                  start = Math.max(1, end - 6);
+                  return start + i;
+                })
+                  .filter((p) => p >= 1 && p <= totalPages)
+                  .map((p) => (
+                    <ZoruButton
+                      key={p}
+                      size="sm"
+                      variant={p === initialPage ? 'default' : 'outline'}
+                      onClick={() => goToPage(p)}
+                    >
+                      {p}
+                    </ZoruButton>
+                  ))}
+                <ZoruButton
+                  size="sm"
+                  variant="outline"
+                  disabled={initialPage >= totalPages}
+                  onClick={() => goToPage(initialPage + 1)}
+                >
+                  Next
+                </ZoruButton>
+              </div>
+            </div>
+          )}
         </div>
       </EntityListShell>
 
@@ -472,10 +575,10 @@ function KpiStrip({
 }): React.JSX.Element {
   return (
     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-      <ZoruStatCard label="Today" value={kpis.today.toLocaleString()} />
-      <ZoruStatCard label="This week" value={kpis.week.toLocaleString()} />
-      <ZoruStatCard label="Top actor" value={kpis.topActor} />
-      <ZoruStatCard label="Top entity kind" value={kpis.topEntity} />
+      <ZoruStatCard label="Events today" value={kpis.today.toLocaleString()} />
+      <ZoruStatCard label="Events this week" value={kpis.week.toLocaleString()} />
+      <ZoruStatCard label="Unique actors today" value={kpis.topActor} />
+      <ZoruStatCard label="Error / denied events" value={kpis.topEntity} />
     </div>
   );
 }

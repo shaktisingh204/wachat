@@ -25,12 +25,14 @@ export type BuildLoadOptionsContextArgs = {
   actionId?: string;
   options: Record<string, unknown>;
   credential?: Record<string, string>;
+  filter?: string;
+  paginationToken?: string | null;
 };
 
 export function buildLoadOptionsContext(
   args: BuildLoadOptionsContextArgs,
 ): ForgeLoadOptionsContext {
-  const { block, actionId, options, credential } = args;
+  const { block, actionId, options, credential, filter, paginationToken } = args;
 
   // Build a name→field map scoped to the current action so resourceLocator
   // values can be auto-extracted to plain ids when a resolver reads a
@@ -66,5 +68,7 @@ export function buildLoadOptionsContext(
     getNodeParameter: readParam,
     getCurrentNodeParameter: readParam,
     getNode: () => ({ id: block.id, name: block.name }),
+    filter,
+    paginationToken,
   };
 }

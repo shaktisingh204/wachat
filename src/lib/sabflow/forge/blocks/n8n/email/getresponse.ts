@@ -9,12 +9,13 @@
  * Operations covered (contact resource — GetResponse's only documented resource here):
  *   - contact.create   POST   /contacts
  *   - contact.get      GET    /contacts/{id}
- *   - contact.update   POST   /contacts/{id}      (GR uses POST for partial update)
+ *   - contact.getAll   GET    /contacts                 (page+perPage pagination via TotalPages header)
+ *   - contact.update   POST   /contacts/{id}            (GR uses POST for partial update)
  *   - contact.delete   DELETE /contacts/{id}
  *
  * Out of scope for the first port:
  *   - LoadOptions for campaign/list dropdowns
- *   - getAll with pagination, custom fields helpers
+ *   - Custom fields helpers
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -23,7 +24,8 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { paginateAll } from '../_shared/paginate';
 
 const BASE = 'https://api.getresponse.com/v3';
 
@@ -92,6 +94,37 @@ async function contactUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult
   return { outputs: { contact: res.data }, logs: [`GetResponse contact update → ${id}`] };
 }
 
+async function contactGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = asNumber(ctx.options.maxItems) ?? 500;
+  const perPage = asNumber(ctx.options.pageSize) ?? 100;
+  const campaignId = asString(ctx.options.campaignId);
+
+  const contacts = await paginateAll<unknown>({
+    maxItems,
+    async fetchPage(cursor) {
+      const page = cursor ?? '1';
+      const qs = new URLSearchParams();
+      qs.set('page', page);
+      qs.set('perPage', String(perPage));
+      // GR uses bracketed query filters: `query[campaignId]=`.
+      if (campaignId) qs.set('query[campaignId]', campaignId);
+      const res = await apiRequest({
+        service: 'GetResponse',
+        method: 'GET',
+        url: `${BASE}/contacts?${qs.toString()}`,
+        headers: authHeaders(ctx),
+      });
+      const items = ((res.data as unknown[] | null) ?? []) as unknown[];
+      const totalPagesHeader = res.headers.get('totalpages') ?? res.headers.get('TotalPages');
+      const totalPages = totalPagesHeader ? Number(totalPagesHeader) : NaN;
+      const current = Number(page);
+      const more = Number.isFinite(totalPages) ? current < totalPages : items.length === perPage;
+      return { items, nextCursor: more ? String(current + 1) : undefined };
+    },
+  });
+  return { outputs: { contacts, count: contacts.length }, logs: [`GetResponse contact list → ${contacts.length}`] };
+}
+
 async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const id = asString(ctx.options.contactId);
   if (!id) throw new Error('GetResponse: contactId is required');
@@ -143,6 +176,17 @@ const block: ForgeBlock = {
         { id: 'dayOfCycle', label: 'Day of cycle', type: 'number' },
       ],
       run: contactUpdate,
+    },
+    {
+      id: 'contact_get_all',
+      label: 'List contacts (paginated)',
+      description: 'Walk GetResponse contact pagination (TotalPages header). Optionally filter by campaign.',
+      fields: [
+        { id: 'campaignId', label: 'Campaign ID (optional)', type: 'text' },
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (perPage)', type: 'number', defaultValue: '100' },
+      ],
+      run: contactGetAll,
     },
     {
       id: 'contact_delete',

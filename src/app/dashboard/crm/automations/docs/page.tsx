@@ -1,126 +1,38 @@
-'use client';
-
-import {
-  ZoruAccordion,
-  ZoruAccordionContent,
-  ZoruAccordionItem,
-  ZoruAccordionTrigger,
-  ZoruBadge,
-  ZoruCard,
-  ZoruSeparator,
-} from '@/components/zoruui';
+/**
+ * /dashboard/crm/automations/docs
+ *
+ * Server component — fetches KPIs + automation list, then hands off
+ * to <AutomationsDocsClient> which renders three tabs:
+ *   1. My Automations — live table with bulk enable/disable + export
+ *   2. Documentation — static accordion of triggers, actions, logic
+ *   3. Templates — grid of pre-built automation templates
+ */
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+  getCrmAutomationKpis,
+  listCrmAutomations,
+} from '@/app/actions/crm-automations.actions';
+import { AutomationsDocsClient } from './_components/automations-docs-client';
 
-const blockDocs = [
-    {
-        title: 'Trigger: Tag Added',
-        description: 'Starts an automation when a specific tag is added to a contact.',
-        properties: [
-            { name: 'Tag Name', desc: 'The exact name of the tag that should trigger this workflow (e.g., "new_lead").' },
-        ],
-        outputs: ['One main output that connects to the first action of your automation.'],
-    },
-    {
-        title: 'Action: Send Email',
-        description: 'Sends a pre-defined email template to the contact.',
-        properties: [
-            { name: 'Email Template', desc: 'Select one of your saved email templates to send. You can create templates in the CRM Settings.' },
-        ],
-        outputs: ['One main output to continue the flow after the email is sent.'],
-    },
-    {
-        title: 'Action: Create Task',
-        description: 'Creates a new task and assigns it, typically to a user.',
-        properties: [
-            { name: 'Task Title', desc: 'The title of the task. You can use variables like {{contact.name}} to personalize it.' },
-        ],
-        outputs: ['One main output to continue the flow.'],
-    },
-    {
-        title: 'Action: Add Tag',
-        description: 'Adds a new tag to the contact.',
-        properties: [
-            { name: 'Tag Name', desc: 'The exact name of the tag to add.' },
-        ],
-        outputs: ['One main output.'],
-    },
-    {
-        title: 'Add Delay',
-        description: 'Pauses the automation for a specific amount of time.',
-        properties: [
-            { name: 'Delay Duration', desc: 'The number of minutes, hours, or days to wait before proceeding.' },
-        ],
-        outputs: ['One main output.'],
-    },
-    {
-        title: 'Add Condition',
-        description: 'Creates a branching path based on contact data.',
-        properties: [
-            { name: 'Check Variable', desc: 'The contact variable to check (e.g., "{{contact.status}}").' },
-            { name: 'Operator', desc: 'The comparison to perform (e.g., "Equals", "Contains").' },
-            { name: 'Value', desc: 'The value to compare against (e.g., "qualified").' },
-        ],
-        outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
-    },
-];
+export const dynamic = 'force-dynamic';
 
-export default function CrmAutomationDocsPage() {
-    return (
-        <EntityListShell
-            title="CRM Automation Documentation"
-            subtitle="A guide to building powerful, automated workflows to manage your leads and customers."
-        >
-            <ZoruCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Using Variables</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">
-                        Variables allow you to personalize your automations and use data dynamically.
-                    </p>
-                </div>
-                <div className="text-[13px] text-foreground space-y-4">
-                    <p>
-                        Variables are placeholders for data. In the Automation builder, you use double curly braces to insert a variable, like this: <ZoruBadge variant="ghost" className="font-mono">{'{{contact.name}}'}</ZoruBadge>.
-                    </p>
-                    <p>
-                        The system provides several default variables you can use in any action, such as <ZoruBadge variant="ghost" className="font-mono">{'{{contact.name}}'}</ZoruBadge>, <ZoruBadge variant="ghost" className="font-mono">{'{{contact.email}}'}</ZoruBadge>, or <ZoruBadge variant="ghost" className="font-mono">{'{{deal.value}}'}</ZoruBadge>.
-                    </p>
-                </div>
-            </ZoruCard>
+export default async function CrmAutomationDocsPage() {
+  const [kpis, { items, total }] = await Promise.all([
+    getCrmAutomationKpis(),
+    listCrmAutomations(1, 20),
+  ]);
 
-            <ZoruSeparator />
-
-            <div>
-                <h2 className="text-[20px] font-bold text-foreground">Automation Blocks</h2>
-                <p className="mt-1 text-[13px] text-muted-foreground">
-                    An overview of all available triggers and actions.
-                </p>
-            </div>
-
-            <ZoruAccordion type="single" collapsible className="w-full">
-                {blockDocs.map((doc, index) => (
-                     <ZoruAccordionItem value={`item-${index}`} key={index} className="border-border">
-                        <ZoruAccordionTrigger className="text-[15px] font-semibold">{doc.title}</ZoruAccordionTrigger>
-                        <ZoruAccordionContent className="space-y-4 pt-2">
-                             <p className="text-[13px] text-muted-foreground">{doc.description}</p>
-                             <div className="space-y-2">
-                                 <h4 className="font-semibold text-foreground">Properties:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-foreground">
-                                     {doc.properties.map((prop, pIndex) => (
-                                        <li key={pIndex}><strong>{prop.name}:</strong> {prop.desc}</li>
-                                     ))}
-                                 </ul>
-                             </div>
-                             <div className="space-y-2">
-                                 <h4 className="font-semibold text-foreground">Outputs:</h4>
-                                 <ul className="list-disc list-inside space-y-1 text-[12.5px] text-foreground">
-                                     {doc.outputs.map((out, oIndex) => <li key={oIndex}>{out}</li>)}
-                                 </ul>
-                             </div>
-                        </ZoruAccordionContent>
-                    </ZoruAccordionItem>
-                ))}
-            </ZoruAccordion>
-        </EntityListShell>
-    );
+  return (
+    <EntityListShell
+      title="Automations"
+      subtitle="Manage, document and discover pre-built automations for your CRM workflows."
+    >
+      <AutomationsDocsClient
+        kpis={kpis}
+        initialAutomations={items}
+        initialTotal={total}
+      />
+    </EntityListShell>
+  );
 }

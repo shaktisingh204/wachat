@@ -4,10 +4,11 @@ import { Plus } from 'lucide-react';
 /**
  * CRM Payment Receipts list — `/dashboard/crm/sales/payments`.
  *
- * Server component shell. Reads search/page/limit from the URL,
- * fetches via the Rust-backed `listPaymentReceipts` action, and hands
- * off to `<PaymentReceiptListClient>` for interactive bits (search,
- * delete dialog).
+ * §1D list shell. Server component reads search/page/limit/status/
+ * method/date params from the URL, fetches via the Rust-backed
+ * `listPaymentReceipts` action plus a `getPaymentReceiptKpis` snapshot,
+ * and hands off to `<PaymentReceiptListClient>` for KPI strip, filter
+ * row, bulk-bar, and CSV/XLSX export.
  *
  * Pagination is hasMore-driven (the Rust endpoint doesn't return a
  * total count) — see `<PaginationBar>`.
@@ -16,7 +17,11 @@ import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { listPaymentReceipts } from '@/app/actions/crm/payment-receipts.actions';
+import {
+  getPaymentReceiptKpis,
+  listPaymentReceipts,
+} from '@/app/actions/crm/payment-receipts.actions';
+import type { CrmReceiptStatus } from '@/lib/rust-client/crm-payment-receipts';
 import { PaymentReceiptListClient } from './_components/payment-receipt-list-client';
 
 export const dynamic = 'force-dynamic';
@@ -25,6 +30,11 @@ interface SearchParams {
   page?: string;
   limit?: string;
   q?: string;
+  status?: string;
+  clientId?: string;
+  mode?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export default async function PaymentReceiptsPage({
@@ -36,11 +46,30 @@ export default async function PaymentReceiptsPage({
   const page = Math.max(1, Number(sp.page) || 1);
   const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
   const q = (sp.q ?? '').trim();
+  const status = (sp.status ?? '').trim();
+  const clientId = (sp.clientId ?? '').trim();
+  const mode = (sp.mode ?? '').trim();
+  const dateFrom = (sp.dateFrom ?? '').trim();
+  const dateTo = (sp.dateTo ?? '').trim();
 
-  const { receipts, hasMore, error } = await listPaymentReceipts({
-    page,
-    limit,
-    q: q || undefined,
+  const [listResult, kpis] = await Promise.all([
+    listPaymentReceipts({
+      page,
+      limit,
+      q: q || undefined,
+      clientId: clientId || undefined,
+      status: status ? (status as CrmReceiptStatus) : undefined,
+    }),
+    getPaymentReceiptKpis(),
+  ]);
+
+  // Client-side filter for the dimensions the Rust list endpoint
+  // doesn't expose yet (mode / date range).
+  const filtered = listResult.receipts.filter((r) => {
+    if (mode && (r.mode ?? '').toLowerCase() !== mode.toLowerCase()) return false;
+    if (dateFrom && (!r.date || r.date < dateFrom)) return false;
+    if (dateTo && (!r.date || r.date > `${dateTo}T23:59:59Z`)) return false;
+    return true;
   });
 
   return (
@@ -57,12 +86,18 @@ export default async function PaymentReceiptsPage({
       }
     >
       <PaymentReceiptListClient
-        receipts={receipts}
+        receipts={filtered}
         page={page}
         limit={limit}
-        hasMore={hasMore}
+        hasMore={listResult.hasMore}
         initialQuery={q}
-        error={error}
+        initialStatus={status}
+        initialClientId={clientId}
+        initialMode={mode}
+        initialDateFrom={dateFrom}
+        initialDateTo={dateTo}
+        kpis={kpis}
+        error={listResult.error}
       />
     </EntityListShell>
   );

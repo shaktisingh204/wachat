@@ -128,7 +128,11 @@ function parseCriteriaJson(raw: string | null | undefined): ProbationCriterion[]
 
 function revalidateSurfaces(id?: string): void {
     revalidatePath('/dashboard/hrm/hr/probation');
-    if (id) revalidatePath(`/dashboard/hrm/hr/probation/${id}`);
+    revalidatePath('/dashboard/crm/hr/probation');
+    if (id) {
+        revalidatePath(`/dashboard/hrm/hr/probation/${id}`);
+        revalidatePath(`/dashboard/crm/hr/probation/${id}`);
+    }
 }
 
 /* ─── Reads ──────────────────────────────────────────────────────────── */
@@ -413,4 +417,130 @@ export async function deleteCrmProbation(
         const msg = e instanceof Error ? e.message : 'Unknown error';
         return { success: false, error: msg };
     }
+}
+
+/* ─── Bulk + KPIs ────────────────────────────────────────────────────── */
+
+export interface CrmProbationKpis {
+    total: number;
+    inProgress: number;
+    endingThisMonth: number;
+    extended: number;
+    confirmed: number;
+    terminated: number;
+}
+
+export async function getCrmProbationKpis(): Promise<CrmProbationKpis> {
+    const empty: CrmProbationKpis = {
+        total: 0,
+        inProgress: 0,
+        endingThisMonth: 0,
+        extended: 0,
+        confirmed: 0,
+        terminated: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_probation', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id as string);
+
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+        const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+
+        const [total, inProgress, endingThisMonth, extended, confirmed, terminated] =
+            await Promise.all([
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: { $ne: 'archived' },
+                }),
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: 'in_progress',
+                }),
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: 'in_progress',
+                    endDate: { $gte: monthStart, $lt: monthEnd },
+                }),
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: 'extended',
+                }),
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: 'confirmed',
+                }),
+                db.collection('crm_probations').countDocuments({
+                    userId,
+                    status: 'terminated',
+                }),
+            ]);
+
+        return {
+            total,
+            inProgress,
+            endingThisMonth,
+            extended,
+            confirmed,
+            terminated,
+        };
+    } catch (e) {
+        console.error('[getCrmProbationKpis]', e);
+        return empty;
+    }
+}
+
+async function bulkSetProbationStatus(
+    ids: string[],
+    status: ProbationStatus,
+): Promise<{ success: boolean; updated: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, updated: 0, error: 'Access denied.' };
+    }
+    const guard = await requirePermission('crm_probation', 'update');
+    if (!guard.ok) {
+        return { success: false, updated: 0, error: guard.error };
+    }
+    const oids = ids
+        .filter((id) => ObjectId.isValid(id))
+        .map((id) => new ObjectId(id));
+    if (oids.length === 0) return { success: true, updated: 0 };
+    try {
+        const { db } = await connectToDatabase();
+        const res = await db.collection('crm_probations').updateMany(
+            {
+                _id: { $in: oids },
+                userId: new ObjectId(session.user._id as string),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        revalidateSurfaces();
+        return { success: true, updated: res.modifiedCount };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        return { success: false, updated: 0, error: msg };
+    }
+}
+
+export async function bulkConfirmProbations(ids: string[]) {
+    return bulkSetProbationStatus(ids, 'confirmed');
+}
+
+export async function bulkExtendProbations(ids: string[]) {
+    return bulkSetProbationStatus(ids, 'extended');
+}
+
+export async function bulkTerminateProbations(ids: string[]) {
+    return bulkSetProbationStatus(ids, 'terminated');
+}
+
+export async function bulkArchiveProbations(ids: string[]) {
+    return bulkSetProbationStatus(ids, 'archived');
 }

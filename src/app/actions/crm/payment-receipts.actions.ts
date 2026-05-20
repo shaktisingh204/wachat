@@ -331,6 +331,12 @@ export interface PaymentReceiptKpis {
   bouncedCount: number;
   avgDaysToCollect: number;
   currency: string;
+  /** Count of receipts not yet cleared (status = received or unset). */
+  pendingCount: number;
+  /** Count of receipts that bounced or are unreconciled. */
+  failedCount: number;
+  /** Most-used payment mode across the loaded window (e.g. `upi`). */
+  topMethod: string;
 }
 
 const EMPTY_KPIS: PaymentReceiptKpis = {
@@ -340,6 +346,9 @@ const EMPTY_KPIS: PaymentReceiptKpis = {
   bouncedCount: 0,
   avgDaysToCollect: 0,
   currency: 'INR',
+  pendingCount: 0,
+  failedCount: 0,
+  topMethod: '—',
 };
 
 /**
@@ -357,9 +366,11 @@ export async function getPaymentReceiptKpis(): Promise<PaymentReceiptKpis> {
     let receivedThisMonthCount = 0;
     let clearedCount = 0;
     let bouncedCount = 0;
+    let pendingCount = 0;
     let daySum = 0;
     let daySamples = 0;
     let currency = 'INR';
+    const methodCounts = new Map<string, number>();
     for (const r of rows) {
       currency = r.currency || currency;
       const dt = r.date ? new Date(r.date) : null;
@@ -370,6 +381,12 @@ export async function getPaymentReceiptKpis(): Promise<PaymentReceiptKpis> {
       const status = (r.status || '').toLowerCase();
       if (status === 'cleared') clearedCount += 1;
       if (status === 'bounced') bouncedCount += 1;
+      if (status === 'received' || status === '') pendingCount += 1;
+
+      if (r.mode) {
+        const mode = String(r.mode).toLowerCase();
+        methodCounts.set(mode, (methodCounts.get(mode) ?? 0) + 1);
+      }
 
       // Days-to-collect proxy: receipt.date − earliest applied invoice.
       // We don't have invoice dates loaded here, so we fall back to
@@ -383,6 +400,14 @@ export async function getPaymentReceiptKpis(): Promise<PaymentReceiptKpis> {
         }
       }
     }
+    let topMethod = '—';
+    let topCount = -1;
+    for (const [k, v] of methodCounts) {
+      if (v > topCount) {
+        topMethod = k;
+        topCount = v;
+      }
+    }
     return {
       receivedThisMonthTotal,
       receivedThisMonthCount,
@@ -390,6 +415,9 @@ export async function getPaymentReceiptKpis(): Promise<PaymentReceiptKpis> {
       bouncedCount,
       avgDaysToCollect: daySamples > 0 ? Math.round(daySum / daySamples) : 0,
       currency,
+      pendingCount,
+      failedCount: bouncedCount,
+      topMethod,
     };
   } catch {
     return EMPTY_KPIS;

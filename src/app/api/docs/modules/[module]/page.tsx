@@ -4,10 +4,25 @@
 
 import catalog from '../../_data/catalog.json';
 import { notFound } from 'next/navigation';
+import {
+  ZoruBreadcrumb,
+  ZoruBreadcrumbList,
+  ZoruBreadcrumbItem,
+  ZoruBreadcrumbLink,
+  ZoruBreadcrumbSeparator,
+  ZoruBreadcrumbPage,
+  ZoruPageHeader,
+  ZoruPageHeading,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruTable,
+  ZoruTableHeader,
+  ZoruTableHead,
+  ZoruTableBody,
+  ZoruTableRow,
+  ZoruTableCell,
+} from '@/components/zoruui';
 
-// Render on-demand and cache for an hour. Pre-rendering all 11k+
-// endpoints at build time is wasteful; rendering on first request +
-// caching keeps the build fast and the page fresh.
 export const revalidate = 3600;
 export const dynamicParams = true;
 
@@ -37,7 +52,11 @@ function MethodBadge({ method }: { method: string }) {
     DELETE: 'bg-red-500/20 text-red-300 border-red-500/40',
   };
   const cls = colors[method] ?? 'bg-zinc-500/20 text-zinc-300 border-zinc-500/40';
-  return <span className={'inline-block text-[10px] font-bold px-1.5 py-0.5 rounded border ' + cls + ' w-14 text-center'}>{method}</span>;
+  return (
+    <span className={'inline-block text-[10px] font-bold px-1.5 py-0.5 rounded border w-14 text-center ' + cls}>
+      {method}
+    </span>
+  );
 }
 
 export default async function Page({ params }: { params: Promise<{ module: string }> }) {
@@ -48,34 +67,73 @@ export default async function Page({ params }: { params: Promise<{ module: strin
   if (moduleRows.length === 0) notFound();
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 text-zinc-100">
-      <header className="mb-6">
-        <a href="/api/docs/modules" className="text-xs text-amber-300 hover:text-amber-200">
-          ← All modules
-        </a>
-        <h1 className="text-3xl font-bold mt-2 capitalize">{module}</h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          {moduleRows.length} endpoint{moduleRows.length === 1 ? '' : 's'}. Click any row for the
-          deep page with code samples in 15+ languages and a live test runner.
-        </p>
-      </header>
+    <div className="zoruui min-h-screen bg-zoru-bg text-zoru-ink">
+      <div className="max-w-5xl mx-auto px-6 py-8">
+        <div className="flex flex-col gap-6">
+          <ZoruBreadcrumb>
+            <ZoruBreadcrumbList>
+              <ZoruBreadcrumbItem>
+                <ZoruBreadcrumbLink href="/api/docs/modules">All modules</ZoruBreadcrumbLink>
+              </ZoruBreadcrumbItem>
+              <ZoruBreadcrumbSeparator />
+              <ZoruBreadcrumbItem>
+                <ZoruBreadcrumbPage className="capitalize">{module}</ZoruBreadcrumbPage>
+              </ZoruBreadcrumbItem>
+            </ZoruBreadcrumbList>
+          </ZoruBreadcrumb>
 
-      <ul className="rounded-md border border-zinc-800 divide-y divide-zinc-800">
-        {moduleRows.map((r) => (
-          <li key={r.slug}>
-            <a
-              href={'/api/docs/modules/' + module + '/' + r.slug}
-              className="flex items-center gap-3 px-3 py-2 hover:bg-zinc-900/50 transition"
-            >
-              <MethodBadge method={r.method} />
-              <code className="font-mono text-sm text-zinc-200 flex-1 truncate">{r.path}</code>
-              <span className="text-xs text-zinc-500 hidden md:block truncate max-w-[40%]">
-                {r.summary}
-              </span>
-            </a>
-          </li>
-        ))}
-      </ul>
+          <ZoruPageHeader>
+            <ZoruPageHeading>
+              <ZoruPageTitle className="capitalize">{module}</ZoruPageTitle>
+              <ZoruPageDescription>
+                {moduleRows.length} endpoint{moduleRows.length === 1 ? '' : 's'}. Click any row for
+                the deep page with code samples in 15+ languages and a live test runner.
+              </ZoruPageDescription>
+            </ZoruPageHeading>
+          </ZoruPageHeader>
+
+          <div className="rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow>
+                  <ZoruTableHead className="w-20">Method</ZoruTableHead>
+                  <ZoruTableHead>Path</ZoruTableHead>
+                  <ZoruTableHead className="hidden md:table-cell">Summary</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {moduleRows.map((r) => (
+                  <ZoruTableRow
+                    key={r.slug}
+                    className="cursor-pointer hover:bg-zoru-surface-2 transition-colors"
+                    onClick={undefined}
+                  >
+                    <ZoruTableCell>
+                      <a
+                        href={'/api/docs/modules/' + module + '/' + r.slug}
+                        className="flex items-center gap-3 w-full"
+                        tabIndex={-1}
+                      >
+                        <MethodBadge method={r.method} />
+                      </a>
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <a href={'/api/docs/modules/' + module + '/' + r.slug} className="block w-full">
+                        <code className="font-mono text-sm text-zoru-ink">{r.path}</code>
+                      </a>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="hidden md:table-cell text-zoru-ink-muted text-xs">
+                      <a href={'/api/docs/modules/' + module + '/' + r.slug} className="block w-full">
+                        {r.summary}
+                      </a>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

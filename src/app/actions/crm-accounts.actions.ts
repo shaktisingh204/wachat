@@ -775,3 +775,61 @@ export async function setCrmAccountCategory(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+/* ─── bulkArchiveCrmAccounts ─────────────────────────────────────────── */
+
+export async function bulkArchiveCrmAccounts(
+    ids: string[],
+): Promise<{ processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { processed: 0, error: 'Unauthorized' };
+
+    const guard = await requirePermission('crm_account', 'delete');
+    if (!guard.ok) return { processed: 0, error: guard.error };
+
+    const validIds = ids.filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+    if (validIds.length === 0) return { processed: 0, error: 'No valid account ids.' };
+
+    const userObjectId = new ObjectId(session.user._id);
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_accounts').updateMany(
+            { _id: { $in: validIds.map((id) => new ObjectId(id)) }, userId: userObjectId },
+            { $set: { status: 'archived', updatedAt: new Date() } },
+        );
+        revalidateAccountSurfaces();
+        return { processed: result.modifiedCount };
+    } catch (e) {
+        return { processed: 0, error: getErrorMessage(e) };
+    }
+}
+
+/* ─── bulkDeleteCrmAccounts ──────────────────────────────────────────── */
+
+export async function bulkDeleteCrmAccounts(
+    ids: string[],
+): Promise<{ processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { processed: 0, error: 'Unauthorized' };
+
+    const guard = await requirePermission('crm_account', 'delete');
+    if (!guard.ok) return { processed: 0, error: guard.error };
+
+    const validIds = ids.filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+    if (validIds.length === 0) return { processed: 0, error: 'No valid account ids.' };
+
+    const userObjectId = new ObjectId(session.user._id);
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_accounts').deleteMany({
+            _id: { $in: validIds.map((id) => new ObjectId(id)) },
+            userId: userObjectId,
+        });
+        revalidateAccountSurfaces();
+        return { processed: result.deletedCount };
+    } catch (e) {
+        return { processed: 0, error: getErrorMessage(e) };
+    }
+}

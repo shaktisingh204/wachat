@@ -286,3 +286,115 @@ export async function getFolderTree(): Promise<WsFolderTreeNode[]> {
   }
   return roots;
 }
+
+/* ────────────────────────────────────────────────────────────────
+ *  Bulk delete files
+ * ─────────────────────────────────────────────────────────────── */
+
+export async function bulkDeleteFiles(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, processed: 0, error: 'Access denied.' };
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+  if (valid.length === 0) return { success: false, processed: 0, error: 'No valid file ids.' };
+
+  const { db } = await connectToDatabase();
+  let processed = 0;
+  for (const id of valid) {
+    try {
+      const result = await db.collection(COL_FILES).deleteOne({
+        _id: new ObjectId(id),
+        userId: new ObjectId(user._id),
+      });
+      if (result.deletedCount > 0) processed += 1;
+    } catch {
+      /* continue on per-row failure */
+    }
+  }
+  revalidatePath(ROUTE_BASE);
+  revalidatePath(`${ROUTE_BASE}/folders`);
+  return { success: true, processed };
+}
+
+/* ────────────────────────────────────────────────────────────────
+ *  File browser stats (KPI strip)
+ * ─────────────────────────────────────────────────────────────── */
+
+export interface FileBrowserStats {
+  totalFolders: number;
+  totalFiles: number;
+  totalStorageBytes: number;
+  addedThisMonth: number;
+}
+
+export async function getFileBrowserStats(): Promise<FileBrowserStats> {
+  const empty: FileBrowserStats = {
+    totalFolders: 0,
+    totalFiles: 0,
+    totalStorageBytes: 0,
+    addedThisMonth: 0,
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(user._id);
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const [totalFolders, totalFiles, storageAgg, addedThisMonth] = await Promise.all([
+      db.collection(COL_FOLDERS).countDocuments({ userId } as Record<string, unknown>),
+      db.collection(COL_FILES).countDocuments({ userId } as Record<string, unknown>),
+      db
+        .collection(COL_FILES)
+        .aggregate([
+          { $match: { userId } },
+          { $group: { _id: null, total: { $sum: { $ifNull: ['$size_bytes', 0] } } } },
+        ])
+        .toArray(),
+      db.collection(COL_FILES).countDocuments({
+        userId,
+        createdAt: { $gte: startOfMonth },
+      } as Record<string, unknown>),
+    ]);
+
+    return {
+      totalFolders: Number(totalFolders) || 0,
+      totalFiles: Number(totalFiles) || 0,
+      totalStorageBytes: Number((storageAgg[0] as { total?: number } | undefined)?.total ?? 0),
+      addedThisMonth: Number(addedThisMonth) || 0,
+    };
+  } catch (e) {
+    console.error('[getFileBrowserStats] failed:', e);
+    return empty;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+ *  Create folder (simple named action for the UI button)
+ * ─────────────────────────────────────────────────────────────── */
+
+export async function createFolder(
+  name: string,
+  parentFolderId?: string,
+): Promise<{ id?: string; error?: string }> {
+  if (!name?.trim()) return { error: 'Folder name is required.' };
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied.' };
+
+  const { db } = await connectToDatabase();
+  const doc = {
+    userId: new ObjectId(user._id),
+    name: name.trim(),
+    parent_folder_id: parentFolderId || undefined,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  };
+  const result = await db.collection(COL_FOLDERS).insertOne(doc as Record<string, unknown>);
+  revalidatePath(`${ROUTE_BASE}/folders`);
+  revalidatePath(ROUTE_BASE);
+  return { id: result.insertedId.toString() };
+}

@@ -5,12 +5,14 @@
  * Credential type: 'clearbit' — { apiKey } sent as Bearer token.
  *
  * Operations covered:
- *   - person.get   (Enrichment API by email)
- *   - company.get  (Enrichment API by domain)
- *   - discovery.list (Discovery API search)
+ *   - person.get          (Enrichment API by email)
+ *   - company.get         (Enrichment API by domain)
+ *   - company.autocomplete (Autocomplete API suggestions by name)
+ *   - discovery.list      (Discovery API search)
  *
  * Out of scope (deferred):
- *   - reveal / prospector / autocomplete endpoints
+ *   - reveal / prospector endpoints — Clearbit gated these behind paid
+ *     add-ons that most flow authors won't have access to; revisit on demand.
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -30,7 +32,7 @@ function authHeader(ctx: ForgeActionContext): Record<string, string> {
 
 async function call(
   ctx: ForgeActionContext,
-  api: 'person' | 'company' | 'discovery',
+  api: 'person' | 'company' | 'discovery' | 'autocomplete',
   path: string,
   query?: Record<string, string | undefined>,
 ): Promise<unknown> {
@@ -64,6 +66,14 @@ async function companyGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!domain) throw new Error('Clearbit: domain is required');
   const data = await call(ctx, 'company', '/v2/companies/find', { domain });
   return { outputs: { company: data }, logs: [`Clearbit company → ${domain}`] };
+}
+
+async function companyAutocomplete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const name = asString(ctx.options.name);
+  if (!name) throw new Error('Clearbit: name is required');
+  // Autocomplete API mirrors n8n's `'autocomplete'` host token; same Bearer header.
+  const data = await call(ctx, 'autocomplete', '/v1/companies/suggest', { query: name });
+  return { outputs: { result: data }, logs: [`Clearbit company autocomplete → ${name}`] };
 }
 
 async function discoveryList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -107,6 +117,15 @@ const block: ForgeBlock = {
         { id: 'domain', label: 'Domain', type: 'text', required: true },
       ],
       run: companyGet,
+    },
+    {
+      id: 'company_autocomplete',
+      label: 'Autocomplete companies',
+      description: 'Suggest companies matching a partial name.',
+      fields: [
+        { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'segm' },
+      ],
+      run: companyAutocomplete,
     },
     {
       id: 'discovery_list',

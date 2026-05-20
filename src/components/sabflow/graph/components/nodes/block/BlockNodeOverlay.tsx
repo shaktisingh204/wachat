@@ -1,8 +1,10 @@
 'use client';
 
+import { Icon as IconifyIcon } from '@iconify/react';
 import { cn } from '@/lib/utils';
 import type { Block } from '@/lib/sabflow/types';
 import { getBlockIcon, getBlockLabel } from '@/lib/sabflow/blocks';
+import { getBlockBrandIcon } from '@/lib/sabflow/blocks/icons';
 
 type Props = {
   block: Block;
@@ -13,6 +15,7 @@ type Props = {
 export function BlockNodeOverlay({ block, className, style }: Props) {
   const Icon = getBlockIcon(block.type);
   const label = getBlockLabel(block.type);
+  const brand = getBlockBrandIcon(block.type);
 
   return (
     <div
@@ -22,9 +25,20 @@ export function BlockNodeOverlay({ block, className, style }: Props) {
       )}
       style={style}
     >
-      {/* Icon — matches real BlockNode icon container */}
-      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-[var(--gray-3)] text-[var(--gray-11)] mt-0.5">
-        {Icon ? <Icon className="h-3.5 w-3.5" /> : <span className="text-[10px] font-mono">?</span>}
+      {/* Brand logo or fallback icon — matches BlockNodeContent. */}
+      <div
+        className={cn(
+          'flex h-7 w-7 shrink-0 items-center justify-center rounded-md mt-0.5',
+          !brand && 'bg-[var(--gray-3)] text-[var(--gray-11)]',
+        )}
+      >
+        {brand ? (
+          <IconifyIcon icon={brand} className="h-5 w-5" aria-hidden />
+        ) : Icon ? (
+          <Icon className="h-3.5 w-3.5" />
+        ) : (
+          <span className="text-[10px] font-mono">?</span>
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-[12.5px] font-medium text-[var(--gray-12)] truncate">{label}</div>

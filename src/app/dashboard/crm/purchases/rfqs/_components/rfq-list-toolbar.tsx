@@ -12,10 +12,13 @@ import {
 } from '@/components/zoruui';
 import {
   ClipboardList,
+  Clock,
   Download,
+  MailQuestion,
   Plus,
   Search,
   Table as TableIcon,
+  Zap,
   } from 'lucide-react';
 
 /**
@@ -62,7 +65,51 @@ interface KpiStripProps {
 
 export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8">
+      <button
+        type="button"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        onClick={() => onSegmentClick('open')}
+        aria-label="Filter to active (open) RFQs"
+      >
+        <ZoruStatCard
+          label="Total active"
+          value={kpi.totalActive.toLocaleString()}
+          period="status = open"
+          icon={<Zap />}
+        />
+      </button>
+      <ZoruStatCard
+        label="Awaiting responses"
+        value={kpi.awaitingResponses.toLocaleString()}
+        period="open & not past deadline"
+        icon={<MailQuestion />}
+        invertDelta
+      />
+      <button
+        type="button"
+        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
+        onClick={() => onSegmentClick('closed')}
+        aria-label="Filter to closed RFQs"
+      >
+        <ZoruStatCard
+          label="Closed"
+          value={kpi.closed.toLocaleString()}
+          period="status = closed"
+        />
+      </button>
+      <ZoruStatCard
+        label="Avg response"
+        value={
+          kpi.avgResponseHours != null
+            ? kpi.avgResponseHours < 48
+              ? `${kpi.avgResponseHours.toFixed(1)} h`
+              : `${(kpi.avgResponseHours / 24).toFixed(1)} d`
+            : '—'
+        }
+        period="create → first move"
+        icon={<Clock />}
+      />
       <button
         type="button"
         className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
@@ -86,18 +133,6 @@ export function RfqKpiStrip({ kpi, onSegmentClick }: KpiStripProps) {
           label="Open"
           value={kpi.open.toLocaleString()}
           period="status = open"
-        />
-      </button>
-      <button
-        type="button"
-        className="text-left transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zoru-primary"
-        onClick={() => onSegmentClick('closed')}
-        aria-label="Filter to closed RFQs"
-      >
-        <ZoruStatCard
-          label="Closed"
-          value={kpi.closed.toLocaleString()}
-          period="status = closed"
         />
       </button>
       <button

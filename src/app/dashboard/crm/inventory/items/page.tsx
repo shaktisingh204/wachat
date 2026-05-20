@@ -92,11 +92,15 @@ function computeKpi(rows: ItemListRow[], total: number): ItemKpiSnapshot {
   let low = 0;
   let out = 0;
   let value = 0;
+  let inStock = 0;
   for (const r of rows) {
     if ((r.status ?? 'active') === 'active') active += 1;
     if (isLowStock(r)) low += 1;
     if (isOutOfStock(r)) out += 1;
     value += inventoryValue(r);
+    // Untracked items don't manage stock, so we count them as in-stock for
+    // the at-a-glance tile. Tracked items must have `totalStock > 0`.
+    if (!r.isTrackInventory || r.totalStock > 0) inStock += 1;
   }
   return {
     totalCount: total,
@@ -104,6 +108,7 @@ function computeKpi(rows: ItemListRow[], total: number): ItemKpiSnapshot {
     lowStockCount: low,
     outOfStockCount: out,
     inventoryValue: value,
+    inStockCount: inStock,
   };
 }
 

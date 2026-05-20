@@ -1,13 +1,18 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { ObjectId } from 'mongodb';
 import {
   hrList,
   hrGetById,
   hrSave,
   hrDelete,
+  hrBulkDelete,
+  hrBulkArchive,
   formToObject,
+  requireSession,
 } from '@/lib/hr-crud';
+import { connectToDatabase } from '@/lib/mongodb';
 import type {
   WsLeadSource,
   WsLeadStatus,
@@ -386,7 +391,11 @@ export async function saveLeadNote(_prev: unknown, formData: FormData) {
     COL_LEAD_NOTES,
     '/dashboard/crm/sales-crm/notes',
     formData,
-    { idFields: ['lead_id', 'added_by_user_id'] },
+    {
+      idFields: ['lead_id', 'added_by_user_id'],
+      jsonKeys: ['tags'],
+      booleanKeys: ['pinned'],
+    },
   );
 }
 export async function deleteLeadNote(id: string) {
@@ -542,6 +551,13 @@ export async function saveClientDocument(_prev: unknown, formData: FormData) {
     },
   );
 }
+
+/**
+ * Lookup-only loaders for the deepened list pages — return id→label maps
+ * so the row-level UI can render entity-aware breadcrumbs without
+ * making per-row picker calls. Scoped via `lookupEntity` which already
+ * enforces tenant isolation.
+ */
 export async function deleteClientDocument(id: string) {
   const r = await hrDelete(COL_CLIENT_DOCUMENTS, id);
   revalidatePath('/dashboard/crm/sales/clients/documents');
@@ -563,7 +579,10 @@ export async function saveClientNote(_prev: unknown, formData: FormData) {
     COL_CLIENT_NOTES,
     '/dashboard/crm/sales/clients/notes',
     formData,
-    { idFields: ['client_id', 'added_by_user_id'] },
+    {
+      idFields: ['client_id', 'added_by_user_id'],
+      booleanKeys: ['pinned'],
+    },
   );
 }
 export async function deleteClientNote(id: string) {
@@ -594,4 +613,564 @@ export async function deleteClientDetails(id: string) {
   const r = await hrDelete(COL_CLIENT_DETAILS, id);
   revalidatePath('/dashboard/crm/sales/clients');
   return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Bulk operations — delete + archive across Client/Lead sub-records.
+ *  Each wraps the tenant-scoped hrBulkDelete / hrBulkArchive helpers
+ *  in hr-crud.ts so multi-tenant isolation is preserved.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function bulkDeleteClientCategories(ids: string[]) {
+  const r = await hrBulkDelete(COL_CLIENT_CATEGORIES, ids);
+  revalidatePath('/dashboard/crm/sales/clients/categories');
+  return r;
+}
+export async function bulkArchiveClientCategories(ids: string[]) {
+  const r = await hrBulkArchive(COL_CLIENT_CATEGORIES, ids);
+  revalidatePath('/dashboard/crm/sales/clients/categories');
+  return r;
+}
+
+export async function bulkDeleteClientContacts(ids: string[]) {
+  const r = await hrBulkDelete(COL_CLIENT_CONTACTS, ids);
+  revalidatePath('/dashboard/crm/sales/clients/contacts');
+  return r;
+}
+export async function bulkArchiveClientContacts(ids: string[]) {
+  const r = await hrBulkArchive(COL_CLIENT_CONTACTS, ids);
+  revalidatePath('/dashboard/crm/sales/clients/contacts');
+  return r;
+}
+
+export async function bulkDeleteClientDocuments(ids: string[]) {
+  const r = await hrBulkDelete(COL_CLIENT_DOCUMENTS, ids);
+  revalidatePath('/dashboard/crm/sales/clients/documents');
+  return r;
+}
+export async function bulkArchiveClientDocuments(ids: string[]) {
+  const r = await hrBulkArchive(COL_CLIENT_DOCUMENTS, ids);
+  revalidatePath('/dashboard/crm/sales/clients/documents');
+  return r;
+}
+
+export async function bulkDeleteClientNotes(ids: string[]) {
+  const r = await hrBulkDelete(COL_CLIENT_NOTES, ids);
+  revalidatePath('/dashboard/crm/sales/clients/notes');
+  return r;
+}
+export async function bulkArchiveClientNotes(ids: string[]) {
+  const r = await hrBulkArchive(COL_CLIENT_NOTES, ids);
+  revalidatePath('/dashboard/crm/sales/clients/notes');
+  return r;
+}
+
+export async function bulkDeleteLeadNotes(ids: string[]) {
+  const r = await hrBulkDelete(COL_LEAD_NOTES, ids);
+  revalidatePath('/dashboard/crm/sales-crm/notes');
+  return r;
+}
+export async function bulkArchiveLeadNotes(ids: string[]) {
+  const r = await hrBulkArchive(COL_LEAD_NOTES, ids);
+  revalidatePath('/dashboard/crm/sales-crm/notes');
+  return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  KPI aggregations — computed server-side over the tenant's full
+ *  collection so headline metrics stay accurate regardless of
+ *  client-side filtering or pagination. All shapes are flat numbers
+ *  + small label arrays to keep payloads tiny.
+ * ══════════════════════════════════════════════════════════════════ */
+
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
+
+function isWithinDays(value: unknown, days: number): boolean {
+  if (!value) return false;
+  const d = new Date(value as string | Date);
+  if (isNaN(d.getTime())) return false;
+  return Date.now() - d.getTime() <= days * MS_PER_DAY;
+}
+
+export interface ClientCategoryKpis {
+  total: number;
+  totalClientsAcrossCategories: number;
+  topCategory: { id: string; label: string; count: number } | null;
+  lastAdded: { id: string; label: string; at: string } | null;
+}
+
+export async function getClientCategoryKpis(): Promise<ClientCategoryKpis> {
+  const [cats, subs] = await Promise.all([
+    hrList<WsClientCategory>(COL_CLIENT_CATEGORIES),
+    hrList<WsClientSubCategory>(COL_CLIENT_SUB_CATEGORIES),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const s of subs) {
+    const key = String(s.client_category_id ?? '');
+    if (!key) continue;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+
+  let topId = '';
+  let topCount = 0;
+  for (const [id, n] of counts) {
+    if (n > topCount) {
+      topId = id;
+      topCount = n;
+    }
+  }
+  const topRow = cats.find((c) => String(c._id) === topId) ?? null;
+
+  const sorted = [...cats].sort((a, b) => {
+    const da = new Date(String(a.createdAt ?? 0)).getTime();
+    const db = new Date(String(b.createdAt ?? 0)).getTime();
+    return db - da;
+  });
+  const last = sorted[0] ?? null;
+
+  return {
+    total: cats.length,
+    totalClientsAcrossCategories: subs.length,
+    topCategory: topRow
+      ? {
+          id: String(topRow._id),
+          label: topRow.category_name,
+          count: topCount,
+        }
+      : null,
+    lastAdded: last
+      ? {
+          id: String(last._id),
+          label: last.category_name,
+          at: String(last.createdAt ?? ''),
+        }
+      : null,
+  };
+}
+
+export interface ClientContactKpis {
+  total: number;
+  withEmail: number;
+  recent7d: number;
+  byClient: number;
+}
+
+export async function getClientContactKpis(): Promise<ClientContactKpis> {
+  const rows = await hrList<WsClientContact>(COL_CLIENT_CONTACTS);
+  const unique = new Set<string>();
+  let withEmail = 0;
+  let recent = 0;
+  for (const r of rows) {
+    if (r.email && String(r.email).trim()) withEmail += 1;
+    if (isWithinDays(r.createdAt, 7)) recent += 1;
+    if (r.client_id) unique.add(String(r.client_id));
+  }
+  return {
+    total: rows.length,
+    withEmail,
+    recent7d: recent,
+    byClient: unique.size,
+  };
+}
+
+export interface ClientDocumentKpis {
+  total: number;
+  byType: Record<string, number>;
+  recent7d: number;
+  totalSizeBytes: number;
+}
+
+export async function getClientDocumentKpis(): Promise<ClientDocumentKpis> {
+  const rows = await hrList<WsClientDocument>(COL_CLIENT_DOCUMENTS);
+  const byType: Record<string, number> = {};
+  let recent = 0;
+  let size = 0;
+  for (const r of rows) {
+    const t = (r.doc_type as string) || 'other';
+    byType[t] = (byType[t] ?? 0) + 1;
+    if (isWithinDays(r.uploaded_at ?? r.createdAt, 7)) recent += 1;
+    const n = Number(r.size);
+    if (!isNaN(n)) size += n;
+  }
+  return {
+    total: rows.length,
+    byType,
+    recent7d: recent,
+    totalSizeBytes: size,
+  };
+}
+
+export interface ClientNoteKpis {
+  total: number;
+  byClient: number;
+  recent7d: number;
+  pinned: number;
+}
+
+export async function getClientNoteKpis(): Promise<ClientNoteKpis> {
+  const rows = await hrList<WsClientNote>(COL_CLIENT_NOTES);
+  const unique = new Set<string>();
+  let recent = 0;
+  let pinned = 0;
+  for (const r of rows) {
+    if (r.client_id) unique.add(String(r.client_id));
+    if (isWithinDays(r.createdAt, 7)) recent += 1;
+    if (r.pinned) pinned += 1;
+  }
+  return {
+    total: rows.length,
+    byClient: unique.size,
+    recent7d: recent,
+    pinned,
+  };
+}
+
+export interface LeadNoteKpis {
+  total: number;
+  byLead: number;
+  recent7d: number;
+  byTag: Record<string, number>;
+}
+
+export async function getLeadNoteKpis(): Promise<LeadNoteKpis> {
+  const rows = await hrList<WsLeadNote>(COL_LEAD_NOTES);
+  const unique = new Set<string>();
+  const byTag: Record<string, number> = {};
+  let recent = 0;
+  for (const r of rows) {
+    if (r.lead_id) unique.add(String(r.lead_id));
+    if (isWithinDays(r.createdAt, 7)) recent += 1;
+    if (Array.isArray(r.tags)) {
+      for (const t of r.tags) {
+        const tag = String(t).trim();
+        if (!tag) continue;
+        byTag[tag] = (byTag[tag] ?? 0) + 1;
+      }
+    }
+  }
+  return {
+    total: rows.length,
+    byLead: unique.size,
+    recent7d: recent,
+    byTag,
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  KPI aggregates + bulk-delete — Categories, Sources, Statuses
+ * ══════════════════════════════════════════════════════════════════ */
+
+/* ─── Category KPIs ─────────────────────────────────────────────── */
+
+export interface LeadCategoryKpis {
+  total: number;
+  withDeals: number;
+  withLeads: number;
+  mostUsed: string;
+}
+
+export async function getLeadCategoryKpis(): Promise<LeadCategoryKpis> {
+  try {
+    const categories = await hrList<WsLeadCategory>(COL_LEAD_CATEGORIES);
+    if (!categories.length) {
+      return { total: 0, withDeals: 0, withLeads: 0, mostUsed: '—' };
+    }
+
+    const { db } = await connectToDatabase();
+    const user = await requireSession();
+    if (!user) return { total: categories.length, withDeals: 0, withLeads: 0, mostUsed: '—' };
+
+    const userObjectId = new ObjectId(user._id);
+
+    const [leadsRaw, dealsRaw] = await Promise.all([
+      db
+        .collection('crm_leads')
+        .find({ userId: userObjectId }, { projection: { categoryId: 1, category: 1 } })
+        .toArray(),
+      db
+        .collection('crm_deals')
+        .find({ userId: userObjectId }, { projection: { categoryId: 1, category: 1 } })
+        .toArray(),
+    ]);
+
+    const catIdSet = new Set(categories.map((c) => String(c._id)));
+    const leadsByCat = new Map<string, number>();
+    const dealsByCat = new Map<string, number>();
+
+    for (const l of leadsRaw) {
+      const cid = String((l as Record<string, unknown>).categoryId ?? (l as Record<string, unknown>).category ?? '');
+      if (catIdSet.has(cid)) leadsByCat.set(cid, (leadsByCat.get(cid) ?? 0) + 1);
+    }
+    for (const d of dealsRaw) {
+      const cid = String((d as Record<string, unknown>).categoryId ?? (d as Record<string, unknown>).category ?? '');
+      if (catIdSet.has(cid)) dealsByCat.set(cid, (dealsByCat.get(cid) ?? 0) + 1);
+    }
+
+    const withLeads = new Set([...leadsByCat.keys()]).size;
+    const withDeals = new Set([...dealsByCat.keys()]).size;
+
+    let mostUsedId = '';
+    let mostUsedCount = -1;
+    for (const [id, count] of [...leadsByCat, ...dealsByCat]) {
+      const total = (leadsByCat.get(id) ?? 0) + (dealsByCat.get(id) ?? 0);
+      if (total > mostUsedCount) { mostUsedCount = total; mostUsedId = id; }
+    }
+    const mostUsedCat = categories.find((c) => String(c._id) === mostUsedId);
+    const mostUsed = mostUsedCat?.category_name ?? (categories[0]?.category_name ?? '—');
+
+    return { total: categories.length, withDeals, withLeads, mostUsed };
+  } catch (e) {
+    console.error('[getLeadCategoryKpis] failed:', e);
+    return { total: 0, withDeals: 0, withLeads: 0, mostUsed: '—' };
+  }
+}
+
+export async function bulkDeleteLeadCategories(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const r = await hrBulkDelete(COL_LEAD_CATEGORIES, ids);
+  revalidatePath('/dashboard/crm/sales-crm/categories');
+  return { success: r.success, processed: r.deleted, error: r.error };
+}
+
+/* ─── Source KPIs ───────────────────────────────────────────────── */
+
+export interface LeadSourceKpis {
+  total: number;
+  withActiveLeads: number;
+  topSource: string;
+  topSourceLeads: number;
+}
+
+export async function getLeadSourceKpis(): Promise<LeadSourceKpis> {
+  try {
+    const sources = await hrList<WsLeadSource>(COL_SOURCES);
+    if (!sources.length) {
+      return { total: 0, withActiveLeads: 0, topSource: '—', topSourceLeads: 0 };
+    }
+
+    const { db } = await connectToDatabase();
+    const user = await requireSession();
+    if (!user) return { total: sources.length, withActiveLeads: 0, topSource: '—', topSourceLeads: 0 };
+
+    const userObjectId = new ObjectId(user._id);
+    const leadsRaw = await db
+      .collection('crm_leads')
+      .find(
+        { userId: userObjectId },
+        { projection: { sourceId: 1, source: 1, status: 1 } },
+      )
+      .toArray();
+
+    const srcIdSet = new Set(sources.map((s) => String(s._id)));
+    const countBySrc = new Map<string, number>();
+
+    for (const l of leadsRaw) {
+      const sid = String((l as Record<string, unknown>).sourceId ?? (l as Record<string, unknown>).source ?? '');
+      if (srcIdSet.has(sid)) countBySrc.set(sid, (countBySrc.get(sid) ?? 0) + 1);
+    }
+
+    const withActiveLeads = countBySrc.size;
+    let topSourceId = '';
+    let topSourceLeads = 0;
+    for (const [id, count] of countBySrc) {
+      if (count > topSourceLeads) { topSourceLeads = count; topSourceId = id; }
+    }
+    const topSrc = sources.find((s) => String(s._id) === topSourceId);
+    const topSource = topSrc?.type ?? (sources[0]?.type ?? '—');
+
+    return { total: sources.length, withActiveLeads, topSource, topSourceLeads };
+  } catch (e) {
+    console.error('[getLeadSourceKpis] failed:', e);
+    return { total: 0, withActiveLeads: 0, topSource: '—', topSourceLeads: 0 };
+  }
+}
+
+export async function bulkDeleteLeadSources(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const r = await hrBulkDelete(COL_SOURCES, ids);
+  revalidatePath('/dashboard/crm/sales-crm/sources');
+  return { success: r.success, processed: r.deleted, error: r.error };
+}
+
+/* ─── Status KPIs ───────────────────────────────────────────────── */
+
+export interface LeadStatusKpis {
+  total: number;
+  openCount: number;
+  closedCount: number;
+  wonLostCount: number;
+}
+
+export async function getLeadStatusKpis(): Promise<LeadStatusKpis> {
+  try {
+    const statuses = await hrList<WsLeadStatus>(COL_STATUSES);
+    const total = statuses.length;
+    const CLOSED_KEYWORDS = ['closed', 'won', 'lost', 'converted', 'disqualified', 'dead'];
+    const WON_LOST_KEYWORDS = ['won', 'lost'];
+    let openCount = 0;
+    let closedCount = 0;
+    let wonLostCount = 0;
+    for (const s of statuses) {
+      const name = (s.type ?? '').toLowerCase();
+      const isWonLost = WON_LOST_KEYWORDS.some((k) => name.includes(k));
+      const isClosed = CLOSED_KEYWORDS.some((k) => name.includes(k));
+      if (isWonLost) wonLostCount += 1;
+      if (isClosed) closedCount += 1;
+      else openCount += 1;
+    }
+    return { total, openCount, closedCount, wonLostCount };
+  } catch (e) {
+    console.error('[getLeadStatusKpis] failed:', e);
+    return { total: 0, openCount: 0, closedCount: 0, wonLostCount: 0 };
+  }
+}
+
+export async function bulkDeleteLeadStatuses(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const r = await hrBulkDelete(COL_STATUSES, ids);
+  revalidatePath('/dashboard/crm/sales-crm/statuses');
+  return { success: r.success, processed: r.deleted, error: r.error };
+}
+
+/* ─── Sales CRM Settings (pipeline + lead + deal + notification) ── */
+
+export interface SalesCrmConfig {
+  _id?: string;
+  userId?: string;
+  // Pipeline
+  defaultPipelineId?: string;
+  autoProgression?: boolean;
+  // Lead
+  autoAssignLeads?: boolean;
+  leadScoringEnabled?: boolean;
+  defaultLeadStatusId?: string;
+  // Deal
+  probabilityTracking?: boolean;
+  dealRotDays?: number;
+  defaultCurrency?: string;
+  // Notifications
+  emailNotifications?: boolean;
+  inAppNotifications?: boolean;
+  updatedAt?: string;
+}
+
+const COL_SALES_CONFIG = 'crm_sales_config';
+
+export async function getSalesCrmConfig(): Promise<SalesCrmConfig> {
+  const { db } = await connectToDatabase();
+  const user = await requireSession();
+  if (!user) return {};
+  const doc = await db
+    .collection(COL_SALES_CONFIG)
+    .findOne({ userId: new ObjectId(user._id) });
+  if (!doc) return {};
+  const out: SalesCrmConfig = {
+    _id: String(doc._id),
+    userId: String(doc.userId),
+    defaultPipelineId: doc.defaultPipelineId ? String(doc.defaultPipelineId) : undefined,
+    autoProgression: Boolean(doc.autoProgression),
+    autoAssignLeads: Boolean(doc.autoAssignLeads),
+    leadScoringEnabled: Boolean(doc.leadScoringEnabled),
+    defaultLeadStatusId: doc.defaultLeadStatusId ? String(doc.defaultLeadStatusId) : undefined,
+    probabilityTracking: Boolean(doc.probabilityTracking),
+    dealRotDays: typeof doc.dealRotDays === 'number' ? doc.dealRotDays : 30,
+    defaultCurrency: typeof doc.defaultCurrency === 'string' ? doc.defaultCurrency : 'INR',
+    emailNotifications: Boolean(doc.emailNotifications),
+    inAppNotifications: doc.inAppNotifications !== false,
+    updatedAt: doc.updatedAt ? String(doc.updatedAt) : undefined,
+  };
+  return out;
+}
+
+type ConfigState = { message?: string; error?: string };
+
+export async function saveSalesCrmPipelineConfig(
+  _prev: ConfigState,
+  formData: FormData,
+): Promise<ConfigState> {
+  const { db } = await connectToDatabase();
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  const patch = {
+    defaultPipelineId: formData.get('defaultPipelineId') as string | null || undefined,
+    autoProgression: formData.get('autoProgression') === 'on',
+    updatedAt: new Date(),
+  };
+  await db.collection(COL_SALES_CONFIG).updateOne(
+    { userId: new ObjectId(user._id) },
+    { $set: { ...patch, userId: new ObjectId(user._id) } },
+    { upsert: true },
+  );
+  revalidatePath('/dashboard/crm/sales-crm/settings');
+  return { message: 'Pipeline settings saved.' };
+}
+
+export async function saveSalesCrmLeadConfig(
+  _prev: ConfigState,
+  formData: FormData,
+): Promise<ConfigState> {
+  const { db } = await connectToDatabase();
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  const patch = {
+    autoAssignLeads: formData.get('autoAssignLeads') === 'on',
+    leadScoringEnabled: formData.get('leadScoringEnabled') === 'on',
+    defaultLeadStatusId: formData.get('defaultLeadStatusId') as string | null || undefined,
+    updatedAt: new Date(),
+  };
+  await db.collection(COL_SALES_CONFIG).updateOne(
+    { userId: new ObjectId(user._id) },
+    { $set: { ...patch, userId: new ObjectId(user._id) } },
+    { upsert: true },
+  );
+  revalidatePath('/dashboard/crm/sales-crm/settings');
+  return { message: 'Lead settings saved.' };
+}
+
+export async function saveSalesCrmDealConfig(
+  _prev: ConfigState,
+  formData: FormData,
+): Promise<ConfigState> {
+  const { db } = await connectToDatabase();
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  const rotRaw = Number(formData.get('dealRotDays'));
+  const patch = {
+    probabilityTracking: formData.get('probabilityTracking') === 'on',
+    dealRotDays: Number.isFinite(rotRaw) ? rotRaw : 30,
+    defaultCurrency: (formData.get('defaultCurrency') as string | null) || 'INR',
+    updatedAt: new Date(),
+  };
+  await db.collection(COL_SALES_CONFIG).updateOne(
+    { userId: new ObjectId(user._id) },
+    { $set: { ...patch, userId: new ObjectId(user._id) } },
+    { upsert: true },
+  );
+  revalidatePath('/dashboard/crm/sales-crm/settings');
+  return { message: 'Deal settings saved.' };
+}
+
+export async function saveSalesCrmNotificationConfig(
+  _prev: ConfigState,
+  formData: FormData,
+): Promise<ConfigState> {
+  const { db } = await connectToDatabase();
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  const patch = {
+    emailNotifications: formData.get('emailNotifications') === 'on',
+    inAppNotifications: formData.get('inAppNotifications') === 'on',
+    updatedAt: new Date(),
+  };
+  await db.collection(COL_SALES_CONFIG).updateOne(
+    { userId: new ObjectId(user._id) },
+    { $set: { ...patch, userId: new ObjectId(user._id) } },
+    { upsert: true },
+  );
+  revalidatePath('/dashboard/crm/sales-crm/settings');
+  return { message: 'Notification settings saved.' };
 }

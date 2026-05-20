@@ -1,27 +1,39 @@
 'use client';
 
-import { cn as _zoruCn } from '@/components/zoruui';
-void _zoruCn;
+/**
+ * Task Labels — taxonomy lookup (§1D).
+ * Reusable labels to tag individual tasks (optionally project-scoped).
+ *
+ * KPI (total / with color / recent 7d) · search + color filter · bulk
+ * delete + bulk export · RowDrawer · PaginationBar.
+ */
 
 import { Tag } from 'lucide-react';
-import { HrEntityPage } from '../../_components/hr-entity-page';
+import { TaxonomyLookupPage } from '../_components/taxonomy-lookup-page';
 import {
   getWsTaskLabels,
   saveWsTaskLabel,
   deleteWsTaskLabel,
+  bulkDeleteWsTaskLabels,
 } from '@/app/actions/worksuite/projects.actions';
 import type { WsTaskLabelList } from '@/lib/worksuite/project-types';
 
+type Row = WsTaskLabelList & { _id: string };
+
 export default function TaskLabelsPage() {
   return (
-    <HrEntityPage<WsTaskLabelList & { _id: string }>
+    <TaxonomyLookupPage<Row>
       title="Task Labels"
       subtitle="Reusable labels to tag individual tasks."
       icon={Tag}
       singular="Task Label"
-      getAllAction={getWsTaskLabels as any}
+      nameKey="labelName"
+      hasColor
+      exportFilenameStem="task-labels"
+      getList={() => getWsTaskLabels() as unknown as Promise<Row[]>}
       saveAction={saveWsTaskLabel}
       deleteAction={deleteWsTaskLabel}
+      bulkDelete={bulkDeleteWsTaskLabels}
       columns={[
         { key: 'labelName', label: 'Name' },
         {
@@ -31,7 +43,7 @@ export default function TaskLabelsPage() {
             r.color ? (
               <span className="inline-flex items-center gap-2">
                 <span
-                  className="h-3 w-3 rounded-full border border-border"
+                  className="h-3 w-3 rounded-full border border-zoru-line"
                   style={{ backgroundColor: r.color }}
                 />
                 {r.color}
@@ -43,29 +55,15 @@ export default function TaskLabelsPage() {
         {
           key: 'projectId',
           label: 'Project (optional)',
-          render: (r) => String(r.projectId || '—'),
+          render: (r) => (r.projectId ? String(r.projectId) : '—'),
         },
+        { key: 'description', label: 'Description' },
       ]}
       fields={[
-        {
-          name: 'labelName',
-          label: 'Label Name',
-          required: true,
-          fullWidth: true,
-        },
-        { name: 'color', label: 'Color (hex)', placeholder: '#059669' },
-        {
-          name: 'projectId',
-          label: 'Project (optional)',
-          type: 'entity',
-          entity: 'project',
-        },
-        {
-          name: 'description',
-          label: 'Description',
-          type: 'textarea',
-          fullWidth: true,
-        },
+        { name: 'labelName', label: 'Label name', required: true, fullWidth: true },
+        { name: 'color', label: 'Color (hex)', type: 'color', placeholder: '#059669' },
+        { name: 'projectId', label: 'Project ID (optional)', placeholder: 'ObjectId' },
+        { name: 'description', label: 'Description', type: 'textarea', fullWidth: true },
       ]}
     />
   );

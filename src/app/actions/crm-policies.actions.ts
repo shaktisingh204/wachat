@@ -260,3 +260,127 @@ export async function deletePolicy(
         return { success: false, error: `Failed to delete policy: ${msg}` };
     }
 }
+
+/* ─── Bulk & KPIs (§1D Deep template) ────────────────────────────────── */
+
+export interface CrmPolicyKpis {
+    total: number;
+    published: number;
+    drafts: number;
+    lastUpdatedAt?: string;
+    acknowledged: number;
+}
+
+/**
+ * Aggregate top-line KPI counts for the policies list page.
+ *
+ * Cheap derivation: pull every tenant-visible policy via the regular list
+ * endpoint (already RBAC-guarded) and roll counts client-side. Falls back
+ * to zeros on failure so the KPI strip degrades gracefully.
+ */
+export async function getPolicyKpis(): Promise<CrmPolicyKpis> {
+    const empty: CrmPolicyKpis = {
+        total: 0,
+        published: 0,
+        drafts: 0,
+        acknowledged: 0,
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_policy', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const res = await crmPoliciesApi.list({ limit: 500 });
+        const items = res.items ?? [];
+        let published = 0;
+        let drafts = 0;
+        let acknowledged = 0;
+        let lastUpdatedAt: string | undefined;
+        for (const p of items) {
+            if (p.status === 'published') published += 1;
+            else if (p.status === 'draft') drafts += 1;
+            const ackCount = Number(p.acknowledgementCount ?? 0);
+            if (Number.isFinite(ackCount) && ackCount > 0) acknowledged += ackCount;
+            const updated = p.updatedAt ? Date.parse(p.updatedAt) : NaN;
+            if (Number.isFinite(updated)) {
+                const prev = lastUpdatedAt ? Date.parse(lastUpdatedAt) : 0;
+                if (updated > prev) lastUpdatedAt = p.updatedAt;
+            }
+        }
+        return {
+            total: items.length,
+            published,
+            drafts,
+            lastUpdatedAt,
+            acknowledged,
+        };
+    } catch (e) {
+        const { code, status, msg } = rustError(e);
+        console.error('[getPolicyKpis] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'policy',
+            op: 'list',
+            errorCode: code,
+            status,
+        });
+        return empty;
+    }
+}
+
+export type CrmPolicyBulkOp = 'delete' | 'archive' | 'publish';
+
+export interface CrmPolicyBulkResult {
+    success: boolean;
+    affected: number;
+    error?: string;
+}
+
+/**
+ * Apply a bulk operation across a set of policy ids in the same tenant.
+ *
+ * `delete`   — soft-delete via the Rust crate's DELETE endpoint
+ * `archive`  — patch status → "archived"
+ * `publish`  — patch status → "published"
+ *
+ * Errors per id are swallowed so the caller gets a best-effort count.
+ */
+export async function bulkPolicyAction(
+    ids: string[],
+    op: CrmPolicyBulkOp,
+): Promise<CrmPolicyBulkResult> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, affected: 0, error: 'Access denied.' };
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return { success: true, affected: 0 };
+    }
+
+    const action = op === 'delete' ? 'delete' : 'edit';
+    const guard = await requirePermission('crm_policy', action);
+    if (!guard.ok) return { success: false, affected: 0, error: guard.error };
+
+    let affected = 0;
+    for (const id of ids) {
+        if (!id) continue;
+        try {
+            if (op === 'delete') {
+                const r = await crmPoliciesApi.delete(id);
+                if (r?.deleted) affected += 1;
+            } else {
+                const nextStatus: CrmPolicyStatus =
+                    op === 'archive' ? 'archived' : 'published';
+                await crmPoliciesApi.update(id, { status: nextStatus });
+                affected += 1;
+            }
+        } catch (e) {
+            const { msg } = rustError(e);
+            console.error(`[bulkPolicyAction] ${op} ${id} failed:`, msg);
+        }
+    }
+
+    revalidatePath('/dashboard/hrm/hr/policies');
+    revalidatePath('/dashboard/crm/hr/policies');
+    return { success: true, affected };
+}

@@ -4,9 +4,8 @@
  * Ticket Report — client wrapper.
  *
  * Renders the chart (recharts), the data table with `EntityRowLink`s,
- * pagination, and the CSV/XLSX exporters. The parent server page hands
- * the pre-computed metrics + first page of rows; subsequent page-flips
- * fetch via `listTicketReportRows`.
+ * pagination, bulk-row selection with export selected, and full
+ * CSV/XLSX export controls.
  */
 
 import * as React from 'react';
@@ -28,6 +27,7 @@ import {
 import { Download, FileSpreadsheet } from 'lucide-react';
 
 import {
+    ZoruBadge,
     ZoruButton,
     ZoruCard,
     ZoruDropdownMenu,
@@ -64,6 +64,21 @@ const PIE_COLORS = [
     'hsl(var(--muted-foreground))',
 ];
 
+const STATUS_VARIANT: Record<string, 'success' | 'warning' | 'secondary' | 'danger'> = {
+    resolved: 'success',
+    closed: 'success',
+    open: 'warning',
+    pending: 'secondary',
+    on_hold: 'secondary',
+};
+
+const PRIORITY_VARIANT: Record<string, 'danger' | 'warning' | 'secondary'> = {
+    urgent: 'danger',
+    high: 'danger',
+    medium: 'warning',
+    low: 'secondary',
+};
+
 export interface TicketReportClientProps {
     metrics: TicketMetrics;
     rows: TicketReportRow[];
@@ -72,6 +87,36 @@ export interface TicketReportClientProps {
     limit: number;
 }
 
+function rowToExport(r: TicketReportRow): ExportRow {
+    return {
+        ID: r.id,
+        Subject: r.subject,
+        Status: r.status,
+        Priority: r.priority,
+        Channel: r.channel,
+        Agent: r.agent,
+        Category: r.category,
+        'Created At': r.createdAt,
+        'First Response At': r.firstResponseAt ?? '',
+        'Resolved At': r.resolvedAt ?? '',
+        'Resolution (min)': r.resolutionMinutes ?? '',
+    };
+}
+
+const EXPORT_HEADERS = [
+    'ID',
+    'Subject',
+    'Status',
+    'Priority',
+    'Channel',
+    'Agent',
+    'Category',
+    'Created At',
+    'First Response At',
+    'Resolved At',
+    'Resolution (min)',
+];
+
 export function TicketReportClient({
     metrics,
     rows,
@@ -79,6 +124,27 @@ export function TicketReportClient({
     page,
     limit,
 }: TicketReportClientProps) {
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+    const toggleRow = (id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+
+    const toggleAll = () => {
+        if (selected.size === rows.length) {
+            setSelected(new Set());
+        } else {
+            setSelected(new Set(rows.map((r) => r.id)));
+        }
+    };
+
+    const selectedRows = rows.filter((r) => selected.has(r.id));
+
     const priorityData = React.useMemo(
         () =>
             metrics.byPriority.map((r) => ({
@@ -97,77 +163,39 @@ export function TicketReportClient({
         [metrics.byCategory],
     );
 
-    const exportRows: ExportRow[] = React.useMemo(
-        () =>
-            rows.map((r) => ({
-                ID: r.id,
-                Subject: r.subject,
-                Status: r.status,
-                Priority: r.priority,
-                Channel: r.channel,
-                Agent: r.agent,
-                Category: r.category,
-                'Created At': r.createdAt,
-                'First Response At': r.firstResponseAt ?? '',
-                'Resolved At': r.resolvedAt ?? '',
-                'Resolution (min)': r.resolutionMinutes ?? '',
-            })),
+    const allExportRows: ExportRow[] = React.useMemo(
+        () => rows.map(rowToExport),
         [rows],
     );
 
-    const exportHeaders = [
-        'ID',
-        'Subject',
-        'Status',
-        'Priority',
-        'Channel',
-        'Agent',
-        'Category',
-        'Created At',
-        'First Response At',
-        'Resolved At',
-        'Resolution (min)',
-    ];
-
-    const handleCsv = (): void => {
-        downloadCsv(
-            `ticket-report-${dateStamp()}.csv`,
-            exportHeaders,
-            exportRows,
-        );
+    const handleExportAll = (format: 'csv' | 'xlsx') => {
+        const name = `ticket-report-${dateStamp()}`;
+        if (format === 'csv') {
+            downloadCsv(`${name}.csv`, EXPORT_HEADERS, allExportRows);
+        } else {
+            void downloadXlsx(`${name}.xlsx`, EXPORT_HEADERS, allExportRows, 'Tickets');
+        }
     };
 
-    const handleXlsx = (): void => {
-        void downloadXlsx(
-            `ticket-report-${dateStamp()}.xlsx`,
-            exportHeaders,
-            exportRows,
-            'Tickets',
-        );
+    const handleExportSelected = (format: 'csv' | 'xlsx') => {
+        if (selectedRows.length === 0) {
+            alert('Select at least one row first.');
+            return;
+        }
+        const exportRows = selectedRows.map(rowToExport);
+        const name = `ticket-report-selected-${dateStamp()}`;
+        if (format === 'csv') {
+            downloadCsv(`${name}.csv`, EXPORT_HEADERS, exportRows);
+        } else {
+            void downloadXlsx(`${name}.xlsx`, EXPORT_HEADERS, exportRows, 'Tickets');
+        }
     };
 
     const hasMore = page * limit < total;
 
     return (
         <>
-            <div className="flex justify-end">
-                <ZoruDropdownMenu>
-                    <ZoruDropdownMenuTrigger asChild>
-                        <ZoruButton variant="outline" size="sm">
-                            <Download className="mr-1.5 h-3.5 w-3.5" /> Export
-                        </ZoruButton>
-                    </ZoruDropdownMenuTrigger>
-                    <ZoruDropdownMenuContent align="end">
-                        <ZoruDropdownMenuItem onClick={handleCsv}>
-                            <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem onClick={handleXlsx}>
-                            <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
-                        </ZoruDropdownMenuItem>
-                    </ZoruDropdownMenuContent>
-                </ZoruDropdownMenu>
-            </div>
-
+            {/* Charts */}
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <ZoruCard className="lg:col-span-2">
                     <div className="mb-3">
@@ -187,25 +215,14 @@ export function TicketReportClient({
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart
                                     data={metrics.byDay}
-                                    margin={{
-                                        top: 8,
-                                        right: 12,
-                                        bottom: 8,
-                                        left: 0,
-                                    }}
+                                    margin={{ top: 8, right: 12, bottom: 8, left: 0 }}
                                 >
                                     <CartesianGrid
                                         strokeDasharray="3 3"
                                         stroke="hsl(var(--border))"
                                     />
-                                    <XAxis
-                                        dataKey="date"
-                                        tick={{ fontSize: 11 }}
-                                    />
-                                    <YAxis
-                                        allowDecimals={false}
-                                        tick={{ fontSize: 11 }}
-                                    />
+                                    <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                                    <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                                     <Tooltip />
                                     <Legend />
                                     <Line
@@ -287,10 +304,7 @@ export function TicketReportClient({
                                     stroke="hsl(var(--border))"
                                 />
                                 <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                                <YAxis
-                                    allowDecimals={false}
-                                    tick={{ fontSize: 11 }}
-                                />
+                                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
                                 <Tooltip />
                                 <Bar
                                     dataKey="value"
@@ -304,19 +318,80 @@ export function TicketReportClient({
                 </div>
             </ZoruCard>
 
+            {/* Table toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[13px] text-muted-foreground">
+                    {selected.size > 0
+                        ? `${selected.size} of ${rows.length} selected`
+                        : `${rows.length} row${rows.length === 1 ? '' : 's'} on this page`}
+                </span>
+                <div className="flex gap-2">
+                    {/* Export selected */}
+                    {selected.size > 0 && (
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="outline" size="sm">
+                                    <Download className="mr-1.5 h-3.5 w-3.5" />
+                                    Export selected ({selected.size})
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
+                                <ZoruDropdownMenuItem onClick={() => handleExportSelected('csv')}>
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem onClick={() => handleExportSelected('xlsx')}>
+                                    <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
+                                </ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
+                    )}
+
+                    {/* Export all (current page) */}
+                    <ZoruDropdownMenu>
+                        <ZoruDropdownMenuTrigger asChild>
+                            <ZoruButton variant="outline" size="sm">
+                                <Download className="mr-1.5 h-3.5 w-3.5" />
+                                Export all
+                            </ZoruButton>
+                        </ZoruDropdownMenuTrigger>
+                        <ZoruDropdownMenuContent align="end">
+                            <ZoruDropdownMenuItem onClick={() => handleExportAll('csv')}>
+                                <FileSpreadsheet className="mr-2 h-4 w-4" /> CSV
+                            </ZoruDropdownMenuItem>
+                            <ZoruDropdownMenuItem onClick={() => handleExportAll('xlsx')}>
+                                <FileSpreadsheet className="mr-2 h-4 w-4" /> XLSX
+                            </ZoruDropdownMenuItem>
+                        </ZoruDropdownMenuContent>
+                    </ZoruDropdownMenu>
+                </div>
+            </div>
+
+            {/* Table */}
             <ZoruCard>
                 <div className="mb-3">
                     <h2 className="text-[16px] font-semibold text-foreground">
                         Tickets
                     </h2>
                     <p className="text-[12.5px] text-muted-foreground">
-                        Click a row to open the ticket.
+                        Select rows to export a subset. Click a subject to open the ticket.
                     </p>
                 </div>
                 <div className="overflow-x-auto rounded-lg border border-border">
                     <ZoruTable>
                         <ZoruTableHeader>
                             <ZoruTableRow className="border-border hover:bg-transparent">
+                                <ZoruTableHead className="w-10">
+                                    <input
+                                        type="checkbox"
+                                        aria-label="Select all"
+                                        checked={
+                                            rows.length > 0 &&
+                                            selected.size === rows.length
+                                        }
+                                        onChange={toggleAll}
+                                        className="h-4 w-4 rounded border-border"
+                                    />
+                                </ZoruTableHead>
                                 <ZoruTableHead className="text-muted-foreground">
                                     Subject
                                 </ZoruTableHead>
@@ -341,7 +416,7 @@ export function TicketReportClient({
                             {rows.length === 0 ? (
                                 <ZoruTableRow className="border-border">
                                     <ZoruTableCell
-                                        colSpan={6}
+                                        colSpan={7}
                                         className="h-24 text-center text-[13px] text-muted-foreground"
                                     >
                                         No tickets in range.
@@ -353,6 +428,15 @@ export function TicketReportClient({
                                         key={r.id}
                                         className="border-border"
                                     >
+                                        <ZoruTableCell>
+                                            <input
+                                                type="checkbox"
+                                                aria-label={`Select ${r.subject}`}
+                                                checked={selected.has(r.id)}
+                                                onChange={() => toggleRow(r.id)}
+                                                className="h-4 w-4 rounded border-border"
+                                            />
+                                        </ZoruTableCell>
                                         <ZoruTableCell className="text-[13px] text-foreground">
                                             <EntityRowLink
                                                 href={`/dashboard/crm/tickets/${r.id}`}
@@ -360,11 +444,19 @@ export function TicketReportClient({
                                                 subtitle={r.category}
                                             />
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
-                                            {r.status}
+                                        <ZoruTableCell>
+                                            <ZoruBadge
+                                                variant={STATUS_VARIANT[r.status] ?? 'secondary'}
+                                            >
+                                                {r.status}
+                                            </ZoruBadge>
                                         </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">
-                                            {r.priority}
+                                        <ZoruTableCell>
+                                            <ZoruBadge
+                                                variant={PRIORITY_VARIANT[r.priority] ?? 'secondary'}
+                                            >
+                                                {r.priority}
+                                            </ZoruBadge>
                                         </ZoruTableCell>
                                         <ZoruTableCell className="text-[13px] text-foreground">
                                             {r.channel}

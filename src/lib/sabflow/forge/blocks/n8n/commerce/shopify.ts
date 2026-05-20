@@ -7,19 +7,23 @@
  *   - shopDomain   (e.g. "my-store.myshopify.com" OR just "my-store")
  *   - accessToken  (Shopify Admin API access token / custom-app token)
  *
- * Operations covered (subset of multi-resource Admin REST):
+ * Operations covered:
+ *   - order.create      POST   /orders.json
+ *   - order.delete      DELETE /orders/{id}.json
  *   - order.get         GET    /orders/{id}.json
  *   - order.list        GET    /orders.json
+ *   - order.listAll     GET    /orders.json (Link-header pagination)
  *   - order.update      PUT    /orders/{id}.json
  *   - product.create    POST   /products.json
+ *   - product.delete    DELETE /products/{id}.json
  *   - product.get       GET    /products/{id}.json
- *   - customer.create   POST   /customers.json
- *   - customer.get      GET    /customers/{id}.json
+ *   - product.list      GET    /products.json
+ *   - product.listAll   GET    /products.json (Link-header pagination)
+ *   - product.update    PUT    /products/{id}.json
+ *   - customer.create   POST   /customers.json   (extension, not in n8n node)
+ *   - customer.get      GET    /customers/{id}.json (extension)
  *
- * Out of scope for the first port:
- *   - Pagination cursors (page_info / Link headers) — defer to shared paginator
- *   - OAuth flow; we only use the access-token header form
- *   - Variants/metafields/inventory operations — re-add when needed
+ * Out of scope: OAuth flow (use access-token header credentials instead).
  */
 
 import { registerForgeBlock } from '../../../registry';
@@ -65,7 +69,54 @@ async function shopifyApi(
   return res.data;
 }
 
+function buildQuery(pairs: Record<string, unknown>): string {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(pairs)) {
+    const s = asString(v);
+    if (s) qs.set(k, s);
+  }
+  const out = qs.toString();
+  return out ? `?${out}` : '';
+}
+
 // ── Order ──────────────────────────────────────────────────────────────────
+
+async function orderCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const order: Record<string, unknown> = parseJsonObject(ctx.options.order, 'Shopify: order');
+  const lineItemsRaw = asString(ctx.options.lineItems).trim();
+  if (lineItemsRaw) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(lineItemsRaw);
+    } catch {
+      throw new Error('Shopify: lineItems must be a JSON array');
+    }
+    if (!Array.isArray(parsed)) throw new Error('Shopify: lineItems must be a JSON array');
+    order.line_items = parsed;
+  }
+  if (!order.line_items || (Array.isArray(order.line_items) && order.line_items.length === 0)) {
+    throw new Error('Shopify: at least one line item is required');
+  }
+  const email = asString(ctx.options.email);
+  const note = asString(ctx.options.note);
+  if (email) order.email = email;
+  if (note) order.note = note;
+  if (asString(ctx.options.test)) order.test = asString(ctx.options.test) === 'true';
+
+  const data = await shopifyApi(ctx, 'POST', '/orders.json', { order });
+  const created = (data as { order?: { id?: number } } | null)?.order ?? null;
+  return {
+    outputs: { order: created, id: created?.id ?? null },
+    logs: [`Shopify order create → ${created?.id ?? '?'}`],
+  };
+}
+
+async function orderDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.orderId);
+  if (!id) throw new Error('Shopify: orderId is required');
+  await shopifyApi(ctx, 'DELETE', `/orders/${encodeURIComponent(id)}.json`);
+  return { outputs: { success: true, orderId: id }, logs: [`Shopify order delete → ${id}`] };
+}
 
 async function orderGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const id = asString(ctx.options.orderId);
@@ -175,6 +226,77 @@ async function productGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   };
 }
 
+async function productDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.productId);
+  if (!id) throw new Error('Shopify: productId is required');
+  await shopifyApi(ctx, 'DELETE', `/products/${encodeURIComponent(id)}.json`);
+  return { outputs: { success: true, productId: id }, logs: [`Shopify product delete → ${id}`] };
+}
+
+async function productList(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const limit = asString(ctx.options.limit) || '50';
+  const vendor = asString(ctx.options.vendor);
+  const productType = asString(ctx.options.productType);
+  const qs = buildQuery({ limit, vendor, product_type: productType });
+  const data = await shopifyApi(ctx, 'GET', `/products.json${qs}`);
+  const products = (data as { products?: unknown[] } | null)?.products ?? [];
+  return {
+    outputs: { products },
+    logs: [`Shopify product list → ${Array.isArray(products) ? products.length : 0}`],
+  };
+}
+
+async function productListAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const maxItems = Number(asString(ctx.options.maxItems) || '500');
+  const pageSize = asString(ctx.options.pageSize) || '250';
+  const vendor = asString(ctx.options.vendor);
+  const productType = asString(ctx.options.productType);
+  const headers = authHeaders(ctx);
+  const firstUrl = `${baseUrl(ctx)}/products.json${buildQuery({
+    limit: pageSize,
+    vendor,
+    product_type: productType,
+  })}`;
+
+  const products = await paginateAll<unknown>({
+    maxItems: Number.isFinite(maxItems) && maxItems > 0 ? maxItems : 500,
+    async fetchPage(cursor) {
+      const url = cursor ?? firstUrl;
+      const res = await apiRequest({ service: 'Shopify', method: 'GET', url, headers });
+      const items = ((res.data as { products?: unknown[] } | null)?.products ?? []) as unknown[];
+      const nextCursor = nextLinkFromHeader(res.headers.get('link'));
+      return { items, nextCursor };
+    },
+  });
+
+  return {
+    outputs: { products, count: products.length },
+    logs: [`Shopify product list all → ${products.length}`],
+  };
+}
+
+async function productUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
+  const id = asString(ctx.options.productId);
+  if (!id) throw new Error('Shopify: productId is required');
+  const product: Record<string, unknown> = parseJsonObject(ctx.options.product, 'Shopify: product');
+  const title = asString(ctx.options.title);
+  const bodyHtml = asString(ctx.options.bodyHtml);
+  const vendor = asString(ctx.options.vendor);
+  const productType = asString(ctx.options.productType);
+  if (title) product.title = title;
+  if (bodyHtml) product.body_html = bodyHtml;
+  if (vendor) product.vendor = vendor;
+  if (productType) product.product_type = productType;
+  if (Object.keys(product).length === 0) {
+    throw new Error('Shopify: at least one updatable field is required');
+  }
+  const data = await shopifyApi(ctx, 'PUT', `/products/${encodeURIComponent(id)}.json`, { product });
+  return {
+    outputs: { product: (data as { product?: unknown } | null)?.product ?? data },
+    logs: [`Shopify product update → ${id}`],
+  };
+}
+
 // ── Customer ───────────────────────────────────────────────────────────────
 
 async function customerCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -220,6 +342,40 @@ const block: ForgeBlock = {
     credentialType: 'shopify',
   },
   actions: [
+    {
+      id: 'order_create',
+      label: 'Create order',
+      description: 'Create an order; requires at least one line item.',
+      fields: [
+        {
+          id: 'lineItems',
+          label: 'Line items (JSON array)',
+          type: 'json',
+          required: true,
+          helperText: 'e.g. [{"variant_id":12345,"quantity":1}]',
+        },
+        { id: 'email', label: 'Customer email', type: 'text' },
+        { id: 'note', label: 'Note', type: 'textarea' },
+        {
+          id: 'test',
+          label: 'Test order',
+          type: 'select',
+          options: [
+            { label: 'No', value: 'false' },
+            { label: 'Yes', value: 'true' },
+          ],
+        },
+        { id: 'order', label: 'Order JSON (advanced)', type: 'json' },
+      ],
+      run: orderCreate,
+    },
+    {
+      id: 'order_delete',
+      label: 'Delete order',
+      description: 'Delete an order by id.',
+      fields: [{ id: 'orderId', label: 'Order ID', type: 'text', required: true }],
+      run: orderDelete,
+    },
     {
       id: 'order_get',
       label: 'Get order',
@@ -310,6 +466,50 @@ const block: ForgeBlock = {
         { id: 'productId', label: 'Product ID', type: 'text', required: true },
       ],
       run: productGet,
+    },
+    {
+      id: 'product_delete',
+      label: 'Delete product',
+      description: 'Delete a product by id.',
+      fields: [{ id: 'productId', label: 'Product ID', type: 'text', required: true }],
+      run: productDelete,
+    },
+    {
+      id: 'product_list',
+      label: 'List products',
+      description: 'List products with optional vendor/type filter.',
+      fields: [
+        { id: 'limit', label: 'Limit (max 250)', type: 'number', defaultValue: '50' },
+        { id: 'vendor', label: 'Vendor', type: 'text' },
+        { id: 'productType', label: 'Product type', type: 'text' },
+      ],
+      run: productList,
+    },
+    {
+      id: 'product_list_all',
+      label: 'List all products (paginated)',
+      description: "Walk Shopify's Link-header pagination across products.",
+      fields: [
+        { id: 'maxItems', label: 'Max items (cap)', type: 'number', defaultValue: '500' },
+        { id: 'pageSize', label: 'Page size (max 250)', type: 'number', defaultValue: '250' },
+        { id: 'vendor', label: 'Vendor', type: 'text' },
+        { id: 'productType', label: 'Product type', type: 'text' },
+      ],
+      run: productListAll,
+    },
+    {
+      id: 'product_update',
+      label: 'Update product',
+      description: 'Patch product fields.',
+      fields: [
+        { id: 'productId', label: 'Product ID', type: 'text', required: true },
+        { id: 'title', label: 'Title', type: 'text' },
+        { id: 'bodyHtml', label: 'Description (HTML)', type: 'textarea' },
+        { id: 'vendor', label: 'Vendor', type: 'text' },
+        { id: 'productType', label: 'Product type', type: 'text' },
+        { id: 'product', label: 'Product JSON (advanced)', type: 'json' },
+      ],
+      run: productUpdate,
     },
     {
       id: 'customer_create',

@@ -77,6 +77,86 @@ export interface SoKpis {
   cancelled: number;
 }
 
+/** Headline KPIs shown above the status-bucket strip — matches the
+ * §1D.list-deep spec: total orders / pending / fulfilled-this-month /
+ * total order value. */
+export interface SoHeadlineKpis {
+  totalOrders: number;
+  pending: number;
+  fulfilledThisMonth: number;
+  totalOrderValue: number;
+  currency: string;
+}
+
+function fmtMoneyShort(value: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: currency || 'INR',
+      notation: value >= 100_000 ? 'compact' : 'standard',
+      maximumFractionDigits: 1,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}
+
+interface HeadlineKpiCardProps {
+  label: string;
+  value: string;
+  tone: 'neutral' | 'amber' | 'green' | 'red';
+}
+
+function HeadlineKpiCard({ label, value, tone }: HeadlineKpiCardProps) {
+  const ring =
+    tone === 'amber'
+      ? 'border-amber-500/40'
+      : tone === 'green'
+        ? 'border-emerald-500/40'
+        : tone === 'red'
+          ? 'border-rose-500/40'
+          : 'border-zoru-line';
+  return (
+    <div
+      className={`flex flex-1 flex-col gap-1 rounded-md border bg-zoru-surface-2 px-3 py-2.5 ${ring}`}
+    >
+      <span className="text-[11px] font-medium uppercase tracking-wide text-zoru-ink-muted">
+        {label}
+      </span>
+      <span className="text-[18px] font-semibold tabular-nums text-zoru-ink">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+export function SoHeadlineKpiStrip({ kpis }: { kpis: SoHeadlineKpis }) {
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <HeadlineKpiCard
+        label="Total orders"
+        value={kpis.totalOrders.toLocaleString()}
+        tone="neutral"
+      />
+      <HeadlineKpiCard
+        label="Pending"
+        value={kpis.pending.toLocaleString()}
+        tone="amber"
+      />
+      <HeadlineKpiCard
+        label="Fulfilled this month"
+        value={kpis.fulfilledThisMonth.toLocaleString()}
+        tone="green"
+      />
+      <HeadlineKpiCard
+        label="Total order value"
+        value={fmtMoneyShort(kpis.totalOrderValue, kpis.currency)}
+        tone="neutral"
+      />
+    </div>
+  );
+}
+
 export function SoKpiStrip({
   kpis,
   currentStatus,
@@ -338,6 +418,7 @@ export function SoBulkBar({
   onClear,
   onStatus,
   onExport,
+  onExportXlsx,
   onConvertToDc,
   onArchive,
   onDelete,
@@ -346,6 +427,7 @@ export function SoBulkBar({
   onClear: () => void;
   onStatus: (s: CrmSalesOrderStatus) => void;
   onExport: () => void;
+  onExportXlsx?: () => void;
   onConvertToDc: () => void;
   onArchive: () => void;
   onDelete: () => void;
@@ -371,8 +453,13 @@ export function SoBulkBar({
         </ZoruSelectContent>
       </ZoruSelect>
       <ZoruButton variant="outline" size="sm" onClick={onExport}>
-        <Download className="h-3.5 w-3.5" /> Export
+        <Download className="h-3.5 w-3.5" /> Export CSV
       </ZoruButton>
+      {onExportXlsx ? (
+        <ZoruButton variant="outline" size="sm" onClick={onExportXlsx}>
+          <Download className="h-3.5 w-3.5" /> Export XLSX
+        </ZoruButton>
+      ) : null}
       <ZoruButton variant="outline" size="sm" onClick={onConvertToDc}>
         <Truck className="h-3.5 w-3.5" /> To delivery challan
       </ZoruButton>

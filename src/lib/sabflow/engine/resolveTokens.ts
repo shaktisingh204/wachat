@@ -28,7 +28,7 @@ import { evaluateExpression, resolveValue } from '@/lib/sabflow/n8n/expression-r
 
 /** Tokens that require the full n8n engine. */
 const ADVANCED_TOKEN_RE =
-  /\{\{\s*\$(?:node|json|input|vars|variables|now|today|workflow|execution|env|secrets|item|items|runIndex|thisItem|thisItemIndex)\b/;
+  /\{\{\s*\$(?:node|prevNode|json|input|vars|variables|now|today|workflow|execution|env|secrets|item|items|itemIndex|runIndex|thisItem|thisItemIndex|jmesPath|jmespath|getPairedItem)\b|\{\{\s*(?:DateTime|Duration|Interval)\b/;
 
 export type ResolveTokensCtx = {
   /** Flow variables resolved to their runtime values. */
@@ -45,9 +45,47 @@ export type ResolveTokensCtx = {
   flow?: SabFlowDoc;
   /** Display name of the node currently being executed. */
   currentNodeName?: string;
+  /**
+   * Display name of the immediately-upstream node — powers `$prevNode.name`
+   * + `$prevNode.json.<x>` shortcuts. When omitted the engine falls back to
+   * an empty stub so templates referencing it don't crash on root nodes.
+   */
+  prevNodeName?: string;
+  /**
+   * Execution metadata exposed as `$execution.id` / `$execution.mode`.
+   * Threaded from `executeFlow` so users can stamp runs with the current
+   * execution id (e.g. for idempotency keys or trace headers).
+   */
+  execution?: { id: string; mode: 'manual' | 'trigger' | 'test' };
+  /**
+   * Allowlist of process env var names exposed as `$env.<KEY>`. Default-
+   * deny: any env var NOT in the list reads as undefined inside templates
+   * so flow authors can't accidentally exfiltrate secrets.
+   */
+  envAllowlist?: string[];
+  /**
+   * Current iteration index inside the executing block. Exposed as
+   * `$itemIndex` in expressions and used by `$getPairedItem(target)` to
+   * walk ancestry back to a named ancestor's contributing item.
+   */
+  currentItemIndex?: number;
   /** Timezone for Luxon-powered helpers.  Defaults to UTC. */
   timezone?: string;
 };
+
+/**
+ * Pick the allowlisted env vars off `process.env` into a plain map. Called
+ * once per template resolution; cheap because most flows use < 5 vars.
+ */
+function pickEnv(allowlist?: string[]): Record<string, string> {
+  if (!allowlist || allowlist.length === 0) return {};
+  const out: Record<string, string> = {};
+  for (const k of allowlist) {
+    const v = process.env[k];
+    if (typeof v === 'string') out[k] = v;
+  }
+  return out;
+}
 
 /**
  * Returns true when `text` contains at least one advanced expression token.
@@ -78,6 +116,10 @@ export function resolveTemplate(text: string, ctx: ResolveTokensCtx): string {
         nodeOutputs: ctx.nodeOutputs,
         flow: ctx.flow,
         currentNodeName: ctx.currentNodeName,
+        prevNodeName: ctx.prevNodeName,
+        execution: ctx.execution,
+        env: pickEnv(ctx.envAllowlist),
+        currentItemIndex: ctx.currentItemIndex,
         timezone: ctx.timezone,
       });
       return coerceString(result);
@@ -115,6 +157,10 @@ export function resolveDeep<T>(value: T, ctx: ResolveTokensCtx): T {
           nodeOutputs: ctx.nodeOutputs,
           flow: ctx.flow,
           currentNodeName: ctx.currentNodeName,
+          prevNodeName: ctx.prevNodeName,
+          execution: ctx.execution,
+          env: pickEnv(ctx.envAllowlist),
+          currentItemIndex: ctx.currentItemIndex,
           timezone: ctx.timezone,
         }) as T;
       } catch (err) {

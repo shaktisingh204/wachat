@@ -1,5 +1,19 @@
 'use client';
 
+/**
+ * Contract Templates list — `/dashboard/crm/contracts/templates`.
+ *
+ * Ships:
+ *   - KPI strip (total, active, draft, archived)
+ *   - Filter row: search by name, status (active/draft/archived)
+ *   - ZoruCheckbox selection
+ *   - Bulk archive, bulk delete with confirm
+ *   - Export CSV
+ *   - EntityRowLink on template name → detail page
+ */
+
+import * as React from 'react';
+
 import {
   ZoruAlertDialog,
   ZoruAlertDialogAction,
@@ -9,8 +23,10 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
+  ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruCheckbox,
   ZoruDialog,
   ZoruDialogContent,
   ZoruDialogDescription,
@@ -19,6 +35,11 @@ import {
   ZoruDialogTitle,
   ZoruInput,
   ZoruLabel,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
   ZoruSkeleton,
   ZoruTable,
   ZoruTableBody,
@@ -29,37 +50,73 @@ import {
   ZoruTextarea,
   useZoruToast,
 } from '@/components/zoruui';
-import { useEffect, useState, useTransition, useActionState } from 'react';
-import Link from 'next/link';
 import {
-  Plus,
-  Pencil,
-  Trash2,
-  LoaderCircle,
+  Archive,
+  Download,
   ExternalLink,
+  FileText,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState, useTransition, useActionState } from 'react';
+import { useRouter } from 'next/navigation';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 import {
   getContractTemplates,
   saveContractTemplate,
   deleteContractTemplate,
+  bulkDeleteContractTemplates,
 } from '@/app/actions/worksuite/contracts-ext.actions';
 import type { WsContractTemplate } from '@/lib/worksuite/contracts-ext-types';
 
-type Row = WsContractTemplate & { _id: string };
+type Row = WsContractTemplate & { _id: string; status?: string };
+
+/* ─── Status badge ─────────────────────────────────────────────────── */
+
+function TemplateBadge({ status }: { status: string | undefined }) {
+  if (!status || status === 'active')
+    return <ZoruBadge variant="success">Active</ZoruBadge>;
+  if (status === 'draft') return <ZoruBadge variant="outline">Draft</ZoruBadge>;
+  if (status === 'archived')
+    return <ZoruBadge variant="default">Archived</ZoruBadge>;
+  return <ZoruBadge variant="outline">{status}</ZoruBadge>;
+}
+
+/* ─── Component ────────────────────────────────────────────────────── */
 
 export default function ContractTemplatesPage() {
+  const router = useRouter();
   const { toast } = useZoruToast();
+
   const [rows, setRows] = useState<Row[]>([]);
   const [isLoading, startLoading] = useTransition();
+  const [bulkPending, startBulkTransition] = useTransition();
+
+  /* Filters */
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  /* Selection */
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  /* Dialogs */
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<Row | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [bulkDeletePending, setBulkDeletePending] = useState(false);
+  const [bulkArchivePending, setBulkArchivePending] = useState(false);
+
   const [saveState, saveFormAction, isSaving] = useActionState(
     saveContractTemplate,
-    { message: '', error: '' } as any,
+    { message: '', error: '' } as { message?: string; error?: string },
   );
 
   const refresh = () => {
@@ -87,7 +144,61 @@ export default function ContractTemplatesPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [saveState]);
 
-  const handleDelete = async () => {
+  /* KPI */
+  const kpi = React.useMemo(() => {
+    let active = 0;
+    let draft = 0;
+    let archived = 0;
+    for (const r of rows) {
+      const s = r.status ?? 'active';
+      if (s === 'active' || !s) active += 1;
+      else if (s === 'draft') draft += 1;
+      else if (s === 'archived') archived += 1;
+    }
+    return { total: rows.length, active, draft, archived };
+  }, [rows]);
+
+  /* Filtered list */
+  const filtered = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return rows.filter((r) => {
+      if (q && !r.name.toLowerCase().includes(q)) return false;
+      const s = r.status ?? 'active';
+      if (statusFilter !== 'all' && s !== statusFilter) return false;
+      return true;
+    });
+  }, [rows, search, statusFilter]);
+
+  const filtersActive = Boolean(search) || statusFilter !== 'all';
+
+  const allSelectedOnPage =
+    filtered.length > 0 && filtered.every((r) => selected.has(r._id));
+
+  const toggleRow = React.useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = React.useCallback(() => {
+    setSelected((prev) => {
+      const allSel = filtered.every((r) => prev.has(r._id));
+      if (allSel) {
+        const next = new Set(prev);
+        for (const r of filtered) next.delete(r._id);
+        return next;
+      }
+      const next = new Set(prev);
+      for (const r of filtered) next.add(r._id);
+      return next;
+    });
+  }, [filtered]);
+
+  /* Single delete */
+  const handleDelete = React.useCallback(async () => {
     if (!deletingId) return;
     const res = await deleteContractTemplate(deletingId);
     if (res.success) {
@@ -101,97 +212,285 @@ export default function ContractTemplatesPage() {
         variant: 'destructive',
       });
     }
-  };
+  }, [deletingId, toast]);
+
+  /* Bulk delete */
+  const runBulkDelete = React.useCallback(() => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      const res = await bulkDeleteContractTemplates(ids);
+      toast({
+        title: `${res.deleted} template${res.deleted === 1 ? '' : 's'} deleted`,
+        variant: res.success ? 'default' : 'destructive',
+      });
+      setSelected(new Set());
+      router.refresh();
+      refresh();
+    });
+  }, [selected, router, toast]);
+
+  /* Bulk archive — update status field */
+  const runBulkArchive = React.useCallback(() => {
+    const ids = Array.from(selected);
+    if (ids.length === 0) return;
+    startBulkTransition(async () => {
+      // Archive by patching each template individually via saveContractTemplate.
+      // The action accepts a FormData with _id + name + body + status.
+      let failed = 0;
+      for (const id of ids) {
+        const row = rows.find((r) => r._id === id);
+        if (!row) continue;
+        const fd = new FormData();
+        fd.set('_id', id);
+        fd.set('name', row.name);
+        fd.set('body', row.body);
+        fd.set('status', 'archived');
+        const res = await saveContractTemplate(undefined, fd);
+        if (res.error) failed += 1;
+      }
+      toast({
+        title:
+          failed === 0
+            ? `${ids.length} template${ids.length === 1 ? '' : 's'} archived`
+            : `${ids.length - failed} archived, ${failed} failed`,
+        variant: failed > 0 ? 'destructive' : 'default',
+      });
+      setSelected(new Set());
+      router.refresh();
+      refresh();
+    });
+  }, [selected, rows, router, toast]);
+
+  /* Export CSV */
+  const handleExportCsv = React.useCallback(() => {
+    const exportRows = filtered.filter((r) => selected.size === 0 || selected.has(r._id));
+    if (exportRows.length === 0) {
+      toast({ title: 'Nothing to export' });
+      return;
+    }
+    downloadCsv(
+      `contract-templates-${dateStamp()}.csv`,
+      ['Name', 'Status', 'Preview'],
+      exportRows.map((r) => ({
+        Name: r.name,
+        Status: r.status ?? 'active',
+        Preview: (r.body || '').slice(0, 200),
+      })),
+    );
+    toast({ title: 'Exported', description: `${exportRows.length} templates saved to CSV.` });
+  }, [filtered, selected, toast]);
+
+  /* ─── Render ─────────────────────────────────────────────────────── */
 
   return (
-    <EntityListShell
-      title="Contract Templates"
-      subtitle="Reusable contract templates with placeholders."
-      primaryAction={
-        <ZoruButton
-          onClick={() => {
-            setEditing(null);
-            setDialogOpen(true);
-          }}
-        >
-          Add Template
-        </ZoruButton>
-      }
-    >
-
-      <ZoruCard>
-        <div className="overflow-x-auto rounded-lg border border-border">
-          <ZoruTable>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-border hover:bg-transparent">
-                <ZoruTableHead className="text-muted-foreground">Name</ZoruTableHead>
-                <ZoruTableHead className="text-muted-foreground">Preview</ZoruTableHead>
-                <ZoruTableHead className="w-[160px] text-right text-muted-foreground">
-                  Actions
-                </ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {isLoading && rows.length === 0 ? (
-                [...Array(3)].map((_, i) => (
-                  <ZoruTableRow key={i} className="border-border">
-                    <ZoruTableCell colSpan={3}>
-                      <ZoruSkeleton className="h-8 w-full" />
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
-              ) : rows.length === 0 ? (
-                <ZoruTableRow className="border-border">
-                  <ZoruTableCell
-                    colSpan={3}
-                    className="h-24 text-center text-[13px] text-muted-foreground"
-                  >
-                    No templates yet — click Add Template to get started.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : (
-                rows.map((row) => (
-                  <ZoruTableRow key={row._id} className="border-border">
-                    <ZoruTableCell className="text-[13px] text-foreground">
-                      {row.name}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="max-w-[400px] truncate text-[13px] text-muted-foreground">
-                      {(row.body || '').slice(0, 120)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Link href={`/dashboard/crm/contracts/templates/${row._id}`}>
-                          <ZoruButton variant="ghost" size="sm">
-                            <ExternalLink className="h-3.5 w-3.5" />
-                          </ZoruButton>
-                        </Link>
-                        <ZoruButton
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditing(row);
-                            setDialogOpen(true);
-                          }}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </ZoruButton>
-                        <ZoruButton
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeletingId(row._id)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                        </ZoruButton>
-                      </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ))
-              )}
-            </ZoruTableBody>
-          </ZoruTable>
+    <>
+      <EntityListShell
+        title="Contract Templates"
+        subtitle="Reusable contract templates with placeholders."
+        search={{ value: search, onChange: setSearch, placeholder: 'Search templates…' }}
+        primaryAction={
+          <ZoruButton
+            onClick={() => {
+              setEditing(null);
+              setDialogOpen(true);
+            }}
+          >
+            <Plus className="h-4 w-4" /> Add Template
+          </ZoruButton>
+        }
+        filters={
+          <div className="flex flex-wrap items-end gap-3">
+            <div className="space-y-1">
+              <ZoruLabel className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
+                Status
+              </ZoruLabel>
+              <ZoruSelect value={statusFilter} onValueChange={setStatusFilter}>
+                <ZoruSelectTrigger className="h-8 w-[150px]">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                  <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            {filtersActive ? (
+              <ZoruButton
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearch('');
+                  setStatusFilter('all');
+                }}
+              >
+                <X className="h-3.5 w-3.5" /> Clear
+              </ZoruButton>
+            ) : null}
+          </div>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <ZoruBadge variant="info">{selected.size} selected</ZoruBadge>
+              <ZoruButton
+                size="sm"
+                variant="outline"
+                onClick={() => setBulkArchivePending(true)}
+                disabled={bulkPending}
+              >
+                <Archive className="h-3.5 w-3.5" /> Archive
+              </ZoruButton>
+              <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+                <Download className="h-3.5 w-3.5" /> CSV
+              </ZoruButton>
+              <ZoruButton
+                size="sm"
+                variant="destructive"
+                onClick={() => setBulkDeletePending(true)}
+                disabled={bulkPending}
+              >
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </ZoruButton>
+              <ZoruButton size="sm" variant="ghost" onClick={() => setSelected(new Set())}>
+                <X className="h-3.5 w-3.5" /> Clear
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+      >
+        {/* KPI strip */}
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {(
+            [
+              { label: 'Total', value: kpi.total },
+              { label: 'Active', value: kpi.active },
+              { label: 'Draft', value: kpi.draft },
+              { label: 'Archived', value: kpi.archived },
+            ] as const
+          ).map((k) => (
+            <div
+              key={k.label}
+              className="flex flex-col gap-1 rounded-lg border border-zoru-line bg-zoru-surface p-3"
+            >
+              <div className="flex items-center gap-1.5 text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                <FileText className="h-3.5 w-3.5" />
+                {k.label}
+              </div>
+              <span className="text-xl font-semibold text-zoru-ink">
+                {k.value.toLocaleString()}
+              </span>
+            </div>
+          ))}
         </div>
-      </ZoruCard>
 
+        {/* Export */}
+        <div className="flex items-center justify-end">
+          <ZoruButton size="sm" variant="outline" onClick={handleExportCsv}>
+            <Download className="h-3.5 w-3.5" /> Export CSV
+          </ZoruButton>
+        </div>
+
+        <ZoruCard className="overflow-hidden p-0">
+          <div className="overflow-x-auto">
+            <ZoruTable>
+              <ZoruTableHeader>
+                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                  <ZoruTableHead className="w-10 pl-3">
+                    <ZoruCheckbox
+                      checked={allSelectedOnPage}
+                      onCheckedChange={toggleAll}
+                      aria-label="Select all"
+                    />
+                  </ZoruTableHead>
+                  <ZoruTableHead>Name</ZoruTableHead>
+                  <ZoruTableHead>Status</ZoruTableHead>
+                  <ZoruTableHead>Preview</ZoruTableHead>
+                  <ZoruTableHead className="w-[140px] text-right">Actions</ZoruTableHead>
+                </ZoruTableRow>
+              </ZoruTableHeader>
+              <ZoruTableBody>
+                {isLoading && rows.length === 0 ? (
+                  [...Array(3)].map((_, i) => (
+                    <ZoruTableRow key={i} className="border-zoru-line">
+                      <ZoruTableCell colSpan={5}>
+                        <ZoruSkeleton className="h-8 w-full" />
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                ) : filtered.length === 0 ? (
+                  <ZoruTableRow className="border-zoru-line">
+                    <ZoruTableCell
+                      colSpan={5}
+                      className="h-24 text-center text-[13px] text-muted-foreground"
+                    >
+                      {filtersActive
+                        ? 'No templates match the current filters.'
+                        : 'No templates yet — click Add Template to get started.'}
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ) : (
+                  filtered.map((row) => (
+                    <ZoruTableRow key={row._id} className="border-zoru-line">
+                      <ZoruTableCell className="pl-3">
+                        <ZoruCheckbox
+                          checked={selected.has(row._id)}
+                          onCheckedChange={() => toggleRow(row._id)}
+                          aria-label={`Select ${row.name}`}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <EntityRowLink
+                          href={`/dashboard/crm/contracts/templates/${row._id}`}
+                          label={row.name}
+                        />
+                      </ZoruTableCell>
+                      <ZoruTableCell>
+                        <TemplateBadge status={row.status} />
+                      </ZoruTableCell>
+                      <ZoruTableCell className="max-w-[360px] truncate text-[13px] text-muted-foreground">
+                        {(row.body || '').slice(0, 120)}
+                      </ZoruTableCell>
+                      <ZoruTableCell className="text-right">
+                        <div className="flex justify-end gap-1">
+                          <Link href={`/dashboard/crm/contracts/templates/${row._id}`}>
+                            <ZoruButton variant="ghost" size="sm" aria-label="View">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                            </ZoruButton>
+                          </Link>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Edit"
+                            onClick={() => {
+                              setEditing(row);
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </ZoruButton>
+                          <ZoruButton
+                            variant="ghost"
+                            size="sm"
+                            aria-label="Delete"
+                            onClick={() => setDeletingId(row._id)}
+                          >
+                            <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                          </ZoruButton>
+                        </div>
+                      </ZoruTableCell>
+                    </ZoruTableRow>
+                  ))
+                )}
+              </ZoruTableBody>
+            </ZoruTable>
+          </div>
+        </ZoruCard>
+      </EntityListShell>
+
+      {/* Add / Edit dialog */}
       <ZoruDialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <ZoruDialogContent className="max-w-2xl">
           <ZoruDialogHeader>
@@ -217,6 +516,24 @@ export default function ContractTemplatesPage() {
               />
             </div>
             <div>
+              <ZoruLabel htmlFor="status" className="text-foreground">
+                Status
+              </ZoruLabel>
+              <ZoruSelect
+                name="status"
+                defaultValue={editing?.status ?? 'active'}
+              >
+                <ZoruSelectTrigger className="mt-1.5 h-10 w-full">
+                  <ZoruSelectValue />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                  <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                  <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            <div>
               <ZoruLabel htmlFor="body" className="text-foreground">
                 Body <span className="text-destructive">*</span>
               </ZoruLabel>
@@ -231,15 +548,14 @@ export default function ContractTemplatesPage() {
               />
             </div>
             <ZoruDialogFooter className="gap-2">
-              <ZoruButton type="button" variant="outline" onClick={() => setDialogOpen(false)}>
+              <ZoruButton
+                type="button"
+                variant="outline"
+                onClick={() => setDialogOpen(false)}
+              >
                 Cancel
               </ZoruButton>
-              <ZoruButton
-                type="submit"
-               
-                disabled={isSaving}
-               
-              >
+              <ZoruButton type="submit" disabled={isSaving}>
                 Save
               </ZoruButton>
             </ZoruDialogFooter>
@@ -247,6 +563,7 @@ export default function ContractTemplatesPage() {
         </ZoruDialogContent>
       </ZoruDialog>
 
+      {/* Single delete */}
       <ZoruAlertDialog
         open={deletingId !== null}
         onOpenChange={(o) => !o && setDeletingId(null)}
@@ -264,6 +581,30 @@ export default function ContractTemplatesPage() {
           </ZoruAlertDialogFooter>
         </ZoruAlertDialogContent>
       </ZoruAlertDialog>
-    </EntityListShell>
+
+      {/* Bulk archive confirm */}
+      <ConfirmDialog
+        open={bulkArchivePending}
+        onOpenChange={setBulkArchivePending}
+        title={`Archive ${selected.size} template${selected.size === 1 ? '' : 's'}?`}
+        description="Archived templates are hidden from active use but remain in the database."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={runBulkArchive}
+      />
+
+      {/* Bulk delete confirm */}
+      <ConfirmDialog
+        open={bulkDeletePending}
+        onOpenChange={setBulkDeletePending}
+        title={`Delete ${selected.size} template${selected.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected templates. This action cannot be undone."
+        confirmLabel="Delete"
+        requireTyped="DELETE"
+        onConfirm={runBulkDelete}
+      />
+
+      {bulkPending ? <span className="sr-only">Working…</span> : null}
+    </>
   );
 }

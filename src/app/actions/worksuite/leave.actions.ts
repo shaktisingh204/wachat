@@ -75,6 +75,11 @@ const DEFAULT_SETTINGS: Omit<WsLeaveSetting, '_id' | 'userId'> = {
   allow_future_leave: true,
   max_days_advance: 365,
   hours_per_day: 8,
+  carry_forward_enabled: false,
+  carry_forward_max_days: 0,
+  max_accrual_days: 0,
+  expiry_rule: 'end_of_year',
+  expiry_months: 12,
 };
 
 /* ------------------------------------------------------------------ */
@@ -622,6 +627,20 @@ export async function saveLeaveSettings(
         input.max_days_advance ?? DEFAULT_SETTINGS.max_days_advance,
       ),
       hours_per_day: Number(input.hours_per_day ?? DEFAULT_SETTINGS.hours_per_day),
+      carry_forward_enabled: Boolean(
+        input.carry_forward_enabled ?? DEFAULT_SETTINGS.carry_forward_enabled,
+      ),
+      carry_forward_max_days: Number(
+        input.carry_forward_max_days ?? DEFAULT_SETTINGS.carry_forward_max_days,
+      ),
+      max_accrual_days: Number(
+        input.max_accrual_days ?? DEFAULT_SETTINGS.max_accrual_days,
+      ),
+      expiry_rule: (input.expiry_rule ??
+        DEFAULT_SETTINGS.expiry_rule) as WsLeaveSetting['expiry_rule'],
+      expiry_months: Number(
+        input.expiry_months ?? DEFAULT_SETTINGS.expiry_months,
+      ),
       updatedAt: now,
     };
     await db.collection(COLL.SETTINGS).updateOne(
