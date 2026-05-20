@@ -1,0 +1,10 @@
+{
+  "id": "planhat-health-score-sync",
+  "name": "Planhat Health Score Sync",
+  "description": "Each morning pulls the latest health scores from Planhat and pushes them to the matching company records in HubSpot. Keeps sales and CS looking at the same churn-risk signal without manual exports.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["planhat", "hubspot", "health-score", "cs", "sync", "crm"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "harvest-timer-sync",
+  "cases": [
+    {
+      "id": "assigned",
+      "description": "Linear ticket assigned creates Harvest task assignment.",
+      "triggerPayload": {
+        "data": {
+          "title": "Bug: header crash",
+          "assignee": { "email": "eng@example.com" },
+          "harvest_project_id": "proj_1"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

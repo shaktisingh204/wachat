@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_ghost_pub",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "ghost.post.published",
+    "options": {
+      "path": "/webhooks/ghost-published-medium",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Ghost-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Ghost Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "ghost-published-medium",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "ghost-published-medium-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Post",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "title", "value": "={{ $json.post.current.title }}" },
+            { "name": "html", "value": "={{ $json.post.current.html }}" },
+            { "name": "canonical", "value": "={{ $json.post.current.url }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup_user",
+      "name": "Medium Me",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": { "method": "GET", "url": "={{ $vars.MEDIUM_URL }}/v1/me" },
+      "credentials": { "httpHeaderAuth": { "id": "medium-cred", "name": "Medium Header Auth" } }
+    },
+    {
+      "id": "n_create",
+      "name": "Medium Create Story",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.MEDIUM_URL }}/v1/users/{{ $json.data.id }}/posts",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "title", "value": "={{ $node['Extract Post'].json.title }}" },
+            { "name": "contentFormat", "value": "html" },
+            { "name": "content", "value": "={{ $node['Extract Post'].json.html }}" },
+            { "name": "canonicalUrl", "value": "={{ $node['Extract Post'].json.canonical }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "medium-cred", "name": "Medium Header Auth" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "CrossPosts",
+        "fields": { "Title": "={{ $node['Extract Post'].json.title }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup_user", "type": "main", "index": 0 }]] },
+    "n_lookup_user": { "main": [[{ "node": "n_create", "type": "main", "index": 0 }]] },
+    "n_create": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup_user", "n_create", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "MEDIUM_URL", "defaultValue": "https://api.medium.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

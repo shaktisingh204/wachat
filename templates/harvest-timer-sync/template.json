@@ -1,0 +1,10 @@
+{
+  "id": "harvest-timer-sync",
+  "name": "Harvest Timer Sync",
+  "description": "When a Linear ticket is assigned, starts a matching Harvest project task so engineers can track time without leaving the issue. Keeps engineering effort visible to client reporting.",
+  "category": "Ops",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["linear", "harvest", "time-tracking", "engineering", "ops"],
+  "version": "0.1.0"
+}

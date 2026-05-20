@@ -1,0 +1,140 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_vendor_form",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "vendor.form.submitted",
+    "options": {
+      "path": "/webhooks/vendor-intake",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Form-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Vendor Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "vendor-intake",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "vendor-intake-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Vendor",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "vendorName", "value": "={{ $json.vendor.name }}" },
+            { "name": "vendorEmail", "value": "={{ $json.vendor.email }}" },
+            { "name": "taxId", "value": "={{ $json.vendor.tax_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sap_create",
+      "name": "SAP Vendor Create",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, -100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.SAP_VENDOR_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "name", "value": "={{ $json.vendorName }}" },
+            { "name": "taxId", "value": "={{ $json.taxId }}" }
+          ]
+        }
+      },
+      "credentials": { "oAuth2Api": { "id": "sap-cred", "name": "SAP OAuth2" } }
+    },
+    {
+      "id": "n_docusign",
+      "name": "DocuSign W-9 Envelope",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 100],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.DOCUSIGN_URL }}/envelopes",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "templateId", "value": "={{ $vars.DOCUSIGN_W9_TEMPLATE }}" },
+            { "name": "recipientEmail", "value": "={{ $node['Extract Vendor'].json.vendorEmail }}" }
+          ]
+        }
+      },
+      "credentials": { "oAuth2Api": { "id": "docusign-cred", "name": "DocuSign OAuth2" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "mode": "combine", "combinationMode": "mergeByPosition" }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #procurement",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":handshake: Vendor onboarding started for {{ $node['Extract Vendor'].json.vendorName }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_sap_create", "type": "main", "index": 0 },
+          { "node": "n_docusign", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_sap_create": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_docusign": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] },
+    "n_merge": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_sap_create", "n_docusign", "n_merge", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_sap", "name": "SAP_VENDOR_URL", "defaultValue": "https://my.example.s4hana.cloud/sap/opu/odata/sap/API_BUSINESS_PARTNER/A_Supplier" },
+    { "id": "v_ds", "name": "DOCUSIGN_URL", "defaultValue": "https://demo.docusign.net/restapi/v2.1/accounts/123" },
+    { "id": "v_tmpl", "name": "DOCUSIGN_W9_TEMPLATE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#procurement" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

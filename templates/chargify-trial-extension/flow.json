@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_trial_ending",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "chargify.trial.ending",
+    "options": {
+      "path": "/webhooks/chargify-trial-ending",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Chargify-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Trial Ending",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chargify-trial-ending",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "chargify-trial-ending-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Subscription",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "subscriptionId", "value": "={{ $json.subscription.id }}" },
+            { "name": "customerId", "value": "={{ $json.subscription.customer_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_engagement",
+      "name": "Fetch Engagement Score",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.ENGAGEMENT_URL }}/{{ $json.customerId }}"
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Engagement Threshold",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "conditions": {
+          "number": [
+            { "value1": "={{ $json.score }}", "operation": "largerEqual", "value2": "={{ $vars.MIN_SCORE }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_extend",
+      "name": "Chargify Extend Trial",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [960, -120],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.CHARGIFY_URL }}/subscriptions/{{ $node['Extract Subscription'].json.subscriptionId }}/extend_trial.json",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [{ "name": "days", "value": "7" }]
+        }
+      },
+      "credentials": { "httpBasicAuth": { "id": "chargify-cred", "name": "Chargify Basic" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Let Trial Expire",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [960, 120],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_engagement", "type": "main", "index": 0 }]] },
+    "n_engagement": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "true": [[{ "node": "n_extend", "type": "main", "index": 0 }]],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_engagement", "n_route", "n_extend", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_eng", "name": "ENGAGEMENT_URL", "defaultValue": "https://api.example.com/engagement" },
+    { "id": "v_min", "name": "MIN_SCORE", "defaultValue": "70" },
+    { "id": "v_cf", "name": "CHARGIFY_URL", "defaultValue": "https://acme.chargify.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

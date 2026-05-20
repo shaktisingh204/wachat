@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "planhat-health-score-sync",
+  "cases": [
+    {
+      "id": "daily-sync",
+      "description": "Daily cron pulls Planhat health scores and updates HubSpot companies.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

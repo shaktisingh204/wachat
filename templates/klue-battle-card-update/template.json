@@ -1,0 +1,10 @@
+{
+  "id": "klue-battle-card-update",
+  "name": "Klue Battle Card Update",
+  "description": "When a Klue competitor battle card is published, mirrors the change to the sales-enablement Slack channel and a Notion knowledge-base page. Keeps reps synced on competitive intel without waiting for a digest email.",
+  "category": "Sales",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["klue", "competitive-intel", "slack", "notion", "sales-enablement"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_monthly",
+    "type": "cron",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "cron.tick",
+    "options": { "schedule": "0 9 1 * *", "enabled": true }
+  },
+  "nodes": [
+    {
+      "id": "n_cron",
+      "name": "1st of month 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": { "rule": { "interval": [{ "field": "cronExpression", "expression": "0 9 1 * *" }] } }
+    },
+    {
+      "id": "n_everhour",
+      "name": "Everhour Billable Pull",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [240, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.EVERHOUR_URL }}/team/time/billable"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "everhour-cred", "name": "Everhour Header Auth" } }
+    },
+    {
+      "id": "n_split",
+      "name": "Per Client",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": { "batchSize": 1 }
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Client",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "clientName", "value": "={{ $json.client.name }}" },
+            { "name": "clientEmail", "value": "={{ $json.client.email }}" },
+            { "name": "hours", "value": "={{ $json.billable_hours }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "SendGrid Report Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.clientEmail }}",
+        "subject": "Monthly billable report — {{ $json.clientName }}",
+        "contentType": "text/html",
+        "content": "<p>Total billable: <strong>{{ $json.hours }}h</strong></p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "BillableReports",
+        "fields": { "Client": "={{ $node['Extract Client'].json.clientName }}" }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    }
+  ],
+  "connections": {
+    "n_cron": { "main": [[{ "node": "n_everhour", "type": "main", "index": 0 }]] },
+    "n_everhour": { "main": [[{ "node": "n_split", "type": "main", "index": 0 }]] },
+    "n_split": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_cron", "n_everhour", "n_split", "n_extract", "n_sendgrid", "n_log"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "EVERHOUR_URL", "defaultValue": "https://api.everhour.com" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "billing@example.com" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

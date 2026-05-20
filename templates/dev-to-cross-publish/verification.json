@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "dev-to-cross-publish",
+  "cases": [
+    {
+      "id": "publish",
+      "description": "Ghost publish mirrors a draft on DEV.to.",
+      "triggerPayload": {
+        "post": {
+          "current": {
+            "title": "Hello DEV",
+            "markdown": "# Hello",
+            "url": "https://blog.example.com/hello-dev"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

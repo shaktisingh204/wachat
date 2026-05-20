@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_front_assign",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "front.conversation.assigned",
+    "options": {
+      "path": "/webhooks/front-assigned",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Front-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Front Conversation Assigned",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "front-assigned",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "front-assigned-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Assignment",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "conversationId", "value": "={{ $json.conversation.id }}" },
+            { "name": "subject", "value": "={{ $json.conversation.subject }}" },
+            { "name": "fromAgent", "value": "={{ $json.previous_assignee.email }}" },
+            { "name": "toAgent", "value": "={{ $json.assignee.email }}" },
+            { "name": "reason", "value": "={{ $json.reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_route",
+      "name": "Shift Change?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "conditions": {
+          "string": [
+            { "value1": "={{ $json.reason }}", "operation": "equal", "value2": "shift_change" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Handoff Channel",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [720, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":handshake: {{ $node['Extract Assignment'].json.fromAgent }} -> {{ $node['Extract Assignment'].json.toAgent }} on {{ $node['Extract Assignment'].json.subject }}"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Handoff Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [720, 100],
+      "parameters": {
+        "operation": "insert",
+        "collection": "={{ $vars.MONGO_COLLECTION }}",
+        "fields": "conversationId,fromAgent,toAgent"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "MongoDB" } }
+    },
+    {
+      "id": "n_noop",
+      "name": "Skip Non-Shift",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [720, 250],
+      "parameters": {}
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_route", "type": "main", "index": 0 }]] },
+    "n_route": {
+      "true": [
+        [
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_mongo", "type": "main", "index": 0 }
+        ]
+      ],
+      "false": [[{ "node": "n_noop", "type": "main", "index": 0 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_route", "n_slack", "n_mongo", "n_noop"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#shift-handoff" },
+    { "id": "v_mongo", "name": "MONGO_COLLECTION", "defaultValue": "support_handoffs" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

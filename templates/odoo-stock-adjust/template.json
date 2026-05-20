@@ -1,0 +1,10 @@
+{
+  "id": "odoo-stock-adjust",
+  "name": "Odoo Stock Adjust",
+  "description": "On every Shopify inventory adjustment, pushes the new on-hand quantity into Odoo for the matching SKU. Keeps Odoo as the system of record without nightly reconciliation.",
+  "category": "E-commerce",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["shopify", "odoo", "inventory", "sku", "ecommerce", "erp"],
+  "version": "0.1.0"
+}

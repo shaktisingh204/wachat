@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "maxio-quote-create",
+  "cases": [
+    {
+      "id": "create-quote",
+      "description": "Quote-stage opp triggers Maxio quote and AE email.",
+      "triggerPayload": {
+        "opportunity": {
+          "id": "opp_1",
+          "maxio_account_id": "acc_1",
+          "ae_email": "ae@example.com"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

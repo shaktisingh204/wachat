@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "revops-pipeline-cleanup",
+  "cases": [
+    {
+      "id": "weekly-cleanup",
+      "description": "Weekly cron flags stale deals and nudges AEs.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

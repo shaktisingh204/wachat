@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "missive-conversation-assign",
+  "cases": [
+    {
+      "id": "load-balance",
+      "description": "New conversation lands and is assigned to lightest agent.",
+      "triggerPayload": { "conversation": { "id": "cnv_1" } },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

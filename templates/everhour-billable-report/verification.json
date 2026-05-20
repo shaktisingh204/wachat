@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "everhour-billable-report",
+  "cases": [
+    {
+      "id": "monthly-report",
+      "description": "Monthly cron emails each client their billable hours.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_linear_update",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "linear.issue.update",
+    "options": {
+      "path": "/webhooks/linear-update",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Linear-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Linear Issue Update",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "linear-update",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "linear-update-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Ticket",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "ticketTitle", "value": "={{ $json.data.title }}" },
+            { "name": "assigneeEmail", "value": "={{ $json.data.assignee.email }}" },
+            { "name": "harvestProjectId", "value": "={{ $json.data.harvest_project_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_lookup_user",
+      "name": "Lookup Harvest User",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $vars.HARVEST_URL }}/v2/users?is_active=true"
+      },
+      "credentials": { "httpHeaderAuth": { "id": "harvest-cred", "name": "Harvest Header Auth" } }
+    },
+    {
+      "id": "n_create_task",
+      "name": "Harvest Task Assignment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [720, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.HARVEST_URL }}/v2/projects/{{ $node['Extract Ticket'].json.harvestProjectId }}/task_assignments",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "task_id", "value": "={{ $vars.DEFAULT_TASK_ID }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "harvest-cred", "name": "Harvest Header Auth" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack DM",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Ticket'].json.assigneeEmail }}",
+        "text": ":stopwatch: Harvest task assigned for *{{ $node['Extract Ticket'].json.ticketTitle }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_lookup_user", "type": "main", "index": 0 }]] },
+    "n_lookup_user": { "main": [[{ "node": "n_create_task", "type": "main", "index": 0 }]] },
+    "n_create_task": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_lookup_user", "n_create_task", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_hv", "name": "HARVEST_URL", "defaultValue": "https://api.harvestapp.com" },
+    { "id": "v_task", "name": "DEFAULT_TASK_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

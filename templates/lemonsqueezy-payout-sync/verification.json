@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "lemonsqueezy-payout-sync",
+  "cases": [
+    {
+      "id": "payout-received",
+      "description": "LemonSqueezy payout webhook fans out to QuickBooks + Slack.",
+      "triggerPayload": {
+        "payout": { "id": "pay_1", "amount_cents": 123400, "currency": "USD" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

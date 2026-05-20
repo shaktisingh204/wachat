@@ -1,0 +1,10 @@
+{
+  "id": "buttondown-newsletter-archive",
+  "name": "Buttondown Newsletter Archive",
+  "description": "When Buttondown sends a newsletter, downloads the rendered issue and archives a copy to Cloudflare R2. Keeps a durable backup outside the email provider.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["buttondown", "r2", "archive", "newsletter", "marketing"],
+  "version": "0.1.0"
+}

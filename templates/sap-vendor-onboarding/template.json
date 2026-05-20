@@ -1,0 +1,10 @@
+{
+  "id": "sap-vendor-onboarding",
+  "name": "SAP Vendor Onboarding",
+  "description": "When a vendor submits the intake form, creates the vendor record in SAP and kicks off a DocuSign envelope for the W-9. Removes the back-and-forth that delays first payment.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["sap", "docusign", "vendor", "onboarding", "finance", "procurement"],
+  "version": "0.1.0"
+}

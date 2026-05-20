@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "churnzero-risk-detection",
+  "cases": [
+    {
+      "id": "risk-fired",
+      "description": "ChurnZero risk webhook fans out to Slack + Linear, then logs.",
+      "triggerPayload": {
+        "account": { "name": "Acme Corp" },
+        "risk": { "score": 18, "reason": "Usage dropped 60% week over week" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

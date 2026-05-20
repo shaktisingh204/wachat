@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "gainsight-renewal-playbook",
+  "cases": [
+    {
+      "id": "high-risk",
+      "description": "Gainsight alert with high severity pages CS leadership.",
+      "triggerPayload": {
+        "account": { "id": "acc_1", "name": "Acme Corp", "csm_email": "csm@example.com" },
+        "risk": { "severity": "high" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "templateId": "oracle-fusion-invoice",
+  "cases": [
+    {
+      "id": "invoice-paid",
+      "description": "Stripe invoice.paid creates Oracle Fusion AR receipt.",
+      "triggerPayload": {
+        "data": {
+          "object": {
+            "id": "in_1",
+            "amount_paid": 12500,
+            "currency": "usd",
+            "customer": "cus_acme"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

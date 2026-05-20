@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "templateId": "buttondown-newsletter-archive",
+  "cases": [
+    {
+      "id": "send-archived",
+      "description": "Buttondown send copies issue HTML to R2.",
+      "triggerPayload": {
+        "email": {
+          "id": "iss_1",
+          "subject": "Weekly digest",
+          "permalink": "https://buttondown.email/example/123"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

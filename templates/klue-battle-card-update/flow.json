@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_klue_published",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "klue.card.published",
+    "options": {
+      "path": "/webhooks/klue-battle-card",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Klue-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Klue Card Published",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "klue-battle-card",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "klue-battle-card-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Card Fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "cardId", "value": "={{ $json.card.id }}" },
+            { "name": "competitor", "value": "={{ $json.card.competitor_name }}" },
+            { "name": "title", "value": "={{ $json.card.title }}" },
+            { "name": "url", "value": "={{ $json.card.url }}" },
+            { "name": "summary", "value": "={{ $json.card.summary }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack Sales Enablement",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, -100],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":crossed_swords: New Klue card: *{{ $json.competitor }}* — <{{ $json.url }}|{{ $json.title }}>\n>{{ $json.summary }}"
+      },
+      "credentials": {
+        "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" }
+      }
+    },
+    {
+      "id": "n_notion",
+      "name": "Notion Mirror Page",
+      "type": "n8n-nodes-base.notion",
+      "typeVersion": 2,
+      "position": [480, 100],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "={{ $vars.NOTION_DATABASE_ID }}",
+        "propertiesUi": {
+          "propertyValues": [
+            { "key": "Name|title", "title": "={{ $json.competitor }} — {{ $json.title }}" },
+            { "key": "Source|url", "urlValue": "={{ $json.url }}" }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": { "id": "notion-cred", "name": "Notion API" }
+      }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Mirrors",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "mergeByPosition"
+      }
+    }
+  ],
+  "connections": {
+    "n_webhook": {
+      "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]]
+    },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_notion", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_slack": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]]
+    },
+    "n_notion": {
+      "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]]
+    }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_slack", "n_notion", "n_merge"]
+    }
+  ],
+  "variables": [
+    { "id": "v_slack_ch", "name": "SLACK_CHANNEL", "defaultValue": "#sales-enablement" },
+    { "id": "v_notion_db", "name": "NOTION_DATABASE_ID", "defaultValue": "" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

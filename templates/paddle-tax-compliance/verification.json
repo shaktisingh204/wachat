@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "templateId": "paddle-tax-compliance",
+  "cases": [
+    {
+      "id": "vat-required",
+      "description": "Paddle tx with VAT required validates VAT and logs to Airtable.",
+      "triggerPayload": {
+        "transaction": { "id": "tx_1", "vat_required": true },
+        "customer": { "vat_number": "DE123456789", "country": "DE" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

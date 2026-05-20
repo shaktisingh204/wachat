@@ -1,0 +1,10 @@
+{
+  "id": "dev-to-cross-publish",
+  "name": "DEV.to Cross-Publish",
+  "description": "When Ghost publishes a developer-tagged post, mirrors it as a draft article on DEV.to with the canonical link set. Lets engineering content reach the DEV audience without manual export.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["ghost", "dev-to", "cross-publish", "engineering", "marketing"],
+  "version": "0.1.0"
+}

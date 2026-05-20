@@ -1,0 +1,132 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_catalyst_stage",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "catalyst.journey.stage_changed",
+    "options": {
+      "path": "/webhooks/catalyst-stage",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-Catalyst-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Catalyst Stage Changed",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "catalyst-stage",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "catalyst-stage-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Journey",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "accountName", "value": "={{ $json.account.name }}" },
+            { "name": "contactEmail", "value": "={{ $json.contact.email }}" },
+            { "name": "stage", "value": "={{ $json.stage.name }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_email",
+      "name": "SendGrid Milestone Email",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [480, -150],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $json.contactEmail }}",
+        "subject": "Milestone reached: {{ $json.stage }}",
+        "contentType": "text/html",
+        "content": "<p>Nice work, {{ $json.accountName }} — you reached the <strong>{{ $json.stage }}</strong> milestone.</p>"
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack CS Team",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":rocket: {{ $json.accountName }} just hit *{{ $json.stage }}*"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    },
+    {
+      "id": "n_mongo",
+      "name": "Mongo Log",
+      "type": "n8n-nodes-base.mongoDb",
+      "typeVersion": 1,
+      "position": [480, 150],
+      "parameters": {
+        "operation": "insert",
+        "collection": "={{ $vars.MONGO_COLLECTION }}",
+        "fields": "accountName,stage"
+      },
+      "credentials": { "mongoDb": { "id": "mongo-cred", "name": "MongoDB" } }
+    },
+    {
+      "id": "n_merge",
+      "name": "Merge Fan-Out",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": { "mode": "combine", "combinationMode": "mergeByPosition" }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": {
+      "main": [
+        [
+          { "node": "n_email", "type": "main", "index": 0 },
+          { "node": "n_slack", "type": "main", "index": 0 },
+          { "node": "n_mongo", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "n_email": { "main": [[{ "node": "n_merge", "type": "main", "index": 0 }]] },
+    "n_slack": { "main": [[{ "node": "n_merge", "type": "main", "index": 1 }]] },
+    "n_mongo": { "main": [[{ "node": "n_merge", "type": "main", "index": 2 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_email", "n_slack", "n_mongo", "n_merge"]
+    }
+  ],
+  "variables": [
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "cs@example.com" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#customer-success" },
+    { "id": "v_mongo", "name": "MONGO_COLLECTION", "defaultValue": "onboarding_events" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

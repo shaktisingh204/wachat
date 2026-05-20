@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "templateId": "freshbooks-time-tracking",
+  "cases": [
+    {
+      "id": "entry-created",
+      "description": "Toggl entry mirrors into FreshBooks.",
+      "triggerPayload": {
+        "description": "Discovery call",
+        "duration": 3600,
+        "freshbooks_project_id": "proj_1"
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

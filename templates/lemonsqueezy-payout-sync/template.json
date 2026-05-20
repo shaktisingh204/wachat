@@ -1,0 +1,10 @@
+{
+  "id": "lemonsqueezy-payout-sync",
+  "name": "LemonSqueezy Payout Sync",
+  "description": "When LemonSqueezy issues a payout, posts a matching journal entry to QuickBooks and notifies #finance in Slack with the amount. Keeps the books reconciled without finance team copy-paste.",
+  "category": "Finance",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["lemonsqueezy", "quickbooks", "slack", "payout", "finance", "accounting"],
+  "version": "0.1.0"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "frontapp-team-handoff",
+  "name": "Front Team Handoff",
+  "description": "When Front reassigns a conversation during a shift change, posts the handoff context to a dedicated Slack channel and logs it in Mongo for audit. Keeps follow-the-sun support clean.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["front", "slack", "mongo", "support", "shift-handoff", "audit"],
+  "version": "0.1.0"
+}

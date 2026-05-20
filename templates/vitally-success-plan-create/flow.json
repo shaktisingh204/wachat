@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_sf_closedwon",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "salesforce.opportunity.closed_won",
+    "options": {
+      "path": "/webhooks/sf-closedwon",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-SF-Token",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Salesforce ClosedWon",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sf-closedwon",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "sf-closedwon-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Opp",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "accountId", "value": "={{ $json.opportunity.account_id }}" },
+            { "name": "accountName", "value": "={{ $json.opportunity.account_name }}" },
+            { "name": "amount", "value": "={{ $json.opportunity.amount }}" },
+            { "name": "csm", "value": "={{ $json.opportunity.csm_slack_id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_vitally",
+      "name": "Vitally Create Success Plan",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [480, 0],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $vars.VITALLY_PLANS_URL }}",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            { "name": "accountId", "value": "={{ $json.accountId }}" },
+            { "name": "templateId", "value": "={{ $vars.VITALLY_TEMPLATE_ID }}" },
+            { "name": "name", "value": "Success Plan — {{ $json.accountName }}" }
+          ]
+        }
+      },
+      "credentials": { "httpHeaderAuth": { "id": "vitally-cred", "name": "Vitally Header Auth" } }
+    },
+    {
+      "id": "n_capture",
+      "name": "Capture Plan Id",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [720, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "planId", "value": "={{ $json.id }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_sendgrid",
+      "name": "Email AE Kickoff",
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [960, 0],
+      "parameters": {
+        "resource": "mail",
+        "operation": "send",
+        "fromEmail": "={{ $vars.FROM_EMAIL }}",
+        "toEmail": "={{ $vars.AE_EMAIL }}",
+        "subject": "New success plan created — {{ $node['Extract Opp'].json.accountName }}",
+        "contentType": "text/plain",
+        "content": "Vitally plan {{ $json.planId }} is ready for {{ $node['Extract Opp'].json.accountName }}."
+      },
+      "credentials": { "sendGridApi": { "id": "sendgrid-cred", "name": "SendGrid API" } }
+    },
+    {
+      "id": "n_slack_csm",
+      "name": "DM CSM in Slack",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [1200, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $node['Extract Opp'].json.csm }}",
+        "text": ":tada: {{ $node['Extract Opp'].json.accountName }} closed-won. Plan {{ $json.planId }} is yours — kick off this week."
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_vitally", "type": "main", "index": 0 }]] },
+    "n_vitally": { "main": [[{ "node": "n_capture", "type": "main", "index": 0 }]] },
+    "n_capture": { "main": [[{ "node": "n_sendgrid", "type": "main", "index": 0 }]] },
+    "n_sendgrid": { "main": [[{ "node": "n_slack_csm", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_vitally", "n_capture", "n_sendgrid", "n_slack_csm"]
+    }
+  ],
+  "variables": [
+    { "id": "v_url", "name": "VITALLY_PLANS_URL", "defaultValue": "https://api.vitally.io/resources/successPlans" },
+    { "id": "v_tmpl", "name": "VITALLY_TEMPLATE_ID", "defaultValue": "" },
+    { "id": "v_from", "name": "FROM_EMAIL", "defaultValue": "cs@example.com" },
+    { "id": "v_ae", "name": "AE_EMAIL", "defaultValue": "ae@example.com" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

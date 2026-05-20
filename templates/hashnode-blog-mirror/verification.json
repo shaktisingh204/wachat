@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "hashnode-blog-mirror",
+  "cases": [
+    {
+      "id": "publish",
+      "description": "Ghost publish mirrors article to Hashnode.",
+      "triggerPayload": {
+        "post": {
+          "current": {
+            "title": "Hello Hashnode",
+            "markdown": "# Hi",
+            "url": "https://blog.example.com/hello-hn"
+          }
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

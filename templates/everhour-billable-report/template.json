@@ -1,0 +1,10 @@
+{
+  "id": "everhour-billable-report",
+  "name": "Everhour Billable Report",
+  "description": "On the first of every month, pulls per-client billable hours from Everhour, renders a SendGrid email per client, and ships it before invoicing day. Removes the manual export accountants otherwise run.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["everhour", "sendgrid", "billable", "ops", "monthly", "reporting"],
+  "version": "0.1.0"
+}

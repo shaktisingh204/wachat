@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mailerlite-segment-builder",
+  "cases": [
+    {
+      "id": "daily-digest",
+      "description": "Daily cron pulls Mailerlite groups into Airtable + Slack digest.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

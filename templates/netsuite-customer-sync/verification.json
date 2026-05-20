@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "templateId": "netsuite-customer-sync",
+  "cases": [
+    {
+      "id": "company-created",
+      "description": "New HubSpot company creates a NetSuite customer and writes id back.",
+      "triggerPayload": {
+        "company": { "id": "co_1", "name": "Acme Corp", "domain": "acme.example.com" }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

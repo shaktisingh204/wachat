@@ -1,0 +1,10 @@
+{
+  "id": "toggl-team-utilization",
+  "name": "Toggl Team Utilization",
+  "description": "Weekly, pulls the Toggl summary report, writes per-person utilization to Airtable, and posts a digest to the #ops channel. Replaces the manual report ops leads otherwise build every Monday.",
+  "category": "Ops",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["toggl", "utilization", "airtable", "slack", "ops", "digest"],
+  "version": "0.1.0"
+}

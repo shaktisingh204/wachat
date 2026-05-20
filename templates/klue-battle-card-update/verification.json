@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "templateId": "klue-battle-card-update",
+  "cases": [
+    {
+      "id": "card-published",
+      "description": "Klue publishes a battle card; Slack and Notion mirrors are created.",
+      "triggerPayload": {
+        "card": {
+          "id": "card_123",
+          "competitor_name": "Acme Co",
+          "title": "Pricing teardown",
+          "url": "https://klue.example.com/cards/123",
+          "summary": "Acme dropped Pro tier to $19/mo"
+        }
+      },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

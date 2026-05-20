@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "trigger": {
+    "id": "t_mg_bounce",
+    "type": "webhook",
+    "graphCoordinates": { "x": 0, "y": 0 },
+    "appEvent": "mailgun.bounced",
+    "options": {
+      "path": "/webhooks/mailgun-bounce",
+      "method": "POST",
+      "authentication": "header",
+      "authHeaderName": "X-MG-Signature",
+      "responseMode": "immediately",
+      "enabled": true
+    }
+  },
+  "nodes": [
+    {
+      "id": "n_webhook",
+      "name": "Mailgun Bounce",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [0, 0],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "mailgun-bounce",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "webhookId": "mailgun-bounce-webhook"
+    },
+    {
+      "id": "n_extract",
+      "name": "Extract Recipient",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [240, 0],
+      "parameters": {
+        "values": {
+          "string": [
+            { "name": "email", "value": "={{ $json.recipient }}" },
+            { "name": "reason", "value": "={{ $json.reason }}" }
+          ]
+        }
+      }
+    },
+    {
+      "id": "n_mc_suppress",
+      "name": "Mailchimp Suppress",
+      "type": "n8n-nodes-base.mailchimp",
+      "typeVersion": 2,
+      "position": [480, 0],
+      "parameters": {
+        "resource": "listMember",
+        "operation": "update",
+        "list": "={{ $vars.MAILCHIMP_LIST_ID }}",
+        "email": "={{ $json.email }}",
+        "status": "cleaned"
+      },
+      "credentials": { "mailchimpApi": { "id": "mailchimp-cred", "name": "Mailchimp API" } }
+    },
+    {
+      "id": "n_log",
+      "name": "Airtable Bounce Log",
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2,
+      "position": [720, 0],
+      "parameters": {
+        "operation": "append",
+        "application": "={{ $vars.AIRTABLE_BASE }}",
+        "table": "Bounces",
+        "fields": {
+          "Email": "={{ $node['Extract Recipient'].json.email }}",
+          "Reason": "={{ $node['Extract Recipient'].json.reason }}"
+        }
+      },
+      "credentials": { "airtableApi": { "id": "airtable-cred", "name": "Airtable API" } }
+    },
+    {
+      "id": "n_slack",
+      "name": "Slack #marketing",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2,
+      "position": [960, 0],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "message",
+        "operation": "post",
+        "channel": "={{ $vars.SLACK_CHANNEL }}",
+        "text": ":mailbox_with_no_mail: Suppressed {{ $node['Extract Recipient'].json.email }} after hard bounce"
+      },
+      "credentials": { "slackOAuth2Api": { "id": "slack-cred", "name": "Slack OAuth2" } }
+    }
+  ],
+  "connections": {
+    "n_webhook": { "main": [[{ "node": "n_extract", "type": "main", "index": 0 }]] },
+    "n_extract": { "main": [[{ "node": "n_mc_suppress", "type": "main", "index": 0 }]] },
+    "n_mc_suppress": { "main": [[{ "node": "n_log", "type": "main", "index": 0 }]] },
+    "n_log": { "main": [[{ "node": "n_slack", "type": "main", "index": 0 }]] }
+  },
+  "groups": [
+    {
+      "id": "g_main",
+      "title": "Main",
+      "graphCoordinates": { "x": 0, "y": 0 },
+      "blockIds": ["n_webhook", "n_extract", "n_mc_suppress", "n_log", "n_slack"]
+    }
+  ],
+  "variables": [
+    { "id": "v_list", "name": "MAILCHIMP_LIST_ID", "defaultValue": "" },
+    { "id": "v_at", "name": "AIRTABLE_BASE", "defaultValue": "" },
+    { "id": "v_slack", "name": "SLACK_CHANNEL", "defaultValue": "#marketing" }
+  ],
+  "events": [],
+  "settings": { "executionOrder": "v1" }
+}

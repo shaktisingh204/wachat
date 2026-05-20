@@ -1,0 +1,10 @@
+{
+  "id": "mailgun-bounce-cleanup",
+  "name": "Mailgun Bounce Cleanup",
+  "description": "When Mailgun reports a hard bounce, suppresses the address in Mailchimp so future campaigns skip it. Keeps sender reputation healthy without manual list scrubbing.",
+  "category": "Marketing",
+  "complexity": "beginner",
+  "authorName": "SabNode",
+  "tags": ["mailgun", "mailchimp", "bounce", "deliverability", "marketing"],
+  "version": "0.1.0"
+}

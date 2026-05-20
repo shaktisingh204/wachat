@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "toggl-team-utilization",
+  "cases": [
+    {
+      "id": "weekly-digest",
+      "description": "Weekly cron generates per-user utilization rows + Slack digest.",
+      "triggerPayload": {},
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

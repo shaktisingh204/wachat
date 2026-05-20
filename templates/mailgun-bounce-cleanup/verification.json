@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "templateId": "mailgun-bounce-cleanup",
+  "cases": [
+    {
+      "id": "hard-bounce",
+      "description": "Mailgun bounce webhook suppresses the address in Mailchimp.",
+      "triggerPayload": { "recipient": "bad@example.com", "reason": "mailbox does not exist" },
+      "expect": { "finalStatus": "success" }
+    }
+  ]
+}

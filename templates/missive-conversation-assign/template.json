@@ -1,0 +1,10 @@
+{
+  "id": "missive-conversation-assign",
+  "name": "Missive Conversation Assign",
+  "description": "When a new Missive conversation lands in the team inbox, picks the agent with the lightest current load and assigns it via the Missive API. Removes manual round-robin drag.",
+  "category": "Support",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["missive", "support", "load-balance", "assign", "round-robin"],
+  "version": "0.1.0"
+}

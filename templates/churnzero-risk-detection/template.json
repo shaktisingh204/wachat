@@ -1,0 +1,10 @@
+{
+  "id": "churnzero-risk-detection",
+  "name": "ChurnZero Risk Detection",
+  "description": "When ChurnZero flags an account at-risk, opens a Linear ticket on the CS playbook backlog and notifies the CS leadership Slack channel in parallel. Cuts the time between signal and intervention from days to minutes.",
+  "category": "CRM",
+  "complexity": "intermediate",
+  "authorName": "SabNode",
+  "tags": ["churnzero", "linear", "slack", "risk", "cs", "playbook"],
+  "version": "0.1.0"
+}
