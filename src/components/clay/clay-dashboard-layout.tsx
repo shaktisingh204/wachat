@@ -3146,7 +3146,7 @@ export function ClayDashboardLayout({
             context === 'hrm' ? 'HRM' :
             context === 'sabchat' ? 'SabChat' :
             context === 'email' ? 'Email' :
-            context === 'sms' ? 'SMS' :
+            context === 'sabsms' ? 'SMS' :
             context === 'settings' ? 'Settings' : 'SabNode'
           }
           brand={
@@ -3164,7 +3164,7 @@ export function ClayDashboardLayout({
             context === 'hrm' ? <ClayCrmBrand /> :
             context === 'sabchat' ? <ClayCrmBrand /> :
             context === 'email' ? <ClayCrmBrand /> :
-            context === 'sms' ? <ClayCrmBrand /> :
+            context === 'sabsms' ? <ClayCrmBrand /> :
             context === 'settings' ? <ClaySettingsBrand /> :
             undefined
           }
@@ -3313,7 +3313,7 @@ export function ClayDashboardLayout({
                     { items: emailPrimary.map(toNavItem) },
                     { title: 'Configure', addable: false, items: emailConfigure.map(toNavItem) },
                   ]
-                : context === 'sms'
+                : context === 'sabsms'
                 ? [
                     { items: smsPrimary.map(toNavItem) },
                     { title: 'Configure', addable: false, items: smsConfigure.map(toNavItem) },
@@ -3356,7 +3356,7 @@ export function ClayDashboardLayout({
             // Wachat & Meta Suite pages get generous consistent padding.
             // Page content uses the FULL available width (no max-width cap)
             // so tables and cards don't look shrink-wrapped on wide screens.
-            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
+            (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sabsms' || context === 'settings') && !fullBleed && 'px-10 pt-8 pb-12',
           )}
         >
           {fullBleed ? (
@@ -3364,7 +3364,7 @@ export function ClayDashboardLayout({
             <div className="flex h-full min-h-0 w-full flex-1 overflow-hidden">
               {children}
             </div>
-          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sms' || context === 'settings') ? (
+          ) : (context === 'wachat' || context === 'meta-suite' || context === 'instagram' || context === 'ad-manager' || context === 'sabflow' || context === 'n8n' || context === 'telegram' || context === 'url-shortener' || context === 'qr-code-maker' || context === 'team' || context === 'crm' || context === 'hrm' || context === 'sabchat' || context === 'email' || context === 'sabsms' || context === 'settings') ? (
             // Wachat pages: full width AND full height — pages can fill
             // the entire available space. Each page's root <div> owns
             // its own clay-enter animation cascade so staggered child
