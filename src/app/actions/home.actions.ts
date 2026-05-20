@@ -169,7 +169,7 @@ export async function getAccountHomeData(): Promise<AccountHomeData> {
         const flows = db.collection('flows');
         const crmLeads = db.collection('crm_leads');
         const crmDeals = db.collection('crm_deals');
-        const smsLogs = db.collection('sms_logs');
+        const smsLogs = db.collection('sabsms_messages');
         const sabchatSessions = db.collection('sabchat_sessions');
         const notifications = db.collection('notifications');
         const activityLogs = db.collection('activity_logs');
@@ -231,10 +231,10 @@ export async function getAccountHomeData(): Promise<AccountHomeData> {
             contacts.countDocuments({ projectId: pFilter, createdAt: { $gte: t7d } }).catch(() => 0),
             crmLeads.countDocuments({ $or: [{ projectId: pFilter }, { userId: uid }], createdAt: { $gte: t7d } }).catch(() => 0),
 
-            // SMS — user-scoped
+            // SabSMS — workspace-scoped (status enum: queued|sent|delivered|failed|undelivered|rejected)
             smsLogs.aggregate([
-                { $match: { userId: uid } },
-                { $group: { _id: null, sent: { $sum: { $cond: [{ $eq: ['$status', 'SENT'] }, 1, 0] } }, delivered: { $sum: { $cond: [{ $eq: ['$status', 'DELIVERED'] }, 1, 0] } } } },
+                { $match: { workspaceId: uid, direction: 'outbound' } },
+                { $group: { _id: null, sent: { $sum: { $cond: [{ $in: ['$status', ['sent', 'delivered']] }, 1, 0] } }, delivered: { $sum: { $cond: [{ $eq: ['$status', 'delivered'] }, 1, 0] } } } },
             ]).next().catch(() => null),
 
             // 30-day chart

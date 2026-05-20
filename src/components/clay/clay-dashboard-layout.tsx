@@ -188,7 +188,7 @@ export type ClayLayoutContext =
   | 'hrm'
   | 'sabchat'
   | 'email'
-  | 'sms'
+  | 'sabsms'
   | 'settings';
 
 export interface ClayDashboardLayoutProps {
@@ -288,11 +288,11 @@ const appsNav: NavEntry[] = [
     matches: ['/dashboard/email'],
   },
   {
-    key: 'sms',
-    label: 'SMS',
+    key: 'sabsms',
+    label: 'SabSMS',
     icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />,
-    href: '/dashboard/sms',
-    matches: ['/dashboard/sms'],
+    href: '/sabsms',
+    matches: ['/sabsms'],
   },
   {
     key: 'ad-manager',
@@ -2202,19 +2202,23 @@ const emailConfigure: NavEntry[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════════
- *  SMS nav registry — loaded when context="sms".
+ *  SabSMS nav registry — loaded when context="sabsms".
  * ══════════════════════════════════════════════════════════════════ */
 
 const smsPrimary: NavEntry[] = [
-  { key: 'sms-overview', label: 'Overview', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms', matches: ['/dashboard/sms'] },
-  { key: 'sms-campaigns', label: 'Campaigns', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/campaigns', matches: ['/dashboard/sms/campaigns'] },
-  { key: 'sms-templates', label: 'Templates', icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/templates', matches: ['/dashboard/sms/templates'] },
-  { key: 'sms-logs', label: 'Message Logs', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/logs', matches: ['/dashboard/sms/logs'] },
+  { key: 'sabsms-overview', label: 'Overview', icon: <LuSmartphone className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms', matches: ['/sabsms'] },
+  { key: 'sabsms-inbox', label: 'Inbox', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/inbox', matches: ['/sabsms/inbox'] },
+  { key: 'sabsms-campaigns', label: 'Campaigns', icon: <LuSend className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/campaigns', matches: ['/sabsms/campaigns'] },
+  { key: 'sabsms-templates', label: 'Templates', icon: <LuLayoutTemplate className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/templates', matches: ['/sabsms/templates'] },
+  { key: 'sabsms-logs', label: 'Message Logs', icon: <LuClock className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/logs', matches: ['/sabsms/logs'] },
 ];
 
 const smsConfigure: NavEntry[] = [
-  { key: 'sms-config', label: 'Provider Config', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/config', matches: ['/dashboard/sms/config'] },
-  { key: 'sms-developer', label: 'Developer API', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/dashboard/sms/developer', matches: ['/dashboard/sms/developer'] },
+  { key: 'sabsms-numbers', label: 'Numbers', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/numbers', matches: ['/sabsms/numbers'] },
+  { key: 'sabsms-providers', label: 'Providers', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/providers', matches: ['/sabsms/providers'] },
+  { key: 'sabsms-compliance', label: 'Compliance', icon: <LuShieldCheck className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/compliance', matches: ['/sabsms/compliance'] },
+  { key: 'sabsms-webhooks', label: 'Webhooks', icon: <LuSettings className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/webhooks', matches: ['/sabsms/webhooks'] },
+  { key: 'sabsms-api-keys', label: 'Developer API', icon: <LuKey className="h-[15px] w-[15px]" strokeWidth={1.75} />, href: '/sabsms/api-keys', matches: ['/sabsms/api-keys'] },
 ];
 
 const crmServices: NavEntry[] = [
@@ -2765,7 +2769,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
                             ? [sabchatPrimary, sabchatAutomate, sabchatConfigure]
                             : context === 'email'
                               ? [emailPrimary, emailConfigure]
-                              : context === 'sms'
+                              : context === 'sabsms'
                                 ? [smsPrimary, smsConfigure]
                                 : context === 'settings'
                                   ? [settingsPrimary, settingsDeveloper, settingsBilling]
@@ -2785,7 +2789,7 @@ function useActiveKey(context: ClayLayoutContext = 'sabnode'): string {
     context === 'hrm' ? 'hrm-overview' :
     context === 'sabchat' ? 'sc-inbox' :
     context === 'email' ? 'em-overview' :
-    context === 'sms' ? 'sms-overview' :
+    context === 'sabsms' ? 'sabsms-overview' :
     context === 'settings' ? 'set-overview' : 'home';
   let bestLen = 0;
   for (const group of registry) {
@@ -3051,8 +3055,8 @@ export function ClayDashboardLayout({
                 <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/email')}>
                   <LuMail className="mr-2 h-4 w-4" /> Email campaign
                 </ZoruDropdownMenuItem>
-                <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/sms')}>
-                  <LuSmartphone className="mr-2 h-4 w-4" /> SMS campaign
+                <ZoruDropdownMenuItem onSelect={() => router.push('/sabsms/campaigns')}>
+                  <LuSmartphone className="mr-2 h-4 w-4" /> SabSMS campaign
                 </ZoruDropdownMenuItem>
                 <ZoruDropdownMenuItem onSelect={() => router.push('/dashboard/sabchat')}>
                   <LuBot className="mr-2 h-4 w-4" /> SabChat bot

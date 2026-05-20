@@ -51,7 +51,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string, i
     // Standalone
     { id: 'chatbot', name: 'AI Chatbot Builder', icon: Bot },
     { id: 'email', name: 'Email Suite', icon: Mail },
-    { id: 'sms', name: 'SMS Suite', icon: MessageSquare },
+    { id: 'sabsms', name: 'SabSMS — SMS / MMS / RCS', icon: MessageSquare },
     { id: 'seo', name: 'SEO Suite', icon: TrendingUp },
     { id: 'websiteBuilder', name: 'Website Builder', icon: Brush },
     { id: 'urlShortener', name: 'URL Shortener', icon: LinkIcon },
@@ -103,7 +103,7 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     instagramMessages: true,
     chatbot: true,
     email: true,
-    sms: true,
+    sabsms: true,
     seo: true,
     websiteBuilder: true,
 

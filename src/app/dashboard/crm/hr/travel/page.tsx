@@ -12,7 +12,7 @@
 import * as React from 'react';
 import { Plane } from 'lucide-react';
 
-import { HrListShell, HrDateCell, HrStatusCell } from '../_components/hr-list-shell';
+import { HrListShell, HrDateCell, HrStatusCell, type HrExportColumn } from '../_components/hr-list-shell';
 import {
   HrDeepListBody,
   type DeepColumn,
@@ -192,6 +192,26 @@ export default function TravelPage() {
     },
   ];
 
+  const EXPORT_COLS: HrExportColumn<TravelRow>[] = [
+    { label: 'Destination', value: (r) => r.destination ?? '' },
+    { label: 'Employee', value: (r) => r.employeeId ?? '' },
+    { label: 'Purpose', value: (r) => r.purpose ?? '' },
+    {
+      label: 'From Date',
+      value: (r) =>
+        r.fromDate ? new Date(r.fromDate as string).toISOString().slice(0, 10) : '',
+    },
+    {
+      label: 'To Date',
+      value: (r) =>
+        r.toDate ? new Date(r.toDate as string).toISOString().slice(0, 10) : '',
+    },
+    { label: 'Mode', value: (r) => r.mode ?? '' },
+    { label: 'Est. Cost', value: (r) => Number(r.estimatedCost) || 0 },
+    { label: 'Currency', value: (r) => r.currency ?? '' },
+    { label: 'Status', value: (r) => getRowStatus(r) },
+  ];
+
   const exportColumns: DeepExportColumn<TravelRow>[] = [
     { header: 'Destination', value: (r) => r.destination ?? '' },
     { header: 'Employee', value: (r) => r.employeeId ?? '' },
@@ -293,6 +313,8 @@ export default function TravelPage() {
             : undefined,
         },
       ]}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="travel-requests"
       onDelete={async (id) => {
         const res = await deleteTravelRequest(id);
         return { success: !!res?.success, error: res?.error };

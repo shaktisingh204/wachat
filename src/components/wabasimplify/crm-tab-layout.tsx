@@ -617,11 +617,14 @@ const emailMenuItems = [
 ];
 
 const smsMenuItems = [
-    { href: '/dashboard/sms', label: 'Overview', icon: LayoutGrid },
-    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: MessageSquare },
-    { href: '/dashboard/sms/templates', label: 'DLT Templates', icon: FileText },
-    { href: '/dashboard/sms/config', label: 'Configuration', icon: Settings },
-    { href: '/dashboard/sms/developer', label: 'Developer API', icon: Server },
+    { href: '/sabsms', label: 'Overview', icon: LayoutGrid },
+    { href: '/sabsms/inbox', label: 'Inbox', icon: MessageSquare },
+    { href: '/sabsms/campaigns', label: 'Campaigns', icon: MessageSquare },
+    { href: '/sabsms/templates', label: 'Templates', icon: FileText },
+    { href: '/sabsms/numbers', label: 'Numbers', icon: Settings },
+    { href: '/sabsms/providers', label: 'Providers', icon: Server },
+    { href: '/sabsms/compliance', label: 'Compliance', icon: ShieldCheck },
+    { href: '/sabsms/api-keys', label: 'Developer API', icon: Server },
 ];
 
 const apiMenuItems = [
@@ -688,7 +691,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
         else if (pathname.startsWith('/dashboard/team')) { currentApp = 'team'; }
         else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
-        else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
+        else if (pathname.startsWith('/sabsms')) { currentApp = 'sabsms'; }
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
         else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
         else if (pathname.startsWith('/dashboard/sabchat')) { currentApp = 'sabchat'; }
@@ -722,7 +725,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         { id: 'sabflow', icon: Workflow, label: 'SabFlow', href: '/dashboard/sabflow' },
         { id: 'team', icon: UsersRound, label: 'Team', href: '/dashboard/team' },
         { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
-        { id: 'sms', icon: MessageSquareText, label: 'SMS', href: '/dashboard/sms' },
+        { id: 'sabsms', icon: MessageSquareText, label: 'SabSMS', href: '/sabsms' },
         { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
         { id: 'website-builder', icon: LayoutTemplate, label: 'Website', href: '/dashboard/website-builder' },
         { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
@@ -914,7 +917,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                     {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                                 </SidebarMenu>
                             )}
-                            {activeApp === 'sms' && (
+                            {activeApp === 'sabsms' && (
                                 <SidebarMenu>
                                     {smsMenuItems.map((item: any) => (item as any).subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
                                 </SidebarMenu>

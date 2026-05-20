@@ -1,5 +1,6 @@
 import 'server-only';
 import { MongoClient, Db } from 'mongodb';
+import { ensureIndexes } from './ensure-indexes';
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
@@ -27,6 +28,8 @@ export async function connectToDatabase() {
 
   cachedClient = client;
   cachedDb = db;
+
+  ensureIndexes(db);
 
   return { client, db };
 }

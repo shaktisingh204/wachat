@@ -27,24 +27,11 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
+import type { ForgeHttpRequest, ForgeHttpResponse } from '../../../helpers';
 
 const BASE = 'https://api.stripe.com/v1';
-
-function b64(input: string): string {
-  if (typeof btoa === 'function') return btoa(input);
-  const g = globalThis as { Buffer?: { from: (s: string) => { toString: (enc: string) => string } } };
-  if (g.Buffer) return g.Buffer.from(input).toString('base64');
-  throw new Error('Stripe: no base64 encoder available in this runtime');
-}
-
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('Stripe', ctx.credential);
-  const key = asString(cred.secretKey || cred.apiKey);
-  if (!key) throw new Error('Stripe: credential is missing `secretKey`');
-  return { Authorization: `Basic ${b64(`${key}:`)}` };
-}
 
 /** Flatten a nested object into Stripe's bracketed form-encoded key paths. */
 function encodeForm(input: Record<string, unknown>, prefix = ''): string[] {
@@ -70,19 +57,39 @@ function encodeForm(input: Record<string, unknown>, prefix = ''): string[] {
   return out;
 }
 
+/** Stripe uses HTTP Basic with the secretKey as the username and an empty
+ *  password (`sk_xxx:`); handled by `basic-custom` with no passField. */
+async function stripeReq(
+  ctx: ForgeActionContext,
+  req: Omit<ForgeHttpRequest, 'userField'>,
+): Promise<ForgeHttpResponse> {
+  requireCredential('Stripe', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('basic-custom', {
+    ...req,
+    userField: 'secretKey',
+  });
+  if (!r.ok) {
+    const text =
+      typeof r.data === 'string' ? r.data : JSON.stringify(r.data ?? null);
+    const clip = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    throw new Error(`Stripe ${req.method} ${req.url} failed (${r.status}): ${clip}`);
+  }
+  return r;
+}
+
 async function stripeApi(
   ctx: ForgeActionContext,
   method: 'GET' | 'POST' | 'DELETE',
   path: string,
   form?: Record<string, unknown>,
 ): Promise<unknown> {
-  const headers: Record<string, string> = { ...authHeaders(ctx) };
+  const headers: Record<string, string> = {};
   let body: string | undefined;
   if (form && Object.keys(form).length > 0) {
     headers['Content-Type'] = 'application/x-www-form-urlencoded';
     body = encodeForm(form).join('&');
   }
-  const res = await apiRequest({ service: 'Stripe', method, url: `${BASE}${path}`, headers, body });
+  const res = await stripeReq(ctx, { method, url: `${BASE}${path}`, headers, body });
   return res.data;
 }
 
@@ -142,7 +149,6 @@ async function customerGet(ctx: ForgeActionContext): Promise<ForgeActionResult> 
 }
 
 async function customerListAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const headers = authHeaders(ctx);
   const maxItems = asNumber(ctx.options.maxItems) ?? 500;
   const pageSize = asString(ctx.options.pageSize) || '100';
   const email = asString(ctx.options.email);
@@ -154,11 +160,9 @@ async function customerListAll(ctx: ForgeActionContext): Promise<ForgeActionResu
       qs.set('limit', pageSize);
       if (cursor) qs.set('starting_after', cursor);
       if (email) qs.set('email', email);
-      const res = await apiRequest({
-        service: 'Stripe',
+      const res = await stripeReq(ctx, {
         method: 'GET',
         url: `${BASE}/customers?${qs.toString()}`,
-        headers,
       });
       const body = res.data as { data?: Array<{ id?: string }>; has_more?: boolean } | null;
       const items = (body?.data ?? []) as Array<{ id?: string }>;

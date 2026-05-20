@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import { LuLoader, LuTriangleAlert, LuArrowRight } from 'react-icons/lu';
+import { LuLoader, LuTriangleAlert, LuArrowRight, LuSparkles } from 'react-icons/lu';
 import { CredentialSelect } from './CredentialSelect';
 import { selectClass } from './primitives';
 import type { CredentialType } from '@/lib/sabflow/credentials/types';
@@ -456,41 +456,57 @@ export function NodeSettings({ nodeType, values, onChange, onChangeBlockType }: 
       </div>
 
       {descriptor.stub && (() => {
-        // Check if we have a curated forge fallback for this stub.  When
-        // we do AND the caller wired `onChangeBlockType`, offer one-click
-        // migration so users escape the dead end.
+        // Two presentations:
+        //  • With fallback: this is a legacy descriptor whose modern
+        //    SabFlow equivalent is ready. Show a friendly "Upgrade
+        //    available" card with one-click swap as the primary action.
+        //    Avoids the alarming "broken" language for the common case.
+        //  • No fallback: rare. Surface the original warning so the user
+        //    knows the descriptor is configurable but not executable.
         const fallback = getStubFallback(descriptor.name);
-        return (
-          <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11.5px] text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-300 space-y-2">
-            <div className="flex items-start gap-2">
-              <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
-              <span>
-                This node is a stub — its executor is not yet implemented.
-                Configuration is available for testing the descriptor only.
-              </span>
-            </div>
-            {fallback && onChangeBlockType && (
-              <div className="flex items-center justify-between gap-3 rounded-md bg-amber-100/60 dark:bg-amber-900/30 px-2.5 py-1.5">
-                <div className="min-w-0">
-                  <p className="text-[11.5px] font-medium text-amber-800 dark:text-amber-200">
-                    Use{' '}
-                    <span className="font-semibold">{fallback.label}</span>{' '}
-                    instead
+        if (fallback && onChangeBlockType) {
+          return (
+            <div className="rounded-lg border border-sky-300 bg-sky-50 px-3 py-2.5 text-[11.5px] dark:border-sky-700/50 dark:bg-sky-950/30">
+              <div className="flex items-start gap-2">
+                <LuSparkles
+                  className="h-3.5 w-3.5 mt-0.5 shrink-0 text-sky-700 dark:text-sky-300"
+                  strokeWidth={2}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-semibold text-sky-900 dark:text-sky-100">
+                    Upgrade available — use{' '}
+                    <span className="underline decoration-dotted underline-offset-2">
+                      {fallback.label}
+                    </span>
                   </p>
-                  <p className="mt-0.5 text-[10.5px] text-amber-700/80 dark:text-amber-300/80 leading-snug">
+                  <p className="mt-0.5 text-[10.5px] leading-snug text-sky-800/85 dark:text-sky-200/80">
                     {fallback.rationale}
                   </p>
                 </div>
+              </div>
+              <div className="mt-2 flex justify-end">
                 <button
                   type="button"
                   onClick={() => onChangeBlockType(fallback.forgeType)}
-                  className="shrink-0 inline-flex items-center gap-1 rounded-md bg-amber-600 text-white px-2 py-1 text-[11px] font-semibold hover:bg-amber-700 transition-colors"
+                  className="inline-flex items-center gap-1 rounded-md bg-sky-600 text-white px-2.5 py-1 text-[11px] font-semibold hover:bg-sky-700 transition-colors"
                 >
-                  Swap
+                  Switch to {fallback.label}
                   <LuArrowRight className="h-3 w-3" strokeWidth={2.5} />
                 </button>
               </div>
-            )}
+            </div>
+          );
+        }
+        return (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-[11.5px] text-amber-700 dark:border-amber-700/50 dark:bg-amber-950/30 dark:text-amber-300">
+            <div className="flex items-start gap-2">
+              <LuTriangleAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" strokeWidth={1.8} />
+              <span>
+                This descriptor is configurable but its executor is not yet
+                shipped. The fields below test the schema only — the block
+                will not run.
+              </span>
+            </div>
           </div>
         );
       })()}

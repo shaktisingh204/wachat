@@ -20,6 +20,7 @@ import {
   HrChip,
   HrListShell,
   HrStatusCell,
+  type HrExportColumn,
 } from '../../hr/_components/hr-list-shell';
 
 type Row = {
@@ -75,6 +76,14 @@ export default function AppraisalReviewsPage() {
     refresh();
   }, [refresh]);
 
+  const EXPORT_COLS: HrExportColumn<Row>[] = [
+    { label: 'Employee', value: (r) => r.employeeInfo ? `${r.employeeInfo.firstName ?? ''} ${r.employeeInfo.lastName ?? ''}`.trim() : '' },
+    { label: 'Reviewer', value: (r) => r.reviewerInfo?.name ?? '' },
+    { label: 'Cycle', value: (r) => r.cycle ?? '' },
+    { label: 'Status', value: (r) => r.status ?? '' },
+    { label: 'Review Date', value: (r) => r.reviewDate ? new Date(r.reviewDate).toISOString().slice(0, 10) : '' },
+  ];
+
   const kpis = React.useMemo(() => {
     const total = rows.length;
     const completed = rows.filter(
@@ -121,6 +130,8 @@ export default function AppraisalReviewsPage() {
       }}
       onDelete={deleteCrmAppraisalReview}
       onAfterChange={refresh}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="appraisal-reviews"
       emptyText="No appraisals yet"
       columns={[
         {

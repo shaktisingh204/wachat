@@ -126,7 +126,7 @@ function EmptyState({
       description="Link your WhatsApp Business Account to start messaging, automating, and tracking performance."
       action={
         <div className="flex items-center gap-2.5">
-          <Link href="/dashboard/setup">
+          <Link href="/dashboard/wachat/setup">
             <ZoruButton size="md">
               <Plus />
               Connect account
@@ -335,7 +335,7 @@ export default function SelectProjectPage() {
         </div>
         <div className="flex items-center gap-2">
           <SyncProjectsDialog onSuccess={reloadProjects} />
-          <Link href="/dashboard/setup">
+          <Link href="/dashboard/wachat/setup">
             <ZoruButton size="md">
               <Plus />
               Connect new

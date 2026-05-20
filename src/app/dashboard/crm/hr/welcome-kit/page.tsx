@@ -20,6 +20,7 @@ import {
   HrListShell,
   HrStatusCell,
   HrDateCell,
+  type HrExportColumn,
 } from '../_components/hr-list-shell';
 import {
   HrDeepListBody,
@@ -178,6 +179,21 @@ export default function WelcomeKitPage() {
     },
   ];
 
+  const EXPORT_COLS: HrExportColumn<WelcomeKitRow>[] = [
+    { label: 'Name', value: (r) => r.name ?? '' },
+    { label: 'Employee', value: (r) => r.employee_id ?? '' },
+    { label: 'Phase', value: (r) => rowPhase(r) },
+    { label: 'Status', value: (r) => getRowStatus(r) },
+    { label: 'Items', value: (r) => (Array.isArray(r.items) ? r.items.length : 0) },
+    {
+      label: 'Sent Date',
+      value: (r) =>
+        r.sent_date ? new Date(r.sent_date as string).toISOString().slice(0, 10) : '',
+    },
+    { label: 'Description', value: (r) => r.description ?? '' },
+    { label: 'Notes', value: (r) => r.notes ?? '' },
+  ];
+
   const exportColumns: DeepExportColumn<WelcomeKitRow>[] = [
     { header: 'Name', value: (r) => r.name ?? '' },
     { header: 'Employee', value: (r) => r.employee_id ?? '' },
@@ -220,6 +236,8 @@ export default function WelcomeKitPage() {
           hint: 'Within 14 days',
         },
       ]}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="welcome-kits"
       onDelete={async (id) => {
         const res = await deleteWelcomeKit(id);
         return { success: !!res?.success, error: res?.error };

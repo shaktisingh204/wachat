@@ -16,7 +16,10 @@ import {
 import {
   Plus,
   Pencil,
-  Trash2 } from 'lucide-react';
+  Trash2,
+  FileDown,
+} from 'lucide-react';
+import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
@@ -58,6 +61,11 @@ export interface HrListColumn<T> {
   numeric?: boolean;
 }
 
+export interface HrExportColumn<T> {
+  label: string;
+  value: (row: T) => string | number;
+}
+
 export interface HrListKpi {
   label: string;
   value: React.ReactNode;
@@ -94,6 +102,9 @@ export interface HrListShellProps<T> {
   children?: React.ReactNode;
   /** Optional refresh trigger after delete. */
   onAfterChange?: () => void;
+  /** If provided, a "Export CSV" button appears in the actions area. */
+  exportColumns?: HrExportColumn<T>[];
+  exportBaseName?: string;
 }
 
 const DEFAULT_GET_ID = (row: unknown): string =>
@@ -121,6 +132,8 @@ export function HrListShell<T>({
   extraFilters,
   children,
   onAfterChange,
+  exportColumns,
+  exportBaseName,
 }: HrListShellProps<T>): React.JSX.Element {
   const { toast } = useZoruToast();
   const [search, setSearch] = React.useState('');
@@ -142,6 +155,18 @@ export function HrListShell<T>({
     }
     return out;
   }, [rows, statusFilter, search, getRowStatus, searchPredicate]);
+
+  const handleExport = React.useCallback(() => {
+    if (!exportColumns || exportColumns.length === 0) return;
+    const headers = exportColumns.map((c) => c.label);
+    const exportRows = filtered.map((r) => {
+      const row: Record<string, string | number> = {};
+      exportColumns.forEach((c) => { row[c.label] = c.value(r); });
+      return row;
+    });
+    downloadCsv(`${exportBaseName ?? 'export'}-${dateStamp()}.csv`, headers, exportRows);
+    toast({ title: `Exported ${exportRows.length} rows` });
+  }, [exportColumns, exportBaseName, filtered, toast]);
 
   const toggleOne = React.useCallback(
     (id: string) => {
@@ -199,12 +224,20 @@ export function HrListShell<T>({
         title={title}
         subtitle={subtitle}
         primaryAction={
-          <ZoruButton asChild>
-            <Link href={newHref}>
-              <Plus className="h-4 w-4" />
-              New
-            </Link>
-          </ZoruButton>
+          <div className="flex items-center gap-2">
+            {exportColumns && exportColumns.length > 0 ? (
+              <ZoruButton variant="outline" size="sm" onClick={handleExport}>
+                <FileDown className="h-4 w-4" />
+                CSV
+              </ZoruButton>
+            ) : null}
+            <ZoruButton asChild>
+              <Link href={newHref}>
+                <Plus className="h-4 w-4" />
+                New
+              </Link>
+            </ZoruButton>
+          </div>
         }
         search={
           searchPredicate

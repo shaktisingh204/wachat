@@ -3,7 +3,7 @@ import 'server-only';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getTransporter } from '@/lib/email-service';
-import { SmsService } from '@/lib/sms/services/provider.factory';
+import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 import type { EmailSettings } from '@/lib/definitions';
 
 import {
@@ -96,73 +96,22 @@ export async function sendCrmEventSms(
   const enabled = await isCrmSmsTriggerEnabled(d.userId, d.eventKey);
   if (!enabled) return { sent: false, skipped: true };
 
-  const { db } = await connectToDatabase();
-  const config = await db.collection('sms_configs').findOne({
-    userId: new ObjectId(d.userId),
-  });
-  if (!config || !config.isActive) {
-    return { sent: false, error: 'No active SMS provider configuration.' };
-  }
-
-  const provider = await SmsService.getProvider(d.userId);
-  if (!provider) return { sent: false, error: 'Provider init failed.' };
-
-  // Resolve DLT template — explicit ID wins; otherwise match by prefix.
-  let dlt = {
-    dltTemplateId: '',
-    dltPrincipalEntityId: config.dlt?.principalEntityId || '',
-    dltHeaderId: '',
-  };
-  if (d.templateId) {
-    const tpl = await db
-      .collection('dlt_templates')
-      .findOne({ _id: new ObjectId(d.templateId) });
-    if (tpl) {
-      dlt.dltTemplateId = tpl.dltTemplateId;
-      dlt.dltHeaderId = tpl.headerId;
-    }
-  } else if (binding.templatePrefix) {
-    const tpl = await db.collection('dlt_templates').findOne({
-      userId: new ObjectId(d.userId),
-      name: { $regex: `^${escapeRegex(binding.templatePrefix)}` },
+  try {
+    const result = await sabsmsEngine.enqueueSend({
+      workspaceId: d.userId,
+      to: d.to,
+      body: d.message,
+      category: 'transactional',
+      eventKey: d.eventKey,
+      senderId: binding.senderId,
+      templateId: d.templateId,
+      templatePrefix: binding.templatePrefix,
     });
-    if (tpl) {
-      dlt.dltTemplateId = tpl.dltTemplateId;
-      dlt.dltHeaderId = tpl.headerId;
-    }
+    return {
+      sent: result.status === 'queued' || result.status === 'sent',
+      messageId: result.id,
+    };
+  } catch (e: any) {
+    return { sent: false, error: e?.message ?? 'send failed' };
   }
-
-  // Sender ID — pass through to the provider where supported. Providers
-  // that don't expose a sender override silently fall back to their
-  // account default; that's intended.
-  if (binding.senderId && (dlt as any).senderId !== binding.senderId) {
-    (dlt as any).senderId = binding.senderId;
-  }
-
-  const result = await provider.send(d.to, d.message, dlt as any);
-
-  await db.collection('sms_logs').insertOne({
-    userId: new ObjectId(d.userId),
-    to: d.to,
-    content: d.message,
-    provider: config.provider,
-    status: result.status,
-    providerMessageId: result.messageId,
-    error: result.error,
-    eventKey: d.eventKey,
-    senderId: binding.senderId,
-    sentAt: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  });
-
-  return {
-    sent: result.status === 'SENT' || result.status === 'QUEUED',
-    messageId: result.messageId,
-    error: result.error,
-  };
-}
-
-function escapeRegex(s: string): string {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

@@ -11,16 +11,6 @@ import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../types
 
 const str = (v: unknown): string => (typeof v === 'string' ? v : v == null ? '' : String(v));
 
-const basicAuth = (user: string, pass: string): string => {
-  // Works in both Node.js and Edge runtimes.
-  const payload = `${user}:${pass}`;
-  if (typeof Buffer !== 'undefined') {
-    return Buffer.from(payload, 'utf-8').toString('base64');
-  }
-  // Fallback: btoa is available in Edge/Browser.
-  return btoa(unescape(encodeURIComponent(payload)));
-};
-
 async function sendSms(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const accountSid = ctx.credential?.accountSid;
   const authToken = ctx.credential?.authToken;
@@ -37,22 +27,20 @@ async function sendSms(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   form.set('To', to);
   form.set('Body', body);
 
-  const res = await fetch(
-    `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}/Messages.json`,
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${basicAuth(accountSid, authToken)}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: form.toString(),
-    },
-  );
-  const data: unknown = await res.json();
+  // Twilio uses HTTP Basic with accountSid:authToken — `basic-custom` lets the
+  // helper own the header construction and base64 encoding.
+  const res = await ctx.helpers!.requestWithAuthentication('basic-custom', {
+    method: 'POST',
+    url: `https://api.twilio.com/2010-04-01/Accounts/${encodeURIComponent(accountSid)}/Messages.json`,
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: form.toString(),
+    userField: 'accountSid',
+    passField: 'authToken',
+  });
   if (!res.ok) throw new Error(`Twilio send SMS failed: ${res.status}`);
 
   const outputs: Record<string, unknown> = {};
-  if (outputVariable) outputs[outputVariable] = data;
+  if (outputVariable) outputs[outputVariable] = res.data;
   return { outputs, logs: [`Twilio: SMS sent to ${to}`] };
 }
 

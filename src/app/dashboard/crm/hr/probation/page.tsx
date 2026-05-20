@@ -13,7 +13,7 @@
 import * as React from 'react';
 import { ShieldCheck } from 'lucide-react';
 
-import { HrListShell, HrDateCell, HrStatusCell } from '../_components/hr-list-shell';
+import { HrListShell, HrDateCell, HrStatusCell, type HrExportColumn } from '../_components/hr-list-shell';
 import {
   HrDeepListBody,
   type DeepColumn,
@@ -90,6 +90,16 @@ function inDateRange(value: unknown, from: string, to: string): boolean {
 }
 
 export default function ProbationListPage() {
+  const EXPORT_COLS: HrExportColumn<ProbationRow>[] = [
+    { label: 'Employee', value: (r) => r.employeeName ?? r.employeeId ?? '' },
+    { label: 'Evaluator', value: (r) => r.evaluatorName ?? r.evaluatorId ?? '' },
+    { label: 'Status', value: (r) => getRowStatus(r) },
+    { label: 'Start Date', value: (r) => r.startDate ? new Date(r.startDate as unknown as string).toISOString().slice(0, 10) : '' },
+    { label: 'End Date', value: (r) => r.endDate ? new Date(r.endDate as unknown as string).toISOString().slice(0, 10) : '' },
+    { label: 'Overall Score', value: (r) => r.overallScore ?? '' },
+    { label: 'Recommendation', value: (r) => r.recommendation ?? '' },
+    { label: 'Notes', value: (r) => r.notes ?? '' },
+  ];
   const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<ProbationRow[]>([]);
   const [kpis, setKpis] = React.useState<CrmProbationKpis>(EMPTY_KPIS);
@@ -267,6 +277,8 @@ export default function ProbationListPage() {
           tone: 'green',
         },
       ]}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="probation"
       onDelete={async (id) => {
         const res = await deleteCrmProbation(id);
         return { success: res.success, error: res.error };

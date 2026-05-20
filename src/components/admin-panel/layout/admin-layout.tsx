@@ -40,7 +40,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
         else if (pathname.startsWith('/dashboard/team')) { currentApp = 'team'; }
         else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
-        else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
+        else if (pathname.startsWith('/sabsms')) { currentApp = 'sabsms'; }
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
         else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
         else if (pathname.startsWith('/dashboard/sabchat')) { currentApp = 'sabchat'; }

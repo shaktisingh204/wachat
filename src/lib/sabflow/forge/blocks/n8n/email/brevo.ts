@@ -35,16 +35,33 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
+import type { ForgeHttpRequest, ForgeHttpResponse } from '../../../helpers';
 
 const BASE = 'https://api.brevo.com/v3';
 
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('Brevo', ctx.credential);
-  const apiKey = cred.apiKey ?? '';
-  if (!apiKey) throw new Error('Brevo: credential is missing `apiKey`');
-  return { 'api-key': apiKey, Accept: 'application/json' };
+const BREVO_HEADERS = { Accept: 'application/json' };
+
+/** Brevo uses an `api-key` custom header — handled via `custom-header`. */
+async function brevoReq(
+  ctx: ForgeActionContext,
+  req: Omit<ForgeHttpRequest, 'headerName' | 'tokenField'>,
+): Promise<ForgeHttpResponse> {
+  requireCredential('Brevo', ctx.credential);
+  const r = await ctx.helpers!.requestWithAuthentication('custom-header', {
+    ...req,
+    headers: { ...BREVO_HEADERS, ...(req.headers ?? {}) },
+    headerName: 'api-key',
+    tokenField: 'apiKey',
+  });
+  if (!r.ok) {
+    const text =
+      typeof r.data === 'string' ? r.data : JSON.stringify(r.data ?? null);
+    const clip = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    throw new Error(`Brevo ${req.method} ${req.url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 async function contactCreate(ctx: ForgeActionContext): Promise<ForgeActionResult> {
@@ -66,11 +83,9 @@ async function contactCreate(ctx: ForgeActionContext): Promise<ForgeActionResult
   const updateEnabled = asString(ctx.options.updateEnabled);
   if (updateEnabled === 'true') body.updateEnabled = true;
 
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/contacts`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data, success: true }, logs: [`Brevo contact create → ${email}`] };
@@ -79,11 +94,9 @@ async function contactCreate(ctx: ForgeActionContext): Promise<ForgeActionResult
 async function contactGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const identifier = asString(ctx.options.identifier);
   if (!identifier) throw new Error('Brevo: identifier (email or id) is required');
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'GET',
     url: `${BASE}/contacts/${encodeURIComponent(identifier)}`,
-    headers: authHeaders(ctx),
   });
   return { outputs: { contact: res.data }, logs: [`Brevo contact get → ${identifier}`] };
 }
@@ -111,11 +124,9 @@ async function contactUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult
   if (Object.keys(body).length === 0) {
     throw new Error('Brevo: at least one updatable field must be set');
   }
-  await apiRequest({
-    service: 'Brevo',
+  await brevoReq(ctx, {
     method: 'PUT',
     url: `${BASE}/contacts/${encodeURIComponent(identifier)}`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { success: true, identifier }, logs: [`Brevo contact update → ${identifier}`] };
@@ -124,11 +135,9 @@ async function contactUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult
 async function contactDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const identifier = asString(ctx.options.identifier);
   if (!identifier) throw new Error('Brevo: identifier is required');
-  await apiRequest({
-    service: 'Brevo',
+  await brevoReq(ctx, {
     method: 'DELETE',
     url: `${BASE}/contacts/${encodeURIComponent(identifier)}`,
-    headers: authHeaders(ctx),
   });
   return { outputs: { success: true }, logs: [`Brevo contact delete → ${identifier}`] };
 }
@@ -160,11 +169,9 @@ async function transactionalSendEmail(ctx: ForgeActionContext): Promise<ForgeAct
       throw new Error('Brevo: params must be valid JSON');
     }
   }
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/smtp/email`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data }, logs: [`Brevo send → ${toEmail}`] };
@@ -186,11 +193,9 @@ async function contactUpsert(ctx: ForgeActionContext): Promise<ForgeActionResult
   if (listIdsRaw) {
     body.listIds = listIdsRaw.split(',').map((s) => Number(s.trim())).filter((n) => Number.isFinite(n));
   }
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/contacts`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data, success: true }, logs: [`Brevo contact upsert → ${email}`] };
@@ -211,11 +216,9 @@ async function contactGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult
       const url = listId
         ? `${BASE}/contacts/lists/${encodeURIComponent(listId)}/contacts?${qs.toString()}`
         : `${BASE}/contacts?${qs.toString()}`;
-      const res = await apiRequest({
-        service: 'Brevo',
+      const res = await brevoReq(ctx, {
         method: 'GET',
         url,
-        headers: authHeaders(ctx),
       });
       const body = res.data as { contacts?: unknown[]; count?: number } | null;
       const items = (body?.contacts ?? []) as unknown[];
@@ -245,11 +248,9 @@ async function transactionalSendTemplate(ctx: ForgeActionContext): Promise<Forge
       throw new Error('Brevo: params must be valid JSON');
     }
   }
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/smtp/email`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data }, logs: [`Brevo template send → ${toEmail}`] };
@@ -260,11 +261,9 @@ async function senderCreate(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const email = asString(ctx.options.email);
   if (!name) throw new Error('Brevo: name is required');
   if (!email) throw new Error('Brevo: email is required');
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/senders`,
-    headers: authHeaders(ctx),
     json: { name, email },
   });
   return { outputs: { result: res.data }, logs: [`Brevo sender create → ${email}`] };
@@ -273,21 +272,17 @@ async function senderCreate(ctx: ForgeActionContext): Promise<ForgeActionResult>
 async function senderDelete(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const id = asString(ctx.options.id);
   if (!id) throw new Error('Brevo: sender id is required');
-  await apiRequest({
-    service: 'Brevo',
+  await brevoReq(ctx, {
     method: 'DELETE',
     url: `${BASE}/senders/${encodeURIComponent(id)}`,
-    headers: authHeaders(ctx),
   });
   return { outputs: { success: true, id }, logs: [`Brevo sender delete → ${id}`] };
 }
 
 async function senderGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'GET',
     url: `${BASE}/senders`,
-    headers: authHeaders(ctx),
   });
   const body = res.data as { senders?: unknown[] } | null;
   const senders = body?.senders ?? [];
@@ -304,11 +299,9 @@ async function attributeCreate(ctx: ForgeActionContext): Promise<ForgeActionResu
   if (type) body.type = type;
   const value = asString(ctx.options.value);
   if (value) body.value = value;
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/contacts/attributes/${encodeURIComponent(category)}/${encodeURIComponent(name)}`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data, success: true }, logs: [`Brevo attribute create → ${category}/${name}`] };
@@ -319,21 +312,17 @@ async function attributeDelete(ctx: ForgeActionContext): Promise<ForgeActionResu
   const name = asString(ctx.options.name);
   if (!category) throw new Error('Brevo: category is required');
   if (!name) throw new Error('Brevo: name is required');
-  await apiRequest({
-    service: 'Brevo',
+  await brevoReq(ctx, {
     method: 'DELETE',
     url: `${BASE}/contacts/attributes/${encodeURIComponent(category)}/${encodeURIComponent(name)}`,
-    headers: authHeaders(ctx),
   });
   return { outputs: { success: true }, logs: [`Brevo attribute delete → ${category}/${name}`] };
 }
 
 async function attributeGetAll(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'GET',
     url: `${BASE}/contacts/attributes`,
-    headers: authHeaders(ctx),
   });
   const body = res.data as { attributes?: unknown[] } | null;
   const attributes = body?.attributes ?? [];
@@ -364,11 +353,9 @@ async function campaignCreate(ctx: ForgeActionContext): Promise<ForgeActionResul
       ? { listIds: listIdsRaw.split(',').map((s) => Number(s.trim())).filter((n) => Number.isFinite(n)) }
       : undefined,
   };
-  const res = await apiRequest({
-    service: 'Brevo',
+  const res = await brevoReq(ctx, {
     method: 'POST',
     url: `${BASE}/emailCampaigns`,
-    headers: authHeaders(ctx),
     json: body,
   });
   return { outputs: { result: res.data }, logs: [`Brevo campaign create → ${name}`] };

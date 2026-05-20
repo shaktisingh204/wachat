@@ -12,7 +12,7 @@
 import * as React from 'react';
 import { Wallet } from 'lucide-react';
 
-import { HrListShell, HrDateCell, HrStatusCell } from '../_components/hr-list-shell';
+import { HrListShell, HrDateCell, HrStatusCell, type HrExportColumn } from '../_components/hr-list-shell';
 import {
   HrDeepListBody,
   type DeepColumn,
@@ -101,6 +101,16 @@ function inDateRange(value: unknown, from: string, to: string): boolean {
 }
 
 export default function ExpenseClaimsPage() {
+  const EXPORT_COLS: HrExportColumn<ClaimRow>[] = [
+    { label: 'Title', value: (r) => r.title ?? '' },
+    { label: 'Employee', value: (r) => r.employeeId ?? '' },
+    { label: 'Category', value: (r) => r.category ?? '' },
+    { label: 'Amount', value: (r) => Number(r.amount) || 0 },
+    { label: 'Currency', value: (r) => r.currency ?? '' },
+    { label: 'Status', value: (r) => getRowStatus(r) },
+    { label: 'Incurred At', value: (r) => r.incurredAt ? new Date(r.incurredAt as string).toISOString().slice(0, 10) : '' },
+    { label: 'Notes', value: (r) => r.notes ?? '' },
+  ];
   const { toast } = useZoruToast();
   const [rows, setRows] = React.useState<ClaimRow[]>([]);
   const [kpis, setKpis] = React.useState<HrExpenseClaimKpis>(EMPTY_KPIS);
@@ -281,6 +291,8 @@ export default function ExpenseClaimsPage() {
           tone: kpis.rejected > 0 ? 'red' : 'neutral',
         },
       ]}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="expense-claims"
       onDelete={async (id) => {
         const res = await deleteExpenseClaim(id);
         return { success: !!res?.success, error: res?.error };

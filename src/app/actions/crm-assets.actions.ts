@@ -14,6 +14,7 @@ import { revalidatePath } from 'next/cache';
 
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { connectToDatabase } from '@/lib/mongodb';
 import { requirePermission } from '@/lib/rbac-server';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { RustApiError } from '@/lib/rust-client/fetcher';
@@ -93,9 +94,24 @@ export async function getAssets(
         return await crmAssetsApi.list(filters);
     } catch (e) {
         const { code, status, msg } = rustError(e);
-        console.error('[getAssets] rust call failed:', msg);
+        console.error('[getAssets] rust call failed; falling back to MongoDB:', msg);
         recordRustFallback({ entity: ENTITY_KIND, op: 'list', errorCode: code, status });
-        return empty;
+        try {
+            const { db } = await connectToDatabase();
+            const userId = session.user._id as string;
+            const query: Record<string, unknown> = { userId };
+            if (filters?.status) query.status = filters.status;
+            const items = await db
+                .collection('crm_assets')
+                .find(query)
+                .sort({ createdAt: -1 })
+                .limit(filters?.limit ?? 50)
+                .toArray() as CrmAssetDoc[];
+            return { items, page: filters?.page ?? 1, limit: filters?.limit ?? 50, hasMore: false };
+        } catch (dbErr) {
+            console.error('[getAssets] MongoDB fallback also failed:', dbErr);
+            return empty;
+        }
     }
 }
 
@@ -110,9 +126,18 @@ export async function getAssetById(id: string): Promise<CrmAssetDoc | null> {
         return await crmAssetsApi.getById(id);
     } catch (e) {
         const { code, status, msg } = rustError(e);
-        console.error('[getAssetById] rust call failed:', msg);
+        console.error('[getAssetById] rust call failed; falling back to MongoDB:', msg);
         recordRustFallback({ entity: ENTITY_KIND, op: 'get', errorCode: code, status });
-        return null;
+        try {
+            const { db } = await connectToDatabase();
+            const doc = await db
+                .collection('crm_assets')
+                .findOne({ _id: id }) as CrmAssetDoc | null;
+            return doc;
+        } catch (dbErr) {
+            console.error('[getAssetById] MongoDB fallback also failed:', dbErr);
+            return null;
+        }
     }
 }
 

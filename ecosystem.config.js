@@ -99,6 +99,41 @@ module.exports = {
     },
 
     // ---------------------------------------------------------------------
+    // SabSMS Engine (Rust — multi-provider SMS/MMS/RCS pipeline)
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabsms-engine',
+      cwd: './services/sabsms-engine',
+      script: './target/release/sabsms-engine',
+      instances: 1,
+      exec_mode: 'fork',
+      max_memory_restart: '512M',
+      watch: false,
+      autorestart: true,
+      restart_delay: 5000,
+      max_restarts: 20,
+      kill_timeout: 10000,
+      env: {
+        SABSMS_PORT: process.env.SABSMS_PORT || '4002',
+        SABSMS_ENGINE_TOKEN: process.env.SABSMS_ENGINE_TOKEN,
+        SABSMS_APP_CALLBACK_URL:
+          process.env.SABSMS_APP_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL,
+        SABSMS_WORKER_CONCURRENCY: process.env.SABSMS_WORKER_CONCURRENCY || '8',
+        SABSMS_TWILIO_ACCOUNT_SID: process.env.SABSMS_TWILIO_ACCOUNT_SID,
+        SABSMS_TWILIO_AUTH_TOKEN: process.env.SABSMS_TWILIO_AUTH_TOKEN,
+        SABSMS_TWILIO_DEFAULT_FROM: process.env.SABSMS_TWILIO_DEFAULT_FROM,
+        SABSMS_DEFAULT_WORKSPACE: process.env.SABSMS_DEFAULT_WORKSPACE,
+        SABSMS_ALLOW_UNSIGNED_WEBHOOKS:
+          process.env.SABSMS_ALLOW_UNSIGNED_WEBHOOKS || 'false',
+        MONGO_URL: process.env.MONGO_URL || process.env.MONGODB_URI,
+        MONGODB_URI: process.env.MONGODB_URI || process.env.MONGO_URL,
+        MONGODB_DB: process.env.MONGODB_DB || 'sabnode',
+        REDIS_URL: process.env.REDIS_URL,
+        RUST_LOG: process.env.RUST_LOG || 'info,sabsms_engine=debug',
+      },
+    },
+
+    // ---------------------------------------------------------------------
     // Next.js Frontend
     // ---------------------------------------------------------------------
     {
@@ -127,6 +162,12 @@ module.exports = {
         SABWA_ENGINE_URL:
           process.env.SABWA_ENGINE_URL || 'http://127.0.0.1:4001',
         SABWA_ENGINE_TOKEN: process.env.SABWA_ENGINE_TOKEN,
+
+        // SabSMS engine (Rust)
+        SABSMS_ENABLED: process.env.SABSMS_ENABLED || 'false',
+        SABSMS_ENGINE_URL:
+          process.env.SABSMS_ENGINE_URL || 'http://127.0.0.1:4002',
+        SABSMS_ENGINE_TOKEN: process.env.SABSMS_ENGINE_TOKEN,
       },
     },
 

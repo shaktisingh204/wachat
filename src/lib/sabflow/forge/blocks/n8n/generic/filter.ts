@@ -1,17 +1,19 @@
 /**
- * Forge block: Filter (filter an array of items)
+ * Forge block: Filter (per-item pass/fail routing)
  *
  * Source: n8n-master/packages/nodes-base/nodes/Filter/Filter.node.ts (+ V1, V2)
  * Credential type: none — pure data transform.
  *
  * Operations covered:
- *   - filter — keep array items for which a JS predicate returns truthy
+ *   - filter — evaluate a JS predicate PER ITEM. Items the predicate returns
+ *     truthy for go out the `pass` port; falsy items go out the `fail` port.
+ *     Each downstream branch sees only the items routed to it (Phase 12.5
+ *     per-item branching — same shape as the IF block).
  *
- * Out of scope: n8n's structured comparison-row UI (a UX surface, not a
- * runtime feature) — flow authors write a one-line JS predicate using `item`
- * and `vars`. Per-item iteration would also need sabflow's run-once-per-item
- * engine mode (Phase 7+ — currently the engine runs each block exactly once
- * per execution), so we keep the single-array I/O shape.
+ * Out of scope:
+ *   - n8n's structured comparison-row UI (a UX surface, not a runtime
+ *     feature) — flow authors write a one-line JS predicate using `$json`
+ *     for the current item and `vars` for flow variables.
  */
 import { registerForgeBlock } from '../../../registry';
 import type {
@@ -21,76 +23,85 @@ import type {
 } from '../../../types';
 import { asString } from '../_shared/http';
 
-function toArray(raw: unknown): unknown[] {
-  if (Array.isArray(raw)) return raw;
-  if (typeof raw === 'string') {
-    const s = raw.trim();
-    if (!s) return [];
-    try {
-      const parsed = JSON.parse(s);
-      return Array.isArray(parsed) ? parsed : [parsed];
-    } catch (err) {
-      throw new Error(`Filter: input is not a JSON array — ${(err as Error).message}`);
-    }
-  }
-  if (raw == null) return [];
-  return [raw];
+/** Compile the predicate ONCE per run instead of per item. New Function() is
+ *  intentional — sandboxing matches n8n's eval semantics, and the executor's
+ *  per-item iteration calls us repeatedly. */
+function compileCondition(
+  expr: string,
+): (vars: Record<string, unknown>, json: Record<string, unknown>) => unknown {
+  // eslint-disable-next-line @typescript-eslint/no-implied-eval
+  return new Function(
+    'vars',
+    '$json',
+    `"use strict"; return (${expr});`,
+  ) as (
+    vars: Record<string, unknown>,
+    json: Record<string, unknown>,
+  ) => unknown;
 }
 
 async function filter(ctx: ForgeActionContext): Promise<ForgeActionResult> {
-  const items = toArray(ctx.options.input);
   const expr = asString(ctx.options.predicate);
   if (!expr) throw new Error('Filter: predicate expression is required');
 
-  let predicate: (item: unknown, vars: Record<string, unknown>) => unknown;
+  let fn: ReturnType<typeof compileCondition>;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-implied-eval
-    predicate = new Function('item', 'vars', `"use strict"; return (${expr});`) as typeof predicate;
+    fn = compileCondition(expr);
   } catch (err) {
     throw new Error(`Filter: failed to compile predicate — ${(err as Error).message}`);
   }
 
-  const result: unknown[] = [];
-  for (const item of items) {
-    try {
-      if (predicate(item, ctx.variables ?? {})) result.push(item);
-    } catch (err) {
-      throw new Error(`Filter: predicate threw — ${(err as Error).message}`);
-    }
+  // One iteration sees one item. Always include BOTH ports in itemsByOutput
+  // (empty array for the unchosen one) so executeFlow's branch lookup finds
+  // them — a missing port would fall through to legacy single-stream routing.
+  const vars = ctx.variables ?? {};
+  const item = ctx.currentItem ?? {};
+  let condResult: unknown;
+  try {
+    condResult = fn(vars, item);
+  } catch (err) {
+    throw new Error(`Filter: predicate threw — ${(err as Error).message}`);
   }
+  const port: 'pass' | 'fail' = condResult ? 'pass' : 'fail';
+  const opposite: 'pass' | 'fail' = port === 'pass' ? 'fail' : 'pass';
 
   return {
-    outputs: { result, count: result.length },
-    logs: [`Filter → kept ${result.length} of ${items.length}`],
+    outputs: { passed: Boolean(condResult), item },
+    itemsByOutput: {
+      [port]: [item],
+      [opposite]: [],
+    },
+    selectedOutput: port,
+    logs: [`Filter → ${port}`],
   };
 }
 
 const block: ForgeBlock = {
   id: 'forge_filter',
   name: 'Filter',
-  description: 'Keep array items that satisfy a JavaScript predicate.',
+  description: 'Route each item to `pass` or `fail` based on a JavaScript predicate.',
   iconName: 'LuFilter',
   category: 'Logic',
+  // Two ports mirror IF — downstream blocks wire `outputs/main/0` to the
+  // pass branch and `outputs/main/1` to the fail branch.
+  outputs: [
+    { name: 'pass', displayName: 'pass' },
+    { name: 'fail', displayName: 'fail' },
+  ],
   auth: { type: 'none' },
   actions: [
     {
       id: 'filter',
-      label: 'Filter array',
-      description: 'Predicate receives `item` (current element) and `vars` (flow variables).',
+      label: 'Filter items',
+      description: 'Predicate receives `$json` (current item) and `vars` (flow variables).',
       fields: [
-        {
-          id: 'input',
-          label: 'Input array',
-          type: 'json',
-          required: true,
-          placeholder: '[ { "status": "paid" }, { "status": "pending" } ]',
-        },
         {
           id: 'predicate',
           label: 'Predicate (JavaScript)',
           type: 'code',
           required: true,
-          placeholder: "item.status === 'paid'",
+          placeholder: "$json.status === 'paid'",
+          helperText: 'Truthy → `pass` port; falsy → `fail` port.',
         },
       ],
       run: filter,

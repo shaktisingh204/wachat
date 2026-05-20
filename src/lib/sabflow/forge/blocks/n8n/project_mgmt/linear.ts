@@ -24,7 +24,7 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
 
 const ENDPOINT = 'https://api.linear.app/graphql';
@@ -34,18 +34,21 @@ async function gql<T = unknown>(
   query: string,
   variables: Record<string, unknown>,
 ): Promise<T> {
-  const cred = requireCredential('Linear', ctx.credential);
-  const apiKey = cred.apiKey ?? cred.accessToken;
-  if (!apiKey) throw new Error('Linear: credential is missing `apiKey` field');
-
-  const res = await apiRequest({
-    service: 'Linear',
+  // Linear sends the api key verbatim in Authorization (no `Bearer ` prefix);
+  // handled by the `raw` scheme.
+  requireCredential('Linear', ctx.credential);
+  const res = await ctx.helpers!.requestWithAuthentication('raw', {
     method: 'POST',
     url: ENDPOINT,
-    headers: { Authorization: apiKey },
+    tokenField: 'apiKey',
     json: { query, variables },
   });
-
+  if (!res.ok) {
+    const text =
+      typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? null);
+    const clip = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    throw new Error(`Linear POST ${ENDPOINT} failed (${res.status}): ${clip}`);
+  }
   const body = res.data as { data?: T; errors?: Array<{ message: string }> };
   if (body?.errors?.length) {
     throw new Error(`Linear GraphQL: ${body.errors.map((e) => e.message).join('; ')}`);

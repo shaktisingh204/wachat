@@ -147,12 +147,12 @@ export const ZORU_APPS: ZoruAppDescriptor[] = [
     isActive: (p) => !!p?.startsWith("/dashboard/email"),
   },
   {
-    id: "sms",
-    name: "SMS",
-    href: "/dashboard/sms",
+    id: "sabsms",
+    name: "SabSMS",
+    href: "/sabsms",
     Icon: SmsIcon,
     migration: "done",
-    isActive: (p) => !!p?.startsWith("/dashboard/sms"),
+    isActive: (p) => !!p?.startsWith("/sabsms"),
   },
   {
     id: "api",

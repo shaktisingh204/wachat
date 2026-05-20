@@ -15,6 +15,7 @@ import { revalidatePath } from 'next/cache';
 
 import { getSession } from '@/app/actions/user.actions';
 import { writeAuditEntry } from '@/lib/audit-log';
+import { connectToDatabase } from '@/lib/mongodb';
 import { recordRustFallback } from '@/lib/observability/rust-fallback-counter';
 import { requirePermission } from '@/lib/rbac-server';
 import { RustApiError } from '@/lib/rust-client';
@@ -119,14 +120,31 @@ export async function getReplyTemplates(
       hasMore: res.hasMore,
     };
   } catch (e) {
-    console.error('[getReplyTemplates] rust path failed:', e);
+    console.error('[getReplyTemplates] rust path failed; falling back to MongoDB:', e);
     recordRustFallback({
       entity: 'reply_template',
       op: 'list',
       errorCode: e instanceof RustApiError ? e.code : undefined,
       status: e instanceof RustApiError ? e.status : undefined,
     });
-    return { items: [], page, limit, hasMore: false, error: rustErr(e) };
+    try {
+      const { db } = await connectToDatabase();
+      const query: Record<string, unknown> = { userId: session.user._id };
+      if (params.category) query.category = params.category;
+      if (params.language) query.language = params.language;
+      if (params.isActive !== undefined) query.isActive = params.isActive;
+      const items = await db
+        .collection('crm_reply_templates')
+        .find(query)
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .toArray() as CrmReplyTemplateDoc[];
+      return { items, page, limit, hasMore: false };
+    } catch (dbErr) {
+      console.error('[getReplyTemplates] MongoDB fallback also failed:', dbErr);
+      return { items: [], page, limit, hasMore: false, error: rustErr(e) };
+    }
   }
 }
 
@@ -142,14 +160,23 @@ export async function getReplyTemplateById(
     return await crmReplyTemplatesApi.getById(id);
   } catch (e) {
     if (e instanceof RustApiError && e.status === 404) return null;
-    console.error('[getReplyTemplateById] rust path failed:', e);
+    console.error('[getReplyTemplateById] rust path failed; falling back to MongoDB:', e);
     recordRustFallback({
       entity: 'reply_template',
       op: 'get',
       errorCode: e instanceof RustApiError ? e.code : undefined,
       status: e instanceof RustApiError ? e.status : undefined,
     });
-    return null;
+    try {
+      const { db } = await connectToDatabase();
+      const doc = await db
+        .collection('crm_reply_templates')
+        .findOne({ _id: id }) as CrmReplyTemplateDoc | null;
+      return doc;
+    } catch (dbErr) {
+      console.error('[getReplyTemplateById] MongoDB fallback also failed:', dbErr);
+      return null;
+    }
   }
 }
 

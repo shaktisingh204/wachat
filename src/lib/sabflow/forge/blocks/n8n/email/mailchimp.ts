@@ -32,8 +32,9 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
+import type { ForgeHttpRequest, ForgeHttpResponse } from '../../../helpers';
 
 type MailchimpCred = { apiKey: string; serverPrefix: string };
 
@@ -47,13 +48,32 @@ function getCred(ctx: ForgeActionContext): MailchimpCred {
   return { apiKey, serverPrefix };
 }
 
-function authHeaders(c: MailchimpCred): Record<string, string> {
-  const basic = btoa(`anystring:${c.apiKey}`);
-  return { Authorization: `Basic ${basic}` };
-}
-
 function baseUrl(c: MailchimpCred): string {
   return `https://${c.serverPrefix}.api.mailchimp.com/3.0`;
+}
+
+/** Mailchimp uses HTTP Basic with the fixed literal `anystring` as the
+ *  username and the apiKey as the password — handled by `basic-custom` with
+ *  userLiteral. We centralise the request so error shaping stays consistent. */
+async function mcReq(
+  ctx: ForgeActionContext,
+  req: Omit<ForgeHttpRequest, 'userLiteral' | 'passField'>,
+): Promise<ForgeHttpResponse> {
+  const r = await ctx.helpers!.requestWithAuthentication('basic-custom', {
+    ...req,
+    userLiteral: 'anystring',
+    passField: 'apiKey',
+  });
+  if (!r.ok) {
+    const clip =
+      typeof r.data === 'string'
+        ? r.data.length > 300
+          ? `${r.data.slice(0, 300)}…`
+          : r.data
+        : JSON.stringify(r.data ?? null).slice(0, 300);
+    throw new Error(`Mailchimp ${req.method} ${req.url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 /** Lowercase-MD5 subscriber hash per Mailchimp docs. */
@@ -69,11 +89,9 @@ async function memberGet(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   if (!listId) throw new Error('Mailchimp: listId is required');
   if (!email) throw new Error('Mailchimp: email is required');
   const hash = await subscriberHash(email);
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'GET',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}`,
-    headers: authHeaders(cred),
   });
   return { outputs: { member: res.data }, logs: [`Mailchimp member get → ${email}`] };
 }
@@ -98,11 +116,9 @@ async function memberCreate(ctx: ForgeActionContext): Promise<ForgeActionResult>
   }
   if (language) body.language = language;
 
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members`,
-    headers: authHeaders(cred),
     json: body,
   });
   return { outputs: { member: res.data }, logs: [`Mailchimp member create → ${email}`] };
@@ -133,11 +149,9 @@ async function memberUpdate(ctx: ForgeActionContext): Promise<ForgeActionResult>
   }
 
   const hash = await subscriberHash(email);
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'PATCH',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}`,
-    headers: authHeaders(cred),
     json: body,
   });
   return { outputs: { member: res.data }, logs: [`Mailchimp member update → ${email}`] };
@@ -150,11 +164,9 @@ async function memberDelete(ctx: ForgeActionContext): Promise<ForgeActionResult>
   if (!listId) throw new Error('Mailchimp: listId is required');
   if (!email) throw new Error('Mailchimp: email is required');
   const hash = await subscriberHash(email);
-  await apiRequest({
-    service: 'Mailchimp',
+  await mcReq(ctx, {
     method: 'DELETE',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}`,
-    headers: authHeaders(cred),
   });
   return { outputs: { success: true }, logs: [`Mailchimp member delete → ${email}`] };
 }
@@ -175,11 +187,9 @@ async function memberListAll(ctx: ForgeActionContext): Promise<ForgeActionResult
       qs.set('count', String(pageSizeNum));
       qs.set('offset', offset);
       if (status) qs.set('status', status);
-      const res = await apiRequest({
-        service: 'Mailchimp',
+      const res = await mcReq(ctx, {
         method: 'GET',
         url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members?${qs.toString()}`,
-        headers: authHeaders(cred),
       });
       const body = res.data as {
         members?: unknown[];
@@ -222,11 +232,9 @@ async function memberUpsert(ctx: ForgeActionContext): Promise<ForgeActionResult>
     body.merge_fields = merge_fields;
   }
   const hash = await subscriberHash(email);
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'PUT',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}`,
-    headers: authHeaders(cred),
     json: body,
   });
   return { outputs: { member: res.data }, logs: [`Mailchimp member upsert → ${email}`] };
@@ -239,11 +247,9 @@ async function memberDeletePermanent(ctx: ForgeActionContext): Promise<ForgeActi
   if (!listId) throw new Error('Mailchimp: listId is required');
   if (!email) throw new Error('Mailchimp: email is required');
   const hash = await subscriberHash(email);
-  await apiRequest({
-    service: 'Mailchimp',
+  await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}/actions/delete-permanent`,
-    headers: authHeaders(cred),
   });
   return { outputs: { success: true }, logs: [`Mailchimp member delete-permanent → ${email}`] };
 }
@@ -258,11 +264,9 @@ async function memberTagSet(ctx: ForgeActionContext, status: 'active' | 'inactiv
   if (!tagsRaw) throw new Error('Mailchimp: at least one tag is required');
   const tags = tagsRaw.split(',').map((s) => s.trim()).filter(Boolean).map((name) => ({ name, status }));
   const hash = await subscriberHash(email);
-  await apiRequest({
-    service: 'Mailchimp',
+  await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/lists/${encodeURIComponent(listId)}/members/${hash}/tags`,
-    headers: authHeaders(cred),
     json: { tags },
   });
   return { outputs: { success: true, applied: tags.length }, logs: [`Mailchimp member tag ${label} → ${email}`] };
@@ -279,11 +283,9 @@ async function campaignGet(ctx: ForgeActionContext): Promise<ForgeActionResult> 
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
   if (!campaignId) throw new Error('Mailchimp: campaignId is required');
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'GET',
     url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}`,
-    headers: authHeaders(cred),
   });
   return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign get → ${campaignId}`] };
 }
@@ -292,11 +294,9 @@ async function campaignDelete(ctx: ForgeActionContext): Promise<ForgeActionResul
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
   if (!campaignId) throw new Error('Mailchimp: campaignId is required');
-  await apiRequest({
-    service: 'Mailchimp',
+  await mcReq(ctx, {
     method: 'DELETE',
     url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}`,
-    headers: authHeaders(cred),
   });
   return { outputs: { success: true, campaignId }, logs: [`Mailchimp campaign delete → ${campaignId}`] };
 }
@@ -305,11 +305,9 @@ async function campaignReplicate(ctx: ForgeActionContext): Promise<ForgeActionRe
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
   if (!campaignId) throw new Error('Mailchimp: campaignId is required');
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}/actions/replicate`,
-    headers: authHeaders(cred),
   });
   return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign replicate → ${campaignId}`] };
 }
@@ -318,11 +316,9 @@ async function campaignResend(ctx: ForgeActionContext): Promise<ForgeActionResul
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
   if (!campaignId) throw new Error('Mailchimp: campaignId is required');
-  const res = await apiRequest({
-    service: 'Mailchimp',
+  const res = await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}/actions/create-resend`,
-    headers: authHeaders(cred),
   });
   return { outputs: { campaign: res.data }, logs: [`Mailchimp campaign resend → ${campaignId}`] };
 }
@@ -341,11 +337,9 @@ async function campaignGetAll(ctx: ForgeActionContext): Promise<ForgeActionResul
       qs.set('count', String(pageSizeNum));
       qs.set('offset', offset);
       if (status) qs.set('status', status);
-      const res = await apiRequest({
-        service: 'Mailchimp',
+      const res = await mcReq(ctx, {
         method: 'GET',
         url: `${baseUrl(cred)}/campaigns?${qs.toString()}`,
-        headers: authHeaders(cred),
       });
       const body = res.data as { campaigns?: unknown[]; total_items?: number } | null;
       const items = (body?.campaigns ?? []) as unknown[];
@@ -362,11 +356,9 @@ async function campaignSend(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const cred = getCred(ctx);
   const campaignId = asString(ctx.options.campaignId);
   if (!campaignId) throw new Error('Mailchimp: campaignId is required');
-  await apiRequest({
-    service: 'Mailchimp',
+  await mcReq(ctx, {
     method: 'POST',
     url: `${baseUrl(cred)}/campaigns/${encodeURIComponent(campaignId)}/actions/send`,
-    headers: authHeaders(cred),
   });
   return { outputs: { success: true, campaignId }, logs: [`Mailchimp campaign send → ${campaignId}`] };
 }

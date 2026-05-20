@@ -32,29 +32,43 @@
  *   - Binary file uploads (only URL/file_id passthrough supported); inline-keyboard reply_markup builder
  *   - sendMediaGroup (multi-attachment payload builder)
  *   - SEND_AND_WAIT_OPERATION (uses webhook trigger system)
+ *
+ * Auth: every call uses the platform `path-segment` scheme — the bot token
+ * is spliced into the URL itself (`/bot{token}/{method}`), so no Authorization
+ * header is sent and the helper handles URL-encoding (token bodies contain
+ * `:` which must be `%3A`).
  */
 
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
-
-const TELEGRAM_BASE = 'https://api.telegram.org';
+import { asString, requireCredential } from '../_shared/http';
 
 async function tg(
   ctx: ForgeActionContext,
   endpoint: string,
   body: Record<string, unknown>,
 ): Promise<unknown> {
-  const cred = requireCredential('Telegram', ctx.credential);
-  const token = cred.botToken ?? cred.accessToken;
-  if (!token) throw new Error('Telegram: credential missing `botToken`');
+  // Pre-flight so the error message matches the rest of the n8n port —
+  // requireCredential surfaces a SabFlow-Connections hint that the generic
+  // helper's "missing field" message would lack. The helper still re-validates
+  // the field before sending.
+  requireCredential('Telegram', ctx.credential);
 
-  const res = await apiRequest({
-    service: 'Telegram',
+  const res = await ctx.helpers!.requestWithAuthentication('path-segment', {
     method: 'POST',
-    url: `${TELEGRAM_BASE}/bot${token}/${endpoint}`,
+    url: '',
+    urlTemplate: 'https://api.telegram.org/bot{token}/{method}',
+    pathParams: { method: endpoint },
+    tokenField: 'botToken',
     json: body,
   });
+  if (!res.ok) {
+    // Mirror the previous error surface — Telegram returns a 4xx with a
+    // structured `{ ok: false, description }` body.
+    const data = res.data as { description?: string } | null;
+    const desc = data?.description ?? `HTTP ${res.status}`;
+    throw new Error(`Telegram ${endpoint} failed: ${desc}`);
+  }
   const data = res.data as { ok?: boolean; result?: unknown; description?: string };
   if (data && data.ok === false) {
     throw new Error(`Telegram ${endpoint} failed: ${data.description ?? 'unknown error'}`);

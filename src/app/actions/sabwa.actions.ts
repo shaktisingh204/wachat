@@ -1935,7 +1935,7 @@ export async function suggestReply(
   _chatJid: string,
   _n: number = 3,
 ): Promise<SabwaActionResult<{ suggestions: string[] }>> {
-  throw new Error(NOT_IMPLEMENTED);
+  return { ok: false, error: 'This feature is coming soon.' };
 }
 
 /** Summarise the last `window` of messages in a chat. */
@@ -1944,7 +1944,7 @@ export async function summariseChat(
   _chatJid: string,
   _window: '24h' | '7d' | 'all',
 ): Promise<SabwaActionResult<{ summary: string }>> {
-  throw new Error(NOT_IMPLEMENTED);
+  return { ok: false, error: 'This feature is coming soon.' };
 }
 
 /** Translate a single message into the target language. */
@@ -1952,7 +1952,7 @@ export async function translateMessage(
   _messageId: IdLike,
   _targetLang: string,
 ): Promise<SabwaActionResult<{ translation: string; detectedLang?: string }>> {
-  throw new Error(NOT_IMPLEMENTED);
+  return { ok: false, error: 'This feature is coming soon.' };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════

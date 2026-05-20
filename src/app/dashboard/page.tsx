@@ -392,10 +392,10 @@ export default function HomePage() {
       onClick: () => router.push("/dashboard/sabchat"),
     },
     {
-      key: "sms",
-      title: "SMS Campaigns",
+      key: "sabsms",
+      title: "SabSMS Campaigns",
       meta: `${compact(stats.totalSmsSent)} sent · ${derived?.smsDeliveryRate ?? 0}% delivered`,
-      onClick: () => router.push("/dashboard/sms"),
+      onClick: () => router.push("/sabsms"),
     },
   ];
 
@@ -654,10 +654,10 @@ export default function HomePage() {
           />
           <ModuleTile
             icon={<Smartphone />}
-            name="SMS"
+            name="SabSMS"
             primary={compact(stats.totalSmsSent)}
             secondary={`${derived?.smsDeliveryRate ?? 0}% delivered`}
-            href="/dashboard/sms"
+            href="/sabsms"
             status={stats.totalSmsSent > 0 ? "ok" : "off"}
           />
           <ModuleTile

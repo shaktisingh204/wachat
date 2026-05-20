@@ -32,9 +32,10 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asString, requireCredential } from '../_shared/http';
+import { asString, requireCredential } from '../_shared/http';
 import { parseJsonObject } from '../_shared/json';
 import { paginateAll } from '../_shared/paginate';
+import type { ForgeHttpRequest, ForgeHttpResponse } from '../../../helpers';
 
 const API_VERSION = '2024-10';
 
@@ -46,11 +47,24 @@ function baseUrl(ctx: ForgeActionContext): string {
   return `https://${shop}/admin/api/${API_VERSION}`;
 }
 
-function authHeaders(ctx: ForgeActionContext): Record<string, string> {
-  const cred = requireCredential('Shopify', ctx.credential);
-  const token = asString(cred.accessToken);
-  if (!token) throw new Error('Shopify: credential is missing `accessToken`');
-  return { 'X-Shopify-Access-Token': token };
+/** Shopify Admin API uses a custom `X-Shopify-Access-Token` header rather
+ *  than Bearer — handled by the `custom-header` scheme. */
+async function shopifyReq(
+  ctx: ForgeActionContext,
+  req: Omit<ForgeHttpRequest, 'headerName' | 'tokenField'>,
+): Promise<ForgeHttpResponse> {
+  const r = await ctx.helpers!.requestWithAuthentication('custom-header', {
+    ...req,
+    headerName: 'X-Shopify-Access-Token',
+    tokenField: 'accessToken',
+  });
+  if (!r.ok) {
+    const text =
+      typeof r.data === 'string' ? r.data : JSON.stringify(r.data ?? null);
+    const clip = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    throw new Error(`Shopify ${req.method} ${req.url} failed (${r.status}): ${clip}`);
+  }
+  return r;
 }
 
 async function shopifyApi(
@@ -59,11 +73,9 @@ async function shopifyApi(
   path: string,
   json?: unknown,
 ): Promise<unknown> {
-  const res = await apiRequest({
-    service: 'Shopify',
+  const res = await shopifyReq(ctx, {
     method,
     url: `${baseUrl(ctx)}${path}`,
-    headers: authHeaders(ctx),
     json,
   });
   return res.data;
@@ -156,7 +168,6 @@ async function orderListAll(ctx: ForgeActionContext): Promise<ForgeActionResult>
   const status = asString(ctx.options.status) || 'any';
   const maxItems = Number(asString(ctx.options.maxItems) || '500');
   const pageSize = asString(ctx.options.pageSize) || '250';
-  const headers = authHeaders(ctx);
   const firstUrl = `${baseUrl(ctx)}/orders.json?status=${encodeURIComponent(status)}&limit=${encodeURIComponent(pageSize)}`;
 
   const orders = await paginateAll<unknown>({
@@ -166,9 +177,10 @@ async function orderListAll(ctx: ForgeActionContext): Promise<ForgeActionResult>
       // page_info tokens are tied to the original query, so we follow the URL
       // verbatim rather than reconstructing it.
       const url = cursor ?? firstUrl;
-      const res = await apiRequest({ service: 'Shopify', method: 'GET', url, headers });
+      const res = await shopifyReq(ctx, { method: 'GET', url });
       const items = ((res.data as { orders?: unknown[] } | null)?.orders ?? []) as unknown[];
-      const nextCursor = nextLinkFromHeader(res.headers.get('link'));
+      // helpers normalises header keys to lowercase via Headers.forEach.
+      const nextCursor = nextLinkFromHeader(res.headers.link);
       return { items, nextCursor };
     },
   });
@@ -251,7 +263,6 @@ async function productListAll(ctx: ForgeActionContext): Promise<ForgeActionResul
   const pageSize = asString(ctx.options.pageSize) || '250';
   const vendor = asString(ctx.options.vendor);
   const productType = asString(ctx.options.productType);
-  const headers = authHeaders(ctx);
   const firstUrl = `${baseUrl(ctx)}/products.json${buildQuery({
     limit: pageSize,
     vendor,
@@ -262,9 +273,9 @@ async function productListAll(ctx: ForgeActionContext): Promise<ForgeActionResul
     maxItems: Number.isFinite(maxItems) && maxItems > 0 ? maxItems : 500,
     async fetchPage(cursor) {
       const url = cursor ?? firstUrl;
-      const res = await apiRequest({ service: 'Shopify', method: 'GET', url, headers });
+      const res = await shopifyReq(ctx, { method: 'GET', url });
       const items = ((res.data as { products?: unknown[] } | null)?.products ?? []) as unknown[];
-      const nextCursor = nextLinkFromHeader(res.headers.get('link'));
+      const nextCursor = nextLinkFromHeader(res.headers.link);
       return { items, nextCursor };
     },
   });

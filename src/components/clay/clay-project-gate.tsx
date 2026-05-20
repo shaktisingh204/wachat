@@ -45,9 +45,9 @@ import { ClayBreadcrumbs } from './clay-breadcrumbs';
 const OPEN_ROUTES = new Set<string>([
   '/wachat',
   '/dashboard/',
-  '/dashboard/setup',
-  '/dashboard/setup/',
-  '/dashboard/setup/docs',
+  '/dashboard/wachat/setup',
+  '/dashboard/wachat/setup/',
+  '/dashboard/wachat/setup/docs',
 ]);
 
 export interface ClayProjectGateProps {
@@ -124,7 +124,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
             variant="obsidian"
             size="md"
             leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-            onClick={() => router.push('/dashboard/setup')}
+            onClick={() => router.push('/dashboard/wachat/setup')}
           >
             Connect account
           </ZoruButton>
@@ -191,7 +191,7 @@ export function ClayProjectGate({ children }: ClayProjectGateProps) {
                   variant="obsidian"
                   size="md"
                   leading={<LuPlus className="h-3.5 w-3.5" strokeWidth={2.5} />}
-                  onClick={() => router.push('/dashboard/setup')}
+                  onClick={() => router.push('/dashboard/wachat/setup')}
                 >
                   Connect WhatsApp account
                 </ZoruButton>

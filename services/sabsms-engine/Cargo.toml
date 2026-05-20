@@ -1,0 +1,62 @@
+[package]
+name = "sabsms-engine"
+version = "0.1.0"
+edition = "2021"
+description = "SabSMS — multi-provider SMS/MMS/RCS engine (Phase 1: Twilio + Mongo + Redis)"
+publish = false
+
+[[bin]]
+name = "sabsms-engine"
+path = "src/main.rs"
+
+[dependencies]
+# HTTP server
+axum = { version = "0.7", features = ["macros"] }
+tokio = { version = "1.40", features = ["full"] }
+tower = "0.5"
+tower-http = { version = "0.6", features = ["trace", "cors", "limit"] }
+
+# HTTP client (Twilio + Next callback)
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+
+# Storage
+mongodb = { version = "3.1", default-features = false, features = ["tokio-runtime", "rustls-tls"] }
+redis = { version = "0.27", default-features = false, features = ["tokio-comp", "tokio-rustls-comp"] }
+
+# Serde + time
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_urlencoded = "0.7"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+
+# Crypto for Twilio signature verification
+hmac = "0.12"
+sha1 = "0.10"
+sha2 = "0.10"
+base64 = "0.22"
+hex = "0.4"
+
+# Phone number normalisation
+phonenumber = "0.3"
+
+# Observability
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Errors + config
+anyhow = "1"
+thiserror = "2"
+dotenvy = "0.15"
+
+# Async traits
+async-trait = "0.1"
+
+[dev-dependencies]
+tokio = { version = "1.40", features = ["macros", "rt-multi-thread", "test-util"] }
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true

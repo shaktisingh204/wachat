@@ -48,15 +48,13 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 import { paginateAll } from '../_shared/paginate';
 
-function buildUrl(ctx: ForgeActionContext, path: string, extraQs?: Record<string, string>): string {
-  const cred = requireCredential('Pipedrive', ctx.credential);
-  const apiToken = cred.apiToken;
-  if (!apiToken) throw new Error('Pipedrive: credential is missing `apiToken` field');
+/** Build the Pipedrive URL with non-auth query params attached. The api_token
+ *  itself is injected later by the `query-param` helper scheme. */
+function buildUrl(path: string, extraQs?: Record<string, string>): string {
   const url = new URL(`https://api.pipedrive.com/v1${path}`);
-  url.searchParams.set('api_token', apiToken);
   if (extraQs) {
     for (const [k, v] of Object.entries(extraQs)) {
       if (v !== '') url.searchParams.set(k, v);
@@ -72,12 +70,20 @@ async function pdApi(
   json?: unknown,
   qs?: Record<string, string>,
 ): Promise<unknown> {
-  const res = await apiRequest({
-    service: 'Pipedrive',
+  requireCredential('Pipedrive', ctx.credential);
+  const res = await ctx.helpers!.requestWithAuthentication('query-param', {
     method,
-    url: buildUrl(ctx, path, qs),
+    url: buildUrl(path, qs),
+    paramName: 'api_token',
+    tokenField: 'apiToken',
     json,
   });
+  if (!res.ok) {
+    const text =
+      typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? null);
+    const clip = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    throw new Error(`Pipedrive ${method} ${path} failed (${res.status}): ${clip}`);
+  }
   const body = res.data as { success?: boolean; data?: unknown; error?: string } | null;
   if (body && body.success === false) {
     throw new Error(`Pipedrive ${method} ${path}: ${body.error ?? 'unknown error'}`);
@@ -106,6 +112,7 @@ async function pdListAll(
   path: string,
   opts: { maxItems: number; pageSize: string; extraQs?: Record<string, string> },
 ): Promise<unknown[]> {
+  requireCredential('Pipedrive', ctx.credential);
   return paginateAll<unknown>({
     maxItems: opts.maxItems,
     async fetchPage(cursor) {
@@ -114,8 +121,19 @@ async function pdListAll(
         start: cursor ?? '0',
         ...(opts.extraQs ?? {}),
       };
-      const url = buildUrl(ctx, path, qs);
-      const res = await apiRequest({ service: 'Pipedrive', method: 'GET', url });
+      // Use the helper directly (not pdApi) so we can read the pagination
+      // envelope verbatim — pdApi strips it down to `body.data`.
+      const res = await ctx.helpers!.requestWithAuthentication('query-param', {
+        method: 'GET',
+        url: buildUrl(path, qs),
+        paramName: 'api_token',
+        tokenField: 'apiToken',
+      });
+      if (!res.ok) {
+        const text =
+          typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? null);
+        throw new Error(`Pipedrive GET ${path} failed (${res.status}): ${text.slice(0, 300)}`);
+      }
       const body = res.data as {
         success?: boolean;
         data?: unknown[];

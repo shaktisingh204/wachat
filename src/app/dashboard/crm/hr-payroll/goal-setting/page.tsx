@@ -28,6 +28,7 @@ import {
   HrListShell,
   HrProgressCell,
   HrStatusCell,
+  type HrExportColumn,
 } from '../../hr/_components/hr-list-shell';
 
 type Row = WithId<CrmGoal> & {
@@ -48,6 +49,14 @@ export default function GoalSettingPage() {
   useEffect(() => {
     refresh();
   }, [refresh]);
+
+  const EXPORT_COLS: HrExportColumn<Row>[] = [
+    { label: 'Employee', value: (r) => r.assigneeInfo ? `${r.assigneeInfo.firstName ?? ''} ${r.assigneeInfo.lastName ?? ''}`.trim() : '' },
+    { label: 'Title', value: (r) => r.title ?? '' },
+    { label: 'Status', value: (r) => r.status ?? '' },
+    { label: 'Progress %', value: (r) => r.progress ?? 0 },
+    { label: 'Target Date', value: (r) => r.targetDate ? new Date(r.targetDate).toISOString().slice(0, 10) : '' },
+  ];
 
   const today = new Date();
   const kpis = React.useMemo(() => {
@@ -106,6 +115,8 @@ export default function GoalSettingPage() {
       }
       onDelete={deleteCrmGoal}
       onAfterChange={refresh}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="goal-setting"
       emptyText="No goals yet"
       columns={[
         {

@@ -283,12 +283,22 @@ export type GlobalRolePermissions = {
     email_verification?: ModulePermission;
     email_settings?: ModulePermission;
 
-    // SMS
-    sms_overview?: ModulePermission;
-    sms_campaigns?: ModulePermission;
-    sms_templates?: ModulePermission;
-    sms_config?: ModulePermission;
-    sms_developer?: ModulePermission;
+    // SabSMS (multi-provider SMS / MMS / RCS)
+    sabsms_overview?: ModulePermission;
+    sabsms_inbox?: ModulePermission;
+    sabsms_campaigns?: ModulePermission;
+    sabsms_templates?: ModulePermission;
+    sabsms_drips?: ModulePermission;
+    sabsms_numbers?: ModulePermission;
+    sabsms_providers?: ModulePermission;
+    sabsms_suppressions?: ModulePermission;
+    sabsms_consent?: ModulePermission;
+    sabsms_compliance?: ModulePermission;
+    sabsms_analytics?: ModulePermission;
+    sabsms_logs?: ModulePermission;
+    sabsms_webhooks?: ModulePermission;
+    sabsms_api_keys?: ModulePermission;
+    sabsms_settings?: ModulePermission;
 
     // SabChat
     sabchat_inbox?: ModulePermission;
@@ -2215,7 +2225,7 @@ export type PlanFeaturePermissions = {
     instagramMessages: boolean;
     chatbot: boolean;
     email: boolean;
-    sms: boolean;
+    sabsms: boolean;
     seo: boolean;
     websiteBuilder: boolean;
 

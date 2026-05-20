@@ -5,7 +5,11 @@
  *   (v2 implementation under /Sheet/v2)
  * Credential type: 'google_sheets' — fields: { clientId, clientSecret, refreshToken }
  *   Auth: exchange refresh token for access token at
- *   https://oauth2.googleapis.com/token; cached for the call lifetime only.
+ *   https://oauth2.googleapis.com/token via the shared `mintOAuthAccessToken`
+ *   helper (RFC 6749 §6). The minted token is then injected as a bearer
+ *   header into a `ctx.helpers.httpRequest(...)` call — we bypass
+ *   `requestWithAuthentication` because the helper closure carries the
+ *   original credential (refreshToken) rather than a fresh accessToken.
  *
  * Operations covered:
  *   - spreadsheet.create        POST   /v4/spreadsheets
@@ -22,48 +26,27 @@
  *
  * Out of scope:
  *   - LoadOptions for spreadsheet / sheet titles
- *   - Persistent access-token caching across runs
+ *   - Persistent access-token caching across cold starts (mintOAuthAccessToken
+ *     caches in-memory per process; cold starts re-mint, which is fine)
  *   - Spreadsheet delete (Sheets API has no delete; n8n uses Drive API for that)
  */
 
+import { mintOAuthAccessToken } from '../../../oauth-refresh';
 import { registerForgeBlock } from '../../../registry';
 import type {
   ForgeActionContext,
   ForgeActionResult,
   ForgeBlock,
 } from '../../../types';
-import { apiRequest, asNumber, asString, requireCredential } from '../_shared/http';
-import {
-  cacheKeyFor,
-  getCachedToken,
-  refreshAccessToken,
-  setCachedToken,
-} from '../_shared/oauth';
+import { asNumber, asString, requireCredential } from '../_shared/http';
 
 const SHEETS_BASE = 'https://sheets.googleapis.com/v4';
 
 async function getAccessToken(ctx: ForgeActionContext): Promise<string> {
   const cred = requireCredential('Google Sheets', ctx.credential);
-  const clientId = cred.clientId;
-  const clientSecret = cred.clientSecret;
-  const refreshToken = cred.refreshToken;
-  if (!clientId) throw new Error('Google Sheets: credential is missing `clientId`');
-  if (!clientSecret) throw new Error('Google Sheets: credential is missing `clientSecret`');
-  if (!refreshToken) throw new Error('Google Sheets: credential is missing `refreshToken`');
-
-  const key = cacheKeyFor('google_sheets', refreshToken);
-  const cached = getCachedToken(key);
-  if (cached) return cached;
-
-  const { accessToken, expiresIn } = await refreshAccessToken({
-    service: 'Google Sheets',
+  return mintOAuthAccessToken(cred, {
     tokenUrl: 'https://oauth2.googleapis.com/token',
-    refreshToken,
-    clientId,
-    clientSecret,
   });
-  setCachedToken(key, accessToken, expiresIn);
-  return accessToken;
 }
 
 async function sheetsApi(
@@ -73,13 +56,26 @@ async function sheetsApi(
   json?: unknown,
 ): Promise<unknown> {
   const accessToken = await getAccessToken(ctx);
-  const res = await apiRequest({
-    service: 'Google Sheets',
+  if (!ctx.helpers) {
+    throw new Error('Google Sheets: ctx.helpers is required (Forge platform v4+)');
+  }
+  const res = await ctx.helpers.httpRequest({
     method,
     url: `${SHEETS_BASE}${path}`,
     headers: { Authorization: `Bearer ${accessToken}` },
     json,
   });
+  if (!res.ok) {
+    // Surface a compact error without leaking the bearer token. The
+    // response body is already token-free (Sheets API never echoes auth).
+    const body =
+      typeof res.data === 'string'
+        ? res.data
+        : res.data === null || res.data === undefined
+          ? ''
+          : JSON.stringify(res.data);
+    throw new Error(`Google Sheets: ${method} ${path} → HTTP ${res.status}${body ? `: ${body}` : ''}`);
+  }
   return res.data;
 }
 

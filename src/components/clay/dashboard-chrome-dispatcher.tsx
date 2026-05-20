@@ -93,7 +93,7 @@ const WACHAT_PREFIXES = [
   '/wachat/auto-reply',
   '/wachat/whatsapp-pay',
   '/wachat/integrations',
-  '/dashboard/setup',
+  '/dashboard/wachat/setup',
   '/dashboard/wachat',
   '/wachat/analytics',
   '/wachat/qr-codes',

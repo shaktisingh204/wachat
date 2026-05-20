@@ -14,7 +14,7 @@
 import * as React from 'react';
 import { LineChart } from 'lucide-react';
 
-import { HrListShell } from '../_components/hr-list-shell';
+import { HrListShell, type HrExportColumn } from '../_components/hr-list-shell';
 import {
   HrDeepListBody,
   type DeepColumn,
@@ -103,6 +103,18 @@ function inDateRange(value: unknown, from: string, to: string): boolean {
 }
 
 export default function CompensationBandsPage() {
+  const EXPORT_COLS: HrExportColumn<BandRow>[] = [
+    { label: 'Role', value: (r) => r.title ?? '' },
+    { label: 'Level', value: (r) => r.level ?? '' },
+    { label: 'Department', value: (r) => r.department ?? '' },
+    { label: 'Min Salary', value: (r) => minSalary(r) },
+    { label: 'Max Salary', value: (r) => maxSalary(r) },
+    { label: 'Currency', value: (r) => r.currency ?? r.currency_type ?? '' },
+    { label: 'Active', value: (r) => String(r.isActive ?? '') },
+    { label: 'Last Reviewed', value: (r) => r.lastReviewedAt ? new Date(r.lastReviewedAt as string).toISOString().slice(0, 10) : '' },
+    { label: 'Updated At', value: (r) => r.updatedAt ? new Date(r.updatedAt as string).toISOString().slice(0, 10) : '' },
+    { label: 'Notes', value: (r) => r.notes ?? '' },
+  ];
   const [rows, setRows] = React.useState<BandRow[]>([]);
   const [kpis, setKpis] = React.useState<HrCompensationBandKpis>(EMPTY_KPIS);
   const [loading, setLoading] = React.useState(true);
@@ -238,6 +250,8 @@ export default function CompensationBandsPage() {
           hint: '>6 months since update',
         },
       ]}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="compensation-bands"
       onDelete={async (id) => {
         const res = await deleteCompensationBand(id);
         return { success: !!res?.success, error: res?.error };

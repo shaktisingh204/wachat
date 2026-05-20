@@ -53,7 +53,7 @@ const ALL_APPS: { id: string; label: string; icon: any; href: string; permission
     { id: 'crm',            label: 'CRM',            icon: CrmIcon,          href: '/dashboard/crm',                    permissionKey: 'crm_dashboard' },
     { id: 'team',           label: 'Team',           icon: UsersRound,       href: '/dashboard/team',                   permissionKey: 'team_users' },
     { id: 'email',          label: 'Email',          icon: Mail,             href: '/dashboard/email',                  permissionKey: 'email_dashboard' },
-    { id: 'sms',            label: 'SMS',            icon: MessageSquareText,href: '/dashboard/sms',                    permissionKey: 'sms_overview' },
+    { id: 'sabsms',         label: 'SabSMS',         icon: MessageSquareText,href: '/sabsms',                           permissionKey: 'sabsms_overview' },
     { id: 'sabchat',        label: 'SabChat',        icon: SabChatIcon,      href: '/dashboard/sabchat',                permissionKey: 'sabchat_inbox' },
     { id: 'seo-suite',      label: 'SEO Suite',      icon: SeoIcon,          href: '/dashboard/seo',                    permissionKey: 'seo_dashboard' },
     { id: 'website-builder',label: 'Website Builder',icon: LayoutTemplate,   href: '/dashboard/website-builder',        permissionKey: 'website_builder' },

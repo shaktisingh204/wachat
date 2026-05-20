@@ -43,7 +43,7 @@ export const appIcons = [
     { id: 'sabflow', icon: Workflow, label: 'SabFlow', href: '/dashboard/sabflow/flow-builder' },
     { id: 'team', icon: UsersRound, label: 'Team', href: '/dashboard/team/manage-users' },
     { id: 'email', icon: Mail, label: 'Email', href: '/dashboard/email' },
-    { id: 'sms', icon: MessageSquareText, label: 'SMS', href: '/dashboard/sms' },
+    { id: 'sabsms', icon: MessageSquareText, label: 'SabSMS', href: '/sabsms' },
     { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
     { id: 'website-builder', icon: LayoutTemplate, label: 'Website', href: '/dashboard/website-builder' },
     { id: 'url-shortener', icon: LinkIcon, label: 'Links', href: '/dashboard/url-shortener' },
@@ -455,11 +455,19 @@ export const emailMenuItems: MenuItem[] = [
 ];
 
 export const smsMenuItems: MenuItem[] = [
-    { href: '/dashboard/sms', label: 'Overview', icon: LayoutDashboard, permissionKey: 'sms_overview' },
-    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: MessageSquare, permissionKey: 'sms_campaigns' },
-    { href: '/dashboard/sms/templates', label: 'DLT Templates', icon: BookCopy, permissionKey: 'sms_templates' },
-    { href: '/dashboard/sms/config', label: 'Configuration', icon: Settings, permissionKey: 'sms_config' },
-    { href: '/dashboard/sms/developer', label: 'Developer API', icon: Server, permissionKey: 'sms_developer' },
+    { href: '/sabsms', label: 'Overview', icon: LayoutDashboard, permissionKey: 'sabsms_overview' },
+    { href: '/sabsms/inbox', label: 'Inbox', icon: Inbox, permissionKey: 'sabsms_inbox' },
+    { href: '/sabsms/campaigns', label: 'Campaigns', icon: MessageSquare, permissionKey: 'sabsms_campaigns' },
+    { href: '/sabsms/templates', label: 'Templates', icon: BookCopy, permissionKey: 'sabsms_templates' },
+    { href: '/sabsms/drips', label: 'Drip Sequences', icon: GitFork, permissionKey: 'sabsms_drips' },
+    { href: '/sabsms/numbers', label: 'Numbers', icon: Phone, permissionKey: 'sabsms_numbers' },
+    { href: '/sabsms/providers', label: 'Providers', icon: Server, permissionKey: 'sabsms_providers' },
+    { href: '/sabsms/suppressions', label: 'Suppressions', icon: ShieldCheck, permissionKey: 'sabsms_suppressions' },
+    { href: '/sabsms/compliance', label: 'Compliance', icon: ShieldCheck, permissionKey: 'sabsms_compliance' },
+    { href: '/sabsms/analytics', label: 'Analytics', icon: BarChart, permissionKey: 'sabsms_analytics' },
+    { href: '/sabsms/webhooks', label: 'Webhooks', icon: Webhook, permissionKey: 'sabsms_webhooks' },
+    { href: '/sabsms/api-keys', label: 'API Keys', icon: Key, permissionKey: 'sabsms_api_keys' },
+    { href: '/sabsms/settings', label: 'Settings', icon: Settings, permissionKey: 'sabsms_settings' },
 ];
 
 export const apiMenuItems: MenuItem[] = [

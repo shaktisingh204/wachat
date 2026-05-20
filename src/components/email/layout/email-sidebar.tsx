@@ -6,11 +6,19 @@ import type { LucideIcon } from 'lucide-react';
 import { ZoruButton } from '@/components/zoruui';
 import { cn } from '@/lib/utils';
 
+export interface EmailSidebarChildItem {
+  href: string;
+  label: string;
+  icon?: LucideIcon;
+  badge?: number | string;
+}
+
 export interface EmailSidebarItem {
   href: string;
   label: string;
   icon: LucideIcon;
   badge?: number | string;
+  children?: EmailSidebarChildItem[];
 }
 
 interface EmailSidebarProps {
@@ -39,25 +47,62 @@ export function EmailSidebar({ items, accountId }: EmailSidebarProps) {
         const Icon = item.icon;
 
         return (
-          <ZoruButton
-            key={item.href}
-            asChild
-            variant={isActive ? 'secondary' : 'ghost'}
-            className={cn(
-              'justify-start w-full gap-2',
-              isActive && 'bg-muted font-medium text-zoru-ink',
-            )}
-          >
-            <Link href={buildHref(item.href)}>
-              <Icon className="h-4 w-4" />
-              <span className="flex-1 text-left">{item.label}</span>
-              {item.badge !== undefined && (
-                <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                  {item.badge}
-                </span>
+          <div key={item.href}>
+            <ZoruButton
+              asChild
+              variant={isActive ? 'secondary' : 'ghost'}
+              className={cn(
+                'justify-start w-full gap-2',
+                isActive && 'bg-muted font-medium text-zoru-ink',
               )}
-            </Link>
-          </ZoruButton>
+            >
+              <Link href={buildHref(item.href)}>
+                <Icon className="h-4 w-4" />
+                <span className="flex-1 text-left">{item.label}</span>
+                {item.badge !== undefined && (
+                  <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                    {item.badge}
+                  </span>
+                )}
+              </Link>
+            </ZoruButton>
+
+            {isActive && item.children && item.children.length > 0 && (
+              <div className="ml-4 mt-0.5 mb-1 flex flex-col gap-0.5 border-l border-border pl-2">
+                {item.children.map((child) => {
+                  const isChildExact = child.href === item.href;
+                  const isChildActive = isChildExact
+                    ? pathname === child.href
+                    : pathname === child.href || pathname.startsWith(`${child.href}/`);
+                  const ChildIcon = child.icon;
+
+                  return (
+                    <ZoruButton
+                      key={child.href}
+                      asChild
+                      variant={isChildActive ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className={cn(
+                        'justify-start w-full gap-2 h-8 text-sm font-normal',
+                        isChildActive && 'bg-muted font-medium text-zoru-ink',
+                        !isChildActive && 'text-muted-foreground',
+                      )}
+                    >
+                      <Link href={buildHref(child.href)}>
+                        {ChildIcon && <ChildIcon className="h-3.5 w-3.5 shrink-0" />}
+                        <span className="flex-1 text-left">{child.label}</span>
+                        {child.badge !== undefined && (
+                          <span className="ml-auto text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                            {child.badge}
+                          </span>
+                        )}
+                      </Link>
+                    </ZoruButton>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         );
       })}
     </nav>

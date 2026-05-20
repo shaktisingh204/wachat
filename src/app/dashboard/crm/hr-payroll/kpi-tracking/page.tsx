@@ -30,6 +30,7 @@ import {
   HrChip,
   HrListShell,
   HrStatusCell,
+  type HrExportColumn,
 } from '../../hr/_components/hr-list-shell';
 
 type Row = WithId<CrmKpi>;
@@ -80,6 +81,16 @@ export default function KpiTrackingPage() {
       { label: 'Behind', value: behind, tone: 'red' as const },
     ];
   }, [rows]);
+
+  const EXPORT_COLS: HrExportColumn<StringRow>[] = [
+    { label: 'KPI Name', value: (r) => r.kpi_name ?? '' },
+    { label: 'Employee', value: (r) => r.employee_id ?? '' },
+    { label: 'Period', value: (r) => r.period ?? '' },
+    { label: 'Target', value: (r) => r.target_value },
+    { label: 'Actual', value: (r) => r.actual_value },
+    { label: 'Achievement %', value: (r) => achievementPct(r.target_value, r.actual_value) },
+    { label: 'Status', value: (r) => r.status ?? '' },
+  ];
 
   const stringRows: StringRow[] = rows.map((r) => ({
     ...r,
@@ -141,6 +152,8 @@ export default function KpiTrackingPage() {
       }
       onDelete={deleteCrmKpi}
       onAfterChange={refresh}
+      exportColumns={EXPORT_COLS}
+      exportBaseName="kpi-tracking"
       emptyText="No KPIs yet"
       extraFilters={
         <div className="flex items-center gap-2">

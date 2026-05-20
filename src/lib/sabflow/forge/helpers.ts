@@ -35,9 +35,35 @@ export type ForgeHttpRequest = {
   json?: unknown;
   /** Raw body — takes precedence over `json` when both are supplied. */
   body?: string;
-  /** Credential field that holds the token (bearer/apiKey). Defaults to
-   *  `accessToken` for bearer / `apiKey` for apiKey auth. */
+  /** Credential field that holds the token (bearer/apiKey/raw/custom-header/
+   *  query-param). Defaults to `accessToken` for bearer / `apiKey` for apiKey. */
   tokenField?: string;
+  /** Header name to use when scheme is `'custom-header'`
+   *  (e.g. `X-Shopify-Access-Token`, `api-key`, `Notion-Version`-style). */
+  headerName?: string;
+  /** Credential field used as the basic-auth username for `'basic-custom'`. */
+  userField?: string;
+  /** Credential field used as the basic-auth password for `'basic-custom'`.
+   *  When omitted the password is an empty string (Stripe-style). */
+  passField?: string;
+  /** Literal string to use as the basic-auth username for `'basic-custom'`,
+   *  bypassing credential lookup. Set this for APIs whose basic-auth user is
+   *  a fixed sentinel (e.g. Mailchimp requires `anystring:<apiKey>`). */
+  userLiteral?: string;
+  /** Literal basic-auth password (mirror of `userLiteral`); rarely needed. */
+  passLiteral?: string;
+  /** Query-string parameter name for `'query-param'` auth
+   *  (e.g. `api_token` for Pipedrive). */
+  paramName?: string;
+  /** Template URL for `'path-segment'` auth — the credential lives inside the
+   *  URL path itself (e.g. Telegram's `https://api.telegram.org/bot{token}/{method}`).
+   *  `{token}` is substituted from `credential[tokenField]` (default `apiToken`);
+   *  any other `{placeholder}` resolves against `pathParams[placeholder]`.
+   *  Required when scheme is `path-segment` — overrides `url`. */
+  urlTemplate?: string;
+  /** Non-credential placeholders for `urlTemplate` substitution
+   *  (e.g. `{method}` → `sendMessage`). Values are URL-encoded before splicing. */
+  pathParams?: Record<string, string>;
 };
 
 export type ForgeHttpResponse = {
@@ -48,7 +74,15 @@ export type ForgeHttpResponse = {
   headers: Record<string, string>;
 };
 
-export type ForgeAuthScheme = 'bearer' | 'basic' | 'apiKey';
+export type ForgeAuthScheme =
+  | 'bearer'
+  | 'basic'
+  | 'apiKey'
+  | 'custom-header'
+  | 'basic-custom'
+  | 'raw'
+  | 'query-param'
+  | 'path-segment';
 
 export type ForgeHelpers = {
   /**
@@ -150,15 +184,135 @@ export function makeHelpers(
         const b64 = Buffer.from(`${user}:${pass}`).toString('base64');
         return rawFetch(req, { Authorization: `Basic ${b64}` });
       }
-      // apiKey
-      const fieldName = req.tokenField ?? 'apiKey';
-      const key = credential[fieldName];
-      if (!key) {
-        throw new Error(
-          `helpers.requestWithAuthentication(apiKey): credential missing field "${fieldName}"`,
-        );
+      if (auth === 'apiKey') {
+        const fieldName = req.tokenField ?? 'apiKey';
+        const key = credential[fieldName];
+        if (!key) {
+          throw new Error(
+            `helpers.requestWithAuthentication(apiKey): credential missing field "${fieldName}"`,
+          );
+        }
+        return rawFetch(req, { 'X-Api-Key': key });
       }
-      return rawFetch(req, { 'X-Api-Key': key });
+      if (auth === 'custom-header') {
+        if (!req.headerName) {
+          throw new Error(
+            'helpers.requestWithAuthentication(custom-header): req.headerName is required',
+          );
+        }
+        if (!req.tokenField) {
+          throw new Error(
+            'helpers.requestWithAuthentication(custom-header): req.tokenField is required',
+          );
+        }
+        const token = credential[req.tokenField];
+        if (!token) {
+          throw new Error(
+            `helpers.requestWithAuthentication(custom-header): credential missing field "${req.tokenField}"`,
+          );
+        }
+        return rawFetch(req, { [req.headerName]: token });
+      }
+      if (auth === 'basic-custom') {
+        // Username: literal wins over credential field. Mailchimp's `anystring`
+        // sentinel and similar fixed users are configured via userLiteral.
+        let user = '';
+        if (req.userLiteral !== undefined) {
+          user = req.userLiteral;
+        } else if (req.userField) {
+          user = credential[req.userField] ?? '';
+        }
+        // Password: literal wins; otherwise lookup; missing passField → ''
+        // (covers Stripe `sk_xxx:` form).
+        let pass = '';
+        if (req.passLiteral !== undefined) {
+          pass = req.passLiteral;
+        } else if (req.passField) {
+          pass = credential[req.passField] ?? '';
+        }
+        if (!user && !pass) {
+          throw new Error(
+            'helpers.requestWithAuthentication(basic-custom): both username and password resolved empty',
+          );
+        }
+        const b64 = Buffer.from(`${user}:${pass}`).toString('base64');
+        return rawFetch(req, { Authorization: `Basic ${b64}` });
+      }
+      if (auth === 'raw') {
+        const fieldName = req.tokenField ?? 'apiKey';
+        const token = credential[fieldName];
+        if (!token) {
+          throw new Error(
+            `helpers.requestWithAuthentication(raw): credential missing field "${fieldName}"`,
+          );
+        }
+        return rawFetch(req, { Authorization: token });
+      }
+      if (auth === 'path-segment') {
+        // Telegram-style: the credential is spliced into the URL path itself
+        // (`/bot{token}/sendMessage`). No Authorization header — the URL IS
+        // the secret. Substitute the token AND any non-credential placeholders
+        // through encodeURIComponent so a `:` in `123:abc` becomes `%3A` and
+        // can't break out of the path segment.
+        if (!req.urlTemplate) {
+          throw new Error(
+            'helpers.requestWithAuthentication(path-segment): req.urlTemplate is required',
+          );
+        }
+        const fieldName = req.tokenField ?? 'apiToken';
+        const token = credential[fieldName];
+        if (!token) {
+          throw new Error(
+            `helpers.requestWithAuthentication(path-segment): credential missing field "${fieldName}"`,
+          );
+        }
+        const substituted = req.urlTemplate.replace(
+          /\{([^}]+)\}/g,
+          (_match, name: string) => {
+            if (name === 'token') return encodeURIComponent(token);
+            const v = req.pathParams?.[name];
+            if (v === undefined) {
+              // Never include the token value in this error — the name is
+              // safe but the value isn't.
+              throw new Error(
+                `helpers.requestWithAuthentication(path-segment): missing pathParams["${name}"] for urlTemplate placeholder`,
+              );
+            }
+            return encodeURIComponent(v);
+          },
+        );
+        const reqResolved: ForgeHttpRequest = { ...req, url: substituted };
+        return rawFetch(reqResolved, {});
+      }
+      if (auth === 'query-param') {
+        if (!req.paramName) {
+          throw new Error(
+            'helpers.requestWithAuthentication(query-param): req.paramName is required',
+          );
+        }
+        if (!req.tokenField) {
+          throw new Error(
+            'helpers.requestWithAuthentication(query-param): req.tokenField is required',
+          );
+        }
+        const token = credential[req.tokenField];
+        if (!token) {
+          throw new Error(
+            `helpers.requestWithAuthentication(query-param): credential missing field "${req.tokenField}"`,
+          );
+        }
+        // Mutate the URL rather than mixing into `req.query` so we don't depend
+        // on the caller building a fresh request object. NEVER log the token —
+        // the URL itself is the secret here.
+        const u = new URL(req.url);
+        u.searchParams.set(req.paramName, token);
+        const reqWithParam: ForgeHttpRequest = { ...req, url: u.toString() };
+        return rawFetch(reqWithParam, {});
+      }
+      // Exhaustiveness check — the union should be fully covered above.
+      throw new Error(
+        `helpers.requestWithAuthentication: unknown auth scheme "${String(auth)}"`,
+      );
     },
   };
 }

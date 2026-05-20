@@ -8,7 +8,7 @@ import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelli
 import { addCrmLeadAndDeal } from '@/app/actions/crm-deals.actions';
 import { createShortUrl } from '@/app/actions/url-shortener.actions';
 import { createQrCode } from '@/app/actions/qr-code.actions';
-import { sendQuickSms } from '@/app/actions/sms-quick.actions';
+import { sabsmsEngine } from '@/lib/sabsms/engine-client';
 import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
@@ -650,14 +650,14 @@ async function handleSmsAction(node: FlowNode, contact: WithId<Contact>, variabl
         return;
     }
 
-    // We use the new Quick Send action.
     try {
-        const result = await sendQuickSms(recipient, message);
-        if (!result.success) {
-            logger.log(`SMS action failed: ${result.error}`);
-        } else {
-            logger.log(`SMS sent successfully. Message ID: ${result.messageId}`);
-        }
+        const result = await sabsmsEngine.enqueueSend({
+            workspaceId: String(contact.projectId ?? ''),
+            to: recipient,
+            body: message,
+            category: 'transactional',
+        });
+        logger.log(`SMS queued via SabSMS engine. Message ID: ${result.id}`);
     } catch (e: any) {
         logger.log(`SMS action exception: ${e.message}`);
     }

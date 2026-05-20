@@ -1263,6 +1263,27 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
           leaf("pr-settings", "Settings", "/dashboard/hrm/payroll/settings", Settings, p),
         ],
       },
+
+      /* ─── Employee Portal ─── */
+      {
+        id: "hrm-portal",
+        label: "Employee Portal",
+        items: [
+          leaf("portal-home", "My Portal", "/dashboard/hrm/portal", Users, p, { exact: true }),
+          leaf("portal-roadmaps", "Roadmaps", "/dashboard/hrm/portal/roadmaps", MapIcon, p, { exact: true }),
+          leaf("portal-new-roadmap", "New roadmap", "/dashboard/hrm/portal/roadmaps/new", Plus, p),
+          leaf("portal-reports", "Task reports", "/dashboard/hrm/portal/reports", ClipboardList, p),
+        ],
+      },
+
+      /* ─── HRM Admin ─── */
+      {
+        id: "hrm-admin",
+        label: "HRM · Admin",
+        items: [
+          leaf("perm-groups", "Permission groups", "/dashboard/hrm/permission-groups", ShieldCheck, p),
+        ],
+      },
     ],
   },
 
@@ -1321,29 +1342,44 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
     ],
   },
 
-  /* ─────────────────────────────  SMS  ────────────────────────────── */
+  /* ─────────────────────────────  SabSMS  ──────────────────────────── */
   {
-    prefix: "/dashboard/sms",
-    heading: "SMS",
-    caption: "SMS sending & DLT",
+    prefix: "/sabsms",
+    heading: "SabSMS",
+    caption: "SMS · MMS · RCS",
     build: (p) => [
       {
-        id: "sms-main",
+        id: "sabsms-main",
         label: "Workspace",
         items: [
-          leaf("home", "Overview", "/dashboard/sms", Home, p),
-          leaf("campaigns", "Campaigns", "/dashboard/sms/campaigns", Megaphone, p),
-          leaf("campaigns-new", "New campaign", "/dashboard/sms/campaigns/new", Plus, p),
-          leaf("templates", "Templates", "/dashboard/sms/templates", FileText, p),
-          leaf("logs", "Logs", "/dashboard/sms/logs", FileSearch, p),
+          leaf("home", "Overview", "/sabsms", Home, p),
+          leaf("inbox", "Inbox", "/sabsms/inbox", MessageSquare, p),
+          leaf("campaigns", "Campaigns", "/sabsms/campaigns", Megaphone, p),
+          leaf("templates", "Templates", "/sabsms/templates", FileText, p),
+          leaf("drips", "Drip sequences", "/sabsms/drips", GitBranch, p),
         ],
       },
       {
-        id: "sms-ops",
+        id: "sabsms-audience",
+        label: "Audience",
+        items: [
+          leaf("contacts", "Contacts", "/sabsms/contacts", Users, p),
+          leaf("suppressions", "Suppressions", "/sabsms/suppressions", ShieldCheck, p),
+          leaf("consent", "Consent log", "/sabsms/consent", FileSearch, p),
+        ],
+      },
+      {
+        id: "sabsms-ops",
         label: "Operations",
         items: [
-          leaf("config", "Config", "/dashboard/sms/config", Settings, p),
-          leaf("developer", "Developer", "/dashboard/sms/developer", Code2, p),
+          leaf("numbers", "Numbers", "/sabsms/numbers", Phone, p),
+          leaf("providers", "Providers", "/sabsms/providers", ServerCog, p),
+          leaf("analytics", "Analytics", "/sabsms/analytics", BarChart3, p),
+          leaf("compliance", "Compliance", "/sabsms/compliance", ShieldCheck, p),
+          leaf("logs", "Message logs", "/sabsms/logs", FileSearch, p),
+          leaf("webhooks", "Webhooks", "/sabsms/webhooks", Webhook, p),
+          leaf("api-keys", "API keys", "/sabsms/api-keys", Code2, p),
+          leaf("settings", "Settings", "/sabsms/settings", Settings, p),
         ],
       },
     ],
@@ -1590,7 +1626,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("home", "Home", "/dashboard", Home, p),
           leaf("notifications", "Notifications", "/dashboard/notifications", Bell, p),
-          leaf("setup", "Setup", "/dashboard/setup", Sparkles, p),
+          leaf("setup", "Setup", "/dashboard/wachat/setup", Sparkles, p),
           leaf("notif-prefs", "Notification prefs", "/dashboard/notification-preferences", BellOff, p),
           leaf("credit-usage", "Credit usage", "/dashboard/credit-usage", Coins, p),
           leaf("billing", "Billing", "/dashboard/billing", CreditCard, p),

@@ -1,0 +1,141 @@
+'use client';
+
+import { useEffect, useRef, useState } from 'react';
+
+import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruInput,
+  ZoruLabel,
+  ZoruTextarea,
+} from '@/components/zoruui';
+import { sendDebugSms, fetchDebugStatus } from './actions';
+import type {
+  SabsmsMessage,
+  SabsmsMessageStatus,
+} from '@/lib/sabsms/types';
+
+const TERMINAL: SabsmsMessageStatus[] = [
+  'delivered',
+  'failed',
+  'undelivered',
+  'rejected',
+  'suppressed',
+];
+
+function statusVariant(s: SabsmsMessageStatus) {
+  if (s === 'delivered' || s === 'sent') return 'default' as const;
+  if (s === 'failed' || s === 'rejected' || s === 'undelivered') return 'destructive' as const;
+  return 'secondary' as const;
+}
+
+export function SabsmsDebugSendForm() {
+  const [to, setTo] = useState('');
+  const [body, setBody] = useState('SabSMS debug send 🚀');
+  const [submitting, setSubmitting] = useState(false);
+  const [messageId, setMessageId] = useState<string | null>(null);
+  const [status, setStatus] = useState<SabsmsMessageStatus | null>(null);
+  const [message, setMessage] = useState<SabsmsMessage | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    setMessageId(null);
+    setStatus(null);
+    setSubmitting(true);
+
+    const res = await sendDebugSms({ to, body });
+    setSubmitting(false);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    setMessageId(res.id);
+    setStatus(res.status);
+
+    if (TERMINAL.includes(res.status)) return;
+
+    if (pollRef.current) clearInterval(pollRef.current);
+    pollRef.current = setInterval(async () => {
+      const next = await fetchDebugStatus(res.id);
+      if (!next.ok) {
+        setError(next.error);
+        if (pollRef.current) clearInterval(pollRef.current);
+        return;
+      }
+      setMessage(next.message);
+      setStatus(next.message.status);
+      if (TERMINAL.includes(next.message.status) && pollRef.current) {
+        clearInterval(pollRef.current);
+      }
+    }, 1500);
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <ZoruLabel htmlFor="sabsms-debug-to">Destination (E.164)</ZoruLabel>
+        <ZoruInput
+          id="sabsms-debug-to"
+          required
+          placeholder="+15551234567"
+          value={to}
+          onChange={(e) => setTo(e.target.value)}
+          autoComplete="tel"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <ZoruLabel htmlFor="sabsms-debug-body">Body</ZoruLabel>
+        <ZoruTextarea
+          id="sabsms-debug-body"
+          required
+          rows={3}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+        <p className="text-xs text-slate-500">
+          {body.length} chars · GSM-7 splits at 160/153, UCS-2 at 70/67.
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <ZoruButton type="submit" disabled={submitting || !to || !body}>
+          {submitting ? 'Sending…' : 'Send debug SMS'}
+        </ZoruButton>
+        {status && (
+          <ZoruBadge variant={statusVariant(status)}>{status}</ZoruBadge>
+        )}
+        {messageId && (
+          <code className="rounded bg-slate-100 px-2 py-1 text-xs">
+            {messageId}
+          </code>
+        )}
+      </div>
+
+      {error && (
+        <p className="rounded border border-rose-200 bg-rose-50 p-3 text-sm text-rose-700">
+          {error}
+        </p>
+      )}
+
+      {message && (
+        <div className="rounded border border-slate-200 bg-slate-50 p-3 text-xs">
+          <div className="mb-2 font-semibold text-slate-700">Message doc</div>
+          <pre className="overflow-x-auto text-[11px] leading-relaxed text-slate-700">
+{JSON.stringify(message, null, 2)}
+          </pre>
+        </div>
+      )}
+    </form>
+  );
+}
