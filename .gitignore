@@ -160,4 +160,4 @@ src/config/site.ts
 # /src/components/wabasimplify/webhook-logs.tsx
 # /src/app/dashboard/crm/hr-payroll/settings/page.tsx
 .gitignore
-/Users/harshkhandelwal/Downloads/sabnode/services/sabwa-engine/target/
+/Users/harshkhandelwal/Downloads/sabnode/services/sabwa-engine/target/graphify-out/
