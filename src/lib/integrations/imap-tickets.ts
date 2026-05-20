@@ -127,7 +127,7 @@ function bodyToPlainText(parsed: ParsedEmail): string {
 
 async function uploadAttachmentToSabFiles(
   _tenantUserId: ObjectId,
-  attachment: { filename?: string; contentType?: string; content?: Buffer },
+  attachment: { filename?: string; contentType?: string; size?: number; content?: Buffer },
 ): Promise<string | null> {
   // Defer to the SabFiles client when it exposes a server-side upload
   // helper. The repo's current SabFiles surface is the React
@@ -136,8 +136,9 @@ async function uploadAttachmentToSabFiles(
   // blob upload. This keeps the ticket creation working end-to-end.
   // TODO(sabfiles): when `uploadBufferToSabFiles({userId, buffer, name, mime})`
   // ships, replace this stub.
+  const size = attachment.size ?? attachment.content?.length ?? 0;
   console.warn(
-    `[imap-tickets] TODO: SabFiles server upload not wired — skipping attachment "${attachment.filename ?? 'untitled'}" (${attachment.size ?? attachment.content?.length ?? 0} bytes)`,
+    `[imap-tickets] TODO: SabFiles server upload not wired — skipping attachment "${attachment.filename ?? 'untitled'}" (${size} bytes)`,
   );
   return null;
 }

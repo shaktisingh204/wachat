@@ -7,8 +7,8 @@ import {
   ZoruInput,
   ZoruKbd,
   ZoruPopover,
+  ZoruPopoverAnchor,
   ZoruPopoverContent,
-  ZoruPopoverTrigger,
 } from '@/components/zoruui';
 import { searchAll, type UniversalSearchResult } from '@/app/actions/universal-search.actions';
 import { cn } from '@/components/zoruui/lib/cn';
@@ -87,7 +87,7 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
 
   return (
     <ZoruPopover open={showDropdown} onOpenChange={setOpen}>
-      <ZoruPopoverTrigger asChild>
+      <ZoruPopoverAnchor asChild>
         <div className={cn('w-full max-w-md', className)}>
           <ZoruInput
             ref={inputRef}
@@ -103,12 +103,17 @@ export function UniversalSearch({ className }: UniversalSearchProps) {
             aria-label="Universal search"
           />
         </div>
-      </ZoruPopoverTrigger>
+      </ZoruPopoverAnchor>
       <ZoruPopoverContent
         align="start"
         sideOffset={6}
         className="w-[480px] max-w-[90vw] p-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          // Don't close when clicking the input itself.
+          const t = e.target as Node | null;
+          if (t && inputRef.current?.contains(t)) e.preventDefault();
+        }}
       >
         {query.trim().length < 2 ? (
           <div className="p-6 text-sm text-zoru-ink-muted">

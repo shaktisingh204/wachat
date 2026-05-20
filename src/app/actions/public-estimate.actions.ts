@@ -10,7 +10,6 @@
  *                         lineage reference to the source estimate)
  */
 
-import { ObjectId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { headers } from 'next/headers';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -60,7 +59,11 @@ export async function getPublicEstimate(hash: string): Promise<PublicEstimateVie
     const estimate = await db.collection('crm_estimates').findOne({ publicHash: hash });
     if (!estimate) return null;
 
-    let signature: PublicEstimateView extends infer T ? T : never = null;
+    let signature: {
+      signedByName: string;
+      signedAt: string;
+      signatureDataUrl: string;
+    } | null = null;
     if (estimate.status === 'accepted') {
       const sig = await db
         .collection('accept_estimates')
@@ -70,7 +73,7 @@ export async function getPublicEstimate(hash: string): Promise<PublicEstimateVie
           signedByName: (sig.signedByName as string) || '',
           signedAt: sig.signedAt ? new Date(sig.signedAt).toISOString() : '',
           signatureDataUrl: (sig.signatureDataUrl as string) || '',
-        } as never;
+        };
       }
     }
 
@@ -95,7 +98,7 @@ export async function getPublicEstimate(hash: string): Promise<PublicEstimateVie
             total: Number(li.total ?? Number(li.quantity ?? 0) * Number(li.rate ?? 0)),
           }))
         : [],
-      signature: signature ?? null,
+      signature,
       declineReason: (estimate.declineReason as string) || null,
     };
   } catch (e) {
@@ -209,5 +212,3 @@ export async function declineEstimate(
   }
 }
 
-// silence unused-id warning at compile
-void ObjectId;

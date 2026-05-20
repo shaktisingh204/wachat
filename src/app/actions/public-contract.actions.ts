@@ -62,7 +62,13 @@ export async function getPublicContract(hash: string): Promise<PublicContractVie
     const contract = await db.collection('crm_contracts').findOne({ publicHash: hash });
     if (!contract) return null;
 
-    let signedBy: PublicContractView extends infer T ? T : never = null;
+    let signedBy: {
+      fullName: string;
+      email: string;
+      place: string;
+      signedAt: string;
+      signatureDataUrl: string;
+    } | null = null;
     if (contract.signed) {
       const sig = await db
         .collection('contract_signs')
@@ -74,7 +80,7 @@ export async function getPublicContract(hash: string): Promise<PublicContractVie
           place: (sig.place as string) || '',
           signedAt: sig.signedAt ? new Date(sig.signedAt).toISOString() : '',
           signatureDataUrl: (sig.signatureDataUrl as string) || '',
-        } as never;
+        };
       }
     }
 
@@ -93,7 +99,7 @@ export async function getPublicContract(hash: string): Promise<PublicContractVie
         (contract.body as string) ||
         '',
       signed: Boolean(contract.signed),
-      signedBy: signedBy ?? null,
+      signedBy,
     };
   } catch (e) {
     console.error('[getPublicContract] failed:', e);

@@ -1,7 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type WithId, type Filter } from 'mongodb';
+import { ObjectId, type Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { hashPassword } from '@/lib/auth';
 import { getSession } from '@/app/actions/user.actions';
