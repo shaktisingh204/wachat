@@ -393,6 +393,144 @@ export async function getFormSubmissionById(
     }
 }
 
+/* ─── deleteCrmForm ──────────────────────────────────────────────────── */
+
+export async function deleteCrmForm(
+    formId: string,
+): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    if (!ObjectId.isValid(formId)) return { error: 'Invalid Form ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const formObjectId = new ObjectId(formId);
+
+        const existing = await db
+            .collection('crm_forms')
+            .findOne({ _id: formObjectId, userId: userObjectId });
+        if (!existing) return { error: 'Form not found or you do not have access.' };
+
+        await db.collection('crm_forms').deleteOne({ _id: formObjectId });
+        await db
+            .collection('crm_form_submissions')
+            .deleteMany({ formId: formObjectId } as any);
+
+        revalidatePath('/dashboard/crm/sales-crm/custom-forms');
+        return { message: 'Form deleted.' };
+    } catch (e) {
+        return { error: 'Failed to delete form.' };
+    }
+}
+
+/* ─── getCrmFormKpis ─────────────────────────────────────────────────── */
+
+export interface CrmFormKpis {
+    total: number;
+    published: number;
+    drafts: number;
+    totalSubmissions: number;
+}
+
+export async function getCrmFormKpis(): Promise<CrmFormKpis> {
+    const empty: CrmFormKpis = { total: 0, published: 0, drafts: 0, totalSubmissions: 0 };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const [total, published, drafts, submissionsAgg] = await Promise.all([
+            db.collection('crm_forms').countDocuments({ userId: userObjectId } as any),
+            db
+                .collection('crm_forms')
+                .countDocuments({
+                    userId: userObjectId,
+                    'settings.status': 'published',
+                } as any),
+            db
+                .collection('crm_forms')
+                .countDocuments({
+                    userId: userObjectId,
+                    $or: [
+                        { 'settings.status': 'draft' },
+                        { 'settings.status': { $exists: false } },
+                        { 'settings.status': null },
+                    ],
+                } as any),
+            db
+                .collection('crm_forms')
+                .aggregate([
+                    { $match: { userId: userObjectId } },
+                    {
+                        $group: {
+                            _id: null,
+                            total: { $sum: { $ifNull: ['$submissionCount', 0] } },
+                        },
+                    },
+                ])
+                .toArray(),
+        ]);
+
+        return {
+            total,
+            published,
+            drafts,
+            totalSubmissions: Number(submissionsAgg?.[0]?.total ?? 0),
+        };
+    } catch (e) {
+        console.error('Failed to fetch CRM form KPIs:', e);
+        return empty;
+    }
+}
+
+/* ─── bulkFormAction ─────────────────────────────────────────────────── */
+
+export async function bulkFormAction(
+    ids: string[],
+    op: 'delete' | 'publish' | 'draft',
+): Promise<{ success: boolean; processed?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!Array.isArray(ids) || ids.length === 0) return { success: false, error: 'No ids.' };
+
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) return { success: false, error: 'No valid ids.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const objectIds = validIds.map((id) => new ObjectId(id));
+        const match = { _id: { $in: objectIds }, userId: userObjectId } as any;
+
+        if (op === 'delete') {
+            const result = await db.collection('crm_forms').deleteMany(match);
+            await db
+                .collection('crm_form_submissions')
+                .deleteMany({ formId: { $in: objectIds } } as any);
+            revalidatePath('/dashboard/crm/sales-crm/custom-forms');
+            return { success: true, processed: result.deletedCount ?? 0 };
+        }
+        if (op === 'publish' || op === 'draft') {
+            const result = await db
+                .collection('crm_forms')
+                .updateMany(match, {
+                    $set: {
+                        'settings.status': op === 'publish' ? 'published' : 'draft',
+                        updatedAt: new Date(),
+                    },
+                });
+            revalidatePath('/dashboard/crm/sales-crm/custom-forms');
+            return { success: true, processed: result.modifiedCount ?? 0 };
+        }
+        return { success: false, error: 'Unsupported op.' };
+    } catch (e) {
+        return { success: false, error: 'Bulk operation failed.' };
+    }
+}
+
 /* ─── Legacy-name aliases used by the CustomFormForm UI ─────────────── */
 
 export interface SaveFormState {

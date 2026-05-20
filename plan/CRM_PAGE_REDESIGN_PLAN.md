@@ -187,6 +187,56 @@ Detail shell template (pull from existing best-of pattern in `bookings/[id]` or 
 
 ---
 
+### Batch 6 — Deepen thin entity lists *(added 2026-05-20 after batches 1–5 shipped)*
+
+Many CRM list pages render only a plain `ZoruTable` of rows — no KPI strip, no filters beyond a search box, no bulk actions, no export. The audit and Batch 1–5 sweeps wired clickable rows everywhere, but the surrounding list UX is still shallow on ~22 entity lists.
+
+Canonical "Deep list" template lives at `src/app/dashboard/crm/sales-crm/all-leads/page.tsx` (588 LOC). Composition:
+
+- **KPI strip** — 3–5 stat cards (totals, status counts, derived rates) sourced from a `getXxxKpis()` server action
+- **Filter row** — search input + status select + source/owner/date-range filters (URL-synced where possible)
+- **Saved views** menu (optional — only for high-volume lists)
+- **Bulk action bar** — appears when rows selected; supports Delete, Archive, Status change, Export selected
+- **Export button** — CSV / XLSX (use existing `xlsx@^0.18.5` dep)
+- **Pagination** via `<PaginationBar>` from `@/components/crm/pagination-bar`
+- **Row primary cell** wrapped in `<EntityRowLink>`
+
+Target lists (LOC currently → Deep target ~300–500):
+- `sales-crm/products` (70), `sales-crm/automations` (173), `sales-crm/all-pipelines` (139), `sales-crm/custom-forms` (94)
+- `sales/coupons` (201), `sales/gift-cards` (194), `sales/loyalty` (170)
+- `banking/bank-accounts` (184), `banking/employee-accounts` (170)
+- `inventory/vendors` (137)
+- `purchases/leads` (149)
+- `hr-payroll/shift-rotations` (168), `hr-payroll/form-16` (228), `hr-payroll/pf-esi` (196), `hr-payroll/tds` (183), `hr-payroll/employees/teams` (215)
+- `team/manage-users` (217)
+- `pinned` (222)
+- `tax/gstr3b` (202)
+
+Settings/lookup lists (currencies, languages, statuses, types, etc.) intentionally stay thin — they use `<RowDrawer>` for inline edit, no Deep template needed.
+
+### Batch 7 — Deepen Reports module *(added 2026-05-20 after Batch 6 shipped)*
+
+The audit flagged `crm/reports/` as a 238-LOC hub linking 22 thin sub-reports (45–180 LOC each). Most are placeholder pages with mock data and no real chart/export/drill-down. Managers/owners live in reports — this is high-impact.
+
+Canonical report template (apply to each sub-report):
+
+- **Header**: date range / FY picker + Compare-to-previous toggle + Refresh + Export menu
+- **KPI strip**: 3–4 stat cards summarizing the period
+- **Chart**: 1–2 charts via existing `recharts` (already in `package.json`) + `src/components/zoruui/chart.tsx` wrapper — bar/line/pie chosen per report
+- **Filter row**: search + entity-specific filters (owner, status, department, etc.)
+- **Data table**: filtered rows with EntityRowLink to source records
+- **Export**: CSV + XLSX via shared `src/lib/crm-list-export.ts`
+- **Saved view presets** (optional, for high-volume reports)
+- **Schedule email export** (optional, ties into existing email infra)
+
+Target reports:
+- **Sales**: top-clients, top-products, sales-deals, leads-conversion
+- **Finance**: income, expense, profit-loss, tax, invoice-aging, payment-report
+- **Tasks/Projects**: overdue-tasks, task-report, late-report, project-status-report
+- **People**: agent-performance, attendance-report, leave-report, leave-balance-report, birthday-anniversary
+- **Support**: ticket-report
+- **GST**: gstr-1, gstr-2b (gstr-3b already deepened in Batch 6)
+
 ### Batch 5 — Wider clickable-row sweep + cleanup
 
 By the time Batches 1–4 land:

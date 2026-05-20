@@ -274,3 +274,160 @@ export async function updateCoupon(
     return { error: e?.message || 'Failed to update coupon.' };
   }
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Deep-list additions (KPIs, filtered list, bulk ops).
+ * Mongo-only — Rust BFF parity can land later without touching callers.
+ * ──────────────────────────────────────────────────────────────────── */
+
+export interface CrmCouponKpis {
+  total: number;
+  active: number;
+  expired: number;
+  totalRedemptions: number;
+}
+
+export interface CrmCouponListFilters {
+  search?: string;
+  status?: string;
+  createdAfter?: Date | string;
+  createdBefore?: Date | string;
+}
+
+export async function getCouponKpis(): Promise<CrmCouponKpis> {
+  const empty: CrmCouponKpis = { total: 0, active: 0, expired: 0, totalRedemptions: 0 };
+  const session = await getSession();
+  if (!session?.user?._id) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const baseFilter = { userId };
+
+    const [total, active, expired, redemptionAgg] = await Promise.all([
+      db.collection('crm_coupons').countDocuments(baseFilter),
+      db.collection('crm_coupons').countDocuments({ ...baseFilter, status: 'active' }),
+      db.collection('crm_coupons').countDocuments({ ...baseFilter, status: 'expired' }),
+      db
+        .collection('crm_coupons')
+        .aggregate([
+          { $match: baseFilter },
+          { $group: { _id: null, sum: { $sum: { $ifNull: ['$usedCount', 0] } } } },
+        ])
+        .toArray(),
+    ]);
+
+    const totalRedemptions = Number(redemptionAgg?.[0]?.sum ?? 0);
+    return { total, active, expired, totalRedemptions };
+  } catch (e) {
+    console.error('[getCouponKpis] failed:', e);
+    return empty;
+  }
+}
+
+export async function listCoupons(
+  page = 1,
+  limit = 20,
+  filters: CrmCouponListFilters = {},
+): Promise<{ rows: Array<Record<string, unknown>>; total: number }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { rows: [], total: 0 };
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const query: Record<string, unknown> = { userId };
+
+    if (filters.status && filters.status !== 'all') query.status = filters.status;
+    if (filters.search) {
+      const safe = filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.code = { $regex: safe, $options: 'i' };
+    }
+    if (filters.createdAfter || filters.createdBefore) {
+      const range: Record<string, Date> = {};
+      if (filters.createdAfter) range.$gte = new Date(filters.createdAfter);
+      if (filters.createdBefore) range.$lte = new Date(filters.createdBefore);
+      query.createdAt = range;
+    }
+
+    const skip = Math.max(0, (page - 1) * limit);
+    const [docs, total] = await Promise.all([
+      db
+        .collection('crm_coupons')
+        .find(query as never)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .toArray(),
+      db.collection('crm_coupons').countDocuments(query as never),
+    ]);
+
+    return { rows: JSON.parse(JSON.stringify(docs)), total };
+  } catch (e) {
+    console.error('[listCoupons] failed:', e);
+    return { rows: [], total: 0 };
+  }
+}
+
+export async function bulkCouponAction(
+  ids: string[],
+  op: 'delete' | 'status',
+  payload?: string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const session = await getSession();
+  if (!session?.user?._id) return { success: false, processed: 0, error: 'Unauthorized.' };
+
+  const guard = await requirePermission(
+    'crm_coupon',
+    op === 'delete' ? 'delete' : 'edit',
+  );
+  if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+  const valid = (ids ?? []).filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No valid coupons selected.' };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(session.user._id as string);
+    const oids = valid.map((id) => new ObjectId(id));
+    const baseFilter = { _id: { $in: oids }, userId };
+
+    let processed = 0;
+    if (op === 'delete') {
+      const r = await db.collection('crm_coupons').deleteMany(baseFilter);
+      processed = r.deletedCount ?? 0;
+    } else {
+      const status = String(payload ?? '').trim();
+      if (!status) {
+        return { success: false, processed: 0, error: 'Status is required.' };
+      }
+      const r = await db.collection('crm_coupons').updateMany(baseFilter, {
+        $set: { status, updatedAt: new Date() },
+      });
+      processed = r.modifiedCount ?? 0;
+    }
+
+    for (const id of valid) {
+      try {
+        await writeAuditEntry({
+          tenantUserId: String(session.user._id),
+          actorId: String(session.user._id),
+          action: op === 'delete' ? 'delete' : 'status_change',
+          entityKind: 'coupon',
+          entityId: id,
+          reason: payload ? `bulk:${payload}` : `bulk:${op}`,
+        });
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+    revalidatePath('/dashboard/crm/sales/coupons');
+    return { success: true, processed };
+  } catch (e: any) {
+    console.error('[bulkCouponAction] failed:', e);
+    return { success: false, processed: 0, error: e?.message || 'Bulk action failed.' };
+  }
+}

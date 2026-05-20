@@ -1203,3 +1203,1122 @@ async function dispatchDelivery(opts: {
 // cronMatchesHour moved to `@/lib/crm/cron-match` — Server Action files
 // may only export async functions, so the pure helper lives elsewhere.
 
+/* ════════════════════════════════════════════════════════════════════════
+ *  §6.9 Reports hub overview — KPIs + recently-viewed for the landing
+ *  page at `/dashboard/crm/reports`. Multi-tenant; gated on `crm_reports`.
+ * ════════════════════════════════════════════════════════════════════════
+ */
+
+export interface ReportsHubOverview {
+    totalRunsThisMonth: number;
+    scheduledExportsCount: number;
+    topViewedReportKind: string | null;
+    topViewedReportLabel: string | null;
+    lastRefreshAt: string | null;
+    categoryStats: Record<string, { lastRefreshAt: string | null; runs: number }>;
+}
+
+export interface ReportsHubRecentRun {
+    runId: string;
+    definitionId: string;
+    kind: string;
+    name: string;
+    status: string;
+    rowCount: number;
+    startedAt: string;
+}
+
+export async function getReportsHubOverview(): Promise<ReportsHubOverview> {
+    const empty: ReportsHubOverview = {
+        totalRunsThisMonth: 0,
+        scheduledExportsCount: 0,
+        topViewedReportKind: null,
+        topViewedReportLabel: null,
+        lastRefreshAt: null,
+        categoryStats: {},
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const [totalRunsThisMonth, scheduledExportsCount, topAgg, lastRun, byKind] =
+            await Promise.all([
+                db.collection('crm_report_runs').countDocuments({
+                    userId,
+                    startedAt: { $gte: monthStart },
+                }),
+                db.collection('crm_report_definitions').countDocuments({
+                    userId,
+                    schedule: { $ne: null },
+                }),
+                db
+                    .collection('crm_report_runs')
+                    .aggregate([
+                        { $match: { userId, startedAt: { $gte: monthStart } } },
+                        { $group: { _id: '$kind', count: { $sum: 1 } } },
+                        { $sort: { count: -1 } },
+                        { $limit: 1 },
+                    ])
+                    .toArray(),
+                db
+                    .collection('crm_report_runs')
+                    .find({ userId })
+                    .sort({ startedAt: -1 })
+                    .limit(1)
+                    .project({ startedAt: 1 })
+                    .toArray(),
+                db
+                    .collection('crm_report_runs')
+                    .aggregate([
+                        { $match: { userId } },
+                        {
+                            $group: {
+                                _id: '$kind',
+                                runs: { $sum: 1 },
+                                lastRefreshAt: { $max: '$startedAt' },
+                            },
+                        },
+                    ])
+                    .toArray(),
+            ]);
+
+        const categoryStats: Record<string, { lastRefreshAt: string | null; runs: number }> = {};
+        for (const row of byKind as Array<{
+            _id: string;
+            runs: number;
+            lastRefreshAt: Date | string | null;
+        }>) {
+            categoryStats[row._id] = {
+                runs: row.runs,
+                lastRefreshAt: row.lastRefreshAt
+                    ? new Date(row.lastRefreshAt as Date).toISOString()
+                    : null,
+            };
+        }
+
+        const topKind = (topAgg[0] as { _id?: string } | undefined)?._id ?? null;
+        const lastRefreshRaw = (lastRun[0] as { startedAt?: Date | string } | undefined)
+            ?.startedAt;
+
+        return {
+            totalRunsThisMonth,
+            scheduledExportsCount,
+            topViewedReportKind: topKind,
+            topViewedReportLabel: topKind,
+            lastRefreshAt: lastRefreshRaw
+                ? new Date(lastRefreshRaw as Date).toISOString()
+                : null,
+            categoryStats,
+        };
+    } catch (e) {
+        console.error('[getReportsHubOverview] failed:', e);
+        return empty;
+    }
+}
+
+export async function getReportsHubRecentRuns(
+    limit = 8,
+): Promise<ReportsHubRecentRun[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    const guard = await requirePermissionUnified(REPORTS_PERMISSION_KEY, 'view');
+    if (!guard.ok) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const docs = await db
+            .collection('crm_report_runs')
+            .aggregate([
+                { $match: { userId } },
+                { $sort: { startedAt: -1 } },
+                { $limit: Math.min(Math.max(1, limit), 50) },
+                {
+                    $lookup: {
+                        from: 'crm_report_definitions',
+                        localField: 'definitionId',
+                        foreignField: '_id',
+                        as: 'def',
+                    },
+                },
+                { $unwind: { path: '$def', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        kind: 1,
+                        status: 1,
+                        rowCount: 1,
+                        startedAt: 1,
+                        definitionId: 1,
+                        name: '$def.name',
+                    },
+                },
+            ])
+            .toArray();
+
+        return docs.map((d) => ({
+            runId: String(d._id),
+            definitionId: String(d.definitionId ?? ''),
+            kind: String(d.kind ?? ''),
+            name: String(d.name ?? d.kind ?? 'Untitled report'),
+            status: String(d.status ?? ''),
+            rowCount: Number(d.rowCount ?? 0),
+            startedAt: d.startedAt
+                ? new Date(d.startedAt as Date).toISOString()
+                : new Date().toISOString(),
+        }));
+    } catch (e) {
+        console.error('[getReportsHubRecentRuns] failed:', e);
+        return [];
+    }
+}
+
+/* ════════════════════════════════════════════════════════════════════════
+ *  HR People Reports — extra aggregations powering the deepened
+ *  agent-performance / attendance / leave / leave-balance / birthday pages.
+ *
+ *  All queries are tenant-scoped via the session userId. They read
+ *  `crm_employees`, `crm_attendance`, `crm_leaves` (legacy leave-request
+ *  collection), `crm_leave_types`, `crm_leads`, `crm_deals` and
+ *  `crm_departments`. Each helper accepts an optional `departmentId` so
+ *  the report toolbar's department filter narrows the dataset.
+ * ════════════════════════════════════════════════════════════════════════ */
+
+export interface HrReportDepartment {
+    id: string;
+    name: string;
+}
+
+export async function getHrReportDepartments(): Promise<HrReportDepartment[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const rows = await db
+            .collection('crm_departments')
+            .find({ userId: new ObjectId(session.user._id) })
+            .project({ _id: 1, name: 1 })
+            .sort({ name: 1 })
+            .toArray();
+        return rows.map((r) => ({
+            id: r._id.toString(),
+            name: String((r as any).name || 'Unnamed'),
+        }));
+    } catch (e) {
+        console.error('[getHrReportDepartments] failed:', e);
+        return [];
+    }
+}
+
+async function employeeIdsForDepartment(
+    db: Awaited<ReturnType<typeof connectToDatabase>>['db'],
+    userId: ObjectId,
+    departmentId?: string,
+): Promise<ObjectId[] | null> {
+    if (!departmentId || !ObjectId.isValid(departmentId)) return null;
+    const rows = await db
+        .collection('crm_employees')
+        .find({ userId, departmentId: new ObjectId(departmentId) })
+        .project({ _id: 1 })
+        .toArray();
+    return rows.map((r) => r._id as ObjectId);
+}
+
+/* ─── Agent performance (sales) ────────────────────────────────────── */
+
+export interface SalesAgentPerformanceRow {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    leadsHandled: number;
+    dealsWon: number;
+    dealsLost: number;
+    revenueClosed: number;
+    avgDealSize: number;
+}
+
+export interface SalesAgentPerformanceReport {
+    rows: SalesAgentPerformanceRow[];
+    totals: {
+        totalAgents: number;
+        leadsHandled: number;
+        dealsWon: number;
+        revenueClosed: number;
+        avgDealSize: number;
+        topPerformer: string;
+    };
+}
+
+export async function getSalesAgentPerformance(
+    from?: string,
+    to?: string,
+    departmentId?: string,
+): Promise<SalesAgentPerformanceReport> {
+    const empty: SalesAgentPerformanceReport = {
+        rows: [],
+        totals: {
+            totalAgents: 0,
+            leadsHandled: 0,
+            dealsWon: 0,
+            revenueClosed: 0,
+            avgDealSize: 0,
+            topPerformer: '—',
+        },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const start = from ? new Date(from) : new Date(new Date().getFullYear(), 0, 1);
+        const end = to ? new Date(to) : new Date();
+
+        const empMatch: Record<string, unknown> = { userId };
+        if (departmentId && ObjectId.isValid(departmentId)) {
+            empMatch.departmentId = new ObjectId(departmentId);
+        }
+
+        const employees = await db
+            .collection('crm_employees')
+            .aggregate([
+                { $match: empMatch },
+                {
+                    $lookup: {
+                        from: 'crm_departments',
+                        localField: 'departmentId',
+                        foreignField: '_id',
+                        as: 'dept',
+                    },
+                },
+                { $unwind: { path: '$dept', preserveNullAndEmptyArrays: true } },
+                {
+                    $project: {
+                        _id: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        email: 1,
+                        deptName: '$dept.name',
+                    },
+                },
+            ])
+            .toArray();
+
+        if (employees.length === 0) return empty;
+        const empIds = employees.map((e) => e._id as ObjectId);
+
+        const [leadAgg, dealAgg] = await Promise.all([
+            db
+                .collection('crm_leads')
+                .aggregate([
+                    {
+                        $match: {
+                            userId,
+                            assigneeId: { $in: empIds },
+                            createdAt: { $gte: start, $lte: end },
+                        },
+                    },
+                    { $group: { _id: '$assigneeId', count: { $sum: 1 } } },
+                ])
+                .toArray(),
+            db
+                .collection('crm_deals')
+                .aggregate([
+                    {
+                        $match: {
+                            userId,
+                            ownerId: { $in: empIds },
+                            updatedAt: { $gte: start, $lte: end },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: '$ownerId',
+                            won: {
+                                $sum: { $cond: [{ $eq: ['$stage', 'Won'] }, 1, 0] },
+                            },
+                            lost: {
+                                $sum: { $cond: [{ $eq: ['$stage', 'Lost'] }, 1, 0] },
+                            },
+                            wonValue: {
+                                $sum: {
+                                    $cond: [
+                                        { $eq: ['$stage', 'Won'] },
+                                        { $ifNull: ['$value', 0] },
+                                        0,
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ])
+                .toArray(),
+        ]);
+
+        const leadMap = new Map<string, number>();
+        leadAgg.forEach((r) => leadMap.set(String(r._id), Number(r.count || 0)));
+        const dealMap = new Map<
+            string,
+            { won: number; lost: number; wonValue: number }
+        >();
+        dealAgg.forEach((r) =>
+            dealMap.set(String(r._id), {
+                won: Number(r.won || 0),
+                lost: Number(r.lost || 0),
+                wonValue: Number(r.wonValue || 0),
+            }),
+        );
+
+        const rows: SalesAgentPerformanceRow[] = employees.map((e) => {
+            const id = String(e._id);
+            const leadsHandled = leadMap.get(id) ?? 0;
+            const d = dealMap.get(id) ?? { won: 0, lost: 0, wonValue: 0 };
+            return {
+                employeeId: id,
+                employeeName:
+                    `${(e as any).firstName || ''} ${(e as any).lastName || ''}`.trim() ||
+                    String((e as any).email || 'Unknown'),
+                department: String((e as any).deptName || '—'),
+                leadsHandled,
+                dealsWon: d.won,
+                dealsLost: d.lost,
+                revenueClosed: d.wonValue,
+                avgDealSize: d.won > 0 ? Math.round(d.wonValue / d.won) : 0,
+            };
+        });
+
+        rows.sort((a, b) => b.revenueClosed - a.revenueClosed || b.leadsHandled - a.leadsHandled);
+
+        const leadsHandled = rows.reduce((s, r) => s + r.leadsHandled, 0);
+        const dealsWon = rows.reduce((s, r) => s + r.dealsWon, 0);
+        const revenueClosed = rows.reduce((s, r) => s + r.revenueClosed, 0);
+        return {
+            rows,
+            totals: {
+                totalAgents: rows.length,
+                leadsHandled,
+                dealsWon,
+                revenueClosed,
+                avgDealSize: dealsWon > 0 ? Math.round(revenueClosed / dealsWon) : 0,
+                topPerformer: rows[0]?.employeeName ?? '—',
+            },
+        };
+    } catch (e) {
+        console.error('[getSalesAgentPerformance] failed:', e);
+        return empty;
+    }
+}
+
+/* ─── Attendance — daily series + KPIs ─────────────────────────────── */
+
+export interface AttendanceDailyDatum {
+    date: string;
+    present: number;
+    absent: number;
+    leave: number;
+    halfDay: number;
+}
+
+export interface AttendanceReportData {
+    rows: Array<{
+        employeeId: string;
+        employeeName: string;
+        department: string;
+        present: number;
+        absent: number;
+        late: number;
+        leave: number;
+        attendancePct: number;
+    }>;
+    daily: AttendanceDailyDatum[];
+    totals: {
+        totalEmployees: number;
+        avgAttendancePct: number;
+        lateCount: number;
+        absentCount: number;
+        presentCount: number;
+        leaveCount: number;
+    };
+}
+
+export async function getAttendanceReportData(
+    month: number,
+    year: number,
+    departmentId?: string,
+    graceMinutes = 15,
+    shiftStartHour = 9,
+): Promise<AttendanceReportData> {
+    const empty: AttendanceReportData = {
+        rows: [],
+        daily: [],
+        totals: {
+            totalEmployees: 0,
+            avgAttendancePct: 0,
+            lateCount: 0,
+            absentCount: 0,
+            presentCount: 0,
+            leaveCount: 0,
+        },
+    };
+
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const start = new Date(year, month - 1, 1);
+        const end = new Date(year, month, 0, 23, 59, 59);
+        const daysInMonth = end.getDate();
+
+        const empMatch: Record<string, unknown> = { userId, status: 'Active' };
+        if (departmentId && ObjectId.isValid(departmentId)) {
+            empMatch.departmentId = new ObjectId(departmentId);
+        }
+        const employees = await db
+            .collection('crm_employees')
+            .aggregate([
+                { $match: empMatch },
+                {
+                    $lookup: {
+                        from: 'crm_departments',
+                        localField: 'departmentId',
+                        foreignField: '_id',
+                        as: 'dept',
+                    },
+                },
+                { $unwind: { path: '$dept', preserveNullAndEmptyArrays: true } },
+            ])
+            .toArray();
+
+        if (employees.length === 0) return empty;
+
+        const empIds = employees.map((e) => e._id as ObjectId);
+        const attendance = await db
+            .collection('crm_attendance')
+            .find({
+                userId,
+                employeeId: { $in: empIds },
+                date: { $gte: start, $lte: end },
+            })
+            .toArray();
+
+        // Daily series
+        const dailyMap = new Map<string, AttendanceDailyDatum>();
+        for (let d = 1; d <= daysInMonth; d++) {
+            const key = new Date(year, month - 1, d).toISOString().slice(0, 10);
+            dailyMap.set(key, { date: key, present: 0, absent: 0, leave: 0, halfDay: 0 });
+        }
+
+        // Per-employee tallies
+        type Tally = {
+            present: number;
+            absent: number;
+            late: number;
+            leave: number;
+            halfDay: number;
+        };
+        const perEmp = new Map<string, Tally>();
+        for (const e of employees) {
+            perEmp.set(String(e._id), { present: 0, absent: 0, late: 0, leave: 0, halfDay: 0 });
+        }
+
+        for (const a of attendance) {
+            const rec = a as any;
+            const eid = rec.employeeId?.toString?.();
+            if (!eid || !perEmp.has(eid)) continue;
+            const dt = new Date(rec.date);
+            const key = dt.toISOString().slice(0, 10);
+            const tally = perEmp.get(eid)!;
+            const status = String(rec.status || '');
+            const slot = dailyMap.get(key);
+            if (status === 'Present') {
+                tally.present++;
+                if (slot) slot.present++;
+                if (rec.checkIn) {
+                    const ci = new Date(rec.checkIn);
+                    const shift = new Date(ci);
+                    shift.setHours(shiftStartHour, graceMinutes, 0, 0);
+                    if (ci.getTime() > shift.getTime()) tally.late++;
+                }
+            } else if (status === 'Absent') {
+                tally.absent++;
+                if (slot) slot.absent++;
+            } else if (status === 'Leave') {
+                tally.leave++;
+                if (slot) slot.leave++;
+            } else if (status === 'Half Day') {
+                tally.halfDay++;
+                if (slot) slot.halfDay++;
+            }
+        }
+
+        const rows = employees.map((e) => {
+            const id = String(e._id);
+            const t = perEmp.get(id)!;
+            const totalDays = t.present + t.absent + t.leave + t.halfDay;
+            const effective = t.present + t.halfDay * 0.5;
+            return {
+                employeeId: id,
+                employeeName:
+                    `${(e as any).firstName || ''} ${(e as any).lastName || ''}`.trim() ||
+                    String((e as any).email || 'Unknown'),
+                department: String((e as any).dept?.name || '—'),
+                present: t.present,
+                absent: t.absent,
+                late: t.late,
+                leave: t.leave,
+                attendancePct: totalDays > 0 ? (effective / totalDays) * 100 : 0,
+            };
+        });
+
+        rows.sort((a, b) => b.attendancePct - a.attendancePct);
+
+        const daily = Array.from(dailyMap.values());
+        const lateCount = rows.reduce((s, r) => s + r.late, 0);
+        const absentCount = rows.reduce((s, r) => s + r.absent, 0);
+        const presentCount = rows.reduce((s, r) => s + r.present, 0);
+        const leaveCount = rows.reduce((s, r) => s + r.leave, 0);
+        const avgAttendancePct = rows.length
+            ? rows.reduce((s, r) => s + r.attendancePct, 0) / rows.length
+            : 0;
+
+        return {
+            rows,
+            daily,
+            totals: {
+                totalEmployees: rows.length,
+                avgAttendancePct,
+                lateCount,
+                absentCount,
+                presentCount,
+                leaveCount,
+            },
+        };
+    } catch (e) {
+        console.error('[getAttendanceReportData] failed:', e);
+        return empty;
+    }
+}
+
+/* ─── Leave report — KPIs + by-type + monthly trend + rows ────────── */
+
+export interface LeaveReportDeepRow {
+    employeeId: string;
+    employeeName: string;
+    leaveTypeName: string;
+    reason: string;
+    days: number;
+    status: 'approved' | 'pending' | 'rejected' | 'cancelled';
+    leaveDate: string | null;
+    department: string;
+}
+
+export interface LeaveReportDeep {
+    rows: LeaveReportDeepRow[];
+    byType: Array<{ label: string; value: number }>;
+    byMonth: Array<{ period: string; days: number }>;
+    totals: {
+        totalLeaves: number;
+        approved: number;
+        pending: number;
+        rejected: number;
+        topReason: string;
+    };
+}
+
+export async function getLeaveReportDeep(
+    from?: string,
+    to?: string,
+    departmentId?: string,
+): Promise<LeaveReportDeep> {
+    const empty: LeaveReportDeep = {
+        rows: [],
+        byType: [],
+        byMonth: [],
+        totals: { totalLeaves: 0, approved: 0, pending: 0, rejected: 0, topReason: '—' },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const start = from ? new Date(from) : new Date(new Date().getFullYear(), 0, 1);
+        const end = to ? new Date(to) : new Date();
+
+        const allowedEmpIds = await employeeIdsForDepartment(db, userId, departmentId);
+
+        const match: Record<string, unknown> = {
+            userId,
+            leave_date: { $gte: start, $lte: end },
+        };
+        if (allowedEmpIds) {
+            match.user_id = { $in: allowedEmpIds };
+        }
+
+        const leaves = await db.collection('crm_leaves').find(match).toArray();
+        if (leaves.length === 0) return empty;
+
+        const empIds = new Set<string>();
+        const typeIds = new Set<string>();
+        leaves.forEach((l) => {
+            const lr = l as any;
+            if (lr.user_id) empIds.add(lr.user_id.toString());
+            if (lr.leave_type_id) typeIds.add(lr.leave_type_id.toString());
+        });
+
+        const [employees, types] = await Promise.all([
+            empIds.size
+                ? db
+                      .collection('crm_employees')
+                      .aggregate([
+                          {
+                              $match: {
+                                  userId,
+                                  _id: {
+                                      $in: Array.from(empIds)
+                                          .filter(ObjectId.isValid)
+                                          .map((id) => new ObjectId(id)),
+                                  },
+                              },
+                          },
+                          {
+                              $lookup: {
+                                  from: 'crm_departments',
+                                  localField: 'departmentId',
+                                  foreignField: '_id',
+                                  as: 'dept',
+                              },
+                          },
+                          { $unwind: { path: '$dept', preserveNullAndEmptyArrays: true } },
+                      ])
+                      .toArray()
+                : [],
+            typeIds.size
+                ? db
+                      .collection('crm_leave_types')
+                      .find({
+                          userId,
+                          _id: {
+                              $in: Array.from(typeIds)
+                                  .filter(ObjectId.isValid)
+                                  .map((id) => new ObjectId(id)),
+                          },
+                      })
+                      .toArray()
+                : [],
+        ]);
+
+        const empMeta = new Map<string, { name: string; department: string }>();
+        employees.forEach((e) => {
+            const er = e as any;
+            empMeta.set(String(er._id), {
+                name:
+                    `${er.firstName || ''} ${er.lastName || ''}`.trim() ||
+                    String(er.email || 'Unknown'),
+                department: String(er.dept?.name || '—'),
+            });
+        });
+        const typeName = new Map<string, string>();
+        types.forEach((t) => typeName.set(String((t as any)._id), String((t as any).type_name)));
+
+        const rows: LeaveReportDeepRow[] = leaves.map((l) => {
+            const lr = l as any;
+            const eid = lr.user_id?.toString?.() || '';
+            const tid = lr.leave_type_id?.toString?.() || '';
+            const meta = empMeta.get(eid) ?? { name: '—', department: '—' };
+            return {
+                employeeId: eid,
+                employeeName: meta.name,
+                leaveTypeName: typeName.get(tid) || 'Unknown',
+                reason: String(lr.reason || '—'),
+                days: Number(lr.days_count || 0),
+                status: (lr.status || 'pending') as LeaveReportDeepRow['status'],
+                leaveDate: lr.leave_date ? new Date(lr.leave_date).toISOString() : null,
+                department: meta.department,
+            };
+        });
+
+        // KPI counts (number of leave requests, not days)
+        let approved = 0;
+        let pending = 0;
+        let rejected = 0;
+        const reasonCount = new Map<string, number>();
+        const typeDays = new Map<string, number>();
+        const monthDays = new Map<string, number>();
+        for (const r of rows) {
+            if (r.status === 'approved') approved++;
+            else if (r.status === 'pending') pending++;
+            else if (r.status === 'rejected') rejected++;
+            reasonCount.set(r.reason, (reasonCount.get(r.reason) || 0) + 1);
+            typeDays.set(r.leaveTypeName, (typeDays.get(r.leaveTypeName) || 0) + r.days);
+            if (r.leaveDate) {
+                const k = r.leaveDate.slice(0, 7);
+                monthDays.set(k, (monthDays.get(k) || 0) + r.days);
+            }
+        }
+        let topReason = '—';
+        let topReasonCount = 0;
+        reasonCount.forEach((v, k) => {
+            if (v > topReasonCount) {
+                topReason = k || '—';
+                topReasonCount = v;
+            }
+        });
+
+        const byType = Array.from(typeDays.entries())
+            .map(([label, value]) => ({ label, value }))
+            .sort((a, b) => b.value - a.value);
+        const byMonth = Array.from(monthDays.entries())
+            .map(([period, days]) => ({ period, days }))
+            .sort((a, b) => a.period.localeCompare(b.period));
+
+        rows.sort((a, b) =>
+            (b.leaveDate || '').localeCompare(a.leaveDate || ''),
+        );
+
+        return {
+            rows,
+            byType,
+            byMonth,
+            totals: { totalLeaves: rows.length, approved, pending, rejected, topReason },
+        };
+    } catch (e) {
+        console.error('[getLeaveReportDeep] failed:', e);
+        return empty;
+    }
+}
+
+/* ─── Leave balance — extra KPIs + per-employee stacked ──────────── */
+
+export interface LeaveBalanceDeepRow {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    leaveTypeName: string;
+    allocated: number;
+    used: number;
+    remaining: number;
+    expiresAt: string | null;
+}
+
+export interface LeaveBalanceDeep {
+    rows: LeaveBalanceDeepRow[];
+    stacked: Array<Record<string, string | number>>;
+    typeKeys: string[];
+    totals: {
+        employees: number;
+        totalRemaining: number;
+        byType: Array<{ label: string; value: number }>;
+        lowBalanceCount: number;
+        expiringSoonCount: number;
+    };
+}
+
+export async function getLeaveBalanceDeep(
+    departmentId?: string,
+): Promise<LeaveBalanceDeep> {
+    const empty: LeaveBalanceDeep = {
+        rows: [],
+        stacked: [],
+        typeKeys: [],
+        totals: {
+            employees: 0,
+            totalRemaining: 0,
+            byType: [],
+            lowBalanceCount: 0,
+            expiringSoonCount: 0,
+        },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const empMatch: Record<string, unknown> = { userId, status: 'Active' };
+        if (departmentId && ObjectId.isValid(departmentId)) {
+            empMatch.departmentId = new ObjectId(departmentId);
+        }
+
+        const [employees, types, leaves] = await Promise.all([
+            db
+                .collection('crm_employees')
+                .aggregate([
+                    { $match: empMatch },
+                    {
+                        $lookup: {
+                            from: 'crm_departments',
+                            localField: 'departmentId',
+                            foreignField: '_id',
+                            as: 'dept',
+                        },
+                    },
+                    { $unwind: { path: '$dept', preserveNullAndEmptyArrays: true } },
+                ])
+                .toArray(),
+            db.collection('crm_leave_types').find({ userId }).toArray(),
+            db
+                .collection('crm_leaves')
+                .find({ userId, status: 'approved' })
+                .toArray(),
+        ]);
+
+        if (employees.length === 0 || types.length === 0) return empty;
+
+        const usedByKey = new Map<string, number>();
+        for (const l of leaves) {
+            const lr = l as any;
+            const eid = lr.user_id?.toString?.() || '';
+            const tid = lr.leave_type_id?.toString?.() || '';
+            if (!eid || !tid) continue;
+            const k = `${eid}|${tid}`;
+            usedByKey.set(k, (usedByKey.get(k) || 0) + Number(lr.days_count || 0));
+        }
+
+        const now = Date.now();
+        const ninetyDaysMs = 90 * 86400000;
+
+        const rows: LeaveBalanceDeepRow[] = [];
+        const stacked: Array<Record<string, string | number>> = [];
+        const typeKeys = types.map((t) => String((t as any).type_name));
+        const byTypeTotals = new Map<string, number>();
+        let lowBalanceCount = 0;
+        let expiringSoonCount = 0;
+
+        for (const e of employees) {
+            const er = e as any;
+            const id = String(er._id);
+            const employeeName =
+                `${er.firstName || ''} ${er.lastName || ''}`.trim() ||
+                String(er.email || 'Unknown');
+            const department = String(er.dept?.name || '—');
+            const row: Record<string, string | number> = { label: employeeName };
+            let anyLow = false;
+            for (const t of types) {
+                const tr = t as any;
+                const tid = String(tr._id);
+                const typeName = String(tr.type_name);
+                const allocated = Number(tr.no_of_leaves || 0);
+                const used = usedByKey.get(`${id}|${tid}`) || 0;
+                const remaining = Math.max(0, allocated - used);
+                const expiresAt = tr.expiresAt
+                    ? new Date(tr.expiresAt).toISOString()
+                    : null;
+                rows.push({
+                    employeeId: id,
+                    employeeName,
+                    department,
+                    leaveTypeName: typeName,
+                    allocated,
+                    used,
+                    remaining,
+                    expiresAt,
+                });
+                row[typeName] = remaining;
+                byTypeTotals.set(typeName, (byTypeTotals.get(typeName) || 0) + remaining);
+                if (allocated > 0 && remaining / allocated < 0.2) anyLow = true;
+                if (
+                    expiresAt &&
+                    remaining > 0 &&
+                    new Date(expiresAt).getTime() - now <= ninetyDaysMs
+                ) {
+                    expiringSoonCount++;
+                }
+            }
+            if (anyLow) lowBalanceCount++;
+            stacked.push(row);
+        }
+
+        const byType = Array.from(byTypeTotals.entries())
+            .map(([label, value]) => ({ label, value }))
+            .sort((a, b) => b.value - a.value);
+        const totalRemaining = byType.reduce((s, r) => s + r.value, 0);
+
+        return {
+            rows,
+            stacked,
+            typeKeys,
+            totals: {
+                employees: employees.length,
+                totalRemaining,
+                byType,
+                lowBalanceCount,
+                expiringSoonCount,
+            },
+        };
+    } catch (e) {
+        console.error('[getLeaveBalanceDeep] failed:', e);
+        return empty;
+    }
+}
+
+/* ─── Birthdays & anniversaries — bucketed by time window ────────── */
+
+export interface BirthdayAnnivDeepRow {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    kind: 'birthday' | 'anniversary';
+    date: string;
+    years?: number;
+}
+
+export interface BirthdayAnnivDeep {
+    rows: BirthdayAnnivDeepRow[];
+    today: BirthdayAnnivDeepRow[];
+    thisWeek: BirthdayAnnivDeepRow[];
+    thisMonth: BirthdayAnnivDeepRow[];
+    totals: {
+        todayBirthdays: number;
+        weekBirthdays: number;
+        monthBirthdays: number;
+        monthAnniversaries: number;
+    };
+}
+
+export async function getBirthdayAnniversaryDeep(
+    days: number,
+    departmentId?: string,
+): Promise<BirthdayAnnivDeep> {
+    const empty: BirthdayAnnivDeep = {
+        rows: [],
+        today: [],
+        thisWeek: [],
+        thisMonth: [],
+        totals: {
+            todayBirthdays: 0,
+            weekBirthdays: 0,
+            monthBirthdays: 0,
+            monthAnniversaries: 0,
+        },
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const match: Record<string, unknown> = { userId, status: 'Active' };
+        if (departmentId && ObjectId.isValid(departmentId)) {
+            match.departmentId = new ObjectId(departmentId);
+        }
+
+        const employees = await db
+            .collection('crm_employees')
+            .aggregate([
+                { $match: match },
+                {
+                    $lookup: {
+                        from: 'crm_departments',
+                        localField: 'departmentId',
+                        foreignField: '_id',
+                        as: 'dept',
+                    },
+                },
+                { $unwind: { path: '$dept', preserveNullAndEmptyArrays: true } },
+            ])
+            .toArray();
+
+        const now = new Date();
+        const windowMs = Math.max(1, days) * 86400000;
+        const startToday = new Date(now);
+        startToday.setHours(0, 0, 0, 0);
+        const endWeek = new Date(startToday.getTime() + 7 * 86400000);
+        const endMonth = new Date(startToday);
+        endMonth.setMonth(endMonth.getMonth() + 1);
+
+        function nextOccurrence(src: Date): Date {
+            const d = new Date(now.getFullYear(), src.getMonth(), src.getDate());
+            if (d.getTime() < startToday.getTime()) {
+                d.setFullYear(now.getFullYear() + 1);
+            }
+            return d;
+        }
+
+        const rows: BirthdayAnnivDeepRow[] = [];
+        for (const e of employees) {
+            const er = e as any;
+            const employeeId = String(er._id);
+            const employeeName =
+                `${er.firstName || ''} ${er.lastName || ''}`.trim() ||
+                String(er.email || 'Unknown');
+            const department = String(er.dept?.name || '—');
+
+            if (er.dateOfBirth) {
+                const next = nextOccurrence(new Date(er.dateOfBirth));
+                if (next.getTime() - startToday.getTime() <= windowMs) {
+                    rows.push({
+                        employeeId,
+                        employeeName,
+                        department,
+                        kind: 'birthday',
+                        date: next.toISOString(),
+                    });
+                }
+            }
+            if (er.dateOfJoining) {
+                const joined = new Date(er.dateOfJoining);
+                const next = nextOccurrence(joined);
+                if (next.getTime() - startToday.getTime() <= windowMs) {
+                    const years = next.getFullYear() - joined.getFullYear();
+                    if (years >= 1) {
+                        rows.push({
+                            employeeId,
+                            employeeName,
+                            department,
+                            kind: 'anniversary',
+                            date: next.toISOString(),
+                            years,
+                        });
+                    }
+                }
+            }
+        }
+
+        rows.sort((a, b) => a.date.localeCompare(b.date));
+
+        const today: BirthdayAnnivDeepRow[] = [];
+        const thisWeek: BirthdayAnnivDeepRow[] = [];
+        const thisMonth: BirthdayAnnivDeepRow[] = [];
+        for (const r of rows) {
+            const t = new Date(r.date).getTime();
+            if (t >= startToday.getTime() && t < startToday.getTime() + 86400000) {
+                today.push(r);
+            }
+            if (t >= startToday.getTime() && t < endWeek.getTime()) {
+                thisWeek.push(r);
+            }
+            if (t >= startToday.getTime() && t < endMonth.getTime()) {
+                thisMonth.push(r);
+            }
+        }
+
+        return {
+            rows,
+            today,
+            thisWeek,
+            thisMonth,
+            totals: {
+                todayBirthdays: today.filter((r) => r.kind === 'birthday').length,
+                weekBirthdays: thisWeek.filter((r) => r.kind === 'birthday').length,
+                monthBirthdays: thisMonth.filter((r) => r.kind === 'birthday').length,
+                monthAnniversaries: thisMonth.filter((r) => r.kind === 'anniversary').length,
+            },
+        };
+    } catch (e) {
+        console.error('[getBirthdayAnniversaryDeep] failed:', e);
+        return empty;
+    }
+}

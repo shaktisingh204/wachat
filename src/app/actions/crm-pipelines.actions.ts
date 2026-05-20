@@ -513,3 +513,160 @@ export async function savePipeline(
         return { error: getErrorMessage(e) };
     }
 }
+
+/* ─── KPI aggregate for the all-pipelines list page ──────────────────── */
+
+export interface CrmPipelineKpis {
+    /** Total number of pipelines for the tenant. */
+    total: number;
+    /** Total value of deals currently in flight across all pipelines. */
+    inFlightValue: number;
+    /** Average days a deal spends in pipeline (open deals only). */
+    avgVelocityDays: number;
+    /** Name of the pipeline with the most deals attached. */
+    topPipelineName: string;
+    /** Currency code observed on the bulk of in-flight deals (best-effort). */
+    currency: string;
+}
+
+const EMPTY_PIPELINE_KPIS: CrmPipelineKpis = {
+    total: 0,
+    inFlightValue: 0,
+    avgVelocityDays: 0,
+    topPipelineName: '—',
+    currency: 'INR',
+};
+
+export async function getCrmPipelineKpis(): Promise<CrmPipelineKpis> {
+    const session = await getSession();
+    if (!session?.user) return EMPTY_PIPELINE_KPIS;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const user = await db
+            .collection('users')
+            .findOne({ _id: userObjectId });
+        const pipelines: CrmPipeline[] = (user?.crmPipelines as CrmPipeline[] | undefined) ?? [];
+        const total = pipelines.length;
+        const nameById = new Map<string, string>();
+        for (const p of pipelines) {
+            if (p?.id) nameById.set(String(p.id), p.name ?? '—');
+        }
+
+        const closedStages = new Set(['won', 'lost', 'closed', 'converted']);
+
+        const deals = await db
+            .collection('crm_deals')
+            .find({ userId: userObjectId })
+            .project({ value: 1, currency: 1, stage: 1, status: 1, pipelineId: 1, createdAt: 1, closedAt: 1 })
+            .toArray();
+
+        let inFlightValue = 0;
+        let inFlightCount = 0;
+        let velocityTotalDays = 0;
+        let velocityCount = 0;
+        const currencyCount = new Map<string, number>();
+        const dealsPerPipeline = new Map<string, number>();
+        const now = Date.now();
+
+        for (const d of deals as Array<Record<string, unknown>>) {
+            const stage = String(d.stage ?? '').toLowerCase();
+            const status = String(d.status ?? '').toLowerCase();
+            const value = Number(d.value ?? 0);
+            const cur = String(d.currency ?? 'INR');
+            const pid = String(d.pipelineId ?? '');
+            if (pid) {
+                dealsPerPipeline.set(pid, (dealsPerPipeline.get(pid) ?? 0) + 1);
+            }
+
+            const isClosed = closedStages.has(stage) || closedStages.has(status);
+            if (!isClosed) {
+                inFlightCount += 1;
+                if (Number.isFinite(value)) inFlightValue += value;
+                currencyCount.set(cur, (currencyCount.get(cur) ?? 0) + 1);
+                const createdAtRaw = d.createdAt;
+                const createdMs =
+                    createdAtRaw instanceof Date
+                        ? createdAtRaw.getTime()
+                        : typeof createdAtRaw === 'string'
+                          ? Date.parse(createdAtRaw)
+                          : NaN;
+                if (Number.isFinite(createdMs)) {
+                    const days = Math.max(0, (now - createdMs) / (1000 * 60 * 60 * 24));
+                    velocityTotalDays += days;
+                    velocityCount += 1;
+                }
+            }
+        }
+
+        let topPipelineName = '—';
+        let topCount = -1;
+        for (const [pid, count] of dealsPerPipeline) {
+            if (count > topCount) {
+                topCount = count;
+                topPipelineName = nameById.get(pid) ?? '—';
+            }
+        }
+        // If no deals at all but pipelines exist, fall back to the first.
+        if (topCount <= 0 && pipelines.length > 0) {
+            topPipelineName = pipelines[0]?.name ?? '—';
+        }
+
+        let currency = 'INR';
+        let curBest = -1;
+        for (const [c, n] of currencyCount) {
+            if (n > curBest) {
+                curBest = n;
+                currency = c;
+            }
+        }
+
+        const avgVelocityDays =
+            velocityCount > 0 ? Math.round((velocityTotalDays / velocityCount) * 10) / 10 : 0;
+
+        return {
+            total,
+            inFlightValue,
+            avgVelocityDays,
+            topPipelineName,
+            currency,
+        };
+    } catch (e) {
+        console.error('[getCrmPipelineKpis] failed:', e);
+        return { ...EMPTY_PIPELINE_KPIS };
+    }
+}
+
+/* ─── Bulk delete pipelines (by id, embedded array) ──────────────────── */
+
+export async function bulkDeleteCrmPipelines(
+    ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied' };
+    if (!Array.isArray(ids) || ids.length === 0) {
+        return { success: true, processed: 0 };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userFilter = { _id: new ObjectId(session.user._id) };
+        const user = await db.collection('users').findOne(userFilter);
+        const current: CrmPipeline[] = (user?.crmPipelines as CrmPipeline[] | undefined) ?? [];
+        const idSet = new Set(ids.map((s) => String(s)));
+        const next = current.filter((p) => !idSet.has(String(p?.id ?? '')));
+        const processed = current.length - next.length;
+
+        await db
+            .collection('users')
+            .updateOne(userFilter, { $set: { crmPipelines: next } });
+
+        revalidatePath('/dashboard/crm/sales-crm/all-pipelines');
+        revalidatePath('/dashboard/crm/sales-crm/pipelines');
+        return { success: true, processed };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}

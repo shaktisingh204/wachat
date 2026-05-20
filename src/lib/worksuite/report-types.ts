@@ -136,6 +136,23 @@ export interface TicketMetrics {
   byStatus: { status: string; count: number }[];
   byChannel: { channel: string; count: number }[];
   byAgent: { agent: string; count: number }[];
+  byPriority: { priority: string; count: number }[];
+  byCategory: { category: string; count: number }[];
+  byDay: { date: string; opened: number; closed: number }[];
+}
+
+export interface TicketReportRow {
+  id: string;
+  subject: string;
+  status: string;
+  priority: string;
+  channel: string;
+  agent: string;
+  category: string;
+  createdAt: string;
+  firstResponseAt?: string;
+  resolvedAt?: string;
+  resolutionMinutes?: number;
 }
 
 export interface AgentPerformanceRow {
@@ -151,4 +168,153 @@ export interface TaskReportFilters {
   assigneeId?: string;
   from?: string;
   to?: string;
+}
+
+export interface DealsByMonthRow {
+  period: string;
+  won: number;
+  lost: number;
+  wonValue: number;
+  lostValue: number;
+}
+
+export interface LeadStageFunnelRow {
+  stage: string;
+  count: number;
+  conversionFromPrev: number;
+}
+
+/* ─── Finance: FY-aware deepened report rows ─────────────────────── */
+
+export interface IncomeReportKpis {
+  totalFY: number;
+  thisMonth: number;
+  yoyChangePct: number;
+  topSource: string;
+  topSourceTotal: number;
+}
+
+export interface IncomeInvoiceRow {
+  id: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  clientName: string;
+  total: number;
+  paidAmount: number;
+  status: string;
+  source: string;
+}
+
+export interface ExpenseReportKpis {
+  totalFY: number;
+  thisMonth: number;
+  yoyChangePct: number;
+  topCategory: string;
+  topCategoryTotal: number;
+}
+
+export interface ExpenseTableRow {
+  id: string;
+  date: string;
+  category: string;
+  description: string;
+  amount: number;
+  taxAmount: number;
+  status: string;
+  reference: string;
+}
+
+export interface ProfitLossKpis {
+  grossProfit: number;
+  netProfit: number;
+  marginPct: number;
+  ebitda: number;
+  revenue: number;
+  cogs: number;
+  opex: number;
+}
+
+export interface ProfitLossStackedRow {
+  period: string;
+  revenue: number;
+  cogs: number;
+  expense: number;
+  profit: number;
+}
+
+export interface TaxReportKpis {
+  taxCollected: number;
+  taxPaid: number;
+  netLiability: number;
+  pendingFilings: number;
+}
+
+export interface TaxMonthlyRow {
+  period: string;
+  collected: number;
+  paid: number;
+  net: number;
+}
+
+export interface InvoiceAgingKpis {
+  current: number;
+  d31to60: number;
+  d61to90: number;
+  over90: number;
+  total: number;
+  openCount: number;
+}
+
+export interface InvoiceAgingClientRow {
+  accountId: string;
+  clientName: string;
+  current: number;
+  d31to60: number;
+  d61to90: number;
+  over90: number;
+  total: number;
+  openCount: number;
+}
+
+export interface InvoiceAgingDetailRow {
+  id: string;
+  invoiceNumber: string;
+  clientName: string;
+  accountId: string;
+  invoiceDate: string;
+  dueDate: string;
+  daysOverdue: number;
+  outstanding: number;
+  bucket: '0-30' | '31-60' | '61-90' | '90+';
+}
+
+export interface PaymentReportKpis {
+  receivedMtd: number;
+  pendingReceipts: number;
+  overdueAmount: number;
+  avgDsoDays: number;
+  monthTarget: number;
+}
+
+export interface PaymentMtdRow {
+  period: string;
+  received: number;
+  target: number;
+}
+
+export interface PaymentMethodRow {
+  method: string;
+  total: number;
+  count: number;
+}
+
+export interface PaymentReceiptRow {
+  id: string;
+  receiptNumber: string;
+  date: string;
+  clientName: string;
+  amount: number;
+  method: string;
+  invoiceNumber: string;
+  invoiceId: string;
 }

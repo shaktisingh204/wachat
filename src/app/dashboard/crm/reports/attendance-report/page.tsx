@@ -1,177 +1,194 @@
-import { ZoruButton, ZoruCard } from '@/components/zoruui';
-
 export const dynamic = 'force-dynamic';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { StatCard } from '../_components/report-toolbar';
-import { getAttendanceMatrix } from '@/app/actions/worksuite/reports.actions';
+import * as React from 'react';
 
-function AttendanceFilter({ month, year }: { month: number; year: number }) {
-  const months = [
-    'January','February','March','April','May','June',
-    'July','August','September','October','November','December',
-  ];
-  const years = Array.from({ length: 5 }, (_, i) => year - 2 + i);
-  return (
-    <form
-      method="get"
-      className="flex flex-wrap items-end gap-2 rounded-lg border border-zoru-line bg-zoru-bg px-3 py-2"
-    >
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-          Month
-        </span>
-        <select
-          name="month"
-          defaultValue={String(month)}
-          className="h-9 rounded-lg border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
-        >
-          {months.map((m, i) => (
-            <option key={m} value={i + 1}>
-              {m}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label className="flex flex-col gap-1">
-        <span className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-          Year
-        </span>
-        <select
-          name="year"
-          defaultValue={String(year)}
-          className="h-9 rounded-lg border border-zoru-line bg-zoru-bg px-2 text-[13px] text-zoru-ink"
-        >
-          {years.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-      </label>
-      <ZoruButton type="submit" size="sm">
-        Apply
-      </ZoruButton>
-    </form>
-  );
+import {
+  ZoruBadge,
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+} from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+
+import { StatCard, fmtNumber } from '../_components/report-toolbar';
+import { HrReportToolbar } from '../_components/hr-report-toolbar';
+import { DailyAttendanceChart } from '../_components/hr-report-charts';
+import {
+  getHrReportDepartments,
+  getAttendanceReportData,
+} from '@/app/actions/crm-reports.actions';
+
+interface PageProps {
+  searchParams: Promise<{
+    month?: string;
+    year?: string;
+    departmentId?: string;
+    page?: string;
+    limit?: string;
+  }>;
 }
 
-const STATUS_GLYPH: Record<string, { char: string; cls: string; title: string }> = {
-  Present: { char: 'P', cls: 'bg-emerald-50 text-zoru-success-ink', title: 'Present' },
-  Absent: { char: 'A', cls: 'bg-rose-50 text-zoru-danger-ink', title: 'Absent' },
-  'Half Day': { char: 'H', cls: 'bg-amber-50 text-zoru-warning-ink', title: 'Half Day' },
-  Leave: { char: 'L', cls: 'bg-sky-50 text-zoru-info-ink', title: 'Leave' },
-};
-
-export default async function AttendanceReportPage(props: {
-  searchParams: Promise<{ month?: string; year?: string }>;
-}) {
+export default async function AttendanceReportPage(props: PageProps) {
   const sp = await props.searchParams;
   const now = new Date();
-  const month = sp.month ? parseInt(sp.month) : now.getMonth() + 1;
-  const year = sp.year ? parseInt(sp.year) : now.getFullYear();
+  const month = sp.month ? parseInt(sp.month, 10) : now.getMonth() + 1;
+  const year = sp.year ? parseInt(sp.year, 10) : now.getFullYear();
+  const page = Math.max(1, sp.page ? parseInt(sp.page, 10) : 1);
+  const limit = Math.min(100, Math.max(5, sp.limit ? parseInt(sp.limit, 10) : 20));
 
-  const matrix = await getAttendanceMatrix(month, year);
-  const daysInMonth = matrix[0]?.days.length || new Date(year, month, 0).getDate();
+  const [departments, data] = await Promise.all([
+    getHrReportDepartments(),
+    getAttendanceReportData(month, year, sp.departmentId),
+  ]);
 
-  const totalPresent = matrix.reduce((s, m) => s + m.summary.present, 0);
-  const totalAbsent = matrix.reduce((s, m) => s + m.summary.absent, 0);
-  const totalLeave = matrix.reduce((s, m) => s + m.summary.leave, 0);
+  const { rows, daily, totals } = data;
+
+  const pageRows = rows.slice((page - 1) * limit, page * limit);
+  const hasMore = page * limit < rows.length;
+
+  const exportHeaders = [
+    'Employee',
+    'Department',
+    'Present',
+    'Absent',
+    'Late',
+    'Leave',
+    'Attendance %',
+  ];
+  const exportRows = rows.map((r) => ({
+    Employee: r.employeeName,
+    Department: r.department,
+    Present: r.present,
+    Absent: r.absent,
+    Late: r.late,
+    Leave: r.leave,
+    'Attendance %': r.attendancePct.toFixed(1),
+  }));
 
   return (
     <EntityListShell
       title="Attendance Report"
-      subtitle="Employee × day attendance matrix for the selected month."
-      primaryAction={<AttendanceFilter month={month} year={year} />}
+      subtitle={`Daily attendance for ${new Date(year, month - 1, 1).toLocaleString('en-US', { month: 'long', year: 'numeric' })}.`}
+      primaryAction={
+        <HrReportToolbar
+          monthPicker={{ month, year }}
+          departmentId={sp.departmentId}
+          departments={departments}
+          exportProps={{
+            filename: 'attendance-report',
+            headers: exportHeaders,
+            rows: exportRows,
+            sheetName: 'Attendance',
+          }}
+        />
+      }
+      pagination={
+        <PaginationBar
+          page={page}
+          limit={limit}
+          hasMore={hasMore}
+          total={rows.length}
+        />
+      }
     >
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <StatCard label="Employees" value={String(matrix.length)} />
-        <StatCard label="Present" value={String(totalPresent)} tone="green" />
-        <StatCard label="Absent" value={String(totalAbsent)} tone="red" />
-        <StatCard label="On leave" value={String(totalLeave)} tone="blue" />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard
+          label="Total employees"
+          value={fmtNumber(totals.totalEmployees)}
+        />
+        <StatCard
+          label="Avg attendance"
+          value={`${totals.avgAttendancePct.toFixed(1)}%`}
+          tone={totals.avgAttendancePct >= 90 ? 'green' : 'amber'}
+        />
+        <StatCard
+          label="Late this period"
+          value={fmtNumber(totals.lateCount)}
+          tone="amber"
+        />
+        <StatCard
+          label="Absent this period"
+          value={fmtNumber(totals.absentCount)}
+          tone="red"
+        />
       </div>
 
       <ZoruCard className="p-6">
-        <div className="overflow-x-auto">
-          <table className="min-w-full border-collapse">
-            <thead>
-              <tr>
-                <th className="sticky left-0 z-10 bg-zoru-bg px-3 py-2 text-left text-[12px] font-semibold text-zoru-ink-muted">
-                  Employee
-                </th>
-                {Array.from({ length: daysInMonth }, (_, i) => (
-                  <th
-                    key={i}
-                    className="min-w-[26px] px-1 py-2 text-center text-[11px] font-medium text-zoru-ink-muted"
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-[16px] font-semibold text-foreground">
+            Daily attendance
+          </h2>
+          <span className="text-[12px] text-muted-foreground">
+            {fmtNumber(totals.presentCount)} present · {fmtNumber(totals.absentCount)} absent · {fmtNumber(totals.leaveCount)} on leave
+          </span>
+        </div>
+        <DailyAttendanceChart data={daily} />
+      </ZoruCard>
+
+      <ZoruCard className="p-0">
+        <div className="overflow-x-auto rounded-lg border border-border">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-border hover:bg-transparent">
+                <ZoruTableHead className="text-muted-foreground">Employee</ZoruTableHead>
+                <ZoruTableHead className="text-muted-foreground">Department</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Present</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Absent</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Late</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Leave</ZoruTableHead>
+                <ZoruTableHead className="text-right text-muted-foreground">Attendance %</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {pageRows.length === 0 ? (
+                <ZoruTableRow className="border-border">
+                  <ZoruTableCell
+                    colSpan={7}
+                    className="h-20 text-center text-[13px] text-muted-foreground"
                   >
-                    {i + 1}
-                  </th>
-                ))}
-                <th className="px-3 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
-                  P
-                </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
-                  A
-                </th>
-                <th className="px-2 py-2 text-right text-[12px] font-semibold text-zoru-ink-muted">
-                  L
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={daysInMonth + 4}
-                    className="py-8 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    No employees found.
-                  </td>
-                </tr>
+                    No attendance data.
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ) : (
-                matrix.map((row) => (
-                  <tr
-                    key={row.employeeId}
-                    className="border-t border-zoru-line"
-                  >
-                    <td className="sticky left-0 z-10 bg-zoru-bg px-3 py-2 text-[13px] text-zoru-ink">
-                      {row.employeeName}
-                    </td>
-                    {row.days.map((d, i) => {
-                      const glyph = d.status ? STATUS_GLYPH[d.status] : null;
-                      return (
-                        <td
-                          key={i}
-                          className="px-1 py-1 text-center align-middle"
-                        >
-                          {glyph ? (
-                            <span
-                              title={`${d.date} — ${glyph.title}`}
-                              className={`inline-flex h-5 w-5 items-center justify-center rounded text-[10px] font-semibold ${glyph.cls}`}
-                            >
-                              {glyph.char}
-                            </span>
-                          ) : (
-                            <span className="text-zoru-ink-muted">·</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                    <td className="px-3 py-2 text-right text-[12.5px] font-medium text-zoru-success-ink">
-                      {row.summary.present}
-                    </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-zoru-danger-ink">
-                      {row.summary.absent}
-                    </td>
-                    <td className="px-2 py-2 text-right text-[12.5px] font-medium text-zoru-info-ink">
-                      {row.summary.leave}
-                    </td>
-                  </tr>
+                pageRows.map((r) => (
+                  <ZoruTableRow key={r.employeeId} className="border-border">
+                    <ZoruTableCell>
+                      <EntityRowLink
+                        href={`/dashboard/crm/hr-payroll/employees/${r.employeeId}`}
+                        label={r.employeeName}
+                      />
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-foreground">
+                      <ZoruBadge variant="outline">{r.department}</ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-emerald-500">
+                      {r.present}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-destructive">
+                      {r.absent}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-amber-500">
+                      {r.late}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-sky-500">
+                      {r.leave}
+                    </ZoruTableCell>
+                    <ZoruTableCell
+                      className={`text-right text-[13px] font-medium ${r.attendancePct >= 90 ? 'text-emerald-500' : r.attendancePct >= 75 ? 'text-amber-500' : 'text-destructive'}`}
+                    >
+                      {r.attendancePct.toFixed(1)}%
+                    </ZoruTableCell>
+                  </ZoruTableRow>
                 ))
               )}
-            </tbody>
-          </table>
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
       </ZoruCard>
     </EntityListShell>

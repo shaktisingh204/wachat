@@ -656,10 +656,22 @@ export interface CrmAccountKpis {
     strategic: number;
     key: number;
     archived: number;
+    /** Sum of `annualRevenue` across non-archived accounts. */
+    totalArr: number;
+    /** Top 3 industries by account count, non-archived. */
+    topIndustries: { industry: string; count: number }[];
 }
 
 export async function getCrmAccountKpis(): Promise<CrmAccountKpis> {
-    const zero: CrmAccountKpis = { total: 0, active: 0, strategic: 0, key: 0, archived: 0 };
+    const zero: CrmAccountKpis = {
+        total: 0,
+        active: 0,
+        strategic: 0,
+        key: 0,
+        archived: 0,
+        totalArr: 0,
+        topIndustries: [],
+    };
 
     const session = await getSession();
     if (!session?.user) return zero;
@@ -671,16 +683,47 @@ export async function getCrmAccountKpis(): Promise<CrmAccountKpis> {
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
         const base: Filter<Document> = { userId: userObjectId };
+        const active: Filter<Document> = { ...base, archived: { $ne: true } };
 
-        const [total, active, strategic, key, archived] = await Promise.all([
-            db.collection('crm_accounts').countDocuments(base),
-            db.collection('crm_accounts').countDocuments({ ...base, archived: { $ne: true } }),
-            db.collection('crm_accounts').countDocuments({ ...base, category: 'strategic' }),
-            db.collection('crm_accounts').countDocuments({ ...base, category: 'key' }),
-            db.collection('crm_accounts').countDocuments({ ...base, archived: true }),
-        ]);
+        const [total, activeCount, strategic, key, archived, arrAgg, industriesAgg] =
+            await Promise.all([
+                db.collection('crm_accounts').countDocuments(base),
+                db.collection('crm_accounts').countDocuments(active),
+                db.collection('crm_accounts').countDocuments({ ...base, category: 'strategic' }),
+                db.collection('crm_accounts').countDocuments({ ...base, category: 'key' }),
+                db.collection('crm_accounts').countDocuments({ ...base, archived: true }),
+                db
+                    .collection('crm_accounts')
+                    .aggregate([
+                        { $match: active },
+                        { $group: { _id: null, sum: { $sum: { $ifNull: ['$annualRevenue', 0] } } } },
+                    ])
+                    .toArray(),
+                db
+                    .collection('crm_accounts')
+                    .aggregate([
+                        { $match: { ...active, industry: { $exists: true, $ne: null } } },
+                        { $group: { _id: '$industry', count: { $sum: 1 } } },
+                        { $sort: { count: -1 } },
+                        { $limit: 3 },
+                    ])
+                    .toArray(),
+            ]);
 
-        return { total, active, strategic, key, archived };
+        const totalArr = Number((arrAgg[0] as { sum?: number } | undefined)?.sum ?? 0) || 0;
+        const topIndustries = (industriesAgg as Array<{ _id: unknown; count: number }>)
+            .filter((row) => typeof row._id === 'string' && (row._id as string).trim() !== '')
+            .map((row) => ({ industry: String(row._id), count: Number(row.count) || 0 }));
+
+        return {
+            total,
+            active: activeCount,
+            strategic,
+            key,
+            archived,
+            totalArr,
+            topIndustries,
+        };
     } catch (e) {
         console.error('[getCrmAccountKpis] failed:', e);
         return zero;

@@ -163,6 +163,158 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
     }
 }
 
+/* ─── getCrmAutomationKpis ───────────────────────────────────────────── */
+
+export interface CrmAutomationKpis {
+    total: number;
+    active: number;
+    paused: number;
+    executionsToday: number;
+}
+
+export async function getCrmAutomationKpis(): Promise<CrmAutomationKpis> {
+    const empty: CrmAutomationKpis = { total: 0, active: 0, paused: 0, executionsToday: 0 };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const startOfToday = new Date();
+        startOfToday.setHours(0, 0, 0, 0);
+
+        const [total, active, executionsAgg] = await Promise.all([
+            db.collection('crm_automations').countDocuments({ userId: userObjectId } as any),
+            db
+                .collection('crm_automations')
+                .countDocuments({ userId: userObjectId, isActive: true } as any),
+            db
+                .collection('crm_automations')
+                .aggregate([
+                    {
+                        $match: {
+                            userId: userObjectId,
+                            lastRunAt: { $gte: startOfToday },
+                        },
+                    },
+                    { $group: { _id: null, runs: { $sum: { $ifNull: ['$runCount', 1] } } } },
+                ])
+                .toArray(),
+        ]);
+
+        return {
+            total,
+            active,
+            paused: Math.max(0, total - active),
+            executionsToday: Number(executionsAgg?.[0]?.runs ?? 0),
+        };
+    } catch (e) {
+        console.error('Failed to fetch CRM automation KPIs:', e);
+        return empty;
+    }
+}
+
+/* ─── listCrmAutomations (full list with pagination + filters) ───────── */
+
+export type CrmAutomationStatusFilter = 'all' | 'active' | 'paused';
+
+export interface CrmAutomationListFilters {
+    status?: CrmAutomationStatusFilter;
+    trigger?: string;
+}
+
+export interface CrmAutomationListItem {
+    _id: string;
+    name: string;
+    trigger?: string;
+    actionsCount?: number;
+    conditionsCount?: number;
+    isActive?: boolean;
+    lastRunAt?: string;
+    runCount?: number;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export async function listCrmAutomations(
+    page: number = 1,
+    limit: number = 20,
+    query: string = '',
+    filters: CrmAutomationListFilters = {},
+): Promise<{ items: CrmAutomationListItem[]; total: number }> {
+    const session = await getSession();
+    if (!session?.user) return { items: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const mongoFilter: Record<string, unknown> = { userId: userObjectId };
+        if (query) {
+            mongoFilter.name = { $regex: query, $options: 'i' };
+        }
+        if (filters.status === 'active') mongoFilter.isActive = true;
+        else if (filters.status === 'paused') mongoFilter.isActive = { $ne: true };
+        if (filters.trigger) mongoFilter.trigger = filters.trigger;
+
+        const skip = (Math.max(1, page) - 1) * limit;
+        const [docs, total] = await Promise.all([
+            db
+                .collection('crm_automations')
+                .find(mongoFilter as any)
+                .sort({ updatedAt: -1, createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('crm_automations').countDocuments(mongoFilter as any),
+        ]);
+        return {
+            items: JSON.parse(JSON.stringify(docs)) as CrmAutomationListItem[],
+            total,
+        };
+    } catch (e) {
+        console.error('Failed to list CRM automations:', e);
+        return { items: [], total: 0 };
+    }
+}
+
+/* ─── bulkAutomationAction ───────────────────────────────────────────── */
+
+export async function bulkAutomationAction(
+    ids: string[],
+    op: 'delete' | 'activate' | 'pause',
+): Promise<{ success: boolean; processed?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!Array.isArray(ids) || ids.length === 0) return { success: false, error: 'No ids.' };
+
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) return { success: false, error: 'No valid ids.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const objectIds = validIds.map((id) => new ObjectId(id));
+        const match = { _id: { $in: objectIds }, userId: userObjectId } as any;
+
+        if (op === 'delete') {
+            const result = await db.collection('crm_automations').deleteMany(match);
+            revalidatePath('/dashboard/crm/sales-crm/automations');
+            return { success: true, processed: result.deletedCount ?? 0 };
+        }
+        if (op === 'activate' || op === 'pause') {
+            const result = await db
+                .collection('crm_automations')
+                .updateMany(match, { $set: { isActive: op === 'activate', updatedAt: new Date() } });
+            revalidatePath('/dashboard/crm/sales-crm/automations');
+            return { success: true, processed: result.modifiedCount ?? 0 };
+        }
+        return { success: false, error: 'Unsupported op.' };
+    } catch (e) {
+        return { success: false, error: 'Bulk operation failed.' };
+    }
+}
+
 const GenerateCrmAutomationInputSchema = z.object({
     prompt: z.string().describe("The user's description of the automation they want to create."),
 });

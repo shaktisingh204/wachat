@@ -238,6 +238,103 @@ export async function deleteCrmPaymentAccount(accountId: string): Promise<{ succ
     }
 }
 
+/**
+ * KPI aggregate for the Bank Accounts list page.
+ *
+ * - totalAccounts: number of bank-type payment accounts
+ * - totalBalance: sum of currentBalance across bank accounts (in their
+ *   recorded currency — listing pages typically use INR; we surface the
+ *   numeric sum and let the UI format with `en-IN` INR)
+ * - banksCount: distinct bank names
+ * - lastUpdatedAt: most recent `updatedAt` across bank accounts (proxy
+ *   for "last reconciled" until a dedicated reconciliation field lands)
+ */
+export interface BankAccountKpis {
+    totalAccounts: number;
+    totalBalance: number;
+    banksCount: number;
+    lastUpdatedAt: string | null;
+}
+
+export async function getBankAccountKpis(): Promise<BankAccountKpis> {
+    const session = await getSession();
+    if (!session?.user) return { totalAccounts: 0, totalBalance: 0, banksCount: 0, lastUpdatedAt: null };
+
+    try {
+        const accounts = await getCrmPaymentAccounts();
+        const bankAccounts = accounts.filter((a) => a.accountType === 'bank');
+        const totalBalance = bankAccounts.reduce(
+            (sum, a) => sum + (typeof a.currentBalance === 'number' ? a.currentBalance : 0),
+            0,
+        );
+        const distinctBanks = new Set(
+            bankAccounts
+                .map((a) => a.bankDetails?.bankName?.trim().toLowerCase())
+                .filter((n): n is string => !!n),
+        );
+        const lastUpdatedAt = bankAccounts.reduce<Date | null>((latest, a) => {
+            const u = a.updatedAt ? new Date(a.updatedAt) : null;
+            if (!u) return latest;
+            return !latest || u.getTime() > latest.getTime() ? u : latest;
+        }, null);
+        return {
+            totalAccounts: bankAccounts.length,
+            totalBalance,
+            banksCount: distinctBanks.size,
+            lastUpdatedAt: lastUpdatedAt ? lastUpdatedAt.toISOString() : null,
+        };
+    } catch (e) {
+        console.error('[getBankAccountKpis] failed:', e);
+        return { totalAccounts: 0, totalBalance: 0, banksCount: 0, lastUpdatedAt: null };
+    }
+}
+
+/**
+ * KPI aggregate for the Employee Accounts list page.
+ *
+ * - totalEmployees: number of employee-type payment accounts
+ * - totalBalance: sum of currentBalance across employee accounts
+ * - activeAccounts: status === 'active'
+ * - unverifiedCount: accounts missing bank IFSC + accountNumber (proxy
+ *   for "unverified payout details" until a dedicated verified flag
+ *   lands)
+ */
+export interface EmployeeAccountKpis {
+    totalEmployees: number;
+    totalBalance: number;
+    activeAccounts: number;
+    unverifiedCount: number;
+}
+
+export async function getEmployeeAccountKpis(): Promise<EmployeeAccountKpis> {
+    const session = await getSession();
+    if (!session?.user) return { totalEmployees: 0, totalBalance: 0, activeAccounts: 0, unverifiedCount: 0 };
+
+    try {
+        const accounts = await getCrmPaymentAccounts();
+        const employeeAccounts = accounts.filter((a) => a.accountType === 'employee');
+        const totalBalance = employeeAccounts.reduce(
+            (sum, a) => sum + (typeof a.currentBalance === 'number' ? a.currentBalance : 0),
+            0,
+        );
+        const activeAccounts = employeeAccounts.filter((a) => a.status === 'active').length;
+        const unverifiedCount = employeeAccounts.filter((a) => {
+            const ifsc = a.bankDetails?.ifsc?.trim();
+            const num = a.bankDetails?.accountNumber?.trim();
+            return !ifsc || !num;
+        }).length;
+        return {
+            totalEmployees: employeeAccounts.length,
+            totalBalance,
+            activeAccounts,
+            unverifiedCount,
+        };
+    } catch (e) {
+        console.error('[getEmployeeAccountKpis] failed:', e);
+        return { totalEmployees: 0, totalBalance: 0, activeAccounts: 0, unverifiedCount: 0 };
+    }
+}
+
 export async function bulkUpdateCrmPaymentAccounts(
     ids: string[],
     op: 'archive' | 'activate' | 'delete'

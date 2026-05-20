@@ -5,6 +5,7 @@ import {
   ZoruButton,
   ZoruCard,
   ZoruCardContent,
+  ZoruDateRangePicker,
   ZoruLabel,
   ZoruSelect,
   ZoruSelectContent,
@@ -12,9 +13,11 @@ import {
   ZoruSelectTrigger,
   ZoruSelectValue,
 } from '@/components/zoruui';
+import type { DateRange } from 'react-day-picker';
 import {
   Archive,
   Download,
+  FileSpreadsheet,
   Tag,
   X } from 'lucide-react';
 
@@ -46,6 +49,8 @@ export interface AccountsFiltersRowProps {
     onCountryChange: (v: string) => void;
     currencyFilter: string;
     onCurrencyChange: (v: string) => void;
+    dateRange?: DateRange;
+    onDateRangeChange?: (range: DateRange | undefined) => void;
     hasActiveFilters: boolean;
     onClear: () => void;
 }
@@ -137,6 +142,19 @@ export function AccountsFiltersRow(props: AccountsFiltersRowProps) {
                     />
                 </div>
 
+                {props.onDateRangeChange ? (
+                    <div className="space-y-1 lg:col-span-2">
+                        <ZoruLabel className="text-[11.5px] uppercase tracking-wide text-zoru-ink-subtle">
+                            Created
+                        </ZoruLabel>
+                        <ZoruDateRangePicker
+                            value={props.dateRange}
+                            onChange={props.onDateRangeChange}
+                            placeholder="Any time"
+                        />
+                    </div>
+                ) : null}
+
                 {props.hasActiveFilters ? (
                     <div className="flex items-end lg:col-span-5">
                         <ZoruButton variant="ghost" size="sm" onClick={props.onClear}>
@@ -155,6 +173,7 @@ export interface AccountsBulkBarProps {
     onArchive: () => void;
     onCategoryChange: (next: 'new' | 'strategic' | 'key' | 'regular') => void;
     onExport: () => void;
+    onExportXlsx?: () => void;
 }
 
 export function AccountsBulkBar({
@@ -163,6 +182,7 @@ export function AccountsBulkBar({
     onArchive,
     onCategoryChange,
     onExport,
+    onExportXlsx,
 }: AccountsBulkBarProps) {
     return (
         <div className="flex flex-wrap items-center justify-between gap-3">
@@ -192,6 +212,15 @@ export function AccountsBulkBar({
                 <ZoruButton variant="outline" size="sm" onClick={onExport}>
                     <Download className="h-3.5 w-3.5" /> Export CSV
                 </ZoruButton>
+                {onExportXlsx ? (
+                    <ZoruButton
+                        variant="outline"
+                        size="sm"
+                        onClick={onExportXlsx}
+                    >
+                        <FileSpreadsheet className="h-3.5 w-3.5" /> Export XLSX
+                    </ZoruButton>
+                ) : null}
                 <ZoruButton variant="outline" size="sm" onClick={onArchive}>
                     <Archive className="h-3.5 w-3.5" /> Archive
                 </ZoruButton>

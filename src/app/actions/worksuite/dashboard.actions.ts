@@ -518,6 +518,85 @@ export async function getPinnedQuickList(
   return all.slice(0, Math.max(0, limit));
 }
 
+/* ─── KPIs + bulk operations (used by the pinned list page) ─────── */
+
+export interface WsPinnedKpis {
+  total: number;
+  byType: Record<WsPinnedResourceType, number>;
+  recentCount: number;
+  distinctTypes: number;
+}
+
+const EMPTY_PIN_BY_TYPE: Record<WsPinnedResourceType, number> = {
+  project: 0,
+  task: 0,
+  lead: 0,
+  deal: 0,
+  ticket: 0,
+  kb: 0,
+  note: 0,
+};
+
+export async function getMyPinnedKpis(): Promise<WsPinnedKpis> {
+  const user = await requireSession();
+  const empty: WsPinnedKpis = {
+    total: 0,
+    byType: { ...EMPTY_PIN_BY_TYPE },
+    recentCount: 0,
+    distinctTypes: 0,
+  };
+  if (!user) return empty;
+
+  const { db } = await connectToDatabase();
+  const tenantId = new ObjectId(user._id);
+  const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
+  const filter = { userId: tenantId, user_id: tenantId };
+  const [total, recentCount, byTypeAgg] = await Promise.all([
+    db.collection(COLS.pinned).countDocuments(filter),
+    db.collection(COLS.pinned).countDocuments({
+      ...filter,
+      pinned_at: { $gte: since },
+    }),
+    db
+      .collection(COLS.pinned)
+      .aggregate<{ _id: WsPinnedResourceType; n: number }>([
+        { $match: filter },
+        { $group: { _id: '$resource_type', n: { $sum: 1 } } },
+      ])
+      .toArray(),
+  ]);
+
+  const byType = { ...EMPTY_PIN_BY_TYPE };
+  for (const row of byTypeAgg) {
+    if (row._id && row._id in byType) byType[row._id] = row.n;
+  }
+  const distinctTypes = byTypeAgg.filter((r) => r.n > 0).length;
+
+  return { total, byType, recentCount, distinctTypes };
+}
+
+export async function bulkUnpinItems(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, processed: 0, error: 'Access denied' };
+  const valid = ids.filter((id) => ObjectId.isValid(id));
+  if (valid.length === 0) {
+    return { success: false, processed: 0, error: 'No valid ids.' };
+  }
+  const { db } = await connectToDatabase();
+  const tenantId = new ObjectId(user._id);
+  const res = await db.collection(COLS.pinned).deleteMany({
+    _id: { $in: valid.map((id) => new ObjectId(id)) },
+    userId: tenantId,
+    user_id: tenantId,
+  });
+  revalidatePath(PATHS.pinned);
+  revalidatePath(PATHS.crm);
+  return { success: true, processed: res.deletedCount ?? 0 };
+}
+
 /* Simple getters for edit forms / lookups. */
 export async function getPinnedById(id: string) {
   return hrGetById<WsPinnedItem>(COLS.pinned, id);

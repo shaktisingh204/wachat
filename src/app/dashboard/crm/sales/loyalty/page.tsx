@@ -1,43 +1,103 @@
+'use client';
+
+/**
+ * Loyalty programs — Deep list page.
+ *
+ *   • KPI strip  (total members · points outstanding · top-tier members · redemption rate)
+ *   • Filters row (status select · date range · clear)
+ *   • Bulk action bar (delete · set status · export selected)
+ *   • Programs table (EntityRowLink on the name cell)
+ *   • Pagination via <PaginationBar />
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
+import type { DateRange } from 'react-day-picker';
+import {
+  Award,
+  Crown,
+  Coins,
+  Download,
+  FileSpreadsheet,
+  FileText,
+  Plus,
+  RefreshCcw,
+  Users,
+} from 'lucide-react';
+
 import {
   ZoruBadge,
   ZoruButton,
   ZoruCard,
+  ZoruDateRangePicker,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
+  useZoruToast,
 } from '@/components/zoruui';
-import {
-  ObjectId } from 'mongodb';
-import { Plus } from 'lucide-react';
 
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import {
+  bulkLoyaltyAction,
+  getLoyaltyKpis,
+  listLoyaltyPrograms,
+  type CrmLoyaltyKpis,
+  type CrmLoyaltyListFilters,
+} from '@/app/actions/crm-loyalty.actions';
 
-import Link from 'next/link';
+const PER_PAGE = 20;
 
-import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/app/actions/user.actions';
+const EMPTY_KPIS: CrmLoyaltyKpis = {
+  totalMembers: 0,
+  pointsOutstanding: 0,
+  topTierMembers: 0,
+  redemptionRate: 0,
+};
+
+const STATUS_OPTIONS = ['all', 'draft', 'active', 'paused', 'cancelled'] as const;
+type StatusFilter = (typeof STATUS_OPTIONS)[number];
 
 type AnyLoyaltyProgram = {
   _id?: { toString(): string } | string;
   name?: string;
   tiers?: unknown[];
   pointsPerCurrencyUnit?: number;
+  redemptionRatio?: number;
   expiryDays?: number;
   status?: string;
   createdAt?: string | Date;
 };
 
+function getId(p: AnyLoyaltyProgram, idx: number): string {
+  return typeof p._id === 'string'
+    ? p._id
+    : (p._id as { toString(): string } | undefined)?.toString?.() ?? String(idx);
+}
+
 function getStatusVariant(
   status?: string,
 ): 'success' | 'warning' | 'danger' | 'ghost' {
   const s = (status || '').toLowerCase();
-  if (s === 'active' || s === 'redeemed' || s === 'won') return 'success';
-  if (s === 'draft' || s === 'pending' || s === 'issued') return 'ghost';
-  if (s === 'expired' || s === 'cancelled' || s === 'voided') return 'danger';
+  if (s === 'active') return 'success';
+  if (s === 'draft' || s === 'pending') return 'ghost';
+  if (s === 'cancelled' || s === 'voided') return 'danger';
   return 'warning';
 }
 
@@ -52,119 +112,428 @@ function formatExpiryRule(days: number | undefined | null): string {
   return `${days.toLocaleString()} days`;
 }
 
-export default async function SalesLoyaltyPage() {
-  let programs: AnyLoyaltyProgram[] = [];
-  let loadError = false;
+export default function SalesLoyaltyPage(): React.JSX.Element {
+  const { toast } = useZoruToast();
 
-  const session = await getSession();
-  if (session?.user?._id) {
-    try {
-      const { db } = await connectToDatabase();
-      const userObjectId = new ObjectId(session.user._id as string);
-      const docs = await db
-        .collection('crm_loyalty_programs')
-        .find({ userId: userObjectId } as any)
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .toArray();
-      programs = JSON.parse(JSON.stringify(docs)) as AnyLoyaltyProgram[];
-    } catch (e) {
-      console.error('Failed to load CRM loyalty programs:', e);
-      loadError = true;
-    }
-  }
+  const [rows, setRows] = React.useState<AnyLoyaltyProgram[]>([]);
+  const [total, setTotal] = React.useState(0);
+  const [page, setPage] = React.useState(1);
+  const [kpis, setKpis] = React.useState<CrmLoyaltyKpis>(EMPTY_KPIS);
+  const [isPending, startTransition] = React.useTransition();
+
+  const [search, setSearch] = React.useState('');
+  const [searchInput, setSearchInput] = React.useState('');
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
+
+  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
+
+  const filters = React.useMemo<CrmLoyaltyListFilters>(() => {
+    const f: CrmLoyaltyListFilters = {};
+    if (statusFilter !== 'all') f.status = statusFilter;
+    if (search) f.search = search;
+    if (dateRange?.from) f.createdAfter = dateRange.from;
+    if (dateRange?.to) f.createdBefore = dateRange.to;
+    return f;
+  }, [statusFilter, search, dateRange]);
+
+  const fetchData = React.useCallback(() => {
+    startTransition(async () => {
+      const [list, kpiData] = await Promise.all([
+        listLoyaltyPrograms(page, PER_PAGE, filters),
+        getLoyaltyKpis(),
+      ]);
+      setRows(list.rows as AnyLoyaltyProgram[]);
+      setTotal(list.total);
+      setKpis(kpiData ?? EMPTY_KPIS);
+    });
+  }, [page, filters]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const debouncedSearch = useDebouncedCallback((next: string) => {
+    setSearch(next);
+    setPage(1);
+  }, 300);
+
+  const handleSearchChange = React.useCallback(
+    (v: string) => {
+      setSearchInput(v);
+      debouncedSearch(v);
+    },
+    [debouncedSearch],
+  );
+
+  const clearFilters = React.useCallback(() => {
+    setStatusFilter('all');
+    setDateRange(undefined);
+    setSearch('');
+    setSearchInput('');
+    setPage(1);
+  }, []);
+
+  const hasActiveFilters =
+    statusFilter !== 'all' ||
+    !!search ||
+    !!dateRange?.from ||
+    !!dateRange?.to;
+
+  const handleToggleOne = React.useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleToggleAll = React.useCallback(
+    (all: boolean) => {
+      setSelected(all ? new Set(rows.map((r, i) => getId(r, i))) : new Set());
+    },
+    [rows],
+  );
+
+  const runBulk = React.useCallback(
+    async (op: 'delete' | 'status', payload?: string) => {
+      if (selected.size === 0) return;
+      const res = await bulkLoyaltyAction(Array.from(selected), op, payload);
+      if (res.success) {
+        toast({
+          title: `${res.processed} program${res.processed === 1 ? '' : 's'} updated`,
+        });
+        setSelected(new Set());
+        fetchData();
+      } else {
+        toast({
+          title: 'Bulk action failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    },
+    [selected, fetchData, toast],
+  );
+
+  const handleConfirmDelete = React.useCallback(async () => {
+    await runBulk('delete');
+    setDeleteOpen(false);
+  }, [runBulk]);
+
+  const exportRows = React.useMemo(() => {
+    if (selected.size === 0) return rows;
+    return rows.filter((r, i) => selected.has(getId(r, i)));
+  }, [rows, selected]);
+
+  const exportFile = React.useCallback(
+    async (format: 'csv' | 'xlsx') => {
+      const header = [
+        'Program',
+        'Tiers',
+        'Points / unit',
+        'Redemption ratio',
+        'Expiry rule',
+        'Status',
+        'Created At',
+      ];
+      const records = exportRows.map((p) => {
+        const tiers = Array.isArray(p.tiers) ? p.tiers.length : 0;
+        return {
+          Program: p.name ?? '',
+          Tiers: tiers,
+          'Points / unit': p.pointsPerCurrencyUnit ?? '',
+          'Redemption ratio': p.redemptionRatio ?? '',
+          'Expiry rule': formatExpiryRule(p.expiryDays),
+          Status: p.status ?? 'draft',
+          'Created At': p.createdAt ? new Date(p.createdAt).toISOString() : '',
+        };
+      });
+
+      const xlsx = await import('xlsx');
+      const ws = xlsx.utils.json_to_sheet(records, { header });
+      const wb = xlsx.utils.book_new();
+      xlsx.utils.book_append_sheet(wb, ws, 'Loyalty');
+
+      const stamp = new Date().toISOString().slice(0, 10);
+      if (format === 'csv') {
+        const csv = xlsx.utils.sheet_to_csv(ws);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `loyalty-${stamp}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        xlsx.writeFile(wb, `loyalty-${stamp}.xlsx`);
+      }
+    },
+    [exportRows],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const allSelected = rows.length > 0 && rows.every((r, i) => selected.has(getId(r, i)));
 
   return (
-    <EntityListShell
-      title="Loyalty"
-      subtitle="Reward repeat customers with tiered points programs and expiry rules."
-      primaryAction={
-        <Link href="/dashboard/crm/sales/loyalty/new">
-          <ZoruButton variant="outline">
-            <Plus className="h-4 w-4" strokeWidth={1.75} />
-            New program
+    <>
+      <EntityListShell
+        title="Loyalty"
+        subtitle="Reward repeat customers with tiered points programs and expiry rules."
+        search={{
+          value: searchInput,
+          onChange: handleSearchChange,
+          placeholder: 'Search by program name…',
+        }}
+        primaryAction={
+          <ZoruButton asChild>
+            <Link href="/dashboard/crm/sales/loyalty/new">
+              <Plus className="h-4 w-4" /> New program
+            </Link>
           </ZoruButton>
-        </Link>
-      }
-    >
+        }
+        filters={
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="w-40">
+              <ZoruSelect
+                value={statusFilter}
+                onValueChange={(v) => {
+                  setStatusFilter(v as StatusFilter);
+                  setPage(1);
+                }}
+              >
+                <ZoruSelectTrigger>
+                  <ZoruSelectValue placeholder="Status" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                  {STATUS_OPTIONS.map((s) => (
+                    <ZoruSelectItem key={s} value={s}>
+                      {s === 'all' ? 'All statuses' : s[0].toUpperCase() + s.slice(1)}
+                    </ZoruSelectItem>
+                  ))}
+                </ZoruSelectContent>
+              </ZoruSelect>
+            </div>
+            <div className="w-64">
+              <ZoruDateRangePicker
+                value={dateRange}
+                onChange={(r) => {
+                  setDateRange(r);
+                  setPage(1);
+                }}
+                placeholder="Created between…"
+              />
+            </div>
+            {hasActiveFilters ? (
+              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                Clear filters
+              </ZoruButton>
+            ) : null}
+            <ZoruDropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <ZoruButton variant="outline" size="sm">
+                  <Download className="h-4 w-4" /> Export
+                </ZoruButton>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent align="end">
+                <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+                  <FileText className="h-4 w-4" /> CSV
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                  <FileSpreadsheet className="h-4 w-4" /> XLSX
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </ZoruDropdownMenu>
+          </div>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center gap-2 text-sm text-zoru-ink">
+              <span className="font-medium">{selected.size} selected</span>
+              <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
+                  <ZoruButton variant="outline" size="sm">
+                    Set status
+                  </ZoruButton>
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent>
+                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'active')}>
+                    Active
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'paused')}>
+                    Paused
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'draft')}>
+                    Draft
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onClick={() => runBulk('status', 'cancelled')}>
+                    Cancelled
+                  </ZoruDropdownMenuItem>
+                </ZoruDropdownMenuContent>
+              </ZoruDropdownMenu>
+              <ZoruDropdownMenu>
+                <ZoruDropdownMenuTrigger asChild>
+                  <ZoruButton variant="outline" size="sm">
+                    <Download className="h-4 w-4" /> Export selected
+                  </ZoruButton>
+                </ZoruDropdownMenuTrigger>
+                <ZoruDropdownMenuContent align="end">
+                  <ZoruDropdownMenuItem onClick={() => exportFile('csv')}>
+                    <FileText className="h-4 w-4" /> CSV
+                  </ZoruDropdownMenuItem>
+                  <ZoruDropdownMenuItem onClick={() => exportFile('xlsx')}>
+                    <FileSpreadsheet className="h-4 w-4" /> XLSX
+                  </ZoruDropdownMenuItem>
+                </ZoruDropdownMenuContent>
+              </ZoruDropdownMenu>
+              <ZoruButton variant="destructive" size="sm" onClick={() => setDeleteOpen(true)}>
+                Delete
+              </ZoruButton>
+              <ZoruButton variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                Clear
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+        empty={
+          !isPending && rows.length === 0 ? (
+            <div className="flex flex-col items-center gap-3 p-4">
+              <Award className="h-8 w-8 text-zoru-ink-muted" />
+              <h3 className="text-base font-medium text-zoru-ink">No loyalty programs yet</h3>
+              <p className="max-w-sm text-sm text-zoru-ink-muted">
+                Launch your first program to reward repeat customers.
+              </p>
+              <ZoruButton asChild>
+                <Link href="/dashboard/crm/sales/loyalty/new">
+                  <Plus className="h-4 w-4" /> New program
+                </Link>
+              </ZoruButton>
+            </div>
+          ) : null
+        }
+        loading={isPending && rows.length === 0}
+        pagination={
+          rows.length > 0 ? (
+            <PaginationBar
+              page={page}
+              limit={PER_PAGE}
+              hasMore={page < totalPages}
+              total={total}
+              controlled={{ onChange: (next) => setPage(next.page) }}
+            />
+          ) : null
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <ZoruStatCard
+              label="Total members"
+              value={kpis.totalMembers.toLocaleString()}
+              icon={<Users />}
+            />
+            <ZoruStatCard
+              label="Points outstanding"
+              value={kpis.pointsOutstanding.toLocaleString()}
+              icon={<Coins />}
+            />
+            <ZoruStatCard
+              label="Top-tier members"
+              value={kpis.topTierMembers.toLocaleString()}
+              icon={<Crown />}
+            />
+            <ZoruStatCard
+              label="Redemption rate"
+              value={`${kpis.redemptionRate.toLocaleString()}%`}
+              icon={<RefreshCcw />}
+            />
+          </div>
 
-      <ZoruCard className="p-6">
-        <div className="mb-4">
-          <h2 className="text-[16px] text-zoru-ink">All loyalty programs</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-            Tiered membership programs, points accrual rates and expiry policies.
-          </p>
-        </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Tiers</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Points/₹</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Expiry rule</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {loadError ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={5}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    Could not load loyalty programs. Please try again.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : programs.length > 0 ? (
-                programs.map((p, idx) => {
-                  const id =
-                    typeof p._id === 'string'
-                      ? p._id
-                      : (p._id as any)?.toString?.() ?? String(idx);
-                  const tiers = (p as any).tiers;
-                  const tiersCount = Array.isArray(tiers) ? tiers.length : 0;
-                  return (
-                    <ZoruTableRow key={id} className="border-zoru-line">
-                      <ZoruTableCell className="text-zoru-ink">
-                        <EntityRowLink
-                          href={`/dashboard/crm/sales/loyalty/${id}`}
-                          label={(p as any).name || 'Untitled program'}
-                          subtitle={tiersCount ? `${tiersCount} tier${tiersCount === 1 ? '' : 's'}` : undefined}
-                        />
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {tiersCount}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatPointsRate((p as any).pointsPerCurrencyUnit)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatExpiryRule((p as any).expiryDays)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        <ZoruBadge variant={getStatusVariant(p.status)}>
-                          {p.status || 'draft'}
-                        </ZoruBadge>
+          <ZoruCard className="p-0">
+            <div className="overflow-x-auto rounded-lg">
+              <ZoruTable>
+                <ZoruTableHeader>
+                  <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                    <ZoruTableHead className="w-10">
+                      <input
+                        type="checkbox"
+                        aria-label="Select all"
+                        checked={allSelected}
+                        onChange={(e) => handleToggleAll(e.target.checked)}
+                      />
+                    </ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Program name</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Tiers</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Points/unit</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Expiry rule</ZoruTableHead>
+                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  {rows.length === 0 ? (
+                    <ZoruTableRow className="border-zoru-line">
+                      <ZoruTableCell
+                        colSpan={6}
+                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                      >
+                        {isPending ? 'Loading…' : 'No loyalty programs match these filters.'}
                       </ZoruTableCell>
                     </ZoruTableRow>
-                  );
-                })
-              ) : (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={5}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    No loyalty programs yet. Launch your first program to reward
-                    repeat customers.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              )}
-            </ZoruTableBody>
-          </ZoruTable>
+                  ) : (
+                    rows.map((p, idx) => {
+                      const id = getId(p, idx);
+                      const checked = selected.has(id);
+                      const tiers = Array.isArray(p.tiers) ? p.tiers.length : 0;
+                      return (
+                        <ZoruTableRow key={id} className="border-zoru-line">
+                          <ZoruTableCell>
+                            <input
+                              type="checkbox"
+                              aria-label={`Select ${p.name ?? id}`}
+                              checked={checked}
+                              onChange={() => handleToggleOne(id)}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            <EntityRowLink
+                              href={`/dashboard/crm/sales/loyalty/${id}`}
+                              label={p.name || 'Untitled program'}
+                              subtitle={tiers ? `${tiers} tier${tiers === 1 ? '' : 's'}` : undefined}
+                            />
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">{tiers}</ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            {formatPointsRate(p.pointsPerCurrencyUnit)}
+                          </ZoruTableCell>
+                          <ZoruTableCell className="text-zoru-ink">
+                            {formatExpiryRule(p.expiryDays)}
+                          </ZoruTableCell>
+                          <ZoruTableCell>
+                            <ZoruBadge variant={getStatusVariant(p.status)}>
+                              {p.status || 'draft'}
+                            </ZoruBadge>
+                          </ZoruTableCell>
+                        </ZoruTableRow>
+                      );
+                    })
+                  )}
+                </ZoruTableBody>
+              </ZoruTable>
+            </div>
+          </ZoruCard>
         </div>
-      </ZoruCard>
-    </EntityListShell>
+      </EntityListShell>
+
+      <ConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title={`Delete ${selected.size} program${selected.size === 1 ? '' : 's'}?`}
+        description="This permanently removes the selected loyalty programs. This action cannot be undone."
+        requireTyped="DELETE"
+        confirmLabel="Delete"
+        onConfirm={handleConfirmDelete}
+      />
+    </>
   );
 }

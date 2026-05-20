@@ -1,70 +1,259 @@
-import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
+import { ObjectId } from 'mongodb';
+
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
 import { getPurchaseOrders } from '@/app/actions/crm-purchase-orders.actions';
-
-import { format } from 'date-fns';
-
+import { getGstr2bImport } from '@/app/actions/crm-india-gst.actions';
 import { MonthPicker } from '@/components/crm/month-picker';
-
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    StatCard,
+    fmtMoney,
+    fmtNumber,
+} from '../_components/report-toolbar';
+import {
+    Gstr2bClient,
+    type Gstr2bPurchaseRow,
+    type Gstr2bTrendDatum,
+    type Gstr2bVendorDatum,
+} from './_components/gstr2b-client';
 
-export default async function Gstr2bPage(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
-    const searchParams = await props.searchParams;
-    const month = searchParams.month ? parseInt(searchParams.month) : undefined;
-    const year = searchParams.year ? parseInt(searchParams.year) : undefined;
+interface SearchParams {
+    month?: string;
+    year?: string;
+    page?: string;
+    limit?: string;
+}
 
-    const { orders } = await getPurchaseOrders(1, 50, { month, year });
+/**
+ * Sum the ITC heads of a 2B totals block.
+ */
+function sumItc(totals?: {
+    igst: number;
+    cgst: number;
+    sgst: number;
+    cess: number;
+}): number {
+    if (!totals) return 0;
+    return (
+        (totals.igst || 0) +
+        (totals.cgst || 0) +
+        (totals.sgst || 0) +
+        (totals.cess || 0)
+    );
+}
+
+/**
+ * GSTR-2B — auto-drafted ITC statement viewer.
+ *
+ * Server page composes:
+ *   1. KPIs derived from `getGstr2bImport` (or zeroed when no import).
+ *   2. Vendor-bar chart (taxable + ITC heads grouped by supplier).
+ *   3. Last-6-months ITC trend, sourced from `crm_gstr2b_imports`.
+ *   4. The purchase-order table with `EntityRowLink`s.
+ */
+export default async function Gstr2bPage(props: {
+    searchParams: Promise<SearchParams>;
+}) {
+    const sp = await props.searchParams;
+    const now = new Date();
+    const month = sp.month ? parseInt(sp.month, 10) : now.getMonth() + 1;
+    const year = sp.year ? parseInt(sp.year, 10) : now.getFullYear();
+    const page = Math.max(1, Number(sp.page ?? 1));
+    const limit = Math.min(Math.max(1, Number(sp.limit ?? 20)), 100);
+
+    const [{ orders, total }, importRes] = await Promise.all([
+        getPurchaseOrders(page, limit, { month, year }),
+        getGstr2bImport({ month, year }),
+    ]);
+
+    // Build vendor name index (tenant-scoped).
+    const vendorIds = Array.from(
+        new Set(
+            orders
+                .map((po) => po.vendorId?.toString())
+                .filter((s): s is string => typeof s === 'string' && s.length > 0),
+        ),
+    );
+    const vendorNameById = new Map<string, string>();
+    const session = await getSession();
+    const tenantId = session?.user
+        ? new ObjectId(String(session.user._id))
+        : null;
+
+    if (tenantId && vendorIds.length > 0) {
+        try {
+            const { db } = await connectToDatabase();
+            const docs = (await db
+                .collection('crm_vendors')
+                .find({
+                    userId: tenantId,
+                    _id: {
+                        $in: vendorIds
+                            .filter((s) => ObjectId.isValid(s))
+                            .map((s) => new ObjectId(s)),
+                    },
+                })
+                .project({ name: 1, displayName: 1 })
+                .toArray()) as Array<{
+                _id: ObjectId;
+                name?: string;
+                displayName?: string;
+            }>;
+            for (const v of docs) {
+                vendorNameById.set(
+                    String(v._id),
+                    v.displayName || v.name || 'Vendor',
+                );
+            }
+        } catch {
+            // best-effort
+        }
+    }
+
+    const rows: Gstr2bPurchaseRow[] = orders.map((po) => ({
+        id: String(po._id),
+        orderNumber: po.orderNumber,
+        orderDate: new Date(po.orderDate).toISOString(),
+        vendorName:
+            vendorNameById.get(String(po.vendorId ?? '')) ?? 'Vendor',
+        total: Number(po.total ?? 0),
+        currency: po.currency || 'INR',
+        status: po.status ?? 'Draft',
+        itcEligible: 'Eligible',
+    }));
+
+    const parsed = importRes.parsed;
+
+    // Vendor chart — top 8 suppliers by taxable value.
+    const vendorChart: Gstr2bVendorDatum[] = parsed
+        ? [...parsed.suppliers]
+              .sort((a, b) => b.taxableValue - a.taxableValue)
+              .slice(0, 8)
+              .map((s) => ({
+                  name: s.tradeName ?? s.gstin,
+                  taxable: Math.round(s.taxableValue),
+                  itc: Math.round(s.igst + s.cgst + s.sgst + s.cess),
+              }))
+        : [];
+
+    // Build a 6-month trend by reading `crm_gstr2b_imports` directly so
+    // the line chart works even when only some months have been imported.
+    let trend: Gstr2bTrendDatum[] = [];
+    if (tenantId) {
+        try {
+            const { db } = await connectToDatabase();
+            const trendDocs = (await db
+                .collection('crm_gstr2b_imports')
+                .find({ userId: tenantId })
+                .project({
+                    period: 1,
+                    periodMonth: 1,
+                    periodYear: 1,
+                    totalItcAvailable: 1,
+                    totalItcIneligible: 1,
+                })
+                .sort({ periodYear: -1, periodMonth: -1 })
+                .limit(6)
+                .toArray()) as Array<{
+                period?: string;
+                periodMonth?: number;
+                periodYear?: number;
+                totalItcAvailable?: {
+                    igst: number;
+                    cgst: number;
+                    sgst: number;
+                    cess: number;
+                };
+                totalItcIneligible?: {
+                    igst: number;
+                    cgst: number;
+                    sgst: number;
+                    cess: number;
+                };
+            }>;
+            trend = trendDocs
+                .map((d) => ({
+                    period: d.period ?? '',
+                    itcAvailable: Math.round(sumItc(d.totalItcAvailable)),
+                    itcReversed: Math.round(sumItc(d.totalItcIneligible)),
+                }))
+                .reverse(); // oldest first for the chart
+        } catch {
+            // best-effort
+        }
+    }
+
+    const totalInward = parsed
+        ? parsed.suppliers.reduce((s, sup) => s + sup.taxableValue, 0)
+        : 0;
+    const itcAvailable = parsed ? sumItc(parsed.totalItcAvailable) : 0;
+    const itcReversed = parsed ? sumItc(parsed.totalItcIneligible) : 0;
+    const vendorsCovered = parsed ? parsed.suppliers.length : 0;
+
+    // The JSON for the current period — only available when an import
+    // exists. We strip Mongo-specific fields by re-stringifying the
+    // already-normalised return.
+    const gstr2bJson = parsed ? JSON.stringify(parsed, null, 2) : undefined;
+    const gstr2bJsonFilename = parsed
+        ? `GSTR2B-${year}-${String(month).padStart(2, '0')}.json`
+        : undefined;
 
     return (
         <EntityListShell
             title="GSTR-2B Report"
-            subtitle="Auto-drafted ITC statement based on Purchase Orders/Bills."
+            subtitle="Auto-drafted ITC statement — vendor breakdown, monthly trend, and source purchase documents."
             primaryAction={<MonthPicker />}
         >
+            {importRes.error ? (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[13px] text-amber-700 dark:text-amber-300">
+                    {importRes.error}
+                </div>
+            ) : null}
+            {!parsed && !importRes.error ? (
+                <div className="rounded-lg border border-border bg-card px-3 py-2 text-[13px] text-muted-foreground">
+                    No GSTR-2B JSON imported for {String(month).padStart(2, '0')}-
+                    {year}. KPIs below are derived from your own purchase
+                    documents until you import the portal payload.
+                </div>
+            ) : null}
 
-            <ZoruCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Purchase Documents</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">Eligible ITC from recorded purchase orders.</p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Order No.</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Vendor</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Total Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">ITC Eligibility</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {orders.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No documents found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                orders.map((po) => (
-                                    <ZoruTableRow key={po._id.toString()} className="border-border">
-                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(po.orderDate), 'PP')}</ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">{po.orderNumber}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">Vendor</ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
-                                            {po.currency} {po.total.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">{po.status}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">Yes</ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label="Total inward supplies"
+                    value={fmtMoney(totalInward, 'INR')}
+                />
+                <StatCard
+                    label="ITC available"
+                    value={fmtMoney(itcAvailable, 'INR')}
+                    tone="green"
+                />
+                <StatCard
+                    label="ITC reversed"
+                    value={fmtMoney(itcReversed, 'INR')}
+                    tone="red"
+                />
+                <StatCard
+                    label="Vendors covered"
+                    value={fmtNumber(vendorsCovered)}
+                    tone="blue"
+                />
+            </div>
+
+            <Gstr2bClient
+                month={month}
+                year={year}
+                vendorChart={vendorChart}
+                trend={trend}
+                rows={rows}
+                total={total}
+                page={page}
+                limit={limit}
+                gstr2bJson={gstr2bJson}
+                gstr2bJsonFilename={gstr2bJsonFilename}
+            />
         </EntityListShell>
-    )
+    );
 }

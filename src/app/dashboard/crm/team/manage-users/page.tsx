@@ -1,217 +1,816 @@
 'use client';
 
+/**
+ * Manage Users — CRM team workspace.
+ *
+ * Deepened per §1B list-page template (ref: sales-crm/all-leads/page.tsx).
+ *
+ * Composition:
+ *   <EntityListShell>
+ *     • KPI strip (total / active / pending invites / admin count)
+ *     • Filter row (search · role · status · department)
+ *     • Bulk action bar (invite, role change, deactivate, export)
+ *     • Member list rows with EntityRowLink → /dashboard/crm/team/manage-users/[id]
+ *     • Pagination (controlled)
+ *   <ConfirmDialog/> for bulk deactivate
+ */
+
+import * as React from 'react';
+import Link from 'next/link';
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  ZoruAvatar,
-  ZoruAvatarFallback,
-  ZoruAvatarImage,
-  ZoruButton,
-  ZoruCard,
-  ZoruInput,
-  ZoruLabel,
-  ZoruSelect,
-  ZoruSelectContent,
-  ZoruSelectItem,
-  ZoruSelectTrigger,
-  ZoruSelectValue,
-  ZoruSeparator,
-  ZoruSkeleton,
-  useZoruToast,
+    Download,
+    LoaderCircle,
+    Plus,
+    Shield,
+    Trash2,
+    UserPlus,
+    Users,
+} from 'lucide-react';
+
+import {
+    ZoruAvatar,
+    ZoruAvatarFallback,
+    ZoruAvatarImage,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruDialog,
+    ZoruDialogContent,
+    ZoruDialogDescription,
+    ZoruDialogFooter,
+    ZoruDialogHeader,
+    ZoruDialogTitle,
+    ZoruDialogTrigger,
+    ZoruInput,
+    ZoruLabel,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruSkeleton,
+    useZoruToast,
 } from '@/components/zoruui';
-import {
-  useState,
-  useEffect,
-  useRef,
-  useActionState,
-  useTransition } from 'react';
-import type { WithId,
-  User } from '@/lib/definitions';
-import { handleInviteAgent,
-  handleRemoveAgent,
-  getInvitedUsers } from '@/app/actions/team.actions';
-import { Plus,
-  Trash2,
-  LoaderCircle } from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
 
-const removeAgentInitialState: any = { message: null, error: null };
-const inviteAgentInitialState: any = { message: null, error: null };
+import {
+    bulkChangeAgentRole,
+    bulkRemoveAgents,
+    getInvitedUsers,
+    handleInviteAgent,
+    listPendingInvitations,
+    type InvitationView,
+} from '@/app/actions/team.actions';
+import { getSession } from '@/app/actions/user.actions';
+import type { User, WithId } from '@/lib/definitions';
 
-function RemoveAgentButton({ agentId, onAgentRemoved }: { agentId: string, onAgentRemoved: () => void }) {
-    const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-    const { toast } = useZoruToast();
-    const [isPending, startTransition] = useTransition();
+type MemberRow = WithId<User & { roles: Record<string, string> }>;
 
-    const handleDelete = (e: React.MouseEvent) => {
-        e.preventDefault();
-        startTransition(() => {
-            const formData = new FormData();
-            formData.append('agentUserId', agentId);
-            formAction(formData);
-        });
-    }
+const PAGE_SIZES = [10, 20, 50, 100] as const;
+const DEFAULT_PAGE_SIZE = 20;
 
-    useEffect(() => {
-        if (state?.message) {
-            toast({ title: 'Success!', description: state.message });
-            onAgentRemoved();
-        }
-        if (state?.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, onAgentRemoved]);
+const inviteInitialState: { message?: string; error?: string } = {
+    message: undefined,
+    error: undefined,
+};
 
-    return (
-         <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="destructive" size="sm" disabled={isPending}>
-                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4" />}
-                </ZoruButton>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Are you sure?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>
-                        This will remove the agent&apos;s access from all of your projects. This action cannot be undone.
-                    </ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleDelete}>Confirm</ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
-    );
+function escapeCsv(value: unknown): string {
+    return `"${String(value ?? '').replace(/"/g, '""')}"`;
 }
 
-function InviteAgentForm({ onAgentInvited }: { onAgentInvited: () => void }) {
-    const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
-    const [isPending, startTransition] = useTransition();
-    const { toast } = useZoruToast();
-    const formRef = useRef<HTMLFormElement>(null);
+function deriveRole(member: MemberRow): string {
+    const roles = Object.values(member.roles ?? {});
+    if (roles.length === 0) return 'agent';
+    return String(roles[0] ?? 'agent').toLowerCase();
+}
 
-     const handleFormSubmit = (formData: FormData) => {
-        startTransition(() => {
-            formAction(formData);
-        });
-    };
+function deriveDepartment(member: MemberRow): string {
+    const businessName = (member as unknown as { businessProfile?: { name?: string } })
+        ?.businessProfile?.name;
+    return businessName?.trim() || 'General';
+}
 
-    useEffect(() => {
-        if (state?.message) {
-            toast({ title: 'Success!', description: state.message });
-            formRef.current?.reset();
-            onAgentInvited();
-        }
-        if (state?.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast, onAgentInvited]);
-
-    return (
-        <ZoruCard className="border-dashed p-6">
-            <div className="mb-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Invite a New Team Member</h2>
-                <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                    Assign a role to the new user. They must have an existing SabNode account. This will grant them access to all your current and future projects with the selected role.
-                </p>
-            </div>
-            <form action={handleFormSubmit} ref={formRef} className="flex flex-col sm:flex-row gap-4">
-                <div className="space-y-2 flex-grow">
-                    <ZoruLabel htmlFor="email" className="sr-only">Email</ZoruLabel>
-                    <ZoruInput id="email" name="email" type="email" placeholder="Enter agent's email" required className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[13px]" />
-                </div>
-                <div className="space-y-2">
-                    <ZoruLabel htmlFor="role" className="sr-only">Role</ZoruLabel>
-                    <ZoruSelect name="role" defaultValue="agent">
-                        <ZoruSelectTrigger id="role" className="w-full sm:w-[180px]"><ZoruSelectValue placeholder="Select role" /></ZoruSelectTrigger>
-                        <ZoruSelectContent>
-                            <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
-                            <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
-                        </ZoruSelectContent>
-                    </ZoruSelect>
-                </div>
-                <ZoruButton type="submit" disabled={isPending}>
-                    {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" strokeWidth={1.75} />}
-                    Invite Agent
-                </ZoruButton>
-            </form>
-        </ZoruCard>
-    );
+function deriveStatus(member: MemberRow, pendingEmails: Set<string>): 'active' | 'pending' {
+    return pendingEmails.has(member.email.toLowerCase()) ? 'pending' : 'active';
 }
 
 export default function ManageUsersPage() {
-    const [teamMembers, setTeamMembers] = useState<WithId<User & { roles: Record<string, string> }>[]>([]);
-    const [isLoading, startTransition] = useTransition();
+    const { toast } = useZoruToast();
 
-    const fetchData = () => {
+    const [members, setMembers] = React.useState<MemberRow[]>([]);
+    const [invites, setInvites] = React.useState<InvitationView[]>([]);
+    const [isLoading, startTransition] = React.useTransition();
+    const [currentUserId, setCurrentUserId] = React.useState<string | undefined>();
+
+    const [search, setSearch] = React.useState('');
+    const [roleFilter, setRoleFilter] = React.useState<string>('all');
+    const [statusFilter, setStatusFilter] = React.useState<'all' | 'active' | 'pending'>('all');
+    const [departmentFilter, setDepartmentFilter] = React.useState<string>('all');
+
+    const [page, setPage] = React.useState(1);
+    const [pageSize, setPageSize] = React.useState<number>(DEFAULT_PAGE_SIZE);
+
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkRoleValue, setBulkRoleValue] = React.useState<string>('agent');
+    const [bulkBusy, setBulkBusy] = React.useState<false | 'role' | 'remove'>(false);
+    const [confirmRemoveOpen, setConfirmRemoveOpen] = React.useState(false);
+    const [inviteDialogOpen, setInviteDialogOpen] = React.useState(false);
+
+    const fetchData = React.useCallback(() => {
         startTransition(async () => {
-            const users = await getInvitedUsers();
-            setTeamMembers(users);
+            const [people, pending] = await Promise.all([
+                getInvitedUsers(),
+                listPendingInvitations(),
+            ]);
+            setMembers(people as MemberRow[]);
+            setInvites(pending);
+        });
+    }, []);
+
+    React.useEffect(() => {
+        let cancelled = false;
+        getSession().then((s) => {
+            if (cancelled) return;
+            setCurrentUserId(s?.user?._id ? String(s.user._id) : undefined);
+        });
+        fetchData();
+        return () => {
+            cancelled = true;
+        };
+    }, [fetchData]);
+
+    const pendingEmails = React.useMemo(
+        () => new Set(invites.filter((i) => i.status === 'pending').map((i) => i.inviteeEmail.toLowerCase())),
+        [invites],
+    );
+
+    const departments = React.useMemo(() => {
+        const set = new Set<string>();
+        for (const m of members) set.add(deriveDepartment(m));
+        return Array.from(set).sort();
+    }, [members]);
+
+    const filtered = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        return members.filter((m) => {
+            if (q && !`${m.name} ${m.email}`.toLowerCase().includes(q)) return false;
+            if (roleFilter !== 'all' && deriveRole(m) !== roleFilter) return false;
+            if (statusFilter !== 'all' && deriveStatus(m, pendingEmails) !== statusFilter) return false;
+            if (departmentFilter !== 'all' && deriveDepartment(m) !== departmentFilter) return false;
+            return true;
+        });
+    }, [members, search, roleFilter, statusFilter, departmentFilter, pendingEmails]);
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / pageSize));
+    const safePage = Math.min(page, totalPages);
+    const paged = React.useMemo(
+        () => filtered.slice((safePage - 1) * pageSize, safePage * pageSize),
+        [filtered, safePage, pageSize],
+    );
+
+    // KPI strip
+    const kpis = React.useMemo(() => {
+        const total = members.length;
+        const adminCount = members.filter((m) => deriveRole(m) === 'admin').length;
+        const pendingCount = invites.filter((i) => i.status === 'pending').length;
+        const activeCount = total; // every fetched member is an active project agent
+        return { total, activeCount, pendingCount, adminCount };
+    }, [members, invites]);
+
+    const hasActiveFilters =
+        search.length > 0 ||
+        roleFilter !== 'all' ||
+        statusFilter !== 'all' ||
+        departmentFilter !== 'all';
+
+    const clearFilters = React.useCallback(() => {
+        setSearch('');
+        setRoleFilter('all');
+        setStatusFilter('all');
+        setDepartmentFilter('all');
+        setPage(1);
+    }, []);
+
+    const toggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(paged.map((m) => m._id.toString())) : new Set());
+        },
+        [paged],
+    );
+
+    const handleBulkRoleChange = React.useCallback(async () => {
+        if (selected.size === 0) return;
+        setBulkBusy('role');
+        const res = await bulkChangeAgentRole({
+            agentUserIds: Array.from(selected),
+            role: bulkRoleValue,
+        });
+        setBulkBusy(false);
+        if (res.success) {
+            toast({ title: `Updated ${res.updated ?? selected.size} member role(s)` });
+            setSelected(new Set());
+            fetchData();
+        } else {
+            toast({
+                title: 'Bulk role change failed',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [selected, bulkRoleValue, fetchData, toast]);
+
+    const handleBulkDeactivate = React.useCallback(async () => {
+        if (selected.size === 0) return;
+        setBulkBusy('remove');
+        const res = await bulkRemoveAgents(Array.from(selected));
+        setBulkBusy(false);
+        if (res.success) {
+            toast({ title: `Removed ${res.removed ?? selected.size} member(s)` });
+            setSelected(new Set());
+            fetchData();
+        } else {
+            toast({
+                title: 'Bulk remove failed',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+    }, [selected, fetchData, toast]);
+
+    const exportCsv = React.useCallback(() => {
+        const rows =
+            selected.size > 0
+                ? filtered.filter((m) => selected.has(m._id.toString()))
+                : filtered;
+        const header = ['Name', 'Email', 'Role', 'Status', 'Department', 'Projects', 'JoinedAt'];
+        const csv = [
+            header.join(','),
+            ...rows.map((m) =>
+                [
+                    escapeCsv(m.name),
+                    escapeCsv(m.email),
+                    escapeCsv(deriveRole(m)),
+                    escapeCsv(deriveStatus(m, pendingEmails)),
+                    escapeCsv(deriveDepartment(m)),
+                    escapeCsv(Object.keys(m.roles ?? {}).length),
+                    escapeCsv(m.createdAt ? new Date(m.createdAt).toISOString() : ''),
+                ].join(','),
+            ),
+        ].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `team-users-${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }, [filtered, selected, pendingEmails]);
+
+    const allSelectedOnPage =
+        paged.length > 0 && paged.every((m) => selected.has(m._id.toString()));
+
+    return (
+        <>
+            <EntityListShell
+                title="Manage Users"
+                subtitle="Invite, role-manage and audit every member with access to your CRM workspace."
+                search={{
+                    value: search,
+                    onChange: (v) => {
+                        setSearch(v);
+                        setPage(1);
+                    },
+                    placeholder: 'Search by name or email…',
+                }}
+                primaryAction={
+                    <InviteMemberDialog
+                        open={inviteDialogOpen}
+                        onOpenChange={setInviteDialogOpen}
+                        onInvited={fetchData}
+                    />
+                }
+                filters={
+                    <FilterRow
+                        roleFilter={roleFilter}
+                        onRoleChange={(v) => {
+                            setRoleFilter(v);
+                            setPage(1);
+                        }}
+                        statusFilter={statusFilter}
+                        onStatusChange={(v) => {
+                            setStatusFilter(v);
+                            setPage(1);
+                        }}
+                        departmentFilter={departmentFilter}
+                        onDepartmentChange={(v) => {
+                            setDepartmentFilter(v);
+                            setPage(1);
+                        }}
+                        departments={departments}
+                        hasActiveFilters={hasActiveFilters}
+                        onClear={clearFilters}
+                    />
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <BulkBar
+                            count={selected.size}
+                            roleValue={bulkRoleValue}
+                            onRoleValueChange={setBulkRoleValue}
+                            onApplyRole={handleBulkRoleChange}
+                            onDeactivate={() => setConfirmRemoveOpen(true)}
+                            onInvite={() => setInviteDialogOpen(true)}
+                            onExport={exportCsv}
+                            onClear={() => setSelected(new Set())}
+                            busy={bulkBusy}
+                        />
+                    ) : null
+                }
+                loading={isLoading && members.length === 0}
+                pagination={
+                    members.length > 0 ? (
+                        <PaginationBar
+                            page={safePage}
+                            limit={pageSize}
+                            hasMore={safePage < totalPages}
+                            total={total}
+                            pageSizes={[...PAGE_SIZES]}
+                            controlled={{
+                                onChange: (next) => {
+                                    setPage(next.page);
+                                    setPageSize(next.limit);
+                                },
+                            }}
+                        />
+                    ) : null
+                }
+                empty={
+                    !isLoading && filtered.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 p-4">
+                            <Users className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">
+                                {members.length === 0 ? 'No team members yet' : 'No matches'}
+                            </h3>
+                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                                {members.length === 0
+                                    ? 'Invite teammates to collaborate on accounts, leads and deals.'
+                                    : 'Try clearing filters to see every member of your workspace.'}
+                            </p>
+                            {members.length === 0 ? (
+                                <ZoruButton onClick={() => setInviteDialogOpen(true)}>
+                                    <UserPlus className="h-4 w-4" /> Invite member
+                                </ZoruButton>
+                            ) : (
+                                <ZoruButton variant="outline" onClick={clearFilters}>
+                                    Clear filters
+                                </ZoruButton>
+                            )}
+                        </div>
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    <KpiStrip {...kpis} />
+
+                    <ZoruCard className="p-0 overflow-hidden">
+                        <div className="flex items-center gap-3 border-b border-zoru-line px-4 py-3 text-[12px] text-zoru-ink-muted">
+                            <ZoruCheckbox
+                                checked={allSelectedOnPage}
+                                onCheckedChange={(v) => toggleAll(Boolean(v))}
+                                aria-label="Select all on page"
+                            />
+                            <span className="flex-1">Member</span>
+                            <span className="hidden w-32 sm:inline">Role</span>
+                            <span className="hidden w-32 md:inline">Department</span>
+                            <span className="hidden w-24 md:inline">Status</span>
+                            <span className="w-24 text-right">Projects</span>
+                        </div>
+                        {isLoading && members.length === 0 ? (
+                            <div className="space-y-2 p-3">
+                                <ZoruSkeleton className="h-14 w-full" />
+                                <ZoruSkeleton className="h-14 w-full" />
+                                <ZoruSkeleton className="h-14 w-full" />
+                            </div>
+                        ) : (
+                            <ul role="list" className="divide-y divide-zoru-line">
+                                {paged.map((m) => {
+                                    const id = m._id.toString();
+                                    const role = deriveRole(m);
+                                    const status = deriveStatus(m, pendingEmails);
+                                    const dept = deriveDepartment(m);
+                                    const isSelf = currentUserId && id === currentUserId;
+                                    return (
+                                        <li
+                                            key={id}
+                                            className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zoru-bg/60"
+                                        >
+                                            <ZoruCheckbox
+                                                checked={selected.has(id)}
+                                                onCheckedChange={() => toggleOne(id)}
+                                                disabled={Boolean(isSelf)}
+                                                aria-label={`Select ${m.name}`}
+                                            />
+                                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                                                <ZoruAvatar className="h-8 w-8">
+                                                    <ZoruAvatarImage
+                                                        src={`https://i.pravatar.cc/150?u=${m.email}`}
+                                                        alt={m.name}
+                                                    />
+                                                    <ZoruAvatarFallback className="text-[11px]">
+                                                        {m.name.substring(0, 2).toUpperCase()}
+                                                    </ZoruAvatarFallback>
+                                                </ZoruAvatar>
+                                                <div className="min-w-0 flex-1">
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/team/manage-users/${id}`}
+                                                        label={
+                                                            <span className="truncate">
+                                                                {m.name}
+                                                                {isSelf ? (
+                                                                    <span className="ml-2 text-[11px] text-zoru-ink-muted">
+                                                                        (you)
+                                                                    </span>
+                                                                ) : null}
+                                                            </span>
+                                                        }
+                                                        subtitle={
+                                                            <span className="truncate">{m.email}</span>
+                                                        }
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="hidden w-32 sm:block">
+                                                <RoleBadge role={role} />
+                                            </div>
+                                            <div className="hidden w-32 truncate text-[12.5px] text-zoru-ink-muted md:block">
+                                                {dept}
+                                            </div>
+                                            <div className="hidden w-24 md:block">
+                                                <StatusBadge status={status} />
+                                            </div>
+                                            <div className="w-24 text-right text-[12.5px] text-zoru-ink-muted">
+                                                {Object.keys(m.roles ?? {}).length}
+                                            </div>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        )}
+                    </ZoruCard>
+                </div>
+            </EntityListShell>
+
+            <ConfirmDialog
+                open={confirmRemoveOpen}
+                onOpenChange={setConfirmRemoveOpen}
+                title={`Deactivate ${selected.size} member${selected.size === 1 ? '' : 's'}?`}
+                description="They will be removed from every project you own and lose all CRM access. You can re-invite them later."
+                confirmLabel="Deactivate"
+                onConfirm={handleBulkDeactivate}
+            />
+        </>
+    );
+}
+
+/* ─── KPI strip ──────────────────────────────────────────────────────── */
+
+interface KpiProps {
+    total: number;
+    activeCount: number;
+    pendingCount: number;
+    adminCount: number;
+}
+
+const KpiStrip = React.memo(function KpiStrip({
+    total,
+    activeCount,
+    pendingCount,
+    adminCount,
+}: KpiProps) {
+    const cards = [
+        { label: 'Total users', value: total, icon: Users, accent: 'text-zoru-ink' },
+        {
+            label: 'Active',
+            value: activeCount,
+            icon: Users,
+            accent: 'text-emerald-600 dark:text-emerald-400',
+        },
+        {
+            label: 'Pending invites',
+            value: pendingCount,
+            icon: UserPlus,
+            accent: 'text-amber-600 dark:text-amber-400',
+        },
+        {
+            label: 'Admins',
+            value: adminCount,
+            icon: Shield,
+            accent: 'text-blue-600 dark:text-blue-400',
+        },
+    ];
+    return (
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {cards.map((c) => {
+                const Icon = c.icon;
+                return (
+                    <ZoruCard key={c.label} className="p-4">
+                        <div className="flex items-start justify-between gap-2">
+                            <div>
+                                <p className="text-[12px] text-zoru-ink-muted">{c.label}</p>
+                                <p className={`mt-1 text-2xl font-semibold ${c.accent}`}>
+                                    {c.value.toLocaleString()}
+                                </p>
+                            </div>
+                            <Icon className="h-4 w-4 text-zoru-ink-muted" />
+                        </div>
+                    </ZoruCard>
+                );
+            })}
+        </div>
+    );
+});
+
+/* ─── Filter row ─────────────────────────────────────────────────────── */
+
+interface FilterRowProps {
+    roleFilter: string;
+    onRoleChange: (v: string) => void;
+    statusFilter: 'all' | 'active' | 'pending';
+    onStatusChange: (v: 'all' | 'active' | 'pending') => void;
+    departmentFilter: string;
+    onDepartmentChange: (v: string) => void;
+    departments: string[];
+    hasActiveFilters: boolean;
+    onClear: () => void;
+}
+
+function FilterRow({
+    roleFilter,
+    onRoleChange,
+    statusFilter,
+    onStatusChange,
+    departmentFilter,
+    onDepartmentChange,
+    departments,
+    hasActiveFilters,
+    onClear,
+}: FilterRowProps) {
+    return (
+        <>
+            <ZoruSelect value={roleFilter} onValueChange={onRoleChange}>
+                <ZoruSelectTrigger className="h-9 w-[160px] text-[12.5px]">
+                    <ZoruSelectValue placeholder="Role" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All roles</ZoruSelectItem>
+                    <ZoruSelectItem value="owner">Owner</ZoruSelectItem>
+                    <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+                    <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+                    <ZoruSelectItem value="member">Member</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect
+                value={statusFilter}
+                onValueChange={(v) => onStatusChange(v as 'all' | 'active' | 'pending')}
+            >
+                <ZoruSelectTrigger className="h-9 w-[160px] text-[12.5px]">
+                    <ZoruSelectValue placeholder="Status" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All status</ZoruSelectItem>
+                    <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                    <ZoruSelectItem value="pending">Pending</ZoruSelectItem>
+                </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect value={departmentFilter} onValueChange={onDepartmentChange}>
+                <ZoruSelectTrigger className="h-9 w-[200px] text-[12.5px]">
+                    <ZoruSelectValue placeholder="Department" />
+                </ZoruSelectTrigger>
+                <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All departments</ZoruSelectItem>
+                    {departments.map((d) => (
+                        <ZoruSelectItem key={d} value={d}>
+                            {d}
+                        </ZoruSelectItem>
+                    ))}
+                </ZoruSelectContent>
+            </ZoruSelect>
+            {hasActiveFilters ? (
+                <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                    Clear filters
+                </ZoruButton>
+            ) : null}
+        </>
+    );
+}
+
+/* ─── Bulk action bar ────────────────────────────────────────────────── */
+
+interface BulkBarProps {
+    count: number;
+    roleValue: string;
+    onRoleValueChange: (v: string) => void;
+    onApplyRole: () => void;
+    onDeactivate: () => void;
+    onInvite: () => void;
+    onExport: () => void;
+    onClear: () => void;
+    busy: false | 'role' | 'remove';
+}
+
+function BulkBar({
+    count,
+    roleValue,
+    onRoleValueChange,
+    onApplyRole,
+    onDeactivate,
+    onInvite,
+    onExport,
+    onClear,
+    busy,
+}: BulkBarProps) {
+    return (
+        <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[12.5px] font-medium text-zoru-ink">
+                {count} selected
+            </span>
+            <ZoruButton variant="outline" size="sm" onClick={onInvite}>
+                <UserPlus className="h-3.5 w-3.5" /> Bulk invite
+            </ZoruButton>
+            <div className="flex items-center gap-1">
+                <ZoruSelect value={roleValue} onValueChange={onRoleValueChange}>
+                    <ZoruSelectTrigger className="h-8 w-[120px] text-[12px]">
+                        <ZoruSelectValue />
+                    </ZoruSelectTrigger>
+                    <ZoruSelectContent>
+                        <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+                        <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+                        <ZoruSelectItem value="member">Member</ZoruSelectItem>
+                    </ZoruSelectContent>
+                </ZoruSelect>
+                <ZoruButton
+                    variant="outline"
+                    size="sm"
+                    onClick={onApplyRole}
+                    disabled={busy === 'role'}
+                >
+                    {busy === 'role' ? (
+                        <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                        <Shield className="h-3.5 w-3.5" />
+                    )}
+                    Change role
+                </ZoruButton>
+            </div>
+            <ZoruButton
+                variant="destructive"
+                size="sm"
+                onClick={onDeactivate}
+                disabled={busy === 'remove'}
+            >
+                {busy === 'remove' ? (
+                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                    <Trash2 className="h-3.5 w-3.5" />
+                )}
+                Deactivate
+            </ZoruButton>
+            <ZoruButton variant="outline" size="sm" onClick={onExport}>
+                <Download className="h-3.5 w-3.5" /> Export
+            </ZoruButton>
+            <span className="flex-1" />
+            <ZoruButton variant="ghost" size="sm" onClick={onClear}>
+                Clear
+            </ZoruButton>
+        </div>
+    );
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────────── */
+
+function RoleBadge({ role }: { role: string }) {
+    const variant =
+        role === 'owner' || role === 'admin' ? 'default' : role === 'member' ? 'outline' : 'secondary';
+    return (
+        <ZoruBadge variant={variant} className="capitalize">
+            {role}
+        </ZoruBadge>
+    );
+}
+
+function StatusBadge({ status }: { status: 'active' | 'pending' }) {
+    if (status === 'pending') {
+        return <ZoruBadge variant="outline">Pending</ZoruBadge>;
+    }
+    return <ZoruBadge variant="secondary">Active</ZoruBadge>;
+}
+
+/* ─── Invite dialog ──────────────────────────────────────────────────── */
+
+interface InviteMemberDialogProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onInvited: () => void;
+}
+
+function InviteMemberDialog({ open, onOpenChange, onInvited }: InviteMemberDialogProps) {
+    const { toast } = useZoruToast();
+    const [state, formAction] = React.useActionState(handleInviteAgent, inviteInitialState);
+    const [isPending, startTransition] = React.useTransition();
+    const formRef = React.useRef<HTMLFormElement>(null);
+
+    React.useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Invitation sent', description: state.message });
+            formRef.current?.reset();
+            onOpenChange(false);
+            onInvited();
+        }
+        if (state?.error) {
+            toast({ title: 'Invite failed', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, onInvited, onOpenChange]);
+
+    const handleSubmit = (formData: FormData) => {
+        startTransition(() => {
+            formAction(formData);
         });
     };
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
     return (
-        <EntityListShell
-            title="Manage Users"
-            subtitle="Invite and manage users for your account."
-        >
-
-            <InviteAgentForm onAgentInvited={fetchData} />
-            <ZoruSeparator />
-
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-zoru-ink">Team Members</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">A list of all users in your team.</p>
-                </div>
-                <div className="space-y-4">
-                    {isLoading ? (
-                        <div className="space-y-3">
-                            <ZoruSkeleton className="h-16 w-full" />
-                            <ZoruSkeleton className="h-16 w-full" />
-                        </div>
-                    ) : teamMembers.length > 0 ? (
-                        teamMembers.map((agent: any) => (
-                            <div key={agent._id.toString()} className="flex items-center justify-between gap-4 rounded-lg border border-zoru-line p-4">
-                                <div className="flex items-center gap-4">
-                                    <ZoruAvatar>
-                                        <ZoruAvatarImage src={`https://i.pravatar.cc/150?u=${agent.email}`} alt={agent.name} />
-                                        <ZoruAvatarFallback className="bg-accent text-accent-foreground">{agent.name.substring(0, 2).toUpperCase()}</ZoruAvatarFallback>
-                                    </ZoruAvatar>
-                                    <div className="space-y-0.5">
-                                        <p className="text-[13px] font-medium leading-none text-zoru-ink">{agent.name}</p>
-                                        <p className="text-[12.5px] text-zoru-ink-muted">{agent.email}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="text-[12.5px] text-zoru-ink-muted">
-                                        {agent.roles && Object.keys(agent.roles).length > 0
-                                            ? `Role: ${Object.values(agent.roles)[0]}`
-                                            : 'No specific project roles'
-                                        }
-                                    </div>
-                                    <RemoveAgentButton agentId={agent._id.toString()} onAgentRemoved={fetchData} />
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <p className="text-[13px] text-zoru-ink-muted text-center py-8">No team members have been invited yet.</p>
-                    )}
-                </div>
-            </ZoruCard>
-        </EntityListShell>
-    )
+        <ZoruDialog open={open} onOpenChange={onOpenChange}>
+            <ZoruDialogTrigger asChild>
+                <ZoruButton>
+                    <Plus className="h-4 w-4" /> Invite member
+                </ZoruButton>
+            </ZoruDialogTrigger>
+            <ZoruDialogContent className="sm:max-w-md">
+                <ZoruDialogHeader>
+                    <ZoruDialogTitle>Invite a new team member</ZoruDialogTitle>
+                    <ZoruDialogDescription>
+                        We email them a secure invite link. If they don&apos;t have a SabNode
+                        account yet they can sign up and accept in one step.
+                    </ZoruDialogDescription>
+                </ZoruDialogHeader>
+                <form ref={formRef} action={handleSubmit} className="flex flex-col gap-4">
+                    <div className="space-y-2">
+                        <ZoruLabel htmlFor="invite-email">Email</ZoruLabel>
+                        <ZoruInput
+                            id="invite-email"
+                            name="email"
+                            type="email"
+                            placeholder="teammate@company.com"
+                            required
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <ZoruLabel htmlFor="invite-role">Role</ZoruLabel>
+                        <ZoruSelect name="role" defaultValue="agent">
+                            <ZoruSelectTrigger id="invite-role">
+                                <ZoruSelectValue placeholder="Select role" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="admin">Admin</ZoruSelectItem>
+                                <ZoruSelectItem value="agent">Agent</ZoruSelectItem>
+                                <ZoruSelectItem value="member">Member</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                    </div>
+                    <ZoruDialogFooter>
+                        <ZoruButton
+                            type="button"
+                            variant="outline"
+                            onClick={() => onOpenChange(false)}
+                            disabled={isPending}
+                        >
+                            Cancel
+                        </ZoruButton>
+                        <ZoruButton type="submit" disabled={isPending}>
+                            {isPending ? (
+                                <LoaderCircle className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <UserPlus className="h-4 w-4" />
+                            )}
+                            Send invite
+                        </ZoruButton>
+                    </ZoruDialogFooter>
+                </form>
+            </ZoruDialogContent>
+        </ZoruDialog>
+    );
 }

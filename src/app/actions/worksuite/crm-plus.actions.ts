@@ -251,6 +251,99 @@ export async function deleteLeadAgent(id: string) {
   return r;
 }
 
+/* ─── KPI aggregate for the lead-agents list page ───────────────────── */
+
+export interface LeadAgentKpis {
+  /** Total agent assignments for the tenant. */
+  total: number;
+  /** Distinct employee_id (user_id) count — i.e. active agents. */
+  active: number;
+  /** Total leads currently assigned (distinct lead_id). */
+  leadsHandled: number;
+  /** Display label (employee id) of the agent with the most leads. */
+  topPerformerId: string;
+  /** Count of leads handled by the top performer. */
+  topPerformerLeads: number;
+}
+
+const EMPTY_AGENT_KPIS: LeadAgentKpis = {
+  total: 0,
+  active: 0,
+  leadsHandled: 0,
+  topPerformerId: '',
+  topPerformerLeads: 0,
+};
+
+export async function getLeadAgentKpis(): Promise<LeadAgentKpis> {
+  try {
+    const rows = await hrList<WsLeadAgent>(COL_AGENTS);
+    if (!Array.isArray(rows) || rows.length === 0) {
+      return { ...EMPTY_AGENT_KPIS };
+    }
+
+    const userIds = new Set<string>();
+    const leadIds = new Set<string>();
+    const perUser = new Map<string, number>();
+
+    for (const row of rows) {
+      const uid = row.user_id ? String(row.user_id) : '';
+      const lid = row.lead_id ? String(row.lead_id) : '';
+      if (uid) {
+        userIds.add(uid);
+        perUser.set(uid, (perUser.get(uid) ?? 0) + 1);
+      }
+      if (lid) leadIds.add(lid);
+    }
+
+    let topPerformerId = '';
+    let topPerformerLeads = 0;
+    for (const [uid, count] of perUser) {
+      if (count > topPerformerLeads) {
+        topPerformerLeads = count;
+        topPerformerId = uid;
+      }
+    }
+
+    return {
+      total: rows.length,
+      active: userIds.size,
+      leadsHandled: leadIds.size,
+      topPerformerId,
+      topPerformerLeads,
+    };
+  } catch (e) {
+    console.error('[getLeadAgentKpis] failed:', e);
+    return { ...EMPTY_AGENT_KPIS };
+  }
+}
+
+/* ─── Bulk delete lead agents ───────────────────────────────────────── */
+
+export async function bulkDeleteLeadAgents(
+  ids: string[],
+): Promise<{ success: boolean; processed: number; error?: string }> {
+  if (!Array.isArray(ids) || ids.length === 0) {
+    return { success: true, processed: 0 };
+  }
+  let processed = 0;
+  let lastError: string | undefined;
+  for (const id of ids) {
+    try {
+      const r = await hrDelete(COL_AGENTS, id);
+      if (r.success) processed += 1;
+      else if (r.error) lastError = r.error;
+    } catch (e) {
+      lastError = e instanceof Error ? e.message : String(e);
+    }
+  }
+  revalidatePath('/dashboard/crm/sales-crm/agents');
+  return {
+    success: lastError === undefined,
+    processed,
+    error: lastError,
+  };
+}
+
 /* ═══════════════════════════════════════════════════════════════════
  *  Lead Custom Forms (field definitions)
  * ══════════════════════════════════════════════════════════════════ */

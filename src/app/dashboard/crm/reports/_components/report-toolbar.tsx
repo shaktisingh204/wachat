@@ -146,6 +146,16 @@ export function fmtNumber(n: number): string {
   return new Intl.NumberFormat('en-IN').format(Math.round(n || 0));
 }
 
+export function fmtPct(n: number, digits = 1): string {
+  if (!isFinite(n)) return '—';
+  return `${n >= 0 ? '' : ''}${n.toFixed(digits)}%`;
+}
+
+export function fmtDays(n: number): string {
+  if (!isFinite(n) || n <= 0) return '—';
+  return `${Math.round(n)} days`;
+}
+
 export function fmtMinutes(m: number): string {
   if (!m) return '—';
   if (m < 60) return `${Math.round(m)} min`;

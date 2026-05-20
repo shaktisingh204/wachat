@@ -115,6 +115,7 @@ export async function generateGstr3bReport(
     }
 
     try {
+        const startedAt = new Date();
         const result = await runReport(
             {
                 userId: session.user._id,
@@ -130,6 +131,32 @@ export async function generateGstr3bReport(
             new ObjectId(String(session.user._id)),
             period,
         );
+
+        // Audit-log this ad-hoc generation into `crm_report_runs` so the
+        // GSTR-3B list page can derive KPIs + filing history. We mirror
+        // the `executeReportDefinition` shape but use a synthetic
+        // `definitionId` since there's no saved definition.
+        try {
+            await db.collection('crm_report_runs').insertOne({
+                userId: new ObjectId(String(session.user._id)),
+                definitionId: null,
+                kind: 'gstr3b',
+                status: result.error ? 'failed' : 'succeeded',
+                trigger: 'manual',
+                startedAt,
+                finishedAt: new Date(),
+                result: {
+                    ...result,
+                    meta: { period: { month: period.month, year: period.year } },
+                },
+                rowCount: result.rows.length,
+                error: result.error ?? null,
+            } as Record<string, unknown>);
+        } catch (logErr) {
+            // History is best-effort — never fail the generation on it.
+            console.error('[generateGstr3bReport] history log failed:', logErr);
+        }
+
         return { result, raw };
     } catch (e) {
         return { error: e instanceof Error ? e.message : 'Failed to generate GSTR-3B.' };
@@ -299,4 +326,248 @@ export async function getGstr2bImport(period: Period): Promise<{
     const { _id, ...rest } = doc as Gstr2bReturn & { _id?: unknown };
     void _id;
     return { parsed: rest as Gstr2bReturn };
+}
+
+/* ─── GSTR-3B KPIs + filing history ─────────────────────────────────── */
+
+export interface Gstr3bFilingRow {
+    runId: string;
+    period: string;
+    month: number;
+    year: number;
+    status: 'succeeded' | 'failed' | 'running';
+    startedAt: string;
+    finishedAt?: string;
+    outwardTaxable?: number;
+    netPayable?: number;
+    rowCount?: number;
+    error?: string | null;
+}
+
+export interface Gstr3bKpis {
+    /** Distinct (month, year) periods generated this financial year. */
+    totalFiledFy: number;
+    /** Months in the running FY without a generation yet. */
+    pendingFy: number;
+    /** ISO timestamp of the most recent successful generation. */
+    lastFilingAt?: string;
+    /** Sum of `outward_total_tax` across all successful runs in the FY. */
+    totalTaxFy: number;
+    /** Sum of `net_payable` across all successful runs in the FY. */
+    netPayableFy: number;
+}
+
+/**
+ * Indian FY runs April–March. Given a date, return the FY window that
+ * contains it (UTC) and the human label e.g. "2026-27".
+ */
+function indianFyWindow(asOf: Date = new Date()): {
+    label: string;
+    start: Date;
+    end: Date;
+} {
+    const y = asOf.getUTCFullYear();
+    const m = asOf.getUTCMonth() + 1;
+    const startYear = m >= 4 ? y : y - 1;
+    const start = new Date(Date.UTC(startYear, 3, 1));
+    const end = new Date(Date.UTC(startYear + 1, 3, 1));
+    const label = `${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}`;
+    return { label, start, end };
+}
+
+function periodFromRun(doc: {
+    kind?: unknown;
+    result?: { meta?: { period?: { month?: number; year?: number } } };
+}): { month: number; year: number } | null {
+    const p = doc.result?.meta?.period;
+    if (!p) return null;
+    const m = Number(p.month);
+    const y = Number(p.year);
+    if (!Number.isFinite(m) || m < 1 || m > 12) return null;
+    if (!Number.isFinite(y) || y < 2017) return null;
+    return { month: m, year: y };
+}
+
+export async function getGstr3bKpis(): Promise<Gstr3bKpis> {
+    const empty: Gstr3bKpis = {
+        totalFiledFy: 0,
+        pendingFy: 0,
+        totalTaxFy: 0,
+        netPayableFy: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    const guard = await requirePermission('crm_gstr1', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjId = new ObjectId(String(session.user._id));
+        const { start, end } = indianFyWindow();
+        const docs = (await db
+            .collection('crm_report_runs')
+            .find({
+                userId: userObjId,
+                kind: 'gstr3b',
+                status: 'succeeded',
+                startedAt: { $gte: start, $lt: end },
+            })
+            .project({
+                'result.summary.outward_total_tax': 1,
+                'result.summary.net_payable': 1,
+                'result.meta.period': 1,
+                finishedAt: 1,
+                startedAt: 1,
+            })
+            .sort({ startedAt: -1 })
+            .toArray()) as Array<{
+            startedAt?: Date;
+            finishedAt?: Date;
+            result?: {
+                summary?: { outward_total_tax?: number; net_payable?: number };
+                meta?: { period?: { month?: number; year?: number } };
+            };
+        }>;
+
+        const distinct = new Set<string>();
+        let totalTax = 0;
+        let netPayable = 0;
+        let last: Date | undefined;
+        for (const d of docs) {
+            const p = periodFromRun(d);
+            if (p) distinct.add(`${p.year}-${p.month}`);
+            const t = Number(d.result?.summary?.outward_total_tax ?? 0);
+            const n = Number(d.result?.summary?.net_payable ?? 0);
+            if (Number.isFinite(t)) totalTax += t;
+            if (Number.isFinite(n)) netPayable += n;
+            const ts = d.finishedAt ?? d.startedAt;
+            if (ts && (!last || ts > last)) last = ts;
+        }
+
+        // FY pending months = months elapsed in FY minus distinct generated.
+        const now = new Date();
+        const monthsElapsed = Math.max(
+            0,
+            Math.min(
+                12,
+                (now.getUTCFullYear() - start.getUTCFullYear()) * 12 +
+                    (now.getUTCMonth() - start.getUTCMonth()) +
+                    1,
+            ),
+        );
+        const pending = Math.max(0, monthsElapsed - distinct.size);
+
+        return {
+            totalFiledFy: distinct.size,
+            pendingFy: pending,
+            totalTaxFy: Math.round(totalTax * 100) / 100,
+            netPayableFy: Math.round(netPayable * 100) / 100,
+            lastFilingAt: last ? last.toISOString() : undefined,
+        };
+    } catch (e) {
+        console.error('[getGstr3bKpis] failed:', e);
+        return empty;
+    }
+}
+
+export async function listGstr3bFilings(
+    page = 1,
+    limit = 20,
+    search = '',
+    filters: { status?: 'all' | 'succeeded' | 'failed'; fy?: 'current' | 'previous' | 'all' } = {},
+): Promise<{ rows: Gstr3bFilingRow[]; total: number }> {
+    const session = await getSession();
+    if (!session?.user) return { rows: [], total: 0 };
+
+    const guard = await requirePermission('crm_gstr1', 'view');
+    if (!guard.ok) return { rows: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjId = new ObjectId(String(session.user._id));
+
+        const query: Record<string, unknown> = {
+            userId: userObjId,
+            kind: 'gstr3b',
+        };
+        if (filters.status && filters.status !== 'all') {
+            query.status = filters.status;
+        }
+        if (filters.fy && filters.fy !== 'all') {
+            const now = new Date();
+            const ref = filters.fy === 'previous'
+                ? new Date(Date.UTC(now.getUTCFullYear() - 1, now.getUTCMonth(), 1))
+                : now;
+            const { start, end } = indianFyWindow(ref);
+            query.startedAt = { $gte: start, $lt: end };
+        }
+
+        const skip = Math.max(0, (page - 1) * limit);
+        const safeLimit = Math.min(Math.max(1, limit), 200);
+
+        const [docs, total] = await Promise.all([
+            db
+                .collection('crm_report_runs')
+                .find(query)
+                .project({
+                    status: 1,
+                    startedAt: 1,
+                    finishedAt: 1,
+                    error: 1,
+                    rowCount: 1,
+                    'result.summary.outward_taxable': 1,
+                    'result.summary.outward_total_tax': 1,
+                    'result.summary.net_payable': 1,
+                    'result.meta.period': 1,
+                })
+                .sort({ startedAt: -1 })
+                .skip(skip)
+                .limit(safeLimit)
+                .toArray(),
+            db.collection('crm_report_runs').countDocuments(query),
+        ]);
+
+        const needle = search.trim().toLowerCase();
+        const rows: Gstr3bFilingRow[] = [];
+        for (const raw of docs as Array<{
+            _id: ObjectId;
+            status: 'succeeded' | 'failed' | 'running';
+            startedAt: Date;
+            finishedAt?: Date;
+            error?: string | null;
+            rowCount?: number;
+            result?: {
+                summary?: {
+                    outward_taxable?: number;
+                    outward_total_tax?: number;
+                    net_payable?: number;
+                };
+                meta?: { period?: { month?: number; year?: number } };
+            };
+        }>) {
+            const p = periodFromRun(raw);
+            if (!p) continue;
+            const label = periodKey(p);
+            if (needle && !label.toLowerCase().includes(needle)) continue;
+            rows.push({
+                runId: String(raw._id),
+                period: label,
+                month: p.month,
+                year: p.year,
+                status: raw.status,
+                startedAt: new Date(raw.startedAt).toISOString(),
+                finishedAt: raw.finishedAt ? new Date(raw.finishedAt).toISOString() : undefined,
+                outwardTaxable: raw.result?.summary?.outward_taxable,
+                netPayable: raw.result?.summary?.net_payable,
+                rowCount: raw.rowCount,
+                error: raw.error ?? undefined,
+            });
+        }
+
+        return { rows, total: needle ? rows.length : total };
+    } catch (e) {
+        console.error('[listGstr3bFilings] failed:', e);
+        return { rows: [], total: 0 };
+    }
 }

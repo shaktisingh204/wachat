@@ -37,8 +37,26 @@ import type {
   LeaveBalanceRow,
   BirthdayAnniversaryRow,
   TicketMetrics,
+  TicketReportRow,
   AgentPerformanceRow,
   TaskReportFilters,
+  DealsByMonthRow,
+  LeadStageFunnelRow,
+  IncomeReportKpis,
+  IncomeInvoiceRow,
+  ExpenseReportKpis,
+  ExpenseTableRow,
+  ProfitLossKpis,
+  ProfitLossStackedRow,
+  TaxReportKpis,
+  TaxMonthlyRow,
+  InvoiceAgingKpis,
+  InvoiceAgingClientRow,
+  InvoiceAgingDetailRow,
+  PaymentReportKpis,
+  PaymentMtdRow,
+  PaymentMethodRow,
+  PaymentReceiptRow,
 } from '@/lib/worksuite/report-types';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
@@ -402,18 +420,26 @@ export async function getLeadConversion(
   };
 }
 
-export async function getTopClients(limit = 10): Promise<TopClientRow[]> {
+export async function getTopClients(
+  limit = 10,
+  from?: string,
+  to?: string,
+): Promise<TopClientRow[]> {
   const user = await requireSession();
   if (!user) return [];
   const { db } = await connectToDatabase();
 
+  const match: Record<string, unknown> = {
+    userId: toOid(user),
+    status: { $in: ['Paid', 'Partially Paid'] },
+  };
+  if (from || to) {
+    const { start, end } = defaultRange(from, to);
+    match.invoiceDate = { $gte: start, $lte: end };
+  }
+
   const rows = await db.collection('crm_invoices').aggregate([
-    {
-      $match: {
-        userId: toOid(user),
-        status: { $in: ['Paid', 'Partially Paid'] },
-      },
-    },
+    { $match: match },
     {
       $group: {
         _id: '$accountId',
@@ -446,13 +472,23 @@ export async function getTopClients(limit = 10): Promise<TopClientRow[]> {
   }));
 }
 
-export async function getTopProducts(limit = 10): Promise<TopProductRow[]> {
+export async function getTopProducts(
+  limit = 10,
+  from?: string,
+  to?: string,
+): Promise<TopProductRow[]> {
   const user = await requireSession();
   if (!user) return [];
   const { db } = await connectToDatabase();
 
+  const match: Record<string, unknown> = { userId: toOid(user) };
+  if (from || to) {
+    const { start, end } = defaultRange(from, to);
+    match.invoiceDate = { $gte: start, $lte: end };
+  }
+
   const rows = await db.collection('crm_invoices').aggregate([
-    { $match: { userId: toOid(user) } },
+    { $match: match },
     { $unwind: { path: '$lineItems', preserveNullAndEmptyArrays: false } },
     {
       $group: {
@@ -975,6 +1011,7 @@ export async function getUpcomingBirthdays(
 export async function getTicketMetrics(
   from?: string,
   to?: string,
+  filters?: { priority?: string; channel?: string; status?: string },
 ): Promise<TicketMetrics> {
   const user = await requireSession();
   if (!user) {
@@ -987,15 +1024,21 @@ export async function getTicketMetrics(
       byStatus: [],
       byChannel: [],
       byAgent: [],
+      byPriority: [],
+      byCategory: [],
+      byDay: [],
     };
   }
   const { db } = await connectToDatabase();
   const { start, end } = defaultRange(from, to);
 
-  const match = {
+  const match: Record<string, unknown> = {
     userId: toOid(user),
     createdAt: { $gte: start, $lte: end },
   };
+  if (filters?.priority) match.priority = filters.priority;
+  if (filters?.channel) match.channel = filters.channel;
+  if (filters?.status) match.status = filters.status;
 
   const tickets = await db.collection('crm_tickets').find(match).toArray();
 
@@ -1008,12 +1051,28 @@ export async function getTicketMetrics(
   const byStatus = new Map<string, number>();
   const byChannel = new Map<string, number>();
   const byAgent = new Map<string, number>();
+  const byPriority = new Map<string, number>();
+  const byCategory = new Map<string, number>();
+  const dayOpened = new Map<string, number>();
+  const dayClosed = new Map<string, number>();
+
+  const fmtDay = (d: Date) => d.toISOString().slice(0, 10);
 
   for (const t of tickets) {
-    const tk = t as any;
+    const tk = t as Record<string, unknown> & {
+      status?: string;
+      channel?: string;
+      assigneeName?: string;
+      priority?: string;
+      category?: string;
+      createdAt?: Date | string;
+      firstResponseAt?: Date | string;
+      resolvedAt?: Date | string;
+    };
     const status = tk.status || 'open';
     byStatus.set(status, (byStatus.get(status) || 0) + 1);
-    if (['resolved', 'closed'].includes(status)) resolved++;
+    const isClosed = ['resolved', 'closed'].includes(status);
+    if (isClosed) resolved++;
     else open++;
 
     byChannel.set(
@@ -1024,6 +1083,19 @@ export async function getTicketMetrics(
       tk.assigneeName || 'Unassigned',
       (byAgent.get(tk.assigneeName || 'Unassigned') || 0) + 1,
     );
+    const pr = (tk.priority || 'medium').toString();
+    byPriority.set(pr, (byPriority.get(pr) || 0) + 1);
+    const cat = (tk.category || 'uncategorised').toString();
+    byCategory.set(cat, (byCategory.get(cat) || 0) + 1);
+
+    if (tk.createdAt) {
+      const k = fmtDay(new Date(tk.createdAt));
+      dayOpened.set(k, (dayOpened.get(k) || 0) + 1);
+    }
+    if (tk.resolvedAt) {
+      const k = fmtDay(new Date(tk.resolvedAt));
+      dayClosed.set(k, (dayClosed.get(k) || 0) + 1);
+    }
 
     if (tk.createdAt && tk.firstResponseAt) {
       const minutes =
@@ -1045,6 +1117,15 @@ export async function getTicketMetrics(
     }
   }
 
+  const allDays = new Set<string>([...dayOpened.keys(), ...dayClosed.keys()]);
+  const byDay = Array.from(allDays)
+    .sort()
+    .map((date) => ({
+      date,
+      opened: dayOpened.get(date) || 0,
+      closed: dayClosed.get(date) || 0,
+    }));
+
   return {
     total: tickets.length,
     open,
@@ -1062,7 +1143,91 @@ export async function getTicketMetrics(
     byAgent: Array.from(byAgent.entries())
       .map(([agent, count]) => ({ agent, count }))
       .sort((a, b) => b.count - a.count),
+    byPriority: Array.from(byPriority.entries())
+      .map(([priority, count]) => ({ priority, count }))
+      .sort((a, b) => b.count - a.count),
+    byCategory: Array.from(byCategory.entries())
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count),
+    byDay,
   };
+}
+
+/**
+ * Tenant-scoped, paged ticket list for the report table. Returns
+ * camelCase rows with the SLA durations pre-computed. Filters mirror
+ * `getTicketMetrics` so the toolbar's selections apply consistently.
+ */
+export async function listTicketReportRows(
+  from?: string,
+  to?: string,
+  filters?: { priority?: string; channel?: string; status?: string },
+  page: number = 1,
+  limit: number = 20,
+): Promise<{ rows: TicketReportRow[]; total: number }> {
+  const user = await requireSession();
+  if (!user) return { rows: [], total: 0 };
+  const { db } = await connectToDatabase();
+  const { start, end } = defaultRange(from, to);
+  const match: Record<string, unknown> = {
+    userId: toOid(user),
+    createdAt: { $gte: start, $lte: end },
+  };
+  if (filters?.priority) match.priority = filters.priority;
+  if (filters?.channel) match.channel = filters.channel;
+  if (filters?.status) match.status = filters.status;
+
+  const safeLimit = Math.min(Math.max(1, limit), 200);
+  const skip = Math.max(0, (page - 1) * safeLimit);
+
+  const [docs, total] = await Promise.all([
+    db
+      .collection('crm_tickets')
+      .find(match)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(safeLimit)
+      .toArray(),
+    db.collection('crm_tickets').countDocuments(match),
+  ]);
+
+  const rows: TicketReportRow[] = docs.map((raw) => {
+    const t = raw as Record<string, unknown> & {
+      _id: { toString(): string };
+      subject?: string;
+      status?: string;
+      priority?: string;
+      channel?: string;
+      assigneeName?: string;
+      category?: string;
+      createdAt?: Date | string;
+      firstResponseAt?: Date | string;
+      resolvedAt?: Date | string;
+    };
+    const createdAt = t.createdAt ? new Date(t.createdAt) : new Date();
+    const resolvedAt = t.resolvedAt ? new Date(t.resolvedAt) : undefined;
+    const firstResponseAt = t.firstResponseAt
+      ? new Date(t.firstResponseAt)
+      : undefined;
+    const resolutionMinutes = resolvedAt
+      ? Math.max(0, Math.round((resolvedAt.getTime() - createdAt.getTime()) / 60000))
+      : undefined;
+    return {
+      id: String(t._id),
+      subject: t.subject || '(no subject)',
+      status: t.status || 'open',
+      priority: t.priority || 'medium',
+      channel: t.channel || 'other',
+      agent: t.assigneeName || 'Unassigned',
+      category: t.category || 'uncategorised',
+      createdAt: createdAt.toISOString(),
+      firstResponseAt: firstResponseAt?.toISOString(),
+      resolvedAt: resolvedAt?.toISOString(),
+      resolutionMinutes,
+    };
+  });
+
+  return { rows, total };
 }
 
 export async function getAgentPerformance(
@@ -1114,5 +1279,823 @@ export async function getAgentPerformance(
       avgResolutionMinutes: r.resCount ? Math.round(r.resSum / r.resCount) : 0,
     }))
     .sort((a, b) => b.total - a.total);
+}
+
+export async function getDealsByMonth(
+  from?: string,
+  to?: string,
+): Promise<DealsByMonthRow[]> {
+  const user = await requireSession();
+  if (!user) return [];
+  const { db } = await connectToDatabase();
+  const { start, end } = defaultRange(from, to);
+
+  const rows = await db.collection('crm_deals').aggregate([
+    {
+      $match: {
+        userId: toOid(user),
+        $or: [
+          { closedAt: { $gte: start, $lte: end } },
+          { updatedAt: { $gte: start, $lte: end } },
+        ],
+      },
+    },
+    {
+      $group: {
+        _id: {
+          period: {
+            $dateToString: {
+              format: '%Y-%m',
+              date: { $ifNull: ['$closedAt', '$updatedAt'] },
+            },
+          },
+          stage: { $ifNull: ['$stage', 'Unknown'] },
+        },
+        count: { $sum: 1 },
+        value: { $sum: { $ifNull: ['$value', 0] } },
+      },
+    },
+  ]).toArray();
+
+  const byPeriod = new Map<string, DealsByMonthRow>();
+  for (const r of rows as Array<{ _id: { period: string; stage: string }; count: number; value: number }>) {
+    const p = r._id.period || 'Unknown';
+    const stage = String(r._id.stage || '').toLowerCase();
+    if (!byPeriod.has(p)) {
+      byPeriod.set(p, { period: p, won: 0, lost: 0, wonValue: 0, lostValue: 0 });
+    }
+    const row = byPeriod.get(p)!;
+    if (stage === 'won' || stage === 'closed won' || stage === 'closed-won') {
+      row.won += r.count;
+      row.wonValue += r.value;
+    } else if (stage === 'lost' || stage === 'closed lost' || stage === 'closed-lost') {
+      row.lost += r.count;
+      row.lostValue += r.value;
+    }
+  }
+  return Array.from(byPeriod.values()).sort((a, b) => a.period.localeCompare(b.period));
+}
+
+export async function getLeadStageFunnel(
+  from?: string,
+  to?: string,
+): Promise<LeadStageFunnelRow[]> {
+  const user = await requireSession();
+  if (!user) return [];
+  const { db } = await connectToDatabase();
+  const { start, end } = defaultRange(from, to);
+
+  const STAGE_ORDER = ['New', 'Contacted', 'Qualified', 'Proposal', 'Negotiation', 'Converted', 'Lost'];
+
+  const rows = await db.collection('crm_leads').aggregate([
+    {
+      $match: {
+        userId: toOid(user),
+        createdAt: { $gte: start, $lte: end },
+      },
+    },
+    {
+      $group: {
+        _id: { $ifNull: ['$status', 'New'] },
+        count: { $sum: 1 },
+      },
+    },
+  ]).toArray();
+
+  const countByStage = new Map<string, number>();
+  for (const r of rows as Array<{ _id: string; count: number }>) {
+    countByStage.set(r._id || 'New', r.count);
+  }
+
+  const ordered: LeadStageFunnelRow[] = [];
+  let prev = 0;
+  for (const stage of STAGE_ORDER) {
+    const count = countByStage.get(stage) || 0;
+    const conversionFromPrev = prev > 0 ? (count / prev) * 100 : 0;
+    ordered.push({ stage, count, conversionFromPrev });
+    if (count > 0) prev = count;
+  }
+  return ordered.filter((r) => r.count > 0 || ['Qualified', 'Converted'].includes(r.stage));
+}
+
+/* ═══════════════════════════════════════════════════════════════
+ *  Finance — FY-aware deepened helpers (Batch 7)
+ * ══════════════════════════════════════════════════════════════ */
+
+/** Default Indian fiscal year: 1-Apr → 31-Mar. */
+export function fyRangeFromAnchor(anchorIso?: string): { start: Date; end: Date; label: string } {
+  const anchor = anchorIso ? new Date(anchorIso) : new Date();
+  const y = anchor.getFullYear();
+  const startYear = anchor.getMonth() < 3 ? y - 1 : y;
+  const start = new Date(startYear, 3, 1, 0, 0, 0);
+  const end = new Date(startYear + 1, 2, 31, 23, 59, 59);
+  return { start, end, label: `FY ${startYear}-${String((startYear + 1) % 100).padStart(2, '0')}` };
+}
+
+function monthIso(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/* ─── Income deep ────────────────────────────────────────────── */
+
+export async function getIncomeReportDeep(
+  fyAnchor?: string,
+): Promise<{
+  kpis: IncomeReportKpis;
+  monthly: PeriodRow[];
+  bySource: CategoryRow[];
+  rows: IncomeInvoiceRow[];
+  fyLabel: string;
+}> {
+  const empty = {
+    kpis: { totalFY: 0, thisMonth: 0, yoyChangePct: 0, topSource: '—', topSourceTotal: 0 },
+    monthly: [] as PeriodRow[],
+    bySource: [] as CategoryRow[],
+    rows: [] as IncomeInvoiceRow[],
+    fyLabel: '',
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const fy = fyRangeFromAnchor(fyAnchor);
+  const prevFy = fyRangeFromAnchor(new Date(fy.start.getFullYear() - 1, 3, 15).toISOString());
+
+  const match = {
+    userId: toOid(user),
+    invoiceDate: { $gte: fy.start, $lte: fy.end },
+    status: { $in: ['Paid', 'Partially Paid'] },
+  };
+  const prevMatch = {
+    userId: toOid(user),
+    invoiceDate: { $gte: prevFy.start, $lte: prevFy.end },
+    status: { $in: ['Paid', 'Partially Paid'] },
+  };
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const [monthly, bySource, totals, prevTotals, monthTotals, invoices] = await Promise.all([
+    db.collection('crm_invoices').aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$invoiceDate' } },
+          total: { $sum: { $ifNull: ['$paidAmount', '$total'] } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $ifNull: ['$source', { $ifNull: ['$leadSource', 'Direct'] }] },
+          total: { $sum: { $ifNull: ['$paidAmount', '$total'] } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      { $match: match },
+      { $group: { _id: null, total: { $sum: { $ifNull: ['$paidAmount', '$total'] } } } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      { $match: prevMatch },
+      { $group: { _id: null, total: { $sum: { $ifNull: ['$paidAmount', '$total'] } } } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          invoiceDate: { $gte: monthStart, $lte: monthEnd },
+          status: { $in: ['Paid', 'Partially Paid'] },
+        },
+      },
+      { $group: { _id: null, total: { $sum: { $ifNull: ['$paidAmount', '$total'] } } } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      { $match: match },
+      {
+        $lookup: {
+          from: 'crm_accounts',
+          localField: 'accountId',
+          foreignField: '_id',
+          as: 'acct',
+        },
+      },
+      { $sort: { invoiceDate: -1 } },
+      { $limit: 500 },
+    ]).toArray(),
+  ]);
+
+  const fyTotal = (totals[0] as any)?.total || 0;
+  const prevTotal = (prevTotals[0] as any)?.total || 0;
+  const monthTotal = (monthTotals[0] as any)?.total || 0;
+  const top = bySource[0] as any;
+
+  const rows: IncomeInvoiceRow[] = invoices.map((inv: any) => ({
+    id: String(inv._id),
+    invoiceNumber: inv.invoiceNumber || '—',
+    invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate).toISOString().slice(0, 10) : '',
+    clientName: inv.acct?.[0]?.name || inv.clientName || 'Unknown',
+    total: Number(inv.total || 0),
+    paidAmount: Number(inv.paidAmount || 0),
+    status: String(inv.status || ''),
+    source: String(inv.source || inv.leadSource || 'Direct'),
+  }));
+
+  return {
+    kpis: {
+      totalFY: fyTotal,
+      thisMonth: monthTotal,
+      yoyChangePct: prevTotal > 0 ? ((fyTotal - prevTotal) / prevTotal) * 100 : 0,
+      topSource: String(top?._id || '—'),
+      topSourceTotal: Number(top?.total || 0),
+    },
+    monthly: (monthly as any[]).map((r) => ({ period: r._id, total: r.total || 0, count: r.count || 0 })),
+    bySource: (bySource as any[]).map((r) => ({
+      category: String(r._id || 'Direct'),
+      total: r.total || 0,
+      count: r.count || 0,
+    })),
+    rows,
+    fyLabel: fy.label,
+  };
+}
+
+/* ─── Expense deep ────────────────────────────────────────────── */
+
+export async function getExpenseReportDeep(
+  fyAnchor?: string,
+): Promise<{
+  kpis: ExpenseReportKpis;
+  monthly: PeriodRow[];
+  byCategory: CategoryRow[];
+  rows: ExpenseTableRow[];
+  fyLabel: string;
+}> {
+  const empty = {
+    kpis: { totalFY: 0, thisMonth: 0, yoyChangePct: 0, topCategory: '—', topCategoryTotal: 0 },
+    monthly: [] as PeriodRow[],
+    byCategory: [] as CategoryRow[],
+    rows: [] as ExpenseTableRow[],
+    fyLabel: '',
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const fy = fyRangeFromAnchor(fyAnchor);
+  const prevFy = fyRangeFromAnchor(new Date(fy.start.getFullYear() - 1, 3, 15).toISOString());
+
+  const match = { userId: toOid(user), expenseDate: { $gte: fy.start, $lte: fy.end } };
+  const prevMatch = { userId: toOid(user), expenseDate: { $gte: prevFy.start, $lte: prevFy.end } };
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+
+  const [monthly, byCategory, totals, prevTotals, monthTotals, expenses] = await Promise.all([
+    db.collection('crm_expenses').aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$expenseDate' } },
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    db.collection('crm_expenses').aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: { $ifNull: ['$expenseAccount', 'Uncategorized'] },
+          total: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]).toArray(),
+    db.collection('crm_expenses').aggregate([
+      { $match: match },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]).toArray(),
+    db.collection('crm_expenses').aggregate([
+      { $match: prevMatch },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]).toArray(),
+    db.collection('crm_expenses').aggregate([
+      { $match: { userId: toOid(user), expenseDate: { $gte: monthStart, $lte: monthEnd } } },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]).toArray(),
+    db.collection('crm_expenses')
+      .find(match)
+      .sort({ expenseDate: -1 })
+      .limit(500)
+      .toArray(),
+  ]);
+
+  const fyTotal = (totals[0] as any)?.total || 0;
+  const prevTotal = (prevTotals[0] as any)?.total || 0;
+  const monthTotal = (monthTotals[0] as any)?.total || 0;
+  const top = byCategory[0] as any;
+
+  const rows: ExpenseTableRow[] = expenses.map((exp: any) => ({
+    id: String(exp._id),
+    date: exp.expenseDate ? new Date(exp.expenseDate).toISOString().slice(0, 10) : '',
+    category: String(exp.expenseAccount || 'Uncategorized'),
+    description: String(exp.description || exp.notes || ''),
+    amount: Number(exp.amount || 0),
+    taxAmount: Number(exp.taxAmount || 0),
+    status: String(exp.status || 'Recorded'),
+    reference: String(exp.referenceNumber || ''),
+  }));
+
+  return {
+    kpis: {
+      totalFY: fyTotal,
+      thisMonth: monthTotal,
+      yoyChangePct: prevTotal > 0 ? ((fyTotal - prevTotal) / prevTotal) * 100 : 0,
+      topCategory: String(top?._id || '—'),
+      topCategoryTotal: Number(top?.total || 0),
+    },
+    monthly: (monthly as any[]).map((r) => ({ period: r._id, total: r.total || 0, count: r.count || 0 })),
+    byCategory: (byCategory as any[]).map((r) => ({
+      category: String(r._id || 'Uncategorized'),
+      total: r.total || 0,
+      count: r.count || 0,
+    })),
+    rows,
+    fyLabel: fy.label,
+  };
+}
+
+/* ─── Profit & Loss deep ─────────────────────────────────────── */
+
+export async function getProfitLossDeep(
+  fyAnchor?: string,
+): Promise<{
+  kpis: ProfitLossKpis;
+  monthly: ProfitLossStackedRow[];
+  fyLabel: string;
+}> {
+  const empty = {
+    kpis: { grossProfit: 0, netProfit: 0, marginPct: 0, ebitda: 0, revenue: 0, cogs: 0, opex: 0 },
+    monthly: [] as ProfitLossStackedRow[],
+    fyLabel: '',
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const fy = fyRangeFromAnchor(fyAnchor);
+
+  // COGS classification: expenses whose expenseAccount contains "cost" or "cogs" (heuristic),
+  // everything else counts as OpEx. Tolerates missing field.
+  const COGS_REGEX = /cogs|cost of (goods|sales)|purchase/i;
+
+  const [incomeRows, expenseDocs] = await Promise.all([
+    db.collection('crm_invoices').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          invoiceDate: { $gte: fy.start, $lte: fy.end },
+          status: { $in: ['Paid', 'Partially Paid'] },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$invoiceDate' } },
+          revenue: { $sum: { $ifNull: ['$paidAmount', '$total'] } },
+        },
+      },
+    ]).toArray(),
+    db.collection('crm_expenses')
+      .find({ userId: toOid(user), expenseDate: { $gte: fy.start, $lte: fy.end } })
+      .project({ expenseAccount: 1, amount: 1, expenseDate: 1 })
+      .toArray(),
+  ]);
+
+  const byPeriod = new Map<string, ProfitLossStackedRow>();
+  for (const r of incomeRows as Array<{ _id: string; revenue: number }>) {
+    byPeriod.set(r._id, { period: r._id, revenue: r.revenue || 0, cogs: 0, expense: 0, profit: 0 });
+  }
+  let revenue = 0;
+  let cogs = 0;
+  let opex = 0;
+  for (const r of byPeriod.values()) revenue += r.revenue;
+
+  for (const exp of expenseDocs as any[]) {
+    const key = monthIso(new Date(exp.expenseDate));
+    const isCogs = COGS_REGEX.test(String(exp.expenseAccount || ''));
+    const amt = Number(exp.amount || 0);
+    let row = byPeriod.get(key);
+    if (!row) {
+      row = { period: key, revenue: 0, cogs: 0, expense: 0, profit: 0 };
+      byPeriod.set(key, row);
+    }
+    if (isCogs) {
+      row.cogs += amt;
+      cogs += amt;
+    } else {
+      row.expense += amt;
+      opex += amt;
+    }
+  }
+
+  const monthly = Array.from(byPeriod.values())
+    .map((r) => ({ ...r, profit: r.revenue - r.cogs - r.expense }))
+    .sort((a, b) => a.period.localeCompare(b.period));
+
+  const grossProfit = revenue - cogs;
+  const netProfit = grossProfit - opex;
+
+  return {
+    kpis: {
+      revenue,
+      cogs,
+      opex,
+      grossProfit,
+      netProfit,
+      marginPct: revenue > 0 ? (netProfit / revenue) * 100 : 0,
+      // EBITDA proxy: net profit + estimated D&A (10% of opex is a rough placeholder).
+      ebitda: netProfit + opex * 0.1,
+    },
+    monthly,
+    fyLabel: fy.label,
+  };
+}
+
+/* ─── Tax deep ────────────────────────────────────────────────── */
+
+export async function getTaxReportDeep(
+  fyAnchor?: string,
+): Promise<{
+  kpis: TaxReportKpis;
+  monthly: TaxMonthlyRow[];
+  fyLabel: string;
+}> {
+  const empty = {
+    kpis: { taxCollected: 0, taxPaid: 0, netLiability: 0, pendingFilings: 0 },
+    monthly: [] as TaxMonthlyRow[],
+    fyLabel: '',
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const fy = fyRangeFromAnchor(fyAnchor);
+
+  const [invRows, expRows, pendingFilings] = await Promise.all([
+    db.collection('crm_invoices').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          invoiceDate: { $gte: fy.start, $lte: fy.end },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$invoiceDate' } },
+          subtotal: { $sum: { $ifNull: ['$subtotal', 0] } },
+          total: { $sum: { $ifNull: ['$total', 0] } },
+        },
+      },
+    ]).toArray(),
+    db.collection('crm_expenses').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          expenseDate: { $gte: fy.start, $lte: fy.end },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m', date: '$expenseDate' } },
+          taxAmount: { $sum: { $ifNull: ['$taxAmount', 0] } },
+        },
+      },
+    ]).toArray(),
+    db.collection('crm_tax_filings').countDocuments({
+      userId: toOid(user),
+      status: { $in: ['Pending', 'Draft', 'pending', 'draft'] },
+    }).catch(() => 0),
+  ]);
+
+  const byPeriod = new Map<string, TaxMonthlyRow>();
+  for (const r of invRows as Array<{ _id: string; subtotal: number; total: number }>) {
+    const collected = Math.max(0, (r.total || 0) - (r.subtotal || 0));
+    byPeriod.set(r._id, { period: r._id, collected, paid: 0, net: collected });
+  }
+  for (const r of expRows as Array<{ _id: string; taxAmount: number }>) {
+    const row = byPeriod.get(r._id) || { period: r._id, collected: 0, paid: 0, net: 0 };
+    row.paid = r.taxAmount || 0;
+    row.net = row.collected - row.paid;
+    byPeriod.set(r._id, row);
+  }
+  const monthly = Array.from(byPeriod.values()).sort((a, b) => a.period.localeCompare(b.period));
+  const taxCollected = monthly.reduce((s, r) => s + r.collected, 0);
+  const taxPaid = monthly.reduce((s, r) => s + r.paid, 0);
+
+  return {
+    kpis: {
+      taxCollected,
+      taxPaid,
+      netLiability: taxCollected - taxPaid,
+      pendingFilings: pendingFilings || 0,
+    },
+    monthly,
+    fyLabel: fy.label,
+  };
+}
+
+/* ─── Invoice Aging deep ─────────────────────────────────────── */
+
+export async function getInvoiceAgingDeep(): Promise<{
+  kpis: InvoiceAgingKpis;
+  byClient: InvoiceAgingClientRow[];
+  rows: InvoiceAgingDetailRow[];
+}> {
+  const empty = {
+    kpis: { current: 0, d31to60: 0, d61to90: 0, over90: 0, total: 0, openCount: 0 },
+    byClient: [] as InvoiceAgingClientRow[],
+    rows: [] as InvoiceAgingDetailRow[],
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const today = new Date();
+
+  const invoices = await db.collection('crm_invoices').aggregate([
+    {
+      $match: {
+        userId: toOid(user),
+        status: { $in: ['Sent', 'Partially Paid', 'Overdue'] },
+      },
+    },
+    {
+      $lookup: {
+        from: 'crm_accounts',
+        localField: 'accountId',
+        foreignField: '_id',
+        as: 'acct',
+      },
+    },
+    { $limit: 1000 },
+  ]).toArray();
+
+  const kpis: InvoiceAgingKpis = { current: 0, d31to60: 0, d61to90: 0, over90: 0, total: 0, openCount: 0 };
+  const byClientMap = new Map<string, InvoiceAgingClientRow>();
+  const rows: InvoiceAgingDetailRow[] = [];
+
+  for (const inv of invoices as any[]) {
+    const due = inv.dueDate ? new Date(inv.dueDate) : new Date(inv.invoiceDate);
+    const diffDays = Math.floor((today.getTime() - due.getTime()) / 86400000);
+    const outstanding = Number(inv.total || 0) - Number(inv.paidAmount || 0);
+    if (outstanding <= 0) continue;
+
+    let bucket: InvoiceAgingDetailRow['bucket'];
+    if (diffDays <= 30) {
+      bucket = '0-30';
+      kpis.current += outstanding;
+    } else if (diffDays <= 60) {
+      bucket = '31-60';
+      kpis.d31to60 += outstanding;
+    } else if (diffDays <= 90) {
+      bucket = '61-90';
+      kpis.d61to90 += outstanding;
+    } else {
+      bucket = '90+';
+      kpis.over90 += outstanding;
+    }
+    kpis.total += outstanding;
+    kpis.openCount += 1;
+
+    const accountId = String(inv.accountId || '');
+    const clientName = inv.acct?.[0]?.name || inv.clientName || 'Unknown';
+    let cr = byClientMap.get(accountId);
+    if (!cr) {
+      cr = { accountId, clientName, current: 0, d31to60: 0, d61to90: 0, over90: 0, total: 0, openCount: 0 };
+      byClientMap.set(accountId, cr);
+    }
+    cr.openCount += 1;
+    cr.total += outstanding;
+    if (bucket === '0-30') cr.current += outstanding;
+    else if (bucket === '31-60') cr.d31to60 += outstanding;
+    else if (bucket === '61-90') cr.d61to90 += outstanding;
+    else cr.over90 += outstanding;
+
+    rows.push({
+      id: String(inv._id),
+      invoiceNumber: String(inv.invoiceNumber || '—'),
+      clientName,
+      accountId,
+      invoiceDate: inv.invoiceDate ? new Date(inv.invoiceDate).toISOString().slice(0, 10) : '',
+      dueDate: inv.dueDate ? new Date(inv.dueDate).toISOString().slice(0, 10) : '',
+      daysOverdue: Math.max(0, diffDays),
+      outstanding,
+      bucket,
+    });
+  }
+
+  const byClient = Array.from(byClientMap.values()).sort((a, b) => b.total - a.total);
+  rows.sort((a, b) => b.daysOverdue - a.daysOverdue);
+  return { kpis, byClient, rows };
+}
+
+/* ─── Payment Report deep ────────────────────────────────────── */
+
+export async function getPaymentReportDeep(
+  fyAnchor?: string,
+): Promise<{
+  kpis: PaymentReportKpis;
+  mtdByDay: PaymentMtdRow[];
+  byMethod: PaymentMethodRow[];
+  rows: PaymentReceiptRow[];
+  fyLabel: string;
+}> {
+  const empty = {
+    kpis: { receivedMtd: 0, pendingReceipts: 0, overdueAmount: 0, avgDsoDays: 0, monthTarget: 0 },
+    mtdByDay: [] as PaymentMtdRow[],
+    byMethod: [] as PaymentMethodRow[],
+    rows: [] as PaymentReceiptRow[],
+    fyLabel: '',
+  };
+  const user = await requireSession();
+  if (!user) return empty;
+  const { db } = await connectToDatabase();
+  const fy = fyRangeFromAnchor(fyAnchor);
+
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+  const prevMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const [mtdAgg, byMethodAgg, pending, openInvoicesForDso, receipts] = await Promise.all([
+    db.collection('crm_payment_receipts').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          receiptDate: { $gte: monthStart, $lte: monthEnd },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$receiptDate' } },
+          received: { $sum: { $ifNull: ['$totalAmountReceived', '$amount'] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]).toArray(),
+    db.collection('crm_payment_receipts').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          receiptDate: { $gte: fy.start, $lte: fy.end },
+        },
+      },
+      {
+        $group: {
+          _id: { $ifNull: ['$mode', { $ifNull: ['$paymentMode', 'cash'] }] },
+          total: { $sum: { $ifNull: ['$totalAmountReceived', '$amount'] } },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { total: -1 } },
+    ]).toArray(),
+    db.collection('crm_invoices').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          status: { $in: ['Sent', 'Partially Paid', 'Overdue'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          pending: {
+            $sum: {
+              $subtract: [
+                { $ifNull: ['$total', 0] },
+                { $ifNull: ['$paidAmount', 0] },
+              ],
+            },
+          },
+          overdue: {
+            $sum: {
+              $cond: [
+                { $lt: ['$dueDate', now] },
+                {
+                  $subtract: [
+                    { $ifNull: ['$total', 0] },
+                    { $ifNull: ['$paidAmount', 0] },
+                  ],
+                },
+                0,
+              ],
+            },
+          },
+        },
+      },
+    ]).toArray(),
+    db.collection('crm_invoices').find({
+      userId: toOid(user),
+      status: { $in: ['Paid', 'Partially Paid'] },
+      invoiceDate: { $gte: fy.start, $lte: fy.end },
+    }).project({ invoiceDate: 1, paidAt: 1, updatedAt: 1, total: 1, paidAmount: 1 }).limit(500).toArray(),
+    db.collection('crm_payment_receipts').aggregate([
+      {
+        $match: {
+          userId: toOid(user),
+          receiptDate: { $gte: fy.start, $lte: fy.end },
+        },
+      },
+      {
+        $lookup: {
+          from: 'crm_accounts',
+          localField: 'accountId',
+          foreignField: '_id',
+          as: 'acct',
+        },
+      },
+      { $sort: { receiptDate: -1 } },
+      { $limit: 500 },
+    ]).toArray(),
+  ]);
+
+  let dsoSum = 0;
+  let dsoN = 0;
+  for (const inv of openInvoicesForDso as any[]) {
+    const paidAt = inv.paidAt ? new Date(inv.paidAt) : inv.updatedAt ? new Date(inv.updatedAt) : null;
+    const invDate = inv.invoiceDate ? new Date(inv.invoiceDate) : null;
+    if (paidAt && invDate) {
+      const days = Math.max(0, (paidAt.getTime() - invDate.getTime()) / 86400000);
+      dsoSum += days;
+      dsoN += 1;
+    }
+  }
+  const avgDsoDays = dsoN > 0 ? dsoSum / dsoN : 0;
+
+  const receivedMtd = (mtdAgg as any[]).reduce((s, r) => s + (r.received || 0), 0);
+
+  // Month target: linearly extrapolated from prior 3 months' average.
+  const priorMonths = await db.collection('crm_payment_receipts').aggregate([
+    {
+      $match: {
+        userId: toOid(user),
+        receiptDate: { $gte: new Date(now.getFullYear(), now.getMonth() - 3, 1), $lt: monthStart },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m', date: '$receiptDate' } },
+        total: { $sum: { $ifNull: ['$totalAmountReceived', '$amount'] } },
+      },
+    },
+  ]).toArray();
+  const monthTarget = priorMonths.length > 0
+    ? (priorMonths as any[]).reduce((s, r) => s + (r.total || 0), 0) / priorMonths.length
+    : receivedMtd * 1.1;
+
+  const mtdByDay: PaymentMtdRow[] = (mtdAgg as any[]).map((r) => ({
+    period: r._id,
+    received: r.received || 0,
+    target: monthTarget / 30,
+  }));
+
+  const rows: PaymentReceiptRow[] = (receipts as any[]).map((rec) => {
+    const apply = Array.isArray(rec.applyTo) ? rec.applyTo : [];
+    const first = apply[0] || {};
+    return {
+      id: String(rec._id),
+      receiptNumber: String(rec.receiptNumber || rec.receiptNo || '—'),
+      date: rec.receiptDate ? new Date(rec.receiptDate).toISOString().slice(0, 10) : '',
+      clientName: rec.acct?.[0]?.name || rec.clientName || 'Unknown',
+      amount: Number(rec.totalAmountReceived || rec.amount || 0),
+      method: String(rec.mode || rec.paymentMode || 'cash'),
+      invoiceNumber: String(rec.invoiceNumber || ''),
+      invoiceId: String(first.invoiceId || ''),
+    };
+  });
+
+  return {
+    kpis: {
+      receivedMtd,
+      pendingReceipts: Number((pending[0] as any)?.pending || 0),
+      overdueAmount: Number((pending[0] as any)?.overdue || 0),
+      avgDsoDays,
+      monthTarget,
+    },
+    mtdByDay,
+    byMethod: (byMethodAgg as any[]).map((r) => ({
+      method: String(r._id || 'cash'),
+      total: r.total || 0,
+      count: r.count || 0,
+    })),
+    rows,
+    fyLabel: fy.label,
+  };
 }
 

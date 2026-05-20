@@ -861,3 +861,142 @@ export async function getCrmContactRelatedCounts(contactId: string): Promise<{
         return empty;
     }
 }
+
+/* ─── getCrmContactKpis + bulkContactAction ───────────────────────────
+ * Headline metrics for the contacts list page. Tenant-scoped via the
+ * session userId, and tolerant of permission failures (returns zeros).
+ */
+export interface CrmContactKpis {
+    total: number;
+    withDeals: number;
+    newsletterSubscribed: number;
+    recentlyAdded: number;
+}
+
+export async function getCrmContactKpis(): Promise<CrmContactKpis> {
+    const zero: CrmContactKpis = {
+        total: 0,
+        withDeals: 0,
+        newsletterSubscribed: 0,
+        recentlyAdded: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return zero;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const base = { userId: userObjectId };
+
+        const since = new Date();
+        since.setDate(since.getDate() - 30);
+
+        const [total, recentlyAdded, dealAgg, newsletterSubscribed] = await Promise.all([
+            db.collection('crm_contacts').countDocuments(base),
+            db.collection('crm_contacts').countDocuments({
+                ...base,
+                createdAt: { $gte: since },
+            }),
+            db
+                .collection('crm_deals')
+                .aggregate([
+                    { $match: { userId: userObjectId } },
+                    { $group: { _id: null, contactIds: { $addToSet: '$contactId' } } },
+                ])
+                .toArray()
+                .catch(() => [] as Array<{ contactIds?: unknown[] }>),
+            db
+                .collection('crm_contacts')
+                .countDocuments({
+                    ...base,
+                    $or: [
+                        { newsletterSubscribed: true },
+                        { 'subscriptions.newsletter': true },
+                        { tags: 'newsletter' },
+                    ],
+                } as Record<string, unknown>)
+                .catch(() => 0),
+        ]);
+
+        const ids = ((dealAgg[0] as { contactIds?: unknown[] } | undefined)?.contactIds ?? []).filter(
+            (v) => v != null,
+        );
+        const withDeals = new Set(ids.map(String)).size;
+
+        return {
+            total,
+            withDeals,
+            newsletterSubscribed: Number(newsletterSubscribed) || 0,
+            recentlyAdded,
+        };
+    } catch (e) {
+        console.error('[getCrmContactKpis] failed:', e);
+        return zero;
+    }
+}
+
+export type BulkContactOp = 'delete' | 'status' | 'assign';
+
+export async function bulkContactAction(
+    ids: string[],
+    op: BulkContactOp,
+    payload?: string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, processed: 0, error: 'Access denied' };
+
+    const validIds = (ids ?? []).filter(
+        (id) => typeof id === 'string' && ObjectId.isValid(id),
+    );
+    if (validIds.length === 0) {
+        return { success: false, processed: 0, error: 'No valid contact ids.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const filter = {
+            _id: { $in: validIds.map((id) => new ObjectId(id)) },
+            userId: userObjectId,
+        };
+
+        if (op === 'delete') {
+            const r = await db.collection('crm_contacts').deleteMany(filter);
+            revalidatePath('/dashboard/crm/contacts');
+            return { success: true, processed: r.deletedCount ?? 0 };
+        }
+        if (op === 'status') {
+            const allowed = new Set([
+                'new_lead',
+                'contacted',
+                'qualified',
+                'unqualified',
+                'customer',
+                'imported',
+            ]);
+            const status = (payload ?? '').trim();
+            if (!allowed.has(status)) {
+                return { success: false, processed: 0, error: 'Invalid status' };
+            }
+            const r = await db
+                .collection('crm_contacts')
+                .updateMany(filter, { $set: { status, updatedAt: new Date() } });
+            revalidatePath('/dashboard/crm/contacts');
+            return { success: true, processed: r.modifiedCount ?? 0 };
+        }
+        if (op === 'assign') {
+            const assignedTo = (payload ?? '').trim();
+            const r = await db.collection('crm_contacts').updateMany(filter, {
+                $set: {
+                    assignedTo: assignedTo || null,
+                    updatedAt: new Date(),
+                },
+            });
+            revalidatePath('/dashboard/crm/contacts');
+            return { success: true, processed: r.modifiedCount ?? 0 };
+        }
+        return { success: false, processed: 0, error: 'Unknown op' };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}

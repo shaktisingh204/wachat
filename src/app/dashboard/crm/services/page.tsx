@@ -9,6 +9,7 @@ import {
   ZoruAlertDialogFooter,
   ZoruAlertDialogHeader,
   ZoruAlertDialogTitle,
+  ZoruBadge,
   ZoruButton,
   ZoruCheckbox,
   ZoruDialog,
@@ -23,6 +24,7 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
+  ZoruStatCard,
   ZoruTable,
   ZoruTableBody,
   ZoruTableCell,
@@ -35,7 +37,21 @@ import {
 import {
   useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { Briefcase, Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
+import {
+  Archive,
+  ArchiveRestore,
+  Award,
+  Briefcase,
+  CheckCircle2,
+  DollarSign,
+  Download,
+  Edit,
+  FileSpreadsheet,
+  Layers,
+  LoaderCircle,
+  Plus,
+  Trash2,
+} from 'lucide-react';
 
 /**
  * Service Catalog — settings-style page.
@@ -54,15 +70,21 @@ import { Briefcase, Edit, LoaderCircle, Plus, Trash2 } from 'lucide-react';
 import * as React from 'react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { SabFileUrlInput } from '@/components/sabfiles';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
 
 import {
+    bulkServiceAction,
     deleteCrmService,
+    getCrmServiceKpis,
     getCrmServices,
     saveCrmService,
     type CrmServiceBillableBy,
     type CrmServiceDoc,
+    type CrmServiceKpis,
     type CrmServiceStatus,
 } from '@/app/actions/crm-service-catalog.actions';
 
@@ -368,10 +390,21 @@ function ServiceDialog({
     );
 }
 
+const SERVICES_PER_PAGE = 20;
+
+const EMPTY_SERVICE_KPIS: CrmServiceKpis = {
+    total: 0,
+    active: 0,
+    archived: 0,
+    totalBilled: 0,
+    topRevenueService: null,
+};
+
 export default function ServicesPage() {
     const { toast } = useZoruToast();
     const [rows, setRows] = React.useState<CrmServiceDoc[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
+    const [kpis, setKpis] = React.useState<CrmServiceKpis>(EMPTY_SERVICE_KPIS);
     const [search, setSearch] = React.useState('');
     const [statusFilter, setStatusFilter] = React.useState<
         CrmServiceStatus | 'all'
@@ -379,6 +412,7 @@ export default function ServicesPage() {
     const [billableFilter, setBillableFilter] = React.useState<
         CrmServiceBillableBy | 'all'
     >('all');
+    const [categoryFilter, setCategoryFilter] = React.useState<string>('');
     const [editing, setEditing] = React.useState<CrmServiceDoc | null>(null);
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
     const [pendingDelete, setPendingDelete] = React.useState<CrmServiceDoc | null>(
@@ -386,13 +420,24 @@ export default function ServicesPage() {
     );
     const [deletePending, startDeleteTransition] = React.useTransition();
 
+    /* ─── Selection + pagination ─────────────────────────────── */
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [page, setPage] = React.useState(1);
+    const [bulkArchiveOpen, setBulkArchiveOpen] = React.useState(false);
+    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
+
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
         try {
-            const data = await getCrmServices();
+            const [data, kpiData] = await Promise.all([
+                getCrmServices(),
+                getCrmServiceKpis(),
+            ]);
             setRows(data);
+            setKpis(kpiData ?? EMPTY_SERVICE_KPIS);
         } catch {
             setRows([]);
+            setKpis(EMPTY_SERVICE_KPIS);
         } finally {
             setIsLoading(false);
         }
@@ -409,6 +454,9 @@ export default function ServicesPage() {
             if (billableFilter !== 'all' && r.billableBy !== billableFilter) {
                 return false;
             }
+            if (categoryFilter && (r.category ?? '') !== categoryFilter) {
+                return false;
+            }
             if (!q) return true;
             return `${r.name} ${r.code ?? ''} ${r.category ?? ''} ${
                 r.description ?? ''
@@ -416,7 +464,41 @@ export default function ServicesPage() {
                 .toLowerCase()
                 .includes(q);
         });
-    }, [rows, search, statusFilter, billableFilter]);
+    }, [rows, search, statusFilter, billableFilter, categoryFilter]);
+
+    // Reset to page 1 whenever filter set changes
+    React.useEffect(() => {
+        setPage(1);
+    }, [search, statusFilter, billableFilter, categoryFilter]);
+
+    const totalFiltered = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalFiltered / SERVICES_PER_PAGE));
+    const paged = React.useMemo(
+        () =>
+            filtered.slice(
+                (page - 1) * SERVICES_PER_PAGE,
+                page * SERVICES_PER_PAGE,
+            ),
+        [filtered, page],
+    );
+
+    const categoryOptions = React.useMemo(() => {
+        const set = new Set<string>();
+        for (const r of rows) {
+            if (r.category) set.add(r.category);
+        }
+        return Array.from(set).sort();
+    }, [rows]);
+
+    const hasActiveFilters =
+        statusFilter !== 'all' || billableFilter !== 'all' || !!categoryFilter;
+
+    const clearFilters = () => {
+        setSearch('');
+        setStatusFilter('all');
+        setBillableFilter('all');
+        setCategoryFilter('');
+    };
 
     const handleOpenDialog = (row: CrmServiceDoc | null) => {
         setEditing(row);
@@ -440,6 +522,97 @@ export default function ServicesPage() {
                 });
             }
         });
+    };
+
+    /* ─── Selection ────────────────────────────────────────── */
+    const toggleOne = (id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    };
+    const toggleAll = (all: boolean) => {
+        setSelected(
+            all ? new Set(paged.map((r) => String(r._id))) : new Set(),
+        );
+    };
+
+    /* ─── Bulk actions ─────────────────────────────────────── */
+    const runBulk = React.useCallback(
+        async (op: 'archive' | 'unarchive' | 'delete') => {
+            if (selected.size === 0) return;
+            const res = await bulkServiceAction(Array.from(selected), op);
+            if (res.success) {
+                toast({
+                    title: `${res.processed} service${
+                        res.processed === 1 ? '' : 's'
+                    } ${op === 'delete' ? 'deleted' : op === 'archive' ? 'archived' : 'restored'}`,
+                });
+                setSelected(new Set());
+                setBulkArchiveOpen(false);
+                setBulkDeleteOpen(false);
+                await refresh();
+            } else {
+                toast({
+                    title: 'Bulk action failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+        },
+        [selected, refresh, toast],
+    );
+
+    /* ─── Export ──────────────────────────────────────────── */
+    const exportHeaders = React.useMemo<string[]>(
+        () => [
+            'Name',
+            'Code',
+            'Category',
+            'BillableBy',
+            'DefaultPrice',
+            'Currency',
+            'TaxRate',
+            'DurationMinutes',
+            'Status',
+            'CreatedAt',
+        ],
+        [],
+    );
+
+    const exportRows = React.useMemo(() => {
+        const source =
+            selected.size > 0
+                ? rows.filter((r) => selected.has(String(r._id)))
+                : filtered;
+        return source.map((r) => ({
+            Name: r.name,
+            Code: r.code ?? '',
+            Category: r.category ?? '',
+            BillableBy: r.billableBy ?? '',
+            DefaultPrice: r.defaultPrice ?? 0,
+            Currency: r.currency ?? '',
+            TaxRate: r.taxRate ?? 0,
+            DurationMinutes: r.durationMinutes ?? '',
+            Status: r.status ?? 'active',
+            CreatedAt: r.createdAt
+                ? new Date(r.createdAt as unknown as string).toISOString()
+                : '',
+        }));
+    }, [rows, selected, filtered]);
+
+    const exportCsv = () => {
+        downloadCsv(`services-${dateStamp()}.csv`, exportHeaders, exportRows);
+    };
+    const exportXlsx = () => {
+        void downloadXlsx(
+            `services-${dateStamp()}.xlsx`,
+            exportHeaders,
+            exportRows,
+            'Services',
+        );
     };
 
     return (
@@ -502,128 +675,290 @@ export default function ServicesPage() {
                                     ))}
                                 </ZoruSelectContent>
                             </ZoruSelect>
+                            <ZoruSelect
+                                value={categoryFilter || 'all'}
+                                onValueChange={(v) =>
+                                    setCategoryFilter(v === 'all' ? '' : v)
+                                }
+                            >
+                                <ZoruSelectTrigger className="h-9 w-[180px]">
+                                    <ZoruSelectValue placeholder="Category" />
+                                </ZoruSelectTrigger>
+                                <ZoruSelectContent>
+                                    <ZoruSelectItem value="all">
+                                        All categories
+                                    </ZoruSelectItem>
+                                    {categoryOptions.map((c) => (
+                                        <ZoruSelectItem key={c} value={c}>
+                                            {c}
+                                        </ZoruSelectItem>
+                                    ))}
+                                </ZoruSelectContent>
+                            </ZoruSelect>
+                            {hasActiveFilters ? (
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={clearFilters}
+                                >
+                                    Clear filters
+                                </ZoruButton>
+                            ) : null}
                         </div>
                     }
+                    bulkBar={
+                        selected.size > 0 ? (
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                                <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+                                    <ZoruBadge variant="info">
+                                        {selected.size} selected
+                                    </ZoruBadge>
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelected(new Set())}
+                                        className="text-zoru-ink-muted hover:text-zoru-ink"
+                                    >
+                                        Clear
+                                    </button>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <ZoruButton
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => void runBulk('archive')}
+                                    >
+                                        <Archive className="h-3.5 w-3.5" /> Archive
+                                    </ZoruButton>
+                                    <ZoruButton
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => void runBulk('unarchive')}
+                                    >
+                                        <ArchiveRestore className="h-3.5 w-3.5" />{' '}
+                                        Restore
+                                    </ZoruButton>
+                                    <ZoruButton
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={exportCsv}
+                                    >
+                                        <Download className="h-3.5 w-3.5" /> Export CSV
+                                    </ZoruButton>
+                                    <ZoruButton
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={exportXlsx}
+                                    >
+                                        <FileSpreadsheet className="h-3.5 w-3.5" />{' '}
+                                        Export XLSX
+                                    </ZoruButton>
+                                    <ZoruButton
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setBulkDeleteOpen(true)}
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" /> Delete
+                                    </ZoruButton>
+                                </div>
+                            </div>
+                        ) : null
+                    }
                     loading={isLoading && rows.length === 0}
+                    pagination={
+                        totalFiltered > SERVICES_PER_PAGE ? (
+                            <PaginationBar
+                                page={page}
+                                limit={SERVICES_PER_PAGE}
+                                hasMore={page < totalPages}
+                                total={totalFiltered}
+                                controlled={{
+                                    onChange: (next) => setPage(next.page),
+                                }}
+                            />
+                        ) : null
+                    }
                 >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <ZoruTable>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead>Name</ZoruTableHead>
-                                    <ZoruTableHead>Code</ZoruTableHead>
-                                    <ZoruTableHead>Category</ZoruTableHead>
-                                    <ZoruTableHead>Billing</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">
-                                        Default price
-                                    </ZoruTableHead>
-                                    <ZoruTableHead>Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-right">
-                                        Actions
-                                    </ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
-                                            colSpan={7}
-                                            className="h-20 text-center"
-                                        >
-                                            <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-zoru-ink-muted" />
-                                        </ZoruTableCell>
+                    <div className="flex flex-col gap-4">
+                        {/* KPI strip */}
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                            <ZoruStatCard
+                                label="Total services"
+                                value={kpis.total.toLocaleString()}
+                                icon={<Layers className="h-4 w-4" />}
+                            />
+                            <ZoruStatCard
+                                label="Active"
+                                value={kpis.active.toLocaleString()}
+                                icon={<CheckCircle2 className="h-4 w-4" />}
+                            />
+                            <ZoruStatCard
+                                label="Total billed"
+                                value={`${kpis.totalBilled.toLocaleString()}`}
+                                icon={<DollarSign className="h-4 w-4" />}
+                            />
+                            <ZoruStatCard
+                                label="Top revenue service"
+                                value={
+                                    <span className="text-[13px] font-medium leading-tight">
+                                        {kpis.topRevenueService
+                                            ? `${kpis.topRevenueService.name} (${kpis.topRevenueService.defaultPrice.toLocaleString()})`
+                                            : '—'}
+                                    </span>
+                                }
+                                icon={<Award className="h-4 w-4" />}
+                            />
+                        </div>
+
+                        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                        <ZoruTableHead className="w-10">
+                                            <input
+                                                type="checkbox"
+                                                aria-label="Select all visible services"
+                                                checked={
+                                                    paged.length > 0 &&
+                                                    paged.every((r) =>
+                                                        selected.has(String(r._id)),
+                                                    )
+                                                }
+                                                onChange={(e) =>
+                                                    toggleAll(e.target.checked)
+                                                }
+                                            />
+                                        </ZoruTableHead>
+                                        <ZoruTableHead>Name</ZoruTableHead>
+                                        <ZoruTableHead>Code</ZoruTableHead>
+                                        <ZoruTableHead>Category</ZoruTableHead>
+                                        <ZoruTableHead>Billing</ZoruTableHead>
+                                        <ZoruTableHead className="text-right">
+                                            Default price
+                                        </ZoruTableHead>
+                                        <ZoruTableHead>Status</ZoruTableHead>
+                                        <ZoruTableHead className="text-right">
+                                            Actions
+                                        </ZoruTableHead>
                                     </ZoruTableRow>
-                                ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell
-                                            colSpan={7}
-                                            className="h-20 text-center text-[13px] text-zoru-ink-muted"
-                                        >
-                                            No services match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    filtered.map((r) => {
-                                        const status = (r.status ??
-                                            'active') as CrmServiceStatus;
-                                        const tone = STATUS_TONE[status] ?? 'neutral';
-                                        const billable = (r.billableBy ??
-                                            'hour') as CrmServiceBillableBy;
-                                        return (
-                                            <ZoruTableRow
-                                                key={String(r._id)}
-                                                className="border-zoru-line"
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
+                                    {isLoading ? (
+                                        <ZoruTableRow className="border-zoru-line">
+                                            <ZoruTableCell
+                                                colSpan={8}
+                                                className="h-20 text-center"
                                             >
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <div className="flex items-center gap-2">
-                                                        {r.imageUrl ? (
-                                                            // eslint-disable-next-line @next/next/no-img-element
-                                                            <img
-                                                                src={r.imageUrl}
-                                                                alt=""
-                                                                className="h-6 w-6 rounded object-cover"
-                                                            />
-                                                        ) : (
-                                                            <div className="flex h-6 w-6 items-center justify-center rounded bg-zoru-surface-2">
-                                                                <Briefcase
-                                                                    className="h-3 w-3 text-zoru-ink-muted"
-                                                                    strokeWidth={1.75}
+                                                <LoaderCircle className="mx-auto h-5 w-5 animate-spin text-zoru-ink-muted" />
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
+                                    ) : paged.length === 0 ? (
+                                        <ZoruTableRow className="border-zoru-line">
+                                            <ZoruTableCell
+                                                colSpan={8}
+                                                className="h-20 text-center text-[13px] text-zoru-ink-muted"
+                                            >
+                                                No services match this filter.
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
+                                    ) : (
+                                        paged.map((r) => {
+                                            const id = String(r._id);
+                                            const status = (r.status ??
+                                                'active') as CrmServiceStatus;
+                                            const tone =
+                                                STATUS_TONE[status] ?? 'neutral';
+                                            const billable = (r.billableBy ??
+                                                'hour') as CrmServiceBillableBy;
+                                            return (
+                                                <ZoruTableRow
+                                                    key={id}
+                                                    className="border-zoru-line"
+                                                >
+                                                    <ZoruTableCell>
+                                                        <input
+                                                            type="checkbox"
+                                                            aria-label={`Select ${r.name}`}
+                                                            checked={selected.has(
+                                                                id,
+                                                            )}
+                                                            onChange={() =>
+                                                                toggleOne(id)
+                                                            }
+                                                        />
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="font-medium text-zoru-ink">
+                                                        <div className="flex items-center gap-2">
+                                                            {r.imageUrl ? (
+                                                                // eslint-disable-next-line @next/next/no-img-element
+                                                                <img
+                                                                    src={r.imageUrl}
+                                                                    alt=""
+                                                                    className="h-6 w-6 rounded object-cover"
                                                                 />
-                                                            </div>
-                                                        )}
-                                                        <span>{r.name}</span>
-                                                    </div>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
-                                                    {r.code || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink">
-                                                    {r.category || '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-[12.5px] text-zoru-ink">
-                                                    {BILLABLE_LABELS[billable]}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                                    {r.defaultPrice != null
-                                                        ? `${r.currency ?? 'INR'} ${(
-                                                              r.defaultPrice ?? 0
-                                                          ).toFixed(2)}`
-                                                        : '—'}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
-                                                    <StatusPill
-                                                        label={status}
-                                                        tone={tone}
-                                                    />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() =>
-                                                            handleOpenDialog(r)
-                                                        }
-                                                        aria-label={`Edit ${r.name}`}
-                                                    >
-                                                        <Edit className="h-4 w-4" />
-                                                    </ZoruButton>
-                                                    <ZoruButton
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() =>
-                                                            setPendingDelete(r)
-                                                        }
-                                                        aria-label={`Archive ${r.name}`}
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </ZoruButton>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
-                                        );
-                                    })
-                                )}
-                            </ZoruTableBody>
-                        </ZoruTable>
+                                                            ) : (
+                                                                <div className="flex h-6 w-6 items-center justify-center rounded bg-zoru-surface-2">
+                                                                    <Briefcase
+                                                                        className="h-3 w-3 text-zoru-ink-muted"
+                                                                        strokeWidth={
+                                                                            1.75
+                                                                        }
+                                                                    />
+                                                                </div>
+                                                            )}
+                                                            <span>{r.name}</span>
+                                                        </div>
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="font-mono text-[12px] text-zoru-ink-muted">
+                                                        {r.code || '—'}
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                                        {r.category || '—'}
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
+                                                        {BILLABLE_LABELS[billable]}
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="text-right font-mono text-zoru-ink">
+                                                        {r.defaultPrice != null
+                                                            ? `${r.currency ?? 'INR'} ${(
+                                                                  r.defaultPrice ?? 0
+                                                              ).toFixed(2)}`
+                                                            : '—'}
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell>
+                                                        <StatusPill
+                                                            label={status}
+                                                            tone={tone}
+                                                        />
+                                                    </ZoruTableCell>
+                                                    <ZoruTableCell className="text-right">
+                                                        <ZoruButton
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                handleOpenDialog(r)
+                                                            }
+                                                            aria-label={`Edit ${r.name}`}
+                                                        >
+                                                            <Edit className="h-4 w-4" />
+                                                        </ZoruButton>
+                                                        <ZoruButton
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            onClick={() =>
+                                                                setPendingDelete(r)
+                                                            }
+                                                            aria-label={`Archive ${r.name}`}
+                                                        >
+                                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                                        </ZoruButton>
+                                                    </ZoruTableCell>
+                                                </ZoruTableRow>
+                                            );
+                                        })
+                                    )}
+                                </ZoruTableBody>
+                            </ZoruTable>
+                        </div>
                     </div>
             </EntityListShell>
 
@@ -652,6 +987,26 @@ export default function ServicesPage() {
                     </ZoruAlertDialogFooter>
                 </ZoruAlertDialogContent>
             </ZoruAlertDialog>
+
+            <ConfirmDialog
+                open={bulkArchiveOpen}
+                onOpenChange={(o) => !o && setBulkArchiveOpen(false)}
+                title={`Archive ${selected.size} service${selected.size === 1 ? '' : 's'}?`}
+                description="Selected services will be archived. Existing line items keep their name, but the services won't be addable to new quotes or invoices."
+                confirmLabel="Archive"
+                confirmTone="primary"
+                onConfirm={() => void runBulk('archive')}
+            />
+
+            <ConfirmDialog
+                open={bulkDeleteOpen}
+                onOpenChange={(o) => !o && setBulkDeleteOpen(false)}
+                title={`Delete ${selected.size} service${selected.size === 1 ? '' : 's'}?`}
+                description="This permanently removes the selected services. This action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={() => void runBulk('delete')}
+            />
         </>
     );
 }

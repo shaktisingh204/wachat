@@ -535,6 +535,127 @@ export async function saveCrmVendorType(
     }
 }
 
+/* ─── Vendor KPIs (list page strip) ──────────────────────────────── */
+
+export interface CrmVendorKpis {
+    /** Total vendors for the tenant (all types). */
+    total: number;
+    /** Active vendors — at least one purchase order in the last 12 months. */
+    active: number;
+    /** Total purchase order value across all vendors, all-time, INR (or mixed currency sum). */
+    totalPurchaseValue: number;
+    /** Top vendor by total PO value. */
+    topVendor: { name: string; value: number } | null;
+    /** Currency hint for the totals — best-effort, defaults to INR. */
+    currency: string;
+}
+
+/**
+ * Aggregate KPI counts for the vendors list page strip.
+ * Tenant-scoped via `getSession()`. Returns zero-filled object on error
+ * so callers never need to handle a thrown exception.
+ */
+export async function getCrmVendorKpis(): Promise<CrmVendorKpis> {
+    const empty: CrmVendorKpis = {
+        total: 0,
+        active: 0,
+        totalPurchaseValue: 0,
+        topVendor: null,
+        currency: 'INR',
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(String(session.user._id));
+        const twelveMonthsAgo = new Date();
+        twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+
+        const [total, perVendorAgg, activeIdsAgg] = await Promise.all([
+            db
+                .collection('crm_vendors')
+                .countDocuments({ userId } as Record<string, unknown>)
+                .catch(() => 0),
+            db
+                .collection('crm_purchase_orders')
+                .aggregate([
+                    { $match: { userId } },
+                    {
+                        $group: {
+                            _id: '$vendorId',
+                            total: { $sum: { $ifNull: ['$total', 0] } },
+                        },
+                    },
+                    { $sort: { total: -1 } },
+                    { $limit: 25 },
+                ])
+                .toArray()
+                .catch(() => [] as Array<{ _id: unknown; total: number }>),
+            db
+                .collection('crm_purchase_orders')
+                .aggregate([
+                    {
+                        $match: {
+                            userId,
+                            orderDate: { $gte: twelveMonthsAgo },
+                        },
+                    },
+                    { $group: { _id: '$vendorId' } },
+                ])
+                .toArray()
+                .catch(() => [] as Array<{ _id: unknown }>),
+        ]);
+
+        let totalPurchaseValue = 0;
+        let topVendorId: unknown = null;
+        let topVendorValue = 0;
+        for (const row of perVendorAgg) {
+            const val = Number((row as { total?: number }).total ?? 0);
+            totalPurchaseValue += val;
+            if (val > topVendorValue) {
+                topVendorValue = val;
+                topVendorId = (row as { _id: unknown })._id;
+            }
+        }
+
+        let topVendor: CrmVendorKpis['topVendor'] = null;
+        if (topVendorId) {
+            const candidates: unknown[] = [topVendorId];
+            if (
+                typeof topVendorId === 'string' &&
+                ObjectId.isValid(topVendorId)
+            ) {
+                candidates.push(new ObjectId(topVendorId));
+            }
+            const vendorDoc = await db
+                .collection('crm_vendors')
+                .findOne(
+                    { userId, _id: { $in: candidates } } as Record<string, unknown>,
+                    { projection: { name: 1 } },
+                )
+                .catch(() => null);
+            if (vendorDoc) {
+                topVendor = {
+                    name: String((vendorDoc as { name?: string }).name ?? 'Unknown'),
+                    value: topVendorValue,
+                };
+            }
+        }
+
+        return {
+            total: Number(total) || 0,
+            active: activeIdsAgg.length,
+            totalPurchaseValue,
+            topVendor,
+            currency: 'INR',
+        };
+    } catch (e) {
+        console.error('[getCrmVendorKpis] failed:', e);
+        return empty;
+    }
+}
+
 /* ─── Related counts (vendor detail right rail) ──────────────────── */
 
 /**

@@ -1,173 +1,644 @@
-import {
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-} from '@/components/zoruui';
-import {
-  Plus } from 'lucide-react';
-import { ObjectId } from 'mongodb';
+'use client';
+
+import * as React from 'react';
 import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
+import {
+    Download,
+    MoreHorizontal,
+    Pause,
+    Play,
+    Plus,
+    Trash2,
+    Workflow,
+    X,
+} from 'lucide-react';
 
+import {
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruDropdownMenu,
+    ZoruDropdownMenuContent,
+    ZoruDropdownMenuItem,
+    ZoruDropdownMenuSeparator,
+    ZoruDropdownMenuTrigger,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
+} from '@/components/zoruui';
+
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
 
-import { getSession } from '@/app/actions/user.actions';
-import { connectToDatabase } from '@/lib/mongodb';
+import {
+    bulkAutomationAction,
+    deleteCrmAutomation,
+    getCrmAutomationKpis,
+    listCrmAutomations,
+    type CrmAutomationKpis,
+    type CrmAutomationListItem,
+    type CrmAutomationStatusFilter,
+} from '@/app/actions/crm-automations.actions';
 
-type AnyAutomation = {
-  _id?: { toString(): string } | string;
-  name?: string;
-  trigger?: string; // lead-created/stage-change/time-based/form-submit/etc
-  actionsCount?: number;
-  conditionsCount?: number;
-  isActive?: boolean;
-  lastRunAt?: string | Date;
-  runCount?: number;
-  createdAt?: string | Date;
+const AUTOMATIONS_PER_PAGE = 20;
+
+const EMPTY_KPIS: CrmAutomationKpis = {
+    total: 0,
+    active: 0,
+    paused: 0,
+    executionsToday: 0,
 };
 
+type TriggerFilter =
+    | 'all'
+    | 'lead-created'
+    | 'stage-change'
+    | 'time-based'
+    | 'form-submit'
+    | 'manual'
+    | 'other';
+
+const KNOWN_TRIGGERS: Array<{ value: TriggerFilter; label: string }> = [
+    { value: 'all', label: 'All triggers' },
+    { value: 'lead-created', label: 'Lead created' },
+    { value: 'stage-change', label: 'Stage change' },
+    { value: 'time-based', label: 'Time based' },
+    { value: 'form-submit', label: 'Form submit' },
+    { value: 'manual', label: 'Manual' },
+];
+
 function formatTrigger(trigger?: string): string {
-  if (!trigger) return '—';
-  return trigger
-    .split('-')
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+    if (!trigger) return '—';
+    return trigger
+        .split('-')
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
 }
 
 function formatDate(value: string | Date | undefined): string {
-  if (!value) return '—';
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleDateString();
+    if (!value) return '—';
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString();
 }
 
-function formatNumber(value: number | undefined): string {
-  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
-  return String(value);
+export default function AutomationsPage() {
+    const { toast } = useZoruToast();
+
+    // List + KPIs
+    const [items, setItems] = React.useState<CrmAutomationListItem[]>([]);
+    const [total, setTotal] = React.useState(0);
+    const [page, setPage] = React.useState(1);
+    const [isPending, startTransition] = React.useTransition();
+    const [kpis, setKpis] = React.useState<CrmAutomationKpis>(EMPTY_KPIS);
+
+    // Filters
+    const [search, setSearch] = React.useState('');
+    const [statusFilter, setStatusFilter] =
+        React.useState<CrmAutomationStatusFilter>('all');
+    const [triggerFilter, setTriggerFilter] = React.useState<TriggerFilter>('all');
+
+    // Selection + dialogs
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+    const [bulkConfirm, setBulkConfirm] = React.useState<'delete' | null>(null);
+
+    const fetchData = React.useCallback(() => {
+        startTransition(async () => {
+            const [{ items: rows, total: count }, kpiData] = await Promise.all([
+                listCrmAutomations(page, AUTOMATIONS_PER_PAGE, search, {
+                    status: statusFilter,
+                    trigger:
+                        triggerFilter === 'all' || triggerFilter === 'other'
+                            ? undefined
+                            : triggerFilter,
+                }),
+                getCrmAutomationKpis(),
+            ]);
+            setItems(rows);
+            setTotal(count);
+            setKpis(kpiData ?? EMPTY_KPIS);
+        });
+    }, [page, search, statusFilter, triggerFilter]);
+
+    React.useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handleSearch = useDebouncedCallback((next: string) => {
+        setSearch(next);
+        setPage(1);
+    }, 300);
+
+    const hasActiveFilters =
+        statusFilter !== 'all' || triggerFilter !== 'all' || !!search;
+
+    const clearFilters = React.useCallback(() => {
+        setStatusFilter('all');
+        setTriggerFilter('all');
+        setSearch('');
+        setPage(1);
+    }, []);
+
+    const handleToggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const handleToggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(items.map((i) => String(i._id))) : new Set());
+        },
+        [items],
+    );
+
+    const deleteTarget = React.useMemo(
+        () => items.find((i) => String(i._id) === deleteTargetId) ?? null,
+        [items, deleteTargetId],
+    );
+
+    const handleConfirmDelete = React.useCallback(async () => {
+        if (!deleteTargetId) return;
+        const res = await deleteCrmAutomation(deleteTargetId);
+        if (res.message) {
+            toast({ title: res.message });
+            fetchData();
+        } else {
+            toast({
+                title: 'Delete failed',
+                description: res.error,
+                variant: 'destructive',
+            });
+        }
+        setDeleteTargetId(null);
+    }, [deleteTargetId, fetchData, toast]);
+
+    const runBulk = React.useCallback(
+        async (op: 'delete' | 'activate' | 'pause') => {
+            if (selected.size === 0) return;
+            const res = await bulkAutomationAction(Array.from(selected), op);
+            if (res.success) {
+                toast({
+                    title: `${res.processed ?? 0} automation${
+                        res.processed === 1 ? '' : 's'
+                    } ${op === 'delete' ? 'deleted' : op === 'activate' ? 'activated' : 'paused'}`,
+                });
+                setSelected(new Set());
+                fetchData();
+            } else {
+                toast({
+                    title: 'Bulk action failed',
+                    description: res.error,
+                    variant: 'destructive',
+                });
+            }
+            setBulkConfirm(null);
+        },
+        [selected, fetchData, toast],
+    );
+
+    const exportRows = React.useCallback(
+        async (format: 'csv' | 'xlsx') => {
+            const rows =
+                selected.size > 0
+                    ? items.filter((i) => selected.has(String(i._id)))
+                    : items;
+            if (rows.length === 0) {
+                toast({ title: 'Nothing to export' });
+                return;
+            }
+            const header = [
+                'Name',
+                'Trigger',
+                'Actions',
+                'Conditions',
+                'Active',
+                'Runs',
+                'Last Run',
+                'Created At',
+            ];
+            const data = rows.map((r) => [
+                r.name ?? '',
+                formatTrigger(r.trigger),
+                Number(r.actionsCount ?? 0),
+                Number(r.conditionsCount ?? 0),
+                r.isActive ? 'Yes' : 'No',
+                Number(r.runCount ?? 0),
+                r.lastRunAt ? new Date(r.lastRunAt).toISOString() : '',
+                r.createdAt ? new Date(r.createdAt).toISOString() : '',
+            ]);
+            const date = new Date().toISOString().slice(0, 10);
+            const filename = `automations-${date}.${format}`;
+            if (format === 'csv') {
+                const esc = (v: unknown) =>
+                    `"${String(v ?? '').replace(/"/g, '""')}"`;
+                const csv = [
+                    header.join(','),
+                    ...data.map((r) => r.map(esc).join(',')),
+                ].join('\n');
+                triggerDownload(
+                    new Blob([csv], { type: 'text/csv;charset=utf-8;' }),
+                    filename,
+                );
+                return;
+            }
+            try {
+                const xlsx = await import('xlsx');
+                const ws = xlsx.utils.aoa_to_sheet([header, ...data]);
+                const wb = xlsx.utils.book_new();
+                xlsx.utils.book_append_sheet(wb, ws, 'Automations');
+                const buf = xlsx.write(wb, {
+                    type: 'array',
+                    bookType: 'xlsx',
+                }) as ArrayBuffer;
+                triggerDownload(
+                    new Blob([buf], {
+                        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    }),
+                    filename,
+                );
+            } catch {
+                toast({
+                    title: 'Export failed',
+                    description: 'Could not generate XLSX file.',
+                    variant: 'destructive',
+                });
+            }
+        },
+        [items, selected, toast],
+    );
+
+    const totalPages = Math.max(1, Math.ceil(total / AUTOMATIONS_PER_PAGE));
+    const allSelectedOnPage =
+        items.length > 0 && items.every((i) => selected.has(String(i._id)));
+
+    return (
+        <>
+            <EntityListShell
+                title="Automations"
+                subtitle="Trigger-based rules that send emails, create tasks and update records automatically."
+                search={{
+                    value: search,
+                    onChange: handleSearch,
+                    placeholder: 'Search by name…',
+                }}
+                primaryAction={
+                    <div className="flex items-center gap-2">
+                        <ZoruDropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <ZoruButton variant="outline" size="sm">
+                                    <Download className="h-4 w-4" /> Export
+                                </ZoruButton>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
+                                <ZoruDropdownMenuItem onSelect={() => exportRows('csv')}>
+                                    Export as CSV
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem onSelect={() => exportRows('xlsx')}>
+                                    Export as XLSX
+                                </ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </ZoruDropdownMenu>
+                        <ZoruButton asChild>
+                            <Link href="/dashboard/crm/sales-crm/automations/new">
+                                <Plus className="h-4 w-4" /> New automation
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+                filters={
+                    <div className="flex flex-wrap items-center gap-2">
+                        <ZoruSelect
+                            value={statusFilter}
+                            onValueChange={(v) => {
+                                setStatusFilter(v as CrmAutomationStatusFilter);
+                                setPage(1);
+                            }}
+                        >
+                            <ZoruSelectTrigger className="w-[150px]">
+                                <ZoruSelectValue placeholder="Status" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All status</ZoruSelectItem>
+                                <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                                <ZoruSelectItem value="paused">Paused</ZoruSelectItem>
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        <ZoruSelect
+                            value={triggerFilter}
+                            onValueChange={(v) => {
+                                setTriggerFilter(v as TriggerFilter);
+                                setPage(1);
+                            }}
+                        >
+                            <ZoruSelectTrigger className="w-[180px]">
+                                <ZoruSelectValue placeholder="Trigger" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                {KNOWN_TRIGGERS.map((t) => (
+                                    <ZoruSelectItem key={t.value} value={t.value}>
+                                        {t.label}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </ZoruSelect>
+                        {hasActiveFilters ? (
+                            <ZoruButton
+                                variant="ghost"
+                                size="sm"
+                                onClick={clearFilters}
+                            >
+                                <X className="h-4 w-4" /> Clear
+                            </ZoruButton>
+                        ) : null}
+                    </div>
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            <div className="text-[13px] text-zoru-ink">
+                                <span className="font-medium">{selected.size}</span> selected
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => runBulk('activate')}
+                                >
+                                    <Play className="h-4 w-4" /> Activate
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => runBulk('pause')}
+                                >
+                                    <Pause className="h-4 w-4" /> Pause
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => exportRows('csv')}
+                                >
+                                    <Download className="h-4 w-4" /> Export CSV
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => exportRows('xlsx')}
+                                >
+                                    <Download className="h-4 w-4" /> Export XLSX
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() => setBulkConfirm('delete')}
+                                >
+                                    <Trash2 className="h-4 w-4" /> Delete
+                                </ZoruButton>
+                                <ZoruButton
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setSelected(new Set())}
+                                >
+                                    <X className="h-4 w-4" /> Clear
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    ) : null
+                }
+                empty={
+                    !isPending && items.length === 0 ? (
+                        <div className="flex flex-col items-center gap-3 p-4">
+                            <Workflow className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">
+                                No automations yet
+                            </h3>
+                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                                {hasActiveFilters
+                                    ? 'No automations match the current filters.'
+                                    : 'Create rules to automate follow-ups, task creation and field updates.'}
+                            </p>
+                            <ZoruButton asChild>
+                                <Link href="/dashboard/crm/sales-crm/automations/new">
+                                    <Plus className="h-4 w-4" /> New automation
+                                </Link>
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+                loading={isPending && items.length === 0}
+                pagination={
+                    items.length > 0 ? (
+                        <PaginationBar
+                            page={page}
+                            limit={AUTOMATIONS_PER_PAGE}
+                            hasMore={page < totalPages}
+                            total={total}
+                            controlled={{ onChange: (next) => setPage(next.page) }}
+                        />
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <ZoruStatCard
+                            label="Total"
+                            value={kpis.total.toLocaleString()}
+                            icon={<Workflow />}
+                        />
+                        <ZoruStatCard
+                            label="Active"
+                            value={kpis.active.toLocaleString()}
+                        />
+                        <ZoruStatCard
+                            label="Paused"
+                            value={kpis.paused.toLocaleString()}
+                        />
+                        <ZoruStatCard
+                            label="Executions today"
+                            value={kpis.executionsToday.toLocaleString()}
+                        />
+                    </div>
+
+                    {/* Table */}
+                    <ZoruCard className="p-0">
+                        <div className="overflow-x-auto rounded-lg">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                                        <ZoruTableHead className="w-10">
+                                            <ZoruCheckbox
+                                                checked={allSelectedOnPage}
+                                                onCheckedChange={(c) =>
+                                                    handleToggleAll(Boolean(c))
+                                                }
+                                                aria-label="Select all"
+                                            />
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                            Name
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                            Trigger
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                            Actions
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                            Conditions
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-zoru-ink-muted">
+                                            Runs
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                            Last run
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-zoru-ink-muted">
+                                            Status
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="w-10" />
+                                    </ZoruTableRow>
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
+                                    {items.map((a) => {
+                                        const id = String(a._id);
+                                        const isActive = Boolean(a.isActive);
+                                        return (
+                                            <ZoruTableRow
+                                                key={id}
+                                                className="border-zoru-line"
+                                                data-state={
+                                                    selected.has(id) ? 'selected' : undefined
+                                                }
+                                            >
+                                                <ZoruTableCell>
+                                                    <ZoruCheckbox
+                                                        checked={selected.has(id)}
+                                                        onCheckedChange={() =>
+                                                            handleToggleOne(id)
+                                                        }
+                                                        aria-label={`Select ${a.name}`}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/sales-crm/automations/${id}`}
+                                                        label={a.name || 'Untitled automation'}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {formatTrigger(a.trigger)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                    {Number(a.actionsCount ?? 0)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                    {Number(a.conditionsCount ?? 0)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right text-zoru-ink">
+                                                    {Number(a.runCount ?? 0)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-zoru-ink">
+                                                    {formatDate(a.lastRunAt)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    {isActive ? (
+                                                        <ZoruBadge variant="success">
+                                                            Active
+                                                        </ZoruBadge>
+                                                    ) : (
+                                                        <ZoruBadge variant="ghost">
+                                                            Paused
+                                                        </ZoruBadge>
+                                                    )}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruDropdownMenu>
+                                                        <ZoruDropdownMenuTrigger asChild>
+                                                            <ZoruButton
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                aria-label="Row actions"
+                                                            >
+                                                                <MoreHorizontal className="h-4 w-4" />
+                                                            </ZoruButton>
+                                                        </ZoruDropdownMenuTrigger>
+                                                        <ZoruDropdownMenuContent align="end">
+                                                            <ZoruDropdownMenuItem asChild>
+                                                                <Link
+                                                                    href={`/dashboard/crm/sales-crm/automations/${id}`}
+                                                                >
+                                                                    Edit
+                                                                </Link>
+                                                            </ZoruDropdownMenuItem>
+                                                            <ZoruDropdownMenuSeparator />
+                                                            <ZoruDropdownMenuItem
+                                                                onSelect={() =>
+                                                                    setDeleteTargetId(id)
+                                                                }
+                                                                className="text-zoru-danger"
+                                                            >
+                                                                Delete
+                                                            </ZoruDropdownMenuItem>
+                                                        </ZoruDropdownMenuContent>
+                                                    </ZoruDropdownMenu>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })}
+                                </ZoruTableBody>
+                            </ZoruTable>
+                        </div>
+                    </ZoruCard>
+                </div>
+            </EntityListShell>
+
+            <ConfirmDialog
+                open={!!deleteTargetId}
+                onOpenChange={(o) => !o && setDeleteTargetId(null)}
+                title="Delete this automation?"
+                description={`"${deleteTarget?.name ?? 'This automation'}" will be permanently removed.`}
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={handleConfirmDelete}
+            />
+            <ConfirmDialog
+                open={bulkConfirm === 'delete'}
+                onOpenChange={(o) => !o && setBulkConfirm(null)}
+                title={`Delete ${selected.size} automation${selected.size === 1 ? '' : 's'}?`}
+                description="These automations will be permanently removed. This action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={() => runBulk('delete')}
+            />
+        </>
+    );
 }
 
-export default async function AutomationsPage() {
-  const session = await getSession();
-  let automations: AnyAutomation[] = [];
-  let loadError = false;
-
-  if (session?.user?._id) {
-    try {
-      const { db } = await connectToDatabase();
-      const userObjectId = new ObjectId(session.user._id as string);
-      const docs = await db
-        .collection('crm_automations')
-        .find({ userId: userObjectId } as any)
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .toArray();
-      automations = JSON.parse(JSON.stringify(docs)) as AnyAutomation[];
-    } catch (e) {
-      console.error('Failed to load crm_automations:', e);
-      loadError = true;
-    }
-  }
-
-  return (
-    <EntityListShell
-      title="Automations"
-      subtitle="Trigger-based rules that send emails, create tasks and update records automatically."
-      primaryAction={
-        <ZoruButton variant="outline" size="sm" asChild>
-          <Link href="/dashboard/crm/sales-crm/automations/new">
-            <Plus className="h-4 w-4" /> New automation
-          </Link>
-        </ZoruButton>
-      }
-    >
-
-      <ZoruCard className="p-6">
-        <div className="mb-4">
-          <h2 className="text-[16px] text-zoru-ink">All automations</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-            Active and paused rules with trigger type, action count and run history.
-          </p>
-        </div>
-        <div className="overflow-x-auto rounded-lg border border-zoru-line">
-          <ZoruTable>
-            <ZoruTableHeader>
-              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Trigger</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Actions</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Conditions</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Runs</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Last run</ZoruTableHead>
-                <ZoruTableHead className="text-zoru-ink-muted">Active</ZoruTableHead>
-              </ZoruTableRow>
-            </ZoruTableHeader>
-            <ZoruTableBody>
-              {loadError ? (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    Could not load automations. Please try again.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              ) : automations.length > 0 ? (
-                automations.map((automation, idx) => {
-                  const id =
-                    typeof automation._id === 'string'
-                      ? automation._id
-                      : (automation._id as any)?.toString?.() ?? String(idx);
-                  const isActive = Boolean(automation.isActive);
-                  return (
-                    <ZoruTableRow key={id} className="border-zoru-line">
-                      <ZoruTableCell className="text-zoru-ink">
-                        {automation.name || 'Untitled automation'}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatTrigger(automation.trigger)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatNumber(automation.actionsCount)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatNumber(automation.conditionsCount)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatNumber(automation.runCount)}
-                      </ZoruTableCell>
-                      <ZoruTableCell className="text-zoru-ink">
-                        {formatDate(automation.lastRunAt)}
-                      </ZoruTableCell>
-                      <ZoruTableCell>
-                        {isActive ? (
-                          <ZoruBadge variant="success">Yes</ZoruBadge>
-                        ) : (
-                          <ZoruBadge variant="ghost">No</ZoruBadge>
-                        )}
-                      </ZoruTableCell>
-                    </ZoruTableRow>
-                  );
-                })
-              ) : (
-                <ZoruTableRow className="border-zoru-line">
-                  <ZoruTableCell
-                    colSpan={7}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    No automations yet. Create rules to automate follow-ups, task creation and field
-                    updates.
-                  </ZoruTableCell>
-                </ZoruTableRow>
-              )}
-            </ZoruTableBody>
-          </ZoruTable>
-        </div>
-      </ZoruCard>
-    </EntityListShell>
-  );
+function triggerDownload(blob: Blob, filename: string) {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
 }

@@ -434,6 +434,194 @@ export async function saveCrmProduct(
     }
 }
 
+/* ─── getCrmProductKpis ──────────────────────────────────────────────── */
+
+export interface CrmProductKpis {
+    total: number;
+    inStock: number;
+    /** Items with reorder point set whose current stock is below it. */
+    lowStock: number;
+    outOfStock: number;
+    /** Average margin percentage across products with `sellingPrice > 0`. */
+    avgMargin: number;
+    /** Sum of `totalStock * costPrice` across products. */
+    totalValue: number;
+}
+
+export async function getCrmProductKpis(): Promise<CrmProductKpis> {
+    const empty: CrmProductKpis = {
+        total: 0,
+        inStock: 0,
+        lowStock: 0,
+        outOfStock: 0,
+        avgMargin: 0,
+        totalValue: 0,
+    };
+    const session = await getSession();
+    if (!session?.user) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const [total, inStockCount, valueAgg, lowStockAgg, outOfStockCount, marginAgg] =
+            await Promise.all([
+            db.collection('crm_products').countDocuments({ userId: userObjectId } as any),
+            db.collection('crm_products').countDocuments({
+                userId: userObjectId,
+                $or: [
+                    { isTrackInventory: false },
+                    { totalStock: { $gt: 0 } },
+                ],
+            } as any),
+            db
+                .collection('crm_products')
+                .aggregate([
+                    { $match: { userId: userObjectId } },
+                    {
+                        $group: {
+                            _id: null,
+                            value: {
+                                $sum: {
+                                    $multiply: [
+                                        { $ifNull: ['$totalStock', 0] },
+                                        { $ifNull: ['$costPrice', 0] },
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ])
+                .toArray(),
+            db
+                .collection('crm_products')
+                .aggregate([
+                    {
+                        $match: {
+                            userId: userObjectId,
+                            isTrackInventory: true,
+                        },
+                    },
+                    { $unwind: { path: '$inventory', preserveNullAndEmptyArrays: true } },
+                    {
+                        $match: {
+                            $expr: {
+                                $and: [
+                                    { $gt: [{ $ifNull: ['$inventory.reorderPoint', 0] }, 0] },
+                                    {
+                                        $lte: [
+                                            { $ifNull: ['$inventory.stock', 0] },
+                                            { $ifNull: ['$inventory.reorderPoint', 0] },
+                                        ],
+                                    },
+                                ],
+                            },
+                        },
+                    },
+                    { $group: { _id: '$_id' } },
+                    { $count: 'count' },
+                ])
+                .toArray(),
+            db.collection('crm_products').countDocuments({
+                userId: userObjectId,
+                isTrackInventory: true,
+                $or: [
+                    { totalStock: { $lte: 0 } },
+                    { totalStock: { $exists: false } },
+                ],
+            } as any),
+            db
+                .collection('crm_products')
+                .aggregate([
+                    {
+                        $match: {
+                            userId: userObjectId,
+                            $expr: {
+                                $gt: [{ $ifNull: ['$sellingPrice', 0] }, 0],
+                            },
+                        },
+                    },
+                    {
+                        $group: {
+                            _id: null,
+                            avg: {
+                                $avg: {
+                                    $multiply: [
+                                        {
+                                            $divide: [
+                                                {
+                                                    $subtract: [
+                                                        { $ifNull: ['$sellingPrice', 0] },
+                                                        { $ifNull: ['$costPrice', 0] },
+                                                    ],
+                                                },
+                                                { $ifNull: ['$sellingPrice', 1] },
+                                            ],
+                                        },
+                                        100,
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                ])
+                .toArray(),
+        ]);
+
+        const totalValue = Number((valueAgg as Array<{ value?: number }>)?.[0]?.value ?? 0);
+        const lowStock = Number((lowStockAgg as Array<{ count?: number }>)?.[0]?.count ?? 0);
+        const avgMargin = Number((marginAgg as Array<{ avg?: number }>)?.[0]?.avg ?? 0);
+
+        return {
+            total,
+            inStock: inStockCount,
+            lowStock,
+            outOfStock: Number(outOfStockCount) || 0,
+            avgMargin,
+            totalValue,
+        };
+    } catch (e) {
+        console.error('Failed to fetch CRM product KPIs:', e);
+        return empty;
+    }
+}
+
+/* ─── bulkProductAction ──────────────────────────────────────────────── */
+
+export async function bulkProductAction(
+    ids: string[],
+    op: 'delete',
+): Promise<{ success: boolean; processed?: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!Array.isArray(ids) || ids.length === 0) return { success: false, error: 'No ids.' };
+
+    const validIds = ids.filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) return { success: false, error: 'No valid ids.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const objectIds = validIds.map((id) => new ObjectId(id));
+
+        if (op === 'delete') {
+            const result = await db.collection('crm_products').deleteMany({
+                _id: { $in: objectIds },
+                userId: userObjectId,
+            } as any);
+            await db
+                .collection('crm_stock_adjustments')
+                .deleteMany({ productId: { $in: objectIds } } as any);
+            revalidatePath('/dashboard/crm/sales-crm/products');
+            return { success: true, processed: result.deletedCount ?? 0 };
+        }
+
+        return { success: false, error: 'Unsupported op.' };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 /* ─── deleteCrmProduct ───────────────────────────────────────────────── */
 
 export async function deleteCrmProduct(

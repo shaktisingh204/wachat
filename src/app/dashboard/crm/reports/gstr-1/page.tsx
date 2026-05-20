@@ -1,72 +1,218 @@
-import { ZoruCard, ZoruTable, ZoruTableBody, ZoruTableCell, ZoruTableHead, ZoruTableHeader, ZoruTableRow } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
+import { ObjectId } from 'mongodb';
+
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions/user.actions';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
-
-import { format } from 'date-fns';
-
+import { generateGstr1Report } from '@/app/actions/crm-india-gst.actions';
 import { MonthPicker } from '@/components/crm/month-picker';
-
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import {
+    StatCard,
+    fmtMoney,
+    fmtNumber,
+} from '../_components/report-toolbar';
+import {
+    Gstr1Client,
+    type Gstr1ChartDatum,
+    type Gstr1InvoiceRow,
+} from './_components/gstr1-client';
 
-export default async function Gstr1Page(props: { searchParams: Promise<{ month?: string, year?: string }> }) {
-    const searchParams = await props.searchParams;
-    const month = searchParams.month ? parseInt(searchParams.month) : undefined;
-    const year = searchParams.year ? parseInt(searchParams.year) : undefined;
+interface SearchParams {
+    month?: string;
+    year?: string;
+    page?: string;
+    limit?: string;
+}
 
-    const { invoices } = await getInvoices(1, 50, { month, year });
+/**
+ * GSTR-1 — outward supplies summary + monthly filing helper.
+ *
+ * The page produces three things server-side:
+ *   1. KPI strip — derived from `generateGstr1Report` (the engine
+ *      already computes totals).
+ *   2. A breakdown chart — outward supplies by section (B2B / B2CL /
+ *      B2CS / credit-notes), grouped by taxable value + tax.
+ *   3. The invoice table with `EntityRowLink`s back to detail pages.
+ *
+ * Client-side helpers (`Gstr1Client`) own the CSV/XLSX/JSON exports.
+ */
+export default async function Gstr1Page(props: {
+    searchParams: Promise<SearchParams>;
+}) {
+    const sp = await props.searchParams;
+    const now = new Date();
+    const month = sp.month ? parseInt(sp.month, 10) : now.getMonth() + 1;
+    const year = sp.year ? parseInt(sp.year, 10) : now.getFullYear();
+    const page = Math.max(1, Number(sp.page ?? 1));
+    const limit = Math.min(Math.max(1, Number(sp.limit ?? 20)), 100);
+
+    const [{ invoices, total }, gstr1Res] = await Promise.all([
+        getInvoices(page, limit, { month, year }),
+        generateGstr1Report({ month, year }),
+    ]);
+
+    // Resolve account → client name (tenant-scoped) so the table can
+    // show real customer labels.
+    const accountIds = Array.from(
+        new Set(
+            invoices
+                .map((inv) => inv.accountId?.toString())
+                .filter((s): s is string => typeof s === 'string' && s.length > 0),
+        ),
+    );
+
+    const nameByAccount = new Map<string, string>();
+    if (accountIds.length > 0) {
+        const session = await getSession();
+        if (session?.user) {
+            try {
+                const { db } = await connectToDatabase();
+                const docs = (await db
+                    .collection('crm_accounts')
+                    .find({
+                        userId: new ObjectId(String(session.user._id)),
+                        _id: {
+                            $in: accountIds
+                                .filter((s) => ObjectId.isValid(s))
+                                .map((s) => new ObjectId(s)),
+                        },
+                    })
+                    .project({ name: 1 })
+                    .toArray()) as Array<{ _id: ObjectId; name?: string }>;
+                for (const a of docs) {
+                    nameByAccount.set(String(a._id), a.name ?? 'Client');
+                }
+            } catch {
+                // best-effort — falls back to "Client" label
+            }
+        }
+    }
+
+    const rows: Gstr1InvoiceRow[] = invoices.map((inv) => ({
+        id: String(inv._id),
+        invoiceNumber: inv.invoiceNumber,
+        invoiceDate: new Date(inv.invoiceDate).toISOString(),
+        accountId: String(inv.accountId ?? ''),
+        clientName: nameByAccount.get(String(inv.accountId ?? '')) ?? 'Client',
+        subtotal: Number(inv.subtotal ?? inv.total ?? 0),
+        total: Number(inv.total ?? 0),
+        currency: inv.currency || 'INR',
+        status: inv.status,
+    }));
+
+    // Derive KPIs + chart data from the engine output.
+    const raw = gstr1Res.raw;
+    const summary = (gstr1Res.result?.summary ?? {}) as Record<string, number>;
+    const sumTaxable = (items: { taxableValue: number }[]): number =>
+        items.reduce((s, it) => s + (Number(it.taxableValue) || 0), 0);
+    const sumTax = (
+        items: { igst: number; cgst: number; sgst: number; cess: number }[],
+    ): number =>
+        items.reduce(
+            (s, it) =>
+                s +
+                (Number(it.igst) || 0) +
+                (Number(it.cgst) || 0) +
+                (Number(it.sgst) || 0) +
+                (Number(it.cess) || 0),
+            0,
+        );
+
+    const b2bTaxable = raw
+        ? raw.b2b.reduce((s, inv) => s + sumTaxable(inv.items), 0)
+        : 0;
+    const b2bTax = raw
+        ? raw.b2b.reduce((s, inv) => s + sumTax(inv.items), 0)
+        : 0;
+    const b2clTaxable = raw
+        ? raw.b2cl.reduce((s, inv) => s + sumTaxable(inv.items), 0)
+        : 0;
+    const b2clTax = raw
+        ? raw.b2cl.reduce((s, inv) => s + sumTax(inv.items), 0)
+        : 0;
+    const b2csTaxable = raw ? sumTaxable(raw.b2cs) : 0;
+    const b2csTax = raw ? sumTax(raw.b2cs) : 0;
+    const cdnrTaxable = raw
+        ? raw.cdnr.reduce((s, n) => s + sumTaxable(n.items), 0)
+        : 0;
+    const cdnrTax = raw
+        ? raw.cdnr.reduce((s, n) => s + sumTax(n.items), 0)
+        : 0;
+
+    const totalTaxable =
+        Number(summary.outward_taxable ?? 0) ||
+        b2bTaxable + b2clTaxable + b2csTaxable;
+    const totalTax =
+        Number(summary.outward_total_tax ?? 0) ||
+        b2bTax + b2clTax + b2csTax + cdnrTax;
+
+    const b2bCount = raw?.b2b.length ?? 0;
+    const b2cCount = (raw?.b2cl.length ?? 0) + (raw?.b2cs.length ?? 0);
+
+    const chart: Gstr1ChartDatum[] = [
+        { name: 'B2B', taxable: Math.round(b2bTaxable), tax: Math.round(b2bTax) },
+        {
+            name: 'B2C-large',
+            taxable: Math.round(b2clTaxable),
+            tax: Math.round(b2clTax),
+        },
+        {
+            name: 'B2C',
+            taxable: Math.round(b2csTaxable),
+            tax: Math.round(b2csTax),
+        },
+        {
+            name: 'Credit/Debit',
+            taxable: Math.round(cdnrTaxable),
+            tax: Math.round(cdnrTax),
+        },
+    ];
 
     return (
         <EntityListShell
             title="GSTR-1 Report"
-            subtitle="Outward supplies of goods or services."
+            subtitle="Outward supplies of goods or services for the selected return period."
             primaryAction={<MonthPicker />}
         >
+            {gstr1Res.error ? (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[13px] text-amber-700 dark:text-amber-300">
+                    {gstr1Res.error}
+                </div>
+            ) : null}
 
-            <ZoruCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Sales Invoices</h2>
-                    <p className="mt-0.5 text-[12.5px] text-muted-foreground">All recorded sales invoices for GSTR-1 filing.</p>
-                </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Invoice No.</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Customer</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Taxable Value</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Total Amount</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {invoices.length === 0 ? (
-                                <ZoruTableRow className="border-border">
-                                    <ZoruTableCell colSpan={6} className="h-24 text-center text-[13px] text-muted-foreground">
-                                        No invoices found.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                invoices.map((inv) => (
-                                    <ZoruTableRow key={inv._id.toString()} className="border-border">
-                                        <ZoruTableCell className="text-[13px] text-foreground">{format(new Date(inv.invoiceDate), 'PP')}</ZoruTableCell>
-                                        <ZoruTableCell className="font-medium text-foreground">{inv.invoiceNumber}</ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">Client</ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
-                                            {inv.currency} {inv.subtotal?.toFixed(2) || inv.total.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right text-[13px] text-foreground">
-                                            {inv.currency} {inv.total.toFixed(2)}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[13px] text-foreground">{inv.status}</ZoruTableCell>
-                                    </ZoruTableRow>
-                                ))
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label="Total outward supplies"
+                    value={fmtMoney(totalTaxable, 'INR')}
+                />
+                <StatCard
+                    label="Total tax"
+                    value={fmtMoney(totalTax, 'INR')}
+                    tone="amber"
+                />
+                <StatCard
+                    label="B2B invoices"
+                    value={fmtNumber(b2bCount)}
+                    tone="blue"
+                />
+                <StatCard
+                    label="B2C rows"
+                    value={fmtNumber(b2cCount)}
+                    tone="green"
+                />
+            </div>
+
+            <Gstr1Client
+                month={month}
+                year={year}
+                rows={rows}
+                total={total}
+                page={page}
+                limit={limit}
+                chart={chart}
+            />
         </EntityListShell>
-    )
+    );
 }

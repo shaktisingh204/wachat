@@ -1,65 +1,164 @@
-import { ZoruCard } from '@/components/zoruui';
-
 export const dynamic = 'force-dynamic';
 
-import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  ReportToolbar,
-  StatCard,
-  BarRow,
-  fmtMoney,
-} from '../_components/report-toolbar';
-import { getIncomeByPeriod } from '@/app/actions/worksuite/reports.actions';
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+} from '@/components/zoruui';
+import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { StatCard, fmtMoney, fmtPct } from '../_components/report-toolbar';
+import { FyReportToolbar } from '../_components/fy-report-toolbar';
+import { MonthlyTrendLine, CategoryPie } from '../_components/finance-charts';
+import { getIncomeReportDeep } from '@/app/actions/worksuite/reports.actions';
+
+const PAGE_SIZES = [10, 20, 50, 100];
 
 export default async function IncomeReportPage(props: {
-  searchParams: Promise<{ from?: string; to?: string; clientId?: string }>;
+  searchParams: Promise<{
+    from?: string;
+    to?: string;
+    page?: string;
+    limit?: string;
+  }>;
 }) {
   const sp = await props.searchParams;
-  const rows = await getIncomeByPeriod(sp.from, sp.to, 'month', sp.clientId);
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const total = rows.reduce((s, r) => s + r.total, 0);
-  const count = rows.reduce((s, r) => s + r.count, 0);
-  const max = rows.reduce((m, r) => Math.max(m, r.total), 0);
-  const avg = rows.length ? total / rows.length : 0;
+  const anchor = sp.from || undefined;
+  const { kpis, monthly, bySource, rows, fyLabel } = await getIncomeReportDeep(anchor);
+
+  const pageRows = rows.slice((page - 1) * limit, page * limit);
+  const hasMore = page * limit < rows.length;
+
+  const exportHeaders = [
+    'Invoice #',
+    'Date',
+    'Client',
+    'Source',
+    'Total',
+    'Paid',
+    'Status',
+  ];
+  const exportRows = rows.map((r) => ({
+    'Invoice #': r.invoiceNumber,
+    Date: r.invoiceDate,
+    Client: r.clientName,
+    Source: r.source,
+    Total: r.total,
+    Paid: r.paidAmount,
+    Status: r.status,
+  }));
+
+  const yoyTone: 'green' | 'red' | 'default' = kpis.yoyChangePct > 0 ? 'green' : kpis.yoyChangePct < 0 ? 'red' : 'default';
 
   return (
     <EntityListShell
       title="Income Report"
-      subtitle="Revenue by month from paid and partially paid invoices."
-      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
+      subtitle={`Revenue from paid and partially paid invoices · ${fyLabel}`}
+      primaryAction={
+        <FyReportToolbar
+          from={sp.from}
+          to={sp.to}
+          exportFilename="income-report"
+          exportHeaders={exportHeaders}
+          exportRows={exportRows}
+        />
+      }
+      pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} total={rows.length} />}
     >
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatCard label="Total income" value={fmtMoney(total)} tone="green" />
-        <StatCard label="Invoices" value={String(count)} />
-        <StatCard label="Monthly average" value={fmtMoney(avg)} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Total income (FY)" value={fmtMoney(kpis.totalFY)} tone="green" hint={fyLabel} />
+        <StatCard label="This month" value={fmtMoney(kpis.thisMonth)} />
+        <StatCard
+          label="YoY change"
+          value={fmtPct(kpis.yoyChangePct)}
+          tone={yoyTone}
+          hint="vs. prior FY"
+        />
+        <StatCard
+          label="Top source"
+          value={kpis.topSource}
+          hint={fmtMoney(kpis.topSourceTotal)}
+          tone="blue"
+        />
       </div>
 
-      <ZoruCard className="p-6">
-        <div className="mb-3">
-          <h2 className="text-[16px] font-semibold text-zoru-ink">By month</h2>
-          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-            Grouped by invoice date.
-          </p>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <ZoruCard className="p-6">
+          <div className="mb-3">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">Monthly trend</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Revenue recognised per month.</p>
+          </div>
+          {monthly.length === 0 ? (
+            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No income for this FY.</div>
+          ) : (
+            <MonthlyTrendLine data={monthly} color="#7ec77d" label="Income" />
+          )}
+        </ZoruCard>
+        <ZoruCard className="p-6">
+          <div className="mb-3">
+            <h2 className="text-[16px] font-semibold text-zoru-ink">By source</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Top revenue sources.</p>
+          </div>
+          {bySource.length === 0 ? (
+            <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No source data.</div>
+          ) : (
+            <CategoryPie data={bySource} label="Source" />
+          )}
+        </ZoruCard>
+      </div>
+
+      <ZoruCard className="p-0">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Date</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Source</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Total</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Paid</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {pageRows.length === 0 ? (
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={7} className="h-20 text-center text-[13px] text-zoru-ink-muted">
+                    No invoices for this range.
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              ) : (
+                pageRows.map((r) => (
+                  <ZoruTableRow key={r.id} className="border-zoru-line">
+                    <ZoruTableCell>
+                      <EntityRowLink href={`/dashboard/crm/sales/invoices/${r.id}`} label={r.invoiceNumber} />
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">{r.invoiceDate}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink">{r.clientName}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.source}</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">{fmtMoney(r.total)}</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-success-ink">
+                      {fmtMoney(r.paidAmount)}
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={r.status === 'Paid' ? 'success' : 'warning'}>{r.status || '—'}</ZoruBadge>
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))
+              )}
+            </ZoruTableBody>
+          </ZoruTable>
         </div>
-        {rows.length === 0 ? (
-          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">
-            No income for the selected range.
-          </div>
-        ) : (
-          <div className="flex flex-col">
-            {rows.map((r) => (
-              <BarRow
-                key={r.period}
-                label={r.period}
-                value={r.total}
-                max={max}
-                rightLabel={fmtMoney(r.total)}
-                tone="rose"
-              />
-            ))}
-          </div>
-        )}
       </ZoruCard>
     </EntityListShell>
   );

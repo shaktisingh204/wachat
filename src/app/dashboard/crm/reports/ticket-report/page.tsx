@@ -1,107 +1,158 @@
-import { ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  ReportToolbar,
-  StatCard,
-  BarRow,
-  fmtMinutes,
+    ReportToolbar,
+    StatCard,
+    fmtMinutes,
 } from '../_components/report-toolbar';
-import { getTicketMetrics } from '@/app/actions/worksuite/reports.actions';
+import {
+    getTicketMetrics,
+    listTicketReportRows,
+} from '@/app/actions/worksuite/reports.actions';
+import { TicketReportClient } from './_components/ticket-report-client';
 
+/**
+ * Ticket Report — server page.
+ *
+ * Aggregates ticket metrics + a paged ticket list for the table, then
+ * delegates rendering of the charts/table/export controls to the
+ * `TicketReportClient`. Tenant scoping happens inside the actions
+ * (`requireSession`).
+ */
 export default async function TicketReportPage(props: {
-  searchParams: Promise<{ from?: string; to?: string }>;
+    searchParams: Promise<{
+        from?: string;
+        to?: string;
+        priority?: string;
+        channel?: string;
+        status?: string;
+        page?: string;
+        limit?: string;
+    }>;
 }) {
-  const sp = await props.searchParams;
-  const m = await getTicketMetrics(sp.from, sp.to);
+    const sp = await props.searchParams;
+    const page = Math.max(1, Number(sp.page ?? 1));
+    const limit = Math.min(Math.max(1, Number(sp.limit ?? 20)), 100);
 
-  const maxStatus = m.byStatus.reduce((x, r) => Math.max(x, r.count), 0);
-  const maxChannel = m.byChannel.reduce((x, r) => Math.max(x, r.count), 0);
-  const maxAgent = m.byAgent.reduce((x, r) => Math.max(x, r.count), 0);
+    const filters = {
+        priority: sp.priority || undefined,
+        channel: sp.channel || undefined,
+        status: sp.status || undefined,
+    };
 
-  return (
-    <EntityListShell
-      title="Ticket Report"
-      subtitle="Tickets by status, channel, agent with SLA metrics."
-      primaryAction={<ReportToolbar from={sp.from} to={sp.to} />}
-    >
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
-        <StatCard label="Total tickets" value={String(m.total)} />
-        <StatCard label="Open" value={String(m.open)} tone="amber" />
-        <StatCard
-          label="Avg first response"
-          value={fmtMinutes(m.avgFirstResponseMinutes)}
-          tone="blue"
-        />
-        <StatCard
-          label="Avg resolution"
-          value={fmtMinutes(m.avgResolutionMinutes)}
-          tone="green"
-        />
-      </div>
+    const [m, list] = await Promise.all([
+        getTicketMetrics(sp.from, sp.to, filters),
+        listTicketReportRows(sp.from, sp.to, filters, page, limit),
+    ]);
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <ZoruCard>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              By status
-            </h2>
-          </div>
-          {m.byStatus.length === 0 ? (
-            <div className="py-6 text-center text-[13px] text-muted-foreground">
-              No tickets.
+    const topPriority = m.byPriority[0]?.priority ?? '—';
+    const topPriorityCount = m.byPriority[0]?.count ?? 0;
+
+    return (
+        <EntityListShell
+            title="Ticket Report"
+            subtitle="Tickets opened vs closed, SLA timings, priority breakdown and per-agent volume."
+            primaryAction={
+                <ReportToolbar
+                    from={sp.from}
+                    to={sp.to}
+                    extra={
+                        <>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                    Priority
+                                </span>
+                                <select
+                                    name="priority"
+                                    defaultValue={sp.priority ?? ''}
+                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                >
+                                    <option value="">All</option>
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                    <option value="urgent">Urgent</option>
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                    Channel
+                                </span>
+                                <select
+                                    name="channel"
+                                    defaultValue={sp.channel ?? ''}
+                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                >
+                                    <option value="">All</option>
+                                    <option value="email">Email</option>
+                                    <option value="web">Web</option>
+                                    <option value="phone">Phone</option>
+                                    <option value="chat">Chat</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </label>
+                            <label className="flex flex-col gap-1">
+                                <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                                    Status
+                                </span>
+                                <select
+                                    name="status"
+                                    defaultValue={sp.status ?? ''}
+                                    className="h-9 rounded-lg border border-border bg-card px-2 text-[13px] text-foreground"
+                                >
+                                    <option value="">All</option>
+                                    <option value="open">Open</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="on_hold">On hold</option>
+                                    <option value="resolved">Resolved</option>
+                                    <option value="closed">Closed</option>
+                                </select>
+                            </label>
+                        </>
+                    }
+                />
+            }
+        >
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard label="Total tickets" value={String(m.total)} />
+                <StatCard label="Open" value={String(m.open)} tone="amber" />
+                <StatCard
+                    label="Avg first response"
+                    value={fmtMinutes(m.avgFirstResponseMinutes)}
+                    tone="blue"
+                />
+                <StatCard
+                    label="Avg resolution"
+                    value={fmtMinutes(m.avgResolutionMinutes)}
+                    tone="green"
+                />
             </div>
-          ) : (
-            m.byStatus.map((r) => (
-              <BarRow
-                key={r.status}
-                label={r.status}
-                value={r.count}
-                max={maxStatus}
-                rightLabel={String(r.count)}
-                tone="obsidian"
-              />
-            ))
-          )}
-        </ZoruCard>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <StatCard
+                    label="Top priority"
+                    value={topPriority}
+                    hint={`${topPriorityCount} tickets`}
+                />
+                <StatCard label="Resolved" value={String(m.resolved)} tone="green" />
+                <StatCard
+                    label="Channels in use"
+                    value={String(m.byChannel.length)}
+                />
+                <StatCard
+                    label="Agents handling"
+                    value={String(m.byAgent.length)}
+                />
+            </div>
 
-        <ZoruCard>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              By channel
-            </h2>
-          </div>
-          {m.byChannel.map((r) => (
-            <BarRow
-              key={r.channel}
-              label={r.channel}
-              value={r.count}
-              max={maxChannel}
-              rightLabel={String(r.count)}
-              tone="blue"
+            <TicketReportClient
+                metrics={m}
+                rows={list.rows}
+                total={list.total}
+                page={page}
+                limit={limit}
             />
-          ))}
-        </ZoruCard>
-
-        <ZoruCard>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              By agent
-            </h2>
-          </div>
-          {m.byAgent.map((r) => (
-            <BarRow
-              key={r.agent}
-              label={r.agent}
-              value={r.count}
-              max={maxAgent}
-              rightLabel={String(r.count)}
-              tone="rose"
-            />
-          ))}
-        </ZoruCard>
-      </div>
-    </EntityListShell>
-  );
+        </EntityListShell>
+    );
 }

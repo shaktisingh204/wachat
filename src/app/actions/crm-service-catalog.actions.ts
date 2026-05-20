@@ -219,6 +219,129 @@ export async function saveCrmService(
     }
 }
 
+/* ─── KPI + bulk actions ────────────────────────────────────────────── */
+
+export interface CrmServiceKpis {
+    total: number;
+    active: number;
+    archived: number;
+    /** Sum of `defaultPrice` across active services (proxy for "total billed"). */
+    totalBilled: number;
+    /** Service with highest `defaultPrice` among active rows. */
+    topRevenueService: { name: string; defaultPrice: number } | null;
+}
+
+export async function getCrmServiceKpis(): Promise<CrmServiceKpis> {
+    const empty: CrmServiceKpis = {
+        total: 0,
+        active: 0,
+        archived: 0,
+        totalBilled: 0,
+        topRevenueService: null,
+    };
+
+    const user = await requireSession();
+    if (!user) return empty;
+
+    const guard = await requirePermission('crm_service', 'view');
+    if (!guard.ok) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(user._id);
+        const base = { userId: userObjectId } as Record<string, unknown>;
+        const activeFilter = { ...base, status: { $ne: 'archived' } };
+
+        const [total, active, archived, sumAgg, topDoc] = await Promise.all([
+            db.collection(COLLECTION).countDocuments(base),
+            db.collection(COLLECTION).countDocuments(activeFilter),
+            db.collection(COLLECTION).countDocuments({ ...base, status: 'archived' }),
+            db
+                .collection(COLLECTION)
+                .aggregate([
+                    { $match: activeFilter },
+                    {
+                        $group: {
+                            _id: null,
+                            sum: { $sum: { $ifNull: ['$defaultPrice', 0] } },
+                        },
+                    },
+                ])
+                .toArray()
+                .catch(() => [] as Array<{ sum?: number }>),
+            db
+                .collection(COLLECTION)
+                .find(activeFilter)
+                .sort({ defaultPrice: -1 })
+                .limit(1)
+                .toArray()
+                .catch(() => [] as Array<{ name?: string; defaultPrice?: number }>),
+        ]);
+
+        const totalBilled = Number((sumAgg[0] as { sum?: number } | undefined)?.sum ?? 0) || 0;
+        const top = topDoc[0] as { name?: string; defaultPrice?: number } | undefined;
+        const topRevenueService =
+            top && typeof top.name === 'string'
+                ? { name: top.name, defaultPrice: Number(top.defaultPrice ?? 0) || 0 }
+                : null;
+
+        return { total, active, archived, totalBilled, topRevenueService };
+    } catch (e) {
+        console.error('[getCrmServiceKpis] failed:', e);
+        return empty;
+    }
+}
+
+export type BulkServiceOp = 'archive' | 'unarchive' | 'delete';
+
+export async function bulkServiceAction(
+    ids: string[],
+    op: BulkServiceOp,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const user = await requireSession();
+    if (!user) return { success: false, processed: 0, error: 'Access denied.' };
+
+    const guard = await requirePermission(
+        'crm_service',
+        op === 'delete' ? 'delete' : 'edit',
+    );
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const validIds = (ids ?? []).filter((id) => ObjectId.isValid(id));
+    if (validIds.length === 0) {
+        return { success: false, processed: 0, error: 'No valid service ids.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(user._id);
+        const filter = {
+            _id: { $in: validIds.map((id) => new ObjectId(id)) },
+            userId: userObjectId,
+        };
+
+        if (op === 'delete') {
+            const r = await db.collection(COLLECTION).deleteMany(filter);
+            revalidatePath(REVALIDATE);
+            return { success: true, processed: r.deletedCount ?? 0 };
+        }
+
+        const isArchive = op === 'archive';
+        const r = await db.collection(COLLECTION).updateMany(filter, {
+            $set: {
+                status: isArchive ? 'archived' : 'active',
+                isActive: !isArchive,
+                updatedAt: new Date(),
+            },
+        });
+        revalidatePath(REVALIDATE);
+        return { success: true, processed: r.modifiedCount ?? 0 };
+    } catch (e) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        return { success: false, processed: 0, error: msg };
+    }
+}
+
 /**
  * Soft-delete: flips status to 'archived' rather than removing the row.
  */

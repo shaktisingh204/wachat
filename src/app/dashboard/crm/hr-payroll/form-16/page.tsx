@@ -1,228 +1,690 @@
 'use client';
 
-import { ZoruCard, ZoruButton, ZoruBadge } from '@/components/zoruui';
 import {
+  ZoruBadge,
+  ZoruButton,
+  ZoruCard,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruStatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
   useState,
-  useTransition } from 'react';
-import { FileText,
+  useTransition,
+} from 'react';
+import {
+  CalendarRange,
+  CheckCircle2,
   Download,
+  FileText,
   LoaderCircle,
-  ChevronDown } from 'lucide-react';
+  Trash2,
+  X,
+} from 'lucide-react';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import {
+  bulkGenerateForm16,
+  deleteForm16,
+  getForm16Records,
+  type CrmForm16Status,
+} from '@/app/actions/crm-form-16.actions';
+import { getCrmDepartments } from '@/app/actions/crm-employees.actions';
+import { getSession } from '@/app/actions/user.actions';
 
+const PAGE_SIZE = 10;
 const currentYear = new Date().getFullYear();
 
 function getFinancialYears(count = 5) {
-    const years = [];
-    for (let i = 0; i < count; i++) {
-        const start = currentYear - i - 1;
-        const end = currentYear - i;
-        years.push({
-            label: `${start}-${String(end).slice(-2)}`,
-            startYear: start,
-            endYear: end,
-            period: `April ${start} – March ${end}`,
-        });
-    }
-    return years;
+  const years = [];
+  for (let i = 0; i < count; i++) {
+    const start = currentYear - i - 1;
+    const end = currentYear - i;
+    years.push({
+      label: `${start}-${String(end).slice(-2)}`,
+      startYear: start,
+      endYear: end,
+      period: `April ${start} – March ${end}`,
+    });
+  }
+  return years;
 }
-
-const mockForm16Data = [
-    {
-        id: '1',
-        employeeName: 'Priya Sharma',
-        designation: 'Senior Engineer',
-        pan: 'ABCPS1234D',
-        grossSalary: 1440000,
-        totalDeductions: 208000,
-        taxableIncome: 1232000,
-        taxDeducted: 108000,
-        taxPaid: 108000,
-        status: 'generated',
-    },
-    {
-        id: '2',
-        employeeName: 'Rahul Mehta',
-        designation: 'Product Manager',
-        pan: 'DEFPM5678G',
-        grossSalary: 1800000,
-        totalDeductions: 245000,
-        taxableIncome: 1555000,
-        taxDeducted: 185000,
-        taxPaid: 185000,
-        status: 'generated',
-    },
-    {
-        id: '3',
-        employeeName: 'Anjali Verma',
-        designation: 'UX Designer',
-        pan: 'GHIAV9012K',
-        grossSalary: 960000,
-        totalDeductions: 132000,
-        taxableIncome: 828000,
-        taxDeducted: 62400,
-        taxPaid: 62400,
-        status: 'pending',
-    },
-    {
-        id: '4',
-        employeeName: 'Suresh Nair',
-        designation: 'Backend Developer',
-        pan: 'JKLSN3456M',
-        grossSalary: 1200000,
-        totalDeductions: 172000,
-        taxableIncome: 1028000,
-        taxDeducted: 87200,
-        taxPaid: 87200,
-        status: 'generated',
-    },
-];
 
 function statusBadge(status: string) {
-    if (status === 'generated') return <ZoruBadge variant="success">Generated</ZoruBadge>;
-    if (status === 'pending') return <ZoruBadge variant="warning">Pending</ZoruBadge>;
-    return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
+  if (status === 'generated')
+    return <ZoruBadge variant="success">Generated</ZoruBadge>;
+  if (status === 'issued')
+    return <ZoruBadge variant="success">Issued</ZoruBadge>;
+  if (status === 'draft')
+    return <ZoruBadge variant="warning">Draft</ZoruBadge>;
+  if (status === 'archived')
+    return <ZoruBadge variant="secondary">Archived</ZoruBadge>;
+  return <ZoruBadge variant="secondary">{status}</ZoruBadge>;
 }
 
+type StatusFilter = CrmForm16Status | 'all';
+
+type Form16Row = {
+  _id?: unknown;
+  employeeId?: string;
+  employeeName?: string;
+  financialYear?: string;
+  pan?: string;
+  totalIncome?: number;
+  taxDeducted?: number;
+  status?: string;
+  documentUrl?: string;
+  departmentId?: string;
+  designation?: string;
+  generatedAt?: string | Date;
+};
+
 export default function Form16Page() {
-    const financialYears = getFinancialYears(5);
-    const [selectedFY, setSelectedFY] = useState(financialYears[0]);
-    const [expandedFY, setExpandedFY] = useState<string>(financialYears[0].label);
-    const [isGenerating, startTransition] = useTransition();
+  const { toast } = useZoruToast();
+  const financialYears = useMemo(() => getFinancialYears(5), []);
+  const currentFy = financialYears[0].label;
 
-    const handleGenerate = (_fyLabel: string) => {
-        startTransition(async () => {
-            await new Promise(r => setTimeout(r, 1000));
-        });
+  const [rows, setRows] = useState<Form16Row[]>([]);
+  const [departments, setDepartments] = useState<
+    Array<{ _id: unknown; name: string }>
+  >([]);
+  const [authed, setAuthed] = useState(false);
+  const [isLoading, startTransition] = useTransition();
+  const [isGenerating, startGenerate] = useTransition();
+
+  // filters
+  const [search, setSearch] = useState('');
+  const [fyFilter, setFyFilter] = useState<string>(currentFy);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<string>('');
+
+  // pagination + selection
+  const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    getSession().then((s) => {
+      if (cancelled) return;
+      setAuthed(!!s?.user);
+    });
+    return () => {
+      cancelled = true;
     };
+  }, []);
 
-    const totalTaxDeducted = mockForm16Data.reduce((s, e) => s + e.taxDeducted, 0);
-    const generated = mockForm16Data.filter(e => e.status === 'generated').length;
+  const load = useCallback(() => {
+    startTransition(async () => {
+      const [res, depts] = await Promise.all([
+        getForm16Records({
+          q: search || undefined,
+          status: statusFilter,
+          financialYear: fyFilter || undefined,
+          limit: 500,
+        }),
+        getCrmDepartments().catch(
+          () => [] as Array<{ _id: unknown; name: string }>,
+        ),
+      ]);
+      setRows((res.items ?? []) as Form16Row[]);
+      setDepartments(depts as Array<{ _id: unknown; name: string }>);
+    });
+  }, [search, statusFilter, fyFilter]);
 
-    return (
-        <EntityListShell
-            title="Form 16 Generation"
-            subtitle="Download Annual Tax Certificates (Part A & Part B) for all employees."
-            primaryAction={
-                <ZoruButton
-                    disabled={isGenerating}
-                    onClick={() => handleGenerate(selectedFY.label)}
-                >
-                    {isGenerating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <FileText className="h-4 w-4" />}
-                    Generate All — {selectedFY.label}
-                </ZoruButton>
-            }
-        >
+  useEffect(() => {
+    if (authed) load();
+  }, [authed, load]);
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <ZoruCard className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Total Tax Deducted (FY {selectedFY.label})</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">Across {mockForm16Data.length} employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Form 16 Generated</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">{generated} / {mockForm16Data.length}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">employees</p>
-                </ZoruCard>
-                <ZoruCard className="p-6">
-                    <p className="text-[12.5px] text-zoru-ink-muted">Financial Year</p>
-                    <div className="mt-2 text-2xl text-zoru-ink">FY {selectedFY.label}</div>
-                    <p className="mt-1 text-[11.5px] text-zoru-ink-muted">{selectedFY.period}</p>
-                </ZoruCard>
-            </div>
+  // KPIs are global (computed from all loaded rows; FY filter scoped via fyFilter)
+  const kpis = useMemo(() => {
+    const issued = rows.filter(
+      (r) => r.status === 'generated' || r.status === 'issued',
+    ).length;
+    const pending = rows.filter(
+      (r) => r.status === 'draft' || r.status === 'pending',
+    ).length;
+    const downloaded = rows.filter((r) => !!r.documentUrl).length;
+    const currentFyCount = rows.filter(
+      (r) => r.financialYear === currentFy,
+    ).length;
+    return { issued, pending, downloaded, currentFyCount };
+  }, [rows, currentFy]);
 
-            <ZoruCard className="p-6">
-                <div className="mb-4">
-                    <h2 className="text-[16px] text-zoru-ink">Select Financial Year</h2>
-                    <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">Expand a year to view and download individual Form 16 certificates.</p>
-                </div>
-                <div className="space-y-2">
-                    {financialYears.map(fy => (
-                        <div key={fy.label} className="rounded-lg border border-zoru-line overflow-hidden">
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setSelectedFY(fy);
-                                    setExpandedFY(prev => prev === fy.label ? '' : fy.label);
-                                }}
-                                className="flex w-full items-center justify-between bg-zoru-surface-2 px-4 py-3 text-left hover:bg-zoru-bg transition-colors"
-                            >
-                                <div>
-                                    <span className="text-[14px] text-zoru-ink">Financial Year {fy.label}</span>
-                                    <span className="ml-3 text-[12.5px] text-zoru-ink-muted">{fy.period}</span>
-                                </div>
-                                <div className="flex items-center gap-3">
-                                    {fy.label === financialYears[0].label && (
-                                        <ZoruBadge variant="info">Current FY</ZoruBadge>
-                                    )}
-                                    <ChevronDown className={`h-4 w-4 text-zoru-ink-muted transition-transform ${expandedFY === fy.label ? 'rotate-180' : ''}`} />
-                                </div>
-                            </button>
-
-                            {expandedFY === fy.label && (
-                                <div className="border-t border-zoru-line">
-                                    <table className="w-full text-left text-[13px]">
-                                        <thead>
-                                            <tr className="border-b border-zoru-line bg-zoru-bg">
-                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">Employee</th>
-                                                <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">PAN Number</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Gross Salary</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Total Deductions</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Taxable Income</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Tax Deducted</th>
-                                                <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">Status</th>
-                                                <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">Download</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {mockForm16Data.map(emp => (
-                                                <tr key={emp.id} className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors">
-                                                    <td className="px-4 py-3">
-                                                        <div className="text-zoru-ink">{emp.employeeName}</div>
-                                                        <div className="text-[11.5px] text-zoru-ink-muted">{emp.designation}</div>
-                                                    </td>
-                                                    <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">{emp.pan}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.grossSalary.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.totalDeductions.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxableIncome.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-right font-mono text-zoru-ink">₹{emp.taxDeducted.toLocaleString('en-IN')}</td>
-                                                    <td className="px-4 py-3 text-center">{statusBadge(emp.status)}</td>
-                                                    <td className="px-4 py-3 text-right">
-                                                        <ZoruButton
-                                                            variant="outline"
-                                                            size="sm"
-                                                            disabled={emp.status !== 'generated'}
-                                                        >
-                                                            <Download className="h-3.5 w-3.5" />
-                                                            Form 16
-                                                        </ZoruButton>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                        <tfoot>
-                                            <tr className="border-t-2 border-zoru-line bg-zoru-surface-2">
-                                                <td colSpan={5} className="px-4 py-3 text-[12.5px] text-zoru-ink">Total Tax Deducted</td>
-                                                <td className="px-4 py-3 text-right font-mono text-[12.5px] text-zoru-ink">₹{totalTaxDeducted.toLocaleString('en-IN')}</td>
-                                                <td colSpan={2} />
-                                            </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-
-                <div className="mt-4 rounded-lg border border-dashed border-zoru-line bg-zoru-surface-2 p-4 text-center">
-                    <p className="text-[12.5px] text-zoru-ink-muted">
-                        Payroll data must be finalized for the complete financial year before generating Form 16.
-                        Currently showing sample data — connect to live payroll actions to enable actual generation.
-                    </p>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
+  // department filter applied client-side
+  const filtered = useMemo(() => {
+    if (!departmentFilter) return rows;
+    return rows.filter(
+      (r) => String(r.departmentId ?? '') === departmentFilter,
     );
+  }, [rows, departmentFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages);
+  }, [page, totalPages]);
+
+  const paged = useMemo(
+    () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+    [filtered, page],
+  );
+
+  const hasActiveFilters =
+    !!search ||
+    statusFilter !== 'all' ||
+    fyFilter !== currentFy ||
+    !!departmentFilter;
+
+  const clearFilters = useCallback(() => {
+    setSearch('');
+    setStatusFilter('all');
+    setFyFilter(currentFy);
+    setDepartmentFilter('');
+    setPage(1);
+  }, [currentFy]);
+
+  const handleBulkGenerate = useCallback(() => {
+    startGenerate(async () => {
+      const res = await bulkGenerateForm16(
+        fyFilter || currentFy,
+        departmentFilter || undefined,
+      );
+      if (res.error) {
+        toast({
+          title: 'Generation failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: `${res.created} created, ${res.skipped} skipped`,
+        });
+        load();
+      }
+    });
+  }, [fyFilter, currentFy, departmentFilter, load, toast]);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!deleteTargetId) return;
+    const res = await deleteForm16(deleteTargetId);
+    if (res.success) {
+      toast({ title: 'Form 16 archived' });
+      setSelected((prev) => {
+        const next = new Set(prev);
+        next.delete(deleteTargetId);
+        return next;
+      });
+      load();
+    } else {
+      toast({
+        title: 'Delete failed',
+        description: res.error,
+        variant: 'destructive',
+      });
+    }
+    setDeleteTargetId(null);
+  }, [deleteTargetId, load, toast]);
+
+  const runBulkDelete = useCallback(async () => {
+    if (selected.size === 0) return;
+    const ids = Array.from(selected);
+    let ok = 0;
+    for (const id of ids) {
+      const res = await deleteForm16(id);
+      if (res.success) ok += 1;
+    }
+    toast({ title: `${ok} Form 16 record${ok === 1 ? '' : 's'} archived` });
+    setSelected(new Set());
+    setBulkDeleteOpen(false);
+    load();
+  }, [selected, load, toast]);
+
+  const toggleOne = useCallback((id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleAll = useCallback(
+    (all: boolean) => {
+      setSelected(
+        all
+          ? new Set(paged.map((r) => String(r._id)).filter(Boolean) as string[])
+          : new Set(),
+      );
+    },
+    [paged],
+  );
+
+  const allSelected =
+    paged.length > 0 && paged.every((r) => selected.has(String(r._id)));
+
+  const downloadBulk = useCallback(() => {
+    const ids = selected.size > 0 ? selected : null;
+    const targets = ids
+      ? filtered.filter((r) => ids.has(String(r._id)))
+      : filtered;
+    let opened = 0;
+    for (const r of targets) {
+      if (r.documentUrl) {
+        window.open(r.documentUrl, '_blank', 'noopener,noreferrer');
+        opened += 1;
+      }
+    }
+    toast({
+      title: opened > 0 ? `Downloading ${opened} document${opened === 1 ? '' : 's'}` : 'No documents available',
+    });
+  }, [filtered, selected, toast]);
+
+  const exportRows = useCallback(
+    (kind: 'csv' | 'xlsx') => {
+      const ids = selected.size > 0 ? selected : null;
+      const out = ids
+        ? filtered.filter((r) => ids.has(String(r._id)))
+        : filtered;
+      const header = [
+        'Employee',
+        'PAN',
+        'FinancialYear',
+        'TotalIncome',
+        'TaxDeducted',
+        'Status',
+        'GeneratedAt',
+      ];
+      const escape = (v: unknown) =>
+        `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const csv = [
+        header.join(','),
+        ...out.map((r) =>
+          [
+            escape(r.employeeName ?? ''),
+            escape(r.pan ?? ''),
+            escape(r.financialYear ?? ''),
+            escape(r.totalIncome ?? 0),
+            escape(r.taxDeducted ?? 0),
+            escape(r.status ?? ''),
+            escape(
+              r.generatedAt ? new Date(r.generatedAt).toISOString() : '',
+            ),
+          ].join(','),
+        ),
+      ].join('\n');
+      const mime =
+        kind === 'xlsx'
+          ? 'application/vnd.ms-excel;charset=utf-8;'
+          : 'text/csv;charset=utf-8;';
+      const ext = kind === 'xlsx' ? 'xls' : 'csv';
+      const blob = new Blob([csv], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `form-16-${new Date().toISOString().slice(0, 10)}.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    },
+    [filtered, selected],
+  );
+
+  return (
+    <>
+      <EntityListShell
+        title="Form 16 Generation"
+        subtitle="Issue annual tax certificates (Part A & Part B) to employees."
+        search={{
+          value: search,
+          onChange: (v) => {
+            setSearch(v);
+            setPage(1);
+          },
+          placeholder: 'Search employee, PAN, FY…',
+        }}
+        primaryAction={
+          <ZoruButton disabled={isGenerating} onClick={handleBulkGenerate}>
+            {isGenerating ? (
+              <LoaderCircle className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileText className="h-4 w-4" />
+            )}
+            Bulk Generate — FY {fyFilter || currentFy}
+          </ZoruButton>
+        }
+        filters={
+          <div className="flex flex-wrap items-center gap-2">
+            <ZoruSelect
+              value={fyFilter || 'all'}
+              onValueChange={(v) => {
+                setFyFilter(v === 'all' ? '' : v);
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-9 w-32 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="FY" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All FYs</ZoruSelectItem>
+                {financialYears.map((fy) => (
+                  <ZoruSelectItem key={fy.label} value={fy.label}>
+                    FY {fy.label}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect
+              value={statusFilter}
+              onValueChange={(v) => {
+                setStatusFilter(v as StatusFilter);
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-9 w-36 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="Status" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                <ZoruSelectItem value="draft">Draft</ZoruSelectItem>
+                <ZoruSelectItem value="generated">Generated</ZoruSelectItem>
+                <ZoruSelectItem value="issued">Issued</ZoruSelectItem>
+                <ZoruSelectItem value="archived">Archived</ZoruSelectItem>
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruSelect
+              value={departmentFilter || 'all'}
+              onValueChange={(v) => {
+                setDepartmentFilter(v === 'all' ? '' : v);
+                setPage(1);
+              }}
+            >
+              <ZoruSelectTrigger className="h-9 w-44 rounded-full border-zoru-line bg-zoru-bg text-[13px]">
+                <ZoruSelectValue placeholder="Department" />
+              </ZoruSelectTrigger>
+              <ZoruSelectContent>
+                <ZoruSelectItem value="all">All departments</ZoruSelectItem>
+                {departments.map((d) => (
+                  <ZoruSelectItem key={String(d._id)} value={String(d._id)}>
+                    {d.name}
+                  </ZoruSelectItem>
+                ))}
+              </ZoruSelectContent>
+            </ZoruSelect>
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              onClick={() => exportRows('csv')}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export CSV
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              size="sm"
+              onClick={() => exportRows('xlsx')}
+            >
+              <Download className="h-3.5 w-3.5" />
+              Export XLSX
+            </ZoruButton>
+            {hasActiveFilters && (
+              <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                <X className="h-3.5 w-3.5" />
+                Clear
+              </ZoruButton>
+            )}
+          </div>
+        }
+        bulkBar={
+          selected.size > 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-zoru-line bg-zoru-surface-2 px-4 py-2.5">
+              <div className="text-[13px] text-zoru-ink">
+                {selected.size} selected
+              </div>
+              <div className="flex items-center gap-2">
+                <ZoruButton
+                  variant="outline"
+                  size="sm"
+                  onClick={downloadBulk}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Download
+                </ZoruButton>
+                <ZoruButton
+                  variant="outline"
+                  size="sm"
+                  onClick={() => exportRows('csv')}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  Export selected
+                </ZoruButton>
+                <ZoruButton
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => setBulkDeleteOpen(true)}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Archive
+                </ZoruButton>
+                <ZoruButton
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelected(new Set())}
+                >
+                  Clear
+                </ZoruButton>
+              </div>
+            </div>
+          ) : null
+        }
+        loading={isLoading && rows.length === 0}
+        pagination={
+          filtered.length > 0 ? (
+            <PaginationBar
+              page={page}
+              limit={PAGE_SIZE}
+              hasMore={page < totalPages}
+              total={filtered.length}
+              controlled={{ onChange: (next) => setPage(next.page) }}
+            />
+          ) : null
+        }
+      >
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <ZoruStatCard
+            label="Total Issued"
+            value={kpis.issued}
+            period="generated or issued"
+            icon={<CheckCircle2 />}
+          />
+          <ZoruStatCard
+            label="Pending FY"
+            value={kpis.pending}
+            period="awaiting generation"
+            icon={<FileText />}
+          />
+          <ZoruStatCard
+            label="Downloaded"
+            value={kpis.downloaded}
+            period="with documentUrl"
+            icon={<Download />}
+          />
+          <ZoruStatCard
+            label={`Current FY ${currentFy}`}
+            value={kpis.currentFyCount}
+            period="records this year"
+            icon={<CalendarRange />}
+          />
+        </div>
+
+        <ZoruCard className="p-6">
+          <div className="mb-4">
+            <h2 className="text-[16px] text-zoru-ink">Form 16 Records</h2>
+            <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+              Issue, download, or archive employee tax certificates.
+            </p>
+          </div>
+          <div className="overflow-x-auto rounded-lg border border-zoru-line">
+            <table className="w-full text-left text-[13px]">
+              <thead>
+                <tr className="border-b border-zoru-line bg-zoru-surface-2">
+                  <th className="w-10 px-3 py-3">
+                    <input
+                      type="checkbox"
+                      aria-label="Select all"
+                      checked={allSelected}
+                      onChange={(e) => toggleAll(e.target.checked)}
+                      className="h-4 w-4 accent-zoru-accent"
+                    />
+                  </th>
+                  <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">
+                    Employee
+                  </th>
+                  <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">
+                    PAN
+                  </th>
+                  <th className="px-4 py-3 text-[12px] uppercase text-zoru-ink-muted">
+                    FY
+                  </th>
+                  <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">
+                    Total Income
+                  </th>
+                  <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">
+                    Tax Deducted
+                  </th>
+                  <th className="px-4 py-3 text-center text-[12px] uppercase text-zoru-ink-muted">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-right text-[12px] uppercase text-zoru-ink-muted">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading && rows.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="h-48 text-center">
+                      <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-zoru-ink-muted" />
+                    </td>
+                  </tr>
+                ) : paged.length > 0 ? (
+                  paged.map((r) => {
+                    const id = String(r._id);
+                    const checked = selected.has(id);
+                    const canDownload = !!r.documentUrl;
+                    return (
+                      <tr
+                        key={id}
+                        className="border-b border-zoru-line last:border-0 hover:bg-zoru-surface-2/50 transition-colors"
+                      >
+                        <td className="px-3 py-3">
+                          <input
+                            type="checkbox"
+                            aria-label={`Select ${r.employeeName ?? id}`}
+                            checked={checked}
+                            onChange={() => toggleOne(id)}
+                            className="h-4 w-4 accent-zoru-accent"
+                          />
+                        </td>
+                        <td className="px-4 py-3">
+                          <EntityRowLink
+                            href={`/dashboard/crm/hr-payroll/form-16/${id}`}
+                            label={r.employeeName ?? '—'}
+                            subtitle={r.designation ?? undefined}
+                          />
+                        </td>
+                        <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink">
+                          {r.pan ?? '—'}
+                        </td>
+                        <td className="px-4 py-3 text-zoru-ink">
+                          {r.financialYear ?? '—'}
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                          ₹{Number(r.totalIncome ?? 0).toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-4 py-3 text-right font-mono text-zoru-ink">
+                          ₹{Number(r.taxDeducted ?? 0).toLocaleString('en-IN')}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {statusBadge(r.status ?? 'draft')}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <ZoruButton
+                              variant="outline"
+                              size="sm"
+                              disabled={!canDownload}
+                              onClick={() => {
+                                if (r.documentUrl)
+                                  window.open(
+                                    r.documentUrl,
+                                    '_blank',
+                                    'noopener,noreferrer',
+                                  );
+                              }}
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              PDF
+                            </ZoruButton>
+                            <ZoruButton
+                              variant="outline"
+                              size="icon"
+                              aria-label="Archive"
+                              onClick={() => setDeleteTargetId(id)}
+                            >
+                              <Trash2 className="h-4 w-4 text-zoru-danger-ink" />
+                            </ZoruButton>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
+                    >
+                      {hasActiveFilters
+                        ? 'No Form 16 records match the current filters.'
+                        : 'No Form 16 records yet. Use Bulk Generate to draft for the selected FY.'}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </ZoruCard>
+      </EntityListShell>
+
+      <ConfirmDialog
+        open={!!deleteTargetId}
+        onOpenChange={(o) => !o && setDeleteTargetId(null)}
+        title="Archive this Form 16?"
+        description="The record will be hidden from active views. You can still access it via the archived filter."
+        confirmLabel="Archive"
+        confirmTone="primary"
+        onConfirm={handleConfirmDelete}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={(o) => setBulkDeleteOpen(o)}
+        title={`Archive ${selected.size} Form 16 record${selected.size === 1 ? '' : 's'}?`}
+        description="The selected records will be marked archived. This is reversible from the archived view."
+        confirmLabel="Archive all"
+        confirmTone="primary"
+        onConfirm={runBulkDelete}
+      />
+    </>
+  );
 }

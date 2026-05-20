@@ -10,6 +10,8 @@ import { Building2,
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { ConfirmDialog } from '@/components/crm/confirm-dialog';
 import { PaginationBar } from '@/components/crm/pagination-bar';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import type { DateRange } from 'react-day-picker';
 
 /**
  * Accounts — list page (rebuilt per §1D.1).
@@ -82,6 +84,7 @@ export default function CrmAccountsPage() {
     const [industryFilter, setIndustryFilter] = React.useState('');
     const [countryFilter, setCountryFilter] = React.useState('');
     const [currencyFilter, setCurrencyFilter] = React.useState('');
+    const [dateRange, setDateRange] = React.useState<DateRange | undefined>();
 
     /* ─── Selection + view + dialogs ────────────────────────────── */
     const [selected, setSelected] = React.useState<Set<string>>(new Set());
@@ -94,7 +97,9 @@ export default function CrmAccountsPage() {
         categoryFilter !== 'all' ||
         !!industryFilter ||
         !!countryFilter ||
-        !!currencyFilter;
+        !!currencyFilter ||
+        !!dateRange?.from ||
+        !!dateRange?.to;
 
     /* ─── Fetch ────────────────────────────────────────────────── */
     const fetchData = React.useCallback(() => {
@@ -135,6 +140,24 @@ export default function CrmAccountsPage() {
                     (a) => (a.currency ?? '') === currencyFilter,
                 );
             }
+            if (dateRange?.from) {
+                const fromMs = dateRange.from.getTime();
+                filtered = filtered.filter(
+                    (a) =>
+                        !!a.createdAt &&
+                        new Date(a.createdAt as unknown as string).getTime() >=
+                            fromMs,
+                );
+            }
+            if (dateRange?.to) {
+                const toMs = dateRange.to.getTime() + 86_400_000 - 1;
+                filtered = filtered.filter(
+                    (a) =>
+                        !!a.createdAt &&
+                        new Date(a.createdAt as unknown as string).getTime() <=
+                            toMs,
+                );
+            }
 
             setAccounts(filtered);
             setTotal(hasActiveFilters ? filtered.length : pageRes.total);
@@ -145,6 +168,8 @@ export default function CrmAccountsPage() {
                 archived: kpiRes.archived,
                 strategic: kpiRes.strategic,
                 key: kpiRes.key,
+                totalArr: kpiRes.totalArr ?? 0,
+                topIndustries: kpiRes.topIndustries ?? [],
             });
         });
     }, [
@@ -155,6 +180,7 @@ export default function CrmAccountsPage() {
         industryFilter,
         countryFilter,
         currencyFilter,
+        dateRange,
         hasActiveFilters,
     ]);
 
@@ -173,6 +199,7 @@ export default function CrmAccountsPage() {
         setIndustryFilter('');
         setCountryFilter('');
         setCurrencyFilter('');
+        setDateRange(undefined);
         setSearch('');
         setPage(1);
     }, []);
@@ -274,12 +301,30 @@ export default function CrmAccountsPage() {
         [selected, toast, fetchData, t],
     );
 
-    const exportCsv = React.useCallback(() => {
+    const exportRows = React.useMemo(() => {
         const rows =
             selected.size > 0
                 ? accounts.filter((a) => selected.has(String(a._id)))
                 : accounts;
-        const header = [
+        return rows.map((a) => ({
+            Name: a.name,
+            Industry: a.industry ?? '',
+            Website: a.website ?? '',
+            Phone: a.phone ?? '',
+            Country: a.country ?? '',
+            State: a.state ?? '',
+            City: a.city ?? '',
+            Category: a.category ?? '',
+            Currency: a.currency ?? '',
+            GSTIN: a.gstin ?? '',
+            PAN: a.pan ?? '',
+            Status: a.status ?? 'active',
+            CreatedAt: a.createdAt ? new Date(a.createdAt).toISOString() : '',
+        }));
+    }, [accounts, selected]);
+
+    const exportHeaders = React.useMemo<string[]>(
+        () => [
             'Name',
             'Industry',
             'Website',
@@ -293,39 +338,22 @@ export default function CrmAccountsPage() {
             'PAN',
             'Status',
             'CreatedAt',
-        ];
-        const escape = (v: unknown) =>
-            `"${String(v ?? '').replace(/"/g, '""')}"`;
-        const csv = [
-            header.join(','),
-            ...rows.map((a) =>
-                [
-                    escape(a.name),
-                    escape(a.industry),
-                    escape(a.website),
-                    escape(a.phone),
-                    escape(a.country),
-                    escape(a.state),
-                    escape(a.city),
-                    escape(a.category),
-                    escape(a.currency),
-                    escape(a.gstin),
-                    escape(a.pan),
-                    escape(a.status ?? 'active'),
-                    escape(
-                        a.createdAt ? new Date(a.createdAt).toISOString() : '',
-                    ),
-                ].join(','),
-            ),
-        ].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `accounts-${new Date().toISOString().slice(0, 10)}.csv`;
-        a.click();
-        URL.revokeObjectURL(url);
-    }, [accounts, selected]);
+        ],
+        [],
+    );
+
+    const exportCsv = React.useCallback(() => {
+        downloadCsv(`accounts-${dateStamp()}.csv`, exportHeaders, exportRows);
+    }, [exportHeaders, exportRows]);
+
+    const exportXlsx = React.useCallback(() => {
+        void downloadXlsx(
+            `accounts-${dateStamp()}.xlsx`,
+            exportHeaders,
+            exportRows,
+            'Accounts',
+        );
+    }, [exportHeaders, exportRows]);
 
     const totalPages = Math.max(1, Math.ceil(total / ACCOUNTS_PER_PAGE));
 
@@ -385,6 +413,11 @@ export default function CrmAccountsPage() {
                             setCurrencyFilter(v);
                             setPage(1);
                         }}
+                        dateRange={dateRange}
+                        onDateRangeChange={(r) => {
+                            setDateRange(r);
+                            setPage(1);
+                        }}
                         hasActiveFilters={hasActiveFilters}
                         onClear={clearFilters}
                     />
@@ -397,6 +430,7 @@ export default function CrmAccountsPage() {
                             onArchive={() => void runBulkArchive()}
                             onCategoryChange={(c) => void runBulkCategory(c)}
                             onExport={exportCsv}
+                            onExportXlsx={exportXlsx}
                         />
                     ) : null
                 }

@@ -222,3 +222,191 @@ export async function saveLoyaltyProgram(
         return { error: getErrorMessage(e) };
     }
 }
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Deep-list additions (KPIs, filtered list, bulk ops).
+ *
+ * Member/transaction collections are not yet modelled, so KPIs derive
+ * from the program documents themselves: total members from a `members`
+ * array (when present), points outstanding from a `pointsOutstanding`
+ * accumulator, top-tier members from the last tier's `memberCount`
+ * (when present), and redemption rate from `redemptionRatio`.
+ * ──────────────────────────────────────────────────────────────────── */
+
+export interface CrmLoyaltyKpis {
+    totalMembers: number;
+    pointsOutstanding: number;
+    topTierMembers: number;
+    redemptionRate: number;
+}
+
+export interface CrmLoyaltyListFilters {
+    search?: string;
+    status?: string;
+    createdAfter?: Date | string;
+    createdBefore?: Date | string;
+}
+
+export async function getLoyaltyKpis(): Promise<CrmLoyaltyKpis> {
+    const empty: CrmLoyaltyKpis = {
+        totalMembers: 0,
+        pointsOutstanding: 0,
+        topTierMembers: 0,
+        redemptionRate: 0,
+    };
+    const session = await getSession();
+    if (!session?.user?._id) return empty;
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+
+        const docs = await db
+            .collection('crm_loyalty_programs')
+            .find({ userId } as never)
+            .toArray();
+
+        let totalMembers = 0;
+        let pointsOutstanding = 0;
+        let topTierMembers = 0;
+        let weightedRedemption = 0;
+        let redemptionDenominator = 0;
+
+        for (const d of docs) {
+            const members = Array.isArray((d as any).members)
+                ? (d as any).members.length
+                : Number((d as any).memberCount ?? 0);
+            totalMembers += members;
+
+            pointsOutstanding += Number((d as any).pointsOutstanding ?? 0);
+
+            const tiers = Array.isArray((d as any).tiers) ? (d as any).tiers : [];
+            const top = tiers[tiers.length - 1];
+            if (top && typeof top.memberCount === 'number') {
+                topTierMembers += Number(top.memberCount);
+            }
+
+            const ratio = Number((d as any).redemptionRatio ?? 0);
+            if (ratio > 0) {
+                weightedRedemption += ratio;
+                redemptionDenominator += 1;
+            }
+        }
+
+        const redemptionRate =
+            redemptionDenominator > 0
+                ? Math.round((weightedRedemption / redemptionDenominator) * 10) / 10
+                : 0;
+
+        return { totalMembers, pointsOutstanding, topTierMembers, redemptionRate };
+    } catch (e) {
+        console.error('[getLoyaltyKpis] failed:', e);
+        return empty;
+    }
+}
+
+export async function listLoyaltyPrograms(
+    page = 1,
+    limit = 20,
+    filters: CrmLoyaltyListFilters = {},
+): Promise<{ rows: Array<Record<string, unknown>>; total: number }> {
+    const session = await getSession();
+    if (!session?.user?._id) return { rows: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const query: Record<string, unknown> = { userId };
+
+        if (filters.status && filters.status !== 'all') query.status = filters.status;
+        if (filters.search) {
+            const safe = filters.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            query.name = { $regex: safe, $options: 'i' };
+        }
+        if (filters.createdAfter || filters.createdBefore) {
+            const range: Record<string, Date> = {};
+            if (filters.createdAfter) range.$gte = new Date(filters.createdAfter);
+            if (filters.createdBefore) range.$lte = new Date(filters.createdBefore);
+            query.createdAt = range;
+        }
+
+        const skip = Math.max(0, (page - 1) * limit);
+        const [docs, total] = await Promise.all([
+            db
+                .collection('crm_loyalty_programs')
+                .find(query as never)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('crm_loyalty_programs').countDocuments(query as never),
+        ]);
+
+        return { rows: JSON.parse(JSON.stringify(docs)), total };
+    } catch (e) {
+        console.error('[listLoyaltyPrograms] failed:', e);
+        return { rows: [], total: 0 };
+    }
+}
+
+export async function bulkLoyaltyAction(
+    ids: string[],
+    op: 'delete' | 'status',
+    payload?: string,
+): Promise<{ success: boolean; processed: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user?._id) return { success: false, processed: 0, error: 'Unauthorized.' };
+
+    const guard = await requirePermission(
+        'crm_loyalty_program',
+        op === 'delete' ? 'delete' : 'edit',
+    );
+    if (!guard.ok) return { success: false, processed: 0, error: guard.error };
+
+    const valid = (ids ?? []).filter((id) => typeof id === 'string' && ObjectId.isValid(id));
+    if (valid.length === 0) {
+        return { success: false, processed: 0, error: 'No valid programs selected.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userId = new ObjectId(session.user._id);
+        const oids = valid.map((id) => new ObjectId(id));
+        const baseFilter = { _id: { $in: oids }, userId };
+
+        let processed = 0;
+        if (op === 'delete') {
+            const r = await db.collection('crm_loyalty_programs').deleteMany(baseFilter);
+            processed = r.deletedCount ?? 0;
+        } else {
+            const status = String(payload ?? '').trim();
+            if (!status) {
+                return { success: false, processed: 0, error: 'Status is required.' };
+            }
+            const r = await db.collection('crm_loyalty_programs').updateMany(baseFilter, {
+                $set: { status, updatedAt: new Date() },
+            });
+            processed = r.modifiedCount ?? 0;
+        }
+
+        for (const id of valid) {
+            try {
+                await writeAuditEntry({
+                    tenantUserId: String(session.user._id),
+                    actorId: String(session.user._id),
+                    action: op === 'delete' ? 'delete' : 'status_change',
+                    entityKind: 'loyalty_program',
+                    entityId: id,
+                    reason: payload ? `bulk:${payload}` : `bulk:${op}`,
+                });
+            } catch {
+                /* non-fatal */
+            }
+        }
+
+        revalidatePath('/dashboard/crm/sales/loyalty');
+        return { success: true, processed };
+    } catch (e) {
+        return { success: false, processed: 0, error: getErrorMessage(e) };
+    }
+}

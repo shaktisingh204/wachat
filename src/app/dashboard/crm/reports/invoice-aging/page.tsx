@@ -1,86 +1,162 @@
-import { ZoruBadge, ZoruCard } from '@/components/zoruui';
 export const dynamic = 'force-dynamic';
 
+import {
+  ZoruCard,
+  ZoruTable,
+  ZoruTableBody,
+  ZoruTableCell,
+  ZoruTableHead,
+  ZoruTableHeader,
+  ZoruTableRow,
+  ZoruBadge,
+} from '@/components/zoruui';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { StatCard, fmtMoney, BarRow } from '../_components/report-toolbar';
-import { getInvoiceAging } from '@/app/actions/worksuite/reports.actions';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { PaginationBar } from '@/components/crm/pagination-bar';
+import { StatCard, fmtMoney } from '../_components/report-toolbar';
+import { FyReportToolbar } from '../_components/fy-report-toolbar';
+import { AgingStackedBar } from '../_components/finance-charts';
+import { getInvoiceAgingDeep } from '@/app/actions/worksuite/reports.actions';
 
-export default async function InvoiceAgingPage() {
-  const buckets = await getInvoiceAging();
+const PAGE_SIZES = [10, 20, 50, 100];
 
-  const totalOutstanding = buckets.reduce((s, b) => s + b.total, 0);
-  const totalCount = buckets.reduce((s, b) => s + b.count, 0);
-  const max = buckets.reduce((m, b) => Math.max(m, b.total), 0);
+export default async function InvoiceAgingPage(props: {
+  searchParams: Promise<{
+    from?: string;
+    to?: string;
+    page?: string;
+    limit?: string;
+  }>;
+}) {
+  const sp = await props.searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = PAGE_SIZES.includes(Number(sp.limit)) ? Number(sp.limit) : 20;
 
-  const toneFor: Record<string, 'green' | 'amber' | 'red' | 'obsidian'> = {
-    '0-30': 'green',
-    '31-60': 'amber',
-    '61-90': 'red',
-    '90+': 'obsidian',
+  const { kpis, byClient, rows } = await getInvoiceAgingDeep();
+
+  const pageRows = rows.slice((page - 1) * limit, page * limit);
+  const hasMore = page * limit < rows.length;
+
+  const exportHeaders = [
+    'Invoice',
+    'Client',
+    'Invoice Date',
+    'Due Date',
+    'Days Overdue',
+    'Bucket',
+    'Outstanding',
+  ];
+  const exportRows = rows.map((r) => ({
+    Invoice: r.invoiceNumber,
+    Client: r.clientName,
+    'Invoice Date': r.invoiceDate,
+    'Due Date': r.dueDate,
+    'Days Overdue': r.daysOverdue,
+    Bucket: r.bucket,
+    Outstanding: r.outstanding,
+  }));
+
+  const bucketVariant: Record<string, 'success' | 'warning' | 'danger' | 'destructive'> = {
+    '0-30': 'success',
+    '31-60': 'warning',
+    '61-90': 'danger',
+    '90+': 'destructive',
   };
 
   return (
     <EntityListShell
       title="Invoice Aging"
-      subtitle="Outstanding invoices grouped by days past due."
-    >
-
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <StatCard
-          label="Outstanding total"
-          value={fmtMoney(totalOutstanding)}
-          tone="red"
+      subtitle="Outstanding receivables grouped by days past due."
+      primaryAction={
+        <FyReportToolbar
+          from={sp.from}
+          to={sp.to}
+          exportFilename="invoice-aging"
+          exportHeaders={exportHeaders}
+          exportRows={exportRows}
         />
-        <StatCard label="Open invoices" value={String(totalCount)} />
+      }
+      pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} total={rows.length} />}
+    >
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatCard label="Current (0–30)" value={fmtMoney(kpis.current)} tone="green" />
+        <StatCard label="31–60 days" value={fmtMoney(kpis.d31to60)} tone="amber" />
+        <StatCard label="61–90 days" value={fmtMoney(kpis.d61to90)} tone="red" />
+        <StatCard
+          label="90+ days"
+          value={fmtMoney(kpis.over90)}
+          tone="red"
+          hint={`${kpis.openCount} open invoice${kpis.openCount === 1 ? '' : 's'}`}
+        />
       </div>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <ZoruCard>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Age buckets
-            </h2>
-          </div>
-          {buckets.map((b) => (
-            <BarRow
-              key={b.bucket}
-              label={`${b.bucket} days`}
-              value={b.total}
-              max={max}
-              rightLabel={fmtMoney(b.total)}
-              tone={toneFor[b.bucket]}
-            />
-          ))}
-        </ZoruCard>
+      <ZoruCard className="p-6">
+        <div className="mb-3">
+          <h2 className="text-[16px] font-semibold text-zoru-ink">By client</h2>
+          <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
+            Top 10 clients by outstanding amount across aging buckets.
+          </p>
+        </div>
+        {byClient.length === 0 ? (
+          <div className="py-8 text-center text-[13px] text-zoru-ink-muted">No outstanding invoices.</div>
+        ) : (
+          <AgingStackedBar data={byClient.slice(0, 10)} />
+        )}
+      </ZoruCard>
 
-        <ZoruCard>
-          <div className="mb-3">
-            <h2 className="text-[16px] font-semibold text-foreground">
-              Breakdown
-            </h2>
-          </div>
-          <div className="flex flex-col divide-y divide-border">
-            {buckets.map((b) => (
-              <div
-                key={b.bucket}
-                className="flex items-center justify-between gap-3 py-2.5"
-              >
-                <ZoruBadge variant={(toneFor[b.bucket] === 'obsidian' ? 'obsidian' : toneFor[b.bucket]) as any}>
-                  {b.bucket} days
-                </ZoruBadge>
-                <div className="flex items-center gap-4">
-                  <span className="text-[12.5px] text-muted-foreground">
-                    {b.count} invoice{b.count === 1 ? '' : 's'}
-                  </span>
-                  <span className="text-[13px] font-medium text-foreground">
-                    {fmtMoney(b.total)}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </ZoruCard>
-      </div>
+      <ZoruCard className="p-0">
+        <div className="overflow-x-auto rounded-lg border border-zoru-line">
+          <ZoruTable>
+            <ZoruTableHeader>
+              <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+                <ZoruTableHead className="text-zoru-ink-muted">Invoice</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Client</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Invoice date</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Due date</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Days overdue</ZoruTableHead>
+                <ZoruTableHead className="text-zoru-ink-muted">Bucket</ZoruTableHead>
+                <ZoruTableHead className="text-right text-zoru-ink-muted">Outstanding</ZoruTableHead>
+              </ZoruTableRow>
+            </ZoruTableHeader>
+            <ZoruTableBody>
+              {pageRows.length === 0 ? (
+                <ZoruTableRow className="border-zoru-line">
+                  <ZoruTableCell colSpan={7} className="h-20 text-center text-[13px] text-zoru-ink-muted">
+                    No overdue invoices.
+                  </ZoruTableCell>
+                </ZoruTableRow>
+              ) : (
+                pageRows.map((r) => (
+                  <ZoruTableRow key={r.id} className="border-zoru-line">
+                    <ZoruTableCell>
+                      <EntityRowLink href={`/dashboard/crm/sales/invoices/${r.id}`} label={r.invoiceNumber} />
+                    </ZoruTableCell>
+                    <ZoruTableCell>
+                      {r.accountId ? (
+                        <EntityRowLink
+                          href={`/dashboard/crm/sales-crm/accounts/${r.accountId}`}
+                          label={r.clientName}
+                        />
+                      ) : (
+                        <span className="text-[13px] text-zoru-ink">{r.clientName}</span>
+                      )}
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.invoiceDate}</ZoruTableCell>
+                    <ZoruTableCell className="text-[13px] text-zoru-ink-muted">{r.dueDate}</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] text-zoru-ink">{r.daysOverdue}</ZoruTableCell>
+                    <ZoruTableCell>
+                      <ZoruBadge variant={bucketVariant[r.bucket]}>{r.bucket}</ZoruBadge>
+                    </ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[13px] font-medium text-zoru-danger-ink">
+                      {fmtMoney(r.outstanding)}
+                    </ZoruTableCell>
+                  </ZoruTableRow>
+                ))
+              )}
+            </ZoruTableBody>
+          </ZoruTable>
+        </div>
+      </ZoruCard>
     </EntityListShell>
   );
 }

@@ -1,170 +1,548 @@
 'use client';
 
 import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruAlertDialogTrigger,
-  ZoruBadge,
-  ZoruButton,
-  ZoruCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
+    ZoruBadge,
+    ZoruButton,
+    ZoruCard,
+    ZoruCheckbox,
+    ZoruSelect,
+    ZoruSelectContent,
+    ZoruSelectItem,
+    ZoruSelectTrigger,
+    ZoruSelectValue,
+    ZoruStatCard,
+    ZoruTable,
+    ZoruTableBody,
+    ZoruTableCell,
+    ZoruTableHead,
+    ZoruTableHeader,
+    ZoruTableRow,
+    useZoruToast,
 } from '@/components/zoruui';
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import * as React from 'react';
+import Link from 'next/link';
+import { useDebouncedCallback } from 'use-debounce';
 import type { WithId } from 'mongodb';
-import { getCrmPaymentAccounts, deleteCrmPaymentAccount } from '@/app/actions/crm-payment-accounts.actions';
+import {
+    AlertTriangle,
+    CheckCircle2,
+    Coins,
+    Download,
+    Edit,
+    Plus,
+    Trash2,
+    Users,
+    Wallet,
+    X,
+} from 'lucide-react';
+
+import {
+    bulkUpdateCrmPaymentAccounts,
+    deleteCrmPaymentAccount,
+    getCrmPaymentAccounts,
+    getEmployeeAccountKpis,
+    type EmployeeAccountKpis,
+} from '@/app/actions/crm-payment-accounts.actions';
 import type { CrmPaymentAccount } from '@/lib/definitions';
 
-import { LoaderCircle, Plus, Trash2, Edit, Users } from 'lucide-react';
-
-import Link from 'next/link';
-
 import { EntityListShell } from '@/components/crm/entity-list-shell';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { ConfirmDialog } from '@/components/crm/confirm-dialog';
+import { PaginationBar } from '@/components/crm/pagination-bar';
 
-function DeleteButton({ account, onDeleted }: { account: WithId<CrmPaymentAccount>, onDeleted: () => void }) {
-    const { toast } = useZoruToast();
-    const [isPending, startTransition] = useTransition();
+type StatusFilter = 'all' | 'active' | 'inactive';
+type VerificationFilter = 'all' | 'verified' | 'unverified';
+type ExportFormat = 'csv' | 'xlsx';
 
-    const handleDelete = () => {
-        startTransition(async () => {
-            const result = await deleteCrmPaymentAccount(account._id.toString());
-            if (result.success) {
-                toast({ title: 'Success', description: 'Account deleted.' });
-                onDeleted();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    }
+const PAGE_SIZE = 20;
+const EMPTY_KPIS: EmployeeAccountKpis = {
+    totalEmployees: 0,
+    totalBalance: 0,
+    activeAccounts: 0,
+    unverifiedCount: 0,
+};
 
-    return (
-        <ZoruAlertDialog>
-            <ZoruAlertDialogTrigger asChild>
-                <ZoruButton variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></ZoruButton>
-            </ZoruAlertDialogTrigger>
-            <ZoruAlertDialogContent>
-                <ZoruAlertDialogHeader>
-                    <ZoruAlertDialogTitle>Delete Account?</ZoruAlertDialogTitle>
-                    <ZoruAlertDialogDescription>Are you sure you want to delete the &ldquo;{account.accountName}&rdquo; account? This action cannot be undone.</ZoruAlertDialogDescription>
-                </ZoruAlertDialogHeader>
-                <ZoruAlertDialogFooter>
-                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                    <ZoruAlertDialogAction onClick={handleDelete} disabled={isPending}>
-                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>} Delete
-                    </ZoruAlertDialogAction>
-                </ZoruAlertDialogFooter>
-            </ZoruAlertDialogContent>
-        </ZoruAlertDialog>
-    );
+const formatINR = (n: number) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(n);
+const csvEscape = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+
+function isVerified(a: CrmPaymentAccount): boolean {
+    const ifsc = a.bankDetails?.ifsc?.trim();
+    const num = a.bankDetails?.accountNumber?.trim();
+    return !!ifsc && !!num;
 }
 
 export default function EmployeeAccountsPage() {
-    const [accounts, setAccounts] = useState<WithId<CrmPaymentAccount>[]>([]);
-    const [isLoading, startTransition] = useTransition();
+    const { toast } = useZoruToast();
 
-    const fetchData = useCallback(() => {
+    const [accounts, setAccounts] = React.useState<WithId<CrmPaymentAccount>[]>([]);
+    const [kpis, setKpis] = React.useState<EmployeeAccountKpis>(EMPTY_KPIS);
+    const [isPending, startTransition] = React.useTransition();
+
+    const [search, setSearch] = React.useState('');
+    const [bankFilter, setBankFilter] = React.useState<string>('all');
+    const [statusFilter, setStatusFilter] = React.useState<StatusFilter>('all');
+    const [verificationFilter, setVerificationFilter] = React.useState<VerificationFilter>('all');
+    const [page, setPage] = React.useState(1);
+
+    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+    const [bulkConfirm, setBulkConfirm] = React.useState<null | 'delete' | 'archive' | 'activate'>(null);
+    const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
+
+    const fetchData = React.useCallback(() => {
         startTransition(async () => {
-            const data = await getCrmPaymentAccounts();
-            setAccounts(data.filter(acc => acc.accountType === 'employee'));
+            const [all, kpiData] = await Promise.all([
+                getCrmPaymentAccounts(),
+                getEmployeeAccountKpis(),
+            ]);
+            setAccounts(all.filter((a) => a.accountType === 'employee'));
+            setKpis(kpiData ?? EMPTY_KPIS);
         });
     }, []);
 
-    useEffect(() => {
+    React.useEffect(() => {
         fetchData();
     }, [fetchData]);
 
-    if (isLoading && accounts.length === 0) {
-        return (
-             <div className="flex justify-center items-center h-full">
-                <LoaderCircle className="h-8 w-8 animate-spin text-muted-foreground" />
-             </div>
-        )
-    }
+    const bankOptions = React.useMemo(() => {
+        const names = new Set<string>();
+        for (const a of accounts) {
+            const n = a.bankDetails?.bankName?.trim();
+            if (n) names.add(n);
+        }
+        return Array.from(names).sort((x, y) => x.localeCompare(y));
+    }, [accounts]);
 
-    if (!isLoading && accounts.length === 0) {
-        return (
-            <EntityListShell
-                title="Employee Accounts"
-                subtitle="A list of all your employee-related accounts."
-            >
-                <ZoruCard variant="outline" className="border-dashed">
-                    <div className="flex flex-col items-center gap-4 py-12 text-center">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-accent">
-                            <Users className="h-7 w-7 text-accent-foreground" strokeWidth={1.75} />
-                        </div>
-                        <div>
-                            <h3 className="text-[17px] font-semibold text-foreground">No Employee Accounts Found</h3>
-                            <p className="mt-1 text-[12.5px] text-muted-foreground">
-                                Add accounts for employees to manage reimbursements, salary advances, and other payments.
-                            </p>
-                        </div>
-                        <Link href="/dashboard/crm/banking/all/new">
-                            <ZoruButton>
-                                Add First Employee Account
-                            </ZoruButton>
-                        </Link>
-                    </div>
-                </ZoruCard>
-            </EntityListShell>
-        )
-    }
+    const filtered = React.useMemo(() => {
+        const q = search.trim().toLowerCase();
+        return accounts.filter((a) => {
+            if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+            if (bankFilter !== 'all') {
+                const bn = (a.bankDetails?.bankName ?? '').trim().toLowerCase();
+                if (bn !== bankFilter.toLowerCase()) return false;
+            }
+            if (verificationFilter === 'verified' && !isVerified(a)) return false;
+            if (verificationFilter === 'unverified' && isVerified(a)) return false;
+            if (q) {
+                const hay = [
+                    a.accountName,
+                    a.bankDetails?.bankName,
+                    a.bankDetails?.accountNumber,
+                    a.bankDetails?.accountHolder,
+                    a.bankDetails?.ifsc,
+                ]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
+            return true;
+        });
+    }, [accounts, search, bankFilter, statusFilter, verificationFilter]);
+
+    const total = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+    const pageRows = React.useMemo(
+        () => filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE),
+        [filtered, page],
+    );
+
+    const handleSearch = useDebouncedCallback((v: string) => {
+        setSearch(v);
+        setPage(1);
+    }, 300);
+
+    const hasActiveFilters =
+        statusFilter !== 'all' ||
+        bankFilter !== 'all' ||
+        verificationFilter !== 'all' ||
+        !!search;
+
+    const clearFilters = React.useCallback(() => {
+        setStatusFilter('all');
+        setBankFilter('all');
+        setVerificationFilter('all');
+        setSearch('');
+        setPage(1);
+    }, []);
+
+    const toggleOne = React.useCallback((id: string) => {
+        setSelected((prev) => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+    }, []);
+
+    const toggleAll = React.useCallback(
+        (all: boolean) => {
+            setSelected(all ? new Set(pageRows.map((r) => String(r._id))) : new Set());
+        },
+        [pageRows],
+    );
+
+    const exportRows = React.useCallback(
+        (format: ExportFormat) => {
+            const rows = selected.size > 0
+                ? filtered.filter((a) => selected.has(String(a._id)))
+                : filtered;
+            const headers = [
+                'Employee / Account', 'Bank', 'Account Number', 'IFSC', 'Account Holder',
+                'Currency', 'Balance', 'Status', 'Verified', 'Created At',
+            ];
+            const lines = [
+                headers.join(','),
+                ...rows.map((a) => [
+                    csvEscape(a.accountName),
+                    csvEscape(a.bankDetails?.bankName),
+                    csvEscape(a.bankDetails?.accountNumber),
+                    csvEscape(a.bankDetails?.ifsc),
+                    csvEscape(a.bankDetails?.accountHolder),
+                    csvEscape(a.currency ?? 'INR'),
+                    csvEscape(a.currentBalance ?? 0),
+                    csvEscape(a.status),
+                    csvEscape(isVerified(a) ? 'yes' : 'no'),
+                    csvEscape(a.createdAt ? new Date(a.createdAt).toISOString() : ''),
+                ].join(',')),
+            ];
+            const body = lines.join('\n');
+            const mime = format === 'xlsx'
+                ? 'application/vnd.ms-excel;charset=utf-8;'
+                : 'text/csv;charset=utf-8;';
+            const ext = format === 'xlsx' ? 'xls' : 'csv';
+            const blob = new Blob([body], { type: mime });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `employee-accounts-${new Date().toISOString().slice(0, 10)}.${ext}`;
+            link.click();
+            URL.revokeObjectURL(url);
+        },
+        [filtered, selected],
+    );
+
+    const runBulk = React.useCallback(
+        async (op: 'archive' | 'activate' | 'delete') => {
+            const ids = Array.from(selected);
+            if (ids.length === 0) return;
+            const res = await bulkUpdateCrmPaymentAccounts(ids, op);
+            if (res.success) {
+                toast({
+                    title:
+                        op === 'delete'
+                            ? `${res.updated ?? 0} account${res.updated === 1 ? '' : 's'} deleted`
+                            : op === 'archive'
+                                ? 'Accounts deactivated'
+                                : 'Accounts activated',
+                });
+                setSelected(new Set());
+                fetchData();
+            } else {
+                toast({ title: 'Bulk action failed', description: res.error, variant: 'destructive' });
+            }
+            setBulkConfirm(null);
+        },
+        [selected, fetchData, toast],
+    );
+
+    const handleDeleteOne = React.useCallback(async () => {
+        if (!deleteTargetId) return;
+        const res = await deleteCrmPaymentAccount(deleteTargetId);
+        if (res.success) {
+            toast({ title: 'Account deleted' });
+            fetchData();
+        } else {
+            toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
+        }
+        setDeleteTargetId(null);
+    }, [deleteTargetId, fetchData, toast]);
+
+    const isEmpty = !isPending && accounts.length === 0;
 
     return (
-        <EntityListShell
-            title="Employee Accounts"
-            subtitle="A list of all your employee-related accounts."
-            primaryAction={
-                <Link href="/dashboard/crm/banking/all/new">
-                    <ZoruButton>
-                        Add Employee Account
-                    </ZoruButton>
-                </Link>
-            }
-        >
+        <>
+            <EntityListShell
+                title="Employee Accounts"
+                subtitle="Employee payout, reimbursement, and salary-advance accounts."
+                search={{
+                    value: search,
+                    onChange: (v) => handleSearch(v),
+                    placeholder: 'Search name, bank, account number…',
+                }}
+                primaryAction={
+                    <div className="flex items-center gap-2">
+                        <ZoruButton variant="secondary" onClick={() => exportRows('csv')}>
+                            <Download className="h-4 w-4" /> Export
+                        </ZoruButton>
+                        <ZoruButton asChild>
+                            <Link href="/dashboard/crm/banking/all/new">
+                                <Plus className="h-4 w-4" /> Add Employee Account
+                            </Link>
+                        </ZoruButton>
+                    </div>
+                }
+                filters={
+                    isEmpty ? null : (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <div className="w-44">
+                                <ZoruSelect value={bankFilter} onValueChange={(v) => { setBankFilter(v); setPage(1); }}>
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="Bank" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">All banks</ZoruSelectItem>
+                                        {bankOptions.map((b) => (
+                                            <ZoruSelectItem key={b} value={b}>{b}</ZoruSelectItem>
+                                        ))}
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="w-40">
+                                <ZoruSelect
+                                    value={statusFilter}
+                                    onValueChange={(v) => { setStatusFilter(v as StatusFilter); setPage(1); }}
+                                >
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="Status" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
+                                        <ZoruSelectItem value="active">Active</ZoruSelectItem>
+                                        <ZoruSelectItem value="inactive">Inactive</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            <div className="w-44">
+                                <ZoruSelect
+                                    value={verificationFilter}
+                                    onValueChange={(v) => { setVerificationFilter(v as VerificationFilter); setPage(1); }}
+                                >
+                                    <ZoruSelectTrigger>
+                                        <ZoruSelectValue placeholder="Verification" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">All accounts</ZoruSelectItem>
+                                        <ZoruSelectItem value="verified">Verified</ZoruSelectItem>
+                                        <ZoruSelectItem value="unverified">Unverified</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </ZoruSelect>
+                            </div>
+                            {hasActiveFilters ? (
+                                <ZoruButton variant="ghost" size="sm" onClick={clearFilters}>
+                                    <X className="h-3 w-3" /> Clear
+                                </ZoruButton>
+                            ) : null}
+                            <div className="ml-auto text-xs text-zoru-ink-muted">
+                                {total} of {accounts.length}
+                            </div>
+                        </div>
+                    )
+                }
+                bulkBar={
+                    selected.size > 0 ? (
+                        <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-sm font-medium text-zoru-ink">
+                                {selected.size} selected
+                            </span>
+                            <div className="ml-auto flex items-center gap-2">
+                                <ZoruButton variant="secondary" size="sm" onClick={() => exportRows('csv')}>
+                                    <Download className="h-3.5 w-3.5" /> Export CSV
+                                </ZoruButton>
+                                <ZoruButton variant="secondary" size="sm" onClick={() => exportRows('xlsx')}>
+                                    <Download className="h-3.5 w-3.5" /> Export XLSX
+                                </ZoruButton>
+                                <ZoruButton variant="secondary" size="sm" onClick={() => setBulkConfirm('archive')}>
+                                    Deactivate
+                                </ZoruButton>
+                                <ZoruButton variant="destructive" size="sm" onClick={() => setBulkConfirm('delete')}>
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </ZoruButton>
+                                <ZoruButton variant="ghost" size="sm" onClick={() => setSelected(new Set())}>
+                                    Clear
+                                </ZoruButton>
+                            </div>
+                        </div>
+                    ) : null
+                }
+                empty={
+                    isEmpty ? (
+                        <div className="flex flex-col items-center gap-3 p-4">
+                            <Users className="h-8 w-8 text-zoru-ink-muted" />
+                            <h3 className="text-base font-medium text-zoru-ink">No employee accounts yet</h3>
+                            <p className="max-w-sm text-sm text-zoru-ink-muted">
+                                Add accounts for employees to manage payouts, reimbursements, and salary advances.
+                            </p>
+                            <ZoruButton asChild>
+                                <Link href="/dashboard/crm/banking/all/new">
+                                    <Plus className="h-4 w-4" /> Add your first employee account
+                                </Link>
+                            </ZoruButton>
+                        </div>
+                    ) : null
+                }
+                loading={isPending && accounts.length === 0}
+                pagination={
+                    !isEmpty && total > PAGE_SIZE ? (
+                        <PaginationBar
+                            page={page}
+                            limit={PAGE_SIZE}
+                            hasMore={page < totalPages}
+                            total={total}
+                            controlled={{ onChange: (next) => setPage(next.page) }}
+                        />
+                    ) : null
+                }
+            >
+                <div className="flex flex-col gap-4">
+                    {/* KPI strip */}
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                        <ZoruStatCard
+                            label="Total Employees"
+                            value={kpis.totalEmployees}
+                            icon={<Users />}
+                            period={kpis.totalEmployees === 1 ? 'employee account' : 'employee accounts'}
+                        />
+                        <ZoruStatCard
+                            label="Total Balance"
+                            value={formatINR(kpis.totalBalance)}
+                            icon={<Coins />}
+                            period="aggregated payouts"
+                        />
+                        <ZoruStatCard
+                            label="Active"
+                            value={kpis.activeAccounts}
+                            icon={<CheckCircle2 />}
+                            period={`${kpis.totalEmployees - kpis.activeAccounts} inactive`}
+                        />
+                        <ZoruStatCard
+                            label="Unverified"
+                            value={kpis.unverifiedCount}
+                            icon={<AlertTriangle />}
+                            period="missing IFSC or account number"
+                            invertDelta
+                        />
+                    </div>
 
-            <ZoruCard>
-                <div className="mb-4">
-                    <h2 className="text-[16px] font-semibold text-foreground">Your Employee Accounts</h2>
+                    {/* Table */}
+                    <ZoruCard>
+                        <div className="overflow-x-auto rounded-lg border border-border">
+                            <ZoruTable>
+                                <ZoruTableHeader>
+                                    <ZoruTableRow className="border-border hover:bg-transparent">
+                                        <ZoruTableHead className="w-10">
+                                            <ZoruCheckbox
+                                                checked={pageRows.length > 0 && pageRows.every((r) => selected.has(String(r._id)))}
+                                                onCheckedChange={(v) => toggleAll(!!v)}
+                                                aria-label="Select all"
+                                            />
+                                        </ZoruTableHead>
+                                        <ZoruTableHead className="text-muted-foreground">Account Name</ZoruTableHead>
+                                        <ZoruTableHead className="text-muted-foreground">Bank</ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-muted-foreground">Balance</ZoruTableHead>
+                                        <ZoruTableHead className="text-muted-foreground">Verified</ZoruTableHead>
+                                        <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
+                                        <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
+                                    </ZoruTableRow>
+                                </ZoruTableHeader>
+                                <ZoruTableBody>
+                                    {pageRows.map((account) => {
+                                        const id = String(account._id);
+                                        const checked = selected.has(id);
+                                        const verified = isVerified(account);
+                                        return (
+                                            <ZoruTableRow key={id} className="border-border">
+                                                <ZoruTableCell>
+                                                    <ZoruCheckbox
+                                                        checked={checked}
+                                                        onCheckedChange={() => toggleOne(id)}
+                                                        aria-label={`Select ${account.accountName}`}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="font-medium text-foreground">
+                                                    <EntityRowLink
+                                                        href={`/dashboard/crm/banking/employee-accounts/${id}`}
+                                                        label={account.accountName}
+                                                        subtitle={account.bankDetails?.accountHolder || undefined}
+                                                    />
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-[13px] text-foreground">
+                                                    {account.bankDetails?.bankName || '—'}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right font-semibold text-foreground">
+                                                    {new Intl.NumberFormat('en-IN', {
+                                                        style: 'currency',
+                                                        currency: account.currency || 'INR',
+                                                    }).format(account.currentBalance || 0)}
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruBadge variant={(verified ? 'green' : 'amber-soft') as any}>
+                                                        {verified ? 'Verified' : 'Unverified'}
+                                                    </ZoruBadge>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell>
+                                                    <ZoruBadge variant={(account.status === 'active' ? 'green' : 'rose-soft') as any}>
+                                                        {account.status}
+                                                    </ZoruBadge>
+                                                </ZoruTableCell>
+                                                <ZoruTableCell className="text-right">
+                                                    <ZoruButton variant="ghost" size="icon" disabled>
+                                                        <Edit className="h-4 w-4" />
+                                                    </ZoruButton>
+                                                    <ZoruButton
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        onClick={() => setDeleteTargetId(id)}
+                                                        aria-label="Delete"
+                                                    >
+                                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                                    </ZoruButton>
+                                                </ZoruTableCell>
+                                            </ZoruTableRow>
+                                        );
+                                    })}
+                                    {pageRows.length === 0 && accounts.length > 0 ? (
+                                        <ZoruTableRow>
+                                            <ZoruTableCell colSpan={7} className="py-8 text-center text-sm text-muted-foreground">
+                                                No accounts match your filters.
+                                            </ZoruTableCell>
+                                        </ZoruTableRow>
+                                    ) : null}
+                                </ZoruTableBody>
+                            </ZoruTable>
+                        </div>
+                    </ZoruCard>
                 </div>
-                <div className="overflow-x-auto rounded-lg border border-border">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-border hover:bg-transparent">
-                                <ZoruTableHead className="text-muted-foreground">Account Name</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Account Type</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Balance</ZoruTableHead>
-                                <ZoruTableHead className="text-muted-foreground">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-right text-muted-foreground">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {accounts.map(account => (
-                                <ZoruTableRow key={account._id.toString()} className="border-border">
-                                    <ZoruTableCell className="font-medium text-foreground">{account.accountName}</ZoruTableCell>
-                                    <ZoruTableCell className="capitalize text-[13px] text-foreground">{account.accountType}</ZoruTableCell>
-                                    <ZoruTableCell className="text-right font-semibold text-foreground">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: account.currency }).format(account.currentBalance || 0)}</ZoruTableCell>
-                                    <ZoruTableCell><ZoruBadge variant={(account.status === 'active' ? 'green' : 'rose-soft') as any}>{account.status}</ZoruBadge></ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
-                                        <ZoruButton variant="ghost" size="icon" disabled><Edit className="h-4 w-4"/></ZoruButton>
-                                        <DeleteButton account={account} onDeleted={fetchData} />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ))}
-                        </ZoruTableBody>
-                    </ZoruTable>
-                </div>
-            </ZoruCard>
-        </EntityListShell>
+            </EntityListShell>
+
+            <ConfirmDialog
+                open={!!deleteTargetId}
+                onOpenChange={(o) => !o && setDeleteTargetId(null)}
+                title="Delete this employee account?"
+                description="This permanently removes the account. Linked transactions are kept but lose their account reference."
+                confirmLabel="Delete"
+                onConfirm={handleDeleteOne}
+            />
+
+            <ConfirmDialog
+                open={bulkConfirm === 'delete'}
+                onOpenChange={(o) => !o && setBulkConfirm(null)}
+                title={`Delete ${selected.size} account${selected.size === 1 ? '' : 's'}?`}
+                description="This permanently removes the selected employee accounts. This action cannot be undone."
+                requireTyped="DELETE"
+                confirmLabel="Delete"
+                onConfirm={() => runBulk('delete')}
+            />
+
+            <ConfirmDialog
+                open={bulkConfirm === 'archive'}
+                onOpenChange={(o) => !o && setBulkConfirm(null)}
+                title={`Deactivate ${selected.size} account${selected.size === 1 ? '' : 's'}?`}
+                description="Inactive accounts are hidden from default voucher pickers. You can reactivate later."
+                confirmLabel="Deactivate"
+                confirmTone="primary"
+                onConfirm={() => runBulk('archive')}
+            />
+        </>
     );
 }
