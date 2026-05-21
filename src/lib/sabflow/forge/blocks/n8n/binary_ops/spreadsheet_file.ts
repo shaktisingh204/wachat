@@ -105,17 +105,25 @@ async function readCsv(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   } else if (format === 'tsv') {
     rows = parseDelimited(buf.toString('utf8'), '\t');
   } else if (format === 'xlsx') {
-    let XLSX: typeof import('xlsx');
-    try {
-      XLSX = await import('xlsx');
-    } catch {
-      throw new Error('SpreadsheetFile: xlsx package not installed — run `npm i xlsx` to enable XLSX parsing.');
-    }
-    const wb = XLSX.read(buf, { type: 'buffer' });
-    const sheetName = asString(ctx.options.sheet) || wb.SheetNames[0];
-    const ws = wb.Sheets[sheetName];
-    if (!ws) throw new Error(`SpreadsheetFile: sheet "${sheetName}" not found`);
-    rows = XLSX.utils.sheet_to_json(ws, { defval: '' }) as Row[];
+    const ExcelJS = (await import('exceljs')).default;
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buf);
+    const requestedSheet = asString(ctx.options.sheet);
+    const worksheet = requestedSheet
+      ? workbook.getWorksheet(requestedSheet)
+      : workbook.worksheets[0];
+    if (!worksheet) throw new Error(`SpreadsheetFile: sheet "${requestedSheet || '(first)'}" not found`);
+    const headers: string[] = [];
+    worksheet.eachRow((row, rowNumber) => {
+      const vals = (row.values as ExcelJS.CellValue[]).slice(1);
+      if (rowNumber === 1) {
+        headers.push(...vals.map(v => v == null ? '' : String(v)));
+      } else {
+        const obj: Row = {};
+        headers.forEach((h, i) => { obj[h] = vals[i] == null ? '' : String(vals[i]); });
+        rows.push(obj);
+      }
+    });
   } else {
     throw new Error(`SpreadsheetFile: unsupported format "${format}"`);
   }

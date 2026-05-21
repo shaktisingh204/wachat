@@ -252,14 +252,10 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         };
       });
 
-      const xlsx = await import('xlsx');
-      const ws = xlsx.utils.json_to_sheet(records, { header });
-      const wb = xlsx.utils.book_new();
-      xlsx.utils.book_append_sheet(wb, ws, 'Loyalty');
-
       const stamp = new Date().toISOString().slice(0, 10);
       if (format === 'csv') {
-        const csv = xlsx.utils.sheet_to_csv(ws);
+        const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const csv = [header.map(esc).join(','), ...records.map(r => header.map(h => esc(r[h])).join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -268,7 +264,19 @@ export default function SalesLoyaltyPage(): React.JSX.Element {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        xlsx.writeFile(wb, `loyalty-${stamp}.xlsx`);
+        const ExcelJS = (await import('exceljs')).default;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Loyalty');
+        worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
+        records.forEach(r => worksheet.addRow(r));
+        const out = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `loyalty-${stamp}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
       }
     },
     [exportRows],

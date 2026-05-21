@@ -263,14 +263,11 @@ export default function CustomFormsPage() {
                 return;
             }
             try {
-                const xlsx = await import('xlsx');
-                const ws = xlsx.utils.aoa_to_sheet([header, ...data]);
-                const wb = xlsx.utils.book_new();
-                xlsx.utils.book_append_sheet(wb, ws, 'Forms');
-                const buf = xlsx.write(wb, {
-                    type: 'array',
-                    bookType: 'xlsx',
-                }) as ArrayBuffer;
+                const ExcelJS = (await import('exceljs')).default;
+                const workbook = new ExcelJS.Workbook();
+                const worksheet = workbook.addWorksheet('Forms');
+                [header, ...data].forEach((row) => worksheet.addRow(row));
+                const buf = await workbook.xlsx.writeBuffer();
                 triggerDownload(
                     new Blob([buf], {
                         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

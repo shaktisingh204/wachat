@@ -1061,11 +1061,11 @@ export async function exportSubmissions(
     }
 
     try {
-        const xlsx = await import('xlsx');
-        const ws = xlsx.utils.aoa_to_sheet([headerRow, ...rows]);
-        const wb = xlsx.utils.book_new();
-        xlsx.utils.book_append_sheet(wb, ws, 'Submissions');
-        const buf = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' }) as Buffer;
+        const ExcelJS = (await import('exceljs')).default;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Submissions');
+        [headerRow, ...rows].forEach((row) => worksheet.addRow(row));
+        const buf = Buffer.from(await workbook.xlsx.writeBuffer());
         return {
             success: true,
             data: buf.toString('base64'),

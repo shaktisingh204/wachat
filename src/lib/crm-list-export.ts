@@ -38,12 +38,12 @@ export async function downloadXlsx(
     sheetName: string = 'Sheet1',
 ): Promise<void> {
     try {
-        const xlsx = await import('xlsx');
+        const ExcelJS = (await import('exceljs')).default;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet(sheetName.slice(0, 31));
         const aoa: unknown[][] = [headers, ...rows.map((row) => headers.map((h) => row[h] ?? ''))];
-        const ws = xlsx.utils.aoa_to_sheet(aoa);
-        const wb = xlsx.utils.book_new();
-        xlsx.utils.book_append_sheet(wb, ws, sheetName.slice(0, 31));
-        const out = xlsx.write(wb, { type: 'array', bookType: 'xlsx' }) as ArrayBuffer;
+        aoa.forEach((row) => worksheet.addRow(row));
+        const out = await workbook.xlsx.writeBuffer();
         const blob = new Blob([out], {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         });

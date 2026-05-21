@@ -267,14 +267,10 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
         'Created At': c.createdAt ? new Date(c.createdAt).toISOString() : '',
       }));
 
-      const xlsx = await import('xlsx');
-      const ws = xlsx.utils.json_to_sheet(records, { header });
-      const wb = xlsx.utils.book_new();
-      xlsx.utils.book_append_sheet(wb, ws, 'Gift cards');
-
       const stamp = new Date().toISOString().slice(0, 10);
       if (format === 'csv') {
-        const csv = xlsx.utils.sheet_to_csv(ws);
+        const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+        const csv = [header.map(esc).join(','), ...records.map(r => header.map(h => esc(r[h])).join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -283,7 +279,19 @@ export default function SalesGiftCardsPage(): React.JSX.Element {
         a.click();
         URL.revokeObjectURL(url);
       } else {
-        xlsx.writeFile(wb, `gift-cards-${stamp}.xlsx`);
+        const ExcelJS = (await import('exceljs')).default;
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Gift cards');
+        worksheet.columns = header.map(h => ({ header: h, key: h, width: 15 }));
+        records.forEach(r => worksheet.addRow(r));
+        const out = await workbook.xlsx.writeBuffer();
+        const blob = new Blob([out], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gift-cards-${stamp}.xlsx`;
+        a.click();
+        URL.revokeObjectURL(url);
       }
     },
     [exportRows],
