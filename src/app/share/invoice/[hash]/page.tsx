@@ -1,9 +1,24 @@
 import { notFound } from 'next/navigation';
-import { getPublicInvoice, markInvoiceViewed } from '@/app/actions/public-invoice.actions';
+import {
+  capturePayPalPayment,
+  getPublicInvoice,
+  markInvoiceViewed,
+} from '@/app/actions/public-invoice.actions';
 import { ZoruBadge, ZoruCard, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from '@/components/zoruui';
 import { InvoicePaymentPanel } from './invoice-payment-panel';
 
 type Params = Promise<{ hash: string }>;
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+type InitialBanner = { kind: 'success' | 'error'; message: string } | undefined;
+
+function pickParam(
+  searchParams: Record<string, string | string[] | undefined>,
+  key: string,
+): string | undefined {
+  const v = searchParams[key];
+  return Array.isArray(v) ? v[0] : v;
+}
 
 const STATUS_VARIANT: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
   Paid: 'default',
@@ -34,8 +49,42 @@ function formatDate(iso: string | null): string {
   }
 }
 
-export default async function PublicInvoicePage({ params }: { params: Params }) {
+export default async function PublicInvoicePage({
+  params,
+  searchParams,
+}: {
+  params: Params;
+  searchParams: SearchParams;
+}) {
   const { hash } = await params;
+  const sp = await searchParams;
+
+  // Handle PayPal capture-on-return BEFORE rendering so the status
+  // reflects the just-captured payment.
+  const paid = pickParam(sp, 'paid');
+  const cancelled = pickParam(sp, 'cancelled');
+  const paypalToken = pickParam(sp, 'token');
+
+  let initialBanner: InitialBanner;
+  if (paid === 'paypal' && paypalToken) {
+    const res = await capturePayPalPayment(hash, paypalToken);
+    initialBanner = res.success
+      ? { kind: 'success', message: res.message || 'Payment received. Thank you!' }
+      : { kind: 'error', message: res.error };
+  } else if (paid === 'stripe') {
+    initialBanner = {
+      kind: 'success',
+      message: 'Payment received. Thank you!',
+    };
+  } else if (paid === 'razorpay') {
+    initialBanner = {
+      kind: 'success',
+      message: 'Payment received. Thank you!',
+    };
+  } else if (cancelled === '1') {
+    initialBanner = { kind: 'error', message: 'Payment cancelled.' };
+  }
+
   const invoice = await getPublicInvoice(hash);
   if (!invoice) notFound();
 
@@ -54,7 +103,17 @@ export default async function PublicInvoicePage({ params }: { params: Params }) 
               Issued {formatDate(invoice.invoiceDate)} &middot; Due {formatDate(invoice.dueDate)}
             </p>
           </div>
-          <ZoruBadge variant={STATUS_VARIANT[invoice.status] || 'outline'}>{invoice.status}</ZoruBadge>
+          <div className="flex items-center gap-2">
+            <ZoruBadge variant={STATUS_VARIANT[invoice.status] || 'outline'}>{invoice.status}</ZoruBadge>
+            <a
+              href={`/share/invoice/${hash}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50"
+            >
+              Download PDF
+            </a>
+          </div>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-6">
           {invoice.billTo.name || invoice.billTo.email || invoice.billTo.address ? (
@@ -156,6 +215,7 @@ export default async function PublicInvoicePage({ params }: { params: Params }) 
         totalDue={invoice.total}
         currency={invoice.currency}
         isUnpaid={isUnpaid}
+        initialBanner={initialBanner ?? null}
       />
     </div>
   );

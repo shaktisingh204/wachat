@@ -17,6 +17,7 @@ import {
  */
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { PinButton } from '@/components/crm/pin-button';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { getSession } from '@/app/actions/user.actions';
 import { getTaskById } from '@/app/actions/crm-tasks-rust.actions';
@@ -90,6 +91,7 @@ export default async function TaskDetailPage({ params }: PageProps) {
             back={{ href: BASE, label: 'Tasks' }}
             actions={
                 <div className="flex items-center gap-2">
+                    <PinButton entityType="task" entityId={id} title={task.title} />
                     <ZoruButton asChild>
                         <Link href={`${BASE}/${id}/edit`}>
                             <Pencil className="mr-2 h-4 w-4" /> Edit

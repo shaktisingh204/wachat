@@ -693,7 +693,6 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("dashboard", "Dashboard", "/dashboard/crm", Home, p, { exact: true }),
           leaf("dashboards", "Advanced Dashboard", "/dashboard/crm/dashboards", LayoutGrid, p),
-          leaf("my-calendar", "My Calendar", "/dashboard/crm/workspace/calendar", Calendar, p), // TODO: page does not exist yet
         ],
       },
 
@@ -723,14 +722,14 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-hr",
         label: "HR",
         items: [
-          leaf("hr-employees", "Employees", "/dashboard/crm/hr-payroll/employees", Users, p), // TODO: page does not exist yet
-          leaf("hr-leaves", "Leaves", "/dashboard/crm/hr-payroll/leave", Calendar, p), // TODO: page does not exist yet
-          leaf("hr-shifts", "Shift Roster", "/dashboard/crm/hr-payroll/shifts", Clock, p), // TODO: page does not exist yet
-          leaf("hr-attendance", "Attendance", "/dashboard/crm/hr-payroll/attendance", UserCheck, p), // TODO: page does not exist yet
-          leaf("hr-holidays", "Holidays", "/dashboard/crm/hr-payroll/holidays", Calendar, p), // TODO: page does not exist yet
-          leaf("hr-designations", "Designation", "/dashboard/crm/hr-payroll/designations", BadgeCheck, p), // TODO: page does not exist yet
-          leaf("hr-departments", "Department", "/dashboard/crm/hr-payroll/departments", Building2, p), // TODO: page does not exist yet
-          leaf("hr-appreciation", "Appreciation", "/dashboard/crm/hr/recognition", Heart, p), // TODO: page does not exist yet
+          leaf("hr-employees", "Employees", "/dashboard/crm/hr-payroll/employees", Users, p),
+          leaf("hr-leaves", "Leaves", "/dashboard/crm/hr-payroll/leave", Calendar, p),
+          leaf("hr-shifts", "Shift Roster", "/dashboard/crm/hr-payroll/shifts", Clock, p),
+          leaf("hr-attendance", "Attendance", "/dashboard/crm/hr-payroll/attendance", UserCheck, p),
+          leaf("hr-holidays", "Holidays", "/dashboard/crm/hr-payroll/holidays", Calendar, p),
+          leaf("hr-designations", "Designation", "/dashboard/crm/hr-payroll/designations", BadgeCheck, p),
+          leaf("hr-departments", "Department", "/dashboard/crm/hr-payroll/departments", Building2, p),
+          leaf("hr-appreciation", "Appreciation", "/dashboard/crm/hr/recognition", Heart, p),
         ],
       },
 
@@ -752,10 +751,9 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         label: "Finance",
         items: [
           leaf("proposals", "Proposals", "/dashboard/crm/sales/proposals", FileText, p),
-          leaf("estimates", "Estimates", "/dashboard/crm/sales/estimates", FileSpreadsheet, p), // TODO: page does not exist yet
           leaf("invoices", "Invoices", "/dashboard/crm/sales/invoices", Receipt, p),
           leaf("payments", "Payments", "/dashboard/crm/sales/payments", CreditCard, p),
-          leaf("credit-notes", "Credit Notes", "/dashboard/crm/sales/credits", FileText, p), // TODO: page does not exist yet (real path: /sales/credit-notes)
+          leaf("credit-notes", "Credit Notes", "/dashboard/crm/sales/credit-notes", FileText, p),
           leaf("expenses", "Expenses", "/dashboard/crm/purchases/expenses", Wallet, p),
           leaf("bank-accounts", "Bank Accounts", "/dashboard/crm/banking/bank-accounts", Building, p, { adminOnly: true }),
         ],
@@ -766,7 +764,7 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-products",
         label: "Products",
         items: [
-          leaf("products", "Products", "/dashboard/crm/store/products", Package, p), // TODO: page does not exist yet
+          leaf("products", "Products", "/dashboard/crm/store/products", Package, p),
           leaf("product-categories", "Categories", "/dashboard/crm/inventory/items", FolderOpen, p),
         ],
       },
@@ -776,8 +774,8 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-orders",
         label: "Orders",
         items: [
-          leaf("orders", "Orders", "/dashboard/crm/store/orders", ShoppingCart, p), // TODO: page does not exist yet
-          leaf("storefronts", "Storefronts", "/dashboard/crm/store/storefronts", ShoppingBag, p), // TODO: page does not exist yet
+          leaf("orders", "Orders", "/dashboard/crm/store/orders", ShoppingCart, p),
+          leaf("storefronts", "Storefronts", "/dashboard/crm/store/storefronts", ShoppingBag, p),
         ],
       },
 
@@ -830,8 +828,6 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("reports-home", "Reports Hub", "/dashboard/crm/reports", BarChart3, p, { exact: true, adminOnly: true }),
           leaf("task-report", "Task Report", "/dashboard/crm/reports/task-report", ListChecks, p, { adminOnly: true }),
-          leaf("time-log-report", "Time Log Report", "/dashboard/crm/reports/time-log-report", Clock, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("finance-report", "Finance Report", "/dashboard/crm/reports/finance", DollarSign, p, { adminOnly: true }), // TODO: page does not exist yet
           leaf("income-vs-expense", "Income vs Expense", "/dashboard/crm/reports/income", DollarSign, p, { adminOnly: true }),
           leaf("sales-report", "Sales Report", "/dashboard/crm/reports/sales-deals", TrendingUp, p, { adminOnly: true }),
           leaf("lead-report", "Lead Report", "/dashboard/crm/reports/leads-conversion", Filter, p, { adminOnly: true }),
@@ -854,12 +850,13 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-india-tax",
         label: "Tax & Compliance (India)",
         items: [
-          leaf("gstr-1", "GSTR-1", "/dashboard/crm/tax/gstr-1", FileSpreadsheet, p, { adminOnly: true }), // TODO: page does not exist yet (currently under /reports/gstr-1)
-          leaf("gstr-2b", "GSTR-2B", "/dashboard/crm/tax/gstr-2b", FileSpreadsheet, p, { adminOnly: true }), // TODO: page does not exist yet (currently under /reports/gstr-2b)
+          leaf("gstr-1", "GSTR-1", "/dashboard/crm/tax/gstr1", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("gstr-2b", "GSTR-2B", "/dashboard/crm/tax/gstr2b", FileSpreadsheet, p, { adminOnly: true }),
+          leaf("gstr-3b", "GSTR-3B", "/dashboard/crm/tax/gstr3b", FileSpreadsheet, p, { adminOnly: true }),
           leaf("eway-bills", "e-Way Bills", "/dashboard/crm/tax/eway-bills", Truck, p, { adminOnly: true }),
-          leaf("tds", "TDS", "/dashboard/crm/tax/tds", Percent, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("itc", "ITC", "/dashboard/crm/tax/itc", Percent, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("msme", "MSME", "/dashboard/crm/tax/msme", BadgeCheck, p, { adminOnly: true }), // TODO: page does not exist yet
+          leaf("tds-194q", "TDS 194Q", "/dashboard/crm/tax/tds-194q", Percent, p, { adminOnly: true }),
+          leaf("itc", "ITC", "/dashboard/crm/tax/itc", Percent, p, { adminOnly: true }),
+          leaf("msme-alerts", "MSME Alerts", "/dashboard/crm/tax/msme-alerts", BadgeCheck, p, { adminOnly: true }),
         ],
       },
 
@@ -868,11 +865,11 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-pos",
         label: "POS",
         items: [
-          leaf("pos-home", "POS Home", "/dashboard/crm/pos", ShoppingCart, p, { exact: true }), // TODO: page does not exist yet
-          leaf("pos-terminals", "Terminals", "/dashboard/crm/pos/terminals", Smartphone, p), // TODO: page does not exist yet
-          leaf("pos-sessions", "Sessions", "/dashboard/crm/pos/sessions", Clock, p), // TODO: page does not exist yet
-          leaf("pos-refunds", "Refunds", "/dashboard/crm/pos/refunds", RotateCw, p), // TODO: page does not exist yet
-          leaf("pos-hold-recall", "Hold/Recall", "/dashboard/crm/pos/hold-recall", Pause, p), // TODO: page does not exist yet
+          leaf("pos-home", "POS Home", "/dashboard/crm/pos", ShoppingCart, p, { exact: true }),
+          leaf("pos-terminals", "Terminals", "/dashboard/crm/pos/terminal", Smartphone, p),
+          leaf("pos-sessions", "Sessions", "/dashboard/crm/pos/sessions", Clock, p),
+          leaf("pos-refunds", "Refunds", "/dashboard/crm/pos/refunds", RotateCw, p),
+          leaf("pos-hold-recall", "Hold/Recall", "/dashboard/crm/pos/hold-recall", Pause, p),
         ],
       },
 
@@ -881,11 +878,11 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         id: "crm-store",
         label: "Online Store",
         items: [
-          leaf("store-storefronts", "Storefronts", "/dashboard/crm/store/storefronts", ShoppingBag, p), // TODO: page does not exist yet
-          leaf("store-products", "Products", "/dashboard/crm/store/products", Package, p), // TODO: page does not exist yet
-          leaf("store-pricing", "Pricing", "/dashboard/crm/store/pricing", Tag, p), // TODO: page does not exist yet
-          leaf("store-shipping", "Shipping", "/dashboard/crm/store/shipping", Truck, p), // TODO: page does not exist yet
-          leaf("store-abandoned-cart", "Abandoned Cart", "/dashboard/crm/store/abandoned-cart", ShoppingCart, p), // TODO: page does not exist yet
+          leaf("store-storefronts", "Storefronts", "/dashboard/crm/store/storefronts", ShoppingBag, p),
+          leaf("store-products", "Products", "/dashboard/crm/store/products", Package, p),
+          leaf("store-pricing", "Pricing", "/dashboard/crm/store/pricing", Tag, p),
+          leaf("store-shipping", "Shipping", "/dashboard/crm/store/shipping", Truck, p),
+          leaf("store-abandoned-cart", "Abandoned Cart", "/dashboard/crm/store/abandoned-cart", ShoppingCart, p),
         ],
       },
 
@@ -953,10 +950,10 @@ export const ZORU_APP_SIDEBARS: ZoruAppSidebarConfig[] = [
         items: [
           leaf("team-roles", "Team & Roles", "/dashboard/crm/team", Users, p, { exact: true }),
           leaf("permission-groups", "Permission Groups", "/dashboard/hrm/permission-groups", Shield, p, { adminOnly: true }),
-          leaf("api-tokens", "API Tokens", "/dashboard/crm/admin/api-tokens", Key, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("webhooks", "Webhooks", "/dashboard/crm/admin/webhooks", Webhook, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("admin-flags", "Flags", "/dashboard/crm/admin/flags", Flag, p, { adminOnly: true }), // TODO: page does not exist yet
-          leaf("admin-modules", "Modules", "/dashboard/crm/admin/modules", Puzzle, p, { adminOnly: true }), // TODO: page does not exist yet
+          leaf("api-tokens", "API Tokens", "/dashboard/crm/settings/api-tokens", Key, p, { adminOnly: true }),
+          leaf("webhooks", "Webhooks", "/dashboard/crm/settings/webhooks", Webhook, p, { adminOnly: true }),
+          leaf("admin-flags", "Flags", "/dashboard/crm/settings/flags", Flag, p, { adminOnly: true }),
+          leaf("admin-modules", "Modules", "/dashboard/crm/settings/modules", Puzzle, p, { adminOnly: true }),
         ],
       },
     ],

@@ -86,6 +86,7 @@ export default async function DashboardLayout({
               name: user?.name,
               email: user?.email,
               avatar: user?.image,
+              role: user?.role,
             }}
             plan={{
               name: user?.plan?.name,

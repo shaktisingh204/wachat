@@ -24,6 +24,11 @@ import { useRouter } from 'next/navigation';
 
 import { getCrmDashboardStats } from '@/app/actions/crm.actions';
 import { getPinnedQuickList } from '@/app/actions/worksuite/dashboard.actions';
+import {
+  getMyWidgets,
+  type WidgetKey,
+  type WidgetPref,
+} from '@/app/actions/dashboard-widgets.actions';
 import type { WsPinnedItem } from '@/lib/worksuite/dashboard-types';
 import { useT } from '@/lib/i18n/client';
 
@@ -35,6 +40,8 @@ import {
   InvoiceSummaryCard,
 } from './_components/crm-dashboard-components';
 import { WidgetConfigDrawer } from './_components/widget-config-drawer';
+import { RenderWidget } from './_components/widget-registry';
+import { PinnedItemsWidget } from './_components/pinned-items-widget';
 
 function StatCard({
   title,
@@ -109,6 +116,8 @@ export default function CrmDashboardPage() {
   const [stats, setStats] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pinned, setPinned] = useState<PinnedRow[]>([]);
+  const [widgetPrefs, setWidgetPrefs] = useState<WidgetPref[]>([]);
+  const [widgetReloadKey, setWidgetReloadKey] = useState(0);
 
   useEffect(() => {
     setIsLoading(true);
@@ -120,6 +129,27 @@ export default function CrmDashboardPage() {
       .then((rows) => setPinned((rows || []) as PinnedRow[]))
       .catch(() => setPinned([]));
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getMyWidgets('overview')
+      .then((prefs) => {
+        if (cancelled) return;
+        setWidgetPrefs(prefs);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setWidgetPrefs([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [widgetReloadKey]);
+
+  const enabledWidgets: WidgetPref[] = widgetPrefs
+    .filter((w) => w.enabled)
+    .sort((a, b) => a.position - b.position);
+  const enabledKeys = new Set<WidgetKey>(enabledWidgets.map((w) => w.widgetKey));
 
   if (isLoading || !stats) {
     return (
@@ -156,8 +186,10 @@ export default function CrmDashboardPage() {
           </ZoruPageHeading>
         </ZoruPageHeader>
         <div className="flex flex-wrap items-center gap-2">
-          {/* TODO: conditionally render the widget grid below from getMyWidgets(dashboardType) */}
-          <WidgetConfigDrawer dashboardType="overview" />
+          <WidgetConfigDrawer
+            dashboardType="overview"
+            onConfigChange={() => setWidgetReloadKey((k) => k + 1)}
+          />
           <ZoruButton
             variant="outline"
             onClick={() => router.push('/dashboard/crm/contacts')}
@@ -172,10 +204,13 @@ export default function CrmDashboardPage() {
         </div>
       </div>
 
-      {/* Pinned quick-list (only renders when user has pinned items) */}
+      {/* Pinned items widget — full manager + drag-reorder. */}
+      <PinnedItemsWidget />
+
+      {/* Legacy pinned quick-list (only renders when user has pinned items). */}
       <PinnedQuickCard items={pinned} />
 
-      {/* Key stats */}
+      {/* Key stats (always shown — these are the high-level KPI tiles). */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title={t('crm.dashboard.stat.totalContacts')}
@@ -206,20 +241,39 @@ export default function CrmDashboardPage() {
         />
       </div>
 
-      {/* Pipeline + invoices */}
+      {/* Pipeline + invoices (visibility honors widget preferences). */}
       <div className="grid gap-4 lg:grid-cols-3">
         <PipelineBreakdownCard stages={stats.pipelineStages} currency={currency} />
         <InvoiceSummaryCard stats={stats.invoiceStats} currency={currency} />
       </div>
 
-      {/* Recent activity */}
+      {/* Recent activity (kept always-on — these are essential rails). */}
       <div className="grid gap-4 lg:grid-cols-4">
-        <RecentDealsCard deals={stats.recentDeals} currency={currency} />
+        {enabledKeys.has('won-deals') ? (
+          <RecentDealsCard deals={stats.recentDeals} currency={currency} />
+        ) : null}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:col-span-2">
-          <UpcomingTasksCard tasks={stats.upcomingTasks} />
-          <RecentContactsCard contacts={stats.recentContacts} />
+          {enabledKeys.has('today-tasks') ? (
+            <UpcomingTasksCard tasks={stats.upcomingTasks} />
+          ) : null}
+          {enabledKeys.has('new-leads') ? (
+            <RecentContactsCard contacts={stats.recentContacts} />
+          ) : null}
         </div>
       </div>
+
+      {/* Registry-driven widget grid — conditional on user prefs. */}
+      {enabledWidgets.length > 0 ? (
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {enabledWidgets.map((w) => (
+            <RenderWidget
+              key={w.widgetKey}
+              widgetKey={w.widgetKey}
+              label={w.label}
+            />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

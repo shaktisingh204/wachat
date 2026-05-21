@@ -89,9 +89,19 @@ export default async function PublicContractPage({ params }: { params: Params })
                 : ''}
             </p>
           </div>
-          <ZoruBadge variant={contract.signed ? 'default' : 'secondary'}>
-            {contract.signed ? 'Signed' : 'Pending signature'}
-          </ZoruBadge>
+          <div className="flex items-center gap-2">
+            <ZoruBadge variant={contract.signed ? 'default' : 'secondary'}>
+              {contract.signed ? 'Signed' : 'Pending signature'}
+            </ZoruBadge>
+            <a
+              href={`/share/contract/${hash}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50"
+            >
+              Download PDF
+            </a>
+          </div>
         </ZoruCardHeader>
         <ZoruCardContent>
           <article

@@ -27,8 +27,10 @@ import Link from 'next/link';
 import { ObjectId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { listImportJobs } from '@/app/actions/crm-import.actions';
 import { HubKpiGrid, type HubKpi } from '../_components/hub-kpi-grid';
 import { formatDate } from '../_components/hub-data';
+import { ImportWizardShell } from './_components/import-wizard-shell';
 
 export const dynamic = 'force-dynamic';
 
@@ -112,7 +114,10 @@ async function getImportJobStats(): Promise<ImportJobStats> {
 }
 
 export default async function ImportExportLandingPage(): Promise<React.ReactElement> {
-    const stats = await getImportJobStats();
+    const [stats, recentJobs] = await Promise.all([
+        getImportJobStats(),
+        listImportJobs(),
+    ]);
 
     const kpis: HubKpi[] = [
         {
@@ -156,6 +161,19 @@ export default async function ImportExportLandingPage(): Promise<React.ReactElem
             </header>
 
             <HubKpiGrid kpis={kpis} />
+
+            <ImportWizardShell initialJobs={recentJobs} />
+
+            <div className="flex flex-col gap-2">
+                <h2 className="text-sm font-semibold text-zoru-ink">
+                    Per-entity wizards
+                </h2>
+                <p className="text-[12.5px] text-zoru-ink-muted">
+                    Specialised legacy importers with entity-specific dedupe
+                    rules. The generic wizard above replaces these for most
+                    workflows.
+                </p>
+            </div>
 
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {TILES.map((t) => {

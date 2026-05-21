@@ -691,6 +691,55 @@ export async function assignCrmTask(
             reason: userId || 'unassigned',
         });
 
+        // Notify the assignee via the `task_assigned` template (if a user
+        // was actually assigned, and we can resolve their email).
+        if (userId && ObjectId.isValid(userId)) {
+            try {
+                const [task, assignee] = await Promise.all([
+                    db.collection('crm_tasks').findOne(
+                        { _id: new ObjectId(taskId), userId: tenantId },
+                        { projection: { title: 1, dueDate: 1 } },
+                    ),
+                    db.collection('users').findOne(
+                        { _id: new ObjectId(userId) },
+                        { projection: { email: 1, name: 1 } },
+                    ),
+                ]);
+                if (assignee?.email) {
+                    const { dispatchTransactionalEmail } = await import(
+                        '@/lib/email-dispatcher'
+                    );
+                    const { renderEffectiveTemplate } = await import(
+                        '@/lib/email-templates/render'
+                    );
+                    const rendered = await renderEffectiveTemplate(
+                        String(session.user._id),
+                        'task_assigned',
+                        {
+                            assigneeName: (assignee.name as string | undefined) ?? '',
+                            assignerName: session.user.name ?? '',
+                            taskTitle: (task?.title as string | undefined) ?? '',
+                            dueDate: task?.dueDate
+                                ? new Date(task.dueDate as string | Date)
+                                      .toISOString()
+                                      .slice(0, 10)
+                                : '',
+                            taskUrl: `/dashboard/crm/tasks/${taskId}`,
+                        },
+                    );
+                    await dispatchTransactionalEmail({
+                        tenantUserId: String(session.user._id),
+                        to: assignee.email as string,
+                        subject: rendered.subject,
+                        html: rendered.html,
+                        templateId: 'event:task_assigned',
+                    });
+                }
+            } catch (notifyErr) {
+                console.warn('[crm-tasks] task_assigned notify failed', notifyErr);
+            }
+        }
+
         revalidateTaskSurfaces(taskId);
         return { success: true };
     } catch (e: any) {

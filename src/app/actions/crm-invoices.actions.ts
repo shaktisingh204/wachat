@@ -332,6 +332,20 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
             }
         }
 
+        // QuickBooks auto-sync (fire-and-forget). Only fires when the
+        // tenant has the integration connected with `autoSync: true`.
+        try {
+            const { maybeAutoSyncInvoice } = await import(
+                '@/lib/integrations/quickbooks/sync'
+            );
+            void maybeAutoSyncInvoice(
+                String(session.user._id),
+                insertResult.insertedId.toString(),
+            );
+        } catch (qbErr) {
+            console.error('[saveInvoice] QBO auto-sync hook failed:', qbErr);
+        }
+
         revalidatePath('/dashboard/crm/sales/invoices');
         return { message: 'Invoice saved successfully.' };
     } catch (e) {

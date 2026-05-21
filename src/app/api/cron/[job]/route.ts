@@ -22,6 +22,7 @@ const JOBS: Record<string, () => Promise<{ default: CronJob }>> = {
     import('@/lib/cron/jobs/estimate-contract-expiry'),
   'exchange-rate-update': () => import('@/lib/cron/jobs/exchange-rate-update'),
   'database-backup-retention': () => import('@/lib/cron/jobs/database-backup'),
+  'imap-tickets': () => import('@/lib/cron/jobs/imap-tickets'),
 };
 
 export async function GET(

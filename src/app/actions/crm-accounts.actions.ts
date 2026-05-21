@@ -308,6 +308,19 @@ export async function addCrmAccount(
         } catch (whErr) {
             console.error('[addCrmAccount] webhook dispatch failed:', whErr);
         }
+        // QuickBooks auto-sync (fire-and-forget). No-ops when the tenant
+        // doesn't have the integration connected with `autoSync: true`.
+        try {
+            const { maybeAutoSyncClient } = await import(
+                '@/lib/integrations/quickbooks/sync'
+            );
+            void maybeAutoSyncClient(
+                String(session.user._id),
+                result.insertedId.toString(),
+            );
+        } catch (qbErr) {
+            console.error('[addCrmAccount] QBO auto-sync hook failed:', qbErr);
+        }
         return {
             message: 'Account added successfully.',
             newClient: { ...newAccount, _id: result.insertedId },

@@ -193,6 +193,53 @@ export async function saveLeaveAction(
       /* non-fatal */
     }
 
+    // Fire the `leave_applied` notification on initial create. The manager
+    // recipient + lookup data (employeeName, manager email) is owned by the
+    // Rust BFF — until those fields are wired through, we render the
+    // template with the current session as a best-effort fallback so the
+    // template engine path is exercised. Manager-routing TODO lives in
+    // `src/app/actions/email-templates.actions.ts`-adjacent issue list.
+    if (!id) {
+      try {
+        const { dispatchTransactionalEmail } = await import('@/lib/email-dispatcher');
+        const { renderEffectiveTemplate } = await import(
+          '@/lib/email-templates/render'
+        );
+        const tenantUserId = String(session.user._id);
+        const rendered = await renderEffectiveTemplate(
+          tenantUserId,
+          'leave_applied',
+          {
+            managerName: '',
+            employeeName: session.user.name ?? '',
+            leaveType: leaveTypeId,
+            fromDate: from,
+            toDate: to,
+            durationDays: Math.max(
+              1,
+              Math.round(
+                (new Date(to).getTime() - new Date(from).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              ) + 1,
+            ),
+            reason: reason ?? '',
+            approvalUrl: `${LIST_PATH}/${String(result._id)}`,
+          },
+        );
+        if (session.user.email) {
+          await dispatchTransactionalEmail({
+            tenantUserId,
+            to: session.user.email,
+            subject: rendered.subject,
+            html: rendered.html,
+            templateId: 'event:leave_applied',
+          });
+        }
+      } catch (notifyErr) {
+        console.warn('[crm/leaves] leave_applied notify failed', notifyErr);
+      }
+    }
+
     revalidatePath(LIST_PATH);
     revalidatePath(`${LIST_PATH}/${String(result._id)}`);
     return {

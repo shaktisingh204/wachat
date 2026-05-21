@@ -1,498 +1,232 @@
 'use client';
 
-import {
-  ZoruAlertDialog,
-  ZoruAlertDialogAction,
-  ZoruAlertDialogCancel,
-  ZoruAlertDialogContent,
-  ZoruAlertDialogDescription,
-  ZoruAlertDialogFooter,
-  ZoruAlertDialogHeader,
-  ZoruAlertDialogTitle,
-  ZoruButton,
-  ZoruCheckbox,
-  ZoruStatCard,
-  ZoruTable,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
-  useZoruToast,
-} from '@/components/zoruui';
-import { EnumFilterField } from '@/components/crm/enum-filter-field';
-import {
-  Download,
-  Edit,
-  LoaderCircle,
-  Plus,
-  Trash2,
-} from 'lucide-react';
-
 /**
- * Email Templates — list page.
+ * Email notification templates — settings page.
  *
- * Additions:
- *  - ZoruCheckbox multi-select
- *  - Bulk activate, bulk deactivate, bulk delete with confirm
- *  - Export CSV
+ * Two-column layout:
+ *   - Left rail: events grouped by category, with a "Customized" badge for
+ *     any tenant override.
+ *   - Right pane: the editor (subject, HTML body, variable chips, preview,
+ *     Save / Test send / Restore default).
+ *
+ * Templates are scoped per-tenant via the current session userId. When no
+ * override exists, the code default from `@/lib/email-templates/events`
+ * is used.
  */
 
 import * as React from 'react';
-import Link from 'next/link';
-
-import { EntityListShell } from '@/components/crm/entity-list-shell';
-import { EntityRowLink } from '@/components/crm/entity-row-link';
-import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { LoaderCircle, Mail, Search } from 'lucide-react';
 
 import {
-    bulkActivateEmailTemplates,
-    bulkDeactivateEmailTemplates,
-    bulkDeleteEmailTemplates,
-    deleteEmailTemplate,
-    getEmailTemplates,
-} from '@/app/actions/crm-email-templates.actions';
-import type {
-    CrmEmailTemplateDoc,
-    CrmEmailTemplateStatus,
-} from '@/lib/rust-client/crm-email-templates';
-import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
+    ZoruBadge,
+    ZoruInput,
+    ZoruPageDescription,
+    ZoruPageEyebrow,
+    ZoruPageHeader,
+    ZoruPageHeading,
+    ZoruPageTitle,
+} from '@/components/zoruui';
+import { cn } from '@/components/zoruui/lib/cn';
 
-const BASE = '/dashboard/crm/settings/email-templates';
+import {
+    getEmailTemplate,
+    listEmailTemplates,
+    type EmailTemplateDetail,
+    type EmailTemplateListItem,
+} from '@/app/actions/email-templates.actions';
+import {
+    EMAIL_EVENT_CATEGORIES,
+    type EmailEventCategory,
+} from '@/lib/email-templates/events';
 
-const STATUS_TONE: Record<CrmEmailTemplateStatus, StatusTone> = {
-    active: 'green',
-    archived: 'neutral',
-};
+import { EventTemplateEditor } from './_components/event-template-editor';
 
-function fmtDate(value: unknown): string {
-    if (!value) return '—';
-    const d = new Date(value as string);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
-}
-
-export default function EmailTemplatesListPage() {
-    const [templates, setTemplates] = React.useState<CrmEmailTemplateDoc[]>([]);
-    const [isLoading, setIsLoading] = React.useState(true);
+export default function EmailTemplatesSettingsPage(): React.JSX.Element {
+    const [events, setEvents] = React.useState<EmailTemplateListItem[]>([]);
+    const [listLoading, setListLoading] = React.useState(true);
+    const [selectedKey, setSelectedKey] = React.useState<string | null>(null);
+    const [selectedDetail, setSelectedDetail] =
+        React.useState<EmailTemplateDetail | null>(null);
+    const [detailLoading, setDetailLoading] = React.useState(false);
     const [search, setSearch] = React.useState('');
-    const [statusFilter, setStatusFilter] = React.useState<
-        CrmEmailTemplateStatus | 'all'
-    >('all');
-    const [categoryFilter, setCategoryFilter] = React.useState<string>('all');
-    const [pendingDelete, setPendingDelete] =
-        React.useState<CrmEmailTemplateDoc | null>(null);
-    const [deletePending, startDeleteTransition] = React.useTransition();
-    const [bulkPending, startBulkTransition] = React.useTransition();
-    const { toast } = useZoruToast();
 
-    // Selection
-    const [selected, setSelected] = React.useState<Set<string>>(new Set());
-
-    // Bulk dialog state
-    const [bulkDeleteOpen, setBulkDeleteOpen] = React.useState(false);
-
-    const refresh = React.useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const res = await getEmailTemplates({
-                q: search.trim() || undefined,
-                status: statusFilter === 'all' ? undefined : statusFilter,
-                category: categoryFilter === 'all' ? undefined : categoryFilter,
-                limit: 100,
-            });
-            setTemplates(res.items ?? []);
-        } catch {
-            setTemplates([]);
-        } finally {
-            setIsLoading(false);
+    const refreshList = React.useCallback(async () => {
+        const items = await listEmailTemplates();
+        setEvents(items);
+        if (!selectedKey && items.length > 0) {
+            setSelectedKey(items[0].eventKey);
         }
-    }, [search, statusFilter, categoryFilter]);
+        setListLoading(false);
+    }, [selectedKey]);
 
     React.useEffect(() => {
-        const t = window.setTimeout(() => {
-            void refresh();
-        }, 250);
-        return () => window.clearTimeout(t);
-    }, [refresh]);
+        void refreshList();
+        // Intentional: we only want the initial fetch on mount; subsequent
+        // refreshes happen after save / restore via `onPersisted`.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
-    // Selection helpers
-    const displayedIds = React.useMemo(
-        () => templates.map((t) => t._id),
-        [templates],
-    );
-    const allChecked =
-        displayedIds.length > 0 && displayedIds.every((id) => selected.has(id));
-    const someChecked = displayedIds.some((id) => selected.has(id));
-
-    const toggleAll = () => {
-        if (allChecked) {
-            setSelected((prev) => {
-                const next = new Set(prev);
-                displayedIds.forEach((id) => next.delete(id));
-                return next;
-            });
-        } else {
-            setSelected((prev) => {
-                const next = new Set(prev);
-                displayedIds.forEach((id) => next.add(id));
-                return next;
-            });
+    const loadDetail = React.useCallback(async (key: string) => {
+        setDetailLoading(true);
+        try {
+            const detail = await getEmailTemplate(key);
+            setSelectedDetail(detail);
+        } finally {
+            setDetailLoading(false);
         }
-    };
+    }, []);
 
-    const toggleOne = (id: string) => {
-        setSelected((prev) => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
-        });
-    };
+    React.useEffect(() => {
+        if (!selectedKey) return;
+        void loadDetail(selectedKey);
+    }, [selectedKey, loadDetail]);
 
-    const selectedIds = React.useMemo(
-        () => [...selected].filter((id) => displayedIds.includes(id)),
-        [selected, displayedIds],
-    );
-    const hasSelection = selectedIds.length > 0;
+    const handlePersisted = React.useCallback(() => {
+        // Refresh both the list (for "Customized" badge) and the detail
+        // (for updatedAt + isCustomized state).
+        void refreshList();
+        if (selectedKey) void loadDetail(selectedKey);
+    }, [refreshList, loadDetail, selectedKey]);
 
-    // Single delete
-    const handleDelete = () => {
-        if (!pendingDelete) return;
-        const id = pendingDelete._id;
-        startDeleteTransition(async () => {
-            const result = await deleteEmailTemplate(id);
-            if (result.success) {
-                toast({ title: 'Template deleted' });
-                setPendingDelete(null);
-                await refresh();
-            } else {
-                toast({
-                    title: 'Error',
-                    description: result.error ?? 'Could not delete template.',
-                    variant: 'destructive',
-                });
-            }
-        });
-    };
+    const filteredByCategory = React.useMemo(() => {
+        const term = search.trim().toLowerCase();
+        const filtered = term
+            ? events.filter(
+                  (e) =>
+                      e.label.toLowerCase().includes(term) ||
+                      e.eventKey.toLowerCase().includes(term) ||
+                      e.description.toLowerCase().includes(term),
+              )
+            : events;
+        const grouped = new Map<EmailEventCategory, EmailTemplateListItem[]>();
+        for (const cat of EMAIL_EVENT_CATEGORIES) {
+            grouped.set(cat.key, []);
+        }
+        for (const evt of filtered) {
+            const bucket = grouped.get(evt.category);
+            if (bucket) bucket.push(evt);
+        }
+        return grouped;
+    }, [events, search]);
 
-    // Bulk activate
-    const handleBulkActivate = () => {
-        startBulkTransition(async () => {
-            const res = await bulkActivateEmailTemplates(selectedIds);
-            if (res.ok) {
-                toast({ title: `${res.count} template(s) activated` });
-                setSelected(new Set());
-                await refresh();
-            } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
-            }
-        });
-    };
-
-    // Bulk deactivate
-    const handleBulkDeactivate = () => {
-        startBulkTransition(async () => {
-            const res = await bulkDeactivateEmailTemplates(selectedIds);
-            if (res.ok) {
-                toast({ title: `${res.count} template(s) deactivated` });
-                setSelected(new Set());
-                await refresh();
-            } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
-            }
-        });
-    };
-
-    // Bulk delete
-    const handleBulkDelete = () => {
-        startBulkTransition(async () => {
-            const res = await bulkDeleteEmailTemplates(selectedIds);
-            if (res.ok) {
-                toast({ title: `${res.count} template(s) deleted` });
-                setSelected(new Set());
-            } else {
-                toast({ title: 'Error', description: res.error, variant: 'destructive' });
-            }
-            setBulkDeleteOpen(false);
-            await refresh();
-        });
-    };
-
-    // Export CSV
-    const handleExport = () => {
-        const exportRows = templates.map((t) => ({
-            Name: t.name,
-            Subject: t.subject,
-            Category: t.category ?? '',
-            Status: t.status ?? 'active',
-            Updated: fmtDate(t.updatedAt),
-        }));
-        downloadCsv(
-            `email-templates-${dateStamp()}.csv`,
-            Object.keys(exportRows[0] ?? {}),
-            exportRows,
-        );
-        toast({ title: 'CSV exported' });
-    };
+    const customizedCount = events.filter((e) => e.isCustomized).length;
 
     return (
-        <>
-            <EntityListShell
-                title="Email Templates"
-                subtitle="Reusable subject + body templates for transactional and marketing email."
-                primaryAction={
-                    <div className="flex items-center gap-2">
-                        <ZoruButton
-                            variant="outline"
-                            onClick={handleExport}
-                            disabled={templates.length === 0}
-                        >
-                            <Download className="mr-1.5 h-3.5 w-3.5" />
-                            Export CSV
-                        </ZoruButton>
-                        <ZoruButton asChild>
-                            <Link href={`${BASE}/new`}>
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New template
-                            </Link>
-                        </ZoruButton>
-                    </div>
-                }
-                search={{
-                    value: search,
-                    onChange: setSearch,
-                    placeholder: 'Search templates…',
-                }}
-                filters={
-                    <>
-                        <EnumFilterField
-                            enumName="emailTemplateStatus"
-                            value={statusFilter}
-                            onChange={(v) =>
-                                setStatusFilter(v as CrmEmailTemplateStatus | 'all')
-                            }
-                            allLabel="All statuses"
-                        />
-                        <EnumFilterField
-                            enumName="emailTemplateCategory"
-                            value={categoryFilter}
-                            onChange={setCategoryFilter}
-                            allLabel="All categories"
-                        />
-                    </>
-                }
-                loading={isLoading && templates.length === 0}
-            >
-                {/* KPI strip */}
-                {(() => {
-                    const totalCount = templates.length;
-                    const activeTemplates = templates.filter((t) => (t.status ?? 'active') === 'active').length;
-                    const categorySet = new Set(templates.map((t) => t.category).filter(Boolean));
-                    const lastUsed = templates.reduce<string | null>((acc, t) => {
-                        if (!t.updatedAt) return acc;
-                        if (!acc) return t.updatedAt as string;
-                        return new Date(t.updatedAt as string) > new Date(acc) ? (t.updatedAt as string) : acc;
-                    }, null);
-                    return (
-                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 mb-3">
-                            <ZoruStatCard label="Total templates" value={totalCount.toLocaleString()} />
-                            <ZoruStatCard label="Active" value={activeTemplates.toLocaleString()} />
-                            <ZoruStatCard label="Event categories" value={categorySet.size.toLocaleString()} />
-                            <ZoruStatCard label="Last updated" value={lastUsed ? new Date(lastUsed).toLocaleDateString() : '—'} />
-                        </div>
-                    );
-                })()}
-
-                {/* Bulk bar */}
-                {hasSelection && (
-                    <div className="flex items-center gap-3 rounded-lg border border-border bg-muted/40 px-4 py-2.5 text-sm mb-3">
-                        <span className="font-medium text-foreground">
-                            {selectedIds.length} selected
-                        </span>
-                        <ZoruButton
-                            variant="outline"
-                            size="sm"
-                            onClick={handleBulkActivate}
-                            disabled={bulkPending}
-                        >
-                            {bulkPending ? <LoaderCircle className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : null}
-                            Activate
-                        </ZoruButton>
-                        <ZoruButton
-                            variant="outline"
-                            size="sm"
-                            onClick={handleBulkDeactivate}
-                            disabled={bulkPending}
-                        >
-                            Deactivate
-                        </ZoruButton>
-                        <ZoruAlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
-                            <ZoruButton
-                                variant="destructive"
-                                size="sm"
-                                disabled={bulkPending}
-                                onClick={() => setBulkDeleteOpen(true)}
-                            >
-                                <Trash2 className="mr-1.5 h-3.5 w-3.5" />
-                                Delete selected
-                            </ZoruButton>
-                            <ZoruAlertDialogContent>
-                                <ZoruAlertDialogHeader>
-                                    <ZoruAlertDialogTitle>
-                                        Delete {selectedIds.length} template(s)?
-                                    </ZoruAlertDialogTitle>
-                                    <ZoruAlertDialogDescription>
-                                        This will permanently delete the selected templates. Existing
-                                        sends are not affected.
-                                    </ZoruAlertDialogDescription>
-                                </ZoruAlertDialogHeader>
-                                <ZoruAlertDialogFooter>
-                                    <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                                    <ZoruAlertDialogAction
-                                        onClick={handleBulkDelete}
-                                        disabled={bulkPending}
-                                    >
-                                        {bulkPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-                                        Delete
-                                    </ZoruAlertDialogAction>
-                                </ZoruAlertDialogFooter>
-                            </ZoruAlertDialogContent>
-                        </ZoruAlertDialog>
-                        <ZoruButton
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelected(new Set())}
-                        >
-                            Clear selection
-                        </ZoruButton>
-                    </div>
-                )}
-
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <ZoruTable>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
-                                    <ZoruCheckbox
-                                        checked={allChecked}
-                                        aria-checked={someChecked && !allChecked ? 'mixed' : allChecked}
-                                        onCheckedChange={toggleAll}
-                                        aria-label="Select all"
-                                        disabled={templates.length === 0}
-                                    />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Name</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Subject</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Category</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Variables</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">Updated</ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {isLoading ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell colSpan={8} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : templates.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell
-                                        colSpan={8}
-                                        className="h-24 text-center text-zoru-ink-muted"
-                                    >
-                                        No templates match this filter.
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                templates.map((t) => {
-                                    const status = (t.status ??
-                                        'active') as CrmEmailTemplateStatus;
-                                    const tone = STATUS_TONE[status] ?? 'neutral';
-                                    const vars = Array.isArray(t.variables)
-                                        ? t.variables
-                                        : [];
-                                    return (
-                                        <ZoruTableRow
-                                            key={t._id}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell>
-                                                <ZoruCheckbox
-                                                    checked={selected.has(t._id)}
-                                                    onCheckedChange={() => toggleOne(t._id)}
-                                                    aria-label={`Select ${t.name}`}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                <EntityRowLink
-                                                    href={`${BASE}/${t._id}`}
-                                                    label={t.name}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="max-w-[280px] truncate text-zoru-ink">
-                                                {t.subject}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="capitalize text-zoru-ink">
-                                                {t.category || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-mono text-[11.5px] text-zoru-ink-muted">
-                                                {vars.length > 0 ? vars.join(', ') : '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill label={status} tone={tone} />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtDate(t.updatedAt)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <ZoruButton variant="ghost" size="icon" asChild>
-                                                    <Link href={`${BASE}/${t._id}/edit`}>
-                                                        <Edit className="h-4 w-4" />
-                                                    </Link>
-                                                </ZoruButton>
-                                                <ZoruButton
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => setPendingDelete(t)}
-                                                >
-                                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                                </ZoruButton>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })
-                            )}
-                        </ZoruTableBody>
-                    </ZoruTable>
+        <div className="flex h-full flex-col gap-6">
+            <ZoruPageHeader>
+                <ZoruPageHeading>
+                    <ZoruPageEyebrow>Settings</ZoruPageEyebrow>
+                    <ZoruPageTitle>Email notification templates</ZoruPageTitle>
+                    <ZoruPageDescription>
+                        Customize the subject and HTML body of every notification
+                        SabNode sends on your behalf. Overrides are scoped to your
+                        workspace.
+                    </ZoruPageDescription>
+                </ZoruPageHeading>
+                <div className="flex items-center gap-2 text-sm text-zoru-ink-muted">
+                    <Mail className="h-4 w-4" />
+                    <span>
+                        {customizedCount} of {events.length} customized
+                    </span>
                 </div>
-            </EntityListShell>
+            </ZoruPageHeader>
 
-            {/* Single delete dialog */}
-            <ZoruAlertDialog
-                open={!!pendingDelete}
-                onOpenChange={(o) => !o && setPendingDelete(null)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>Delete email template?</ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            Deleting &ldquo;{pendingDelete?.name}&rdquo; will remove it from
-                            the template picker. Existing sends are not affected.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                            onClick={handleDelete}
-                            disabled={deletePending}
-                        >
-                            {deletePending ? 'Deleting…' : 'Delete'}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
-        </>
+            <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-[320px_1fr]">
+                {/* Left rail */}
+                <aside className="flex min-h-0 flex-col overflow-hidden rounded-md border border-zoru-line bg-zoru-bg">
+                    <div className="border-b border-zoru-line p-3">
+                        <ZoruInput
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            placeholder="Search events…"
+                            leadingSlot={
+                                <Search className="h-3.5 w-3.5 text-zoru-ink-subtle" />
+                            }
+                        />
+                    </div>
+                    <div className="flex-1 overflow-y-auto p-2">
+                        {listLoading ? (
+                            <div className="flex items-center justify-center py-10">
+                                <LoaderCircle className="h-5 w-5 animate-spin text-zoru-ink-muted" />
+                            </div>
+                        ) : (
+                            EMAIL_EVENT_CATEGORIES.map((cat) => {
+                                const items = filteredByCategory.get(cat.key) ?? [];
+                                if (items.length === 0) return null;
+                                return (
+                                    <div key={cat.key} className="mb-3">
+                                        <h3 className="px-2 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-zoru-ink-subtle">
+                                            {cat.label}
+                                        </h3>
+                                        <ul className="flex flex-col gap-0.5">
+                                            {items.map((evt) => {
+                                                const isActive = evt.eventKey === selectedKey;
+                                                return (
+                                                    <li key={evt.eventKey}>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setSelectedKey(evt.eventKey)}
+                                                            className={cn(
+                                                                'flex w-full items-center justify-between gap-2 rounded px-2.5 py-2 text-left text-sm transition-colors',
+                                                                isActive
+                                                                    ? 'bg-zoru-ink text-zoru-bg'
+                                                                    : 'text-zoru-ink hover:bg-zoru-bg-elev',
+                                                            )}
+                                                            aria-pressed={isActive}
+                                                        >
+                                                            <span className="min-w-0 truncate">
+                                                                {evt.label}
+                                                            </span>
+                                                            {evt.isCustomized ? (
+                                                                <ZoruBadge
+                                                                    variant={isActive ? 'outline' : 'secondary'}
+                                                                    className={cn(
+                                                                        'shrink-0 text-[10px]',
+                                                                        isActive && 'border-zoru-bg/40 text-zoru-bg',
+                                                                    )}
+                                                                >
+                                                                    Custom
+                                                                </ZoruBadge>
+                                                            ) : null}
+                                                        </button>
+                                                    </li>
+                                                );
+                                            })}
+                                        </ul>
+                                    </div>
+                                );
+                            })
+                        )}
+                        {!listLoading &&
+                        Array.from(filteredByCategory.values()).every(
+                            (arr) => arr.length === 0,
+                        ) ? (
+                            <p className="px-2 py-8 text-center text-sm text-zoru-ink-subtle">
+                                No events match &ldquo;{search}&rdquo;.
+                            </p>
+                        ) : null}
+                    </div>
+                </aside>
+
+                {/* Right pane */}
+                <section className="flex min-h-0 flex-col">
+                    {detailLoading && !selectedDetail ? (
+                        <div className="flex flex-1 items-center justify-center rounded-md border border-zoru-line bg-zoru-bg">
+                            <LoaderCircle className="h-6 w-6 animate-spin text-zoru-ink-muted" />
+                        </div>
+                    ) : selectedDetail ? (
+                        <EventTemplateEditor
+                            key={selectedDetail.eventKey}
+                            template={selectedDetail}
+                            onPersisted={handlePersisted}
+                        />
+                    ) : (
+                        <div className="flex flex-1 items-center justify-center rounded-md border border-dashed border-zoru-line bg-zoru-bg p-8 text-center text-sm text-zoru-ink-muted">
+                            Select an event from the list to customize its template.
+                        </div>
+                    )}
+                </section>
+            </div>
+        </div>
     );
 }

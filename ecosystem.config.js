@@ -311,5 +311,30 @@ module.exports = {
         BROADCAST_USE_BULLMQ: '1',
       },
     },
+
+    // ---------------------------------------------------------------------
+    // SabNode Cron Worker
+    // Single-instance node-cron tick that pings /api/cron/[job] on the
+    // Next.js app. See scripts/cron-worker.mjs and scripts/CRON_README.md.
+    // ---------------------------------------------------------------------
+    {
+      name: 'sabnode-cron',
+      script: 'scripts/cron-worker.mjs',
+      cwd: __dirname,
+      instances: 1,           // single instance, never cluster
+      exec_mode: 'fork',
+      autorestart: true,
+      watch: false,
+      max_memory_restart: '300M',
+      env: {
+        NODE_ENV: 'production',
+        APP_BASE_URL: process.env.APP_BASE_URL || 'http://localhost:3000',
+        CRON_SECRET: process.env.CRON_SECRET,
+        TZ: 'UTC',
+      },
+      error_file: './logs/cron-error.log',
+      out_file: './logs/cron-out.log',
+      log_date_format: 'YYYY-MM-DD HH:mm:ss',
+    },
   ].filter(Boolean),
 };

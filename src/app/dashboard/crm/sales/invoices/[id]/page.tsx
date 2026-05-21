@@ -29,6 +29,7 @@ import {
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { PinButton } from '@/components/crm/pin-button';
 import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
@@ -221,13 +222,20 @@ export default async function InvoiceDetailPage({
       status={{ label: String(status), tone: detailToneFor(String(status)) }}
       back={{ href: '/dashboard/crm/sales/invoices', label: 'All invoices' }}
       actions={
-        <InvoiceDetailActions
-          invoiceId={invoiceId}
-          invoiceNo={invoice.invoiceNo ?? ''}
-          status={String(status)}
-          contactEmail={customer.email}
-          contactPhone={customer.phone}
-        />
+        <div className="flex items-center gap-2">
+          <PinButton
+            entityType="invoice"
+            entityId={invoiceId}
+            title={title}
+          />
+          <InvoiceDetailActions
+            invoiceId={invoiceId}
+            invoiceNo={invoice.invoiceNo ?? ''}
+            status={String(status)}
+            contactEmail={customer.email}
+            contactPhone={customer.phone}
+          />
+        </div>
       }
       rightRail={
         <>

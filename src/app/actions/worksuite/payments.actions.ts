@@ -389,6 +389,44 @@ export async function recordPayment(
     { userId: String(user._id) },
   ).catch((err) => console.warn('[recordPayment] slack notify failed:', err));
 
+  // Email — non-fatal `payment_received` notification. Recipient lookup
+  // depends on the invoice's client email; if it isn't on the payment doc
+  // we log and skip. Wiring the client-email join is the next step.
+  void (async () => {
+    try {
+      const clientEmail = (paymentDoc as { client_email?: string }).client_email;
+      const { dispatchTransactionalEmail } = await import('@/lib/email-dispatcher');
+      const { renderEffectiveTemplate } = await import(
+        '@/lib/email-templates/render'
+      );
+      const rendered = await renderEffectiveTemplate(
+        String(user._id),
+        'payment_received',
+        {
+          clientName: (paymentDoc as { client_name?: string }).client_name ?? '',
+          invoiceNumber: paymentDoc.invoice_number ?? String(input.invoiceId),
+          amountPaid: `${paymentDoc.currency} ${input.amount}`,
+          paymentDate: new Date(now).toISOString().slice(0, 10),
+          receiptUrl: '',
+          companyName: '',
+        },
+      );
+      if (clientEmail) {
+        await dispatchTransactionalEmail({
+          tenantUserId: String(user._id),
+          to: clientEmail,
+          subject: rendered.subject,
+          html: rendered.html,
+          templateId: 'event:payment_received',
+        });
+      } else {
+        console.log('[payment_received] no client_email on payment doc — skipped send');
+      }
+    } catch (notifyErr) {
+      console.warn('[recordPayment] payment_received notify failed:', notifyErr);
+    }
+  })();
+
   return { paymentId: paymentId.toString(), status: statusInfo.status };
 }
 

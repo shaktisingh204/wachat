@@ -1,0 +1,114 @@
+'use client';
+
+import * as React from 'react';
+import { cn } from '@/components/zoruui/lib/cn';
+
+export const GANTT_BAR_HEIGHT = 22;
+
+export type GanttBarDragMode = 'move' | 'resize-left' | 'resize-right' | 'link';
+
+export interface GanttBarTask {
+  _id: string;
+  heading: string;
+  startMs: number;
+  dueMs: number;
+  status?: string;
+  priority?: string;
+}
+
+export interface GanttBarProps {
+  task: GanttBarTask;
+  /** X offset from the chart origin in px. */
+  left: number;
+  /** Width in px. */
+  width: number;
+  /** Row Y offset in px (top of bar's row). */
+  top: number;
+  rowHeight: number;
+  /** Drag handler from the parent. Called on pointerdown on any handle. */
+  onDragStart: (
+    taskId: string,
+    mode: GanttBarDragMode,
+    e: React.PointerEvent<HTMLElement>,
+  ) => void;
+}
+
+const STATUS_BG: Record<string, string> = {
+  done: 'bg-emerald-500/80 border-emerald-600',
+  completed: 'bg-emerald-500/80 border-emerald-600',
+  'in-progress': 'bg-amber-500/80 border-amber-600',
+  review: 'bg-sky-500/80 border-sky-600',
+  todo: 'bg-zinc-400/70 border-zinc-500',
+  incomplete: 'bg-zinc-400/70 border-zinc-500',
+};
+
+const PRIORITY_RING: Record<string, string> = {
+  urgent: 'ring-2 ring-rose-500/50',
+  high: 'ring-2 ring-amber-500/40',
+};
+
+export function GanttBar({
+  task,
+  left,
+  width,
+  top,
+  rowHeight,
+  onDragStart,
+}: GanttBarProps) {
+  const barTop = top + (rowHeight - GANTT_BAR_HEIGHT) / 2;
+  const statusClass = STATUS_BG[task.status ?? ''] ?? STATUS_BG.todo;
+  const priorityRing = PRIORITY_RING[task.priority ?? ''] ?? '';
+
+  return (
+    <div
+      className={cn(
+        'absolute flex items-center rounded-md border text-[11.5px] text-white shadow-sm',
+        statusClass,
+        priorityRing,
+      )}
+      style={{
+        left,
+        width: Math.max(width, 16),
+        top: barTop,
+        height: GANTT_BAR_HEIGHT,
+      }}
+      role="button"
+      aria-label={`Task ${task.heading}`}
+      tabIndex={0}
+    >
+      {/* Left resize handle */}
+      <div
+        className="h-full w-2 cursor-ew-resize rounded-l-md bg-black/15 hover:bg-black/30"
+        onPointerDown={(e) => onDragStart(task._id, 'resize-left', e)}
+        aria-label="Resize start date"
+      />
+      {/* Body — drag to move */}
+      <div
+        className="min-w-0 flex-1 cursor-grab truncate px-2 active:cursor-grabbing"
+        onPointerDown={(e) => onDragStart(task._id, 'move', e)}
+        title={task.heading}
+      >
+        {task.heading}
+      </div>
+      {/* Right resize handle — also acts as link-start when right-clicked or
+          when the user drags from the very edge. Pointerdown here triggers a
+          resize. To create a link, the user should click the small "+"
+          circle further to the right. */}
+      <div
+        className="h-full w-2 cursor-ew-resize rounded-r-md bg-black/15 hover:bg-black/30"
+        onPointerDown={(e) => onDragStart(task._id, 'resize-right', e)}
+        aria-label="Resize due date"
+      />
+      {/* Link-out anchor (right of bar). */}
+      <button
+        type="button"
+        onPointerDown={(e) => onDragStart(task._id, 'link', e)}
+        className="absolute -right-3 top-1/2 flex h-4 w-4 -translate-y-1/2 cursor-crosshair items-center justify-center rounded-full border border-zoru-line bg-zoru-bg text-[10px] text-zoru-ink shadow-sm hover:bg-zoru-surface-2"
+        title="Drag to another bar to create a dependency"
+        aria-label="Create dependency"
+      >
+        +
+      </button>
+    </div>
+  );
+}

@@ -2,7 +2,10 @@
 
 /**
  * Invoice payment panel — opens a drawer with gateway options:
- *  - Stripe / Razorpay / PayPal — stubbed via `startGatewayCheckout`.
+ *  - Stripe — redirects to a Stripe Checkout Session URL.
+ *  - Razorpay — opens the Razorpay Checkout modal (loaded on demand).
+ *  - PayPal — redirects to the approval URL; capture happens on return
+ *    via `?paid=paypal&token=...` (see `page.tsx`).
  *  - Offline — uploads optional bill proof + notes, calls
  *    `recordOfflinePayment` to flip the invoice to Pending-Confirmation.
  *
@@ -41,9 +44,51 @@ type Props = {
   totalDue: number;
   currency: string;
   isUnpaid: boolean;
+  initialBanner?: Banner;
 };
 
 type Banner = { kind: 'success' | 'error'; message: string } | null;
+
+const RAZORPAY_SCRIPT_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
+
+type RazorpayCheckoutOptions = {
+  key: string;
+  amount: number;
+  currency: string;
+  name?: string;
+  description?: string;
+  order_id: string;
+  handler?: (response: Record<string, string>) => void;
+  modal?: { ondismiss?: () => void };
+  prefill?: { name?: string; email?: string; contact?: string };
+};
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: RazorpayCheckoutOptions) => { open: () => void };
+  }
+}
+
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') return resolve(false);
+    if (window.Razorpay) return resolve(true);
+    const existing = document.querySelector<HTMLScriptElement>(
+      `script[src="${RAZORPAY_SCRIPT_SRC}"]`,
+    );
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => resolve(false));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = RAZORPAY_SCRIPT_SRC;
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export function InvoicePaymentPanel({
   hash,
@@ -51,22 +96,58 @@ export function InvoicePaymentPanel({
   totalDue,
   currency,
   isUnpaid,
+  initialBanner,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const [amount, setAmount] = React.useState<string>(totalDue.toFixed(2));
   const [notes, setNotes] = React.useState('');
   const [billUrl, setBillUrl] = React.useState<string | undefined>(undefined);
   const [pending, startTransition] = React.useTransition();
-  const [banner, setBanner] = React.useState<Banner>(null);
+  const [banner, setBanner] = React.useState<Banner>(initialBanner ?? null);
 
   const handleGateway = (gateway: 'stripe' | 'razorpay' | 'paypal') => {
     startTransition(async () => {
       const result = await startGatewayCheckout(hash, gateway);
-      setBanner(
-        result.success
-          ? { kind: 'success', message: result.message || 'Redirecting…' }
-          : { kind: 'error', message: result.error },
-      );
+      if (!result.ok) {
+        setBanner({ kind: 'error', message: result.error });
+        return;
+      }
+      if (result.provider === 'stripe') {
+        setBanner({ kind: 'success', message: 'Redirecting to Stripe…' });
+        window.location.href = result.sessionUrl;
+        return;
+      }
+      if (result.provider === 'paypal') {
+        setBanner({ kind: 'success', message: 'Redirecting to PayPal…' });
+        window.location.href = result.approvalUrl;
+        return;
+      }
+      // Razorpay — open the checkout modal.
+      const loaded = await loadRazorpayScript();
+      if (!loaded || !window.Razorpay) {
+        setBanner({
+          kind: 'error',
+          message: 'Could not load Razorpay. Please try again.',
+        });
+        return;
+      }
+      const rzp = new window.Razorpay({
+        key: result.keyId,
+        amount: result.amount,
+        currency: result.currency,
+        name: 'Invoice payment',
+        order_id: result.orderId,
+        handler: () => {
+          // Razorpay's webhook is the source of truth for marking paid.
+          window.location.href = `/share/invoice/${hash}?paid=razorpay`;
+        },
+        modal: {
+          ondismiss: () => {
+            setBanner({ kind: 'error', message: 'Payment cancelled.' });
+          },
+        },
+      });
+      rzp.open();
     });
   };
 
@@ -94,6 +175,11 @@ export function InvoicePaymentPanel({
           <ZoruCardTitle>Payment</ZoruCardTitle>
         </ZoruCardHeader>
         <ZoruCardContent>
+          {banner ? (
+            <ZoruAlert variant={banner.kind === 'success' ? 'default' : 'destructive'}>
+              <ZoruAlertDescription>{banner.message}</ZoruAlertDescription>
+            </ZoruAlert>
+          ) : null}
           <p className="text-sm text-zinc-600">
             {status === 'Paid'
               ? 'This invoice has been paid in full. Thank you!'

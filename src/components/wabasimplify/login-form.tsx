@@ -13,6 +13,7 @@ import {
   ZoruAlert,
   ZoruAlertDescription,
   ZoruAlertTitle,
+  useZoruToast,
 } from '@/components/zoruui';
 import {
   useRouter,
@@ -67,11 +68,17 @@ function useBestEffortLocation() {
     return location;
 }
 
+type SessionPostResult =
+    | { kind: 'session'; user: unknown }
+    | { kind: '2fa'; method: TwoFaMethod; userId: string };
+
+type TwoFaMethod = 'email' | 'totp';
+
 async function postSession(params: {
     idToken: string;
     name?: string | null;
     location: { latitude: number; longitude: number } | null;
-}) {
+}): Promise<SessionPostResult> {
     const { idToken, name, location } = params;
     const body: Record<string, unknown> = {};
     if (name) body.name = name;
@@ -93,7 +100,26 @@ async function postSession(params: {
         const msg = await res.text();
         throw new Error(msg || 'Session creation failed.');
     }
-    return res.json();
+    const data = (await res.json()) as
+        | { requires2fa?: boolean; method?: TwoFaMethod; userId?: string; user?: unknown };
+    if (data?.requires2fa && data.method && data.userId) {
+        return { kind: '2fa', method: data.method, userId: data.userId };
+    }
+    return { kind: 'session', user: data?.user };
+}
+
+async function postTwoFa(code: string): Promise<void> {
+    const res = await fetch('/api/auth/two-fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code }),
+    });
+    if (!res.ok) {
+        const msg = await res.text();
+        const err = new Error(msg || 'Invalid code.') as Error & { status?: number };
+        err.status = res.status;
+        throw err;
+    }
 }
 
 function SubmitButton({ isPending }: { isPending: boolean }) {
@@ -107,16 +133,41 @@ function SubmitButton({ isPending }: { isPending: boolean }) {
     );
 }
 
+type PendingChallenge = {
+    method: TwoFaMethod;
+    /** Last-used idToken so the "resend email code" button can re-trigger the session POST. */
+    idToken: string;
+    /** Carry forward the display name from social login so the re-POST matches. */
+    name?: string | null;
+};
+
 export function LoginForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const errorParam = searchParams.get('error');
     const nextParam = searchParams.get('next') || '/wachat';
+    const { toast } = useZoruToast();
 
     const [error, setError] = React.useState<string | null>(errorParam);
     const [showPassword, setShowPassword] = React.useState(false);
     const [isPending, startTransition] = React.useTransition();
     const location = useBestEffortLocation();
+
+    // 2FA challenge state. When non-null, the form swaps to the 2FA panel.
+    const [challenge, setChallenge] = React.useState<PendingChallenge | null>(null);
+
+    const finishLogin = React.useCallback(async () => {
+        // Carries the /invite/[token] cookie into a team attachment if present.
+        let inviteProjectId: string | undefined;
+        try {
+            const res = await consumePendingInviteToken();
+            if (res.consumed && res.projectId) inviteProjectId = res.projectId;
+        } catch {
+            /* non-fatal */
+        }
+        router.refresh();
+        router.push(inviteProjectId ? '/wachat' : nextParam);
+    }, [router, nextParam]);
 
     const handleLogin = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -139,15 +190,13 @@ export function LoginForm() {
                     password
                 );
                 const idToken = await credential.user.getIdToken();
-                await postSession({ idToken, location });
-                // Carries the /invite/[token] cookie into a team attachment if present.
-                let inviteProjectId: string | undefined;
-                try {
-                    const res = await consumePendingInviteToken();
-                    if (res.consumed && res.projectId) inviteProjectId = res.projectId;
-                } catch { /* non-fatal */ }
-                router.push(inviteProjectId ? '/wachat' : nextParam);
-            } catch (err: any) {
+                const result = await postSession({ idToken, location });
+                if (result.kind === '2fa') {
+                    setChallenge({ method: result.method, idToken });
+                    return;
+                }
+                await finishLogin();
+            } catch (err) {
                 setError(friendlyFirebaseError(err));
             }
         });
@@ -164,22 +213,70 @@ export function LoginForm() {
             try {
                 const result = await signInWithPopup(auth, authProvider);
                 const idToken = await result.user.getIdToken();
-                await postSession({
+                const sessionRes = await postSession({
                     idToken,
                     name: result.user.displayName,
                     location,
                 });
-                let inviteProjectId: string | undefined;
-                try {
-                    const res = await consumePendingInviteToken();
-                    if (res.consumed && res.projectId) inviteProjectId = res.projectId;
-                } catch { /* non-fatal */ }
-                router.push(inviteProjectId ? '/wachat' : nextParam);
-            } catch (err: any) {
+                if (sessionRes.kind === '2fa') {
+                    setChallenge({
+                        method: sessionRes.method,
+                        idToken,
+                        name: result.user.displayName,
+                    });
+                    return;
+                }
+                await finishLogin();
+            } catch (err) {
                 setError(friendlyFirebaseError(err));
             }
         });
     };
+
+    if (challenge) {
+        return (
+            <TwoFaPanel
+                challenge={challenge}
+                isPending={isPending}
+                startTransition={startTransition}
+                onVerified={finishLogin}
+                onCancel={() => {
+                    setChallenge(null);
+                    setError(null);
+                }}
+                onExpired={() => {
+                    setChallenge(null);
+                    setError('Session expired, please log in again.');
+                }}
+                onResend={() => {
+                    startTransition(async () => {
+                        try {
+                            const res = await postSession({
+                                idToken: challenge.idToken,
+                                name: challenge.name ?? null,
+                                location,
+                            });
+                            if (res.kind === '2fa') {
+                                toast({
+                                    title: 'Code resent',
+                                    description: 'Check your inbox for a new 6-digit code.',
+                                });
+                            }
+                        } catch (err) {
+                            toast({
+                                title: "Couldn't resend code",
+                                description:
+                                    err instanceof Error
+                                        ? err.message
+                                        : 'Please try again.',
+                                variant: 'destructive',
+                            });
+                        }
+                    });
+                }}
+            />
+        );
+    }
 
     return (
         <ZoruCard className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
@@ -308,8 +405,9 @@ export function LoginForm() {
 }
 
 function friendlyFirebaseError(err: unknown): string {
-    const code = (err as any)?.code as string | undefined;
-    if (!code) return (err as any)?.message || 'Something went wrong.';
+    const code = (err as { code?: string })?.code;
+    const message = (err as { message?: string })?.message;
+    if (!code) return message || 'Something went wrong.';
     switch (code) {
         case 'auth/invalid-credential':
         case 'auth/wrong-password':
@@ -322,8 +420,192 @@ function friendlyFirebaseError(err: unknown): string {
         case 'auth/popup-closed-by-user':
             return 'Sign-in was cancelled.';
         default:
-            return (err as any)?.message || 'Something went wrong.';
+            return message || 'Something went wrong.';
     }
+}
+
+/**
+ * The 2FA challenge panel. Swapped in by <LoginForm> once /api/auth/session
+ * answers with `{ requires2fa: true }`. Posts the code (numeric or backup)
+ * to /api/auth/two-fa, which mints the real session cookie.
+ */
+function TwoFaPanel(props: {
+    challenge: PendingChallenge;
+    isPending: boolean;
+    startTransition: React.TransitionStartFunction;
+    onVerified: () => Promise<void> | void;
+    onCancel: () => void;
+    onExpired: () => void;
+    onResend: () => void;
+}) {
+    const { challenge, isPending, startTransition, onVerified, onCancel, onExpired, onResend } = props;
+    const [mode, setMode] = React.useState<'code' | 'backup'>('code');
+    const [code, setCode] = React.useState('');
+    const [error, setError] = React.useState<string | null>(null);
+    const inputRef = React.useRef<HTMLInputElement>(null);
+    // Track the latest mode inside the auto-submit effect without re-triggering it.
+    const modeRef = React.useRef(mode);
+    React.useEffect(() => {
+        modeRef.current = mode;
+    }, [mode]);
+
+    // Auto-focus the input whenever this panel renders / mode changes.
+    React.useEffect(() => {
+        inputRef.current?.focus();
+    }, [mode]);
+
+    const submit = React.useCallback(
+        (value: string) => {
+            setError(null);
+            startTransition(async () => {
+                try {
+                    await postTwoFa(value);
+                    await onVerified();
+                } catch (err) {
+                    const status = (err as { status?: number })?.status;
+                    if (status === 401) {
+                        const text = (err as { message?: string })?.message ?? '';
+                        if (/no pending|invalid pending/i.test(text)) {
+                            onExpired();
+                            return;
+                        }
+                    }
+                    setError('Invalid code. Try again.');
+                    setCode('');
+                    inputRef.current?.focus();
+                }
+            });
+        },
+        [onVerified, onExpired, startTransition]
+    );
+
+    // Auto-submit when the user has typed all 6 digits of a TOTP / email code.
+    // Backup codes are 10 chars and not numeric — require explicit submit.
+    React.useEffect(() => {
+        if (modeRef.current !== 'code') return;
+        if (code.length === 6 && /^[0-9]{6}$/.test(code) && !isPending) {
+            submit(code);
+        }
+    }, [code, isPending, submit]);
+
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const value = code.trim();
+        if (!value) return;
+        submit(value);
+    };
+
+    const title =
+        challenge.method === 'email'
+            ? 'Check your email'
+            : 'Two-Factor Authentication';
+    const description =
+        mode === 'backup'
+            ? 'Enter one of your 10-character backup codes.'
+            : challenge.method === 'email'
+              ? 'We sent a 6-digit code to your email. Enter it below.'
+              : 'Open your authenticator app and enter the 6-digit code.';
+
+    return (
+        <ZoruCard className="w-full max-w-md shadow-2xl rounded-2xl border-border/40 backdrop-blur-sm">
+            <form onSubmit={handleSubmit} noValidate>
+                <ZoruCardHeader className="space-y-2">
+                    <ZoruCardTitle className="text-2xl font-bold font-headline">
+                        {title}
+                    </ZoruCardTitle>
+                    <ZoruCardDescription>{description}</ZoruCardDescription>
+                </ZoruCardHeader>
+
+                <ZoruCardContent className="space-y-5">
+                    {error && (
+                        <ZoruAlert variant="destructive">
+                            <AlertCircle className="h-4 w-4" />
+                            <ZoruAlertTitle>Verification failed</ZoruAlertTitle>
+                            <ZoruAlertDescription>{error}</ZoruAlertDescription>
+                        </ZoruAlert>
+                    )}
+
+                    <div className="space-y-2">
+                        <ZoruLabel htmlFor="two-fa-code">
+                            {mode === 'backup' ? 'Backup code' : 'Verification code'}
+                        </ZoruLabel>
+                        <ZoruInput
+                            ref={inputRef}
+                            id="two-fa-code"
+                            name="code"
+                            value={code}
+                            onChange={(e) => {
+                                if (mode === 'code') {
+                                    // Strip non-digits, cap at 6.
+                                    setCode(e.target.value.replace(/\D/g, '').slice(0, 6));
+                                } else {
+                                    setCode(e.target.value.slice(0, 16));
+                                }
+                            }}
+                            inputMode={mode === 'code' ? 'numeric' : 'text'}
+                            pattern={mode === 'code' ? '[0-9]*' : undefined}
+                            maxLength={mode === 'code' ? 6 : 16}
+                            autoComplete={mode === 'code' ? 'one-time-code' : 'off'}
+                            placeholder={mode === 'code' ? '123456' : 'ABCD-EFGH-IJ'}
+                            disabled={isPending}
+                            required
+                            className="text-center tracking-[0.4em] text-lg"
+                        />
+                    </div>
+
+                    <ZoruButton
+                        type="submit"
+                        className="w-full h-11 text-base"
+                        disabled={isPending || code.trim().length === 0}
+                    >
+                        {isPending ? (
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        ) : null}
+                        Verify
+                    </ZoruButton>
+
+                    <div className="flex flex-col items-center gap-2 text-sm">
+                        <button
+                            type="button"
+                            className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                            onClick={() => {
+                                setMode((m) => (m === 'code' ? 'backup' : 'code'));
+                                setCode('');
+                                setError(null);
+                            }}
+                            disabled={isPending}
+                        >
+                            {mode === 'code'
+                                ? 'Use backup code instead'
+                                : 'Use 6-digit code instead'}
+                        </button>
+
+                        {challenge.method === 'email' && mode === 'code' && (
+                            <button
+                                type="button"
+                                className="text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                                onClick={onResend}
+                                disabled={isPending}
+                            >
+                                Resend email code
+                            </button>
+                        )}
+                    </div>
+                </ZoruCardContent>
+
+                <ZoruCardFooter className="justify-center">
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        disabled={isPending}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                        Cancel and return to sign in
+                    </button>
+                </ZoruCardFooter>
+            </form>
+        </ZoruCard>
+    );
 }
 
 function GoogleIcon() {

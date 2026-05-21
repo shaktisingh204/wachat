@@ -163,3 +163,203 @@ export async function declineProposal(
     return { success: false, error: 'Could not decline proposal.' };
   }
 }
+
+// ---------------------------------------------------------------------
+// Detail loader for PDF rendering.
+// ---------------------------------------------------------------------
+
+export type PublicProposalDetailItem = {
+  name?: string;
+  description?: string;
+  hsnCode?: string;
+  quantity: number;
+  rate: number;
+  total: number;
+};
+
+export type PublicProposalDetailCompany = {
+  name?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  taxId?: string;
+  logoUrl?: string | null;
+};
+
+export type PublicProposalDetailRecipient = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  company?: string;
+};
+
+export type PublicProposalDetail = {
+  ok: true;
+  proposal: {
+    _id: string;
+    proposalNumber: string;
+    title: string;
+    proposalDate: string | null;
+    validTill: string | null;
+    currency: string;
+    status: string;
+    description: string;
+    note?: string;
+    subtotal?: number;
+    tax?: number;
+    total: number;
+    signed: boolean;
+    signature: {
+      signedByName: string;
+      signedAt: string;
+      signatureDataUrl: string;
+    } | null;
+  };
+  company: PublicProposalDetailCompany;
+  deal: PublicProposalDetailRecipient;
+  items: PublicProposalDetailItem[];
+};
+
+export type PublicProposalDetailResult = PublicProposalDetail | { ok: false; error: string };
+
+export async function getPublicProposalWithDetails(
+  hash: string,
+): Promise<PublicProposalDetailResult> {
+  if (!isValidPublicHash(hash)) return { ok: false, error: 'Invalid link.' };
+  try {
+    const { db } = await connectToDatabase();
+    const { ObjectId } = await import('mongodb');
+    const proposal = await db.collection('crm_proposals').findOne({ publicHash: hash });
+    if (!proposal) return { ok: false, error: 'Proposal not found.' };
+
+    let company: PublicProposalDetailCompany = {};
+    if (proposal.userId) {
+      try {
+        const settings = await db
+          .collection('crm_settings')
+          .findOne({ userId: proposal.userId });
+        if (settings) {
+          company = {
+            name: (settings.companyName as string) || '',
+            address: (settings.companyAddress as string) || '',
+            email: (settings.companyEmail as string) || '',
+            phone: (settings.companyPhone as string) || '',
+            taxId: (settings.gstin as string) || '',
+            logoUrl: (settings.companyLogo as string) || (settings.logoUrl as string) || null,
+          };
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+    // Deal — proposals are typically linked to a deal which references
+    // an account/contact. Best-effort: fall back to whatever's stored
+    // directly on the proposal.
+    let deal: PublicProposalDetailRecipient = {};
+    const dealRef = proposal.dealId || proposal.accountId || proposal.contactId;
+    if (dealRef) {
+      try {
+        const id = typeof dealRef === 'string' ? new ObjectId(dealRef) : dealRef;
+        const dealDoc =
+          (await db.collection('crm_deals').findOne({ _id: id })) ||
+          (await db.collection('crm_accounts').findOne({ _id: id })) ||
+          (await db.collection('crm_contacts').findOne({ _id: id }));
+        if (dealDoc) {
+          deal = {
+            name:
+              (dealDoc.name as string) ||
+              (dealDoc.accountName as string) ||
+              `${(dealDoc.firstName as string) || ''} ${(dealDoc.lastName as string) || ''}`.trim(),
+            email: (dealDoc.email as string) || '',
+            phone: (dealDoc.phone as string) || '',
+            address: (dealDoc.address as string) || (dealDoc.billingAddress as string) || '',
+            company: (dealDoc.company as string) || (dealDoc.accountName as string) || '',
+          };
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
+    if (!deal.name) {
+      deal = {
+        name: (proposal.clientName as string) || (proposal.toName as string) || '',
+        email: (proposal.clientEmail as string) || (proposal.toEmail as string) || '',
+        address: (proposal.clientAddress as string) || '',
+      };
+    }
+
+    let signature: {
+      signedByName: string;
+      signedAt: string;
+      signatureDataUrl: string;
+    } | null = null;
+    if (proposal.status === 'accepted') {
+      const sig = await db
+        .collection('crm_proposal_signs')
+        .findOne({ proposalId: proposal._id }, { sort: { signedAt: -1 } });
+      if (sig) {
+        signature = {
+          signedByName: (sig.signedByName as string) || '',
+          signedAt: sig.signedAt ? new Date(sig.signedAt as Date).toISOString() : '',
+          signatureDataUrl: (sig.signatureDataUrl as string) || '',
+        };
+      }
+    }
+
+    const items: PublicProposalDetailItem[] = Array.isArray(proposal.lineItems)
+      ? (proposal.lineItems as Array<Record<string, unknown>>).map((li) => ({
+          name: (li.name as string) || (li.description as string) || '',
+          description: (li.description as string) || '',
+          hsnCode: (li.hsnCode as string) || (li.hsn as string) || '',
+          quantity: Number(li.quantity ?? li.qty ?? 0),
+          rate: Number(li.rate ?? li.unitPrice ?? 0),
+          total: Number(
+            li.total ??
+              li.amount ??
+              Number(li.quantity ?? li.qty ?? 0) * Number(li.rate ?? li.unitPrice ?? 0),
+          ),
+        }))
+      : [];
+
+    return {
+      ok: true,
+      proposal: {
+        _id: proposal._id.toString(),
+        proposalNumber:
+          (proposal.proposalNumber as string) || (proposal.proposalNo as string) || '',
+        title: (proposal.title as string) || '',
+        proposalDate: proposal.proposalDate
+          ? new Date(proposal.proposalDate as Date).toISOString()
+          : proposal.createdAt
+            ? new Date(proposal.createdAt as Date).toISOString()
+            : null,
+        validTill: proposal.validTill
+          ? new Date(proposal.validTill as Date).toISOString()
+          : proposal.validUntil
+            ? new Date(proposal.validUntil as Date).toISOString()
+            : null,
+        currency: (proposal.currency as string) || 'USD',
+        status: (proposal.status as string) || 'waiting',
+        description:
+          (proposal.description as string) ||
+          (proposal.body as string) ||
+          '',
+        note: (proposal.note as string) || (proposal.notes as string) || undefined,
+        subtotal:
+          proposal.subtotal != null ? Number(proposal.subtotal) : undefined,
+        tax: proposal.tax != null ? Number(proposal.tax) : undefined,
+        total: Number(proposal.total ?? 0),
+        signed: !!signature,
+        signature,
+      },
+      company,
+      deal,
+      items,
+    };
+  } catch (e) {
+    console.error('[getPublicProposalWithDetails] failed:', e);
+    return { ok: false, error: 'Could not load proposal.' };
+  }
+}

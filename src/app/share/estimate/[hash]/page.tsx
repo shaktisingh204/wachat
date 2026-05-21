@@ -53,9 +53,19 @@ export default async function PublicEstimatePage({ params }: { params: Params })
               Valid till {formatDate(estimate.validTill)}
             </p>
           </div>
-          <ZoruBadge variant={STATUS_VARIANT[estimate.status] || 'outline'}>
-            {estimate.status}
-          </ZoruBadge>
+          <div className="flex items-center gap-2">
+            <ZoruBadge variant={STATUS_VARIANT[estimate.status] || 'outline'}>
+              {estimate.status}
+            </ZoruBadge>
+            <a
+              href={`/share/estimate/${hash}/download`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-md border border-zinc-300 bg-white px-3 py-1.5 text-xs font-medium text-zinc-700 shadow-sm hover:bg-zinc-50"
+            >
+              Download PDF
+            </a>
+          </div>
         </ZoruCardHeader>
         <ZoruCardContent className="space-y-6">
           <section>

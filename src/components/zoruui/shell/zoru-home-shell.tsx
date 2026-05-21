@@ -6,6 +6,7 @@ import {
   Bell,
   Briefcase,
   Home,
+  LayoutDashboard,
   LogOut,
   Smartphone,
   Sparkles,
@@ -38,6 +39,8 @@ export interface ZoruHomeShellProps {
     name?: string | null;
     email?: string | null;
     avatar?: string | null;
+    /** Used to gate Client Portal entry point in the user dropdown. */
+    role?: string | null;
   };
   plan?: {
     name?: string | null;
@@ -267,6 +270,18 @@ function ZoruHomeShellContent({
                 name={user?.name ?? "Account"}
                 email={user?.email ?? undefined}
                 avatarUrl={user?.avatar ?? undefined}
+                items={
+                  user?.role === "client"
+                    ? [
+                        {
+                          id: "client-portal",
+                          label: "Open Client Portal",
+                          icon: <LayoutDashboard />,
+                          href: "/portal/client",
+                        },
+                      ]
+                    : undefined
+                }
                 footerItems={[
                   {
                     id: "sign-out",

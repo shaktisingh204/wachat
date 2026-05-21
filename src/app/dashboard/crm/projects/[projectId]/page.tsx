@@ -99,6 +99,9 @@ import type {
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { EntityFormField } from '@/components/crm/entity-form-field';
+import { BurndownChart } from '../_components/burndown-chart';
+import { PinButton } from '@/components/crm/pin-button';
+import { ProjectPublicSharePanel } from '../_components/project-public-share-panel';
 
 type Task = WsTask & { _id: string };
 type Project = WsProject & { _id: string };
@@ -139,7 +142,8 @@ type TabId =
   | 'files'
   | 'notes'
   | 'activity'
-  | 'gantt';
+  | 'gantt'
+  | 'burndown';
 
 function fmtDate(v: unknown): string {
   if (!v) return '—';
@@ -403,6 +407,7 @@ export default function ProjectDetailPage(props: {
     { id: 'notes', label: `Notes (${notes.length})` },
     { id: 'activity', label: 'Activity' },
     { id: 'gantt', label: 'Gantt' },
+    { id: 'burndown', label: 'Burndown Chart' },
   ];
 
   return (
@@ -410,6 +415,13 @@ export default function ProjectDetailPage(props: {
       eyebrow="PROJECT"
       title={projectName}
       back={{ href: '/dashboard/crm/projects', label: 'Projects' }}
+      actions={
+        <PinButton
+          entityType="project"
+          entityId={projectId}
+          title={projectName}
+        />
+      }
     >
 
       {/* Overview summary */}
@@ -517,6 +529,9 @@ export default function ProjectDetailPage(props: {
           },
         ]}
       />
+
+      {/* Public Share */}
+      <ProjectPublicSharePanel projectId={projectId} />
 
       {/* Tabs */}
       <ZoruCard className="p-6">
@@ -650,6 +665,11 @@ export default function ProjectDetailPage(props: {
                         </ZoruTableCell>
                         <ZoruTableCell className="text-right">
                           <div className="flex justify-end gap-1">
+                            <PinButton
+                              entityType="task"
+                              entityId={t._id}
+                              title={t.heading}
+                            />
                             <ZoruButton
                               variant="ghost"
                               size="sm"
@@ -887,6 +907,9 @@ export default function ProjectDetailPage(props: {
             )}
           </div>
         )}
+
+        {/* ── Burndown ── */}
+        {activeTab === 'burndown' && <BurndownChart projectId={projectId} />}
 
         {/* ── Gantt (simple task + dependency count view) ── */}
         {activeTab === 'gantt' && (

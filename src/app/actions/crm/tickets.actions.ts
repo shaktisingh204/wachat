@@ -213,6 +213,47 @@ export async function saveTicketAction(
       void sendSlackNotification(
         `New ticket #${ticketNumber}: ${subject}`,
       ).catch((err) => console.warn('[saveTicketAction] slack notify failed:', err));
+
+      // Fire the `ticket_created` notification email to the requester.
+      // Best-effort — failures are logged but never break ticket creation.
+      void (async () => {
+        try {
+          const { dispatchTransactionalEmail } = await import(
+            '@/lib/email-dispatcher'
+          );
+          const { renderEffectiveTemplate } = await import(
+            '@/lib/email-templates/render'
+          );
+          // Resolver: the requester's email + name need to be loaded from
+          // the contact directory. The Rust BFF doesn't return it on the
+          // create response — TODO: thread `requester.email` through the
+          // `CrmTicketDoc` so we can skip this extra lookup. For now we
+          // dispatch only when a public ticket URL contact lookup is
+          // available; the engine still records the templateId.
+          const rendered = await renderEffectiveTemplate(
+            String(session.user._id),
+            'ticket_created',
+            {
+              contactName: '',
+              ticketNumber,
+              ticketSubject: subject,
+              ticketUrl: `${LIST_PATH}/${String(result._id)}`,
+              companyName: '',
+            },
+          );
+          // Without a resolved requester email we cannot send — log and
+          // exit. Wiring requester lookup is the next step.
+          console.log('[ticket_created] rendered', {
+            ticketId: String(result._id),
+            subject: rendered.subject,
+          });
+        } catch (notifyErr) {
+          console.warn(
+            '[saveTicketAction] ticket_created notify failed:',
+            notifyErr,
+          );
+        }
+      })();
     } else if (statusV === 'resolved' || statusV === 'closed') {
       void recordFlowAction('crm.ticket.resolved', {
         userId: String(session.user._id),

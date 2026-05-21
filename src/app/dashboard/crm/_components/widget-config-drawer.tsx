@@ -27,12 +27,15 @@ export interface WidgetConfigDrawerProps {
   dashboardType: DashboardType;
   triggerLabel?: string;
   triggerVariant?: 'outline' | 'default' | 'ghost';
+  /** Notifies the parent page when widget prefs change (toggle / reorder). */
+  onConfigChange?: () => void;
 }
 
 export function WidgetConfigDrawer({
   dashboardType,
   triggerLabel = 'Configure widgets',
   triggerVariant = 'outline',
+  onConfigChange,
 }: WidgetConfigDrawerProps) {
   const { toast } = useZoruToast();
   const [open, setOpen] = React.useState(false);
@@ -56,7 +59,9 @@ export function WidgetConfigDrawer({
     void toggleWidget(dashboardType, key, next).then((res) => {
       if (res.error) {
         toast({ title: 'Save failed', description: res.error, variant: 'destructive' });
+        return;
       }
+      onConfigChange?.();
     });
   };
 
@@ -86,7 +91,9 @@ export function WidgetConfigDrawer({
       ).then((res) => {
         if (res.error) {
           toast({ title: 'Reorder failed', description: res.error, variant: 'destructive' });
+          return;
         }
+        onConfigChange?.();
       });
       return reIndexed;
     });

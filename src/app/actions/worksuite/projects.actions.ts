@@ -136,6 +136,8 @@ export async function saveWsProject(_prev: any, formData: FormData) {
       'membersCount',
       'tasksCount',
       'milestonesCount',
+      'public_gantt_chart',
+      'public_taskboard',
     ],
     jsonKeys: ['labelIds'],
   });
@@ -144,6 +146,107 @@ export async function deleteWsProject(id: string) {
   const r = await hrDelete('crm_projects', id);
   revalidatePath('/dashboard/crm/projects');
   return r;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Project public-share toggles (Gantt / Taskboard / Rating)
+ *  Used by the project detail "Public Share" panel — generates a
+ *  `publicHash` (or `publicRatingHash`) lazily and flips the flag.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export type WsProjectShareKind = 'gantt' | 'taskboard' | 'rating';
+
+export type WsProjectShareState = {
+  publicHash?: string;
+  publicRatingHash?: string;
+  public_gantt_chart: boolean;
+  public_taskboard: boolean;
+};
+
+export async function getWsProjectShareState(
+  projectId: string,
+): Promise<WsProjectShareState | { error: string }> {
+  const user = await requireSession();
+  if (!user) return { error: 'Access denied' };
+  if (!ObjectId.isValid(projectId)) return { error: 'Invalid project id' };
+  try {
+    const { db } = await connectToDatabase();
+    const doc = await db.collection('crm_projects').findOne(
+      { _id: new ObjectId(projectId), userId: new ObjectId(user._id) },
+      {
+        projection: {
+          publicHash: 1,
+          publicRatingHash: 1,
+          public_gantt_chart: 1,
+          public_taskboard: 1,
+        },
+      },
+    );
+    if (!doc) return { error: 'Project not found' };
+    return {
+      publicHash: (doc.publicHash as string | undefined) ?? undefined,
+      publicRatingHash: (doc.publicRatingHash as string | undefined) ?? undefined,
+      public_gantt_chart: Boolean(doc.public_gantt_chart),
+      public_taskboard: Boolean(doc.public_taskboard),
+    };
+  } catch (e) {
+    return { error: (e as Error)?.message || 'Failed to load share state' };
+  }
+}
+
+export async function toggleWsProjectShare(
+  projectId: string,
+  kind: WsProjectShareKind,
+  enabled: boolean,
+): Promise<{ success: boolean; error?: string; state?: WsProjectShareState }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(projectId)) {
+    return { success: false, error: 'Invalid project id' };
+  }
+  try {
+    const { generatePublicHash } = await import('@/lib/public-hash');
+    const { db } = await connectToDatabase();
+    const filter = {
+      _id: new ObjectId(projectId),
+      userId: new ObjectId(user._id),
+    };
+    const current = await db.collection('crm_projects').findOne(filter, {
+      projection: { publicHash: 1, publicRatingHash: 1 },
+    });
+    if (!current) return { success: false, error: 'Project not found' };
+
+    const update: Record<string, unknown> = { updatedAt: new Date() };
+
+    if (kind === 'rating') {
+      if (!current.publicRatingHash) {
+        update.publicRatingHash = generatePublicHash();
+      }
+    } else {
+      // gantt + taskboard share the same publicHash
+      if (enabled && !current.publicHash) {
+        update.publicHash = generatePublicHash();
+      }
+      if (kind === 'gantt') update.public_gantt_chart = enabled;
+      if (kind === 'taskboard') update.public_taskboard = enabled;
+    }
+
+    await db.collection('crm_projects').updateOne(filter, { $set: update });
+    revalidatePath(`/dashboard/crm/projects/${projectId}`);
+    const next = await getWsProjectShareState(projectId);
+    if ('error' in next) return { success: false, error: next.error };
+    return { success: true, state: next };
+  } catch (e) {
+    return { success: false, error: (e as Error)?.message || 'Failed to toggle share' };
+  }
+}
+
+export async function ensureWsProjectRatingHash(
+  projectId: string,
+): Promise<{ success: boolean; hash?: string; error?: string }> {
+  const r = await toggleWsProjectShare(projectId, 'rating', true);
+  if (!r.success || !r.state) return { success: false, error: r.error };
+  return { success: true, hash: r.state.publicRatingHash };
 }
 
 /* ═══════════════════════════════════════════════════════════════════
@@ -874,6 +977,243 @@ export async function getCrmProjectRelatedCounts(projectId: string): Promise<{
     console.error('[getCrmProjectRelatedCounts] failed:', e);
     return empty;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Burndown chart data — per-project, ideal vs actual.
+ *  Returns one snapshot per day between project.startDate and
+ *  project.deadline. Mode 'tasks' counts open tasks remaining; mode
+ *  'hours' sums (estimatedHours || estimateHours || 0) of open tasks.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export type BurndownMode = 'tasks' | 'hours';
+
+export interface BurndownPoint {
+  date: string; // ISO yyyy-mm-dd
+  value: number;
+}
+
+export interface BurndownSeries {
+  ideal: BurndownPoint[];
+  actual: BurndownPoint[];
+  total: number;
+  mode: BurndownMode;
+}
+
+function dayStartMs(d: Date): number {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+function toIsoDay(ms: number): string {
+  const d = new Date(ms);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+export async function getProjectBurndown(
+  projectId: string,
+  mode: BurndownMode = 'tasks',
+): Promise<BurndownSeries> {
+  const empty: BurndownSeries = { ideal: [], actual: [], total: 0, mode };
+  if (!projectId) return empty;
+
+  const user = await requireSession();
+  if (!user) return empty;
+
+  try {
+    const { db } = await connectToDatabase();
+    const userId = new ObjectId(String(user._id));
+    const idCandidates: unknown[] = [projectId];
+    if (ObjectId.isValid(projectId)) idCandidates.push(new ObjectId(projectId));
+
+    const project = await db.collection('crm_projects').findOne(
+      ObjectId.isValid(projectId)
+        ? { _id: new ObjectId(projectId), userId }
+        : { _id: projectId as unknown as ObjectId, userId },
+      { projection: { startDate: 1, deadline: 1, endDate: 1 } },
+    );
+    if (!project) return empty;
+
+    const startRaw = project.startDate as Date | string | undefined;
+    const endRaw = (project.deadline ?? project.endDate) as Date | string | undefined;
+    if (!startRaw || !endRaw) return empty;
+
+    const startMs = dayStartMs(new Date(startRaw));
+    const endMs = dayStartMs(new Date(endRaw));
+    if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return empty;
+    if (endMs < startMs) return empty;
+
+    const tasks = (await db
+      .collection('crm_tasks')
+      .find(
+        { userId, projectId: { $in: idCandidates } } as Record<string, unknown>,
+        {
+          projection: {
+            status: 1,
+            completedOn: 1,
+            updatedAt: 1,
+            createdAt: 1,
+            estimatedHours: 1,
+            estimateHours: 1,
+          },
+        },
+      )
+      .toArray()) as Array<{
+      status?: string;
+      completedOn?: Date | string;
+      updatedAt?: Date | string;
+      createdAt?: Date | string;
+      estimatedHours?: number;
+      estimateHours?: number;
+    }>;
+
+    const weightOf = (t: (typeof tasks)[number]): number => {
+      if (mode === 'hours') {
+        const h = Number(t.estimatedHours ?? t.estimateHours ?? 0);
+        return Number.isFinite(h) && h > 0 ? h : 0;
+      }
+      return 1;
+    };
+
+    const isDone = (status: string | undefined): boolean =>
+      status === 'completed' || status === 'done';
+
+    const total = tasks.reduce((acc, t) => acc + weightOf(t), 0);
+
+    // Per-day completion timestamps for done tasks.
+    const completedByDay = new Map<number, number>();
+    for (const t of tasks) {
+      if (!isDone(t.status)) continue;
+      const stampRaw = (t.completedOn ?? t.updatedAt ?? t.createdAt) as
+        | Date
+        | string
+        | undefined;
+      if (!stampRaw) continue;
+      const ms = dayStartMs(new Date(stampRaw));
+      if (!Number.isFinite(ms)) continue;
+      completedByDay.set(ms, (completedByDay.get(ms) ?? 0) + weightOf(t));
+    }
+
+    const MS = 24 * 60 * 60 * 1000;
+    const totalDays = Math.max(1, Math.round((endMs - startMs) / MS));
+    const today = dayStartMs(new Date());
+
+    const ideal: BurndownPoint[] = [];
+    const actual: BurndownPoint[] = [];
+    let remaining = total;
+
+    for (let i = 0; i <= totalDays; i++) {
+      const ms = startMs + i * MS;
+      const iso = toIsoDay(ms);
+
+      const idealVal = Math.max(0, total - (total * i) / totalDays);
+      ideal.push({ date: iso, value: Math.round(idealVal * 100) / 100 });
+
+      // Apply completions that happened on this day (only up to today).
+      if (ms <= today) {
+        const done = completedByDay.get(ms) ?? 0;
+        remaining = Math.max(0, remaining - done);
+        actual.push({ date: iso, value: Math.round(remaining * 100) / 100 });
+      }
+    }
+
+    return { ideal, actual, total: Math.round(total * 100) / 100, mode };
+  } catch (e) {
+    console.error('[getProjectBurndown] failed:', e);
+    return empty;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+ *  Gantt — interactive edit helpers.
+ *  Updates task start/due dates and CRUD for crm_gantt_links.
+ * ══════════════════════════════════════════════════════════════════ */
+
+export async function updateTaskDates(
+  taskId: string,
+  startDate: string | Date | null,
+  dueDate: string | Date | null,
+): Promise<{ success: boolean; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(taskId)) {
+    return { success: false, error: 'Invalid task id' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const update: Record<string, unknown> = { updatedAt: new Date() };
+    if (startDate !== null && startDate !== undefined && startDate !== '') {
+      const d = new Date(startDate);
+      if (Number.isFinite(d.getTime())) update.startDate = d;
+    }
+    if (dueDate !== null && dueDate !== undefined && dueDate !== '') {
+      const d = new Date(dueDate);
+      if (Number.isFinite(d.getTime())) update.dueDate = d;
+    }
+    const r = await db.collection('crm_tasks').updateOne(
+      { _id: new ObjectId(taskId), userId: new ObjectId(user._id) },
+      { $set: update },
+    );
+    if (r.matchedCount === 0) {
+      return { success: false, error: 'Task not found' };
+    }
+    revalidatePath('/dashboard/crm/projects/gantt');
+    return { success: true };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error)?.message || 'Failed to update' };
+  }
+}
+
+export async function createGanttDependency(
+  fromTaskId: string,
+  toTaskId: string,
+  projectId?: string,
+): Promise<{ success: boolean; id?: string; error?: string }> {
+  const user = await requireSession();
+  if (!user) return { success: false, error: 'Access denied' };
+  if (!ObjectId.isValid(fromTaskId) || !ObjectId.isValid(toTaskId)) {
+    return { success: false, error: 'Invalid task ids' };
+  }
+  if (fromTaskId === toTaskId) {
+    return { success: false, error: 'A task cannot depend on itself' };
+  }
+  try {
+    const { db } = await connectToDatabase();
+    const userObjectId = new ObjectId(user._id);
+    // Dedupe: skip if already exists.
+    const existing = await db.collection('crm_gantt_links').findOne({
+      userId: userObjectId,
+      source: fromTaskId,
+      target: toTaskId,
+    });
+    if (existing) {
+      return { success: true, id: String(existing._id) };
+    }
+    const now = new Date();
+    const res = await db.collection('crm_gantt_links').insertOne({
+      userId: userObjectId,
+      projectId: projectId ?? null,
+      source: fromTaskId,
+      target: toTaskId,
+      type: 'finish_to_start',
+      createdAt: now,
+      updatedAt: now,
+    });
+    revalidatePath('/dashboard/crm/projects/gantt');
+    return { success: true, id: String(res.insertedId) };
+  } catch (e: unknown) {
+    return { success: false, error: (e as Error)?.message || 'Failed to link' };
+  }
+}
+
+export async function deleteGanttDependency(
+  linkId: string,
+): Promise<{ success: boolean; error?: string }> {
+  const r = await hrDelete('crm_gantt_links', linkId);
+  revalidatePath('/dashboard/crm/projects/gantt');
+  return r;
 }
 
 /* ═══════════════════════════════════════════════════════════════════

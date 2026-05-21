@@ -1,85 +1,118 @@
 'use client';
 
+/**
+ * QuickBooks Online integration — settings page.
+ *
+ * Drives the OAuth lifecycle via:
+ *   - `GET /api/integrations/quickbooks/connect`     — start OAuth
+ *   - `GET /api/integrations/quickbooks/callback`    — Intuit redirect
+ *   - `POST /api/integrations/quickbooks/disconnect` — clear tokens
+ *
+ * Reads / mutates settings through `@/app/actions/quickbooks.actions`.
+ */
+
 import {
+  ZoruBadge,
   ZoruButton,
-  ZoruCard,
-  ZoruCardContent,
   ZoruInput,
   ZoruLabel,
-  ZoruSkeleton,
+  ZoruSelect,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+  ZoruSwitch,
+  useZoruToast,
 } from '@/components/zoruui';
-import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useState,
-  useTransition,
-} from 'react';
+import { Suspense, useCallback, useEffect, useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   AlertCircle,
-  BookOpen,
-  Database,
+  CheckCircle2,
+  Copy,
   LoaderCircle,
   Plug,
+  PlugZap,
   RefreshCw,
   Receipt,
+  Users,
 } from 'lucide-react';
 
-import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import {
-  ConnectionHeader,
-  IntegrationActivityFeed,
-  IntegrationKpiGrid,
-  IntegrationSection,
-  IntegrationSyncHistory,
-  useIntegrationToast,
-  type ConnectionState,
-} from '@/components/crm/integration-console';
-import {
-  getQuickBooksSetting,
-  saveQuickBooksSetting,
-  disconnectIntegration,
-  syncQuickBooks,
-  testIntegration,
-  getIntegrationEvents,
-  getIntegrationStats,
-  type IntegrationEvent,
-  type IntegrationStats,
-} from '@/app/actions/worksuite/integrations.actions';
-import type {
-  WsQuickBooksSetting,
-  WsQuickBooksEnv,
-} from '@/lib/worksuite/integrations-types';
+  disconnectQuickBooks,
+  getQuickBooksStatus,
+  getQuickBooksSyncLog,
+  saveQuickBooksCredentials,
+  triggerSyncClients,
+  triggerSyncInvoices,
+} from '@/app/actions/quickbooks.actions';
+import type { QuickBooksEnvironment } from '@/lib/integrations/quickbooks/types';
 
-type Doc = (WsQuickBooksSetting & { _id: unknown }) | null;
+type Status = Awaited<ReturnType<typeof getQuickBooksStatus>>;
+type SyncLog = Awaited<ReturnType<typeof getQuickBooksSyncLog>>;
+
+const CONNECT_URL = '/api/integrations/quickbooks/connect';
+
+function StatusPill({ connected }: { connected: boolean }) {
+  return connected ? (
+    <ZoruBadge variant="success" className="gap-1">
+      <CheckCircle2 className="h-3 w-3" /> Connected
+    </ZoruBadge>
+  ) : (
+    <ZoruBadge variant="outline" className="gap-1">
+      <AlertCircle className="h-3 w-3" /> Not connected
+    </ZoruBadge>
+  );
+}
+
+function formatDate(iso?: string): string {
+  if (!iso) return 'Never';
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return iso;
+  }
+}
 
 export default function QuickBooksIntegrationPage() {
-  const { reportResult, toast } = useIntegrationToast();
-  const [doc, setDoc] = useState<Doc>(null);
-  const [env, setEnv] = useState<WsQuickBooksEnv>('sandbox');
-  const [events, setEvents] = useState<IntegrationEvent[]>([]);
-  const [stats, setStats] = useState<IntegrationStats | null>(null);
-  const [, startLoading] = useTransition();
-  const [isDisconnecting, startDisconnect] = useTransition();
-  const [isSyncing, startSync] = useTransition();
-  const [isTesting, startTesting] = useTransition();
-  const [saveState, saveFormAction, isSaving] = useActionState(
-    saveQuickBooksSetting,
-    { message: '', error: '' } as { message?: string; error?: string; id?: string },
+  return (
+    <Suspense fallback={null}>
+      <QuickBooksIntegrationInner />
+    </Suspense>
   );
+}
+
+function QuickBooksIntegrationInner() {
+  const { toast } = useZoruToast();
+  const search = useSearchParams();
+
+  const [status, setStatus] = useState<Status | null>(null);
+  const [log, setLog] = useState<SyncLog>([]);
+  const [, startLoading] = useTransition();
+  const [isSaving, startSaving] = useTransition();
+  const [isDisconnecting, startDisconnect] = useTransition();
+  const [isSyncingClients, startClientSync] = useTransition();
+  const [isSyncingInvoices, startInvoiceSync] = useTransition();
+
+  // Form state
+  const [clientId, setClientId] = useState('');
+  const [clientSecret, setClientSecret] = useState('');
+  const [environment, setEnvironment] = useState<QuickBooksEnvironment>(
+    'sandbox',
+  );
+  const [autoSync, setAutoSync] = useState(false);
 
   const refresh = useCallback(() => {
     startLoading(async () => {
-      const [d, ev, st] = await Promise.all([
-        getQuickBooksSetting() as Promise<Doc>,
-        getIntegrationEvents('quickbooks', 10),
-        getIntegrationStats('quickbooks'),
+      const [s, l] = await Promise.all([
+        getQuickBooksStatus(),
+        getQuickBooksSyncLog(),
       ]);
-      setDoc(d);
-      setEnv((d?.environment as WsQuickBooksEnv) || 'sandbox');
-      setEvents(ev);
-      setStats(st);
+      setStatus(s);
+      setLog(l);
+      if (s.environment) setEnvironment(s.environment);
+      if (typeof s.autoSync === 'boolean') setAutoSync(s.autoSync);
     });
   }, []);
 
@@ -87,239 +120,362 @@ export default function QuickBooksIntegrationPage() {
     refresh();
   }, [refresh]);
 
+  // Surface OAuth round-trip results from URL params.
   useEffect(() => {
-    if (saveState?.message) {
-      reportResult('quickbooks', saveState);
-      refresh();
-    } else if (saveState?.error) {
-      reportResult('quickbooks', saveState);
+    const connected = search?.get('connected');
+    const err = search?.get('error');
+    if (connected === '1') {
+      toast({
+        title: 'QuickBooks connected',
+        description: 'Tokens stored. You can now sync clients and invoices.',
+      });
+    } else if (err) {
+      toast({
+        title: 'QuickBooks connect failed',
+        description: `Error code: ${err}`,
+        variant: 'destructive',
+      });
     }
-  }, [saveState, reportResult, refresh]);
+    // We deliberately don't depend on the toast fn so this fires once per
+    // navigation rather than on every render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
-  const v = (k: keyof WsQuickBooksSetting) => {
-    const val = doc ? (doc as any)[k] : undefined;
-    return val == null ? '' : String(val);
+  const onSaveCredentials = () => {
+    startSaving(async () => {
+      // Blank client_id / client_secret mean "keep the saved values" —
+      // the action handles the keep-vs-replace logic.
+      const res = await saveQuickBooksCredentials({
+        client_id: clientId,
+        client_secret: clientSecret,
+        environment,
+        autoSync,
+      });
+      if (res.ok) {
+        toast({
+          title: 'Credentials saved',
+          description: 'You can now connect to QuickBooks.',
+        });
+        setClientSecret('');
+        refresh();
+      } else {
+        toast({
+          title: 'Save failed',
+          description: res.error ?? 'Unknown error',
+          variant: 'destructive',
+        });
+      }
+    });
   };
-
-  const id = doc && (doc as any)._id ? String((doc as any)._id) : '';
-  const isConnected = Boolean(doc?.access_token && doc?.realm_id);
-  const state: ConnectionState = isConnected ? 'connected' : 'disconnected';
-  const lastSyncedAt = doc?.last_synced_at
-    ? new Date(doc.last_synced_at as any).toLocaleString()
-    : 'Never';
 
   const onDisconnect = () => {
     startDisconnect(async () => {
-      const res = await disconnectIntegration('quickbooks');
-      reportResult('quickbooks', res);
+      const res = await disconnectQuickBooks();
+      if (res.ok) {
+        toast({ title: 'Disconnected from QuickBooks.' });
+        refresh();
+      } else {
+        toast({
+          title: 'Disconnect failed',
+          description: res.error ?? 'Unknown error',
+          variant: 'destructive',
+        });
+      }
+    });
+  };
+
+  const onSyncClients = () => {
+    startClientSync(async () => {
+      const res = await triggerSyncClients();
+      toast({
+        title: res.ok ? 'Clients sync complete' : 'Clients sync finished with errors',
+        description: `Synced ${res.result.ok} · Failed ${res.result.failed}`,
+        variant: res.ok ? 'default' : 'destructive',
+      });
       refresh();
     });
   };
 
-  const onSync = () => {
-    startSync(async () => {
-      const res = await syncQuickBooks();
-      reportResult('quickbooks', res);
+  const onSyncInvoices = () => {
+    startInvoiceSync(async () => {
+      const res = await triggerSyncInvoices();
+      toast({
+        title: res.ok ? 'Invoices sync complete' : 'Invoices sync finished with errors',
+        description: `Synced ${res.result.ok} · Failed ${res.result.failed}`,
+        variant: res.ok ? 'default' : 'destructive',
+      });
       refresh();
     });
   };
 
-  const onTest = () => {
-    startTesting(async () => {
-      const res = await testIntegration('quickbooks');
-      reportResult('quickbooks', res);
-      refresh();
-    });
+  const onCopyRedirect = async () => {
+    if (!status?.redirectUri) return;
+    try {
+      await navigator.clipboard.writeText(status.redirectUri);
+      toast({ title: 'Redirect URI copied to clipboard' });
+    } catch {
+      toast({
+        title: 'Copy failed',
+        description: 'Select the field and copy manually.',
+        variant: 'destructive',
+      });
+    }
   };
 
-  const pendingErrors = events.filter((e) => e.status === 'failure').length;
-  const syncCount = events.filter((e) => e.kind === 'sync' && e.status === 'success').length;
+  const connected = Boolean(status?.connected);
+  const hasCredentials = Boolean(status?.hasCredentials);
 
   return (
     <EntityListShell
-      title="QuickBooks"
-      subtitle="Sync invoices, customers and payments with QuickBooks Online."
+      title="QuickBooks Online"
+      subtitle="Push CRM clients and invoices into QuickBooks. OAuth 2.0 — tokens auto-refresh."
     >
-      <div className="space-y-4">
-        <ConnectionHeader
-          name="QuickBooks Online"
-          description="Two-way sync for invoices, customers and items."
-          icon={BookOpen}
-          state={state}
-          connectedAs={doc?.realm_id ? `Realm ${doc.realm_id}` : null}
-          connectedAt={(doc as any)?.updatedAt || (doc as any)?.createdAt || null}
-          scopes={isConnected ? [`${env}`, 'com.intuit.quickbooks.accounting'] : []}
-          onTest={isConnected ? onTest : undefined}
-          isTesting={isTesting}
-          onDisconnect={onDisconnect}
-          isDisconnecting={isDisconnecting}
-          connectAction={
-            <ZoruButton
-              type="button"
-              onClick={() =>
-                toast({
-                  title: 'QuickBooks',
-                  description: 'OAuth connect is not wired yet (stub).',
-                })
-              }
-            >
-              <Plug className="h-4 w-4" />
-              Connect
-            </ZoruButton>
-          }
-        />
-
-        <IntegrationKpiGrid
-          kpis={[
-            {
-              label: 'Last sync',
-              value: lastSyncedAt,
-              period: isConnected ? `Environment: ${env}` : 'Not connected',
-              icon: <RefreshCw />,
-            },
-            {
-              label: 'Successful syncs',
-              value: syncCount,
-              period: `${stats?.deliveriesThisMonth ?? 0} ops this month`,
-              icon: <Database />,
-            },
-            {
-              label: 'Synced records (today)',
-              value: stats?.deliveriesToday ?? 0,
-              period: 'Invoices · Customers · Items',
-              icon: <Receipt />,
-            },
-            {
-              label: 'Pending sync errors',
-              value: pendingErrors,
-              period: pendingErrors > 0 ? 'Review activity log' : 'No issues',
-              icon: <AlertCircle />,
-              invertDelta: true,
-              delta: pendingErrors,
-            },
-          ]}
-        />
-
-        <div className="flex flex-wrap justify-end gap-2">
-          <ZoruButton
-            type="button"
-            variant="outline"
-            onClick={onSync}
-            disabled={isSyncing || !isConnected}
-          >
-            {isSyncing ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
-            Sync now
-          </ZoruButton>
-        </div>
-
-        <IntegrationSection
-          title="OAuth credentials"
-          description="App credentials issued by Intuit Developer."
-        >
-          {!doc && !id ? (
-            <div className="space-y-4">
-              <ZoruSkeleton className="h-10 w-full" />
-              <ZoruSkeleton className="h-10 w-full" />
+      <div className="space-y-6">
+        {/* ─── Connection panel ───────────────────────────────────────── */}
+        <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-semibold">Connection</h2>
+                <StatusPill connected={connected} />
+              </div>
+              <p className="text-sm text-zinc-500">
+                {connected
+                  ? `Realm ${status?.realmId ?? '—'} · environment: ${status?.environment ?? '—'}`
+                  : hasCredentials
+                    ? 'Credentials saved. Click Connect to start the OAuth flow.'
+                    : 'Save your QuickBooks app credentials below to enable the OAuth flow.'}
+              </p>
+              <p className="text-xs text-zinc-500">
+                Last sync: {formatDate(status?.lastSync)}
+              </p>
             </div>
-          ) : null}
+            <div className="flex flex-wrap gap-2">
+              {connected ? (
+                <>
+                  <ZoruButton asChild variant="outline">
+                    <a href={CONNECT_URL}>
+                      <PlugZap className="h-4 w-4" /> Reconnect
+                    </a>
+                  </ZoruButton>
+                  <ZoruButton
+                    variant="destructive"
+                    onClick={onDisconnect}
+                    disabled={isDisconnecting}
+                  >
+                    {isDisconnecting ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : null}
+                    Disconnect
+                  </ZoruButton>
+                </>
+              ) : (
+                <ZoruButton asChild disabled={!hasCredentials}>
+                  <a href={CONNECT_URL}>
+                    <Plug className="h-4 w-4" /> Connect to QuickBooks
+                  </a>
+                </ZoruButton>
+              )}
+            </div>
+          </div>
+        </section>
 
-          <form action={saveFormAction} className="space-y-4">
-            {id ? <input type="hidden" name="_id" value={id} /> : null}
+        {/* ─── Credentials form ───────────────────────────────────────── */}
+        <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <header className="mb-4">
+            <h2 className="text-base font-semibold">App credentials</h2>
+            <p className="text-sm text-zinc-500">
+              Create an app at{' '}
+              <a
+                href="https://developer.intuit.com/app/developer/myapps"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
+                developer.intuit.com
+              </a>{' '}
+              and paste the credentials below.
+            </p>
+          </header>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div>
-                <ZoruLabel htmlFor="client_id">Client ID</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="client_id" name="client_id" defaultValue={v('client_id')} />
-                </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <ZoruLabel htmlFor="qbo-client-id">Client ID</ZoruLabel>
+              <div className="mt-1.5">
+                <ZoruInput
+                  id="qbo-client-id"
+                  value={clientId}
+                  onChange={(e) => setClientId(e.target.value)}
+                  placeholder={hasCredentials ? '•••• (saved) — leave blank to keep' : ''}
+                />
               </div>
-              <div>
-                <ZoruLabel htmlFor="client_secret">Client Secret</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="client_secret" name="client_secret" type="password" defaultValue={v('client_secret')} />
-                </div>
-              </div>
-
-              <div className="md:col-span-2">
-                <ZoruLabel htmlFor="redirect_uri">Redirect URI</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput
-                    id="redirect_uri"
-                    name="redirect_uri"
-                    defaultValue={v('redirect_uri')}
-                    placeholder="https://example.com/oauth/quickbooks/callback"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="realm_id">Realm ID</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="realm_id" name="realm_id" defaultValue={v('realm_id')} />
-                </div>
-              </div>
-              <div>
-                <ZoruLabel htmlFor="environment">Environment</ZoruLabel>
-                <div className="mt-1.5">
-                  <EnumFormField
-                    name="environment"
-                    enumName="quickbooksEnvironment"
-                    initialId={env}
-                    onChange={(id) => setEnv((id ?? 'sandbox') as WsQuickBooksEnv)}
-                    placeholder="Select environment"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <ZoruLabel htmlFor="access_token">Access Token</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="access_token" name="access_token" type="password" defaultValue={v('access_token')} />
-                </div>
-              </div>
-              <div>
-                <ZoruLabel htmlFor="refresh_token">Refresh Token</ZoruLabel>
-                <div className="mt-1.5">
-                  <ZoruInput id="refresh_token" name="refresh_token" type="password" defaultValue={v('refresh_token')} />
-                </div>
+            </div>
+            <div>
+              <ZoruLabel htmlFor="qbo-client-secret">Client Secret</ZoruLabel>
+              <div className="mt-1.5">
+                <ZoruInput
+                  id="qbo-client-secret"
+                  type="password"
+                  value={clientSecret}
+                  onChange={(e) => setClientSecret(e.target.value)}
+                  placeholder={hasCredentials ? '•••• (saved) — leave blank to keep' : ''}
+                />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
-              <ZoruButton type="submit" disabled={isSaving}>
-                {isSaving ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-                Save changes
-              </ZoruButton>
+            <div>
+              <ZoruLabel htmlFor="qbo-environment">Environment</ZoruLabel>
+              <div className="mt-1.5">
+                <ZoruSelect
+                  value={environment}
+                  onValueChange={(v) => setEnvironment(v as QuickBooksEnvironment)}
+                >
+                  <ZoruSelectTrigger id="qbo-environment">
+                    <ZoruSelectValue placeholder="Select environment" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="sandbox">Sandbox</ZoruSelectItem>
+                    <ZoruSelectItem value="production">Production</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </ZoruSelect>
+              </div>
             </div>
-          </form>
-        </IntegrationSection>
 
-        {stats?.lastErrorMessage ? (
-          <ZoruCard>
-            <ZoruCardContent className="flex items-start gap-3 border-l-2 border-zoru-danger/40 p-4">
-              <AlertCircle className="mt-0.5 h-4 w-4 text-zoru-danger" />
+            <div className="md:col-span-2">
+              <ZoruLabel htmlFor="qbo-redirect">Redirect URI</ZoruLabel>
+              <p className="mt-1 text-xs text-zinc-500">
+                Add this URL to your QuickBooks app&apos;s allowed Redirect URIs
+                in the Intuit developer dashboard.
+              </p>
+              <div className="mt-1.5 flex gap-2">
+                <ZoruInput
+                  id="qbo-redirect"
+                  value={status?.redirectUri ?? ''}
+                  readOnly
+                  className="font-mono text-xs"
+                />
+                <ZoruButton
+                  type="button"
+                  variant="outline"
+                  onClick={onCopyRedirect}
+                  disabled={!status?.redirectUri}
+                >
+                  <Copy className="h-4 w-4" />
+                </ZoruButton>
+              </div>
+            </div>
+
+            <div className="md:col-span-2 flex items-center justify-between rounded-md border border-zinc-200 p-3 dark:border-zinc-800">
               <div>
-                <p className="text-sm font-medium text-zoru-ink">Last sync error</p>
-                <p className="mt-0.5 text-xs text-zoru-ink-muted break-words">
-                  {stats.lastErrorMessage}
+                <p className="text-sm font-medium">Auto-sync on save</p>
+                <p className="text-xs text-zinc-500">
+                  When enabled, new clients and invoices are pushed to
+                  QuickBooks automatically as they&apos;re saved.
                 </p>
               </div>
-            </ZoruCardContent>
-          </ZoruCard>
-        ) : null}
+              <ZoruSwitch
+                checked={autoSync}
+                onCheckedChange={(v) => setAutoSync(Boolean(v))}
+                aria-label="Toggle auto-sync"
+              />
+            </div>
+          </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <IntegrationSyncHistory events={events} />
-          <IntegrationActivityFeed
-            title="Activity log"
-            description="All QuickBooks events for this tenant."
-            events={events}
-          />
-        </div>
+          <div className="mt-4 flex justify-end">
+            <ZoruButton onClick={onSaveCredentials} disabled={isSaving}>
+              {isSaving ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : null}
+              Save changes
+            </ZoruButton>
+          </div>
+        </section>
+
+        {/* ─── Manual sync ────────────────────────────────────────────── */}
+        <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <header className="mb-4">
+            <h2 className="text-base font-semibold">Sync</h2>
+            <p className="text-sm text-zinc-500">
+              Push CRM data to QuickBooks. Only rows that haven&apos;t been
+              synced yet are pushed.
+            </p>
+          </header>
+          <div className="flex flex-wrap gap-2">
+            <ZoruButton
+              variant="outline"
+              onClick={onSyncClients}
+              disabled={!connected || isSyncingClients}
+            >
+              {isSyncingClients ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Users className="h-4 w-4" />
+              )}
+              Sync All Clients
+            </ZoruButton>
+            <ZoruButton
+              variant="outline"
+              onClick={onSyncInvoices}
+              disabled={!connected || isSyncingInvoices}
+            >
+              {isSyncingInvoices ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Receipt className="h-4 w-4" />
+              )}
+              Sync All Invoices
+            </ZoruButton>
+            <ZoruButton variant="ghost" onClick={refresh} disabled={isSaving}>
+              <RefreshCw className="h-4 w-4" />
+              Refresh
+            </ZoruButton>
+          </div>
+        </section>
+
+        {/* ─── Sync log ───────────────────────────────────────────────── */}
+        <section className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+          <header className="mb-3">
+            <h2 className="text-base font-semibold">Recent sync activity</h2>
+            <p className="text-sm text-zinc-500">Last 20 events.</p>
+          </header>
+          {log.length === 0 ? (
+            <p className="py-6 text-center text-sm text-zinc-500">
+              No activity yet.
+            </p>
+          ) : (
+            <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
+              {log.map((row, idx) => (
+                <li
+                  key={`${row.timestamp}-${idx}`}
+                  className="flex flex-wrap items-start justify-between gap-2 py-2"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium">
+                      {row.action} · {row.entity}
+                      {row.refId ? ` · ${row.refId}` : ''}
+                      {row.quickbooksId ? ` → QBO ${row.quickbooksId}` : ''}
+                    </p>
+                    {row.error ? (
+                      <p className="mt-0.5 break-words text-xs text-red-600">
+                        {row.error}
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <ZoruBadge
+                      variant={row.status === 'success' ? 'success' : 'destructive'}
+                    >
+                      {row.status}
+                    </ZoruBadge>
+                    <time className="text-xs text-zinc-500">
+                      {formatDate(row.timestamp)}
+                    </time>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
       </div>
     </EntityListShell>
   );

@@ -161,3 +161,178 @@ export async function signContract(
     return { success: false, error: 'Could not sign contract.' };
   }
 }
+
+// ---------------------------------------------------------------------
+// Detail loader for PDF rendering.
+// ---------------------------------------------------------------------
+
+export type PublicContractDetailCompany = {
+  name?: string;
+  address?: string;
+  email?: string;
+  phone?: string;
+  taxId?: string;
+  logoUrl?: string | null;
+};
+
+export type PublicContractDetailClient = {
+  name?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+};
+
+export type PublicContractDetailSignature = {
+  fullName: string;
+  signedAt: string;
+  signatureDataUrl: string;
+  place: string;
+} | null;
+
+export type PublicContractDetail = {
+  ok: true;
+  contract: {
+    _id: string;
+    contractName: string;
+    contractNumber?: string;
+    contractDate: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    amount?: number;
+    currency: string;
+    partyFirst?: string;
+    partySecond?: string;
+    contractDetail: string;
+    signed: boolean;
+  };
+  company: PublicContractDetailCompany;
+  client: PublicContractDetailClient;
+  signature: {
+    company: PublicContractDetailSignature;
+    client: PublicContractDetailSignature;
+  };
+};
+
+export type PublicContractDetailResult = PublicContractDetail | { ok: false; error: string };
+
+export async function getPublicContractWithDetails(
+  hash: string,
+): Promise<PublicContractDetailResult> {
+  if (!isValidPublicHash(hash)) return { ok: false, error: 'Invalid link.' };
+  try {
+    const { db } = await connectToDatabase();
+    const { ObjectId } = await import('mongodb');
+    const contract = await db.collection('crm_contracts').findOne({ publicHash: hash });
+    if (!contract) return { ok: false, error: 'Contract not found.' };
+
+    let company: PublicContractDetailCompany = {};
+    if (contract.userId) {
+      try {
+        const settings = await db
+          .collection('crm_settings')
+          .findOne({ userId: contract.userId });
+        if (settings) {
+          company = {
+            name: (settings.companyName as string) || '',
+            address: (settings.companyAddress as string) || '',
+            email: (settings.companyEmail as string) || '',
+            phone: (settings.companyPhone as string) || '',
+            taxId: (settings.gstin as string) || '',
+            logoUrl: (settings.companyLogo as string) || (settings.logoUrl as string) || null,
+          };
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+    let client: PublicContractDetailClient = {};
+    const clientRef = contract.accountId || contract.contactId || contract.clientId;
+    if (clientRef) {
+      try {
+        const id = typeof clientRef === 'string' ? new ObjectId(clientRef) : clientRef;
+        const cdoc =
+          (await db.collection('crm_accounts').findOne({ _id: id })) ||
+          (await db.collection('crm_contacts').findOne({ _id: id }));
+        if (cdoc) {
+          client = {
+            name:
+              (cdoc.name as string) ||
+              (cdoc.accountName as string) ||
+              `${(cdoc.firstName as string) || ''} ${(cdoc.lastName as string) || ''}`.trim(),
+            email: (cdoc.email as string) || '',
+            phone: (cdoc.phone as string) || '',
+            address: (cdoc.address as string) || (cdoc.billingAddress as string) || '',
+          };
+        }
+      } catch {
+        /* non-fatal */
+      }
+    }
+
+    // Look for both a company signature (signedByCompany) and the
+    // client signature in contract_signs.
+    let clientSig: PublicContractDetailSignature = null;
+    let companySig: PublicContractDetailSignature = null;
+    try {
+      const sigs = await db
+        .collection('contract_signs')
+        .find({ contractId: contract._id })
+        .sort({ signedAt: -1 })
+        .toArray();
+      for (const sig of sigs) {
+        const shape: PublicContractDetailSignature = {
+          fullName: (sig.fullName as string) || '',
+          signedAt: sig.signedAt ? new Date(sig.signedAt as Date).toISOString() : '',
+          signatureDataUrl: (sig.signatureDataUrl as string) || '',
+          place: (sig.place as string) || '',
+        };
+        if (sig.party === 'company' && !companySig) companySig = shape;
+        else if (!clientSig) clientSig = shape;
+      }
+    } catch {
+      /* non-fatal */
+    }
+
+    return {
+      ok: true,
+      contract: {
+        _id: contract._id.toString(),
+        contractName:
+          (contract.name as string) ||
+          (contract.subject as string) ||
+          (contract.contract_name as string) ||
+          '',
+        contractNumber:
+          (contract.contractNumber as string) || (contract.contract_number as string) || undefined,
+        contractDate: contract.contractDate
+          ? new Date(contract.contractDate as Date).toISOString()
+          : contract.createdAt
+            ? new Date(contract.createdAt as Date).toISOString()
+            : null,
+        startDate: contract.startDate
+          ? new Date(contract.startDate as Date).toISOString()
+          : null,
+        endDate: contract.endDate ? new Date(contract.endDate as Date).toISOString() : null,
+        amount: contract.amount != null ? Number(contract.amount) : undefined,
+        currency: (contract.currency as string) || 'USD',
+        partyFirst:
+          (contract.partyFirst as string) || (contract.first_party as string) || undefined,
+        partySecond:
+          (contract.partySecond as string) || (contract.second_party as string) || undefined,
+        contractDetail:
+          (contract.contract_detail as string) ||
+          (contract.contractDetail as string) ||
+          (contract.body as string) ||
+          '',
+        signed: !!contract.signed,
+      },
+      company,
+      client,
+      signature: { company: companySig, client: clientSig },
+    };
+  } catch (e) {
+    console.error('[getPublicContractWithDetails] failed:', e);
+    return { ok: false, error: 'Could not load contract.' };
+  }
+}

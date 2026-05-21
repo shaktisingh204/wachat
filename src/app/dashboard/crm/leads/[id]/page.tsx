@@ -22,6 +22,7 @@ import {
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { PinButton } from '@/components/crm/pin-button';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
 import { RelatedRail } from '@/components/crm/RelatedRail';
@@ -99,11 +100,14 @@ export default async function LeadDetailPage({
       title={fullName}
       back={{ href: '/dashboard/crm/leads', label: 'Leads' }}
       actions={
-        <ZoruButton asChild>
-          <Link href={`/dashboard/crm/leads/${id}/edit`}>
-            <Pencil className="h-4 w-4" /> Edit
-          </Link>
-        </ZoruButton>
+        <div className="flex items-center gap-2">
+          <PinButton entityType="lead" entityId={id} title={fullName} />
+          <ZoruButton asChild>
+            <Link href={`/dashboard/crm/leads/${id}/edit`}>
+              <Pencil className="h-4 w-4" /> Edit
+            </Link>
+          </ZoruButton>
+        </div>
       }
     >
 

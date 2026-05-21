@@ -1,0 +1,103 @@
+"use client";
+
+import * as React from "react";
+import { Check, X } from "lucide-react";
+
+import {
+  ZoruButton,
+  ZoruDropdownMenu,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
+} from "@/components/zoruui";
+
+export interface SabsmsBulkAction<T> {
+  label: string;
+  icon?: React.ReactNode;
+  destructive?: boolean;
+  onSelect: (rows: T[]) => void | Promise<void>;
+}
+
+export interface SabsmsBulkActionsBarProps<T> {
+  selectedCount: number;
+  totalCount: number;
+  rows: T[];
+  actions: SabsmsBulkAction<T>[];
+  onClear: () => void;
+  onSelectAllMatching?: () => void;
+}
+
+export function SabsmsBulkActionsBar<T>({
+  selectedCount,
+  totalCount,
+  rows,
+  actions,
+  onClear,
+  onSelectAllMatching,
+}: SabsmsBulkActionsBarProps<T>) {
+  const primary = actions.slice(0, 2);
+  const overflow = actions.slice(2);
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm">
+      <Check className="h-4 w-4 text-amber-700" />
+      <span className="font-medium text-amber-900">
+        {selectedCount.toLocaleString()} selected
+      </span>
+      {onSelectAllMatching && selectedCount < totalCount && (
+        <ZoruButton
+          variant="link"
+          size="sm"
+          className="h-auto px-1 text-amber-700"
+          onClick={onSelectAllMatching}
+        >
+          Select all {totalCount.toLocaleString()} matching
+        </ZoruButton>
+      )}
+
+      <div className="ml-auto flex items-center gap-2">
+        {primary.map((a) => (
+          <ZoruButton
+            key={a.label}
+            variant={a.destructive ? "destructive" : "outline"}
+            size="sm"
+            onClick={() => a.onSelect(rows)}
+          >
+            {a.icon}
+            <span className={a.icon ? "ml-1.5" : undefined}>{a.label}</span>
+          </ZoruButton>
+        ))}
+        {overflow.length > 0 && (
+          <ZoruDropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+              <ZoruButton variant="outline" size="sm">
+                More
+              </ZoruButton>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="end">
+              {overflow.map((a) => (
+                <ZoruDropdownMenuItem
+                  key={a.label}
+                  onSelect={() => a.onSelect(rows)}
+                  destructive={a.destructive}
+                >
+                  {a.icon}
+                  <span className={a.icon ? "ml-2" : undefined}>{a.label}</span>
+                </ZoruDropdownMenuItem>
+              ))}
+            </ZoruDropdownMenuContent>
+          </ZoruDropdownMenu>
+        )}
+        <ZoruButton
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7"
+          onClick={onClear}
+          aria-label="Clear selection"
+        >
+          <X className="h-4 w-4" />
+        </ZoruButton>
+      </div>
+    </div>
+  );
+}
