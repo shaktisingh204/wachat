@@ -28,7 +28,7 @@ import { keysEndpoints } from './modules/keys';
 import { accountEndpoints } from './modules/account';
 import { contactsEndpoints } from './modules/contacts';
 import { messagesEndpoints } from './modules/messages';
-import { smsEndpoints } from './modules/sms';
+// import { smsEndpoints } from './modules/sms'; // stubbed — DLT handler not yet implemented
 import { wachatEndpoints } from './modules/wachat';
 import { wachatTemplatesEndpoints } from './modules/wachat-templates';
 import { broadcastsEndpoints } from './modules/broadcasts';
@@ -71,7 +71,7 @@ export const manifest: Manifest = {
     ...accountEndpoints,
     ...contactsEndpoints,
     ...messagesEndpoints,
-    ...smsEndpoints,
+    // ...smsEndpoints,
     ...wachatEndpoints,
     ...wachatTemplatesEndpoints,
     ...broadcastsEndpoints,

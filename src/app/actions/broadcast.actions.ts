@@ -11,7 +11,7 @@ import type {
 import { getErrorMessage, validateFile } from '@/lib/utils';
 import type { BroadcastJob } from '@/lib/definitions';
 import Papa from 'papaparse';
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import { recordFlowAction } from '@/lib/sabflow/audit/middleware';
 import { getSession } from '@/app/actions/user.actions';
 
@@ -147,15 +147,15 @@ const parseContactFile = async (file: File): Promise<ContactRecord[]> => {
         const text = new TextDecoder('utf-8').decode(data);
         rows = Papa.parse(text, { header: true, skipEmptyLines: true }).data as any[];
     } else {
-        const workbook = xlsx.read(data, { type: 'array' });
-        const sheetName = workbook.SheetNames[0];
-        rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1 }) as any[];
-        const header = rows[0] as string[];
-        rows = rows.slice(1).map((row: any[]) => {
+        const workbook = new ExcelJS.Workbook();
+        await workbook.xlsx.load(data);
+        const worksheet = workbook.worksheets[0];
+        const allRows: any[][] = [];
+        worksheet?.eachRow((row) => { allRows.push((row.values as any[]).slice(1)); });
+        const header = (allRows[0] ?? []) as string[];
+        rows = allRows.slice(1).map((row: any[]) => {
             const rowData: any = {};
-            header.forEach((h: any, i: number) => {
-                rowData[h] = row[i];
-            });
+            header.forEach((h: any, i: number) => { rowData[h] = row[i]; });
             return rowData;
         });
     }

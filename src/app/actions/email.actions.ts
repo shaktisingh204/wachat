@@ -7,7 +7,7 @@ import { getSession } from '@/app/actions/user.actions';
 import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings, EmailSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { getTransporter } from '@/lib/email-service';
 
 export async function addEmailContact(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
@@ -87,11 +87,22 @@ export async function importEmailContacts(prevState: any, formData: FormData): P
             contactCount = await processContacts(parsed.data);
         } else if (contactFile.name.endsWith('.xlsx')) {
             const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
-            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            const workbook = new ExcelJS.Workbook();
+            await workbook.xlsx.load(fileBuffer);
+            const worksheet = workbook.worksheets[0];
+            if (!worksheet) throw new Error('The XLSX file contains no sheets.');
+            const xlsxHeaders: string[] = [];
+            const jsonData: Record<string, unknown>[] = [];
+            worksheet.eachRow((row, rowNumber) => {
+                const vals = (row.values as ExcelJS.CellValue[]).slice(1);
+                if (rowNumber === 1) {
+                    xlsxHeaders.push(...vals.map(v => v == null ? '' : String(v)));
+                } else {
+                    const obj: Record<string, unknown> = {};
+                    xlsxHeaders.forEach((h, i) => { obj[h] = vals[i] ?? ''; });
+                    jsonData.push(obj);
+                }
+            });
             contactCount = await processContacts(jsonData);
         } else {
             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };

@@ -61,8 +61,8 @@ import { deleteJob, getJobs } from '@/app/actions/crm-jobs.actions';
 import {
   bulkHrAction,
   getJobKpis,
-  type JobKpis,
 } from '@/app/actions/hr.actions';
+import type { JobKpis } from '@/app/actions/hr-recruitment-kpis.actions';
 import type {
   CrmJobDoc,
   CrmJobEmploymentType,

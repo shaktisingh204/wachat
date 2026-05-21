@@ -56,7 +56,7 @@ import {
   Palette,
   Pencil,
   Plus,
-  Swatchbook,
+  SwatchBook,
   Tag,
   Trash2,
   X,
@@ -294,7 +294,7 @@ export default function TicketTypesPage() {
           <ZoruStatCard
             label="Distinct colours"
             value={kpis.distinctColours.toLocaleString()}
-            icon={<Swatchbook className="h-4 w-4" />}
+            icon={<SwatchBook className="h-4 w-4" />}
           />
         </div>
 

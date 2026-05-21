@@ -55,8 +55,8 @@ import {
   bulkRescheduleInterviews,
   deleteInterview,
   getInterviewKpis,
-  type InterviewKpis,
 } from '@/app/actions/hr.actions';
+import type { InterviewKpis } from '@/app/actions/hr-recruitment-kpis.actions';
 
 /* ─── Types ──────────────────────────────────────────────────────────── */
 

@@ -31,7 +31,7 @@ import {
   useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Papa from 'papaparse';
-import * as xlsx from 'xlsx';
+import ExcelJS from 'exceljs';
 import type { WithId } from 'mongodb';
 import {
   AlertCircle,
@@ -118,21 +118,18 @@ const validateFileContent = async (
         headers = result.meta.fields;
       }
     } else {
-      const data = new Uint8Array(buffer);
-      const workbook = xlsx.read(data, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], {
-        header: 1,
-      });
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(buffer);
+      const worksheet = workbook.worksheets[0];
+      const allRows: any[][] = [];
+      worksheet?.eachRow((row) => { allRows.push((row.values as any[]).slice(1)); });
 
-      if (rows.length > 0) {
-        headers = (rows[0] as string[]).map((h) => String(h));
-        const headerRow = rows[0] as string[];
-        rows = rows.slice(1).map((row: any) => {
+      if (allRows.length > 0) {
+        headers = allRows[0].map((h: any) => String(h));
+        const headerRow = allRows[0] as string[];
+        rows = allRows.slice(1).map((row: any[]) => {
           const rowData: any = {};
-          headerRow.forEach((h: string, i: number) => {
-            rowData[h] = row[i];
-          });
+          headerRow.forEach((h: string, i: number) => { rowData[h] = row[i]; });
           return rowData;
         });
       }

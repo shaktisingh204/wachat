@@ -63,8 +63,8 @@ import {
   bulkRevokeOffers,
   bulkSendOffers,
   getOfferKpis,
-  type OfferKpis,
 } from '@/app/actions/hr.actions';
+import type { OfferKpis } from '@/app/actions/hr-recruitment-kpis.actions';
 import type { CrmOfferDoc, CrmOfferStatus } from '@/lib/rust-client/crm-offers';
 
 const BASE = '/dashboard/crm/hr/offers';

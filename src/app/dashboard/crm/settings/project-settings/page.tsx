@@ -8,7 +8,7 @@ import {
   useState,
   useTransition,
   } from 'react';
-import { CheckCircle2, LoaderCircle, LayoutKanban, Milestone } from 'lucide-react';
+import { CheckCircle2, LoaderCircle, LayoutDashboard, Milestone } from 'lucide-react';
 
 import { EnumFormField } from '@/components/crm/enum-form-field';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -103,7 +103,7 @@ export default function ProjectSettingsPage() {
           <ZoruStatCard
             label="Kanban"
             value={settings.enable_kanban ? 'Enabled' : 'Disabled'}
-            icon={<LayoutKanban className="h-4 w-4" />}
+            icon={<LayoutDashboard className="h-4 w-4" />}
           />
           <ZoruStatCard
             label="Client portal"

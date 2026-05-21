@@ -1429,17 +1429,19 @@ export async function getDisciplinaryKpis(): Promise<HrDisciplinaryKpis> {
 /* ═══════════════════════════════════════════════════════════════════
  *  KPIs — recruitment (candidates · jobs · interviews · offers)
  *
- *  Thin re-export wrappers so list-pages can import from one file.
- *  The real aggregation lives in `hr-recruitment-kpis.actions.ts`.
+ *  Re-exports forbidden in a `'use server'` file, so we call-forward via
+ *  async wrappers. Pages that need the TYPES must import them directly
+ *  from `@/app/actions/hr-recruitment-kpis.actions`.
  * ══════════════════════════════════════════════════════════════════ */
 
-export {
-  getCandidateKpis,
-  getJobKpis,
-  getInterviewKpis,
-  getOfferKpis,
-  type CandidateKpis,
-  type JobKpis,
-  type InterviewKpis,
-  type OfferKpis,
+import {
+  getCandidateKpis as _getCandidateKpis,
+  getJobKpis as _getJobKpis,
+  getInterviewKpis as _getInterviewKpis,
+  getOfferKpis as _getOfferKpis,
 } from './hr-recruitment-kpis.actions';
+
+export async function getCandidateKpis() { return _getCandidateKpis(); }
+export async function getJobKpis() { return _getJobKpis(); }
+export async function getInterviewKpis() { return _getInterviewKpis(); }
+export async function getOfferKpis() { return _getOfferKpis(); }

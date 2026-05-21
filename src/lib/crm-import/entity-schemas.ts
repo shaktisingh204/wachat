@@ -18,7 +18,7 @@
  * and error-CSV route pick it up automatically.
  */
 
-import { ObjectId } from 'mongodb';
+import { ObjectId } from 'bson';
 
 export type ImportFieldType =
     | 'string'

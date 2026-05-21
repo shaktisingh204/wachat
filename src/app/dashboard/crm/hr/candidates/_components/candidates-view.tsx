@@ -60,8 +60,8 @@ import {
   bulkShortlistCandidates,
   deleteCandidate,
   getCandidateKpis,
-  type CandidateKpis,
 } from '@/app/actions/hr.actions';
+import type { CandidateKpis } from '@/app/actions/hr-recruitment-kpis.actions';
 
 interface CandidateRow {
   _id: string;

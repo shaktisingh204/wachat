@@ -415,7 +415,7 @@ export async function getHrmEmployeeList(): Promise<
   return docs.map((d) => ({
     _id: String(d._id),
     name:
-      String(d.name ?? `${d.firstName ?? ''} ${d.lastName ?? ''}`.trim() || 'Unnamed'),
+      String((d.name ?? `${d.firstName ?? ''} ${d.lastName ?? ''}`.trim()) || 'Unnamed'),
     email: d.email ? String(d.email) : undefined,
   }));
 }

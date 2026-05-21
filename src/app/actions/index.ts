@@ -50,7 +50,7 @@ export * from './crm-payouts.actions';
 export * from './crm-debit-notes.actions';
 export * from './crm-reconciliation.actions';
 export * from './email.actions';
-export * from './sms.actions';
+// `./sms.actions` not yet created — DLT SMS surface is stubbed.
 export * from './seo.actions';
 export * from './template.actions';
 export * from './send-template.actions';

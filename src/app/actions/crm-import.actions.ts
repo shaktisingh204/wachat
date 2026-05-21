@@ -25,7 +25,7 @@
  */
 
 import { ObjectId } from 'mongodb';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
 import { getSession } from '@/app/actions/user.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import {
@@ -92,22 +92,27 @@ function decodeBase64ToBuffer(b64: string): Buffer {
     return Buffer.from(stripped, 'base64');
 }
 
-function workbookToRows(buf: Buffer): Record<string, string>[] {
-    const wb = XLSX.read(buf, { type: 'buffer' });
-    const firstSheetName = wb.SheetNames[0];
-    if (!firstSheetName) return [];
-    const sheet = wb.Sheets[firstSheetName];
-    const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, {
-        defval: '',
-        raw: false,
-    });
-    return rows.map((r) => {
-        const out: Record<string, string> = {};
-        for (const [k, v] of Object.entries(r)) {
-            out[String(k).trim()] = v === null || v === undefined ? '' : String(v);
+async function workbookToRows(buf: Buffer): Promise<Record<string, string>[]> {
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.load(buf);
+    const worksheet = workbook.worksheets[0];
+    if (!worksheet) return [];
+    const headers: string[] = [];
+    const result: Record<string, string>[] = [];
+    worksheet.eachRow((row, rowNumber) => {
+        const vals = (row.values as ExcelJS.CellValue[]).slice(1);
+        if (rowNumber === 1) {
+            headers.push(...vals.map(v => v == null ? '' : String(v).trim()));
+        } else {
+            const out: Record<string, string> = {};
+            headers.forEach((h, i) => {
+                const v = vals[i];
+                out[h] = v == null ? '' : String(v);
+            });
+            result.push(out);
         }
-        return out;
     });
+    return result;
 }
 
 function detectHeaders(rows: Record<string, string>[]): string[] {
@@ -136,7 +141,7 @@ export async function parseImportFile(
                 error: `File is too large (max ${(MAX_FILE_BYTES / 1024 / 1024).toFixed(0)} MB).`,
             };
         }
-        const rows = workbookToRows(buf);
+        const rows = await workbookToRows(buf);
         if (rows.length === 0) {
             return { ok: false, error: 'No rows found in the file.' };
         }
@@ -177,7 +182,7 @@ export async function createImportJob(args: {
         }
         // Verify the file parses + count rows up front so we can store
         // the total on the job doc.
-        const rows = workbookToRows(buf);
+        const rows = await workbookToRows(buf);
         if (rows.length === 0) return { ok: false, error: 'No rows in the file.' };
 
         // Verify every required field is mapped.
@@ -271,7 +276,7 @@ async function processImportJob(jobId: string): Promise<void> {
 
     try {
         const buf = decodeBase64ToBuffer(String(job.fileBase64 ?? ''));
-        const rows = workbookToRows(buf);
+        const rows = await workbookToRows(buf);
         const mapping = (job.columnMapping ?? {}) as Record<string, string>;
         const userIdStr = String(job.userId);
         const targetCollection = db.collection(schema.collection);

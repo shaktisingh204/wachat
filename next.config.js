@@ -33,6 +33,22 @@ const nextConfig = {
     '@opentelemetry/instrumentation',
     'express',
     'send',
+    // Google APIs chain (uses Node-only modules: net, tls, fs, child_process).
+    'googleapis',
+    'google-auth-library',
+    'gcp-metadata',
+    'gaxios',
+    'https-proxy-agent',
+    'agent-base',
+    // MQTT / socks chain (sabflow MQTT block transitively pulls these and
+    // they require Node `net`/`tls`).
+    'mqtt',
+    'socks',
+    // node-fetch (transitive from googleapis) requires `node:fs`.
+    'node-fetch',
+    'fetch-blob',
+    // nodemailer transport (used by email-service) requires Node TLS.
+    'nodemailer',
   ],
   // n8n workflow packages publish raw TS via the `import` export
   // condition (`./src/index.ts`) with a compiled `dist/index.js` only on
