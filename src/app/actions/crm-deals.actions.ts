@@ -619,6 +619,11 @@ export async function updateCrmDealStage(dealId: string, newStage: string): Prom
 export async function updateCrmDeal(
     dealId: string,
     patch: Partial<{
+        name: string | null;
+        value: number | null;
+        pipelineId: string | null;
+        accountId: string | null;
+        contactId: string | null;
         ownerId: string | null;
         stage: string;
         status: 'open' | 'won' | 'lost' | 'archived';
@@ -652,6 +657,14 @@ export async function updateCrmDeal(
             }
             if ('wonLossReason' in patch && patch.wonLossReason) rustPatch.wonLostReason = patch.wonLossReason;
             else if ('lossReason' in patch && patch.lossReason) rustPatch.wonLostReason = patch.lossReason;
+            if (typeof patch.name === 'string' && patch.name) rustPatch.title = patch.name;
+            if (typeof patch.value === 'number' && !Number.isNaN(patch.value)) rustPatch.amount = patch.value;
+            if (typeof patch.pipelineId === 'string' && patch.pipelineId) rustPatch.pipelineId = patch.pipelineId;
+            if ('accountId' in patch && patch.accountId) {
+                rustPatch.party = { kind: 'client', id: patch.accountId };
+            } else if ('contactId' in patch && patch.contactId) {
+                rustPatch.party = { kind: 'lead', id: patch.contactId };
+            }
 
             await crmDealsApi.update(dealId, rustPatch);
 
@@ -708,6 +721,26 @@ export async function updateCrmDeal(
                 set.probability = patch.probability;
             } else {
                 unset.probability = '';
+            }
+        }
+        if (typeof patch.name === 'string' && patch.name) set.name = patch.name;
+        if ('value' in patch) {
+            if (typeof patch.value === 'number' && !Number.isNaN(patch.value)) set.value = patch.value;
+            else unset.value = '';
+        }
+        if (typeof patch.pipelineId === 'string' && patch.pipelineId) set.pipelineId = patch.pipelineId;
+        if ('accountId' in patch) {
+            if (patch.accountId && ObjectId.isValid(patch.accountId)) {
+                set.accountId = new ObjectId(patch.accountId);
+            } else {
+                unset.accountId = '';
+            }
+        }
+        if ('contactId' in patch) {
+            if (patch.contactId && ObjectId.isValid(patch.contactId)) {
+                set.contactIds = [new ObjectId(patch.contactId)];
+            } else {
+                unset.contactIds = '';
             }
         }
         if (patch.priority) set.priority = patch.priority;

@@ -22,7 +22,8 @@ export interface HeaderSectionProps {
   defaultInvoiceNo: string;
   defaultDate: string;
   defaultDueDate: string;
-  defaultPlaceOfSupply?: string;
+  placeOfSupply: string;
+  onPlaceOfSupplyChange: (val: string) => void;
   gstTreatment: CrmInvoiceGstTreatment | '';
   onGstTreatment: (next: CrmInvoiceGstTreatment | '') => void;
   reverseCharge: boolean;
@@ -33,7 +34,8 @@ export function HeaderSection({
   defaultInvoiceNo,
   defaultDate,
   defaultDueDate,
-  defaultPlaceOfSupply,
+  placeOfSupply,
+  onPlaceOfSupplyChange,
   gstTreatment,
   onGstTreatment,
   reverseCharge,
@@ -89,9 +91,10 @@ export function HeaderSection({
           <Input
             id="placeOfSupply"
             name="placeOfSupply"
-            defaultValue={defaultPlaceOfSupply ?? ''}
+            value={placeOfSupply}
+            onChange={(e) => onPlaceOfSupplyChange(e.target.value)}
             className="mt-1.5"
-            placeholder="29-Karnataka"
+            placeholder="Maharashtra"
           />
         </div>
         <div>

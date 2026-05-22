@@ -1,0 +1,98 @@
+import { getCachedSession } from "@/lib/server-cache";
+import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { TeamTable } from "./team-table";
+import { loadTeamMembers } from "./actions";
+import { RbacMatrixClient } from "./rbac-matrix-client";
+import { StatCard } from "@/components/zoruui";
+import { Users, ShieldCheck, MailWarning, Activity } from "lucide-react";
+
+export const dynamic = "force-dynamic";
+
+export default async function TeamSettingsPage() {
+  const session = await getCachedSession();
+  const user = session?.user as { _id?: unknown; name?: string; workspaceName?: string } | undefined;
+  const workspaceId = String(user?._id ?? "");
+
+  if (!workspaceId) {
+    return (
+      <SabsmsPageShell
+        title="Team Settings"
+        description="Sign in to manage your workspace team."
+        breadcrumbs={[{ label: "Settings", href: "/sabsms/settings" }, { label: "Team" }]}
+      >
+        <div className="text-sm text-slate-500">Please sign in to continue.</div>
+      </SabsmsPageShell>
+    );
+  }
+
+  const { rows, total } = await loadTeamMembers(workspaceId);
+  const activeCount = rows.filter((r) => r.status === "active").length;
+  const adminCount = rows.filter((r) => r.role === "sabsms_admin").length;
+  const totalApiUsage = rows.reduce((acc, r) => acc + (r.apiKeyUsage || 0), 0);
+
+  return (
+    <SabsmsPageShell
+      title="Team"
+      eyebrow="Settings"
+      description="Manage workspace members, role assignments, and API rate limits."
+      breadcrumbs={[{ label: "Settings", href: "/sabsms/settings" }, { label: "Team" }]}
+      helpTitle="Team & RBAC"
+      helpBody={
+        <>
+          Manage team members, roles, and security settings for the SabSMS workspace. 
+          You can override global rate limits and daily send caps per member.
+        </>
+      }
+      primaryAction={{
+        label: "SSO Connection",
+        onSelectHref: "/sabsms/settings/team", // Self link just for mocking SSO click
+      }}
+      secondaryActions={[
+        { label: "Workspace Settings", onSelectHref: "/sabsms/settings" },
+        { label: "Billing", onSelectHref: "/sabsms/settings/billing" },
+      ]}
+    >
+      <div className="space-y-10 pb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            label="Total Members"
+            value={total}
+            delta={12}
+            period="vs last month"
+            icon={<Users className="w-4 h-4" />}
+          />
+          <StatCard
+            label="Active Admins"
+            value={adminCount}
+            icon={<ShieldCheck className="w-4 h-4" />}
+          />
+          <StatCard
+            label="Pending Invites"
+            value={total - activeCount}
+            delta={-2}
+            period="vs last month"
+            icon={<MailWarning className="w-4 h-4" />}
+            invertDelta
+          />
+          <StatCard
+            label="Total API Usage"
+            value={totalApiUsage.toLocaleString()}
+            delta={24}
+            period="vs last month"
+            icon={<Activity className="w-4 h-4" />}
+          />
+        </div>
+
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+          <div className="mb-6">
+            <h3 className="text-xl font-semibold tracking-tight text-slate-900">Workspace Members</h3>
+            <p className="text-sm text-slate-500 mt-1">View and manage the people who have access to this workspace.</p>
+          </div>
+          <TeamTable initialRows={rows} total={total} />
+        </div>
+
+        <RbacMatrixClient />
+      </div>
+    </SabsmsPageShell>
+  );
+}

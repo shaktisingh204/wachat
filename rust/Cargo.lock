@@ -7,7 +7,7 @@ name = "ad-manager"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "bytes",
  "chrono",
@@ -205,7 +205,7 @@ checksum = "ca726c61b73c471f531b65e83e161776ba62c2b6ba4ec73d51fad357009ed00a"
 dependencies = [
  "async-channel 2.5.0",
  "async-compression",
- "base64",
+ "base64 0.22.1",
  "bytes",
  "chrono",
  "futures",
@@ -705,11 +705,45 @@ dependencies = [
 
 [[package]]
 name = "axum"
+version = "0.7.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
+dependencies = [
+ "async-trait",
+ "axum-core 0.4.5",
+ "bytes",
+ "futures-util",
+ "http 1.4.0",
+ "http-body 1.0.1",
+ "http-body-util",
+ "hyper 1.9.0",
+ "hyper-util",
+ "itoa",
+ "matchit 0.7.3",
+ "memchr",
+ "mime",
+ "percent-encoding",
+ "pin-project-lite",
+ "rustversion",
+ "serde",
+ "serde_json",
+ "serde_path_to_error",
+ "serde_urlencoded",
+ "sync_wrapper",
+ "tokio",
+ "tower",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
+name = "axum"
 version = "0.8.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "31b698c5f9a010f6573133b09e0de5408834d0c82f8d7475a89fc1867a71cd90"
 dependencies = [
- "axum-core",
+ "axum-core 0.5.6",
  "axum-macros",
  "bytes",
  "form_urlencoded",
@@ -720,7 +754,7 @@ dependencies = [
  "hyper 1.9.0",
  "hyper-util",
  "itoa",
- "matchit",
+ "matchit 0.8.4",
  "memchr",
  "mime",
  "multer",
@@ -733,6 +767,27 @@ dependencies = [
  "sync_wrapper",
  "tokio",
  "tower",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
+name = "axum-core"
+version = "0.4.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
+dependencies = [
+ "async-trait",
+ "bytes",
+ "futures-util",
+ "http 1.4.0",
+ "http-body 1.0.1",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
+ "rustversion",
+ "sync_wrapper",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -770,6 +825,12 @@ dependencies = [
 
 [[package]]
 name = "base64"
+version = "0.21.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9d297deb1925b89f2ccc13d7635fa0714f12c87adce1c75356b39ca9b7178567"
+
+[[package]]
+name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b3254f16251a8381aa12e40e3c4d2f0199f8c6508fbecb9d91f575e0fbb8c6"
@@ -796,7 +857,7 @@ version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e65938ed058ef47d92cf8b346cc76ef48984572ade631927e9937b5ffc7662c7"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "blowfish",
  "getrandom 0.2.17",
  "subtle",
@@ -873,7 +934,7 @@ version = "0.18.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "97ccca1260af6a459d75994ad5acc1651bcabcbdbc41467cc9786519ab854c30"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "bollard-stubs",
  "bytes",
  "futures-core",
@@ -924,7 +985,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7969a9ba84b0ff843813e7249eed1678d9b6607ce5a3b8f0a47af3fcf7978e6e"
 dependencies = [
  "ahash",
- "base64",
+ "base64 0.22.1",
  "bitvec",
  "chrono",
  "getrandom 0.2.17",
@@ -1282,7 +1343,7 @@ name = "crm-account-groups"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1314,7 +1375,7 @@ name = "crm-accounts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1335,7 +1396,7 @@ name = "crm-agent-groups"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1356,7 +1417,7 @@ name = "crm-announcements"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1377,7 +1438,7 @@ name = "crm-appraisals"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1398,7 +1459,7 @@ name = "crm-asset-assignments"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1419,7 +1480,7 @@ name = "crm-assets"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1440,7 +1501,7 @@ name = "crm-attendance"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -1461,7 +1522,7 @@ name = "crm-auto-leads"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1482,7 +1543,7 @@ name = "crm-automations"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1503,7 +1564,7 @@ name = "crm-awards"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1524,7 +1585,7 @@ name = "crm-bank-transactions"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1557,7 +1618,7 @@ name = "crm-bills"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -1578,7 +1639,7 @@ name = "crm-bom"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1599,7 +1660,7 @@ name = "crm-bookings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -1620,7 +1681,7 @@ name = "crm-branches"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1641,7 +1702,7 @@ name = "crm-brands"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1662,7 +1723,7 @@ name = "crm-budgets"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1683,7 +1744,7 @@ name = "crm-candidates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1704,7 +1765,7 @@ name = "crm-certifications"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1725,7 +1786,7 @@ name = "crm-chart-of-accounts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1746,7 +1807,7 @@ name = "crm-common"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -1768,7 +1829,7 @@ name = "crm-company-profile"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1789,7 +1850,7 @@ name = "crm-compensation-bands"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1810,7 +1871,7 @@ name = "crm-contacts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1831,7 +1892,7 @@ name = "crm-contracts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1877,7 +1938,7 @@ name = "crm-coupons"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1898,7 +1959,7 @@ name = "crm-credit-notes"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -1919,7 +1980,7 @@ name = "crm-currencies"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1940,7 +2001,7 @@ name = "crm-custom-fields"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1961,7 +2022,7 @@ name = "crm-dashboards"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -1982,7 +2043,7 @@ name = "crm-deals"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2004,7 +2065,7 @@ name = "crm-debit-notes"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2025,7 +2086,7 @@ name = "crm-delivery-challans"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2047,7 +2108,7 @@ name = "crm-departments"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2068,7 +2129,7 @@ name = "crm-disciplinary"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2089,7 +2150,7 @@ name = "crm-document-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2110,7 +2171,7 @@ name = "crm-documents"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2131,7 +2192,7 @@ name = "crm-email-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2152,7 +2213,7 @@ name = "crm-employees"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2173,7 +2234,7 @@ name = "crm-estimate-requests"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2194,7 +2255,7 @@ name = "crm-events"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2215,7 +2276,7 @@ name = "crm-exits"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2236,7 +2297,7 @@ name = "crm-expense-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2257,7 +2318,7 @@ name = "crm-expense-claims"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2290,7 +2351,7 @@ name = "crm-feedback-360"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2311,7 +2372,7 @@ name = "crm-fixed-assets"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2332,7 +2393,7 @@ name = "crm-form-16"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2353,7 +2414,7 @@ name = "crm-form-submissions"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2374,7 +2435,7 @@ name = "crm-forms"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2395,7 +2456,7 @@ name = "crm-gift-cards"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2416,7 +2477,7 @@ name = "crm-goals"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2437,7 +2498,7 @@ name = "crm-grns"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2458,7 +2519,7 @@ name = "crm-hire"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2479,7 +2540,7 @@ name = "crm-holidays"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2500,7 +2561,7 @@ name = "crm-industries"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2533,7 +2594,7 @@ name = "crm-interviews"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2566,7 +2627,7 @@ name = "crm-invoices"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2587,7 +2648,7 @@ name = "crm-issues"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2608,7 +2669,7 @@ name = "crm-items"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2629,7 +2690,7 @@ name = "crm-jobs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2650,7 +2711,7 @@ name = "crm-kb-articles"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2671,7 +2732,7 @@ name = "crm-kpis"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2692,7 +2753,7 @@ name = "crm-labels"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2713,7 +2774,7 @@ name = "crm-leads"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2734,7 +2795,7 @@ name = "crm-learning-paths"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2755,7 +2816,7 @@ name = "crm-leave-requests"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2776,7 +2837,7 @@ name = "crm-leaves"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -2797,7 +2858,7 @@ name = "crm-loans"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2818,7 +2879,7 @@ name = "crm-lookup"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-lookup-types",
@@ -2849,7 +2910,7 @@ name = "crm-loyalty-programs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2870,7 +2931,7 @@ name = "crm-milestones"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2891,7 +2952,7 @@ name = "crm-notices"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2912,7 +2973,7 @@ name = "crm-offers"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2933,7 +2994,7 @@ name = "crm-okrs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2954,7 +3015,7 @@ name = "crm-onboarding"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2975,7 +3036,7 @@ name = "crm-one-on-ones"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -2996,7 +3057,7 @@ name = "crm-payment-accounts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3017,7 +3078,7 @@ name = "crm-payment-receipts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3038,7 +3099,7 @@ name = "crm-payouts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3060,7 +3121,7 @@ name = "crm-payroll-runs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3081,7 +3142,7 @@ name = "crm-payroll-settings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3102,7 +3163,7 @@ name = "crm-payslips"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3123,7 +3184,7 @@ name = "crm-petty-cash"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3144,7 +3205,7 @@ name = "crm-pf-esi"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3165,7 +3226,7 @@ name = "crm-pipelines"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3186,7 +3247,7 @@ name = "crm-policies"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3207,7 +3268,7 @@ name = "crm-portal-users"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3228,7 +3289,7 @@ name = "crm-probation"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3249,7 +3310,7 @@ name = "crm-product-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3270,7 +3331,7 @@ name = "crm-production-orders"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3291,7 +3352,7 @@ name = "crm-products"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3312,7 +3373,7 @@ name = "crm-professional-tax"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3333,7 +3394,7 @@ name = "crm-proforma-invoices"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3354,7 +3415,7 @@ name = "crm-project-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3375,7 +3436,7 @@ name = "crm-project-tasks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3396,7 +3457,7 @@ name = "crm-proposals"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3417,7 +3478,7 @@ name = "crm-pt-slabs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3438,7 +3499,7 @@ name = "crm-purchase-leads"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3459,7 +3520,7 @@ name = "crm-purchase-orders"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3480,7 +3541,7 @@ name = "crm-purchases"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3515,7 +3576,7 @@ name = "crm-quotations"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3536,7 +3597,7 @@ name = "crm-recognitions"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3557,7 +3618,7 @@ name = "crm-reconciliation"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3578,7 +3639,7 @@ name = "crm-recurring-invoices"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3599,7 +3660,7 @@ name = "crm-reply-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3631,7 +3692,7 @@ name = "crm-rfqs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3652,7 +3713,7 @@ name = "crm-roles"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3673,7 +3734,7 @@ name = "crm-salary-structures"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3706,7 +3767,7 @@ name = "crm-sales-orders"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3740,7 +3801,7 @@ name = "crm-saved-views"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3761,7 +3822,7 @@ name = "crm-service-contracts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3782,7 +3843,7 @@ name = "crm-settings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3803,7 +3864,7 @@ name = "crm-shift-change-requests"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3824,7 +3885,7 @@ name = "crm-shift-rotations"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3845,7 +3906,7 @@ name = "crm-shifts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3866,7 +3927,7 @@ name = "crm-slas"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3887,7 +3948,7 @@ name = "crm-stock-adjustments"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3908,7 +3969,7 @@ name = "crm-subscriptions"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -3929,7 +3990,7 @@ name = "crm-subtasks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3950,7 +4011,7 @@ name = "crm-succession"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3971,7 +4032,7 @@ name = "crm-surveys"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -3992,7 +4053,7 @@ name = "crm-tags"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4013,7 +4074,7 @@ name = "crm-task-categories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4034,7 +4095,7 @@ name = "crm-task-labels"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4055,7 +4116,7 @@ name = "crm-task-tags"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4076,7 +4137,7 @@ name = "crm-taskboard-columns"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4097,7 +4158,7 @@ name = "crm-tasks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4118,7 +4179,7 @@ name = "crm-taxes"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4139,7 +4200,7 @@ name = "crm-tds"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4160,7 +4221,7 @@ name = "crm-ticket-channels"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4181,7 +4242,7 @@ name = "crm-ticket-groups"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4202,7 +4263,7 @@ name = "crm-ticket-tags"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4223,7 +4284,7 @@ name = "crm-ticket-types"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4244,7 +4305,7 @@ name = "crm-tickets"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -4265,7 +4326,7 @@ name = "crm-time-logs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4286,7 +4347,7 @@ name = "crm-training"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4307,7 +4368,7 @@ name = "crm-travel"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4328,7 +4389,7 @@ name = "crm-units"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4349,7 +4410,7 @@ name = "crm-vendor-bids"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -4370,7 +4431,7 @@ name = "crm-vendor-types"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4391,7 +4452,7 @@ name = "crm-vendors"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4412,7 +4473,7 @@ name = "crm-voucher-entries"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4433,7 +4494,7 @@ name = "crm-vouchers"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4454,7 +4515,7 @@ name = "crm-warehouses"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-common",
@@ -4468,6 +4529,17 @@ dependencies = [
  "serde_json",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "cron"
+version = "0.12.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6f8c3e73077b4b4a6ab1ea5047c37c57aee77657bc8ecd6f29b0af082d0b0c07"
+dependencies = [
+ "chrono",
+ "nom 7.1.3",
+ "once_cell",
 ]
 
 [[package]]
@@ -4843,7 +4915,7 @@ version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4564c274ebf369f501de192b02a0b81a5c4bda375abfe526aa70fc702fa6fa0"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "serde",
  "serde_json",
 ]
@@ -4902,7 +4974,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "argon2",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -4922,7 +4994,7 @@ name = "email-audience"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "email-types",
@@ -4942,7 +5014,7 @@ name = "email-campaigns"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "email-types",
@@ -4964,8 +5036,8 @@ name = "email-deliverability"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "futures",
@@ -4988,7 +5060,7 @@ version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9298e6504d9b9e780ed3f7dfd43a61be8cd0e09eb07f7706a945b0072b6670b6"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "memchr",
 ]
 
@@ -4997,8 +5069,8 @@ name = "email-events"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "email-types",
@@ -5023,8 +5095,8 @@ name = "email-inbound"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "futures",
@@ -5043,7 +5115,7 @@ name = "email-inbox"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -5084,7 +5156,7 @@ name = "email-journeys"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "email-types",
@@ -5105,8 +5177,8 @@ name = "email-reports"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "email-types",
@@ -5130,7 +5202,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "base64",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "email-types",
@@ -5157,7 +5229,7 @@ name = "email-templates"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -5187,7 +5259,7 @@ name = "email-webhooks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -5304,7 +5376,7 @@ name = "facebook-flow"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -6121,7 +6193,7 @@ version = "0.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "96547c2556ec9d12fb1578c4eaf448b04993e7fb79cbaad930a656880a6bdfa0"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "bytes",
  "futures-channel",
  "futures-util",
@@ -6426,7 +6498,7 @@ version = "9.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a87cc7a48537badeae96744432de36f4be2b4a34a05a5ef32e9dd8a1c169dde"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "js-sys",
  "pem",
  "ring",
@@ -6457,7 +6529,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dabda5859ee7c06b995b9d1165aa52c39110e079ef609db97178d86aeb051fa7"
 dependencies = [
  "async-trait",
- "base64",
+ "base64 0.22.1",
  "email-encoding",
  "email_address",
  "fastrand",
@@ -6657,6 +6729,12 @@ dependencies = [
 
 [[package]]
 name = "matchit"
+version = "0.7.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0e7465ac9959cc2b1404e8e2367b43684a6d13790fe23056cc8c6c5a6b7bcb94"
+
+[[package]]
+name = "matchit"
 version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
@@ -6692,7 +6770,7 @@ name = "meta-flows"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -6714,7 +6792,7 @@ name = "meta-suite"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -6734,7 +6812,7 @@ name = "meta-token"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -6834,7 +6912,7 @@ version = "3.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1ef2c933617431ad0246fb5b43c425ebdae18c7f7259c87de0726d93b0e7e91b"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "bitflags 2.11.1",
  "bson",
  "derive-where",
@@ -7295,7 +7373,7 @@ version = "3.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1d30c53c26bc5b31a98cd02d20f25a7c8567146caf63ed593a9d87b2775291be"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "serde_core",
 ]
 
@@ -7565,7 +7643,7 @@ name = "qr-codes"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -7774,6 +7852,7 @@ dependencies = [
  "pin-project-lite",
  "ryu",
  "sha1_smol",
+ "socket2 0.5.10",
  "tokio",
  "tokio-util",
  "url",
@@ -7881,7 +7960,7 @@ version = "0.12.28"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "eddd3ca559203180a307f12d114c268abf583f59b03cb906fd0b3ff8646c1147"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "bytes",
  "futures-channel",
  "futures-core",
@@ -8109,7 +8188,7 @@ dependencies = [
  "aws-credential-types",
  "aws-sdk-s3",
  "aws-smithy-runtime-api",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -8131,7 +8210,7 @@ name = "sabflow-engine"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -8155,7 +8234,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "axum",
+ "axum 0.8.9",
  "chrono",
  "futures",
  "reqwest",
@@ -8227,7 +8306,7 @@ dependencies = [
  "aws-config",
  "aws-credential-types",
  "aws-sdk-s3",
- "base64",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "flate2",
@@ -8265,7 +8344,7 @@ name = "sabflow-webhooks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -8287,7 +8366,7 @@ name = "sabnode-admin"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bcrypt",
  "bson",
  "chrono",
@@ -8313,7 +8392,7 @@ version = "0.1.0"
 dependencies = [
  "ad-manager",
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "chrono",
  "crm-account-groups",
  "crm-accounts",
@@ -8550,7 +8629,7 @@ dependencies = [
 name = "sabnode-auth"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.8.9",
  "chrono",
  "jsonwebtoken",
  "sabnode-common",
@@ -8566,7 +8645,7 @@ name = "sabnode-common"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "chrono",
  "figment",
  "serde",
@@ -8630,7 +8709,7 @@ name = "sabnode-users"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -8642,6 +8721,154 @@ dependencies = [
  "tokio",
  "tracing",
  "utoipa",
+]
+
+[[package]]
+name = "sabsms-api"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.8.9",
+ "chrono",
+ "sabsms-types",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-campaigns"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "chrono",
+ "cron",
+ "redis",
+ "sabsms-types",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-compliance"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tracing",
+]
+
+[[package]]
+name = "sabsms-db"
+version = "0.1.0"
+dependencies = [
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabsms-types",
+ "serde",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-providers"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64 0.21.7",
+ "hmac 0.12.1",
+ "sha1 0.10.6",
+]
+
+[[package]]
+name = "sabsms-queue"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "redis",
+ "sabsms-providers",
+ "sabsms-types",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "sabsms-send-router"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "chrono",
+ "sabsms-types",
+ "thiserror 2.0.18",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-templates-engine"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+]
+
+[[package]]
+name = "sabsms-types"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "serde",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-webhooks-dlr"
+version = "0.1.0"
+dependencies = [
+ "axum 0.7.9",
+ "bson",
+ "chrono",
+ "mongodb",
+ "sabnode-db",
+ "sabsms-types",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "sabsms-webhooks-inbound"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum 0.7.9",
+ "bson",
+ "chrono",
+ "mongodb",
+ "redis",
+ "sabsms-providers",
+ "sabsms-types",
+ "serde",
+ "serde_json",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]
@@ -8866,7 +9093,7 @@ version = "3.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f05839ce67618e14a09b286535c0d9c94e85ef25469b0e13cb4f844e5593eb19"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "chrono",
  "hex",
  "indexmap 1.9.3",
@@ -9105,7 +9332,7 @@ version = "0.8.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee6798b1838b6a0f69c007c133b8df5866302197e404e8b6ee8ed3e3a5e68dc6"
 dependencies = [
- "base64",
+ "base64 0.22.1",
  "bytes",
  "chrono",
  "crc",
@@ -9181,7 +9408,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "aa003f0038df784eb8fecbbac13affe3da23b45194bd57dba231c8f48199c526"
 dependencies = [
  "atoi",
- "base64",
+ "base64 0.22.1",
  "bitflags 2.11.1",
  "byteorder",
  "bytes",
@@ -9224,7 +9451,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "db58fcd5a53cf07c184b154801ff91347e4c30d17a3562a635ff028ad5deda46"
 dependencies = [
  "atoi",
- "base64",
+ "base64 0.22.1",
  "bitflags 2.11.1",
  "byteorder",
  "chrono",
@@ -9423,7 +9650,7 @@ name = "telegram-ads"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "csv",
@@ -9446,7 +9673,7 @@ name = "telegram-analytics"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9466,7 +9693,7 @@ name = "telegram-api-credentials"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9487,7 +9714,7 @@ name = "telegram-auto-reply"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9508,7 +9735,7 @@ name = "telegram-bot-profile"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -9528,8 +9755,8 @@ name = "telegram-bots"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "futures",
@@ -9553,7 +9780,7 @@ name = "telegram-broadcasts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9574,7 +9801,7 @@ name = "telegram-business-inbox"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9596,7 +9823,7 @@ name = "telegram-channels"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9620,7 +9847,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-stream",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9646,7 +9873,7 @@ name = "telegram-commands"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9668,7 +9895,7 @@ name = "telegram-contacts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "csv",
@@ -9690,7 +9917,7 @@ name = "telegram-flows"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9710,7 +9937,7 @@ name = "telegram-mini-apps"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9737,7 +9964,7 @@ name = "telegram-payments"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9759,7 +9986,7 @@ name = "telegram-settings"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9780,7 +10007,7 @@ name = "telegram-stickers"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9803,7 +10030,7 @@ name = "telegram-stories"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -9825,8 +10052,8 @@ name = "telegram-webhooks"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
- "base64",
+ "axum 0.8.9",
+ "base64 0.22.1",
  "bson",
  "chrono",
  "futures",
@@ -10157,7 +10384,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877c5b330756d856ffcc4553ab34a5684481ade925ecc54bcd1bf02b1d0d4d52"
 dependencies = [
  "async-trait",
- "base64",
+ "base64 0.22.1",
  "bytes",
  "http 1.4.0",
  "http-body 1.0.1",
@@ -10433,7 +10660,7 @@ name = "url-shortener"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "calamine",
  "chrono",
@@ -10539,7 +10766,7 @@ name = "wachat-ads-pixels"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10562,7 +10789,7 @@ name = "wachat-analytics"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10583,7 +10810,7 @@ name = "wachat-api-keys-admin"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10605,7 +10832,7 @@ name = "wachat-broadcast"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10651,7 +10878,7 @@ name = "wachat-calling"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10706,7 +10933,7 @@ name = "wachat-config"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10727,7 +10954,7 @@ name = "wachat-contacts"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10764,7 +10991,7 @@ name = "wachat-facebook-agents"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10784,7 +11011,7 @@ name = "wachat-facebook-automation"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10805,7 +11032,7 @@ name = "wachat-facebook-business"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "mongodb",
  "sabnode-auth",
@@ -10824,7 +11051,7 @@ name = "wachat-facebook-comments"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10847,7 +11074,7 @@ name = "wachat-facebook-content"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -10866,7 +11093,7 @@ name = "wachat-facebook-crm"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10886,7 +11113,7 @@ name = "wachat-facebook-events"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10909,7 +11136,7 @@ name = "wachat-facebook-lead-gen"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "crm-core",
@@ -10934,7 +11161,7 @@ name = "wachat-facebook-messaging"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10955,7 +11182,7 @@ name = "wachat-facebook-messenger-profile"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -10978,7 +11205,7 @@ name = "wachat-facebook-misc"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11001,7 +11228,7 @@ name = "wachat-facebook-pages"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11024,7 +11251,7 @@ name = "wachat-features"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11046,7 +11273,7 @@ name = "wachat-flows"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11065,7 +11292,7 @@ name = "wachat-instagram"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -11147,7 +11374,7 @@ name = "wachat-pay"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -11200,7 +11427,7 @@ name = "wachat-projects"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11221,7 +11448,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "hex",
@@ -11372,7 +11599,7 @@ name = "wachat-send-router"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "sabnode-auth",
  "sabnode-common",
@@ -11415,7 +11642,7 @@ name = "wachat-templates-actions"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "mongodb",
@@ -11494,7 +11721,7 @@ name = "wachat-templates-router"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "futures",
  "sabnode-auth",
@@ -11563,7 +11790,7 @@ dependencies = [
 name = "wachat-templates-tests"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11611,7 +11838,7 @@ name = "wachat-webhook"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "bytes",
  "chrono",
@@ -11657,7 +11884,7 @@ dependencies = [
 name = "wachat-webhook-actions"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.8.9",
  "sabnode-auth",
  "sabnode-common",
  "sabnode-db",
@@ -11672,7 +11899,7 @@ name = "wachat-webhook-config"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11730,7 +11957,7 @@ name = "wachat-webhook-dlq"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "fred",
@@ -11790,7 +12017,7 @@ name = "wachat-webhook-status"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "axum",
+ "axum 0.8.9",
  "bson",
  "chrono",
  "futures",
@@ -11828,7 +12055,7 @@ dependencies = [
 name = "wachat-webhook-verify"
 version = "0.1.0"
 dependencies = [
- "axum",
+ "axum 0.8.9",
  "bytes",
  "chrono",
  "hex",
@@ -12293,7 +12520,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "08db1edfb05d9b3c1542e521aea074442088292f00b5f28e435c714a98f85031"
 dependencies = [
  "assert-json-diff",
- "base64",
+ "base64 0.22.1",
  "deadpool",
  "futures",
  "http 1.4.0",

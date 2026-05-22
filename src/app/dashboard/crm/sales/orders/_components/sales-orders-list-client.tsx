@@ -12,18 +12,14 @@ import {
   Button,
   Card,
   Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  Input,
   useZoruToast,
 } from '@/components/zoruui';
 import {
   useRouter,
   useSearchParams,
-  usePathname } from 'next/navigation';
+  usePathname
+} from 'next/navigation';
 import {
   AlertCircle,
   ArrowRightCircle,
@@ -31,24 +27,7 @@ import {
   Pencil,
   Trash2,
   Truck,
-  } from 'lucide-react';
-
-/**
- * §1D list client for Sales Orders — KPI strip, filter chips, bulk-bar,
- * 12-col table, saved presets.
- *
- * Owns search debounce → URL, status / customer / sales-agent / date /
- * expected-shipment filters → URL, multi-row selection state, and the
- * delete confirmation dialog. Server component re-fetches on URL change.
- *
- * Presentational bits (KPI strip, preset bar, filter toolbar, active
- * chips, bulk-bar, CSV helpers) live in
- * `./sales-orders-list-bits.tsx` so this orchestrator stays under the
- * 600-line per-file cap.
- *
- * Bulk actions: archive · delete · export (CSV) · change status ·
- * convert selection to delivery challans (multi-tab open).
- */
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -60,6 +39,7 @@ import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import {
   deleteSalesOrderAction,
   updateSalesOrder,
+  listSalesOrders,
 } from '@/app/actions/crm/sales-orders.actions';
 import type {
   CrmSalesOrderDoc,
@@ -79,6 +59,8 @@ import {
   type SoPreset,
 } from './sales-orders-list-bits';
 import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 export interface SalesOrdersListClientProps {
   orders: CrmSalesOrderDoc[];
@@ -95,6 +77,7 @@ export interface SalesOrdersListClientProps {
   initialShipTo: string;
   kpis: SoKpis;
   headlineKpis?: SoHeadlineKpis;
+  warehouses?: Array<{ _id: string; name: string }>;
   error?: string;
 }
 
@@ -132,6 +115,7 @@ export function SalesOrdersListClient({
   initialShipTo,
   kpis,
   headlineKpis,
+  warehouses,
   error,
 }: SalesOrdersListClientProps) {
   const { toast } = useZoruToast();
@@ -140,14 +124,14 @@ export function SalesOrdersListClient({
   const sp = useSearchParams();
 
   const [query, setQuery] = React.useState(initialQuery);
+  const [statusFilter, setStatusFilter] = React.useState<string>(initialStatus || 'all');
   const [pendingDelete, setPendingDelete] = React.useState<CrmSalesOrderDoc | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
-  const [busy, startBusy] = React.useTransition();
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [density, setDensity] = React.useState<'comfortable' | 'compact' | 'dense'>('comfortable');
 
   const filters: SoFilters = {
     query,
-    status: initialStatus,
+    status: statusFilter === 'all' ? '' : statusFilter,
     clientId: initialClientId,
     agentId: initialAgentId,
     dateFrom: initialDateFrom,
@@ -156,16 +140,7 @@ export function SalesOrdersListClient({
     shipTo: initialShipTo,
   };
 
-  React.useEffect(() => {
-    if (query === initialQuery) return;
-    const t = setTimeout(() => {
-      pushParams({ q: query.trim() || undefined, page: '1' });
-    }, 300);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query]);
-
-  function pushParams(updates: Record<string, string | undefined>) {
+  const pushParams = React.useCallback((updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(sp?.toString() ?? '');
     for (const [k, v] of Object.entries(updates)) {
       if (v == null || v === '') params.delete(k);
@@ -173,7 +148,44 @@ export function SalesOrdersListClient({
     }
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
-  }
+  }, [sp, pathname, router]);
+
+  const bulky = useCrmBulkyState<CrmSalesOrderDoc>({
+    initialData: orders,
+    initialPage: page,
+    initialLimit: limit,
+    fetchFn: async ({ page: p, limit: l, search, filters: f }) => {
+      const res = await listSalesOrders({
+        page: p,
+        limit: l,
+        q: search || undefined,
+        status: statusFilter !== 'all' ? (statusFilter as CrmSalesOrderStatus) : undefined,
+        clientId: initialClientId || undefined,
+      });
+      return {
+        items: res.orders,
+        total: res.orders.length,
+        hasMore: res.hasMore,
+      };
+    },
+  });
+
+  // Re-sync local grid when server inputs change
+  React.useEffect(() => {
+    bulky.setData(orders);
+  }, [orders]);
+
+  React.useEffect(() => {
+    bulky.triggerFetch();
+  }, [bulky.page, bulky.limit, statusFilter]);
+
+  React.useEffect(() => {
+    if (query === initialQuery) return;
+    const t = setTimeout(() => {
+      pushParams({ q: query.trim() || undefined, page: '1' });
+    }, 300);
+    return () => clearTimeout(t);
+  }, [query, initialQuery, pushParams]);
 
   function applyPreset(p: SoPreset) {
     const params = new URLSearchParams();
@@ -189,29 +201,11 @@ export function SalesOrdersListClient({
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }
 
-  const allIds = React.useMemo(() => orders.map((o) => String(o._id)), [orders]);
-  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
-
-  function toggleOne(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-  function toggleAll() {
-    setSelected(allSelected ? new Set() : new Set(allIds));
-  }
-  function clearSelection() {
-    setSelected(new Set());
-  }
-
   function confirmDelete() {
     if (!pendingDelete?._id) return;
     const id = String(pendingDelete._id);
     const label = pendingDelete.soNo || id;
-    startBusy(async () => {
+    bulky.runBulkOperation(async () => {
       const res = await deleteSalesOrderAction(id);
       if (res.success) {
         toast({ title: 'Deleted', description: `${label} removed.` });
@@ -220,15 +214,16 @@ export function SalesOrdersListClient({
       } else {
         toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
       }
+      return res;
     });
   }
 
   function confirmBulkDelete() {
-    if (selected.size === 0) return;
-    startBusy(async () => {
+    if (bulky.selected.size === 0) return;
+    bulky.runBulkOperation(async (ids) => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of ids) {
         const res = await deleteSalesOrderAction(id);
         if (res.success) ok++;
         else fail++;
@@ -238,18 +233,18 @@ export function SalesOrdersListClient({
         description: fail > 0 ? `${fail} failed.` : 'All selected removed.',
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
       setPendingBulkDelete(false);
       router.refresh();
+      return { success: fail === 0 };
     });
   }
 
   function bulkStatus(next: CrmSalesOrderStatus) {
-    if (selected.size === 0) return;
-    startBusy(async () => {
+    if (bulky.selected.size === 0) return;
+    bulky.runBulkOperation(async (ids) => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of ids) {
         try {
           await updateSalesOrder(id, { status: next });
           ok++;
@@ -262,13 +257,13 @@ export function SalesOrdersListClient({
         description: fail > 0 ? `${fail} failed.` : `Status → ${next}.`,
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
       router.refresh();
+      return { success: fail === 0 };
     });
   }
 
   function bulkExport() {
-    const rows = orders.filter((o) => selected.has(String(o._id)));
+    const rows = bulky.data.filter((o) => bulky.selected.size === 0 || bulky.selected.has(String(o._id)));
     const csv = soToCsv(rows);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -280,7 +275,7 @@ export function SalesOrdersListClient({
   }
 
   function bulkExportXlsx() {
-    const rows = orders.filter((o) => selected.has(String(o._id)));
+    const rows = bulky.data.filter((o) => bulky.selected.size === 0 || bulky.selected.has(String(o._id)));
     if (rows.length === 0) return;
     const headers = [
       'so_no',
@@ -313,7 +308,7 @@ export function SalesOrdersListClient({
   }
 
   function bulkConvertToDc() {
-    for (const id of selected) {
+    for (const id of bulky.selected) {
       window.open(
         `/dashboard/crm/sales/delivery/new?fromKind=salesOrder&fromId=${id}`,
         '_blank',
@@ -321,8 +316,24 @@ export function SalesOrdersListClient({
     }
   }
 
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<CrmSalesOrderDoc>) => {
+    try {
+      const res = await updateSalesOrder(id, updatedFields);
+      if (res) {
+        toast({ title: 'Saved inline', description: 'Sales order updated successfully.' });
+        bulky.cancelInlineEdit();
+        bulky.triggerFetch();
+        router.refresh();
+      } else {
+        toast({ title: 'Update failed', description: 'Update did not return a value', variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
+    }
+  };
+
   const hasActiveFilters =
-    !!initialStatus ||
+    statusFilter !== 'all' ||
     !!initialClientId ||
     !!initialAgentId ||
     !!initialDateFrom ||
@@ -330,20 +341,190 @@ export function SalesOrdersListClient({
     !!initialShipFrom ||
     !!initialShipTo;
 
+  const columns = React.useMemo<ColumnDef<CrmSalesOrderDoc>[]>(() => [
+    {
+      key: 'soNo',
+      header: 'SO #',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/sales/orders/${row._id}`}
+          label={row.soNo || '—'}
+          subtitle={row.poNo ? `PO ${row.poNo}` : fmtDate(row.date)}
+        />
+      ),
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'clientId',
+      header: 'Customer',
+      render: (row) => row.clientId ? (
+        <EntityPickerChip entity="client" id={row.clientId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          type="date"
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value).slice(0, 10) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'expectedShipmentDate',
+      header: 'Expected shipment',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.expectedShipmentDate)}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          type="date"
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value).slice(0, 10) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'warehouseAllocation',
+      header: 'Warehouse Allocation',
+      render: (row) => {
+        const whIds = Array.from(new Set(row.items?.map(it => it.warehouseId).filter(Boolean)));
+        if (whIds.length === 0) return <span className="text-zoru-ink-muted">—</span>;
+        return (
+          <div className="flex flex-wrap gap-1">
+            {whIds.map((id) => {
+              const whName = warehouses?.find(w => String(w._id) === id)?.name || `WH-${id?.slice(-4)}`;
+              return (
+                <span key={id} className="inline-flex items-center rounded-full bg-zoru-surface-2 border border-zoru-line px-1.5 py-0.5 text-[10.5px] font-medium text-zoru-ink">
+                  {whName}
+                </span>
+              );
+            })}
+          </div>
+        );
+      }
+    },
+    {
+      key: 'quotationRef',
+      header: 'Quotation ref',
+      render: (row) => row.quotationRef ? (
+        <Link
+          href={`/dashboard/crm/sales/quotations/${row.quotationRef}`}
+          className="hover:underline text-[12.5px]"
+        >
+          {row.quotationRef.slice(-6)}
+        </Link>
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'poNo',
+      header: 'PO #',
+      render: (row) => <span className="text-zoru-ink-muted">{row.poNo || '—'}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-28 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+          {fmtMoney(row.totals?.total, row.currency)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => row.status ? (
+        <StatusPill
+          label={row.status}
+          tone={statusToTone(row.status)}
+        />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+      editRender: (row, value, onChange) => {
+        const options = ['open', 'partial', 'fulfilled', 'closed', 'cancelled'];
+        return (
+          <select
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            value={value !== undefined ? String(value) : 'open'}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+    {
+      key: 'assignedTo',
+      header: 'Sales agent',
+      render: (row) => {
+        const agentId = row.assignment?.assignedTo;
+        return agentId ? (
+          <EntityPickerChip entity="user" id={agentId} />
+        ) : (
+          <span className="text-zoru-ink-muted">—</span>
+        );
+      }
+    }
+  ], [warehouses]);
+
   return (
     <div className="flex flex-col gap-4">
       {headlineKpis ? <SoHeadlineKpiStrip kpis={headlineKpis} /> : null}
 
       <SoKpiStrip
         kpis={kpis}
-        currentStatus={initialStatus}
-        onClick={(s) => pushParams({ status: initialStatus === s ? undefined : s, page: '1' })}
+        currentStatus={statusFilter}
+        onClick={(s) => {
+          const next = statusFilter === s ? 'all' : s;
+          setStatusFilter(next);
+          pushParams({ status: next !== 'all' ? next : undefined, page: '1' });
+        }}
       />
 
       <SoPresetBar
-        onPreset={applyPreset}
+        onPreset={(p) => {
+          setStatusFilter(p.params.status || 'all');
+          applyPreset(p);
+        }}
         hasActive={hasActiveFilters}
-        onClear={clearAllFilters}
+        onClear={() => {
+          setStatusFilter('all');
+          clearAllFilters();
+        }}
       />
 
       <Card className="overflow-hidden p-0">
@@ -366,8 +547,8 @@ export function SalesOrdersListClient({
         ) : null}
 
         <SoBulkBar
-          count={selected.size}
-          onClear={clearSelection}
+          count={bulky.selected.size}
+          onClear={bulky.clearSelection}
           onStatus={bulkStatus}
           onExport={bulkExport}
           onExportXlsx={bulkExportXlsx}
@@ -376,152 +557,55 @@ export function SalesOrdersListClient({
           onDelete={() => setPendingBulkDelete(true)}
         />
 
-        <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-[36px]">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={toggleAll}
-                  aria-label="Select all"
-                />
-              </ZoruTableHead>
-              <ZoruTableHead>SO #</ZoruTableHead>
-              <ZoruTableHead>Customer</ZoruTableHead>
-              <ZoruTableHead>Date</ZoruTableHead>
-              <ZoruTableHead>Expected shipment</ZoruTableHead>
-              <ZoruTableHead>Quotation ref</ZoruTableHead>
-              <ZoruTableHead>PO #</ZoruTableHead>
-              <ZoruTableHead className="text-right">Total</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead>Sales agent</ZoruTableHead>
-              <ZoruTableHead>Created</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
-            {orders.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell
-                  colSpan={12}
-                  className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                >
-                  {initialQuery || hasActiveFilters
-                    ? 'No sales orders match these filters.'
-                    : 'No sales orders yet — click "New sales order" to add one.'}
-                </ZoruTableCell>
-              </ZoruTableRow>
-            ) : (
-              orders.map((order) => {
-                const id = String(order._id);
-                const isSelected = selected.has(id);
-                const agentId = order.assignment?.assignedTo;
-                return (
-                  <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
-                    <ZoruTableCell>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleOne(id)}
-                        aria-label={`Select ${order.soNo}`}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <EntityRowLink
-                        href={`/dashboard/crm/sales/orders/${id}`}
-                        label={order.soNo || '—'}
-                        subtitle={order.poNo ? `PO ${order.poNo}` : fmtDate(order.date)}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px]">
-                      {order.clientId ? (
-                        <EntityPickerChip entity="client" id={order.clientId} />
-                      ) : (
-                        <span className="text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {fmtDate(order.date)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {fmtDate(order.expectedShipmentDate)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {order.quotationRef ? (
-                        <Link
-                          href={`/dashboard/crm/sales/quotations/${order.quotationRef}`}
-                          className="hover:underline"
-                        >
-                          {order.quotationRef.slice(-6)}
-                        </Link>
-                      ) : (
-                        '—'
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {order.poNo || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                      {fmtMoney(order.totals?.total, order.currency)}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      {order.status ? (
-                        <StatusPill
-                          label={order.status}
-                          tone={statusToTone(order.status)}
-                        />
-                      ) : (
-                        <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px]">
-                      {agentId ? (
-                        <EntityPickerChip entity="user" id={agentId} />
-                      ) : (
-                        <span className="text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {fmtDate(order.createdAt || order.audit?.createdAt)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" asChild title="Convert to delivery challan">
-                          <Link
-                            href={`/dashboard/crm/sales/delivery/new?fromKind=salesOrder&fromId=${id}`}
-                          >
-                            <Truck className="h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="ghost" asChild title="Convert to invoice">
-                          <Link
-                            href={`/dashboard/crm/sales/invoices/new?fromKind=salesOrder&fromId=${id}`}
-                          >
-                            <ArrowRightCircle className="h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/dashboard/crm/sales/orders/${id}/edit`}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setPendingDelete(order)}
-                          className="text-zoru-danger-ink"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                );
-              })
-            )}
-          </ZoruTableBody>
-        </Table>
+        <div className="flex items-center justify-between px-4 py-2 border-b border-zoru-line bg-zoru-surface-2/20">
+          <div className="text-[12.5px] text-zoru-ink-muted">
+            Double-click any row to edit inline or use the actions menu
+          </div>
+          <div className="flex items-center border border-zoru-line rounded-md p-0.5 bg-zoru-surface-2/40">
+            <Button
+              size="sm"
+              variant={density === 'comfortable' ? 'outline' : 'ghost'}
+              onClick={() => setDensity('comfortable')}
+              className="h-7 text-[11px] px-2"
+            >
+              Comfortable
+            </Button>
+            <Button
+              size="sm"
+              variant={density === 'compact' ? 'outline' : 'ghost'}
+              onClick={() => setDensity('compact')}
+              className="h-7 text-[11px] px-2"
+            >
+              Compact
+            </Button>
+            <Button
+              size="sm"
+              variant={density === 'dense' ? 'outline' : 'ghost'}
+              onClick={() => setDensity('dense')}
+              className="h-7 text-[11px] px-2"
+            >
+              Dense
+            </Button>
+          </div>
+        </div>
 
-        <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+        <CrmBulkyGrid<CrmSalesOrderDoc>
+          columns={columns}
+          data={bulky.data}
+          selectedIds={bulky.selected}
+          onSelectOne={bulky.toggleSelectOne}
+          onSelectAll={(checked) => bulky.toggleSelectAll(bulky.data.map(x => String(x._id)), checked)}
+          density={density}
+          inlineEditRowId={bulky.inlineEditRowId}
+          editBuffer={bulky.editBuffer}
+          onStartInlineEdit={bulky.startInlineEdit}
+          onCancelInlineEdit={bulky.cancelInlineEdit}
+          onSaveInlineEdit={handleSaveInlineEdit}
+          onUpdateEditBuffer={bulky.updateEditBuffer}
+          isLoading={bulky.isPending}
+        />
+
+        <PaginationBar page={bulky.page} limit={bulky.limit} hasMore={hasMore} />
 
         <ZoruAlertDialog
           open={pendingDelete !== null}
@@ -536,16 +620,14 @@ export function SalesOrdersListClient({
               </ZoruAlertDialogDescription>
             </ZoruAlertDialogHeader>
             <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
+              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
               <ZoruAlertDialogAction
                 onClick={(e) => {
                   e.preventDefault();
                   confirmDelete();
                 }}
-                disabled={busy}
                 className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
               >
-                {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
                 Delete permanently
               </ZoruAlertDialogAction>
             </ZoruAlertDialogFooter>
@@ -558,23 +640,21 @@ export function SalesOrdersListClient({
         >
           <ZoruAlertDialogContent>
             <ZoruAlertDialogHeader>
-              <ZoruAlertDialogTitle>Delete {selected.size} sales orders?</ZoruAlertDialogTitle>
+              <ZoruAlertDialogTitle>Delete {bulky.selected.size} sales orders?</ZoruAlertDialogTitle>
               <ZoruAlertDialogDescription>
                 This permanently removes the selected sales orders. The action
                 cannot be undone.
               </ZoruAlertDialogDescription>
             </ZoruAlertDialogHeader>
             <ZoruAlertDialogFooter>
-              <ZoruAlertDialogCancel disabled={busy}>Cancel</ZoruAlertDialogCancel>
+              <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
               <ZoruAlertDialogAction
                 onClick={(e) => {
                   e.preventDefault();
                   confirmBulkDelete();
                 }}
-                disabled={busy}
                 className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
               >
-                {busy ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : null}
                 Delete permanently
               </ZoruAlertDialogAction>
             </ZoruAlertDialogFooter>

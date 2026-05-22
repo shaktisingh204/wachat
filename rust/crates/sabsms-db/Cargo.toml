@@ -1,0 +1,15 @@
+[package]
+name = "sabsms-db"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+sabsms-types = { path = "../sabsms-types" }
+mongodb = "3.2"
+bson = { version = "2", features = ["uuid-1", "chrono-0_4"] }
+serde = { version = "1.0", features = ["derive"] }
+uuid = { version = "1.10", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }

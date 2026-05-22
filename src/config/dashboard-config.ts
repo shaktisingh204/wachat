@@ -147,6 +147,23 @@ export const crmMenuGroups: MenuGroup[] = [
         ]
     },
     {
+        title: "Project Management",
+        items: [
+            { href: "/dashboard/crm/projects", label: "All Projects", icon: Briefcase, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/kanban", label: "Kanban Board", icon: FolderKanban, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/gantt", label: "Gantt Chart", icon: BarChart2, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/tasks", label: "Tasks", icon: ClipboardList, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/activity", label: "Project Activity", icon: Activity, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/milestones", label: "Milestones", icon: Target, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/issues", label: "Issues & Bugs", icon: ShieldCheck, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/hrm/hr/okrs", label: "OKRs & Goals", icon: Target, permissionKey: 'crm_employees' },
+            { href: "/dashboard/crm/projects/categories", label: "Project Categories", icon: Layers, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/task-categories", label: "Task Categories", icon: Layers, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/taskboard-columns", label: "Taskboard Columns", icon: Layers, permissionKey: 'crm_tasks' },
+            { href: "/dashboard/crm/projects/task-labels", label: "Task Labels", icon: BookCopy, permissionKey: 'crm_tasks' },
+        ]
+    },
+    {
         title: "Purchases",
         items: [
             { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers", icon: ShoppingBag, permissionKey: 'crm_vendors' },
@@ -187,7 +204,6 @@ export const crmMenuGroups: MenuGroup[] = [
         items: [
             { href: "/dashboard/crm/sales-crm/all-leads", label: "Leads & Contacts", icon: BarChart2, permissionKey: 'crm_leads' },
             { href: "/dashboard/crm/deals", label: "Deals Pipeline", icon: BarChart2, permissionKey: 'crm_deals' },
-            { href: "/dashboard/crm/tasks", label: "Tasks", icon: BarChart2, permissionKey: 'crm_tasks' },
             { href: "/dashboard/crm/automations", label: "Automations", icon: BarChart2, permissionKey: 'crm_automations' },
             { href: "/dashboard/crm/sales-crm/pipelines", label: "Manage Pipelines", icon: BarChart2, permissionKey: 'crm_pipelines' },
             { href: "/dashboard/crm/sales-crm/forms", label: "Forms", icon: BarChart2, permissionKey: 'crm_forms' },
@@ -278,7 +294,6 @@ export const hrmMenuGroups: MenuGroup[] = [
     {
         title: "Performance",
         items: [
-            { href: "/dashboard/hrm/hr/okrs", label: "OKRs & Goals", icon: BarChart2, permissionKey: 'crm_employees' },
             { href: "/dashboard/hrm/hr/feedback-360", label: "360 Feedback", icon: Users, permissionKey: 'crm_employees' },
             { href: "/dashboard/hrm/payroll/appraisal-reviews", label: "Appraisals", icon: BarChart2, permissionKey: 'crm_employees' },
             { href: "/dashboard/hrm/payroll/kpi-tracking", label: "KPI Tracking", icon: BarChart2, permissionKey: 'crm_employees' },

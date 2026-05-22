@@ -11,13 +11,6 @@ import {
   ZoruAlertDialogTitle,
   Button,
   Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import {
@@ -33,12 +26,8 @@ import {
   } from 'lucide-react';
 
 /**
- * §1D list client for Delivery Challans — thin-§1D variant per the
- * rebuild plan's scope cap (activity sub-route + density toggle
- * deferred).
- *
- * Presentational bits (KPI strip, filter toolbar, chips, bulk-bar, CSV
- * helpers) live in `./delivery-list-bits.tsx`.
+ * §1D list client for Delivery Challans upgraded with CrmBulkyGrid
+ * and useCrmBulkyState for inline editing and high-density views.
  */
 
 import * as React from 'react';
@@ -66,6 +55,8 @@ import {
   type DcRow,
   type DcStatus,
 } from './delivery-list-bits';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 export type { DcStatus, DcRow, DcKpis };
 
@@ -115,7 +106,7 @@ export function DeliveryListClient({
   const [pendingDelete, setPendingDelete] = React.useState<DcRow | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
   const [busy, startBusy] = React.useTransition();
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
+  const [density, setDensity] = React.useState<'comfortable' | 'compact' | 'dense'>('comfortable');
 
   const filters: DcFilters = {
     query,
@@ -126,6 +117,16 @@ export function DeliveryListClient({
     dateTo: initialDateTo,
     warehouseId: initialWarehouseId,
   };
+
+  const bulky = useCrmBulkyState<DcRow>({
+    initialData: rows,
+    initialPage: page,
+    initialLimit: limit,
+  });
+
+  React.useEffect(() => {
+    bulky.setData(rows);
+  }, [rows]);
 
   React.useEffect(() => {
     if (query === initialQuery) return;
@@ -153,24 +154,6 @@ export function DeliveryListClient({
     router.push(qs ? `${pathname}?${qs}` : pathname);
   }
 
-  const allIds = React.useMemo(() => rows.map((r) => r._id), [rows]);
-  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
-
-  function toggleOne(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
-  function toggleAll() {
-    setSelected(allSelected ? new Set() : new Set(allIds));
-  }
-  function clearSelection() {
-    setSelected(new Set());
-  }
-
   function confirmDelete() {
     if (!pendingDelete) return;
     const id = pendingDelete._id;
@@ -188,11 +171,11 @@ export function DeliveryListClient({
   }
 
   function confirmBulkDelete() {
-    if (selected.size === 0) return;
+    if (bulky.selected.size === 0) return;
     startBusy(async () => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of bulky.selected) {
         const res = await deleteDeliveryChallanAction(id);
         if (res.success) ok++;
         else fail++;
@@ -202,14 +185,32 @@ export function DeliveryListClient({
         description: fail > 0 ? `${fail} failed.` : 'All selected removed.',
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
+      bulky.clearSelection();
       setPendingBulkDelete(false);
       router.refresh();
     });
   }
 
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<DcRow>) => {
+    if (!updatedFields.status) return;
+    startBusy(async () => {
+      try {
+        const res = await setDeliveryChallanStatus(id, updatedFields.status as DcStatus);
+        if (res.success) {
+          toast({ title: 'Saved inline', description: 'Status updated successfully.' });
+          bulky.cancelInlineEdit();
+          router.refresh();
+        } else {
+          toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+        }
+      } catch (err: any) {
+        toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
+      }
+    });
+  };
+
   function bulkExport() {
-    const sel = rows.filter((r) => selected.has(r._id));
+    const sel = rows.filter((r) => bulky.selected.has(r._id));
     const csv = dcToCsv(sel);
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -221,7 +222,7 @@ export function DeliveryListClient({
   }
 
   function bulkExportXlsx() {
-    const sel = rows.filter((r) => selected.has(r._id));
+    const sel = rows.filter((r) => bulky.selected.has(r._id));
     if (sel.length === 0) return;
     const headers = [
       'challan_no',
@@ -252,11 +253,11 @@ export function DeliveryListClient({
   }
 
   function bulkStatus(next: DcStatus) {
-    if (selected.size === 0) return;
+    if (bulky.selected.size === 0) return;
     startBusy(async () => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of bulky.selected) {
         const res = await setDeliveryChallanStatus(id, next);
         if (res.success) ok++;
         else fail++;
@@ -266,13 +267,13 @@ export function DeliveryListClient({
         description: fail > 0 ? `${fail} failed.` : `Status → ${next}.`,
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
+      bulky.clearSelection();
       router.refresh();
     });
   }
 
   function bulkConvertToInvoice() {
-    for (const id of selected) {
+    for (const id of bulky.selected) {
       window.open(
         `/dashboard/crm/sales/invoices/new?fromKind=deliveryChallan&fromId=${id}`,
         '_blank',
@@ -287,6 +288,123 @@ export function DeliveryListClient({
     !!initialWarehouseId ||
     !!initialDateFrom ||
     !!initialDateTo;
+
+  const columns = React.useMemo<ColumnDef<DcRow>[]>(() => [
+    {
+      key: 'challanNumber',
+      header: 'Challan #',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/sales/delivery/${row._id}`}
+          label={row.challanNumber || '—'}
+          subtitle={fmtDate(row.challanDate)}
+        />
+      ),
+    },
+    {
+      key: 'accountId',
+      header: 'Customer',
+      sortable: true,
+      render: (row) => row.accountId ? (
+        <EntityPickerChip entity="client" id={row.accountId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'soRef',
+      header: 'SO ref',
+      sortable: true,
+      render: (row) => row.soRef ? (
+        <Link
+          href={`/dashboard/crm/sales/orders/${row.soRef}`}
+          className="hover:underline text-[12.5px] text-zoru-ink-muted"
+        >
+          {row.soRef.slice(-6)}
+        </Link>
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'challanDate',
+      header: 'Date',
+      sortable: true,
+      render: (row) => (
+        <span className="text-[12.5px] text-zoru-ink-muted">
+          {fmtDate(row.challanDate)}
+        </span>
+      ),
+    },
+    {
+      key: 'vehicleNumber',
+      header: 'Vehicle #',
+      sortable: true,
+      render: (row) => (
+        <span className="text-[12.5px] text-zoru-ink">
+          {row.vehicleNumber || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'driverName',
+      header: 'Driver',
+      sortable: true,
+      render: (row) => (
+        <span className="text-[12.5px] text-zoru-ink">
+          {row.driverName || '—'}
+        </span>
+      ),
+    },
+    {
+      key: 'allocation',
+      header: 'Serial/Batch Allocation',
+      render: (row) => {
+        const parts = [];
+        if (row.batchCount !== undefined && row.batchCount > 0) {
+          parts.push(`${row.batchCount} batch${row.batchCount > 1 ? 'es' : ''}`);
+        }
+        if (row.serialsCount !== undefined && row.serialsCount > 0) {
+          parts.push(`${row.serialsCount} serial${row.serialsCount > 1 ? 's' : ''}`);
+        }
+        if (parts.length === 0) {
+          return <span className="text-[12.5px] text-zoru-ink-muted">—</span>;
+        }
+        return (
+          <span className="inline-flex items-center gap-1 rounded bg-zoru-surface-2 px-2 py-0.5 text-[11.5px] font-medium text-zoru-ink border border-zoru-line">
+            {parts.join(', ')}
+          </span>
+        );
+      }
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => row.status ? (
+        <StatusPill label={row.status} tone={statusToTone(row.status)} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+      editRender: (row, value, onChange) => {
+        const options: DcStatus[] = ['Draft', 'In Transit', 'Delivered', 'Returned'];
+        return (
+          <select
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            value={value !== undefined ? String(value) : 'Draft'}
+            onChange={(e) => onChange(e.target.value as DcStatus)}
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+  ], []);
 
   return (
     <>
@@ -306,10 +424,10 @@ export function DeliveryListClient({
         </Button>
       }
       bulkBar={
-        selected.size > 0 ? (
+        bulky.selected.size > 0 ? (
           <DcBulkBar
-            count={selected.size}
-            onClear={clearSelection}
+            count={bulky.selected.size}
+            onClear={bulky.clearSelection}
             onExport={bulkExport}
             onExportXlsx={bulkExportXlsx}
             onStatus={bulkStatus}
@@ -364,132 +482,40 @@ export function DeliveryListClient({
             onRemove={(k) => pushParams({ [k]: undefined, page: '1' })}
           />
 
-        <Table>
-          <ZoruTableHeader>
-            <ZoruTableRow>
-              <ZoruTableHead className="w-[36px]">
-                <Checkbox
-                  checked={allSelected}
-                  onCheckedChange={toggleAll}
-                  aria-label="Select all"
-                />
-              </ZoruTableHead>
-              <ZoruTableHead>Challan #</ZoruTableHead>
-              <ZoruTableHead>Customer</ZoruTableHead>
-              <ZoruTableHead>SO ref</ZoruTableHead>
-              <ZoruTableHead>Date</ZoruTableHead>
-              <ZoruTableHead>Vehicle #</ZoruTableHead>
-              <ZoruTableHead>Driver</ZoruTableHead>
-              <ZoruTableHead>Transporter</ZoruTableHead>
-              <ZoruTableHead>Status</ZoruTableHead>
-              <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-            </ZoruTableRow>
-          </ZoruTableHeader>
-          <ZoruTableBody>
-            {rows.length === 0 ? (
-              <ZoruTableRow>
-                <ZoruTableCell
-                  colSpan={10}
-                  className="h-24 text-center text-[13px] text-zoru-ink-muted"
+          <div className="p-3 border-b border-zoru-line flex items-center justify-between gap-4 bg-zoru-surface-2">
+            <span className="text-[12px] font-medium text-zoru-ink-muted">
+              Double-click a row status to edit inline.
+            </span>
+            <div className="flex gap-1.5">
+              {(['comfortable', 'compact', 'dense'] as const).map((mode) => (
+                <Button
+                  key={mode}
+                  variant={density === mode ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-7 text-[11px] capitalize"
+                  onClick={() => setDensity(mode)}
                 >
-                  {initialQuery || hasActive
-                    ? 'No delivery challans match these filters.'
-                    : 'No delivery challans yet — click "New challan" to add one.'}
-                </ZoruTableCell>
-              </ZoruTableRow>
-            ) : (
-              rows.map((dc) => {
-                const isSelected = selected.has(dc._id);
-                return (
-                  <ZoruTableRow key={dc._id} data-state={isSelected ? 'selected' : undefined}>
-                    <ZoruTableCell>
-                      <Checkbox
-                        checked={isSelected}
-                        onCheckedChange={() => toggleOne(dc._id)}
-                        aria-label={`Select ${dc.challanNumber}`}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      <EntityRowLink
-                        href={`/dashboard/crm/sales/delivery/${dc._id}`}
-                        label={dc.challanNumber || '—'}
-                        subtitle={fmtDate(dc.challanDate)}
-                      />
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px]">
-                      {dc.accountId ? (
-                        <EntityPickerChip entity="client" id={dc.accountId} />
-                      ) : (
-                        <span className="text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {dc.soRef ? (
-                        <Link
-                          href={`/dashboard/crm/sales/orders/${dc.soRef}`}
-                          className="hover:underline"
-                        >
-                          {dc.soRef.slice(-6)}
-                        </Link>
-                      ) : (
-                        '—'
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                      {fmtDate(dc.challanDate)}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
-                      {dc.vehicleNumber || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px] text-zoru-ink">
-                      {dc.driverName || '—'}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-[12.5px]">
-                      {dc.transporterId ? (
-                        <EntityPickerChip entity="employee" id={dc.transporterId} />
-                      ) : dc.mode ? (
-                        <span className="text-zoru-ink-muted">{dc.mode}</span>
-                      ) : (
-                        <span className="text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell>
-                      {dc.status ? (
-                        <StatusPill label={dc.status} tone={statusToTone(dc.status)} />
-                      ) : (
-                        <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                      )}
-                    </ZoruTableCell>
-                    <ZoruTableCell className="text-right">
-                      <div className="flex justify-end gap-1">
-                        <Button size="sm" variant="ghost" asChild title="Convert to invoice">
-                          <Link
-                            href={`/dashboard/crm/sales/invoices/new?fromKind=deliveryChallan&fromId=${dc._id}`}
-                          >
-                            <ArrowRightCircle className="h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link href={`/dashboard/crm/sales/delivery/${dc._id}`}>
-                            <Pencil className="h-3.5 w-3.5" />
-                          </Link>
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setPendingDelete(dc)}
-                          className="text-zoru-danger-ink"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                );
-              })
-            )}
-          </ZoruTableBody>
-        </Table>
+                  {mode}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <CrmBulkyGrid<DcRow>
+            columns={columns}
+            data={bulky.data}
+            selectedIds={bulky.selected}
+            onSelectOne={bulky.toggleSelectOne}
+            onSelectAll={(checked) => bulky.toggleSelectAll(bulky.data.map((r) => r._id), checked)}
+            density={density}
+            inlineEditRowId={bulky.inlineEditRowId}
+            editBuffer={bulky.editBuffer}
+            onStartInlineEdit={bulky.startInlineEdit}
+            onCancelInlineEdit={bulky.cancelInlineEdit}
+            onSaveInlineEdit={handleSaveInlineEdit}
+            onUpdateEditBuffer={bulky.updateEditBuffer}
+            isLoading={busy}
+          />
         </Card>
       </div>
     </EntityListShell>
@@ -531,7 +557,7 @@ export function DeliveryListClient({
     >
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
-          <ZoruAlertDialogTitle>Delete {selected.size} delivery challans?</ZoruAlertDialogTitle>
+          <ZoruAlertDialogTitle>Delete {bulky.selected.size} delivery challans?</ZoruAlertDialogTitle>
           <ZoruAlertDialogDescription>
             This permanently removes the selected delivery challans. The
             action cannot be undone.

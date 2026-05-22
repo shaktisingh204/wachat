@@ -38,6 +38,8 @@ export interface DcRow {
   transporterId?: string;
   soRef?: string;
   createdAt?: string;
+  batchCount?: number;
+  serialsCount?: number;
 }
 
 export interface DcKpis {

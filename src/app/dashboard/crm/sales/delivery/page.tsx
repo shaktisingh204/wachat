@@ -92,6 +92,12 @@ export default async function DeliveryChallansPage({
   // Project rows to the lean shape the client expects.
   const rows = pageSlice.map((c) => {
     const soRef = ((c.lineage ?? []) as LineageRef[]).find((l) => l.kind === 'salesOrder')?.id;
+    const lineItems = (c.lineItems || []) as any[];
+    const batchCount = lineItems.filter((it) => it.batch).length;
+    const serialsCount = lineItems.reduce((acc, it) => {
+      const cnt = Array.isArray(it.serialNumbers) ? it.serialNumbers.length : 0;
+      return acc + cnt;
+    }, 0);
     return {
       _id: String(c._id),
       challanNumber: c.challanNumber || '',
@@ -106,6 +112,8 @@ export default async function DeliveryChallansPage({
       transporterId: undefined,
       soRef,
       createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : undefined,
+      batchCount,
+      serialsCount,
     };
   });
 

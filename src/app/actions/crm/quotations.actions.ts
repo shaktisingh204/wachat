@@ -260,6 +260,10 @@ function parseLineItems(formData: FormData): CrmQuotationLineItem[] {
       ? Number(row.total)
       : subTotal +
         (Number.isFinite(taxRatePct) ? (subTotal * taxRatePct) / 100 : 0);
+    const cgstAmount = Number(row.cgstAmount);
+    const sgstAmount = Number(row.sgstAmount);
+    const igstAmount = Number(row.igstAmount);
+    const cessAmount = Number(row.cessAmount);
     items.push({
       itemId,
       description: descriptionRaw || undefined,
@@ -269,6 +273,10 @@ function parseLineItems(formData: FormData): CrmQuotationLineItem[] {
       rate,
       discountPct: Number.isFinite(discountPct) ? discountPct : undefined,
       taxRatePct: Number.isFinite(taxRatePct) ? taxRatePct : undefined,
+      cgstAmount: Number.isFinite(cgstAmount) ? cgstAmount : undefined,
+      sgstAmount: Number.isFinite(sgstAmount) ? sgstAmount : undefined,
+      igstAmount: Number.isFinite(igstAmount) ? igstAmount : undefined,
+      cessAmount: Number.isFinite(cessAmount) ? cessAmount : undefined,
       total: lineTotal,
     });
   }
@@ -622,3 +630,36 @@ export async function getCrmQuotationRelatedCounts(
     return empty;
   }
 }
+
+/**
+ * Generic patch helper for inline grid editing or quick-edit drawers on details.
+ */
+export async function patchQuotation(
+  id: string,
+  patch: CrmQuotationUpdateInput,
+): Promise<{ success: boolean; error?: string }> {
+  if (!id) return { success: false, error: 'Missing quotation id.' };
+  const session = await getSession();
+  if (!session?.user) return { success: false, error: 'Access denied.' };
+  try {
+    await crmQuotationsApi.update(id, patch);
+    try {
+      await writeAuditEntry({
+        tenantUserId: String(session.user._id),
+        actorId: String(session.user._id),
+        action: 'update',
+        entityKind: 'quotation',
+        entityId: id,
+      });
+    } catch {
+      /* non-fatal */
+    }
+    revalidatePath(LIST_PATH);
+    revalidatePath(`${LIST_PATH}/${id}`);
+    return { success: true };
+  } catch (e) {
+    trackFallback('update', e);
+    return { success: false, error: rustErr(e) };
+  }
+}
+

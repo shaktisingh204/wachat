@@ -1,323 +1,287 @@
-'use client';
+"use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { LuCircleCheck, LuCircleX, LuLoader, LuClock, LuPlay, LuRefreshCw, LuChevronDown, LuChevronRight } from 'react-icons/lu';
-import { cn } from '@/lib/utils';
+import React, { useMemo, useState, useEffect } from "react";
+import { ColumnDef } from "@tanstack/react-table";
+import { LuDownload, LuRefreshCw, LuTerminal, LuActivity, LuServer } from "react-icons/lu";
+
+import { DataTable } from "@/components/zoruui/data-table";
+import { Badge } from "@/components/zoruui/badge";
+import { Button } from "@/components/zoruui/button";
+import {
+  Select,
+  ZoruSelectContent,
+  ZoruSelectItem,
+  ZoruSelectTrigger,
+  ZoruSelectValue,
+} from "@/components/zoruui/select";
+import {
+  PageHeader,
+  ZoruPageHeading,
+  ZoruPageEyebrow,
+  ZoruPageTitle,
+  ZoruPageDescription,
+  ZoruPageActions,
+} from "@/components/zoruui/page-header";
+import { Card } from "@/components/zoruui/card";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-interface ExecutionRow {
-  _id?: string;
-  executionId: string;
-  flowId: string;
-  status: string;
-  triggerMode?: string;
-  startedAt?: string | null;
-  finishedAt?: string | null;
-  durationMs?: number | null;
-  error?: string | null;
-  createdAt?: string;
+type LogSeverity = "info" | "warning" | "error" | "debug" | "critical";
+
+export interface SystemLog {
+  id: string;
+  timestamp: string;
+  severity: LogSeverity;
+  node: string;
+  message: string;
+  metadata: Record<string, any>;
 }
 
-// ── Constants ─────────────────────────────────────────────────────────────────
+// ── Mock Data Generator ───────────────────────────────────────────────────────
 
-const STATUS_STYLES: Record<string, { label: string; cls: string; Icon: React.ElementType }> = {
-  success:   { label: 'Success',   cls: 'bg-green-500/15 text-green-700',   Icon: LuCircleCheck },
-  error:     { label: 'Error',     cls: 'bg-red-500/15 text-red-700',       Icon: LuCircleX },
-  running:   { label: 'Running',   cls: 'bg-blue-500/15 text-blue-700',     Icon: LuLoader },
-  queued:    { label: 'Queued',    cls: 'bg-zoru-surface-2 text-zoru-ink-muted', Icon: LuClock },
-  cancelled: { label: 'Cancelled', cls: 'bg-yellow-500/20 text-yellow-800', Icon: LuCircleX },
-};
+function generateMockLogs(count: number): SystemLog[] {
+  const nodes = [
+    "api-server",
+    "auth-service",
+    "webhook-listener",
+    "db-worker",
+    "sabflow-engine",
+  ];
+  const severities: LogSeverity[] = ["info", "info", "info", "warning", "error", "debug", "critical"];
+  const messages = [
+    "User authentication successful",
+    "User login failed: Invalid credentials",
+    "Webhook received payload successfully",
+    "Worker node disconnected unexpectedly",
+    "Database query execution slow",
+    "Processing batch job #8372",
+    "Memory usage exceeding 80% threshold",
+    "SabFlow execution engine started",
+    "Payment processing gateway timeout",
+    "Cache miss for key user_192",
+    "Disk space running low on /dev/sda1",
+    "API rate limit exceeded for client_id 402",
+    "Garbage collection cycle completed",
+  ];
 
-function formatDuration(ms?: number | null): string {
-  if (ms == null) return '—';
-  if (ms < 1000) return `${ms}ms`;
-  return `${(ms / 1000).toFixed(1)}s`;
-}
+  const logs: SystemLog[] = [];
+  const now = Date.now();
+  for (let i = 0; i < count; i++) {
+    const s = severities[Math.floor(Math.random() * severities.length)];
+    const node = nodes[Math.floor(Math.random() * nodes.length)];
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    const timeOffset = Math.floor(Math.random() * 86400000 * 2); // past 48 hours
+    const time = new Date(now - timeOffset).toISOString();
 
-function formatDate(d?: string | Date | null): string {
-  if (!d) return '—';
-  return new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-
-// ── ExecutionDetail — live SSE drawer ────────────────────────────────────────
-
-function ExecutionDetail({ executionId, onClose }: { executionId: string; onClose: () => void }) {
-  const [record, setRecord] = useState<ExecutionRow | null>(null);
-  const [connected, setConnected] = useState(false);
-
-  useEffect(() => {
-    const es = new EventSource(`/api/sabflow/executions/${executionId}/stream`);
-    setConnected(true);
-
-    es.onmessage = (e) => {
-      try {
-        const msg = JSON.parse(e.data) as { type: string; data?: ExecutionRow };
-        if ((msg.type === 'snapshot' || msg.type === 'update') && msg.data) {
-          setRecord(msg.data);
-        }
-      } catch {
-        // ignore
-      }
-    };
-
-    es.onerror = () => {
-      setConnected(false);
-      es.close();
-    };
-
-    return () => {
-      es.close();
-      setConnected(false);
-    };
-  }, [executionId]);
-
-  const status = record?.status ?? 'queued';
-  const meta = STATUS_STYLES[status] ?? STATUS_STYLES.queued;
-  const { Icon } = meta;
-
-  return (
-    <div className="fixed inset-y-0 right-0 z-40 w-full max-w-md bg-zoru-bg border-l border-zoru-line shadow-2xl flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-zoru-line">
-        <div>
-          <p className="text-xs text-zoru-ink-subtle uppercase tracking-wider mb-0.5">Execution</p>
-          <p className="font-mono text-sm text-zoru-ink">{executionId.slice(-12)}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {connected && status === 'running' && (
-            <span className="flex items-center gap-1.5 text-xs text-blue-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse" />
-              Live
-            </span>
-          )}
-          <button
-            onClick={onClose}
-            className="text-zoru-ink-subtle hover:text-zoru-ink transition-colors text-lg leading-none"
-          >
-            ×
-          </button>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4">
-        {!record ? (
-          <div className="flex items-center gap-2 text-zoru-ink-subtle text-sm">
-            <LuLoader className="w-4 h-4 animate-spin" />
-            Connecting…
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-zoru-surface rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2.5">
-                <p className="text-[10px] text-zoru-ink-subtle uppercase tracking-wider mb-1">Status</p>
-                <span className={cn('inline-flex items-center gap-1.5 text-xs font-medium px-2 py-0.5 rounded-full', meta.cls)}>
-                  <Icon className={cn('w-3 h-3', status === 'running' && 'animate-spin')} />
-                  {meta.label}
-                </span>
-              </div>
-              <div className="bg-zoru-surface rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2.5">
-                <p className="text-[10px] text-zoru-ink-subtle uppercase tracking-wider mb-1">Duration</p>
-                <p className="text-sm font-mono text-zoru-ink">{formatDuration(record.durationMs)}</p>
-              </div>
-              <div className="bg-zoru-surface rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2.5">
-                <p className="text-[10px] text-zoru-ink-subtle uppercase tracking-wider mb-1">Started</p>
-                <p className="text-xs text-zoru-ink">{formatDate(record.startedAt)}</p>
-              </div>
-              <div className="bg-zoru-surface rounded-[var(--zoru-radius)] border border-zoru-line px-3 py-2.5">
-                <p className="text-[10px] text-zoru-ink-subtle uppercase tracking-wider mb-1">Trigger</p>
-                <p className="text-xs text-zoru-ink capitalize">{record.triggerMode ?? '—'}</p>
-              </div>
-            </div>
-
-            {record.error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-[var(--zoru-radius)] px-3 py-2.5">
-                <p className="text-[10px] text-red-700 uppercase tracking-wider mb-1">Error</p>
-                <p className="text-xs text-red-700 font-mono break-all">{record.error}</p>
-              </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+    logs.push({
+      id: `log-${i}-${Math.random().toString(36).slice(2, 9)}`,
+      timestamp: time,
+      severity: s,
+      node: node,
+      message: msg,
+      metadata: {
+        latency: `${Math.floor(Math.random() * 500 + 10)}ms`,
+        ip: `192.168.1.${Math.floor(Math.random() * 255)}`,
+        ...(s === "error" || s === "critical"
+          ? { errorCode: "E" + Math.floor(Math.random() * 9999) }
+          : {}),
+      },
+    });
+  }
+  return logs.sort(
+    (a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 }
 
-// ── Main page ─────────────────────────────────────────────────────────────────
+// ── Columns ───────────────────────────────────────────────────────────────────
 
-export default function SabFlowLogsPage() {
-  const searchParams = useSearchParams();
-  const flowIdFilter = searchParams.get('flowId') ?? undefined;
+const columns: ColumnDef<SystemLog>[] = [
+  {
+    accessorKey: "timestamp",
+    header: "Timestamp",
+    cell: ({ row }) => {
+      const date = new Date(row.original.timestamp);
+      return (
+        <span className="font-mono text-xs text-zoru-ink-muted whitespace-nowrap">
+          {date.toLocaleString("en-US", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </span>
+      );
+    },
+  },
+  {
+    accessorKey: "severity",
+    header: "Severity",
+    cell: ({ row }) => {
+      const s = row.original.severity;
+      const variantMap: Record<string, "info" | "warning" | "danger" | "ghost" | "destructive"> = {
+        info: "info",
+        warning: "warning",
+        error: "danger",
+        debug: "ghost",
+        critical: "destructive",
+      };
+      return (
+        <Badge variant={variantMap[s]} className="uppercase text-[10px] tracking-widest font-semibold px-2 py-0.5">
+          {s}
+        </Badge>
+      );
+    },
+  },
+  {
+    accessorKey: "node",
+    header: "Node",
+    cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <LuServer className="w-3.5 h-3.5 text-zoru-ink-subtle" />
+        <span className="font-medium text-sm text-zoru-ink">{row.original.node}</span>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "message",
+    header: "Message",
+    cell: ({ row }) => (
+      <div
+        className="max-w-[400px] truncate text-sm text-zoru-ink font-medium"
+        title={row.original.message}
+      >
+        {row.original.message}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "metadata",
+    header: "Metadata",
+    cell: ({ row }) => {
+      const meta = row.original.metadata;
+      return (
+        <div className="flex flex-wrap gap-1.5 max-w-[300px]">
+          {Object.entries(meta).map(([k, v]) => (
+            <span
+              key={k}
+              className="px-1.5 py-0.5 rounded text-[10px] bg-zoru-surface border border-zoru-line text-zoru-ink-muted font-mono whitespace-nowrap"
+            >
+              <span className="opacity-60">{k}:</span> <span className="text-zoru-ink">{v as string}</span>
+            </span>
+          ))}
+        </div>
+      );
+    },
+  },
+];
 
-  const [executions, setExecutions] = useState<ExecutionRow[]>([]);
+// ── Main Page ─────────────────────────────────────────────────────────────────
+
+export default function SystemLogsPage() {
+  const [logs, setLogs] = useState<SystemLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [triggering, setTriggering] = useState<string | null>(null);
-  const [selectedExecutionId, setSelectedExecutionId] = useState<string | null>(null);
-  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const fetchExecutions = useCallback(async () => {
-    const url = `/api/sabflow/executions${flowIdFilter ? `?flowId=${flowIdFilter}` : ''}`;
-    try {
-      const r = await fetch(url);
-      const j = (await r.json()) as { executions?: ExecutionRow[] };
-      setExecutions(j.executions ?? []);
-    } catch {
-      // ignore
-    } finally {
+  // Filters
+  const [severityFilter, setSeverityFilter] = useState<string>("all");
+  const [nodeFilter, setNodeFilter] = useState<string>("all");
+
+  const fetchLogs = () => {
+    setLoading(true);
+    // Simulate network delay
+    setTimeout(() => {
+      setLogs(generateMockLogs(150));
       setLoading(false);
-    }
-  }, [flowIdFilter]);
+    }, 600);
+  };
 
   useEffect(() => {
-    fetchExecutions();
-    // Auto-refresh every 5 s while any execution is in a non-terminal state
-    pollRef.current = setInterval(() => {
-      fetchExecutions();
-    }, 5000);
-    return () => {
-      if (pollRef.current) clearInterval(pollRef.current);
-    };
-  }, [fetchExecutions]);
+    fetchLogs();
+  }, []);
 
-  async function handleTrigger(flowId: string) {
-    setTriggering(flowId);
-    try {
-      const r = await fetch(`/api/sabflow/${flowId}/trigger`, { method: 'POST' });
-      const j = (await r.json()) as { executionId?: string };
-      if (j.executionId) {
-        // Add optimistic row
-        setExecutions((prev) => [
-          { executionId: j.executionId!, flowId, status: 'queued', triggerMode: 'manual', startedAt: null, finishedAt: null },
-          ...prev,
-        ]);
-        setSelectedExecutionId(j.executionId);
-      }
-    } catch {
-      // ignore
-    } finally {
-      setTriggering(null);
-    }
-  }
+  const filteredData = useMemo(() => {
+    return logs.filter((item) => {
+      if (severityFilter !== "all" && item.severity !== severityFilter) return false;
+      if (nodeFilter !== "all" && item.node !== nodeFilter) return false;
+      return true;
+    });
+  }, [logs, severityFilter, nodeFilter]);
 
   return (
-    <div className="min-h-screen bg-zoru-bg text-zoru-ink p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-zoru-ink-subtle mb-1">SabFlow</p>
-            <h1 className="text-2xl font-bold text-zoru-ink">Execution Logs</h1>
-            <p className="text-sm text-zoru-ink-muted mt-1">
-              {flowIdFilter ? `Showing runs for flow ${flowIdFilter.slice(-8)}` : 'History of all workflow runs.'}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {flowIdFilter && (
-              <button
-                onClick={() => handleTrigger(flowIdFilter)}
-                disabled={triggering === flowIdFilter}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-[var(--zoru-radius)] bg-zoru-ink text-white text-sm font-medium hover:bg-black transition-colors disabled:opacity-50"
-              >
-                {triggering === flowIdFilter ? (
-                  <LuLoader className="w-4 h-4 animate-spin" />
-                ) : (
-                  <LuPlay className="w-4 h-4" />
-                )}
-                Run now
-              </button>
-            )}
-            <button
-              onClick={fetchExecutions}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-[var(--zoru-radius)] border border-zoru-line text-zoru-ink-muted text-sm hover:text-zoru-ink hover:border-zoru-line-strong transition-colors"
-            >
-              <LuRefreshCw className="w-4 h-4" />
+    <div className="min-h-screen bg-zoru-bg p-6 md:p-8">
+      <div className="mx-auto max-w-7xl">
+        <PageHeader className="mb-8">
+          <ZoruPageHeading>
+            <ZoruPageEyebrow className="flex items-center gap-1.5 text-blue-500">
+              <LuActivity className="w-3.5 h-3.5" />
+              Observability
+            </ZoruPageEyebrow>
+            <ZoruPageTitle>System Logs</ZoruPageTitle>
+            <ZoruPageDescription>
+              Monitor heavy system-level logs and activities across all infrastructure nodes. High-throughput event tracking for SabFlow execution engines and services.
+            </ZoruPageDescription>
+          </ZoruPageHeading>
+          <ZoruPageActions>
+            <Button variant="outline" onClick={fetchLogs} disabled={loading}>
+              <LuRefreshCw className={loading ? "mr-2 h-4 w-4 animate-spin" : "mr-2 h-4 w-4"} />
               Refresh
-            </button>
-          </div>
-        </div>
+            </Button>
+            <Button variant="default">
+              <LuTerminal className="mr-2 h-4 w-4" />
+              Live Tail
+            </Button>
+          </ZoruPageActions>
+        </PageHeader>
 
-        {/* Table */}
-        {loading ? (
-          <div className="flex items-center justify-center py-24">
-            <LuLoader className="w-6 h-6 text-zoru-ink-subtle animate-spin" />
-          </div>
-        ) : executions.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-12 h-12 rounded-[var(--zoru-radius)] bg-zoru-surface-2 flex items-center justify-center mb-4">
-              <LuPlay className="w-5 h-5 text-zoru-ink-muted" />
-            </div>
-            <p className="text-zoru-ink font-medium">No executions yet</p>
-            <p className="text-sm text-zoru-ink-subtle mt-1">Activate a flow and trigger it to see runs here.</p>
-          </div>
-        ) : (
-          <div className="rounded-[var(--zoru-radius)] border border-zoru-line overflow-hidden bg-zoru-bg">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-zoru-surface border-b border-zoru-line">
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider w-8" />
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Flow</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Status</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Trigger</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Started</th>
-                  <th className="text-left px-4 py-3 text-xs font-medium text-zoru-ink-subtle uppercase tracking-wider">Duration</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zoru-line">
-                {executions.map((row) => {
-                  const statusMeta = STATUS_STYLES[row.status] ?? STATUS_STYLES.queued;
-                  const { Icon } = statusMeta;
-                  const isSelected = selectedExecutionId === row.executionId;
-                  return (
-                    <tr
-                      key={row.executionId}
-                      onClick={() => setSelectedExecutionId(isSelected ? null : row.executionId)}
-                      className="hover:bg-zoru-surface transition-colors cursor-pointer"
-                    >
-                      <td className="px-4 py-3">
-                        {isSelected ? (
-                          <LuChevronDown className="w-3.5 h-3.5 text-zoru-ink-muted" />
-                        ) : (
-                          <LuChevronRight className="w-3.5 h-3.5 text-zoru-ink-subtle" />
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className="font-mono text-xs text-zoru-ink-muted">
-                          {row.flowId?.slice(-8) ?? '—'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={cn('inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium', statusMeta.cls)}>
-                          <Icon className={cn('w-3 h-3', row.status === 'running' && 'animate-spin')} />
-                          {statusMeta.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-zoru-ink-muted capitalize">{row.triggerMode ?? '—'}</td>
-                      <td className="px-4 py-3 text-zoru-ink-muted">{formatDate(row.startedAt ?? row.createdAt)}</td>
-                      <td className="px-4 py-3 text-zoru-ink-muted font-mono text-xs">{formatDuration(row.durationMs)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
+        <Card className="p-0 border-zoru-line overflow-hidden shadow-[var(--zoru-shadow-sm)]">
+          <DataTable
+            className="p-5"
+            columns={columns}
+            data={filteredData}
+            filterColumn="message"
+            filterPlaceholder="Search logs by message..."
+            pageSize={15}
+            toolbar={
+              <div className="flex items-center gap-3">
+                <Select value={severityFilter} onValueChange={setSeverityFilter}>
+                  <ZoruSelectTrigger className="w-[140px]">
+                    <ZoruSelectValue placeholder="Severity" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All Severities</ZoruSelectItem>
+                    <ZoruSelectItem value="info">Info</ZoruSelectItem>
+                    <ZoruSelectItem value="warning">Warning</ZoruSelectItem>
+                    <ZoruSelectItem value="error">Error</ZoruSelectItem>
+                    <ZoruSelectItem value="debug">Debug</ZoruSelectItem>
+                    <ZoruSelectItem value="critical">Critical</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </Select>
+
+                <Select value={nodeFilter} onValueChange={setNodeFilter}>
+                  <ZoruSelectTrigger className="w-[160px]">
+                    <ZoruSelectValue placeholder="Node" />
+                  </ZoruSelectTrigger>
+                  <ZoruSelectContent>
+                    <ZoruSelectItem value="all">All Nodes</ZoruSelectItem>
+                    <ZoruSelectItem value="api-server">API Server</ZoruSelectItem>
+                    <ZoruSelectItem value="auth-service">Auth Service</ZoruSelectItem>
+                    <ZoruSelectItem value="webhook-listener">Webhook Listener</ZoruSelectItem>
+                    <ZoruSelectItem value="db-worker">DB Worker</ZoruSelectItem>
+                    <ZoruSelectItem value="sabflow-engine">SabFlow Engine</ZoruSelectItem>
+                  </ZoruSelectContent>
+                </Select>
+
+                <div className="w-px h-6 bg-zoru-line mx-1" />
+
+                <Button variant="outline" size="sm" className="hidden sm:flex">
+                  <LuDownload className="mr-2 h-4 w-4" />
+                  Export CSV
+                </Button>
+              </div>
+            }
+          />
+        </Card>
       </div>
-
-      {/* Live execution drawer */}
-      {selectedExecutionId && (
-        <>
-          <div
-            className="fixed inset-0 z-30 bg-black/30"
-            onClick={() => setSelectedExecutionId(null)}
-          />
-          <ExecutionDetail
-            executionId={selectedExecutionId}
-            onClose={() => setSelectedExecutionId(null)}
-          />
-        </>
-      )}
     </div>
   );
 }

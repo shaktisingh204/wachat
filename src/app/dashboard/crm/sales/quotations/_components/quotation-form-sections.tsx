@@ -173,6 +173,8 @@ interface QuotationSubjectSectionProps {
   editing: boolean;
   onCurrencyChange: (next: string) => void;
   onAnyChange: () => void;
+  placeOfSupply: string;
+  onPlaceOfSupplyChange: (next: string) => void;
 }
 
 export function QuotationSubjectSection({
@@ -180,6 +182,8 @@ export function QuotationSubjectSection({
   editing,
   onCurrencyChange,
   onAnyChange,
+  placeOfSupply,
+  onPlaceOfSupplyChange,
 }: QuotationSubjectSectionProps) {
   return (
     <Card className="space-y-4 p-6">
@@ -201,7 +205,11 @@ export function QuotationSubjectSection({
           <Input
             id="placeOfSupply"
             name="placeOfSupply"
-            defaultValue={initial?.placeOfSupply ?? ''}
+            value={placeOfSupply}
+            onChange={(e) => {
+              onPlaceOfSupplyChange(e.target.value);
+              onAnyChange();
+            }}
             placeholder="State code (GST)"
           />
         </div>

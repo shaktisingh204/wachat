@@ -25,7 +25,6 @@ import { ArrowLeft,
 import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { statusToTone } from '@/components/crm/status-pill';
@@ -42,6 +41,12 @@ import type { LineageKind } from '@/lib/definitions';
 import { QuotationDetailActions } from '../_components/quotation-detail-actions';
 import { QuotationPrintView } from '../_components/quotation-print-view';
 import { QuotationQuickEdits } from '../_components/quotation-quick-edits';
+
+import { CrmLineageChart, LineageNode } from '@/components/crm/crm-lineage-chart';
+import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
+import { addCrmNote, getCrmEntityTimeline } from '@/app/actions/crm.actions';
+import { revalidatePath } from 'next/cache';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -157,6 +162,50 @@ export default async function QuotationDetailPage({
   }
 
   const quotationId = String(quotation._id);
+
+  // Hydrate timeline items
+  const timelineItemsRes = await getCrmEntityTimeline('quotation', quotationId);
+  const timelineItems = timelineItemsRes.success ? timelineItemsRes.items : [];
+
+  // Server Actions for the interactive 360 timeline
+  async function addCommentAction(body: string): Promise<boolean> {
+    'use server';
+    const fd = new FormData();
+    fd.append('recordId', quotationId);
+    fd.append('recordType', 'quotation');
+    fd.append('noteContent', body);
+    const res = await addCrmNote(null, fd);
+    if (!res.error) {
+      revalidatePath(`/dashboard/crm/sales/quotations/${quotationId}`);
+      return true;
+    }
+    return false;
+  }
+
+  async function sendWhatsAppAction(templateId: string, phone: string): Promise<boolean> {
+    'use server';
+    const fd = new FormData();
+    fd.append('recordId', quotationId);
+    fd.append('recordType', 'quotation');
+    fd.append('noteContent', `Shoot WhatsApp template notification: "${templateId}" sent to ${phone}`);
+    const res = await addCrmNote(null, fd);
+    if (!res.error) {
+      const session = await getSession();
+      if (session?.user?._id) {
+        await writeAuditEntry({
+          tenantUserId: String(session.user._id),
+          action: 'whatsapp_notification_sent',
+          entityKind: 'quotation',
+          entityId: quotationId,
+          reason: `WhatsApp template "${templateId}" sent to ${phone}`,
+        });
+      }
+      revalidatePath(`/dashboard/crm/sales/quotations/${quotationId}`);
+      return true;
+    }
+    return false;
+  }
+
   const status = (quotation.status ?? 'draft').toLowerCase();
   const cfValues = (quotation.customFields ?? {}) as Record<string, unknown>;
   const items: CrmQuotationLineItem[] = quotation.items ?? [];
@@ -164,6 +213,62 @@ export default async function QuotationDetailPage({
   const currency = quotation.currency ?? 'INR';
   const salesAgentId =
     quotation.assignment?.assignedTo ?? quotation.salesAgentId ?? null;
+
+  const lineageList = (quotation.lineage ?? []) as Array<{
+    kind: LineageKind;
+    id: string;
+    no?: string;
+    status?: string;
+  }>;
+
+  const findLinked = (kind: string) => lineageList.find(x => x.kind === kind);
+
+  const lineageNodes: LineageNode[] = [
+    {
+      id: findLinked('lead')?.id ?? 'lead-pending',
+      label: 'Lead Conversion',
+      type: 'Lead',
+      status: findLinked('lead') ? 'completed' : 'pending',
+      docNumber: findLinked('lead')?.no ?? 'Awaiting Lead',
+    },
+    {
+      id: quotationId,
+      label: 'Quotation Stage',
+      type: 'Quotation',
+      status: 'active',
+      docNumber: quotation.quotationNo ?? `QTN-${quotationId.slice(-6).toUpperCase()}`,
+      valueString: fmtMoney(totals.total, currency),
+      dateString: fmtDate(quotation.date),
+    },
+    {
+      id: findLinked('salesOrder')?.id ?? 'so-pending',
+      label: 'Sales Order',
+      type: 'SalesOrder',
+      status: findLinked('salesOrder') ? 'completed' : 'pending',
+      docNumber: findLinked('salesOrder')?.no ?? 'Awaiting Order',
+    },
+    {
+      id: findLinked('deliveryChallan')?.id ?? 'delivery-pending',
+      label: 'Delivery Challan',
+      type: 'Delivery',
+      status: findLinked('deliveryChallan') ? 'completed' : 'pending',
+      docNumber: findLinked('deliveryChallan')?.no ?? 'Awaiting Delivery',
+    },
+    {
+      id: findLinked('invoice')?.id ?? 'invoice-pending',
+      label: 'Tax Invoice',
+      type: 'Invoice',
+      status: findLinked('invoice') ? 'completed' : 'pending',
+      docNumber: findLinked('invoice')?.no ?? 'Awaiting Invoice',
+    },
+    {
+      id: findLinked('paymentReceipt')?.id ?? 'receipt-pending',
+      label: 'Payment Receipt',
+      type: 'Receipt',
+      status: findLinked('paymentReceipt') ? 'completed' : 'pending',
+      docNumber: findLinked('paymentReceipt')?.no ?? 'Awaiting Payment',
+    },
+  ];
 
   /* ─── Print mode ────────────────────────────────────────────── */
 
@@ -302,11 +407,14 @@ export default async function QuotationDetailPage({
           </Button>
         </>
       }
-      audit={
-        <EntityAuditTimeline entityKind="quotation" entityId={quotationId} />
-      }
+      audit={null}
     >
-      <p className="text-[12.5px] text-zoru-ink-muted">
+      {/* 1D.5 lineage node track chart */}
+      <div className="mb-6">
+        <CrmLineageChart nodes={lineageNodes} />
+      </div>
+
+      <p className="text-[12.5px] text-zoru-ink-muted mb-4">
         {fmtMoney(totals.total, currency)} · {status}
       </p>
 
@@ -644,14 +752,14 @@ export default async function QuotationDetailPage({
         </Card>
       ) : null}
 
-      {/* TODO 1D.2: <CrmNotes recordType="quotation"> composer — needs the
-          shared composer to accept `quotation` as a recordType. */}
-      {/* TODO 1D.2: inline attachment add via <SabFilePicker> — needs an
-          `addQuotationAttachment(quotationId, fileId)` action. */}
-      {/* TODO 1D.2: inline status change via <EnumFormField enumName="quotationStatus">
-          on the status pill — needs a `setQuotationStatus(quotationId, status)`
-          quick mutation that revalidates the page. The dropdown already exists
-          in <QuotationDetailActions> as a fallback. */}
+      {/* Interactive 360 Timeline */}
+      <div className="mt-8">
+        <Crm360Timeline
+          items={timelineItems}
+          onAddComment={addCommentAction}
+          onSendWhatsApp={sendWhatsAppAction}
+        />
+      </div>
     </EntityDetailShell>
   );
 }

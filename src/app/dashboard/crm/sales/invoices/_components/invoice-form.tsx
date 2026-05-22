@@ -53,8 +53,7 @@ import {
   NotesSection,
   RecurringSection,
 } from './invoice-form-sections';
-import { InvoiceLineItems } from './invoice-line-items';
-import { SummarySection } from './invoice-summary-section';
+import { CrmStatutoryCalculator, type CalculatorItem, type CalculationTotals } from '@/components/crm/crm-statutory-calculator';
 import { toDateInput, useInvoiceForm, type SubmitIntent } from './use-invoice-form';
 
 interface InvoiceFormProps {
@@ -116,8 +115,61 @@ export function InvoiceForm({
   const sp = useSearchParams();
   const f = useInvoiceForm({ initial, customFields, redirectTo });
 
+  const [placeOfSupply, setPlaceOfSupply] = React.useState<string>(initial?.placeOfSupply || 'Maharashtra');
+  const [companyBaseState] = React.useState<string>('Maharashtra');
+  const [tdsPercent, setTdsPercent] = React.useState<number>(initial?.tdsPct ?? 0);
+  const [tcsPercent, setTcsPercent] = React.useState<number>(initial?.tcsPct ?? 0);
+
   const fromKind = !f.editing ? sp?.get('fromKind') ?? undefined : undefined;
   const fromId = !f.editing ? sp?.get('fromId') ?? undefined : undefined;
+
+  const calculatorItems: CalculatorItem[] = React.useMemo(() => {
+    return f.rows.map((row) => ({
+      itemId: row._key,
+      name: row.description || '',
+      qty: row.qty,
+      rate: row.rate,
+      discountPercent: row.discountPct ?? 0,
+      taxRatePercent: row.taxRatePct ?? 18,
+    }));
+  }, [f.rows]);
+
+  const handleCalculatorItemsChange = (newItems: CalculatorItem[]) => {
+    const isIntra = placeOfSupply.toLowerCase().trim() === companyBaseState.toLowerCase().trim();
+    const nextRows = newItems.map((item) => {
+      const existing = f.rows.find((r) => r._key === item.itemId);
+      const qty = item.qty;
+      const rate = item.rate;
+      const discountPct = item.discountPercent;
+      const taxRatePct = item.taxRatePercent;
+      const baseLine = qty * rate;
+      const rowTaxable = Math.max(0, baseLine * (1 - discountPct / 100));
+      const taxAmount = rowTaxable * (taxRatePct / 100);
+      const cgstAmount = isIntra ? taxAmount / 2 : 0;
+      const sgstAmount = isIntra ? taxAmount / 2 : 0;
+      const igstAmount = isIntra ? 0 : taxAmount;
+      const total = rowTaxable + taxAmount;
+      
+      return {
+        _key: item.itemId,
+        itemId: existing?.itemId,
+        description: item.name,
+        qty,
+        rate,
+        discountPct,
+        taxRatePct,
+        cgstAmount,
+        sgstAmount,
+        igstAmount,
+        total: Number.isFinite(total) ? total : 0,
+      };
+    });
+    f.setRows(nextRows);
+  };
+
+  const handleTotalsChange = (totals: CalculationTotals) => {
+    f.setRoundOff(String(totals.roundOff));
+  };
 
   return (
     <form
@@ -161,6 +213,8 @@ export function InvoiceForm({
       <input type="hidden" name="adjustment" value={f.adjustment || ''} />
       <input type="hidden" name="roundOff" value={f.roundOff || ''} />
       <input type="hidden" name="status" value={f.statusValue} />
+      <input type="hidden" name="tdsPct" value={tdsPercent} />
+      <input type="hidden" name="tcsPct" value={tcsPercent} />
 
       {/* Section 1: Header */}
       <HeaderSection
@@ -171,7 +225,8 @@ export function InvoiceForm({
           toDateInput(initial?.date) || new Date().toISOString().slice(0, 10)
         }
         defaultDueDate={toDateInput(initial?.dueDate)}
-        defaultPlaceOfSupply={initial?.placeOfSupply}
+        placeOfSupply={placeOfSupply}
+        onPlaceOfSupplyChange={setPlaceOfSupply}
         gstTreatment={f.gstTreatment}
         onGstTreatment={f.setGstTreatment}
         reverseCharge={f.reverseCharge}
@@ -189,33 +244,23 @@ export function InvoiceForm({
         onShippingAddress={f.setShippingAddress}
       />
 
-      {/* Section 3: Line items */}
-      <InvoiceLineItems
-        rows={f.rows}
-        currency={f.currency}
-        onAddRow={f.addRow}
-        onRemoveRow={f.removeRow}
-        onPatchRow={f.patchRow}
-      />
-
-      {/* Section 4: Summary */}
-      <SummarySection
-        currency={f.currency}
-        subTotal={f.subTotal}
-        total={f.total}
-        discountOverall={f.discountOverall}
-        shippingCharge={f.shippingCharge}
-        adjustment={f.adjustment}
-        roundOff={f.roundOff}
-        onDiscountOverall={f.setDiscountOverall}
-        onShippingCharge={f.setShippingCharge}
-        onAdjustment={f.setAdjustment}
-        onRoundOff={f.setRoundOff}
-        defaultTcsPct={initial?.tcsPct ?? ''}
-        defaultTdsPct={initial?.tdsPct ?? ''}
-        editing={f.editing}
-        amountPaid={initial?.amountPaid}
-        balance={initial?.balance}
+      {/* Section 3 & 4: Bulky Statutory Calculator */}
+      <CrmStatutoryCalculator
+        items={calculatorItems}
+        onChangeItems={handleCalculatorItemsChange}
+        placeOfSupplyState={placeOfSupply}
+        companyBaseState={companyBaseState}
+        tdsPercent={tdsPercent}
+        onChangeTdsPercent={setTdsPercent}
+        tcsPercent={tcsPercent}
+        onChangeTcsPercent={setTcsPercent}
+        discountOverallVal={Number(f.discountOverall) || 0}
+        onChangeDiscountOverallVal={(v) => f.setDiscountOverall(String(v))}
+        shippingCharge={Number(f.shippingCharge) || 0}
+        onChangeShippingCharge={(v) => f.setShippingCharge(String(v))}
+        adjustment={Number(f.adjustment) || 0}
+        onChangeAdjustment={(v) => f.setAdjustment(String(v))}
+        onTotalsChange={handleTotalsChange}
       />
 
       {/* Section 5: Bank / UPI */}

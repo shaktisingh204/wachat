@@ -292,10 +292,33 @@ export async function savePayrollRun(
             total_net: 0,
         };
 
+        const multiplier = Number(formData.get('multiplier') || '1.0');
+
         if (!isEditing) {
             const gen = await generatePayrollData(month, year);
             if (gen.error) return { error: gen.error };
-            const rows = gen.payrollData ?? [];
+            let rows = gen.payrollData ?? [];
+            
+            if (multiplier !== 1.0) {
+                rows = rows.map(r => {
+                    const earnings = (r.earnings ?? []).map((e: any) => {
+                        const nameLower = e.name.toLowerCase();
+                        if (nameLower.includes('hra') || nameLower.includes('allowance')) {
+                            return { ...e, amount: e.amount * multiplier };
+                        }
+                        return e;
+                    });
+                    const totalEarnings = earnings.reduce((sum: number, item: any) => sum + item.amount, 0);
+                    const totalDeductions = (r.deductions ?? []).reduce((sum: number, item: any) => sum + item.amount, 0);
+                    return {
+                        ...r,
+                        earnings,
+                        grossSalary: totalEarnings,
+                        netSalary: totalEarnings - totalDeductions,
+                    };
+                });
+            }
+
             if (rows.length > 0) {
                 const res = await processPayroll(rows, month, year);
                 if (!res.success) return { error: res.error };

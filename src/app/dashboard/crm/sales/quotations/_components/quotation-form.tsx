@@ -59,7 +59,6 @@ import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
 import {
   QuotationAttachmentsSection,
-  QuotationSummarySection,
   QuotationTemplateSection,
 } from './quotation-form-extras';
 import {
@@ -74,6 +73,7 @@ import {
   seedRows,
   type LineRow,
 } from './quotation-line-items-editor';
+import { CrmStatutoryCalculator, type CalculatorItem, type CalculationTotals } from '@/components/crm/crm-statutory-calculator';
 
 interface QuotationFormProps {
   /** Existing quotation — present in Edit mode, omit for Create. */
@@ -138,6 +138,58 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
     setRows((prev) => (prev.length === 1 ? [freshRow()] : prev.filter((r) => r.rowKey !== key)));
   const patchRow = (key: string, patch: Partial<LineRow>) =>
     setRows((prev) => prev.map((r) => (r.rowKey === key ? { ...r, ...patch } : r)));
+
+  /* ----- statutory place-of-supply & withholding states --------- */
+  const [placeOfSupply, setPlaceOfSupply] = useState<string>(initial?.placeOfSupply || 'Maharashtra');
+  const [companyBaseState] = useState<string>('Maharashtra');
+  const [tdsPercent, setTdsPercent] = useState<number>(initial?.customFields?.tdsPct as number ?? 0);
+  const [tcsPercent, setTcsPercent] = useState<number>(initial?.customFields?.tcsPct as number ?? 0);
+
+  const calculatorItems: CalculatorItem[] = useMemo(() => {
+    return rows.map((row) => ({
+      itemId: row.rowKey,
+      name: row.description || '',
+      qty: row.qty,
+      rate: row.rate,
+      discountPercent: row.discountPct ?? 0,
+      taxRatePercent: row.taxRatePct ?? 18,
+      hsnSac: row.hsnSac,
+    }));
+  }, [rows]);
+
+  const handleCalculatorItemsChange = (newItems: CalculatorItem[]) => {
+    const isIntra = placeOfSupply.toLowerCase().trim() === companyBaseState.toLowerCase().trim();
+    const nextRows = newItems.map((item) => {
+      const existing = rows.find((r) => r.rowKey === item.itemId);
+      const qty = item.qty;
+      const rate = item.rate;
+      const discountPct = item.discountPercent;
+      const taxRatePct = item.taxRatePercent;
+      const baseLine = qty * rate;
+      const rowTaxable = Math.max(0, baseLine * (1 - discountPct / 100));
+      const taxAmount = rowTaxable * (taxRatePct / 100);
+      const cgstAmount = isIntra ? taxAmount / 2 : 0;
+      const sgstAmount = isIntra ? taxAmount / 2 : 0;
+      const igstAmount = isIntra ? 0 : taxAmount;
+      const total = rowTaxable + taxAmount;
+
+      return {
+        rowKey: item.itemId,
+        itemId: existing?.itemId,
+        description: item.name,
+        qty,
+        rate,
+        discountPct,
+        taxRatePct,
+        cgstAmount,
+        sgstAmount,
+        igstAmount,
+        total: Number.isFinite(total) ? total : 0,
+        hsnSac: item.hsnSac,
+      };
+    });
+    setRows(nextRows);
+  };
 
   const itemsPayload = useMemo<CrmQuotationLineItem[]>(
     () =>
@@ -335,48 +387,58 @@ export function QuotationForm({ initial, customFields }: QuotationFormProps) {
         onAnyChange={markDirty}
       />
 
+      {/* Hidden inputs to capture statutory calculator and placeOfSupply state in FormData */}
+      <input type="hidden" name="placeOfSupply" value={placeOfSupply} />
+      <input type="hidden" name="discountOverall" value={discountOverall} />
+      <input type="hidden" name="shippingCharge" value={shippingCharge} />
+      <input type="hidden" name="adjustment" value={adjustment} />
+      <input type="hidden" name="roundOff" value={roundOff} />
+      <input type="hidden" name="tdsPct" value={tdsPercent} />
+      <input type="hidden" name="tcsPct" value={tcsPercent} />
+
       {/* ─── Section 3: Subject + place of supply ─────────────── */}
       <QuotationSubjectSection
         initial={initial}
         editing={editing}
         onCurrencyChange={setCurrency}
         onAnyChange={markDirty}
+        placeOfSupply={placeOfSupply}
+        onPlaceOfSupplyChange={setPlaceOfSupply}
       />
 
-      {/* ─── Section 4: Line items ─────────────────────────────── */}
-      <Card className="space-y-4 p-6">
-        <QuotationLineItemsEditor
-          rows={rows}
-          onAdd={addRow}
-          onPatch={patchRow}
-          onRemove={removeRow}
-          fmtMoney={fmtMoney}
-        />
-      </Card>
-
-      {/* ─── Section 5: Summary ────────────────────────────────── */}
-      <QuotationSummarySection
-        totals={totals}
-        discountOverall={discountOverall}
-        shippingCharge={shippingCharge}
-        adjustment={adjustment}
-        roundOff={roundOff}
-        fmtMoney={fmtMoney}
-        onDiscountChange={(v) => {
+      {/* ─── Sections 4 & 5: Bulky Statutory Calculator ─────────── */}
+      <CrmStatutoryCalculator
+        items={calculatorItems}
+        onChangeItems={handleCalculatorItemsChange}
+        placeOfSupplyState={placeOfSupply}
+        companyBaseState={companyBaseState}
+        tdsPercent={tdsPercent}
+        onChangeTdsPercent={(v) => {
+          setTdsPercent(v);
+          markDirty();
+        }}
+        tcsPercent={tcsPercent}
+        onChangeTcsPercent={(v) => {
+          setTcsPercent(v);
+          markDirty();
+        }}
+        discountOverallVal={discountOverall}
+        onChangeDiscountOverallVal={(v) => {
           setDiscountOverall(v);
           markDirty();
         }}
-        onShippingChange={(v) => {
+        shippingCharge={shippingCharge}
+        onChangeShippingCharge={(v) => {
           setShippingCharge(v);
           markDirty();
         }}
-        onAdjustmentChange={(v) => {
+        adjustment={adjustment}
+        onChangeAdjustment={(v) => {
           setAdjustment(v);
           markDirty();
         }}
-        onRoundOffChange={(v) => {
-          setRoundOff(v);
-          markDirty();
+        onTotalsChange={(t) => {
+          setRoundOff(t.roundOff);
         }}
       />
 

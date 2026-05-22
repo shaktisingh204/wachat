@@ -12,12 +12,12 @@ import { Plus } from 'lucide-react';
  * total count) — see `<PaginationBar>`.
  */
 
-import Link from 'next/link';
-
 import { getT } from '@/lib/i18n/server';
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { listLeads } from '@/app/actions/crm/leads.actions';
+import { getCustomFieldsFor } from '@/app/actions/worksuite/meta.actions';
 import { LeadListClient } from './_components/lead-list-client';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,23 +37,16 @@ export default async function LeadsPage({
   const limit = Math.min(Math.max(1, Number(sp.limit) || 20), 100);
   const q = (sp.q ?? '').trim();
 
-  const [t, { leads, hasMore, error }] = await Promise.all([
+  const [t, { leads, hasMore, error }, customFields] = await Promise.all([
     getT(),
     listLeads({ page, limit, q: q || undefined }),
+    getCustomFieldsFor('lead').catch(() => []) as Promise<WsCustomField[]>,
   ]);
 
   return (
     <EntityListShell
       title={t('crm.leads.list.title')}
       subtitle={t('crm.leads.list.subtitle')}
-      primaryAction={
-        <Button asChild>
-          <Link href="/dashboard/crm/leads/new">
-            <Plus className="h-4 w-4" />
-            {t('crm.leads.list.action.new')}
-          </Link>
-        </Button>
-      }
     >
       <LeadListClient
         leads={leads}
@@ -62,6 +55,7 @@ export default async function LeadsPage({
         hasMore={hasMore}
         initialQuery={q}
         error={error}
+        customFields={customFields}
       />
     </EntityListShell>
   );

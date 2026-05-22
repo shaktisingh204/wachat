@@ -1,8 +1,8 @@
-import { GitBranch } from "lucide-react";
-
+import { GitBranch, PlayCircle, Users, Zap, Activity, BarChart3, Workflow } from "lucide-react";
 import { getCachedSession } from "@/lib/server-cache";
 import { getSabsmsCollections } from "@/lib/sabsms/db/collections";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import { Card, ZoruCardContent, ZoruCardHeader, ZoruCardTitle } from "@/components/zoruui";
 
 import { DripsTable } from "./drips-table";
 import {
@@ -10,18 +10,6 @@ import {
   loadTemplateFacetOptions,
   type DripListFilters,
 } from "./actions";
-
-/**
- * Drips list page (Page 12 of `plans/sabsms-pages-catalog.md`).
- *
- * Server entry — resolves the workspace, reads URL search params into
- * a typed `DripListFilters`, hydrates the rows + template facet, then
- * hands control to the client `<DripsTable>` for the interactive
- * filter / bulk-action UI.
- *
- * Page-specific features (20 from §B.2) live in `drips-table.tsx`;
- * shared features (the 30 from §A) come from `@/components/sabsms/page-toolkit`.
- */
 
 export const dynamic = "force-dynamic";
 
@@ -65,7 +53,6 @@ export default async function SabsmsDripsPage({
     );
   }
 
-  // Surface side-effect: ensure indexes get touched once.
   await getSabsmsCollections();
 
   const filters: DripListFilters = {
@@ -90,6 +77,16 @@ export default async function SabsmsDripsPage({
     loadTemplateFacetOptions(workspaceId),
   ]);
 
+  // Success Metrics & Active Nodes calculations
+  const totalDrips = rows.length;
+  const activeDrips = rows.filter((r) => r.enabled).length;
+  const totalActiveNodes = rows.reduce((sum, r) => sum + r.stepCount + r.branchCount, 0);
+  const totalActiveRecipients = rows.reduce((sum, r) => sum + r.activeRecipients, 0);
+  const avgConversion = totalDrips > 0 
+    ? rows.reduce((sum, r) => sum + r.conversionRate, 0) / totalDrips 
+    : 0;
+  const totalThroughput = rows.reduce((sum, r) => sum + r.throughputPerMin, 0);
+
   return (
     <SabsmsPageShell
       eyebrow="SabSMS · Outbound"
@@ -112,10 +109,79 @@ export default async function SabsmsDripsPage({
         </div>
       }
     >
+      {/* BULKY DATA-RICH DASHBOARD HEADER */}
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="bg-gradient-to-br from-slate-900 to-slate-800 text-white shadow-xl">
+          <ZoruCardHeader className="pb-2">
+            <ZoruCardTitle className="text-slate-200 text-sm font-medium flex items-center gap-2">
+              <Workflow className="h-4 w-4 text-emerald-400" />
+              Active Nodes
+            </ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="text-4xl font-bold tracking-tight">{totalActiveNodes}</div>
+            <p className="mt-1 text-xs text-slate-400 flex items-center gap-1">
+              Across {activeDrips} running drips
+            </p>
+          </ZoruCardContent>
+        </Card>
+
+        <Card className="shadow-md border-slate-200/60">
+          <ZoruCardHeader className="pb-2">
+            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
+              <Users className="h-4 w-4 text-blue-500" />
+              Active Enrolments
+            </ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="text-4xl font-bold tracking-tight text-slate-900">{totalActiveRecipients.toLocaleString()}</div>
+            <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+              Contacts currently flowing
+            </p>
+          </ZoruCardContent>
+        </Card>
+
+        <Card className="shadow-md border-slate-200/60">
+          <ZoruCardHeader className="pb-2">
+            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
+              <Activity className="h-4 w-4 text-amber-500" />
+              Global Throughput
+            </ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="text-4xl font-bold tracking-tight text-slate-900">{totalThroughput.toFixed(1)}</div>
+            <p className="mt-1 text-xs text-slate-500 flex items-center gap-1">
+              Messages per minute
+            </p>
+          </ZoruCardContent>
+        </Card>
+
+        <Card className="shadow-md border-slate-200/60 bg-gradient-to-br from-indigo-50/50 to-white">
+          <ZoruCardHeader className="pb-2">
+            <ZoruCardTitle className="text-slate-600 text-sm font-medium flex items-center gap-2">
+              <BarChart3 className="h-4 w-4 text-indigo-500" />
+              Avg Conversion
+            </ZoruCardTitle>
+          </ZoruCardHeader>
+          <ZoruCardContent>
+            <div className="text-4xl font-bold tracking-tight text-indigo-900">
+              {(avgConversion * 100).toFixed(1)}%
+            </div>
+            <p className="mt-1 text-xs text-indigo-600/70 flex items-center gap-1">
+              End-to-end success rate
+            </p>
+          </ZoruCardContent>
+        </Card>
+      </div>
+
       {rows.length === 0 && Object.values(filters).every((v) => !v || v === "all") ? (
         <EmptyHero />
       ) : (
-        <DripsTable rows={rows} templateOptions={templateOptions} />
+        <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div className="p-1 border-b border-slate-100 bg-slate-50/50">
+            <DripsTable rows={rows} templateOptions={templateOptions} />
+          </div>
+        </div>
       )}
     </SabsmsPageShell>
   );
@@ -123,21 +189,21 @@ export default async function SabsmsDripsPage({
 
 function EmptyHero() {
   return (
-    <div className="rounded-md border border-dashed border-slate-200 bg-white p-12 text-center">
-      <div className="mx-auto mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-500">
-        <GitBranch className="h-5 w-5" />
+    <div className="rounded-2xl border border-dashed border-slate-200 bg-white p-12 text-center shadow-sm">
+      <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-slate-50 text-slate-400 border border-slate-100 shadow-sm">
+        <GitBranch className="h-6 w-6" />
       </div>
-      <h2 className="text-base font-semibold text-slate-900">No drips yet</h2>
-      <p className="mx-auto mt-1 max-w-md text-sm text-slate-600">
+      <h2 className="text-lg font-semibold text-slate-900 tracking-tight">No drips yet</h2>
+      <p className="mx-auto mt-2 max-w-md text-sm text-slate-500 leading-relaxed">
         Build your first drip to nudge replies, recover abandoned carts, or
         send a welcome series. The visual builder ships with templates,
         branches, and a dry-run mode.
       </p>
       <a
         href="/sabsms/drips/new"
-        className="mt-4 inline-flex items-center rounded-md bg-slate-900 px-3 py-1.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+        className="mt-6 inline-flex items-center rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition-colors"
       >
-        New drip
+        <PlayCircle className="mr-2 h-4 w-4" /> Create First Drip
       </a>
     </div>
   );

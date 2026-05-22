@@ -2,14 +2,7 @@
 
 /**
  * <ProformaListClient> — §1D list view for Proforma Invoices.
- *
- * Composes <EntityListShell> with:
- *  - KPI strip (Total · Issued · Converted · Expired · Pending)
- *  - Status filter via <EnumFilterField enumName="quotationStatus" />
- *  - Client/account filter chip
- *  - Dense Table with row checkboxes
- *  - Bulk-action bar (archive · delete · export CSV)
- *  - Hard-delete + archive confirmation dialogs
+ * Upgraded to use spreadsheet-style CrmBulkyGrid and useCrmBulkyState.
  */
 
 import * as React from 'react';
@@ -30,14 +23,8 @@ import {
 import {
   Button,
   Card,
-  Checkbox,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   useZoruToast,
+  Input,
 } from '@/components/zoruui';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
@@ -51,10 +38,14 @@ import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   archiveProformaInvoice,
   deleteProformaInvoice,
+  patchProformaInvoice,
+  listProformaInvoices,
   type ProformaKpis,
 } from '@/app/actions/crm-proforma-invoices.actions';
 import { dateStamp, downloadXlsx } from '@/lib/crm-list-export';
-import type { CrmProformaInvoiceDoc } from '@/lib/rust-client/crm-proforma-invoices';
+import type { CrmProformaInvoiceDoc, CrmProformaStatus } from '@/lib/rust-client/crm-proforma-invoices';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -164,12 +155,11 @@ export function ProformaListClient({
 
   const [query, setQuery] = React.useState(initialQuery);
   const [statusFilter, setStatusFilter] = React.useState<string>(initialStatus || ALL);
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [pendingDelete, setPendingDelete] = React.useState<CrmProformaInvoiceDoc | null>(null);
   const [pendingBulkDelete, setPendingBulkDelete] = React.useState(false);
-  const [busy, startBusy] = React.useTransition();
+  const [density, setDensity] = React.useState<'comfortable' | 'compact' | 'dense'>('comfortable');
 
-  function pushParams(updates: Record<string, string | undefined>) {
+  const pushParams = React.useCallback((updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(sp?.toString() ?? '');
     for (const [k, v] of Object.entries(updates)) {
       if (v == null || v === '') params.delete(k);
@@ -177,7 +167,32 @@ export function ProformaListClient({
     }
     const qs = params.toString();
     router.push(qs ? `${pathname}?${qs}` : pathname);
-  }
+  }, [sp, pathname, router]);
+
+  /* Bulky State Hook */
+  const bulky = useCrmBulkyState<CrmProformaInvoiceDoc>({
+    initialData: serverRows,
+    initialPage: page,
+    initialLimit: limit,
+    fetchFn: async ({ page: p, limit: l, search, filters: f }) => {
+      const res = await listProformaInvoices({
+        page: p,
+        limit: l,
+        q: search || undefined,
+        status: statusFilter !== ALL ? (statusFilter as CrmProformaStatus) : undefined,
+      });
+      return res;
+    },
+  });
+
+  // Re-sync local grid when server inputs change
+  React.useEffect(() => {
+    bulky.setData(serverRows);
+  }, [serverRows]);
+
+  React.useEffect(() => {
+    bulky.triggerFetch();
+  }, [bulky.page, bulky.limit, statusFilter]);
 
   /* Push search to URL (debounced) */
   React.useEffect(() => {
@@ -186,8 +201,7 @@ export function ProformaListClient({
       pushParams({ q: query.trim() || undefined, page: '1' });
     }, 300);
     return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [query, initialQuery]);
+  }, [query, initialQuery, pushParams]);
 
   /* Push status filter to URL */
   const applyStatusFilter = React.useCallback(
@@ -195,61 +209,15 @@ export function ProformaListClient({
       setStatusFilter(val);
       pushParams({ status: val && val !== ALL ? val : undefined, page: '1' });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [sp, pathname, router],
+    [pushParams],
   );
-
-  /* In-memory filter on top of server rows */
-  const filtered = React.useMemo(() => {
-    return serverRows.filter((inv) => {
-      if (statusFilter !== ALL && inv.status !== statusFilter) return false;
-      if (initialDateFrom) {
-        const d = inv.proformaDate ? new Date(inv.proformaDate).toISOString().slice(0, 10) : '';
-        if (!d || d < initialDateFrom) return false;
-      }
-      if (initialDateTo) {
-        const d = inv.proformaDate ? new Date(inv.proformaDate).toISOString().slice(0, 10) : '';
-        if (!d || d > initialDateTo) return false;
-      }
-      return true;
-    });
-  }, [serverRows, statusFilter, initialDateFrom, initialDateTo]);
-
-  /* Selection helpers */
-  const allIds = React.useMemo(() => filtered.map((inv) => String(inv._id)), [filtered]);
-  const allSelectedOnPage = allIds.length > 0 && allIds.every((id) => selected.has(id));
-
-  const toggleRow = React.useCallback((id: string) => {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
-
-  const toggleAll = React.useCallback(() => {
-    setSelected((prev) => {
-      const allSel = allIds.every((id) => prev.has(id));
-      if (allSel) {
-        const next = new Set(prev);
-        for (const id of allIds) next.delete(id);
-        return next;
-      }
-      const next = new Set(prev);
-      for (const id of allIds) next.add(id);
-      return next;
-    });
-  }, [allIds]);
-
-  const clearSelection = React.useCallback(() => setSelected(new Set()), []);
 
   /* Single delete */
   function confirmDelete() {
     if (!pendingDelete?._id) return;
     const id = String(pendingDelete._id);
     const label = pendingDelete.proformaNumber || id;
-    startBusy(async () => {
+    bulky.runBulkOperation(async () => {
       const res = await deleteProformaInvoice(id);
       if (res.success) {
         toast({ title: 'Deleted', description: `${label} removed.` });
@@ -258,15 +226,16 @@ export function ProformaListClient({
       } else {
         toast({ title: 'Delete failed', description: res.error, variant: 'destructive' });
       }
+      return res;
     });
   }
 
   /* Bulk archive */
   const bulkArchive = React.useCallback(() => {
-    startBusy(async () => {
+    bulky.runBulkOperation(async (ids) => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of ids) {
         const res = await archiveProformaInvoice(id);
         if (res.success) ok++;
         else fail++;
@@ -276,17 +245,17 @@ export function ProformaListClient({
         description: fail > 0 ? `${fail} failed.` : 'Selected proformas archived.',
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
       router.refresh();
+      return { success: fail === 0 };
     });
-  }, [selected, toast, clearSelection, router]);
+  }, [bulky, toast, router]);
 
   /* Bulk delete */
   function bulkDelete() {
-    startBusy(async () => {
+    bulky.runBulkOperation(async (ids) => {
       let ok = 0;
       let fail = 0;
-      for (const id of selected) {
+      for (const id of ids) {
         const res = await deleteProformaInvoice(id);
         if (res.success) ok++;
         else fail++;
@@ -296,15 +265,15 @@ export function ProformaListClient({
         description: fail > 0 ? `${fail} failed.` : 'All selected removed.',
         variant: fail > 0 ? 'destructive' : undefined,
       });
-      clearSelection();
       setPendingBulkDelete(false);
       router.refresh();
+      return { success: fail === 0 };
     });
   }
 
   /* CSV export */
   const bulkExport = React.useCallback(() => {
-    const rows = filtered.filter((inv) => selected.size === 0 || selected.has(String(inv._id)));
+    const rows = bulky.data.filter((inv) => bulky.selected.size === 0 || bulky.selected.has(String(inv._id)));
     if (rows.length === 0) {
       toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
       return;
@@ -320,11 +289,11 @@ export function ProformaListClient({
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     toast({ title: 'Exported', description: `${rows.length} proforma invoices saved to CSV.` });
-  }, [filtered, selected, toast]);
+  }, [bulky.data, bulky.selected, toast]);
 
   /* XLSX export */
   const bulkExportXlsx = React.useCallback(() => {
-    const rows = filtered.filter((inv) => selected.size === 0 || selected.has(String(inv._id)));
+    const rows = bulky.data.filter((inv) => bulky.selected.size === 0 || bulky.selected.has(String(inv._id)));
     if (rows.length === 0) {
       toast({ title: 'Nothing to export', description: 'Filter or select rows first.' });
       return;
@@ -343,9 +312,149 @@ export function ProformaListClient({
     }));
     void downloadXlsx(`proforma-invoices-${dateStamp()}.xlsx`, headers, exportRows, 'Proformas');
     toast({ title: 'Exported', description: `${rows.length} proforma invoices saved to XLSX.` });
-  }, [filtered, selected, toast]);
+  }, [bulky.data, bulky.selected, toast]);
+
+  /* Inline Save handler */
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<CrmProformaInvoiceDoc>) => {
+    try {
+      const res = await patchProformaInvoice(id, updatedFields);
+      if (res.success) {
+        toast({ title: 'Saved inline', description: 'Proforma invoice updated successfully.' });
+        bulky.cancelInlineEdit();
+        bulky.triggerFetch();
+        router.refresh();
+      } else {
+        toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+      }
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
+    }
+  };
 
   const filtersActive = statusFilter !== ALL || Boolean(initialDateFrom) || Boolean(initialDateTo);
+
+  const columns = React.useMemo<ColumnDef<CrmProformaInvoiceDoc>[]>(() => [
+    {
+      key: 'proformaNumber',
+      header: 'Proforma #',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/sales/proforma/${row._id}`}
+          label={row.proformaNumber || '—'}
+          subtitle={fmtDate(row.proformaDate)}
+        />
+      ),
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'accountId',
+      header: 'Customer',
+      render: (row) => row.accountId ? (
+        <EntityPickerChip entity="client" id={row.accountId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'proformaDate',
+      header: 'Date',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.proformaDate)}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          type="date"
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value).slice(0, 10) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'validTillDate',
+      header: 'Valid until',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.validTillDate)}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          type="date"
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value).slice(0, 10) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'currency',
+      header: 'Currency',
+      render: (row) => <span className="text-zoru-ink-muted">{row.currency || 'INR'}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-20 text-[12.5px]"
+          value={value !== undefined ? String(value) : 'INR'}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Amount',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+          {fmtMoney(row.total, row.currency)}
+        </span>
+      ),
+      editRender: (row, value, onChange) => (
+        <Input
+          type="number"
+          size="sm"
+          className="h-8 w-28 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => row.status ? (
+        <StatusPill
+          label={row.status}
+          tone={statusToTone(row.status.toLowerCase())}
+        />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+      editRender: (row, value, onChange) => {
+        const options = ['Draft', 'Issued', 'Converted', 'Expired', 'Cancelled'];
+        return (
+          <select
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            value={value !== undefined ? String(value) : 'Draft'}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+  ], []);
 
   return (
     <>
@@ -365,10 +474,10 @@ export function ProformaListClient({
           </Button>
         }
         bulkBar={
-          selected.size > 0 ? (
+          bulky.selected.size > 0 ? (
             <div className="flex flex-wrap items-center gap-2 text-[13px]">
-              <span className="font-medium text-zoru-ink">{selected.size} selected</span>
-              <Button size="sm" variant="outline" onClick={bulkArchive} disabled={busy}>
+              <span className="font-medium text-zoru-ink">{bulky.selected.size} selected</span>
+              <Button size="sm" variant="outline" onClick={bulkArchive} disabled={bulky.isPending}>
                 Archive
               </Button>
               <Button size="sm" variant="outline" onClick={bulkExport}>
@@ -382,18 +491,18 @@ export function ProformaListClient({
                 variant="ghost"
                 className="text-zoru-danger-ink"
                 onClick={() => setPendingBulkDelete(true)}
-                disabled={busy}
+                disabled={bulky.isPending}
               >
                 Delete
               </Button>
-              <Button size="sm" variant="ghost" onClick={clearSelection}>
+              <Button size="sm" variant="ghost" onClick={bulky.clearSelection}>
                 <X className="h-3.5 w-3.5" /> Clear
               </Button>
             </div>
           ) : null
         }
         empty={
-          filtered.length === 0 && !filtersActive && !query ? (
+          bulky.data.length === 0 && !filtersActive && !query ? (
             <div className="flex flex-col items-center gap-3 p-4">
               <FileText className="h-8 w-8 text-zoru-ink-muted" />
               <h3 className="text-base font-medium text-zoru-ink">No proforma invoices yet</h3>
@@ -408,7 +517,7 @@ export function ProformaListClient({
             </div>
           ) : null
         }
-        pagination={<PaginationBar page={page} limit={limit} hasMore={hasMore} />}
+        pagination={<PaginationBar page={bulky.page} limit={bulky.limit} hasMore={hasMore} />}
       >
         <div className="flex flex-col gap-5">
           {/* KPI strip */}
@@ -426,9 +535,9 @@ export function ProformaListClient({
             </div>
           ) : null}
 
-          <Card className="overflow-hidden p-0">
+          <div className="flex flex-col gap-3">
             {/* Filter bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-zoru-line px-3 py-2">
+            <div className="flex flex-wrap items-center gap-2 px-3 py-2 bg-zoru-surface border border-zoru-line rounded-lg">
               <div className="relative max-w-xs flex-1">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
                 <input
@@ -471,6 +580,33 @@ export function ProformaListClient({
                   />
                 </div>
               </details>
+              {/* Density toggle buttons */}
+              <div className="flex items-center border border-zoru-line rounded-md p-0.5 ml-auto bg-zoru-surface-2/40">
+                <Button
+                  size="sm"
+                  variant={density === 'comfortable' ? 'outline' : 'ghost'}
+                  onClick={() => setDensity('comfortable')}
+                  className="h-7 text-[11px] px-2"
+                >
+                  Comfortable
+                </Button>
+                <Button
+                  size="sm"
+                  variant={density === 'compact' ? 'outline' : 'ghost'}
+                  onClick={() => setDensity('compact')}
+                  className="h-7 text-[11px] px-2"
+                >
+                  Compact
+                </Button>
+                <Button
+                  size="sm"
+                  variant={density === 'dense' ? 'outline' : 'ghost'}
+                  onClick={() => setDensity('dense')}
+                  className="h-7 text-[11px] px-2"
+                >
+                  Dense
+                </Button>
+              </div>
               {filtersActive ? (
                 <Button
                   size="sm"
@@ -486,89 +622,22 @@ export function ProformaListClient({
               ) : null}
             </div>
 
-            <Table>
-              <ZoruTableHeader>
-                <ZoruTableRow>
-                  <ZoruTableHead className="w-[36px]">
-                    <Checkbox
-                      checked={allSelectedOnPage}
-                      onCheckedChange={toggleAll}
-                      aria-label="Select all"
-                    />
-                  </ZoruTableHead>
-                  <ZoruTableHead>Proforma #</ZoruTableHead>
-                  <ZoruTableHead>Customer</ZoruTableHead>
-                  <ZoruTableHead>Date</ZoruTableHead>
-                  <ZoruTableHead>Valid until</ZoruTableHead>
-                  <ZoruTableHead>Status</ZoruTableHead>
-                  <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                </ZoruTableRow>
-              </ZoruTableHeader>
-              <ZoruTableBody>
-                {filtered.length === 0 ? (
-                  <ZoruTableRow>
-                    <ZoruTableCell
-                      colSpan={7}
-                      className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                    >
-                      {filtersActive || query
-                        ? 'No proforma invoices match these filters.'
-                        : 'No proforma invoices yet — click "New proforma" to add one.'}
-                    </ZoruTableCell>
-                  </ZoruTableRow>
-                ) : (
-                  filtered.map((inv) => {
-                    const id = String(inv._id);
-                    const isSelected = selected.has(id);
-                    return (
-                      <ZoruTableRow key={id} data-state={isSelected ? 'selected' : undefined}>
-                        <ZoruTableCell>
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => toggleRow(id)}
-                            aria-label={`Select ${inv.proformaNumber}`}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          <EntityRowLink
-                            href={`/dashboard/crm/sales/proforma/${id}`}
-                            label={inv.proformaNumber}
-                            subtitle={fmtDate(inv.proformaDate)}
-                          />
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          {inv.accountId ? (
-                            <EntityPickerChip entity="client" id={inv.accountId} />
-                          ) : (
-                            <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                          )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                          {fmtDate(inv.proformaDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                          {fmtDate(inv.validTillDate)}
-                        </ZoruTableCell>
-                        <ZoruTableCell>
-                          {inv.status ? (
-                            <StatusPill
-                              label={inv.status}
-                              tone={statusToTone(inv.status.toLowerCase())}
-                            />
-                          ) : (
-                            <span className="text-[12.5px] text-zoru-ink-muted">—</span>
-                          )}
-                        </ZoruTableCell>
-                        <ZoruTableCell className="text-right text-[12.5px] tabular-nums text-zoru-ink">
-                          {fmtMoney(inv.total, inv.currency)}
-                        </ZoruTableCell>
-                      </ZoruTableRow>
-                    );
-                  })
-                )}
-              </ZoruTableBody>
-            </Table>
-          </Card>
+            <CrmBulkyGrid<CrmProformaInvoiceDoc>
+              columns={columns}
+              data={bulky.data}
+              selectedIds={bulky.selected}
+              onSelectOne={bulky.toggleSelectOne}
+              onSelectAll={(checked) => bulky.toggleSelectAll(bulky.data.map(x => String(x._id)), checked)}
+              density={density}
+              inlineEditRowId={bulky.inlineEditRowId}
+              editBuffer={bulky.editBuffer}
+              onStartInlineEdit={bulky.startInlineEdit}
+              onCancelInlineEdit={bulky.cancelInlineEdit}
+              onSaveInlineEdit={handleSaveInlineEdit}
+              onUpdateEditBuffer={bulky.updateEditBuffer}
+              isLoading={bulky.isPending}
+            />
+          </div>
         </div>
       </EntityListShell>
 
@@ -591,14 +660,12 @@ export function ProformaListClient({
       <ConfirmDialog
         open={pendingBulkDelete}
         onOpenChange={setPendingBulkDelete}
-        title={`Delete ${selected.size} proforma invoice${selected.size === 1 ? '' : 's'}?`}
+        title={`Delete ${bulky.selected.size} proforma invoice${bulky.selected.size === 1 ? '' : 's'}?`}
         description="This permanently removes the selected proforma invoices. This action cannot be undone."
         requireTyped="DELETE"
         confirmLabel="Delete permanently"
         onConfirm={async () => bulkDelete()}
       />
-
-      {busy ? <span className="sr-only">Working…</span> : null}
     </>
   );
 }

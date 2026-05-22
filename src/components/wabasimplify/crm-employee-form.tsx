@@ -482,6 +482,27 @@ export function EmployeeForm({
                             className={inputCls}
                         />
                     </Field>
+                    <Field label="Password" htmlFor="password" required={!isEditing}>
+                        <Input
+                            id="password"
+                            name="password"
+                            type="password"
+                            placeholder={isEditing ? 'Leave blank to keep unchanged' : 'Required'}
+                            required={!isEditing}
+                            className={inputCls}
+                            autoComplete="new-password"
+                        />
+                    </Field>
+                    <Field label="Profile Image URL" htmlFor="image">
+                        <Input
+                            id="image"
+                            name="image"
+                            type="url"
+                            defaultValue={employee?.image}
+                            placeholder="https://example.com/avatar.jpg"
+                            className={inputCls}
+                        />
+                    </Field>
                     <Field label="Date of Birth">
                         <DatePicker
                             value={coreDateOfBirth}

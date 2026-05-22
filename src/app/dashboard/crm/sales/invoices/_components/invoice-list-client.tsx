@@ -1,22 +1,13 @@
 'use client';
 
-import { Button, Card, useZoruToast } from '@/components/zoruui';
+import { Button, Card, useZoruToast, Input } from '@/components/zoruui';
 import { Plus, Receipt } from 'lucide-react';
 
 /**
- * <InvoiceListClient> — canonical Invoices list view per CRM_REBUILD_PLAN §1D.
+ * <InvoiceListClient> — upgraded canonical Invoices list view.
  *
- * Ships:
- *   - KPI strip (outstanding, overdue, paid this month, drafts, avg days)
- *   - View switcher (table | calendar)
- *   - Filters (status, customer, sales agent, invoice date range, due
- *     date range, currency, amount range, branch)
- *   - Saved filter presets ("All", "My overdue", "Due this week", "Paid
- *     last 30 days", "Drafts")
- *   - Density toggle (Comfortable / Compact / Dense)
- *   - Search across invoice no, customer name, customer email
- *   - Bulk-action bar (archive / delete / export CSV / mark paid /
- *     send / change status)
+ * Consolidates spreadsheet-style high-density editing, bulk actions,
+ * KPI bars, and dynamic Radix selectors for status / agent.
  */
 
 import * as React from 'react';
@@ -30,10 +21,8 @@ import type { SavedView } from '@/lib/saved-views/types';
 
 import { InvoicesKpiStrip } from './invoices-kpi-strip';
 import { InvoicesToolbar } from './invoices-toolbar';
-import { InvoicesBulkBar } from './invoices-bulk-bar';
-import { InvoicesTable } from './invoices-table';
-import { InvoicesCalendar } from './invoices-calendar';
 import { InvoicesFilters } from './invoices-filters';
+import { InvoicesCalendar } from './invoices-calendar';
 import { useInvoicesBulk } from './use-invoices-bulk';
 import type {
   InvoiceDensity,
@@ -42,6 +31,14 @@ import type {
   InvoicePresetKey,
   InvoiceViewMode,
 } from './types';
+
+// Bulky components
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
+import { patchInvoice, listInvoices } from '@/app/actions/crm/invoices.actions';
+import { EntityPickerChip } from '@/components/crm/entity-picker';
+import { EntityRowLink } from '@/components/crm/entity-row-link';
+import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 
 interface InvoiceListClientProps {
   invoices: InvoiceListRow[];
@@ -100,11 +97,40 @@ function isOverdue(row: InvoiceListRow): boolean {
   return !Number.isNaN(t) && t < Date.now() && (row.balance ?? 0) > 0;
 }
 
+function fmtMoney(value: number | undefined, currency: string): string {
+  if (typeof value !== 'number' || Number.isNaN(value)) return '—';
+  try {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(value);
+  } catch {
+    return `${currency} ${value}`;
+  }
+}
+
+function fmtDate(v?: string | null): string {
+  if (!v) return '—';
+  const d = new Date(v);
+  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString();
+}
+
+function relativeDays(v?: string | null): string {
+  if (!v) return '';
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return '';
+  const diff = Math.round((d.getTime() - Date.now()) / 86_400_000);
+  if (diff === 0) return 'today';
+  if (diff < 0) return `${Math.abs(diff)}d overdue`;
+  return `in ${diff}d`;
+}
+
 export function InvoiceListClient({
   invoices: serverInvoices,
   page,
   limit,
-  hasMore,
+  hasMore: initialHasMore,
   initialQuery,
   kpi,
   defaultCurrency,
@@ -137,121 +163,168 @@ export function InvoiceListClient({
     }
   }, []);
 
-  /* Filters */
-  const [query, setQuery] = React.useState(initialQuery);
-  const [statusFilter, setStatusFilter] = React.useState<string>('all');
-  const [customerFilter, setCustomerFilter] = React.useState<string | null>(null);
-  const [agentFilter, setAgentFilter] = React.useState<string | null>(null);
-  const [branchFilter, setBranchFilter] = React.useState<string | null>(null);
-  const [currencyFilter, setCurrencyFilter] = React.useState<string | null>(null);
-  const [fromDate, setFromDate] = React.useState('');
-  const [toDate, setToDate] = React.useState('');
-  const [dueFrom, setDueFrom] = React.useState('');
-  const [dueTo, setDueTo] = React.useState('');
-  const [amountMin, setAmountMin] = React.useState('');
-  const [amountMax, setAmountMax] = React.useState('');
-  const [preset, setPreset] = React.useState<InvoicePresetKey>('all');
-
-  /* Selection */
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
-  const toggleRow = React.useCallback(
-    (id: string) =>
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      }),
-    [],
-  );
-
   /* Confirm dialogs */
   const [deletePending, setDeletePending] = React.useState(false);
   const [archivePending, setArchivePending] = React.useState(false);
   const [markPaidPending, setMarkPaidPending] = React.useState(false);
   const [sendPending, setSendPending] = React.useState(false);
 
-  /* Filtered view */
-  const filtered = React.useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const min = amountMin ? Number(amountMin) : Number.NEGATIVE_INFINITY;
-    const max = amountMax ? Number(amountMax) : Number.POSITIVE_INFINITY;
-    const fromTs = fromDate ? new Date(fromDate).getTime() : null;
-    const toTs = toDate ? new Date(toDate).getTime() : null;
-    const dueFromTs = dueFrom ? new Date(dueFrom).getTime() : null;
-    const dueToTs = dueTo ? new Date(dueTo).getTime() : null;
+  /* Bulky State Hook */
+  const {
+    data: invoices,
+    total,
+    page: gridPage,
+    setPage: setGridPage,
+    limit: gridLimit,
+    filters,
+    isPending,
+    selected,
+    inlineEditRowId,
+    editBuffer,
+    hasActiveFilters,
+    handleSearch,
+    updateFilter,
+    clearFilters: clearGridFilters,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    startInlineEdit,
+    cancelInlineEdit,
+    updateEditBuffer,
+    triggerFetch,
+    setData: setGridData,
+  } = useCrmBulkyState<InvoiceListRow>({
+    initialData: serverInvoices,
+    initialPage: page,
+    initialLimit: limit,
+    fetchFn: async ({ page: p, limit: l, search, filters: f }) => {
+      const response = await listInvoices({
+        page: p,
+        limit: l,
+        q: search || undefined,
+      });
 
-    return serverInvoices.filter((inv) => {
-      if (q) {
-        const hay = `${inv.invoiceNo ?? ''} ${inv.clientLabel ?? ''}`.toLowerCase();
-        if (!hay.includes(q)) return false;
-      }
-      const s = (inv.status ?? '').toLowerCase();
-      if (statusFilter === 'overdue') {
-        if (!isOverdue(inv)) return false;
-      } else if (statusFilter !== 'all' && s !== statusFilter) {
-        return false;
-      }
-      if (customerFilter && inv.clientId !== customerFilter) return false;
-      if (agentFilter && inv.salesAgentId !== agentFilter) return false;
-      if (branchFilter && inv.branchId !== branchFilter) return false;
-      if (currencyFilter && inv.currency !== currencyFilter) return false;
-      const total = typeof inv.total === 'number' ? inv.total : 0;
-      if (total < min || total > max) return false;
-      if (fromTs && inv.date) {
-        const t = new Date(inv.date).getTime();
-        if (!Number.isNaN(t) && t < fromTs) return false;
-      }
-      if (toTs && inv.date) {
-        const t = new Date(inv.date).getTime();
-        if (!Number.isNaN(t) && t > toTs) return false;
-      }
-      if (dueFromTs && inv.dueDate) {
-        const t = new Date(inv.dueDate).getTime();
-        if (!Number.isNaN(t) && t < dueFromTs) return false;
-      }
-      if (dueToTs && inv.dueDate) {
-        const t = new Date(inv.dueDate).getTime();
-        if (!Number.isNaN(t) && t > dueToTs) return false;
-      }
-      return true;
-    });
-  }, [
-    serverInvoices,
-    query,
-    statusFilter,
-    customerFilter,
-    agentFilter,
-    branchFilter,
-    currencyFilter,
-    fromDate,
-    toDate,
-    dueFrom,
-    dueTo,
-    amountMin,
-    amountMax,
-  ]);
+      // Map doc to InvoiceListRow
+      const mappedItems = response.invoices.map((doc) => {
+        const clientId = doc.clientId ? String(doc.clientId) : null;
+        return {
+          _id: String(doc._id),
+          invoiceNo: doc.invoiceNo,
+          clientId,
+          clientLabel: clientId ? (serverInvoices.find(x => x.clientId === clientId)?.clientLabel || doc.clientId) : undefined,
+          salesAgentId: doc.assignment?.assignedTo ? String(doc.assignment.assignedTo) : null,
+          branchId: null,
+          date: doc.date ?? null,
+          dueDate: doc.dueDate ?? null,
+          currency: doc.currency ?? 'INR',
+          total: doc.totals?.total ?? 0,
+          paid: doc.amountPaid ?? 0,
+          balance: doc.balance ?? doc.totals?.total ?? 0,
+          status: doc.status,
+          createdAt: doc.createdAt ?? doc.audit?.createdAt,
+          updatedAt: doc.updatedAt ?? doc.audit?.updatedAt,
+        };
+      });
 
-  /* Bulk-action toggling */
-  const allSelectedOnPage =
-    filtered.length > 0 && filtered.every((d) => selected.has(d._id));
-  const toggleAll = React.useCallback(() => {
-    setSelected((prev) => {
-      if (filtered.length === 0) return prev;
-      const allSel = filtered.every((d) => prev.has(d._id));
-      if (allSel) {
-        const next = new Set(prev);
-        for (const d of filtered) next.delete(d._id);
-        return next;
+      let items = mappedItems;
+
+      // Apply filters client-side
+      if (f.statusFilter && f.statusFilter !== 'all') {
+        if (f.statusFilter === 'overdue') {
+          items = items.filter(isOverdue);
+        } else {
+          items = items.filter((inv) => (inv.status ?? '').toLowerCase() === f.statusFilter);
+        }
       }
-      const next = new Set(prev);
-      for (const d of filtered) next.add(d._id);
-      return next;
-    });
-  }, [filtered]);
+      if (f.customerFilter) {
+        items = items.filter((inv) => inv.clientId === f.customerFilter);
+      }
+      if (f.agentFilter) {
+        items = items.filter((inv) => inv.salesAgentId === f.agentFilter);
+      }
+      if (f.branchFilter) {
+        items = items.filter((inv) => inv.branchId === f.branchFilter);
+      }
+      if (f.currencyFilter) {
+        items = items.filter((inv) => inv.currency === f.currencyFilter);
+      }
+      if (f.amountMin) {
+        items = items.filter((inv) => (inv.total ?? 0) >= Number(f.amountMin));
+      }
+      if (f.amountMax) {
+        items = items.filter((inv) => (inv.total ?? 0) <= Number(f.amountMax));
+      }
+      if (f.fromDate) {
+        const fromTs = new Date(f.fromDate).getTime();
+        items = items.filter((inv) => inv.date && new Date(inv.date).getTime() >= fromTs);
+      }
+      if (f.toDate) {
+        const toTs = new Date(f.toDate).getTime();
+        items = items.filter((inv) => inv.date && new Date(inv.date).getTime() <= toTs);
+      }
+      if (f.dueFrom) {
+        const dueFromTs = new Date(f.dueFrom).getTime();
+        items = items.filter((inv) => inv.dueDate && new Date(inv.dueDate).getTime() >= dueFromTs);
+      }
+      if (f.dueTo) {
+        const dueToTs = new Date(f.dueTo).getTime();
+        items = items.filter((inv) => inv.dueDate && new Date(inv.dueDate).getTime() <= dueToTs);
+      }
+
+      return {
+        items,
+        total: response.invoices.length,
+        hasMore: response.hasMore,
+      };
+    },
+  });
+
+  // Re-sync local grid data when server component inputs change
+  React.useEffect(() => {
+    setGridData(serverInvoices);
+  }, [serverInvoices, setGridData]);
+
+  React.useEffect(() => {
+    triggerFetch();
+  }, [triggerFetch, gridPage, gridLimit, filters]);
+
+  /* ─── Inline Edit Save ─────────────────────────────────────────────────── */
+  const handleSaveInlineEdit = async (id: string, updatedData: Partial<InvoiceListRow>) => {
+    const original = invoices.find((l) => l._id === id);
+    if (!original) return;
+
+    try {
+      const patch: any = {};
+      if (updatedData.dueDate !== undefined) patch.dueDate = updatedData.dueDate;
+      if (updatedData.currency !== undefined) patch.currency = updatedData.currency;
+      if (updatedData.status !== undefined) patch.status = updatedData.status;
+      if (updatedData.salesAgentId !== undefined) {
+        patch.assignment = { assignedTo: updatedData.salesAgentId };
+      }
+
+      const res = await patchInvoice(id, patch);
+      if (res.error) {
+        toast({
+          title: 'Inline Edit Failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      } else {
+        toast({ title: 'Invoice saved inline' });
+        cancelInlineEdit();
+        triggerFetch();
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error saving inline',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
   const exportCsv = React.useCallback(() => {
-    const rows = filtered.filter(
+    const rows = invoices.filter(
       (d) => selected.size === 0 || selected.has(d._id),
     );
     if (rows.length === 0) {
@@ -275,28 +348,16 @@ export function InvoiceListClient({
       title: 'Exported',
       description: `${rows.length} invoices saved to CSV.`,
     });
-  }, [filtered, selected, toast]);
+  }, [invoices, selected, toast]);
 
   const clearFilters = React.useCallback(() => {
-    setQuery('');
-    setStatusFilter('all');
-    setCustomerFilter(null);
-    setAgentFilter(null);
-    setBranchFilter(null);
-    setCurrencyFilter(null);
-    setFromDate('');
-    setToDate('');
-    setDueFrom('');
-    setDueTo('');
-    setAmountMin('');
-    setAmountMax('');
-    setPreset('all');
-  }, []);
+    clearGridFilters();
+  }, [clearGridFilters]);
 
   /* Presets */
   const applyPreset = React.useCallback(
     (key: InvoicePresetKey) => {
-      setPreset(key);
+      updateFilter('preset', key);
       const today = new Date();
       const fmt = (d: Date) => d.toISOString().slice(0, 10);
       if (key === 'all') {
@@ -304,112 +365,208 @@ export function InvoiceListClient({
         return;
       }
       if (key === 'my-overdue') {
-        setStatusFilter('overdue');
-        setAgentFilter(currentUserId ?? null);
-        setFromDate('');
-        setToDate('');
-        setDueFrom('');
-        setDueTo('');
+        updateFilter('statusFilter', 'overdue');
+        updateFilter('agentFilter', currentUserId ?? null);
         return;
       }
       if (key === 'due-this-week') {
         const next7 = new Date(today.getTime() + 7 * 86_400_000);
-        setStatusFilter('all');
-        setDueFrom(fmt(today));
-        setDueTo(fmt(next7));
+        updateFilter('statusFilter', 'all');
+        updateFilter('dueFrom', fmt(today));
+        updateFilter('dueTo', fmt(next7));
         return;
       }
       if (key === 'paid-30d') {
         const prev30 = new Date(today.getTime() - 30 * 86_400_000);
-        setStatusFilter('paid');
-        setFromDate(fmt(prev30));
-        setToDate(fmt(today));
+        updateFilter('statusFilter', 'paid');
+        updateFilter('fromDate', fmt(prev30));
+        updateFilter('toDate', fmt(today));
         return;
       }
       if (key === 'draft') {
-        setStatusFilter('draft');
-        setFromDate('');
-        setToDate('');
-        setDueFrom('');
-        setDueTo('');
+        updateFilter('statusFilter', 'draft');
       }
     },
-    [clearFilters, currentUserId],
+    [clearFilters, currentUserId, updateFilter],
   );
 
   /* Bulk handlers */
   const bulk = useInvoicesBulk({
     selected,
-    onCleared: () => setSelected(new Set()),
+    onCleared: () => clearSelection(),
   });
 
-  const filtersActive =
-    Boolean(query) ||
-    statusFilter !== 'all' ||
-    Boolean(customerFilter) ||
-    Boolean(agentFilter) ||
-    Boolean(branchFilter) ||
-    Boolean(currencyFilter) ||
-    Boolean(fromDate) ||
-    Boolean(toDate) ||
-    Boolean(dueFrom) ||
-    Boolean(dueTo) ||
-    Boolean(amountMin) ||
-    Boolean(amountMax);
+  const filtersActive = hasActiveFilters;
 
-  /* §5.10: Saved-views integration ─────────────────────────────────────── */
   const savedViewFilters = React.useMemo(
     () => ({
-      query,
-      statusFilter,
-      customerFilter,
-      agentFilter,
-      branchFilter,
-      currencyFilter,
-      fromDate,
-      toDate,
-      dueFrom,
-      dueTo,
-      amountMin,
-      amountMax,
-      preset,
+      query: filters.query || '',
+      statusFilter: filters.statusFilter || 'all',
+      customerFilter: filters.customerFilter || null,
+      agentFilter: filters.agentFilter || null,
+      branchFilter: filters.branchFilter || null,
+      currencyFilter: filters.currencyFilter || null,
+      fromDate: filters.fromDate || '',
+      toDate: filters.toDate || '',
+      dueFrom: filters.dueFrom || '',
+      dueTo: filters.dueTo || '',
+      amountMin: filters.amountMin || '',
+      amountMax: filters.amountMax || '',
+      preset: filters.preset || 'all',
     }),
-    [
-      query,
-      statusFilter,
-      customerFilter,
-      agentFilter,
-      branchFilter,
-      currencyFilter,
-      fromDate,
-      toDate,
-      dueFrom,
-      dueTo,
-      amountMin,
-      amountMax,
-      preset,
-    ],
+    [filters],
   );
+
   const handleApplyView = React.useCallback((view: SavedView) => {
     const f = (view.filters ?? {}) as Record<string, unknown>;
-    if (typeof f.query === 'string') setQuery(f.query);
-    if (typeof f.statusFilter === 'string') setStatusFilter(f.statusFilter);
-    if (typeof f.customerFilter === 'string' || f.customerFilter === null)
-      setCustomerFilter((f.customerFilter as string | null) ?? null);
-    if (typeof f.agentFilter === 'string' || f.agentFilter === null)
-      setAgentFilter((f.agentFilter as string | null) ?? null);
-    if (typeof f.branchFilter === 'string' || f.branchFilter === null)
-      setBranchFilter((f.branchFilter as string | null) ?? null);
-    if (typeof f.currencyFilter === 'string' || f.currencyFilter === null)
-      setCurrencyFilter((f.currencyFilter as string | null) ?? null);
-    if (typeof f.fromDate === 'string') setFromDate(f.fromDate);
-    if (typeof f.toDate === 'string') setToDate(f.toDate);
-    if (typeof f.dueFrom === 'string') setDueFrom(f.dueFrom);
-    if (typeof f.dueTo === 'string') setDueTo(f.dueTo);
-    if (typeof f.amountMin === 'string') setAmountMin(f.amountMin);
-    if (typeof f.amountMax === 'string') setAmountMax(f.amountMax);
-    if (typeof f.preset === 'string') setPreset(f.preset as InvoicePresetKey);
-  }, []);
+    Object.entries(f).forEach(([key, val]) => {
+      updateFilter(key, val);
+    });
+  }, [updateFilter]);
+
+  /* ─── Column Definitions ───────────────────────────────────────────────── */
+  const columns = React.useMemo<ColumnDef<InvoiceListRow>[]>(() => [
+    {
+      key: 'invoiceNo',
+      header: 'Invoice #',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/sales/invoices/${row._id}`}
+          label={row.invoiceNo || '—'}
+          subtitle={row.clientLabel || undefined}
+        />
+      ),
+    },
+    {
+      key: 'clientId',
+      header: 'Customer',
+      render: (row) => row.clientId ? (
+        <EntityPickerChip entity="client" id={row.clientId} />
+      ) : (
+        <span className="text-zoru-ink-muted">{row.clientLabel ?? '—'}</span>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Invoice Date',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>,
+    },
+    {
+      key: 'dueDate',
+      header: 'Due Date',
+      sortable: true,
+      render: (row) => {
+        const overdue = isOverdue(row);
+        const overdueClass = overdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        return (
+          <span className={overdueClass} title={relativeDays(row.dueDate)}>
+            {fmtDate(row.dueDate)}
+            {overdue && <span className="ml-1 text-[10px] uppercase font-bold text-zoru-danger-ink">overdue</span>}
+          </span>
+        );
+      },
+      editRender: (row, value, onChange) => (
+        <Input
+          type="date"
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value).slice(0, 10) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'currency',
+      header: 'Currency',
+      render: (row) => <span className="text-zoru-ink-muted">{row.currency || 'INR'}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-20 text-[12.5px]"
+          value={value !== undefined ? String(value) : 'INR'}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+          {fmtMoney(row.total, row.currency ?? 'INR')}
+        </span>
+      ),
+    },
+    {
+      key: 'paid',
+      header: 'Paid',
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink-muted">
+          {fmtMoney(row.paid, row.currency ?? 'INR')}
+        </span>
+      ),
+    },
+    {
+      key: 'balance',
+      header: 'Balance',
+      sortable: true,
+      render: (row) => {
+        const overdue = isOverdue(row);
+        return (
+          <span className={`font-mono tabular-nums ${overdue && row.balance > 0 ? 'text-zoru-danger-ink font-bold' : 'text-zoru-ink'}`}>
+            {fmtMoney(row.balance, row.currency ?? 'INR')}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => row.status ? (
+        <StatusPill
+          label={String(row.status).replace(/_/g, ' ')}
+          tone={statusToTone(row.status)}
+        />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+      editRender: (row, value, onChange) => {
+        const options = ['draft', 'sent', 'paid', 'cancelled', 'overdue'];
+        return (
+          <select
+            className="h-8 w-28 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none"
+            value={value !== undefined ? String(value) : 'draft'}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+    {
+      key: 'salesAgentId',
+      header: 'Sales Agent',
+      render: (row) => row.salesAgentId ? (
+        <EntityPickerChip entity="user" id={row.salesAgentId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.createdAt)}</span>,
+    },
+  ], [serverInvoices]);
 
   return (
     <>
@@ -428,7 +585,7 @@ export function InvoiceListClient({
           selected.size > 0 ? (
             <InvoicesBulkBar
               count={selected.size}
-              onClear={() => setSelected(new Set())}
+              onClear={() => clearSelection()}
               onExportCsv={exportCsv}
               onArchive={() => setArchivePending(true)}
               onDelete={() => setDeletePending(true)}
@@ -439,7 +596,7 @@ export function InvoiceListClient({
           ) : null
         }
         empty={
-          filtered.length === 0 && !filtersActive ? (
+          invoices.length === 0 && !filtersActive ? (
             <div className="flex flex-col items-center gap-3 p-4">
               <Receipt className="h-8 w-8 text-zoru-ink-muted" />
               <h3 className="text-base font-medium text-zoru-ink">
@@ -458,7 +615,7 @@ export function InvoiceListClient({
         }
         pagination={
           view === 'table' ? (
-            <PaginationBar page={page} limit={limit} hasMore={hasMore} />
+            <PaginationBar page={gridPage} limit={gridLimit} hasMore={initialHasMore} />
           ) : null
         }
       >
@@ -474,7 +631,7 @@ export function InvoiceListClient({
           <InvoicesKpiStrip
             kpi={kpi}
             currency={defaultCurrency}
-            active={preset}
+            active={filters.preset || 'all'}
             onSelect={applyPreset}
           />
 
@@ -484,15 +641,15 @@ export function InvoiceListClient({
             </div>
           ) : null}
 
-          <Card className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0 border-none bg-transparent">
             <InvoicesToolbar
-              query={query}
-              onQueryChange={setQuery}
+              query={filters.query || ''}
+              onQueryChange={handleSearch}
               view={view}
               onViewChange={setView}
               density={density}
               onDensityChange={handleDensityChange}
-              preset={preset}
+              preset={filters.preset || 'all'}
               onPresetChange={applyPreset}
               onExportCsv={exportCsv}
             />
@@ -500,43 +657,49 @@ export function InvoiceListClient({
             <InvoicesFilters
               filtersActive={filtersActive}
               onClearAll={clearFilters}
-              statusFilter={statusFilter}
-              onStatusFilter={setStatusFilter}
-              customerFilter={customerFilter}
-              onCustomerFilter={setCustomerFilter}
-              agentFilter={agentFilter}
-              onAgentFilter={setAgentFilter}
-              branchFilter={branchFilter}
-              onBranchFilter={setBranchFilter}
-              currencyFilter={currencyFilter}
-              onCurrencyFilter={setCurrencyFilter}
-              fromDate={fromDate}
-              onFromDate={setFromDate}
-              toDate={toDate}
-              onToDate={setToDate}
-              dueFrom={dueFrom}
-              onDueFrom={setDueFrom}
-              dueTo={dueTo}
-              onDueTo={setDueTo}
-              amountMin={amountMin}
-              onAmountMin={setAmountMin}
-              amountMax={amountMax}
-              onAmountMax={setAmountMax}
+              statusFilter={filters.statusFilter || 'all'}
+              onStatusFilter={(val) => updateFilter('statusFilter', val)}
+              customerFilter={filters.customerFilter || null}
+              onCustomerFilter={(val) => updateFilter('customerFilter', val)}
+              agentFilter={filters.agentFilter || null}
+              onAgentFilter={(val) => updateFilter('agentFilter', val)}
+              branchFilter={filters.branchFilter || null}
+              onBranchFilter={(val) => updateFilter('branchFilter', val)}
+              currencyFilter={filters.currencyFilter || null}
+              onCurrencyFilter={(val) => updateFilter('currencyFilter', val)}
+              fromDate={filters.fromDate || ''}
+              onFromDate={(val) => updateFilter('fromDate', val)}
+              toDate={filters.toDate || ''}
+              onToDate={(val) => updateFilter('toDate', val)}
+              dueFrom={filters.dueFrom || ''}
+              onDueFrom={(val) => updateFilter('dueFrom', val)}
+              dueTo={filters.dueTo || ''}
+              onDueTo={(val) => updateFilter('dueTo', val)}
+              amountMin={filters.amountMin || ''}
+              onAmountMin={(val) => updateFilter('amountMin', val)}
+              amountMax={filters.amountMax || ''}
+              onAmountMax={(val) => updateFilter('amountMax', val)}
             />
 
             {view === 'calendar' ? (
               <div className="p-3">
-                <InvoicesCalendar invoices={filtered} />
+                <InvoicesCalendar invoices={invoices} />
               </div>
             ) : (
-              <InvoicesTable
-                invoices={filtered}
-                selected={selected}
-                onToggleRow={toggleRow}
-                onToggleAll={toggleAll}
-                allSelectedOnPage={allSelectedOnPage}
-                filtersActive={filtersActive}
+              <CrmBulkyGrid<InvoiceListRow>
+                columns={columns}
+                data={invoices}
+                selectedIds={selected}
+                onSelectOne={toggleSelectOne}
+                onSelectAll={(checked) => toggleSelectAll(invoices.map(x => x._id), checked)}
                 density={density}
+                inlineEditRowId={inlineEditRowId}
+                editBuffer={editBuffer}
+                onStartInlineEdit={startInlineEdit}
+                onCancelInlineEdit={cancelInlineEdit}
+                onSaveInlineEdit={handleSaveInlineEdit}
+                onUpdateEditBuffer={updateEditBuffer}
+                isLoading={isPending}
               />
             )}
           </Card>

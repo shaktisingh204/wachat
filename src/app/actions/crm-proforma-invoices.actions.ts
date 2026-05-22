@@ -181,7 +181,25 @@ export async function updateProformaInvoice(
                     $set.lineItems = lineItems;
                     const subtotal = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
                     $set.subtotal = subtotal;
-                    $set.total = subtotal;
+
+                    const discountOverall = Number(formData.get('discountOverall')) || 0;
+                    const shippingCharge = Number(formData.get('shippingCharge')) || 0;
+                    const adjustment = Number(formData.get('adjustment')) || 0;
+                    const roundOff = Number(formData.get('roundOff')) || 0;
+                    const taxTotal = lineItems.reduce((sum: number, item: any) => {
+                        const taxPct = Number(item.taxRatePct || item.taxPct) || 0;
+                        const discountPct = Number(item.discountPct) || 0;
+                        const base = item.quantity * item.rate;
+                        const taxable = base * (1 - discountPct / 100);
+                        return sum + taxable * (taxPct / 100);
+                    }, 0);
+
+                    $set.discountOverall = discountOverall;
+                    $set.shippingCharge = shippingCharge;
+                    $set.adjustment = adjustment;
+                    $set.roundOff = roundOff;
+                    $set.taxTotal = taxTotal;
+                    $set.total = subtotal + taxTotal - discountOverall + shippingCharge + adjustment + roundOff;
                 }
             } catch {
                 /* ignore malformed JSON */
@@ -191,6 +209,11 @@ export async function updateProformaInvoice(
         const accountId = formData.get('accountId') as string | null;
         if (accountId && ObjectId.isValid(accountId)) {
             $set.accountId = new ObjectId(accountId);
+        }
+
+        const placeOfSupply = formData.get('placeOfSupply') as string | null;
+        if (placeOfSupply) {
+            $set.placeOfSupply = placeOfSupply;
         }
 
         const termsRaw = formData.get('termsAndConditions') as string | null;
@@ -252,6 +275,18 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
         const lineItems = JSON.parse(formData.get('lineItems') as string || '[]');
         const subtotal = lineItems.reduce((sum: number, item: any) => sum + (item.quantity * item.rate), 0);
 
+        const discountOverall = Number(formData.get('discountOverall')) || 0;
+        const shippingCharge = Number(formData.get('shippingCharge')) || 0;
+        const adjustment = Number(formData.get('adjustment')) || 0;
+        const roundOff = Number(formData.get('roundOff')) || 0;
+        const taxTotal = lineItems.reduce((sum: number, item: any) => {
+            const taxPct = Number(item.taxRatePct || item.taxPct) || 0;
+            const discountPct = Number(item.discountPct) || 0;
+            const base = item.quantity * item.rate;
+            const taxable = base * (1 - discountPct / 100);
+            return sum + taxable * (taxPct / 100);
+        }, 0);
+
         const proformaData: Omit<CrmProformaInvoice, '_id' | 'createdAt' | 'updatedAt'> = {
             userId: userObjectId,
             accountId: new ObjectId(formData.get('accountId') as string),
@@ -261,11 +296,20 @@ export async function saveProformaInvoice(prevState: any, formData: FormData): P
             currency: formData.get('currency') as string,
             lineItems: lineItems,
             subtotal: subtotal,
-            total: subtotal,
+            taxTotal: taxTotal,
+            discountTotal: discountOverall,
+            total: subtotal + taxTotal - discountOverall + shippingCharge + adjustment + roundOff,
             termsAndConditions: JSON.parse(formData.get('termsAndConditions') as string || '[]'),
             notes: formData.get('notes') as string,
             status: 'Draft',
-        };
+            placeOfSupply: formData.get('placeOfSupply') as string || 'Maharashtra',
+            discountOverall,
+            shippingCharge,
+            adjustment,
+            roundOff,
+            tdsPct: Number(formData.get('tdsPct')) || 0,
+            tcsPct: Number(formData.get('tcsPct')) || 0,
+        } as any;
 
         if (!proformaData.accountId || lineItems.length === 0) {
             return { error: 'Client and at least one line item are required.' };
@@ -638,3 +682,70 @@ export async function convertProformaToInvoice(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+export async function patchProformaInvoice(
+    id: string,
+    patch: any,
+): Promise<{ success: boolean; error?: string }> {
+    if (!id || !ObjectId.isValid(id)) return { success: false, error: 'Invalid id.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Unauthorized' };
+    const guard = await requirePermission('crm_proforma_invoice', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (useRustCrm()) {
+        try {
+            await crmProformaInvoicesApi.update(id, patch);
+            revalidatePath('/dashboard/crm/sales/proforma');
+            revalidatePath(`/dashboard/crm/sales/proforma/${id}`);
+            return { success: true };
+        } catch (e) {
+            console.error('[patchProformaInvoice] rust failed:', e);
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const $set: Record<string, any> = { updatedAt: new Date() };
+        if (patch.proformaNumber) $set.proformaNumber = patch.proformaNumber;
+        if (patch.proformaDate) $set.proformaDate = new Date(patch.proformaDate);
+        if (patch.validTillDate) $set.validTillDate = new Date(patch.validTillDate);
+        if (patch.currency) $set.currency = patch.currency;
+        if (patch.notes !== undefined) $set.notes = patch.notes;
+        if (patch.status) $set.status = patch.status;
+        if (patch.total !== undefined) {
+            $set.total = Number(patch.total);
+            $set.subtotal = Number(patch.total);
+        }
+        if (patch.lineItems) {
+            $set.lineItems = patch.lineItems;
+        }
+
+        const result = await db.collection('crm_proforma_invoices').updateOne(
+            { _id: new ObjectId(id), userId: userObjectId },
+            { $set },
+        );
+        if (result.matchedCount === 0) return { success: false, error: 'Proforma not found.' };
+
+        try {
+            await writeAuditEntry({
+                tenantUserId: String(session.user._id),
+                actorId: String(session.user._id),
+                action: 'update',
+                entityKind: 'proforma',
+                entityId: id,
+            });
+        } catch {
+            // non-fatal
+        }
+
+        revalidatePath('/dashboard/crm/sales/proforma');
+        revalidatePath(`/dashboard/crm/sales/proforma/${id}`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+

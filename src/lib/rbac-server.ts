@@ -178,6 +178,22 @@ export async function getEffectivePermissionsForProject(
     }
 
     const permissions = intersectWithCeiling(rolePerms, ceiling);
+
+    // If the user is linked as an employee in the system, ensure they always have access to 
+    // HRM dashboard (crm_employees) and Project Management (crm_tasks).
+    const isEmployee = await db.collection('crm_employees').findOne({ employeeUserId: sessionUserId });
+    if (isEmployee) {
+        if (!permissions.crm_employees) permissions.crm_employees = {};
+        permissions.crm_employees.view = true;
+        permissions.crm_employees.create = true;
+        permissions.crm_employees.edit = true;
+
+        if (!permissions.crm_tasks) permissions.crm_tasks = {};
+        permissions.crm_tasks.view = true;
+        permissions.crm_tasks.create = true;
+        permissions.crm_tasks.edit = true;
+    }
+
     return { role: roleId, isOwner: false, permissions, planCeiling: ceiling };
 }
 

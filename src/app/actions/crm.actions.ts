@@ -1005,3 +1005,473 @@ export async function bulkContactAction(
         return { success: false, processed: 0, error: getErrorMessage(e) };
     }
 }
+
+export async function getCrmEntityTimeline(
+    entityKind: string,
+    entityId: string
+): Promise<{ success: boolean; error?: string; items: any[] }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied', items: [] };
+    if (!ObjectId.isValid(entityId)) return { success: false, error: 'Invalid entity ID', items: [] };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const objId = new ObjectId(entityId);
+
+        const kindToCollection: Record<string, string> = {
+            contact: 'crm_contacts',
+            account: 'crm_accounts',
+            deal: 'crm_deals',
+            lead: 'crm_leads',
+            invoice: 'crm_invoices',
+            quotation: 'crm_quotations',
+            contract: 'crm_contracts',
+            proforma: 'crm_proforma_invoices',
+        };
+
+        const collectionName = kindToCollection[entityKind];
+        if (!collectionName) {
+            return { success: false, error: `Unsupported entity kind: ${entityKind}`, items: [] };
+        }
+
+        const entity = await db.collection(collectionName).findOne({
+            _id: objId,
+            userId: userObjectId,
+        });
+
+        const timelineItems: any[] = [];
+
+        if (entity && Array.isArray(entity.notes)) {
+            entity.notes.forEach((note: any, idx: number) => {
+                timelineItems.push({
+                    id: `comment-${idx}-${note.createdAt ? new Date(note.createdAt).getTime() : Date.now()}`,
+                    type: 'comment',
+                    title: 'Status note',
+                    body: note.content,
+                    createdAt: note.createdAt ? new Date(note.createdAt).toISOString() : new Date().toISOString(),
+                    actorName: note.author || 'System',
+                });
+            });
+        }
+
+        const audits = await db
+            .collection('crm_audit_log')
+            .find({
+                userId: userObjectId,
+                entityKind,
+                entityId,
+            } as any)
+            .sort({ createdAt: -1 })
+            .limit(100)
+            .toArray();
+
+        audits.forEach((audit: any) => {
+            const actionLower = (audit.action || '').toLowerCase();
+            let type: 'audit' | 'whatsapp' | 'email' | 'comment' | 'task' = 'audit';
+            if (actionLower.includes('whatsapp') || actionLower.includes('message')) {
+                type = 'whatsapp';
+            } else if (actionLower.includes('email') || actionLower.includes('mail')) {
+                type = 'email';
+            } else if (actionLower.includes('task')) {
+                type = 'task';
+            }
+
+            timelineItems.push({
+                id: audit._id.toString(),
+                type,
+                title: `${audit.action.replace(/_/g, ' ').toUpperCase()}`,
+                body: audit.reason || undefined,
+                createdAt: audit.createdAt ? new Date(audit.createdAt).toISOString() : new Date().toISOString(),
+                actorName: audit.actorId === String(session.user._id) ? 'You' : 'System',
+                diff: audit.diff || undefined,
+            });
+        });
+
+        timelineItems.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        return { success: true, items: timelineItems };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e), items: [] };
+    }
+}
+
+export async function getCrmContactLineage(
+    contactId: string
+): Promise<{ success: boolean; error?: string; nodes: any[] }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied', nodes: [] };
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact ID', nodes: [] };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const contactObjectId = new ObjectId(contactId);
+
+        const contact = await db.collection('crm_contacts').findOne({
+            _id: contactObjectId,
+            userId: userObjectId,
+        });
+
+        if (!contact) {
+            return { success: false, error: 'Contact not found', nodes: [] };
+        }
+
+        const nodes: any[] = [];
+
+        nodes.push({
+            id: 'node-lead',
+            label: 'Contact Scaffolding',
+            type: 'Lead',
+            status: 'completed',
+            docNumber: contact.name,
+            dateString: contact.createdAt ? new Date(contact.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+        });
+
+        const deal = await db.collection('crm_deals').findOne({
+            userId: userObjectId,
+            $or: [
+                { contactId: contactObjectId },
+                { contactIds: contactObjectId },
+                { contactId: contactId },
+                { contactIds: contactId }
+            ]
+        } as any);
+
+        if (deal) {
+            nodes.push({
+                id: 'node-deal',
+                label: 'Deal Progression',
+                type: 'Quotation',
+                status: deal.stage === 'Won' ? 'completed' : 'active',
+                docNumber: deal.name,
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value || 0),
+                dateString: deal.createdAt ? new Date(deal.createdAt).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-deal',
+                label: 'Awaiting Opportunity',
+                type: 'Quotation',
+                status: 'pending',
+            });
+        }
+
+        const invoice = await db.collection('crm_invoices').findOne({
+            userId: userObjectId,
+            $or: [
+                { contactId: contactObjectId },
+                { customerId: contactObjectId },
+                { contactId: contactId },
+                { customerId: contactId }
+            ]
+        } as any);
+
+        if (invoice) {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Invoiced & Billed',
+                type: 'Invoice',
+                status: invoice.paymentStatus === 'paid' || invoice.status === 'Paid' ? 'completed' : 'active',
+                docNumber: invoice.invoiceNumber || 'INV-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: invoice.currency || 'USD' }).format(invoice.totalAmount || invoice.grandTotal || 0),
+                dateString: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Billing Pending',
+                type: 'Invoice',
+                status: 'pending',
+            });
+        }
+
+        const receipt = await db.collection('crm_payment_receipts').findOne({
+            userId: userObjectId,
+            $or: [
+                { contactId: contactObjectId },
+                { invoiceId: invoice?._id },
+                { contactId: contactId }
+            ]
+        } as any);
+
+        if (receipt) {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Statutory Payment Complete',
+                type: 'Receipt',
+                status: 'completed',
+                docNumber: receipt.receiptNumber || 'REC-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: receipt.currency || 'USD' }).format(receipt.amount || 0),
+                dateString: receipt.paymentDate ? new Date(receipt.paymentDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Settlement Pending',
+                type: 'Receipt',
+                status: 'pending',
+            });
+        }
+
+        return { success: true, nodes };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e), nodes: [] };
+    }
+}
+
+export async function getCrmLeadLineage(
+    leadId: string
+): Promise<{ success: boolean; error?: string; nodes: any[] }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied', nodes: [] };
+    if (!ObjectId.isValid(leadId)) return { success: false, error: 'Invalid lead ID', nodes: [] };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const leadObjectId = new ObjectId(leadId);
+
+        const lead = await db.collection('crm_leads').findOne({
+            _id: leadObjectId,
+            userId: userObjectId,
+        });
+
+        if (!lead) {
+            return { success: false, error: 'Lead not found', nodes: [] };
+        }
+
+        const nodes: any[] = [];
+        const fullName = [lead.firstName, lead.lastName].filter(Boolean).join(' ') || lead.email || 'Lead';
+
+        nodes.push({
+            id: 'node-lead',
+            label: 'Lead Scaffolding',
+            type: 'Lead',
+            status: 'completed',
+            docNumber: fullName,
+            dateString: lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : new Date().toLocaleDateString(),
+        });
+
+        const deal = await db.collection('crm_deals').findOne({
+            userId: userObjectId,
+            $or: [
+                { lineage: { $elemMatch: { kind: 'lead', id: leadId } } },
+                { lineage: { $elemMatch: { kind: 'lead', id: leadObjectId } } }
+            ]
+        } as any);
+
+        if (deal) {
+            nodes.push({
+                id: 'node-deal',
+                label: 'Deal Progression',
+                type: 'Quotation',
+                status: deal.stage === 'Won' ? 'completed' : 'active',
+                docNumber: deal.name,
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value || 0),
+                dateString: deal.createdAt ? new Date(deal.createdAt).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-deal',
+                label: 'Awaiting Opportunity',
+                type: 'Quotation',
+                status: 'pending',
+            });
+        }
+
+        const invoice = await db.collection('crm_invoices').findOne({
+            userId: userObjectId,
+            $or: [
+                { lineage: { $elemMatch: { kind: 'lead', id: leadId } } },
+                { lineage: { $elemMatch: { kind: 'lead', id: leadObjectId } } }
+            ]
+        } as any);
+
+        if (invoice) {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Invoiced & Billed',
+                type: 'Invoice',
+                status: invoice.paymentStatus === 'paid' || invoice.status === 'Paid' ? 'completed' : 'active',
+                docNumber: invoice.invoiceNumber || 'INV-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: invoice.currency || 'USD' }).format(invoice.totalAmount || invoice.grandTotal || 0),
+                dateString: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Billing Pending',
+                type: 'Invoice',
+                status: 'pending',
+            });
+        }
+
+        const receipt = await db.collection('crm_payment_receipts').findOne({
+            userId: userObjectId,
+            $or: [
+                { lineage: { $elemMatch: { kind: 'lead', id: leadId } } },
+                { lineage: { $elemMatch: { kind: 'lead', id: leadObjectId } } },
+                { invoiceId: invoice?._id }
+            ]
+        } as any);
+
+        if (receipt) {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Statutory Payment Complete',
+                type: 'Receipt',
+                status: 'completed',
+                docNumber: receipt.receiptNumber || 'REC-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: receipt.currency || 'USD' }).format(receipt.amount || 0),
+                dateString: receipt.paymentDate ? new Date(receipt.paymentDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Settlement Pending',
+                type: 'Receipt',
+                status: 'pending',
+            });
+        }
+
+        return { success: true, nodes };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e), nodes: [] };
+    }
+}
+
+export async function getCrmDealLineage(
+    dealId: string
+): Promise<{ success: boolean; error?: string; nodes: any[] }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied', nodes: [] };
+    if (!ObjectId.isValid(dealId)) return { success: false, error: 'Invalid deal ID', nodes: [] };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        const dealObjectId = new ObjectId(dealId);
+
+        const deal = await db.collection('crm_deals').findOne({
+            _id: dealObjectId,
+            userId: userObjectId,
+        });
+
+        if (!deal) {
+            return { success: false, error: 'Deal not found', nodes: [] };
+        }
+
+        const nodes: any[] = [];
+
+        // Check if there is an associated lead in the deal's lineage
+        let leadDoc = null;
+        const lineageArray = Array.isArray((deal as any).lineage) ? (deal as any).lineage : [];
+        const leadRef = lineageArray.find((ref: any) => ref && ref.kind === 'lead');
+        if (leadRef && leadRef.id && ObjectId.isValid(leadRef.id)) {
+            leadDoc = await db.collection('crm_leads').findOne({
+                _id: new ObjectId(leadRef.id),
+                userId: userObjectId,
+            });
+        }
+
+        if (leadDoc) {
+            const fullName = [leadDoc.firstName, leadDoc.lastName].filter(Boolean).join(' ') || leadDoc.email || 'Lead';
+            nodes.push({
+                id: 'node-lead',
+                label: 'Lead Scaffolding',
+                type: 'Lead',
+                status: 'completed',
+                docNumber: fullName,
+                dateString: leadDoc.createdAt ? new Date(leadDoc.createdAt).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-lead',
+                label: 'Opportunity Formed',
+                type: 'Lead',
+                status: 'completed',
+                docNumber: 'Lead Source: ' + (deal.leadSource || 'Direct'),
+                dateString: deal.createdAt ? new Date(deal.createdAt).toLocaleDateString() : undefined,
+            });
+        }
+
+        // Deal progression
+        nodes.push({
+            id: 'node-deal',
+            label: 'Deal Progression',
+            type: 'Quotation',
+            status: deal.stage === 'Won' ? 'completed' : 'active',
+            docNumber: deal.name,
+            valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: deal.currency || 'USD' }).format(deal.value || (deal as any).amount || 0),
+            dateString: deal.createdAt ? new Date(deal.createdAt).toLocaleDateString() : undefined,
+        });
+
+        // Invoice search
+        const invoice = await db.collection('crm_invoices').findOne({
+            userId: userObjectId,
+            $or: [
+                { dealId: dealObjectId },
+                { dealId: dealId },
+                { lineage: { $elemMatch: { kind: 'deal', id: dealId } } },
+                { lineage: { $elemMatch: { kind: 'deal', id: dealObjectId } } }
+            ]
+        } as any);
+
+        if (invoice) {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Invoiced & Billed',
+                type: 'Invoice',
+                status: invoice.paymentStatus === 'paid' || invoice.status === 'Paid' ? 'completed' : 'active',
+                docNumber: invoice.invoiceNumber || 'INV-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: invoice.currency || 'USD' }).format(invoice.totalAmount || invoice.grandTotal || 0),
+                dateString: invoice.invoiceDate ? new Date(invoice.invoiceDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-invoice',
+                label: 'Billing Pending',
+                type: 'Invoice',
+                status: 'pending',
+            });
+        }
+
+        // Receipt search
+        const receipt = await db.collection('crm_payment_receipts').findOne({
+            userId: userObjectId,
+            $or: [
+                { dealId: dealId },
+                { dealId: dealObjectId },
+                { invoiceId: invoice?._id },
+                { lineage: { $elemMatch: { kind: 'deal', id: dealId } } },
+                { lineage: { $elemMatch: { kind: 'deal', id: dealObjectId } } }
+            ]
+        } as any);
+
+        if (receipt) {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Statutory Payment Complete',
+                type: 'Receipt',
+                status: 'completed',
+                docNumber: receipt.receiptNumber || 'REC-TEMP',
+                valueString: new Intl.NumberFormat('en-US', { style: 'currency', currency: receipt.currency || 'USD' }).format(receipt.amount || 0),
+                dateString: receipt.paymentDate ? new Date(receipt.paymentDate).toLocaleDateString() : undefined,
+            });
+        } else {
+            nodes.push({
+                id: 'node-receipt',
+                label: 'Settlement Pending',
+                type: 'Receipt',
+                status: 'pending',
+            });
+        }
+
+        return { success: true, nodes };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e), nodes: [] };
+    }
+}
+
+

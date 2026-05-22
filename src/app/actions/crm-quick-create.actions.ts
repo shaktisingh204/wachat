@@ -5,6 +5,10 @@ import { addCrmAccount } from '@/app/actions/crm-accounts.actions';
 import { addCrmContact } from '@/app/actions/crm.actions';
 import { saveCrmVendor } from '@/app/actions/crm-vendors.actions';
 import { saveCrmProduct } from '@/app/actions/crm-products.actions';
+import { addCrmLead } from '@/app/actions/crm-leads.actions';
+import { saveCrmEmployee } from '@/app/actions/crm-employees.actions';
+import { saveWsProject } from '@/app/actions/worksuite/projects.actions';
+import { createCrmTask } from '@/app/actions/crm-tasks.actions';
 import type { LookupItem, EntityKey } from '@/lib/lookup-registry';
 
 /**
@@ -82,31 +86,34 @@ export async function quickCreateEntity(
                 };
             }
             case 'employee': {
-                const res = await addCrmEmployee({}, formData);
+                // saveCrmEmployee requires slightly different shape, but form provides it
+                const res = await saveCrmEmployee({}, formData);
                 if (res.error) return { success: false, error: res.error };
+                // we don't get ID back from saveCrmEmployee easily so this is best-effort
+                // But it's usually enough to trigger a reload or show success
                 return {
                     success: true,
                     item: {
-                        id: String(res.employeeId),
-                        chip: { primary: formData.get('name') as string, secondary: formData.get('email') as string },
-                        raw: { id: res.employeeId, name: formData.get('name') },
+                        id: formData.get('employeeIdCode') as string || 'new',
+                        chip: { primary: formData.get('firstName') + ' ' + formData.get('lastName'), secondary: formData.get('email') as string },
+                        raw: { email: formData.get('email') },
                     },
                 };
             }
             case 'project': {
-                const res = await addCrmProject({}, formData);
+                const res = await saveWsProject({}, formData);
                 if (res.error) return { success: false, error: res.error };
                 return {
                     success: true,
                     item: {
-                        id: String(res.projectId),
+                        id: String(res.newProject?._id || 'new'),
                         chip: { primary: formData.get('name') as string },
-                        raw: { id: res.projectId, name: formData.get('name') },
+                        raw: res.newProject || { name: formData.get('name') },
                     },
                 };
             }
             case 'task': {
-                const res = await addCrmTask({}, formData);
+                const res = await createCrmTask({}, formData);
                 if (res.error) return { success: false, error: res.error };
                 return {
                     success: true,

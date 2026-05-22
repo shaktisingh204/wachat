@@ -255,7 +255,7 @@ export default function BillingPage() {
       variants={containerVariants}
       initial="hidden"
       animate="show"
-      className="flex flex-col gap-10 max-w-7xl mx-auto"
+      className="flex flex-col gap-10 w-full"
     >
       {/* Hero Header Area */}
       <motion.div variants={itemVariants} className="relative overflow-hidden rounded-2xl bg-zoru-surface-2 p-8 md:p-10 border border-zoru-line shadow-sm">

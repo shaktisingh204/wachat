@@ -36,6 +36,7 @@ import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 import { DealDetailActions } from '../_components/deal-detail-actions';
 import { DealQuickEdits } from '../_components/deal-quick-edits';
 import { DealRelatedRail } from '../_components/deal-related-rail';
+import { DealDetailClient } from '../_components/deal-detail-client';
 
 export const dynamic = 'force-dynamic';
 
@@ -246,224 +247,22 @@ export default async function DealDetailPage({ params, searchParams }: PageProps
   }
 
   return (
-    <EntityDetailShell
-      title={deal.name || 'Untitled deal'}
-      eyebrow="DEAL"
-      back={{ href: '/dashboard/crm/sales-crm/deals', label: 'Back to Deals' }}
-      actions={
-        <DealDetailActions
-          dealId={dealIdStr}
-          stage={deal.stage ?? ''}
-          stages={stages}
-          contactEmail={contactPrimary.email}
-          contactPhone={contactPrimary.phone}
-        />
-      }
-    >
-      <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        {/* Main column */}
-        <main className="min-w-0 flex-1 space-y-6">
-          {/* Overview */}
-          <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Overview
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              <DetailField label="Owner">
-                {deal.ownerId ? (
-                  <EntityPickerChip entity="user" id={String(deal.ownerId)} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-              <DetailField label="Pipeline">
-                {deal.pipelineId ? (
-                  <EntityPickerChip entity="pipeline" id={deal.pipelineId} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-              <DetailField label="Client">
-                {accountId ? (
-                  <EntityPickerChip entity="client" id={accountId} />
-                ) : contactId ? (
-                  <EntityPickerChip entity="contact" id={contactId} />
-                ) : (
-                  '—'
-                )}
-              </DetailField>
-              <DetailField label="Lead source">{deal.leadSource || '—'}</DetailField>
-              <DetailField label="Priority">{deal.priority || '—'}</DetailField>
-              <DetailField label="Campaign">{deal.campaign || '—'}</DetailField>
-              <DetailField label="Next step">{deal.nextStep || '—'}</DetailField>
-              <DetailField label="Loss reason">{deal.lossReason || '—'}</DetailField>
-            </div>
-          </Card>
-
-          {/* Money breakdown */}
-          <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Money breakdown
-            </h2>
-            <dl className="grid gap-3 md:grid-cols-3">
-              <Stat label="Amount" value={fmtMoney(amount, dealCurrency)} />
-              <Stat label="Probability" value={probabilityPct != null ? `${probabilityPct}%` : '—'} />
-              <Stat
-                label="Weighted forecast"
-                value={weighted != null ? fmtMoney(weighted, dealCurrency) : '—'}
-              />
-              <Stat label="Expected close" value={fmtDate(deal.closeDate)} />
-              <Stat label="Deal age" value={dealAge != null ? `${dealAge} d` : '—'} />
-              <Stat label="Stage age" value={stageAge != null ? `${stageAge} d` : '—'} />
-            </dl>
-          </Card>
-
-          {/* Products */}
-          {Array.isArray(deal.products) && deal.products.length > 0 ? (
-            <Card className="p-6">
-              <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Products
-              </h2>
-              <div className="overflow-x-auto rounded border border-zoru-line">
-                <table className="w-full text-[12.5px]">
-                  <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-                    <tr>
-                      <th className="p-2 text-left">Name</th>
-                      <th className="p-2 text-right">Qty</th>
-                      <th className="p-2 text-right">Rate</th>
-                      <th className="p-2 text-right">Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {deal.products.map((p, i) => {
-                      const total = (p.quantity ?? 0) * (p.price ?? 0);
-                      return (
-                        <tr key={i} className="border-t border-zoru-line">
-                          <td className="p-2">{p.name}</td>
-                          <td className="p-2 text-right font-mono tabular-nums">{p.quantity}</td>
-                          <td className="p-2 text-right font-mono tabular-nums">{p.price}</td>
-                          <td className="p-2 text-right font-mono tabular-nums">{total}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          ) : null}
-
-          {/* Notes composer */}
-          <CrmNotes recordId={dealIdStr} recordType="deal" notes={notesForComposer} />
-
-          {/* Tags */}
-          <Card className="p-6">
-            <h2 className="mb-4 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-              Tags
-            </h2>
-            {Array.isArray(deal.labels) && deal.labels.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
-                {deal.labels.map((t) => (
-                  <Badge key={t} variant="outline">
-                    {t}
-                  </Badge>
-                ))}
-              </div>
-            ) : (
-              <p className="text-[13px] text-zoru-ink-muted">No tags yet.</p>
-            )}
-          </Card>
-        </main>
-
-        {/* Right rail */}
-        <aside className="w-full md:w-80 md:shrink-0">
-          <div className="space-y-4 md:sticky md:top-4">
-            {/* Pipeline progress */}
-            <Card className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                Pipeline progress
-              </h3>
-              <ol className="space-y-1.5">
-                {stages.map((s) => {
-                  const isCurrent = s === deal.stage;
-                  return (
-                    <li
-                      key={s}
-                      className={`flex items-center gap-2 rounded px-2 py-1 text-[12.5px] ${
-                        isCurrent
-                          ? 'bg-zoru-surface-2 font-medium text-zoru-ink'
-                          : 'text-zoru-ink-muted'
-                      }`}
-                    >
-                      <span
-                        className={`inline-block h-2 w-2 rounded-full ${
-                          isCurrent ? 'bg-zoru-primary' : 'bg-zoru-line'
-                        }`}
-                        aria-hidden
-                      />
-                      {s}
-                      {isCurrent ? (
-                        <span className="ml-auto text-[10.5px] uppercase text-zoru-primary">
-                          current
-                        </span>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ol>
-            </Card>
-
-            {/* Owner + stage + status — inline quick-edits */}
-            <Card className="p-4">
-              <h3 className="mb-3 text-[12px] font-semibold uppercase tracking-wide text-zoru-ink-muted">
-                At a glance
-              </h3>
-              <DealQuickEdits
-                dealId={dealIdStr}
-                ownerId={deal.ownerId ? String(deal.ownerId) : null}
-                stage={deal.stage ?? ''}
-                status={dealStatus}
-                stages={stages}
-              />
-              <div className="mt-3 space-y-1.5 text-[12.5px]">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Stage age</span>
-                  <span className="font-mono tabular-nums">
-                    {stageAge != null ? `${stageAge} d` : '—'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Created</span>
-                  <span>{fmtDate(deal.createdAt)}</span>
-                </div>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-zoru-ink-muted">Updated</span>
-                  <span>{fmtDate(deal.updatedAt)}</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Related entities — live counts */}
-            <DealRelatedRail dealId={dealIdStr} accountId={accountId} initial={related} />
-
-            {/* Lineage rail */}
-            <LineageRail
-              current={{ kind: 'deal', id: dealIdStr, no: deal.name, status: deal.stage }}
-              lineage={deal.lineage ?? []}
-            />
-
-            <Button size="sm" variant="ghost" asChild className="w-full">
-              <Link href={`/dashboard/crm/sales-crm/deals/${dealIdStr}/activity`}>
-                <ClipboardList className="h-3.5 w-3.5" />
-                View full activity log
-              </Link>
-            </Button>
-          </div>
-        </aside>
-      </div>
-
-      {/* Audit footer */}
-      <EntityAuditTimeline entityKind="deal" entityId={dealIdStr} />
-    </EntityDetailShell>
+    <DealDetailClient
+      deal={deal}
+      dealIdStr={dealIdStr}
+      accountId={accountId}
+      contactId={contactId}
+      stages={stages}
+      amount={amount}
+      probabilityPct={probabilityPct}
+      weighted={weighted}
+      dealCurrency={dealCurrency}
+      stageAge={stageAge}
+      dealAge={dealAge}
+      dealStatus={dealStatus}
+      contactPrimary={contactPrimary}
+      related={related}
+    />
   );
 }
 

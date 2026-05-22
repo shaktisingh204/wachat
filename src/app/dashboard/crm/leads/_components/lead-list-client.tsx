@@ -1,710 +1,1137 @@
 'use client';
 
-import {
-    ZoruAlertDialog,
-    ZoruAlertDialogAction,
-    ZoruAlertDialogCancel,
-    ZoruAlertDialogContent,
-    ZoruAlertDialogDescription,
-    ZoruAlertDialogFooter,
-    ZoruAlertDialogHeader,
-    ZoruAlertDialogTitle,
-    Badge,
-    Button,
-    Card,
-    Checkbox,
-    Input,
-    Select,
-    ZoruSelectContent,
-    ZoruSelectItem,
-    ZoruSelectTrigger,
-    ZoruSelectValue,
-    StatCard,
-    Table,
-    ZoruTableBody,
-    ZoruTableCell,
-    ZoruTableHead,
-    ZoruTableHeader,
-    ZoruTableRow,
-    useZoruToast,
-} from '@/components/zoruui';
-import {
-    useRouter,
-    useSearchParams,
-    usePathname,
-} from 'next/navigation';
-import {
-    AlertCircle,
-    CalendarClock,
-    Download,
-    ListChecks,
-    LoaderCircle,
-    Pencil,
-    Search,
-    TrendingUp,
-    Trash2,
-    Users,
-    X,
-} from 'lucide-react';
-
-/**
- * Leads list client — upgraded with KPI strip, status + source
- * filters, bulk-select / bulk-delete, and CSV export.
- *
- * Search is URL-driven (debounced write-back) so the server component
- * re-fetches from Rust. Status and source filters run client-side over
- * the loaded page. KPIs are computed from the page data.
- */
-
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import {
+  ZoruAlertDialog,
+  ZoruAlertDialogAction,
+  ZoruAlertDialogCancel,
+  ZoruAlertDialogContent,
+  ZoruAlertDialogDescription,
+  ZoruAlertDialogFooter,
+  ZoruAlertDialogHeader,
+  ZoruAlertDialogTitle,
+  Badge,
+  Button,
+  Card,
+  Input,
+  Label,
+  StatCard,
+  useZoruToast,
+} from '@/components/zoruui';
+import {
+  CalendarClock,
+  Download,
+  FileSpreadsheet,
+  Mail,
+  Phone,
+  Trash2,
+  Users,
+  Plus,
+  TrendingUp,
+  X,
+} from 'lucide-react';
 
 import { PaginationBar } from '@/components/crm/pagination-bar';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { SavedViewsBar } from '@/components/crm/SavedViewsBar';
-import { downloadCsv, dateStamp } from '@/lib/crm-list-export';
-import { deleteLeadAction } from '@/app/actions/crm/leads.actions';
+import { downloadCsv, downloadXlsx, dateStamp } from '@/lib/crm-list-export';
+import { deleteLeadAction, saveLeadAction, updateLead, listLeads } from '@/app/actions/crm/leads.actions';
 import { useT } from '@/lib/i18n/client';
 import type { CrmLeadDoc } from '@/lib/rust-client/crm-leads';
+import type { WsCustomField } from '@/lib/worksuite/meta-types';
 import type { SavedView } from '@/lib/saved-views/types';
 
+import { EntityFormField } from '@/components/crm/entity-form-field';
+import { EnumFormField } from '@/components/crm/enum-form-field';
+import { CustomFieldInput, type CustomFieldValue } from '@/components/crm/custom-field-input';
+
+// Phase 1 advanced bulky components
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { CrmFilterPanel } from '@/components/crm/crm-filter-panel';
+import { CrmFormDrawer } from '@/components/crm/crm-form-drawer';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
+
 interface LeadListClientProps {
-    leads: CrmLeadDoc[];
-    page: number;
-    limit: number;
-    hasMore: boolean;
-    initialQuery: string;
-    error?: string;
+  leads: CrmLeadDoc[];
+  page: number;
+  limit: number;
+  hasMore: boolean;
+  initialQuery: string;
+  error?: string;
+  customFields?: WsCustomField[];
 }
 
 function fullName(l: CrmLeadDoc, fallback: string): string {
-    return (
-        [l.firstName, l.lastName].filter(Boolean).join(' ') ||
-        l.email ||
-        fallback
-    );
+  return [l.firstName, l.lastName].filter(Boolean).join(' ') || l.email || fallback;
 }
 
 function fmtMoney(
-    value: number | undefined,
-    currency: string | undefined,
-    locale: string,
+  value: number | undefined,
+  currency: string | undefined,
+  locale: string,
 ): string {
-    if (typeof value !== 'number') return '—';
-    try {
-        return new Intl.NumberFormat(locale, {
-            style: 'currency',
-            currency: currency || 'INR',
-            maximumFractionDigits: 0,
-        }).format(value);
-    } catch {
-        return `${currency || 'INR'} ${value}`;
-    }
+  if (typeof value !== 'number') return '—';
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currency || 'INR',
+      maximumFractionDigits: 0,
+    }).format(value);
+  } catch {
+    return `${currency || 'INR'} ${value}`;
+  }
 }
-
-function fmtDate(v: string | undefined, locale: string): string {
-    if (!v) return '—';
-    const d = new Date(v);
-    return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString(locale);
-}
-
-/* ─── KPI computation from page data ───────────────────────────────────── */
 
 interface LeadPageKpis {
-    total: number;
-    withValue: number;
-    totalValue: number;
-    addedThisMonth: number;
+  total: number;
+  withValue: number;
+  totalValue: number;
+  addedThisMonth: number;
 }
 
 function computeLeadKpis(leads: CrmLeadDoc[]): LeadPageKpis {
-    const startOfMonth = new Date();
-    startOfMonth.setDate(1);
-    startOfMonth.setHours(0, 0, 0, 0);
-    let withValue = 0;
-    let totalValue = 0;
-    let addedThisMonth = 0;
-    for (const l of leads) {
-        if (typeof l.estimatedValue === 'number' && l.estimatedValue > 0) {
-            withValue++;
-            totalValue += l.estimatedValue;
-        }
-        const created = l.createdAt || l.audit?.createdAt;
-        if (
-            created &&
-            new Date(created).getTime() >= startOfMonth.getTime()
-        ) {
-            addedThisMonth++;
-        }
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+  let withValue = 0;
+  let totalValue = 0;
+  let addedThisMonth = 0;
+  for (const l of leads) {
+    if (typeof l.estimatedValue === 'number' && l.estimatedValue > 0) {
+      withValue++;
+      totalValue += l.estimatedValue;
     }
-    return { total: leads.length, withValue, totalValue, addedThisMonth };
+    const created = l.createdAt || l.audit?.createdAt;
+    if (created && new Date(created).getTime() >= startOfMonth.getTime()) {
+      addedThisMonth++;
+    }
+  }
+  return { total: leads.length, withValue, totalValue, addedThisMonth };
 }
 
+const LEAD_STATUS_OPTIONS = ['new', 'contacted', 'qualified', 'unqualified', 'converted', 'lost'];
+
 export function LeadListClient({
-    leads,
-    page,
-    limit,
-    hasMore,
-    initialQuery,
-    error,
+  leads: initialLeads,
+  page: initialPage,
+  limit: initialLimit,
+  hasMore: initialHasMore,
+  initialQuery,
+  error,
+  customFields = [],
 }: LeadListClientProps) {
-    const { toast } = useZoruToast();
-    const { t, locale } = useT();
-    const router = useRouter();
-    const pathname = usePathname();
-    const sp = useSearchParams();
-    const unnamedLabel = t('crm.leads.list.unnamed');
+  const { toast } = useZoruToast();
+  const { t, locale } = useT();
+  const router = useRouter();
+  const pathname = usePathname();
+  const sp = useSearchParams();
+  const unnamedLabel = t('crm.leads.list.unnamed', 'Unnamed Lead');
 
-    /* ─── Search (URL-driven) ──────────────────────────────────── */
-    const [query, setQuery] = React.useState(initialQuery);
+  /* ─── KPI computation from page data ───────────────────────────────────── */
+  const kpis = React.useMemo(() => computeLeadKpis(initialLeads), [initialLeads]);
 
-    React.useEffect(() => {
-        if (query === initialQuery) return;
-        const handle = setTimeout(() => {
-            const params = new URLSearchParams(sp?.toString() ?? '');
-            if (query.trim()) params.set('q', query.trim());
-            else params.delete('q');
-            params.set('page', '1');
-            const qs = params.toString();
-            router.push(qs ? `${pathname}?${qs}` : pathname);
-        }, 300);
-        return () => clearTimeout(handle);
-    }, [query, initialQuery, sp, pathname, router]);
+  /* ─── Drawer & Selection States ────────────────────────────────────────── */
+  const [isFormDrawerOpen, setIsFormDrawerOpen] = React.useState(false);
+  const [formLead, setFormLead] = React.useState<Partial<CrmLeadDoc>>({});
+  const [isSaving, setIsSaving] = React.useState(false);
+  const [pendingDeleteLead, setPendingDeleteLead] = React.useState<CrmLeadDoc | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [bulkDeleting, startBulkDelete] = React.useTransition();
+  const [bulkConfirmOpen, setBulkConfirmOpen] = React.useState(false);
+  const [gridDensity, setGridDensity] = React.useState<'comfortable' | 'compact' | 'dense'>('comfortable');
 
-    /* ─── Client-side filters ──────────────────────────────────── */
-    const [statusFilter, setStatusFilter] = React.useState<'all' | string>(
-        'all',
-    );
-    const [sourceFilter, setSourceFilter] = React.useState<'all' | string>(
-        'all',
-    );
+  const [customFieldValues, setCustomFieldValues] = React.useState<Record<string, CustomFieldValue>>({});
 
-    const statusOptions = React.useMemo(() => {
-        const s = new Set<string>();
-        for (const l of leads) {
-            if (l.status?.name) s.add(l.status.name);
-        }
-        return Array.from(s).sort();
-    }, [leads]);
+  /* ─── Bulky State Hook ─────────────────────────────────────────────────── */
+  const {
+    data: leads,
+    total,
+    page,
+    setPage,
+    limit,
+    filters,
+    isPending,
+    selected,
+    inlineEditRowId,
+    editBuffer,
+    hasActiveFilters,
+    handleSearch,
+    updateFilter,
+    clearFilters,
+    toggleSelectOne,
+    toggleSelectAll,
+    clearSelection,
+    startInlineEdit,
+    cancelInlineEdit,
+    updateEditBuffer,
+    triggerFetch,
+    setData,
+  } = useCrmBulkyState<CrmLeadDoc>({
+    initialData: initialLeads,
+    initialPage,
+    initialLimit,
+    fetchFn: async ({ page, limit, search, filters }) => {
+      // Build server request payload
+      const response = await listLeads({
+        page,
+        limit,
+        q: search || undefined,
+      });
 
-    const sourceOptions = React.useMemo(() => {
-        const s = new Set<string>();
-        for (const l of leads) {
-            const src = l.attribution?.source || l.subSource;
-            if (src) s.add(src);
-        }
-        return Array.from(s).sort();
-    }, [leads]);
+      let items = response.leads;
 
-    const filtered = React.useMemo(() => {
-        return leads.filter((l) => {
-            if (statusFilter !== 'all' && l.status?.name !== statusFilter)
-                return false;
-            const src = l.attribution?.source || l.subSource;
-            if (sourceFilter !== 'all' && src !== sourceFilter) return false;
-            return true;
-        });
-    }, [leads, statusFilter, sourceFilter]);
-
-    const hasActiveFilters =
-        statusFilter !== 'all' || sourceFilter !== 'all';
-
-    const clearFilters = () => {
-        setStatusFilter('all');
-        setSourceFilter('all');
-    };
-
-    /* ─── KPIs ─────────────────────────────────────────────────── */
-    const kpis = React.useMemo(() => computeLeadKpis(leads), [leads]);
-
-    /* ─── Bulk selection ────────────────────────────────────────── */
-    const [selected, setSelected] = React.useState<Set<string>>(new Set());
-    const [pendingDelete, setPendingDelete] =
-        React.useState<CrmLeadDoc | null>(null);
-    const [deleting, startDelete] = React.useTransition();
-    const [bulkDeleting, startBulkDelete] = React.useTransition();
-    const [bulkConfirmOpen, setBulkConfirmOpen] = React.useState(false);
-
-    const headChecked =
-        filtered.length > 0 &&
-        filtered.every((l) => selected.has(String(l._id)));
-
-    const toggleAll = (all: boolean) =>
-        setSelected(
-            all ? new Set(filtered.map((l) => String(l._id))) : new Set(),
+      // Client-side filtering as BFF only supports q, page, limit
+      if (filters.status && filters.status !== 'all') {
+        items = items.filter((l) => l.status?.name === filters.status);
+      }
+      if (filters.source && filters.source !== 'all') {
+        items = items.filter(
+          (l) =>
+            l.attribution?.source === filters.source || l.subSource === filters.source,
         );
+      }
+      if (filters.ownerId) {
+        items = items.filter(
+          (l) =>
+            (l.ownerId || '').toLowerCase().includes(filters.ownerId.toLowerCase()),
+        );
+      }
 
-    const toggleOne = (id: string) =>
-        setSelected((prev) => {
-            const next = new Set(prev);
-            if (next.has(id)) next.delete(id);
-            else next.add(id);
-            return next;
+      return {
+        items,
+        total: response.leads.length, // approximation
+        hasMore: response.hasMore,
+      };
+    },
+  });
+
+  // Re-sync hook data when initialLeads prop changes
+  React.useEffect(() => {
+    setData(initialLeads);
+  }, [initialLeads, setData]);
+
+  React.useEffect(() => {
+    triggerFetch();
+  }, [triggerFetch, page, limit, filters]);
+
+  /* ─── Inline Edit Save ─────────────────────────────────────────────────── */
+  const handleSaveInlineEdit = async (id: string, updatedData: Partial<CrmLeadDoc>) => {
+    const original = leads.find((l) => l._id.toString() === id);
+    if (!original) return;
+
+    try {
+      const merged = { ...original, ...updatedData };
+      const fd = new FormData();
+      fd.set('_id', id);
+      fd.set('firstName', merged.firstName);
+      fd.set('lastName', merged.lastName);
+      if (merged.email) fd.set('email', merged.email);
+      if (merged.phone) fd.set('phone', merged.phone);
+      if (merged.company) fd.set('company', merged.company);
+      if (merged.title) fd.set('title', merged.title);
+      if (merged.status?.name) fd.set('status', merged.status.name);
+      if (merged.leadScore !== undefined) fd.set('leadScore', String(merged.leadScore));
+      if (merged.estimatedValue !== undefined) fd.set('estimatedValue', String(merged.estimatedValue));
+      if (merged.currency) fd.set('currency', merged.currency);
+
+      const res = await saveLeadAction(null, fd);
+      if (res.error) {
+        toast({
+          title: 'Inline Edit Failed',
+          description: res.error,
+          variant: 'destructive',
         });
+      } else {
+        toast({ title: 'Lead saved inline' });
+        cancelInlineEdit();
+        triggerFetch();
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Error saving inline',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
-    /* ─── Single delete ─────────────────────────────────────────── */
-    const confirmDelete = () => {
-        if (!pendingDelete?._id) return;
-        const id = String(pendingDelete._id);
-        const name = fullName(pendingDelete, unnamedLabel);
-        startDelete(async () => {
-            const res = await deleteLeadAction(id);
-            if (res.success) {
-                toast({
-                    title: t('crm.leads.list.toast.deleted'),
-                    description: t(
-                        'crm.leads.list.toast.deletedDescription',
-                        { name },
-                    ),
-                });
-                setPendingDelete(null);
-                router.refresh();
-            } else {
-                toast({
-                    title: t('crm.leads.list.toast.deleteFailed'),
-                    description: res.error,
-                    variant: 'destructive',
-                });
-            }
-        });
-    };
+  /* ─── Form Drawer Actions ──────────────────────────────────────────────── */
+  const handleOpenNewForm = () => {
+    setFormLead({
+      status: { name: 'new' },
+      leadScore: 0,
+      currency: 'INR',
+    });
+    setCustomFieldValues({});
+    setIsFormDrawerOpen(true);
+  };
 
-    /* ─── Bulk delete ───────────────────────────────────────────── */
-    const runBulkDelete = () => {
-        if (selected.size === 0) return;
-        setBulkConfirmOpen(false);
-        const ids = Array.from(selected);
-        startBulkDelete(async () => {
-            let ok = 0;
-            let failed = 0;
-            for (const id of ids) {
-                const res = await deleteLeadAction(id);
-                if (res.success) ok++;
-                else failed++;
-            }
-            toast({
-                title:
-                    failed === 0
-                        ? `${ok} lead${ok === 1 ? '' : 's'} deleted`
-                        : `${ok} deleted · ${failed} failed`,
-                variant: failed > 0 ? 'destructive' : undefined,
-            });
-            setSelected(new Set());
-            router.refresh();
-        });
-    };
+  const handleOpenEditForm = (lead: CrmLeadDoc) => {
+    setFormLead({ ...lead });
+    const bag = (lead.customFields ?? {}) as Record<string, unknown>;
+    const seed: Record<string, CustomFieldValue> = {};
+    for (const f of customFields) {
+      const v = bag[f.name];
+      if (v !== undefined) seed[f.name] = v as CustomFieldValue;
+    }
+    setCustomFieldValues(seed);
+    setIsFormDrawerOpen(true);
+  };
 
-    /* ─── Export ────────────────────────────────────────────────── */
-    const exportCsv = React.useCallback(() => {
-        const subset =
-            selected.size > 0
-                ? filtered.filter((l) => selected.has(String(l._id)))
-                : filtered;
-        const headers = [
-            'Name',
-            'Email',
-            'Phone',
-            'Company',
-            'Title',
-            'Status',
-            'Source',
-            'Estimated value',
-            'Currency',
-            'Created at',
-        ];
-        const rows = subset.map((l) => ({
-            Name: fullName(l, ''),
-            Email: l.email || '',
-            Phone: l.phone || '',
-            Company: l.company || '',
-            Title: l.title || '',
-            Status: l.status?.name || '',
-            Source: l.attribution?.source || l.subSource || '',
-            'Estimated value': l.estimatedValue ?? '',
-            Currency: l.currency || '',
-            'Created at': l.createdAt || l.audit?.createdAt || '',
-        }));
-        downloadCsv(`leads-${dateStamp()}.csv`, headers, rows);
-    }, [filtered, selected]);
+  const handleUpdateFormField = (field: keyof CrmLeadDoc, value: any) => {
+    setFormLead((prev) => ({ ...prev, [field]: value }));
+  };
 
-    /* ─── Saved views ───────────────────────────────────────────── */
-    const savedViewFilters = React.useMemo(() => ({ query }), [query]);
-    const handleApplyView = React.useCallback((view: SavedView) => {
-        const f = (view.filters ?? {}) as Record<string, unknown>;
-        if (typeof f.query === 'string') setQuery(f.query);
-    }, []);
+  const handleCustomFieldChange = (name: string, next: CustomFieldValue) => {
+    setCustomFieldValues((prev) => ({ ...prev, [name]: next }));
+  };
 
-    return (
-        <div className="flex w-full flex-col gap-4">
-            <SavedViewsBar
-                entityKind="lead"
-                currentFilters={savedViewFilters}
-                currentColumns={[]}
-                onApplyView={handleApplyView}
+  const onSaveLead = async () => {
+    if (!formLead.firstName || !formLead.lastName) {
+      toast({
+        title: 'Validation Error',
+        description: 'First Name and Last Name are required.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    setIsSaving(true);
+    try {
+      const fd = new FormData();
+      if (formLead._id) fd.set('_id', formLead._id.toString());
+      fd.set('firstName', formLead.firstName);
+      fd.set('lastName', formLead.lastName);
+      if (formLead.email) fd.set('email', formLead.email);
+      if (formLead.phone) fd.set('phone', formLead.phone);
+      if (formLead.company) fd.set('company', formLead.company);
+      if (formLead.title) fd.set('title', formLead.title);
+      if (formLead.subSource) fd.set('subSource', formLead.subSource);
+      
+      const statusName = formLead.status?.name ?? (typeof formLead.status === 'string' ? formLead.status : 'new');
+      fd.set('status', statusName);
+
+      if (formLead.leadScore !== undefined) fd.set('leadScore', String(formLead.leadScore));
+      if (formLead.estimatedValue !== undefined) fd.set('estimatedValue', String(formLead.estimatedValue));
+      if (formLead.currency) fd.set('currency', formLead.currency);
+      if (formLead.probabilityPct !== undefined) fd.set('probabilityPct', String(formLead.probabilityPct));
+      if (formLead.expectedClose) fd.set('expectedClose', formLead.expectedClose);
+      if (formLead.industry) fd.set('industry', formLead.industry);
+
+      // Attribution nested values
+      const sourceVal = formLead.attribution?.source ?? (formLead as any).source;
+      if (sourceVal) fd.set('source', sourceVal);
+
+      const ownerVal = formLead.ownerId;
+      if (ownerVal) fd.set('ownerId', ownerVal);
+
+      const assigneeVal = formLead.assignment?.assignedTo ?? (formLead as any).assignedTo;
+      if (assigneeVal) fd.set('assignedTo', assigneeVal);
+
+      // Custom fields payload
+      fd.set('customFields', JSON.stringify(customFieldValues));
+
+      const res = await saveLeadAction(null, fd);
+      if (res.error) {
+        toast({ title: 'Save Failed', description: res.error, variant: 'destructive' });
+      } else {
+        toast({ title: formLead._id ? 'Lead updated' : 'Lead created' });
+        setIsFormDrawerOpen(false);
+        triggerFetch();
+        router.refresh();
+      }
+    } catch (err: any) {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  /* ─── Single & Bulk Delete Actions ──────────────────────────────────────── */
+  const runSingleDelete = async () => {
+    if (!pendingDeleteLead?._id) return;
+    setIsDeleting(true);
+    const id = String(pendingDeleteLead._id);
+    const name = fullName(pendingDeleteLead, unnamedLabel);
+    const res = await deleteLeadAction(id);
+    setIsDeleting(false);
+    if (res.success) {
+      toast({
+        title: t('crm.leads.list.toast.deleted', 'Lead Deleted'),
+        description: t('crm.leads.list.toast.deletedDescription', { name }),
+      });
+      setPendingDeleteLead(null);
+      triggerFetch();
+      router.refresh();
+    } else {
+      toast({
+        title: 'Delete Failed',
+        description: res.error,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const runBulkDelete = () => {
+    if (selected.size === 0) return;
+    setBulkConfirmOpen(false);
+    const ids = Array.from(selected);
+    startBulkDelete(async () => {
+      let ok = 0;
+      let failed = 0;
+      for (const id of ids) {
+        const res = await deleteLeadAction(id);
+        if (res.success) ok++;
+        else failed++;
+      }
+      toast({
+        title: failed === 0
+          ? `${ok} lead${ok === 1 ? '' : 's'} deleted successfully`
+          : `${ok} deleted · ${failed} failed`,
+        variant: failed > 0 ? 'destructive' : undefined,
+      });
+      clearSelection();
+      triggerFetch();
+      router.refresh();
+    });
+  };
+
+  /* ─── Export ───────────────────────────────────────────────────────────── */
+  const exportRows = React.useMemo(() => {
+    const subset = selected.size > 0 ? leads.filter((l) => selected.has(String(l._id))) : leads;
+    return subset.map((l) => ({
+      Name: fullName(l, ''),
+      Email: l.email || '',
+      Phone: l.phone || '',
+      Company: l.company || '',
+      Title: l.title || '',
+      Status: l.status?.name || '',
+      Source: l.attribution?.source || l.subSource || '',
+      'Estimated Value': l.estimatedValue ?? '',
+      Currency: l.currency || 'INR',
+      'Created At': l.createdAt || l.audit?.createdAt || '',
+    }));
+  }, [leads, selected]);
+
+  const exportHeaders = ['Name', 'Email', 'Phone', 'Company', 'Title', 'Status', 'Source', 'Estimated Value', 'Currency', 'Created At'];
+
+  const exportCsv = React.useCallback(() => {
+    downloadCsv(`leads-${dateStamp()}.csv`, exportHeaders, exportRows);
+  }, [exportRows]);
+
+  const exportXlsx = React.useCallback(() => {
+    void downloadXlsx(`leads-${dateStamp()}.xlsx`, exportHeaders, exportRows, 'Leads');
+  }, [exportRows]);
+
+  /* ─── Columns Definition ───────────────────────────────────────────────── */
+  const columns = React.useMemo<ColumnDef<CrmLeadDoc>[]>(() => [
+    {
+      key: 'name',
+      header: 'Name',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/leads/${row._id}`}
+          label={fullName(row, unnamedLabel)}
+          subtitle={row.company || undefined}
+        />
+      ),
+    },
+    {
+      key: 'firstName',
+      header: 'First Name',
+      sortable: true,
+      render: (row) => <span className="text-[13px] text-zoru-ink">{row.firstName}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-32 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'lastName',
+      header: 'Last Name',
+      sortable: true,
+      render: (row) => <span className="text-[13px] text-zoru-ink">{row.lastName}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-32 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'email',
+      header: 'Email',
+      sortable: true,
+      render: (row) =>
+        row.email ? (
+          <span className="text-[12.5px] text-zoru-ink">{row.email}</span>
+        ) : (
+          <span className="text-zoru-ink-muted">—</span>
+        ),
+      editRender: (row, value, onChange) => (
+        <Input
+          type="email"
+          size="sm"
+          className="h-8 w-44 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'phone',
+      header: 'Phone',
+      render: (row) =>
+        row.phone ? (
+          <span className="text-[12.5px] text-zoru-ink">{row.phone}</span>
+        ) : (
+          <span className="text-zoru-ink-muted">—</span>
+        ),
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-36 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'company',
+      header: 'Company',
+      sortable: true,
+      render: (row) => <span className="text-[13px] text-zoru-ink">{row.company || '—'}</span>,
+      editRender: (row, value, onChange) => (
+        <Input
+          size="sm"
+          className="h-8 w-40 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value)}
+        />
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => (
+        <Badge
+          variant={
+            row.status?.name === 'converted' || row.status?.name === 'Won'
+              ? 'success'
+              : row.status?.name === 'contacted'
+              ? 'warning'
+              : row.status?.name === 'lost'
+              ? 'danger'
+              : 'info'
+          }
+        >
+          {(row.status?.name || 'new').toUpperCase()}
+        </Badge>
+      ),
+      editRender: (row, value, onChange) => (
+        <select
+          value={value?.name || value || 'new'}
+          onChange={(e) => onChange({ name: e.target.value })}
+          className="h-8 rounded border border-zoru-line bg-zoru-bg px-2 py-0.5 text-[12.5px] text-zoru-ink outline-none"
+        >
+          {LEAD_STATUS_OPTIONS.map((st) => (
+            <option key={st} value={st}>
+              {st.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      key: 'estimatedValue',
+      header: 'Est. Value',
+      sortable: true,
+      render: (row) => (
+        <span className="text-[12.5px] tabular-nums font-medium text-zoru-ink">
+          {fmtMoney(row.estimatedValue, row.currency, locale)}
+        </span>
+      ),
+      editRender: (row, value, onChange) => (
+        <Input
+          type="number"
+          size="sm"
+          className="h-8 w-28 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : 0)}
+        />
+      ),
+    },
+    {
+      key: 'leadScore',
+      header: 'Lead Score',
+      sortable: true,
+      render: (row) => (
+        <Badge
+          variant={
+            (row.leadScore ?? 0) > 75
+              ? 'success'
+              : (row.leadScore ?? 0) > 50
+              ? 'warning'
+              : 'danger'
+          }
+        >
+          {row.leadScore ?? 0}
+        </Badge>
+      ),
+      editRender: (row, value, onChange) => (
+        <Input
+          type="number"
+          size="sm"
+          className="h-8 w-20 text-[12.5px]"
+          value={value !== undefined ? String(value) : ''}
+          onChange={(e) => onChange(e.target.value ? Number(e.target.value) : 0)}
+        />
+      ),
+    },
+  ], [locale, unnamedLabel]);
+
+  /* ─── Dynamic Segment and Presets Options ──────────────────────────────── */
+  const filterFields = React.useMemo(() => [
+    {
+      key: 'status',
+      label: 'Status',
+      type: 'select' as const,
+      options: LEAD_STATUS_OPTIONS.map((o) => ({ label: o.toUpperCase(), value: o })),
+    },
+    {
+      key: 'source',
+      label: 'Attribution Source',
+      type: 'select' as const,
+      options: [
+        { label: 'Website', value: 'website' },
+        { label: 'Referral', value: 'referral' },
+        { label: 'Social Media', value: 'social' },
+        { label: 'Event', value: 'event' },
+        { label: 'Cold Outbound', value: 'cold-outbound' },
+        { label: 'Advertising', value: 'ad' },
+      ],
+    },
+    { key: 'ownerId', label: 'Owner (SDR)', type: 'text' as const },
+  ], []);
+
+  /* ─── Multi-Tab Adaptive Form Sidebar Compiler ─────────────────────────── */
+  const formSections = React.useMemo(() => [
+    {
+      id: 'identity',
+      label: 'Identity & Bio',
+      render: () => (
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">First name *</Label>
+            <Input
+              value={formLead.firstName || ''}
+              onChange={(e) => handleUpdateFormField('firstName', e.target.value)}
+              placeholder="Shakti"
+              className="h-10 text-[13px]"
+              required
             />
-
-            {/* KPI strip */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <StatCard
-                    label="Leads (this page)"
-                    value={kpis.total.toLocaleString()}
-                    icon={<Users className="h-4 w-4" />}
-                />
-                <StatCard
-                    label="With est. value"
-                    value={kpis.withValue.toLocaleString()}
-                    icon={<TrendingUp className="h-4 w-4" />}
-                />
-                <StatCard
-                    label="Total pipeline"
-                    value={fmtMoney(kpis.totalValue, undefined, locale)}
-                    icon={<TrendingUp className="h-4 w-4" />}
-                />
-                <StatCard
-                    label="Added this month"
-                    value={kpis.addedThisMonth.toLocaleString()}
-                    icon={<CalendarClock className="h-4 w-4" />}
-                />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Last name *</Label>
+            <Input
+              value={formLead.lastName || ''}
+              onChange={(e) => handleUpdateFormField('lastName', e.target.value)}
+              placeholder="Singh"
+              className="h-10 text-[13px]"
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Company</Label>
+            <Input
+              value={formLead.company || ''}
+              onChange={(e) => handleUpdateFormField('company', e.target.value)}
+              placeholder="Wachats Ltd"
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Job title</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="jobTitle"
+                name="title"
+                initialId={formLead.title ?? null}
+                onSelect={(val) => handleUpdateFormField('title', val)}
+              />
             </div>
-
-            {/* Filters row */}
-            <div className="flex flex-wrap items-center gap-2">
-                <div className="relative max-w-sm flex-1">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zoru-ink-muted" />
-                    <Input
-                        value={query}
-                        onChange={(e) => setQuery(e.target.value)}
-                        placeholder={t('crm.leads.list.search.placeholder')}
-                        className="h-9 pl-9 text-[13px]"
-                    />
-                </div>
-                <Select
-                    value={statusFilter}
-                    onValueChange={setStatusFilter}
-                >
-                    <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                        <ZoruSelectValue placeholder="Status" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All statuses</ZoruSelectItem>
-                        {statusOptions.map((s) => (
-                            <ZoruSelectItem key={s} value={s}>
-                                {s}
-                            </ZoruSelectItem>
-                        ))}
-                    </ZoruSelectContent>
-                </Select>
-                <Select
-                    value={sourceFilter}
-                    onValueChange={setSourceFilter}
-                >
-                    <ZoruSelectTrigger className="h-9 w-[160px] text-[13px]">
-                        <ZoruSelectValue placeholder="Source" />
-                    </ZoruSelectTrigger>
-                    <ZoruSelectContent>
-                        <ZoruSelectItem value="all">All sources</ZoruSelectItem>
-                        {sourceOptions.map((s) => (
-                            <ZoruSelectItem key={s} value={s}>
-                                {s}
-                            </ZoruSelectItem>
-                        ))}
-                    </ZoruSelectContent>
-                </Select>
-                {hasActiveFilters ? (
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={clearFilters}
-                    >
-                        <X className="h-3.5 w-3.5" /> Clear filters
-                    </Button>
-                ) : null}
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Industry</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="industry"
+                name="industry"
+                initialId={formLead.industry ?? null}
+                onSelect={(val) => handleUpdateFormField('industry', val)}
+              />
             </div>
-
-            {/* Bulk bar */}
-            {selected.size > 0 ? (
-                <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
-                    <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
-                        <ListChecks className="h-4 w-4 text-zoru-primary" />
-                        {selected.size} selected
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={exportCsv}
-                        >
-                            <Download className="h-3.5 w-3.5" /> Export CSV
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => setBulkConfirmOpen(true)}
-                            disabled={bulkDeleting}
-                        >
-                            <Trash2 className="h-3.5 w-3.5" /> Delete
-                        </Button>
-                        <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setSelected(new Set())}
-                            aria-label="Clear selection"
-                        >
-                            <X className="h-3.5 w-3.5" />
-                        </Button>
-                    </div>
-                </div>
-            ) : null}
-
-            <Card className="overflow-hidden p-0">
-                {error ? (
-                    <div className="flex items-center gap-2 border-b border-amber-500/40 bg-amber-500/10 px-4 py-2.5 text-[13px] text-amber-600">
-                        <AlertCircle className="h-4 w-4 shrink-0" />
-                        {error}
-                    </div>
-                ) : null}
-
-                <Table>
-                    <ZoruTableHeader>
-                        <ZoruTableRow>
-                            <ZoruTableHead className="w-8">
-                                <Checkbox
-                                    checked={headChecked}
-                                    onCheckedChange={(c) =>
-                                        toggleAll(Boolean(c))
-                                    }
-                                    aria-label="Select all leads"
-                                />
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.name')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.contact')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.companyTitle')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.status')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.source')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.value')}
-                            </ZoruTableHead>
-                            <ZoruTableHead>
-                                {t('crm.leads.list.col.created')}
-                            </ZoruTableHead>
-                            <ZoruTableHead className="text-right">
-                                {t('crm.leads.list.col.actions')}
-                            </ZoruTableHead>
-                        </ZoruTableRow>
-                    </ZoruTableHeader>
-                    <ZoruTableBody>
-                        {filtered.length === 0 ? (
-                            <ZoruTableRow>
-                                <ZoruTableCell
-                                    colSpan={9}
-                                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                >
-                                    {hasActiveFilters || initialQuery
-                                        ? t('crm.leads.list.empty.search')
-                                        : t('crm.leads.list.empty.default')}
-                                </ZoruTableCell>
-                            </ZoruTableRow>
-                        ) : (
-                            filtered.map((lead) => {
-                                const id = String(lead._id);
-                                return (
-                                    <ZoruTableRow key={id}>
-                                        <ZoruTableCell>
-                                            <Checkbox
-                                                checked={selected.has(id)}
-                                                onCheckedChange={() =>
-                                                    toggleOne(id)
-                                                }
-                                                aria-label={`Select ${fullName(lead, unnamedLabel)}`}
-                                            />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
-                                            <EntityRowLink
-                                                href={`/dashboard/crm/leads/${id}`}
-                                                label={fullName(
-                                                    lead,
-                                                    unnamedLabel,
-                                                )}
-                                            />
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                            <div className="flex flex-col">
-                                                {lead.email ? (
-                                                    <span>{lead.email}</span>
-                                                ) : null}
-                                                {lead.phone ? (
-                                                    <span>{lead.phone}</span>
-                                                ) : null}
-                                                {!lead.email && !lead.phone ? (
-                                                    <span>—</span>
-                                                ) : null}
-                                            </div>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                            <div className="flex flex-col">
-                                                {lead.company ? (
-                                                    <span>{lead.company}</span>
-                                                ) : null}
-                                                {lead.title ? (
-                                                    <span>{lead.title}</span>
-                                                ) : null}
-                                                {!lead.company &&
-                                                !lead.title ? (
-                                                    <span>—</span>
-                                                ) : null}
-                                            </div>
-                                        </ZoruTableCell>
-                                        <ZoruTableCell>
-                                            {lead.status?.name ? (
-                                                <Badge variant="outline">
-                                                    {lead.status.name}
-                                                </Badge>
-                                            ) : (
-                                                <span className="text-[12.5px] text-zoru-ink-muted">
-                                                    —
-                                                </span>
-                                            )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                            {lead.attribution?.source ||
-                                                lead.subSource ||
-                                                '—'}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] tabular-nums text-zoru-ink">
-                                            {fmtMoney(
-                                                lead.estimatedValue,
-                                                lead.currency,
-                                                locale,
-                                            )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                            {fmtDate(
-                                                lead.createdAt ||
-                                                    lead.audit?.createdAt,
-                                                locale,
-                                            )}
-                                        </ZoruTableCell>
-                                        <ZoruTableCell className="text-right">
-                                            <div className="flex justify-end gap-1">
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    asChild
-                                                >
-                                                    <Link
-                                                        href={`/dashboard/crm/leads/${id}/edit`}
-                                                    >
-                                                        <Pencil className="h-3.5 w-3.5" />
-                                                    </Link>
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    onClick={() =>
-                                                        setPendingDelete(lead)
-                                                    }
-                                                    className="text-zoru-danger-ink"
-                                                    aria-label={`Delete ${fullName(lead, unnamedLabel)}`}
-                                                >
-                                                    <Trash2 className="h-3.5 w-3.5" />
-                                                </Button>
-                                            </div>
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                );
-                            })
-                        )}
-                    </ZoruTableBody>
-                </Table>
-
-                <PaginationBar page={page} limit={limit} hasMore={hasMore} />
-            </Card>
-
-            {/* Single delete confirm */}
-            <ZoruAlertDialog
-                open={pendingDelete !== null}
-                onOpenChange={(o) => !o && setPendingDelete(null)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
-                            {t('crm.leads.list.delete.title')}
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            {t('crm.leads.list.delete.description', {
-                                name: pendingDelete
-                                    ? fullName(pendingDelete, unnamedLabel)
-                                    : '',
-                            })}
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel disabled={deleting}>
-                            {t('crm.leads.list.delete.cancel')}
-                        </ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                            onClick={(e) => {
-                                e.preventDefault();
-                                confirmDelete();
-                            }}
-                            disabled={deleting}
-                            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-                        >
-                            {deleting ? (
-                                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                            ) : null}
-                            {t('crm.leads.list.delete.confirm')}
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
-
-            {/* Bulk delete confirm */}
-            <ZoruAlertDialog
-                open={bulkConfirmOpen}
-                onOpenChange={(o) => !o && setBulkConfirmOpen(false)}
-            >
-                <ZoruAlertDialogContent>
-                    <ZoruAlertDialogHeader>
-                        <ZoruAlertDialogTitle>
-                            Delete {selected.size} lead
-                            {selected.size === 1 ? '' : 's'}?
-                        </ZoruAlertDialogTitle>
-                        <ZoruAlertDialogDescription>
-                            This permanently removes the selected leads. This
-                            action cannot be undone.
-                        </ZoruAlertDialogDescription>
-                    </ZoruAlertDialogHeader>
-                    <ZoruAlertDialogFooter>
-                        <ZoruAlertDialogCancel disabled={bulkDeleting}>
-                            Cancel
-                        </ZoruAlertDialogCancel>
-                        <ZoruAlertDialogAction
-                            onClick={(e) => {
-                                e.preventDefault();
-                                runBulkDelete();
-                            }}
-                            disabled={bulkDeleting}
-                            className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
-                        >
-                            {bulkDeleting ? (
-                                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                            ) : null}
-                            Delete
-                        </ZoruAlertDialogAction>
-                    </ZoruAlertDialogFooter>
-                </ZoruAlertDialogContent>
-            </ZoruAlertDialog>
+          </div>
         </div>
-    );
+      ),
+    },
+    {
+      id: 'contact',
+      label: 'Contact & Network',
+      render: () => (
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Email address</Label>
+            <Input
+              type="email"
+              value={formLead.email || ''}
+              onChange={(e) => handleUpdateFormField('email', e.target.value)}
+              placeholder="shakti@wachat.io"
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Phone number</Label>
+            <Input
+              type="tel"
+              value={formLead.phone || ''}
+              onChange={(e) => handleUpdateFormField('phone', e.target.value)}
+              placeholder="+91 99999 99999"
+              className="h-10 text-[13px]"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'financials',
+      label: 'Financials & Forecast',
+      render: () => (
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Estimated value</Label>
+            <Input
+              type="number"
+              value={formLead.estimatedValue !== undefined ? String(formLead.estimatedValue) : ''}
+              onChange={(e) =>
+                handleUpdateFormField(
+                  'estimatedValue',
+                  e.target.value ? Number(e.target.value) : undefined,
+                )
+              }
+              placeholder="150000"
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Currency</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="currency"
+                name="currency"
+                initialId={formLead.currency ?? 'INR'}
+                onSelect={(val) => handleUpdateFormField('currency', val)}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Probability %</Label>
+            <Input
+              type="number"
+              value={formLead.probabilityPct !== undefined ? String(formLead.probabilityPct) : ''}
+              onChange={(e) =>
+                handleUpdateFormField(
+                  'probabilityPct',
+                  e.target.value ? Number(e.target.value) : undefined,
+                )
+              }
+              min={0}
+              max={100}
+              placeholder="75"
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Expected close date</Label>
+            <input
+              type="date"
+              value={
+                formLead.expectedClose
+                  ? new Date(formLead.expectedClose).toISOString().split('T')[0]
+                  : ''
+              }
+              onChange={(e) => handleUpdateFormField('expectedClose', e.target.value)}
+              className="flex h-10 w-full rounded-md border border-zoru-line bg-zoru-bg px-3 py-1.5 text-[13px] text-zoru-ink shadow-sm"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: 'marketing',
+      label: 'Marketing & Attribution',
+      render: () => (
+        <div className="space-y-4">
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Status</Label>
+            <div className="mt-1">
+              <EnumFormField
+                enumName="leadStatus"
+                name="status"
+                initialId={
+                  formLead.status?.name ??
+                  (typeof formLead.status === 'string' ? formLead.status : 'new')
+                }
+                placeholder="new"
+                onSelect={(val) => handleUpdateFormField('status', { name: val })}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Lead score (0–100)</Label>
+            <Input
+              type="number"
+              value={formLead.leadScore !== undefined ? String(formLead.leadScore) : ''}
+              onChange={(e) =>
+                handleUpdateFormField(
+                  'leadScore',
+                  e.target.value ? Number(e.target.value) : 0,
+                )
+              }
+              min={0}
+              max={100}
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Source</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="leadSource"
+                name="source"
+                initialId={formLead.attribution?.source ?? (formLead as any).source ?? null}
+                onSelect={(val) => handleUpdateFormField('source', val)}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Sub-source</Label>
+            <Input
+              value={formLead.subSource || ''}
+              onChange={(e) => handleUpdateFormField('subSource', e.target.value)}
+              placeholder="Reference website / flyer"
+              className="h-10 text-[13px]"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Owner (SDR)</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="user"
+                name="ownerId"
+                initialId={formLead.ownerId ?? null}
+                onSelect={(val) => handleUpdateFormField('ownerId', val)}
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[12px] font-medium text-zoru-ink-muted">Assigned to (AE)</Label>
+            <div className="mt-1">
+              <EntityFormField
+                entity="user"
+                name="assignedTo"
+                initialId={formLead.assignment?.assignedTo ?? (formLead as any).assignedTo ?? null}
+                onSelect={(val) => handleUpdateFormField('assignedTo', val)}
+              />
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    ...(customFields.length > 0
+      ? [
+          {
+            id: 'custom_fields',
+            label: 'Custom Fields',
+            render: () => (
+              <div className="space-y-4">
+                {customFields.map((f) => (
+                  <div key={String(f._id ?? f.name)} className="space-y-1">
+                    <CustomFieldInput
+                      field={f}
+                      value={customFieldValues[f.name]}
+                      onChange={(v) => handleCustomFieldChange(f.name, v)}
+                    />
+                  </div>
+                ))}
+              </div>
+            ),
+          },
+        ]
+      : []),
+  ], [formLead, customFields, customFieldValues]);
+
+  const savedViewFilters = React.useMemo(() => ({ query: initialQuery }), [initialQuery]);
+  const handleApplyView = React.useCallback((view: SavedView) => {
+    const f = (view.filters ?? {}) as Record<string, unknown>;
+    if (typeof f.query === 'string') handleSearch(f.query);
+  }, [handleSearch]);
+
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+
+  return (
+    <div className="flex w-full flex-col gap-4">
+      {/* Saved Views Control Panel */}
+      <SavedViewsBar
+        entityKind="lead"
+        currentFilters={savedViewFilters}
+        currentColumns={[]}
+        onApplyView={handleApplyView}
+      />
+
+      {/* KPI Metric Blocks */}
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+        <StatCard
+          label="Total leads"
+          value={kpis.total.toLocaleString()}
+          icon={<Users className="h-4 w-4" />}
+        />
+        <StatCard
+          label="With forecast value"
+          value={kpis.withValue.toLocaleString()}
+          icon={<TrendingUp className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Estimated pipeline"
+          value={fmtMoney(kpis.totalValue, undefined, locale)}
+          icon={<TrendingUp className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Added (this month)"
+          value={kpis.addedThisMonth.toLocaleString()}
+          icon={<CalendarClock className="h-4 w-4" />}
+        />
+      </div>
+
+      {/* Control Surface Filtering Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 w-full bg-zoru-surface-2/15 border border-zoru-line/50 p-2.5 rounded-lg">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Omni Search */}
+          <div className="relative max-w-xs">
+            <Input
+              defaultValue={initialQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              placeholder={t('crm.leads.list.search.placeholder', 'Search leads...')}
+              className="h-9 w-60 text-[13px]"
+            />
+          </div>
+
+          <CrmFilterPanel
+            fields={filterFields}
+            filters={filters}
+            onUpdateFilter={updateFilter}
+            onClearFilters={clearFilters}
+            hasActiveFilters={hasActiveFilters}
+          />
+
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="text-zoru-ink-muted hover:text-zoru-ink gap-1"
+            >
+              Reset filters
+            </Button>
+          )}
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[12px] text-zoru-ink-muted font-medium">Grid Density:</span>
+            <div className="flex items-center rounded-md border border-zoru-line p-0.5 bg-zoru-surface">
+              {(['comfortable', 'compact', 'dense'] as const).map((den) => (
+                <Button
+                  key={den}
+                  variant={gridDensity === den ? 'secondary' : 'ghost'}
+                  size="sm"
+                  className="h-6 text-[10.5px] capitalize px-2 font-semibold"
+                  onClick={() => setGridDensity(den)}
+                >
+                  {den}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <Button onClick={handleOpenNewForm} className="gap-1.5 h-9 text-[12.5px]">
+            <Plus className="h-4 w-4" />
+            Add New Lead
+          </Button>
+        </div>
+      </div>
+
+      {/* Sticky Mass Operations Bar */}
+      {selected.size > 0 ? (
+        <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-surface px-3 py-2 shadow-[var(--zoru-shadow-sm)]">
+          <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
+            <Badge variant="info">{selected.size} selected</Badge>
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="text-zoru-ink-muted hover:text-zoru-ink"
+            >
+              Clear
+            </button>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <Button size="sm" variant="outline" onClick={exportCsv} className="h-8 text-[12px]">
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </Button>
+            <Button size="sm" variant="outline" onClick={exportXlsx} className="h-8 text-[12px]">
+              <FileSpreadsheet className="h-3.5 w-3.5" /> Export XLSX
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              className="h-8 text-[12px] bg-zoru-danger text-white hover:bg-zoru-danger/90"
+              onClick={() => setBulkConfirmOpen(true)}
+              disabled={bulkDeleting}
+            >
+              <Trash2 className="h-3.5 w-3.5" /> Delete Selected
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* Premium High-Density Spreadsheet Power-Grid */}
+      <div className="group relative">
+        <CrmBulkyGrid
+          columns={columns}
+          data={leads}
+          selectedIds={selected}
+          onSelectOne={toggleSelectOne}
+          onSelectAll={(checked) =>
+            toggleSelectAll(
+              leads.map((l) => l._id.toString()),
+              checked,
+            )
+          }
+          isLoading={isPending}
+          density={gridDensity}
+          inlineEditRowId={inlineEditRowId}
+          editBuffer={editBuffer}
+          onStartInlineEdit={startInlineEdit}
+          onCancelInlineEdit={cancelInlineEdit}
+          onUpdateEditBuffer={updateEditBuffer}
+          onSaveInlineEdit={handleSaveInlineEdit}
+        />
+
+        {leads.length > 0 && (
+          <div className="absolute right-3 top-14 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1.5 bg-zoru-surface border border-zoru-line px-2 py-1 rounded-md shadow-sm pointer-events-auto">
+            <span className="text-[10px] font-semibold text-zoru-ink-muted uppercase">
+              Power-Grid Enabled
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* Custom Styled Pagination & Actions Footer */}
+      {leads.length > 0 ? (
+        <PaginationBar
+          page={page}
+          limit={limit}
+          hasMore={page < totalPages}
+          total={total}
+          controlled={{
+            onChange: (next) => setPage(next.page),
+          }}
+        />
+      ) : null}
+
+      {/* Adaptive Tabbed Form Drawer */}
+      <CrmFormDrawer
+        open={isFormDrawerOpen}
+        onOpenChange={setIsFormDrawerOpen}
+        title={formLead._id ? 'Edit Lead Profile' : 'Create New Lead'}
+        description="Fill out the multi-dimensional layout panels to build the comprehensive lead directory profile."
+        sections={formSections}
+        onSave={onSaveLead}
+        isSaving={isSaving}
+      />
+
+      {/* Single lead deletion alert */}
+      <ZoruAlertDialog
+        open={pendingDeleteLead !== null}
+        onOpenChange={(o) => !o && setPendingDeleteLead(null)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              {t('crm.leads.list.delete.title', 'Confirm Deletion')}
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              {t(
+                'crm.leads.list.delete.description',
+                'This will permanently delete this lead and remove all associated history. This operation is irreversible.',
+              )}
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={isDeleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                void runSingleDelete();
+              }}
+              disabled={isDeleting}
+              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            >
+              {isDeleting ? 'Deleting...' : 'Delete Permanently'}
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+
+      {/* Bulk Delete Confirm Alert */}
+      <ZoruAlertDialog
+        open={bulkConfirmOpen}
+        onOpenChange={(o) => !o && setBulkConfirmOpen(false)}
+      >
+        <ZoruAlertDialogContent>
+          <ZoruAlertDialogHeader>
+            <ZoruAlertDialogTitle>
+              Delete {selected.size} Lead{selected.size === 1 ? '' : 's'}?
+            </ZoruAlertDialogTitle>
+            <ZoruAlertDialogDescription>
+              Are you sure you want to permanently delete the selected leads? This operation is
+              irreversible and will remove these records from all tenant accounts.
+            </ZoruAlertDialogDescription>
+          </ZoruAlertDialogHeader>
+          <ZoruAlertDialogFooter>
+            <ZoruAlertDialogCancel disabled={bulkDeleting}>Cancel</ZoruAlertDialogCancel>
+            <ZoruAlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                runBulkDelete();
+              }}
+              disabled={bulkDeleting}
+              className="bg-zoru-danger text-white hover:bg-zoru-danger/90"
+            >
+              {bulkDeleting ? 'Deleting Selected...' : 'Delete Selected'}
+            </ZoruAlertDialogAction>
+          </ZoruAlertDialogFooter>
+        </ZoruAlertDialogContent>
+      </ZoruAlertDialog>
+    </div>
+  );
 }

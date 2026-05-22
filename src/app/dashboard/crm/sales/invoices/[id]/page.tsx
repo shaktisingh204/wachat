@@ -30,7 +30,6 @@ import Link from 'next/link';
 
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
 import { PinButton } from '@/components/crm/pin-button';
-import { EntityAuditTimeline } from '@/components/crm/entity-audit-timeline';
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { LineageRail } from '@/components/crm/lineage-rail';
 import { CustomFieldDisplay } from '@/components/crm/custom-field-input';
@@ -50,6 +49,12 @@ import { InvoiceDetailBody } from '../_components/invoice-detail-body';
 import { InvoicePrintView } from '../_components/invoice-print-view';
 import { InvoiceQuickEdits } from '../_components/invoice-quick-edits';
 import { InvoiceRelatedRail } from '../_components/invoice-related-rail';
+
+import { CrmLineageChart, LineageNode } from '@/components/crm/crm-lineage-chart';
+import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
+import { addCrmNote, getCrmEntityTimeline } from '@/app/actions/crm.actions';
+import { revalidatePath } from 'next/cache';
+import { writeAuditEntry } from '@/lib/audit-log';
 
 export const dynamic = 'force-dynamic';
 
@@ -145,6 +150,50 @@ export default async function InvoiceDetailPage({
   }
 
   const invoiceId = String(invoice._id);
+
+  // Hydrate timeline items
+  const timelineItemsRes = await getCrmEntityTimeline('invoice', invoiceId);
+  const timelineItems = timelineItemsRes.success ? timelineItemsRes.items : [];
+
+  // Server Actions for the interactive 360 timeline
+  async function addCommentAction(body: string): Promise<boolean> {
+    'use server';
+    const fd = new FormData();
+    fd.append('recordId', invoiceId);
+    fd.append('recordType', 'invoice');
+    fd.append('noteContent', body);
+    const res = await addCrmNote(null, fd);
+    if (!res.error) {
+      revalidatePath(`/dashboard/crm/sales/invoices/${invoiceId}`);
+      return true;
+    }
+    return false;
+  }
+
+  async function sendWhatsAppAction(templateId: string, phone: string): Promise<boolean> {
+    'use server';
+    const fd = new FormData();
+    fd.append('recordId', invoiceId);
+    fd.append('recordType', 'invoice');
+    fd.append('noteContent', `Shoot WhatsApp template notification: "${templateId}" sent to ${phone}`);
+    const res = await addCrmNote(null, fd);
+    if (!res.error) {
+      const session = await getSession();
+      if (session?.user?._id) {
+        await writeAuditEntry({
+          tenantUserId: String(session.user._id),
+          action: 'whatsapp_notification_sent',
+          entityKind: 'invoice',
+          entityId: invoiceId,
+          reason: `WhatsApp template "${templateId}" sent to ${phone}`,
+        });
+      }
+      revalidatePath(`/dashboard/crm/sales/invoices/${invoiceId}`);
+      return true;
+    }
+    return false;
+  }
+
   const currency = invoice.currency || 'INR';
   const status = invoice.status ?? 'draft';
   const totals = invoice.totals ?? { subTotal: 0, total: 0 };
@@ -159,6 +208,62 @@ export default async function InvoiceDetailPage({
       : Promise.resolve({ name: null, email: null, phone: null }),
     getCrmInvoiceRelatedCounts(invoiceId),
   ]);
+
+  const lineageList = (invoice.lineage ?? []) as Array<{
+    kind: LineageKind;
+    id: string;
+    no?: string;
+    status?: string;
+  }>;
+
+  const findLinked = (kind: string) => lineageList.find(x => x.kind === kind);
+
+  const lineageNodes: LineageNode[] = [
+    {
+      id: findLinked('lead')?.id ?? 'lead-pending',
+      label: 'Lead Conversion',
+      type: 'Lead',
+      status: findLinked('lead') ? 'completed' : 'pending',
+      docNumber: findLinked('lead')?.no ?? 'Awaiting Lead',
+    },
+    {
+      id: findLinked('quotation')?.id ?? 'quotation-pending',
+      label: 'Quotation Stage',
+      type: 'Quotation',
+      status: findLinked('quotation') ? 'completed' : 'pending',
+      docNumber: findLinked('quotation')?.no ?? 'Awaiting Quote',
+    },
+    {
+      id: findLinked('salesOrder')?.id ?? 'so-pending',
+      label: 'Sales Order',
+      type: 'SalesOrder',
+      status: findLinked('salesOrder') ? 'completed' : 'pending',
+      docNumber: findLinked('salesOrder')?.no ?? 'Awaiting Order',
+    },
+    {
+      id: findLinked('deliveryChallan')?.id ?? 'delivery-pending',
+      label: 'Delivery Challan',
+      type: 'Delivery',
+      status: findLinked('deliveryChallan') ? 'completed' : 'pending',
+      docNumber: findLinked('deliveryChallan')?.no ?? 'Awaiting Delivery',
+    },
+    {
+      id: invoiceId,
+      label: 'Tax Invoice',
+      type: 'Invoice',
+      status: 'active',
+      docNumber: invoice.invoiceNo ?? `INV-${invoiceId.slice(-6).toUpperCase()}`,
+      valueString: fmtMoney(totals.total, currency),
+      dateString: fmtDate(invoice.date),
+    },
+    {
+      id: findLinked('paymentReceipt')?.id ?? 'receipt-pending',
+      label: 'Payment Receipt',
+      type: 'Receipt',
+      status: findLinked('paymentReceipt') ? 'completed' : 'pending',
+      docNumber: findLinked('paymentReceipt')?.no ?? 'Awaiting Payment',
+    },
+  ];
 
   if (printMode) {
     return (
@@ -370,11 +475,16 @@ export default async function InvoiceDetailPage({
           </Button>
         </>
       }
-      audit={<EntityAuditTimeline entityKind="invoice" entityId={invoiceId} />}
+      audit={null}
     >
+      {/* 1D.5 lineage node track chart */}
+      <div className="mb-6">
+        <CrmLineageChart nodes={lineageNodes} />
+      </div>
+
       {/* Subtitle banner (the EntityDetailShell uses a narrow header so we
           surface dates + total just below it as a thin breadcrumb row). */}
-      <p className="text-[12.5px] text-zoru-ink-muted">
+      <p className="text-[12.5px] text-zoru-ink-muted mb-4">
         {subtitleParts.join(' · ')}
       </p>
 
@@ -524,15 +634,14 @@ export default async function InvoiceDetailPage({
         </Card>
       ) : null}
 
-      {/* TODO 1D.2: <CrmNotes recordType="invoice"> composer — needs the
-          composer to accept `invoice` as a recordType. Today the composer
-          only supports the legacy CRM entities (account / contact / deal /
-          lead). Land in a follow-up. */}
-      {/* TODO 1D.2: inline attachment add via <SabFilePicker> — needs an
-          `addInvoiceAttachment(invoiceId, fileId)` action; not yet on the
-          Rust DTO. */}
-      {/* TODO 1D.2: inline tag add — needs `setInvoiceTags(invoiceId, tags[])`
-          action. */}
+      {/* Interactive 360 Timeline */}
+      <div className="mt-8">
+        <Crm360Timeline
+          items={timelineItems}
+          onAddComment={addCommentAction}
+          onSendWhatsApp={sendWhatsAppAction}
+        />
+      </div>
 
       <span aria-hidden className="hidden">
         <CheckSquare />

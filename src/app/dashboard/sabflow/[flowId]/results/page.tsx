@@ -10,8 +10,7 @@ import {
   ZoruPageHeading,
   ZoruPageTitle,
 } from '@/components/zoruui';
-import {
-  notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import {
@@ -21,8 +20,8 @@ import {
   type DailyCount,
   type FlowResultsStats,
   type FlowSession,
-  } from "@/app/actions/sabflow-results";
-import { ResultsPageClient } from "@/components/sabflow/results/ResultsPageClient";
+} from "@/app/actions/sabflow-results";
+import { ResultsDashboard } from "./ResultsDashboard";
 
 type Props = {
   params: Promise<{ flowId: string }>;
@@ -42,26 +41,25 @@ export default async function FlowResultsPage({ params }: Props) {
 
   // Fetch initial data in parallel
   const [sessResult, statsResult, dailyResult] = await Promise.all([
-    getFlowSessions(flowId, 1, 20),
+    getFlowSessions(flowId, 1, 100), // fetch 100 recent sessions for the data table
     getFlowResultsStats(flowId),
-    getSessionsPerDay(flowId, 7),
+    getSessionsPerDay(flowId, 30), // 30 days for the chart
   ]);
 
   if ("error" in sessResult || "error" in statsResult) {
     notFound();
   }
 
-  const { sessions, total, flowName } = sessResult as {
+  const { sessions, flowName } = sessResult as {
     sessions: FlowSession[];
-    total: number;
     flowName: string;
   };
 
   const stats = statsResult as FlowResultsStats;
 
-  const EMPTY_DAILY: DailyCount[] = Array.from({ length: 7 }, (_, i) => {
+  const EMPTY_DAILY: DailyCount[] = Array.from({ length: 30 }, (_, i) => {
     const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
+    d.setDate(d.getDate() - (29 - i));
     return { date: d.toISOString().slice(0, 10), total: 0, completed: 0 };
   });
 
@@ -106,13 +104,10 @@ export default async function FlowResultsPage({ params }: Props) {
         </ZoruPageHeading>
       </PageHeader>
 
-      {/* Composite — kept opaque. */}
-      <ResultsPageClient
-        flowId={flowId}
-        initialSessions={sessions}
-        initialTotal={total}
-        initialStats={stats}
-        initialDailyCounts={dailyCounts}
+      <ResultsDashboard
+        stats={stats}
+        dailyCounts={dailyCounts}
+        sessions={sessions}
       />
     </div>
   );

@@ -4,7 +4,8 @@ import { Button, Card, Input, Label, Textarea, useZoruToast } from '@/components
 import {
   useActionState,
   useEffect,
-  useState } from 'react';
+  useState,
+  useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -27,6 +28,7 @@ import * as React from 'react';
 
 import { EntityFormField } from '@/components/crm/entity-form-field';
 import { EnumFormField } from '@/components/crm/enum-form-field';
+import { CrmStatutoryCalculator, type CalculatorItem } from '@/components/crm/crm-statutory-calculator';
 
 import {
     saveProformaInvoice,
@@ -44,6 +46,11 @@ const BASE = '/dashboard/crm/sales/proforma';
 
 interface LineRow extends CrmProformaLineItem {
     rowId: string;
+    discountPct?: number;
+    hsnSac?: string;
+    cgstAmount?: number;
+    sgstAmount?: number;
+    igstAmount?: number;
 }
 
 interface ProformaFormProps {
@@ -66,9 +73,11 @@ function newRow(): LineRow {
         description: '',
         quantity: 1,
         rate: 0,
-        unit: '',
-        taxPct: 0,
+        unit: 'PCS',
+        taxPct: 18,
         amount: 0,
+        discountPct: 0,
+        hsnSac: '',
     };
 }
 
@@ -106,6 +115,16 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
         initialData?.currency ?? 'INR',
     );
 
+    // Statutory Calculator States
+    const [placeOfSupply, setPlaceOfSupply] = useState<string>(initialData?.placeOfSupply || 'Maharashtra');
+    const [companyBaseState] = useState<string>('Maharashtra');
+    const [tdsPercent, setTdsPercent] = useState<number>(initialData?.tdsPct ?? 0);
+    const [tcsPercent, setTcsPercent] = useState<number>(initialData?.tcsPct ?? 0);
+    const [discountOverall, setDiscountOverall] = useState<number>(initialData?.discountOverall ?? 0);
+    const [shippingCharge, setShippingCharge] = useState<number>(initialData?.shippingCharge ?? 0);
+    const [adjustment, setAdjustment] = useState<number>(initialData?.adjustment ?? 0);
+    const [roundOff, setRoundOff] = useState<number>(initialData?.roundOff ?? 0);
+
     const [rows, setRows] = useState<LineRow[]>(() => {
         const items = initialData?.lineItems ?? [];
         if (items.length === 0) return [newRow()];
@@ -115,9 +134,11 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
             quantity: it.quantity ?? 1,
             rate: it.rate ?? 0,
             unit: it.unit ?? '',
-            taxPct: it.taxPct ?? 0,
+            discountPct: (it as any).discountPct ?? 0,
+            taxPct: it.taxPct ?? 18,
             amount: (it.quantity ?? 1) * (it.rate ?? 0),
             itemId: it.itemId,
+            hsnSac: (it as any).hsnSac ?? '',
         }));
     });
 
@@ -140,26 +161,61 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
         }
     }, [state, toast, router, initialData?._id]);
 
-    const subtotal = rows.reduce(
-        (s, r) => s + (Number(r.quantity) || 0) * (Number(r.rate) || 0),
-        0,
-    );
+    const calculatorItems: CalculatorItem[] = useMemo(() => {
+        return rows.map((row) => ({
+            itemId: row.rowId,
+            name: row.description || '',
+            qty: row.quantity,
+            rate: row.rate,
+            discountPercent: row.discountPct ?? 0,
+            taxRatePercent: row.taxPct ?? 18,
+            hsnSac: row.hsnSac,
+        }));
+    }, [rows]);
 
-    function patchRow(rowId: string, patch: Partial<LineRow>) {
-        setRows((prev) =>
-            prev.map((r) => {
-                if (r.rowId !== rowId) return r;
-                const next = { ...r, ...patch };
-                next.amount = (Number(next.quantity) || 0) * (Number(next.rate) || 0);
-                return next;
-            }),
-        );
-    }
+    const handleCalculatorItemsChange = (newItems: CalculatorItem[]) => {
+        const isIntra = placeOfSupply.toLowerCase().trim() === companyBaseState.toLowerCase().trim();
+        const nextRows = newItems.map((item) => {
+            const existing = rows.find((r) => r.rowId === item.itemId);
+            const qty = item.qty;
+            const rate = item.rate;
+            const discountPct = item.discountPercent;
+            const taxRatePct = item.taxRatePercent;
+            const baseLine = qty * rate;
+            const rowTaxable = Math.max(0, baseLine * (1 - discountPct / 100));
+            const taxAmount = rowTaxable * (taxRatePct / 100);
+            const cgstAmount = isIntra ? taxAmount / 2 : 0;
+            const sgstAmount = isIntra ? taxAmount / 2 : 0;
+            const igstAmount = isIntra ? 0 : taxAmount;
+            const total = rowTaxable + taxAmount;
+
+            return {
+                rowId: item.itemId,
+                itemId: existing?.itemId,
+                description: item.name,
+                quantity: qty,
+                rate: rate,
+                unit: existing?.unit ?? 'PCS',
+                discountPct,
+                taxPct: taxRatePct,
+                cgstAmount,
+                sgstAmount,
+                igstAmount,
+                amount: rowTaxable,
+                hsnSac: item.hsnSac,
+            };
+        });
+        setRows(nextRows);
+    };
 
     const lineItemsJson = JSON.stringify(
         rows.map(({ rowId: _drop, amount: _a, ...rest }) => ({
             ...rest,
-            amount: (Number(rest.quantity) || 0) * (Number(rest.rate) || 0),
+            quantity: Number(rest.quantity) || 0,
+            rate: Number(rest.rate) || 0,
+            taxPct: Number(rest.taxPct) || 0,
+            discountPct: Number(rest.discountPct) || 0,
+            amount: (Number(rest.quantity) || 0) * (Number(rest.rate) || 0) * (1 - (Number(rest.discountPct) || 0) / 100),
         })),
     );
     const termsJson = JSON.stringify(terms.map((t) => t.trim()).filter(Boolean));
@@ -175,6 +231,15 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                 <input type="hidden" name="status" value={status} />
                 <input type="hidden" name="lineItems" value={lineItemsJson} />
                 <input type="hidden" name="termsAndConditions" value={termsJson} />
+
+                {/* Hidden inputs to capture statutory calculator and placeOfSupply state in FormData */}
+                <input type="hidden" name="placeOfSupply" value={placeOfSupply} />
+                <input type="hidden" name="discountOverall" value={discountOverall} />
+                <input type="hidden" name="shippingCharge" value={shippingCharge} />
+                <input type="hidden" name="adjustment" value={adjustment} />
+                <input type="hidden" name="roundOff" value={roundOff} />
+                <input type="hidden" name="tdsPct" value={tdsPercent} />
+                <input type="hidden" name="tcsPct" value={tcsPercent} />
 
                 {/* Row 1: Number + Customer */}
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -199,8 +264,8 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                     </div>
                 </div>
 
-                {/* Row 2: Dates + Currency */}
-                <div className="grid gap-4 sm:grid-cols-3">
+                {/* Row 2: Dates + Currency + Place of Supply */}
+                <div className="grid gap-4 sm:grid-cols-4">
                     <div className="space-y-1.5">
                         <Label htmlFor="proformaDate">Proforma date *</Label>
                         <Input
@@ -229,140 +294,40 @@ export function ProformaForm({ initialData }: ProformaFormProps) {
                             onChange={(id) => setCurrency(id ?? 'INR')}
                         />
                     </div>
+                    <div className="space-y-1.5">
+                        <Label htmlFor="placeOfSupply">Place of supply</Label>
+                        <Input
+                            id="placeOfSupply"
+                            name="placeOfSupply"
+                            value={placeOfSupply}
+                            onChange={(e) => setPlaceOfSupply(e.target.value)}
+                            placeholder="State code (e.g. Maharashtra)"
+                        />
+                    </div>
                 </div>
 
-                {/* Line items */}
+                {/* Statutory Calculator Panel */}
                 <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <Label>Line items *</Label>
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setRows((p) => [...p, newRow()])}
-                        >
-                            <Plus className="mr-1 h-3.5 w-3.5" />
-                            Add line
-                        </Button>
-                    </div>
-                    <div className="overflow-x-auto rounded-md border border-zoru-line">
-                        <table className="w-full text-[13px]">
-                            <thead className="bg-zoru-surface-2 text-left text-zoru-ink-muted">
-                                <tr>
-                                    <th className="p-2 font-medium">Description</th>
-                                    <th className="w-[80px] p-2 text-right font-medium">Qty</th>
-                                    <th className="w-[110px] p-2 font-medium">Unit</th>
-                                    <th className="w-[100px] p-2 text-right font-medium">Rate</th>
-                                    <th className="w-[80px] p-2 text-right font-medium">Tax %</th>
-                                    <th className="w-[110px] p-2 text-right font-medium">Amount</th>
-                                    <th className="w-[40px] p-2" />
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {rows.map((row) => (
-                                    <tr key={row.rowId} className="border-t border-zoru-line">
-                                        <td className="p-2">
-                                            <Input
-                                                value={row.description}
-                                                onChange={(e) =>
-                                                    patchRow(row.rowId, {
-                                                        description: e.target.value,
-                                                    })
-                                                }
-                                                placeholder="Item description"
-                                                className="h-9 text-[12.5px]"
-                                            />
-                                        </td>
-                                        <td className="p-2">
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                step="any"
-                                                value={row.quantity}
-                                                onChange={(e) =>
-                                                    patchRow(row.rowId, {
-                                                        quantity: Number(e.target.value) || 0,
-                                                    })
-                                                }
-                                                className="h-9 text-right text-[12.5px] tabular-nums"
-                                            />
-                                        </td>
-                                        <td className="p-2">
-                                            <Input
-                                                value={row.unit ?? ''}
-                                                onChange={(e) =>
-                                                    patchRow(row.rowId, { unit: e.target.value })
-                                                }
-                                                placeholder="PCS"
-                                                className="h-9 text-[12.5px]"
-                                            />
-                                        </td>
-                                        <td className="p-2">
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                step="any"
-                                                value={row.rate}
-                                                onChange={(e) =>
-                                                    patchRow(row.rowId, {
-                                                        rate: Number(e.target.value) || 0,
-                                                    })
-                                                }
-                                                className="h-9 text-right text-[12.5px] tabular-nums"
-                                            />
-                                        </td>
-                                        <td className="p-2">
-                                            <Input
-                                                type="number"
-                                                min={0}
-                                                step="any"
-                                                value={row.taxPct ?? 0}
-                                                onChange={(e) =>
-                                                    patchRow(row.rowId, {
-                                                        taxPct: Number(e.target.value) || 0,
-                                                    })
-                                                }
-                                                className="h-9 text-right text-[12.5px] tabular-nums"
-                                            />
-                                        </td>
-                                        <td className="p-2 text-right tabular-nums text-zoru-ink">
-                                            {((Number(row.quantity) || 0) *
-                                                (Number(row.rate) || 0)).toFixed(2)}
-                                        </td>
-                                        <td className="p-2 text-right">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() =>
-                                                    setRows((p) =>
-                                                        p.length === 1
-                                                            ? p
-                                                            : p.filter((r) => r.rowId !== row.rowId),
-                                                    )
-                                                }
-                                                disabled={rows.length === 1}
-                                                className="text-zoru-danger-ink"
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                            <tfoot>
-                                <tr className="border-t border-zoru-line bg-zoru-surface-2">
-                                    <td colSpan={5} className="p-2 text-right font-medium text-zoru-ink-muted">
-                                        Subtotal
-                                    </td>
-                                    <td className="p-2 text-right font-mono text-[13px] text-zoru-ink">
-                                        {currency} {subtotal.toFixed(2)}
-                                    </td>
-                                    <td />
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
+                    <Label className="text-base font-semibold">Statutory Value Compute Engine</Label>
+                    <CrmStatutoryCalculator
+                        items={calculatorItems}
+                        onChangeItems={handleCalculatorItemsChange}
+                        placeOfSupplyState={placeOfSupply}
+                        companyBaseState={companyBaseState}
+                        tdsPercent={tdsPercent}
+                        onChangeTdsPercent={setTdsPercent}
+                        tcsPercent={tcsPercent}
+                        onChangeTcsPercent={setTcsPercent}
+                        discountOverallVal={discountOverall}
+                        onChangeDiscountOverallVal={setDiscountOverall}
+                        shippingCharge={shippingCharge}
+                        onChangeShippingCharge={setShippingCharge}
+                        adjustment={adjustment}
+                        onChangeAdjustment={setAdjustment}
+                        onTotalsChange={(t) => {
+                            setRoundOff(t.roundOff);
+                        }}
+                    />
                 </div>
 
                 {/* Terms & conditions repeater */}

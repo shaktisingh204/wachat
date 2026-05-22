@@ -352,6 +352,10 @@ export function useInvoiceForm({
       markDirty();
     },
     rows,
+    setRows: (r: LineItemRow[]) => {
+      setRows(r);
+      setDirty(true);
+    },
     addRow,
     removeRow,
     patchRow,

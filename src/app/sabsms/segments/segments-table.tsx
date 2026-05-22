@@ -35,6 +35,9 @@ import {
   SabsmsFilterBar,
   SabsmsKbdHint,
   SabsmsRefreshButton,
+  SabsmsSavedViews,
+  SabsmsColumnPicker,
+  type SabsmsColumnDef,
   type SabsmsBulkAction,
   type SabsmsColumn,
   type SabsmsRowAction,
@@ -135,6 +138,20 @@ export function SegmentsTable({
   const [compareState, setCompareState] = React.useState<CompareResult | null>(null);
   const [tagDialog, setTagDialog] = React.useState<TagDialogState | null>(null);
   const [tagInput, setTagInput] = React.useState("");
+
+  const ALL_COLUMNS: SabsmsColumnDef[] = React.useMemo(() => [
+    { id: "name", label: "Name", required: true },
+    { id: "kind", label: "Kind" },
+    { id: "size", label: "Size" },
+    { id: "campaigns", label: "Campaigns" },
+    { id: "drips", label: "Drips" },
+    { id: "refreshed", label: "Last refresh" },
+    { id: "cost", label: "Send cost" },
+    { id: "actions", label: "Actions", required: true },
+  ], []);
+  const [visibleColumns, setVisibleColumns] = React.useState<string[]>(
+    ALL_COLUMNS.map((c) => c.id)
+  );
 
   // Refresh-from-server (used by the auto-refresh dropdown).
   const refresh = React.useCallback(() => {
@@ -295,12 +312,19 @@ export function SegmentsTable({
       width: "26%",
       render: (row) => (
         <div className="flex flex-col gap-0.5">
-          <Link
-            href={`/sabsms/segments/new?id=${row.id}`}
-            className="font-medium text-slate-900 hover:underline"
-          >
-            {row.name}
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href={`/sabsms/segments/new?id=${row.id}`}
+              className="font-medium text-slate-900 hover:underline"
+            >
+              {row.name}
+            </Link>
+            {row.tags?.includes("crm") && (
+              <Badge variant="secondary" className="bg-purple-50 text-purple-700 text-[9px] hover:bg-purple-50 px-1 py-0 h-4">
+                CRM
+              </Badge>
+            )}
+          </div>
           {row.description && (
             <div className="line-clamp-1 text-xs text-slate-500">
               {row.description}
@@ -434,7 +458,7 @@ export function SegmentsTable({
         </div>
       ),
     },
-  ];
+  ].filter((col) => visibleColumns.includes(col.id));
 
   const rowActions: SabsmsRowAction<SegmentListRow>[] = [
     {
@@ -456,6 +480,11 @@ export function SegmentsTable({
       label: "Convert to suppressions",
       icon: <ShieldOff className="h-3.5 w-3.5" />,
       onSelect: handleConvertSuppression,
+    },
+    {
+      label: "View audit log",
+      icon: <History className="h-3.5 w-3.5" />,
+      onSelect: (r) => router.push(`/sabsms/logs?resource=${r.id}`),
     },
     {
       label: "Archive",
@@ -537,8 +566,15 @@ export function SegmentsTable({
           { value: "size:asc", label: "Smallest first" },
         ]}
         defaultSort="updatedAt:desc"
+        dateRangeKey={{ from: "from", to: "to" }}
         trailing={
           <div className="flex items-center gap-2">
+            <SabsmsSavedViews scope="segments" />
+            <SabsmsColumnPicker
+              columns={ALL_COLUMNS}
+              visible={visibleColumns}
+              onChange={setVisibleColumns}
+            />
             <SabsmsRefreshButton onRefresh={refresh} defaultInterval="off" />
             <SabsmsExportMenu toCsv={exportCsv} filename="sabsms-segments" />
             <SabsmsKbdHint

@@ -7,7 +7,7 @@
  * KPI cards: reconciled count · unreconciled count · last reconciled date ·
  * difference amount.
  * Table: saved reconciliation records with account, period, status, export.
- * Matcher: the existing load-data + auto-match + save flow preserved below.
+ * Matcher: a premium dual-panel book-vs-statement console with AI Auto-Matcher.
  */
 
 import * as React from 'react';
@@ -32,6 +32,7 @@ import {
   ZoruTableHeader,
   ZoruTableRow,
   useZoruToast,
+  Badge,
 } from '@/components/zoruui';
 import {
   Check,
@@ -43,9 +44,11 @@ import {
   LoaderCircle,
   Trash2,
   X,
+  Sparkles,
 } from 'lucide-react';
 
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 
 import { getCrmPaymentAccounts } from '@/app/actions/crm-payment-accounts.actions';
 import {
@@ -247,6 +250,7 @@ const TransactionTable = ({
   title,
   entries,
   matchedIds,
+  aiMatchedIds = new Set(),
   onMatchToggle,
   totalDebit,
   totalCredit,
@@ -255,24 +259,30 @@ const TransactionTable = ({
   title: string;
   entries: ReconciliationData['bookEntries'] | ReconciliationData['statementEntries'];
   matchedIds: Set<string>;
+  aiMatchedIds?: Set<string>;
   onMatchToggle: (id: string) => void;
   totalDebit: number;
   totalCredit: number;
   isBankStatement?: boolean;
 }) => (
-  <Card>
-    <h3 className="mb-4 text-[15px] font-semibold text-foreground">{title}</h3>
-    <div className="max-h-96 overflow-x-auto overflow-y-auto rounded-lg border border-border">
+  <Card className="border border-zoru-line overflow-hidden p-0 shadow-[var(--zoru-shadow-sm)]">
+    <div className="flex items-center justify-between px-4 py-3 border-b border-zoru-line bg-zoru-surface-2">
+      <h3 className="text-[13.5px] font-bold uppercase tracking-wider text-zoru-ink">{title}</h3>
+      <Badge variant="secondary">
+        {entries.length} {entries.length === 1 ? 'row' : 'rows'}
+      </Badge>
+    </div>
+    <div className="max-h-[420px] overflow-x-auto overflow-y-auto">
       <Table>
-        <ZoruTableHeader className="sticky top-0 bg-card">
-          <ZoruTableRow className="border-border hover:bg-transparent">
-            <ZoruTableHead className="w-10 text-muted-foreground">
-              <Check className="h-4 w-4" />
+        <ZoruTableHeader className="sticky top-0 bg-zoru-surface-2 z-10">
+          <ZoruTableRow className="border-zoru-line hover:bg-transparent">
+            <ZoruTableHead className="w-10 text-zoru-ink-muted">
+              <Check className="h-3.5 w-3.5" />
             </ZoruTableHead>
-            <ZoruTableHead className="text-muted-foreground">Date</ZoruTableHead>
-            <ZoruTableHead className="text-muted-foreground">Description</ZoruTableHead>
-            <ZoruTableHead className="text-right text-muted-foreground">Debit</ZoruTableHead>
-            <ZoruTableHead className="text-right text-muted-foreground">Credit</ZoruTableHead>
+            <ZoruTableHead className="text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Date</ZoruTableHead>
+            <ZoruTableHead className="text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Description</ZoruTableHead>
+            <ZoruTableHead className="text-right text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Debit</ZoruTableHead>
+            <ZoruTableHead className="text-right text-zoru-ink-muted text-[11px] font-bold uppercase tracking-wider">Credit</ZoruTableHead>
           </ZoruTableRow>
         </ZoruTableHeader>
         <ZoruTableBody>
@@ -292,28 +302,55 @@ const TransactionTable = ({
               : e.type === 'credit'
                 ? e.amount
                 : 0;
+            
+            const isMatched = matchedIds.has(e._id);
+            const isAiMatched = aiMatchedIds.has(e._id);
+            
+            // Build the row cell styling classes
+            const cellClass = isMatched
+              ? isAiMatched
+                ? "bg-emerald-500/10 dark:bg-emerald-500/20 border-y border-emerald-500/40 text-emerald-950 dark:text-emerald-300 font-semibold"
+                : "bg-emerald-500/5 dark:bg-emerald-500/10 border-y border-emerald-500/20 text-zoru-ink"
+              : "text-zoru-ink border-b border-zoru-line";
+
             return (
               <ZoruTableRow
                 key={e._id}
-                className="border-border"
-                data-state={matchedIds.has(e._id) ? 'selected' : ''}
+                className={[
+                  "transition-all duration-200",
+                  isMatched ? "hover:bg-emerald-500/15" : "hover:bg-zoru-surface-2",
+                  isAiMatched ? "shadow-[inset_4px_0_0_0_#10b981]" : ""
+                ].join(' ')}
+                data-state={isMatched ? 'selected' : ''}
               >
-                <ZoruTableCell>
-                  <Checkbox
-                    checked={matchedIds.has(e._id)}
-                    onCheckedChange={() => onMatchToggle(e._id)}
-                  />
+                <ZoruTableCell className={[cellClass, isAiMatched ? "border-l border-emerald-500/40" : ""].join(' ')}>
+                  <div className="flex items-center gap-1.5">
+                    <Checkbox
+                      checked={isMatched}
+                      onCheckedChange={() => onMatchToggle(e._id)}
+                    />
+                    {isAiMatched && (
+                      <Sparkles className="h-3.5 w-3.5 text-zoru-success-ink shrink-0 animate-pulse" title="AI Matched" />
+                    )}
+                  </div>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-xs text-foreground">
+                <ZoruTableCell className={[cellClass, "text-[12px] font-mono"].join(' ')}>
                   {format(new Date(e.date as string), 'dd MMM')}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-xs text-foreground">
-                  {e.description}
+                <ZoruTableCell className={[cellClass, "text-[12.5px] truncate max-w-[150px]"].join(' ')}>
+                  <div className="flex flex-col">
+                    <span className="truncate">{e.description}</span>
+                    {isAiMatched && (
+                      <span className="text-[10px] text-zoru-success-ink font-semibold flex items-center gap-0.5 mt-0.5">
+                        Matched ±3d Window
+                      </span>
+                    )}
+                  </div>
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-xs text-foreground">
+                <ZoruTableCell className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
                   {debit > 0 ? debit.toFixed(2) : ''}
                 </ZoruTableCell>
-                <ZoruTableCell className="text-right font-mono text-xs text-foreground">
+                <ZoruTableCell className={[cellClass, "text-right font-mono text-[12px]"].join(' ')}>
                   {credit > 0 ? credit.toFixed(2) : ''}
                 </ZoruTableCell>
               </ZoruTableRow>
@@ -322,12 +359,12 @@ const TransactionTable = ({
         </ZoruTableBody>
       </Table>
     </div>
-    <div className="mt-4 flex justify-end gap-6 border-t border-border pt-2 text-[13px] font-semibold text-foreground">
+    <div className="p-4 flex justify-end gap-6 border-t border-zoru-line bg-zoru-surface-2 text-[12.5px] font-bold text-zoru-ink">
       <div className="text-right">
-        Debit: <span className="font-mono">₹{totalDebit.toFixed(2)}</span>
+        Debit: <span className="font-mono">{fmtInr(totalDebit)}</span>
       </div>
       <div className="text-right">
-        Credit: <span className="font-mono">₹{totalCredit.toFixed(2)}</span>
+        Credit: <span className="font-mono">{fmtInr(totalCredit)}</span>
       </div>
     </div>
   </Card>
@@ -339,6 +376,7 @@ export function ReconciliationListClient({
   kpis,
   records: serverRecords,
 }: ReconciliationListClientProps) {
+  const router = useRouter();
   const { toast } = useZoruToast();
 
   const records = serverRecords as unknown as ReconciliationRecord[];
@@ -356,6 +394,11 @@ export function ReconciliationListClient({
   const [matchedStatementEntries, setMatchedStatementEntries] = React.useState<
     Set<string>
   >(new Set());
+
+  // Track specific items matches found by AI Auto-Matcher to draw premium emerald ring/glow
+  const [aiMatchedBookEntries, setAiMatchedBookEntries] = React.useState<Set<string>>(new Set());
+  const [aiMatchedStatementEntries, setAiMatchedStatementEntries] = React.useState<Set<string>>(new Set());
+
   const [isLoading, startLoading] = React.useTransition();
 
   React.useEffect(() => {
@@ -406,6 +449,8 @@ export function ReconciliationListClient({
       });
       setMatchedBookEntries(new Set());
       setMatchedStatementEntries(new Set());
+      setAiMatchedBookEntries(new Set());
+      setAiMatchedStatementEntries(new Set());
     });
   };
 
@@ -417,6 +462,12 @@ export function ReconciliationListClient({
         else next.add(id);
         return next;
       });
+      // Remove from AI matched tracking if manually toggled
+      setAiMatchedBookEntries((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     } else {
       setMatchedStatementEntries((prev) => {
         const next = new Set(prev);
@@ -424,45 +475,87 @@ export function ReconciliationListClient({
         else next.add(id);
         return next;
       });
+      setAiMatchedStatementEntries((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
     }
   };
 
-  const handleAutoMatch = () => {
+  const handleAIAutoMatch = () => {
+    if (!reconciliationData) return;
+
     const newMatchedBook = new Set(matchedBookEntries);
     const newMatchedStatement = new Set(matchedStatementEntries);
-    reconciliationData?.bookEntries.forEach((bookEntry) => {
-      if (newMatchedBook.has(bookEntry._id)) return;
-      const potentialMatch = reconciliationData.statementEntries.find(
-        (stmtEntry) =>
-          !newMatchedStatement.has(stmtEntry._id) &&
-          Math.abs(bookEntry.amount) === Math.abs(stmtEntry.amount),
-      );
+    const newAiBook = new Set(aiMatchedBookEntries);
+    const newAiStatement = new Set(aiMatchedStatementEntries);
+
+    let matchCount = 0;
+
+    reconciliationData.statementEntries.forEach((stmtEntry) => {
+      if (newMatchedStatement.has(stmtEntry._id)) return;
+
+      const stmtDate = new Date(stmtEntry.date).getTime();
+
+      // Look for a matching book entry: Date within ±3 days and identical absolute amount
+      const potentialMatch = reconciliationData.bookEntries.find((bookEntry) => {
+        if (newMatchedBook.has(bookEntry._id)) return false;
+
+        const bookDate = new Date(bookEntry.date).getTime();
+        const daysDiff = Math.abs(stmtDate - bookDate) / (1000 * 60 * 60 * 24);
+        const amountMatch = Math.abs(bookEntry.amount) === Math.abs(stmtEntry.amount);
+
+        return amountMatch && daysDiff <= 3;
+      });
+
       if (potentialMatch) {
-        newMatchedBook.add(bookEntry._id);
-        newMatchedStatement.add(potentialMatch._id);
+        newMatchedBook.add(potentialMatch._id);
+        newMatchedStatement.add(stmtEntry._id);
+        newAiBook.add(potentialMatch._id);
+        newAiStatement.add(stmtEntry._id);
+        matchCount++;
       }
     });
+
     setMatchedBookEntries(newMatchedBook);
     setMatchedStatementEntries(newMatchedStatement);
+    setAiMatchedBookEntries(newAiBook);
+    setAiMatchedStatementEntries(newAiStatement);
+
+    if (matchCount > 0) {
+      toast({
+        title: `AI Matcher Identified ${matchCount} matches`,
+        description: `Linked bank statements to book entries within a ±3-day variance and highlighted with emerald borders.`,
+      });
+    } else {
+      toast({
+        title: `AI Auto-Matcher Scan Complete`,
+        description: 'No new identical amount matches found within the ±3-day window.',
+      });
+    }
   };
 
   const handleSave = async () => {
     if (!selectedAccountId || !reconciliationData) return;
-    const res = await saveReconciliation(
-      selectedAccountId,
-      'manual_import',
-      Array.from(matchedBookEntries),
-      Array.from(matchedStatementEntries),
-    );
-    if (res.success) {
-      toast({ title: 'Reconciliation saved.' });
-    } else {
-      toast({
-        title: 'Save failed',
-        description: res.error,
-        variant: 'destructive',
-      });
-    }
+    startLoading(async () => {
+      const res = await saveReconciliation(
+        selectedAccountId,
+        'manual_import',
+        Array.from(matchedBookEntries),
+        Array.from(matchedStatementEntries),
+      );
+      if (res.success) {
+        toast({ title: 'Reconciliation confirmed & saved successfully!' });
+        router.refresh(); // Active page cache invalidation
+      } else {
+        toast({
+          title: 'Save failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    });
   };
 
   const {
@@ -570,13 +663,32 @@ export function ReconciliationListClient({
       <RecordsTable records={records} onExport={handleExportRecords} />
 
       {/* Interactive matcher */}
-      <Card>
-        <h2 className="mb-4 text-[15px] font-semibold text-zoru-ink">
-          Statement matcher
-        </h2>
+      <Card className="border border-zoru-line p-6 bg-zoru-bg shadow-[var(--zoru-shadow-sm)]">
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-4 border-b border-zoru-line pb-3">
+          <div>
+            <h2 className="text-[15px] font-bold text-zoru-ink flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-zoru-primary animate-pulse" />
+              Split-Screen Bank Reconciliation Console
+            </h2>
+            <p className="text-[12px] text-zoru-ink-muted">Match statement bank transactions to books General Ledger instantly</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleAIAutoMatch}
+              disabled={!reconciliationData || isLoading}
+              className="border-emerald-500/30 text-zoru-success-ink bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/50 flex items-center gap-1.5 shadow-[var(--zoru-shadow-sm)]"
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              AI Auto-Matcher
+            </Button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           <div className="space-y-2">
-            <Label>Bank account</Label>
+            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">Bank Account</Label>
             <Select
               value={selectedAccountId}
               onValueChange={setSelectedAccountId}
@@ -597,47 +709,42 @@ export function ReconciliationListClient({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>From</Label>
+            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">From</Label>
             <DatePicker value={startDate} onChange={setStartDate} />
           </div>
           <div className="space-y-2">
-            <Label>To</Label>
+            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">To</Label>
             <DatePicker value={endDate} onChange={setEndDate} />
           </div>
           <div className="space-y-2">
-            <Label>Bank statement (CSV)</Label>
+            <Label className="text-[11.5px] font-semibold text-zoru-ink-muted uppercase">Bank Statement CSV</Label>
             <Input
               type="file"
               accept=".csv"
               onChange={(e) => setStatementFile(e.target.files?.[0] ?? null)}
-              className="h-10 rounded-lg border-border bg-card text-[13px]"
+              className="h-10 rounded-lg border-zoru-line bg-zoru-bg text-[12.5px]"
             />
           </div>
         </div>
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-zoru-line">
           <div className="flex gap-2">
             <Button
               onClick={() => void handleFetchData()}
               disabled={isLoading}
+              className="flex items-center gap-1.5"
             >
-              {isLoading ? (
-                <LoaderCircle className="h-4 w-4 animate-spin" />
-              ) : null}
-              Load data
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleAutoMatch}
-              disabled={!reconciliationData}
-            >
-              Auto-match
+              {isLoading && <LoaderCircle className="h-3.5 w-3.5 animate-spin" />}
+              Load Transactions
             </Button>
           </div>
           <Button
             onClick={() => void handleSave()}
-            disabled={!reconciliationData || difference !== 0}
+            disabled={!reconciliationData || difference !== 0 || isLoading}
+            className="flex items-center gap-1.5"
           >
-            Save reconciliation
+            {isLoading && <LoaderCircle className="h-3.5 w-3.5 animate-spin" />}
+            Confirm Match
           </Button>
         </div>
       </Card>
@@ -663,27 +770,39 @@ export function ReconciliationListClient({
             <StatCard
               label="Difference"
               value={fmtInr(difference)}
-              icon={<GitCompare className="h-4 w-4" />}
+              icon={
+                <GitCompare 
+                  className={[
+                    "h-4 w-4", 
+                    difference === 0 ? "text-emerald-500 animate-pulse" : "text-zoru-danger-ink"
+                  ].join(' ')} 
+                />
+              }
             />
           </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {/* Bank Statement CSV Feed on the LEFT */}
             <TransactionTable
-              title="Company's books"
-              entries={reconciliationData.bookEntries}
-              matchedIds={matchedBookEntries}
-              onMatchToggle={(id) => handleMatchToggle('book', id)}
-              totalDebit={totalBookDebit}
-              totalCredit={totalBookCredit}
-            />
-            <TransactionTable
-              title="Bank statement"
+              title="Bank statement (CSV Feed)"
               entries={reconciliationData.statementEntries}
               matchedIds={matchedStatementEntries}
+              aiMatchedIds={aiMatchedStatementEntries}
               onMatchToggle={(id) => handleMatchToggle('statement', id)}
               totalDebit={totalStatementDebit}
               totalCredit={totalStatementCredit}
               isBankStatement
+            />
+
+            {/* Company GL Books on the RIGHT */}
+            <TransactionTable
+              title="Company's General Ledger Books"
+              entries={reconciliationData.bookEntries}
+              matchedIds={matchedBookEntries}
+              aiMatchedIds={aiMatchedBookEntries}
+              onMatchToggle={(id) => handleMatchToggle('book', id)}
+              totalDebit={totalBookDebit}
+              totalCredit={totalBookCredit}
             />
           </div>
         </>

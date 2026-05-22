@@ -21,6 +21,7 @@
 import { revalidatePath } from 'next/cache';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions/user.actions';
+import { hashPassword } from '@/lib/auth';
 import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { CrmDepartment, CrmDesignation, CrmEmployee } from '@/lib/definitions';
@@ -572,6 +573,13 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
         return { error: 'Please fill all required fields.' };
     }
 
+    const rawPassword = formData.get('password') as string | null;
+    const imageUrl = formData.get('image') as string | null;
+
+    if (imageUrl) {
+        data.image = imageUrl;
+    }
+
     const g = (k: string) => (formData.get(k) as string | null) || undefined;
     const gDate = (k: string) => { const v = formData.get(k) as string | null; return v ? new Date(v) : undefined; };
     const gNum = (k: string) => { const v = formData.get(k) as string | null; return v ? Number(v) : undefined; };
@@ -616,16 +624,66 @@ export async function saveCrmEmployee(_prev: any, formData: FormData): Promise<{
     try {
         const { db } = await connectToDatabase();
         let resolvedEmployeeId: ObjectId;
+        let employeeUserId: ObjectId | undefined;
 
         if (isEditing) {
             resolvedEmployeeId = new ObjectId(employeeId!);
+            
+            const existingEmployee = await db.collection<CrmEmployee>('crm_employees').findOne({ _id: resolvedEmployeeId });
+            employeeUserId = existingEmployee?.employeeUserId;
+            
+            if (employeeUserId && rawPassword) {
+                const hashedPassword = await hashPassword(rawPassword);
+                await db.collection('users').updateOne(
+                    { _id: employeeUserId },
+                    { $set: { password: hashedPassword } }
+                );
+            }
+            if (employeeUserId && imageUrl !== null) {
+                await db.collection('users').updateOne(
+                    { _id: employeeUserId },
+                    { $set: { image: imageUrl || undefined } }
+                );
+            }
+
             await db.collection('crm_employees').updateOne(
                 { _id: resolvedEmployeeId },
                 { $set: { ...data, updatedAt: new Date() } }
             );
         } else {
+            if (!rawPassword) {
+                return { error: 'Password is required for new employees.' };
+            }
+            
+            const existingUser = await db.collection('users').findOne({ email: data.email });
+            if (existingUser) {
+                employeeUserId = existingUser._id;
+            } else {
+                const hashedPassword = await hashPassword(rawPassword);
+                const newUser = {
+                    email: data.email,
+                    name: `${data.firstName} ${data.lastName}`,
+                    password: hashedPassword,
+                    image: imageUrl || undefined,
+                    createdAt: new Date(),
+                };
+                const userResult = await db.collection('users').insertOne(newUser as any);
+                employeeUserId = userResult.insertedId;
+            }
+
+            const tenantProjects = await db.collection('projects').find({ userId: new ObjectId(session.user._id) }).toArray();
+            for (const proj of tenantProjects) {
+                 if (!proj.agents?.some((a: any) => a.userId.equals(employeeUserId))) {
+                     await db.collection('projects').updateOne(
+                         { _id: proj._id },
+                         { $addToSet: { agents: { userId: employeeUserId, email: data.email, name: `${data.firstName} ${data.lastName}`, role: 'member' } } } as any
+                     );
+                 }
+            }
+
             const result = await db.collection('crm_employees').insertOne({
                 ...data,
+                employeeUserId,
                 createdAt: new Date(),
                 updatedAt: new Date()
             } as CrmEmployee);

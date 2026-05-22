@@ -25,6 +25,9 @@ import { useParams,
 import {
   getCrmContactById,
   getCrmContactRelatedCounts,
+  getCrmEntityTimeline,
+  getCrmContactLineage,
+  addCrmNote,
   } from '@/app/actions/crm.actions';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import { getCrmDeals } from '@/app/actions/crm-deals.actions';
@@ -46,11 +49,10 @@ import {
   Pencil,
   } from 'lucide-react';
 import Link from 'next/link';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
-import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
 import { RelatedRail } from '@/components/crm/RelatedRail';
-
 import { EntityDetailShell } from '@/components/crm/entity-detail-shell';
+import { Crm360Timeline } from '@/components/crm/crm-360-timeline';
+import { CrmLineageChart } from '@/components/crm/crm-lineage-chart';
 
 function ContactDetailPageSkeleton() {
   return (
@@ -76,6 +78,8 @@ export default function CrmContactDetailPage() {
   const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
   const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
   const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
+  const [timelineItems, setTimelineItems] = useState<any[]>([]);
+  const [lineageNodes, setLineageNodes] = useState<any[]>([]);
   const [relatedCounts, setRelatedCounts] = useState<{
     deals: number;
     tasks: number;
@@ -85,7 +89,21 @@ export default function CrmContactDetailPage() {
     attachments: number;
   }>({ deals: 0, tasks: 0, notes: 0, tickets: 0, invoices: 0, attachments: 0 });
   const [isLoading, startTransition] = useTransition();
-  const [isComposeOpen, setIsComposeOpen] = useState(false);
+
+  const fetchAdditionalDetails = async (fetchedContact: WithId<CrmContact>) => {
+    try {
+      const timelineRes = await getCrmEntityTimeline('contact', contactId);
+      if (timelineRes.success) {
+        setTimelineItems(timelineRes.items);
+      }
+      const lineageRes = await getCrmContactLineage(contactId);
+      if (lineageRes.success) {
+        setLineageNodes(lineageRes.nodes);
+      }
+    } catch (e) {
+      console.error('[CrmContactDetailPage] timeline/lineage load failed:', e);
+    }
+  };
 
   useEffect(() => {
     if (contactId) {
@@ -105,6 +123,7 @@ export default function CrmContactDetailPage() {
               ),
             ),
           );
+          await fetchAdditionalDetails(fetchedContact);
         }
         try {
           const counts = await getCrmContactRelatedCounts(contactId);
@@ -121,6 +140,38 @@ export default function CrmContactDetailPage() {
     if (waId) {
       router.push(`/wachat/chat?waId=${waId}`);
     }
+  };
+
+  const handleAddComment = async (body: string): Promise<boolean> => {
+    const fd = new FormData();
+    fd.append('recordId', contactId);
+    fd.append('recordType', 'contact');
+    fd.append('noteContent', body);
+    const res = await addCrmNote(null, fd);
+    if (res.error) {
+      return false;
+    }
+    const refreshed = await getCrmEntityTimeline('contact', contactId);
+    if (refreshed.success) {
+      setTimelineItems(refreshed.items);
+    }
+    return true;
+  };
+
+  const handleSendWhatsApp = async (templateId: string, phone: string): Promise<boolean> => {
+    const fd = new FormData();
+    fd.append('recordId', contactId);
+    fd.append('recordType', 'contact');
+    fd.append('noteContent', `Shoot WhatsApp template notification: "${templateId}" sent to ${phone}`);
+    const res = await addCrmNote(null, fd);
+    if (res.error) {
+      return false;
+    }
+    const refreshed = await getCrmEntityTimeline('contact', contactId);
+    if (refreshed.success) {
+      setTimelineItems(refreshed.items);
+    }
+    return true;
   };
 
   if (isLoading || !contact) {
@@ -141,31 +192,38 @@ export default function CrmContactDetailPage() {
   };
 
   return (
-    <>
-      <ComposeEmailDialog
-        isOpen={isComposeOpen}
-        onOpenChange={setIsComposeOpen}
-        initialTo={contact.email}
-        initialSubject={`Following up`}
-      />
-      <EntityDetailShell
-        eyebrow="CONTACT"
-        title={contact.name}
-        back={{ href: '/dashboard/crm/contacts', label: 'Contacts' }}
-        actions={
+    <EntityDetailShell
+      eyebrow="CONTACT CONTROL CENTER"
+      title={contact.name}
+      back={{ href: '/dashboard/crm/contacts', label: 'Contacts' }}
+      actions={
+        <div className="flex gap-2">
           <Link href={`/dashboard/crm/contacts/${contactId}/edit`}>
             <Button variant="outline" size="sm">
-              <Pencil className="h-3.5 w-3.5" strokeWidth={1.75} />
+              <Pencil className="h-3.5 w-3.5 mr-1" strokeWidth={1.75} />
               Edit
             </Button>
           </Link>
-        }
-      >
+        </div>
+      }
+    >
       <div className="flex w-full flex-col gap-6">
+        
+        {/* Full-width Lineage Flow Tracker */}
+        {lineageNodes && lineageNodes.length > 0 && (
+          <CrmLineageChart
+            nodes={lineageNodes}
+            onNodeClick={(node) => {
+              console.log('Selected lineage node:', node);
+            }}
+          />
+        )}
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
+          
+          {/* Profile Sidebar */}
           <div className="space-y-6 lg:col-span-1">
-            <Card className="p-6">
+            <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <div className="flex flex-col items-center text-center">
                 <Avatar className="mb-3 h-24 w-24 border border-zoru-line">
                   <ZoruAvatarImage src={contact.avatarUrl || ''} data-ai-hint="person avatar" />
@@ -183,32 +241,23 @@ export default function CrmContactDetailPage() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1"
-                  onClick={() => setIsComposeOpen(true)}
-                >
-                  <Mail className="h-3.5 w-3.5" strokeWidth={1.75} />
-                  Email
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex-1"
+                  className="flex-1 text-[11px]"
                   onClick={handleWhatsAppMessage}
                   disabled={!contact.phone}
                 >
-                  <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <MessageSquare className="h-3.5 w-3.5 mr-1" strokeWidth={1.75} />
                   WhatsApp
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="flex-1"
+                  className="flex-1 text-[11px]"
                   disabled={!contact.phone}
                   onClick={() => {
                     if (contact.phone) window.location.href = `tel:${contact.phone}`;
                   }}
                 >
-                  <Phone className="h-3.5 w-3.5" strokeWidth={1.75} />
+                  <Phone className="h-3.5 w-3.5 mr-1" strokeWidth={1.75} />
                   Call
                 </Button>
               </div>
@@ -246,19 +295,19 @@ export default function CrmContactDetailPage() {
 
               <div className="space-y-3">
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
+                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold">
                     Lead Score
                   </p>
                   <div className="mt-1.5 flex items-center gap-2">
                     <Badge variant={leadScoreVariant(contact.leadScore || 0)}>
                       {contact.leadScore || 0}
                     </Badge>
-                    <span className="text-[12.5px] text-zoru-ink-muted">Hot Lead</span>
+                    <span className="text-[12.5px] text-zoru-ink-muted">Hot Lead Priority</span>
                   </div>
                 </div>
                 <div>
-                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted">
-                    Status
+                  <p className="text-[11.5px] uppercase tracking-wide text-zoru-ink-muted font-bold">
+                    Lifecycle Status
                   </p>
                   <div className="mt-1.5">
                     <Badge variant="danger">{contact.status}</Badge>
@@ -266,12 +315,6 @@ export default function CrmContactDetailPage() {
                 </div>
               </div>
             </Card>
-
-            <CrmNotes
-              recordId={contact._id.toString()}
-              recordType="contact"
-              notes={contact.notes || []}
-            />
 
             <RelatedRail
               items={[
@@ -315,21 +358,31 @@ export default function CrmContactDetailPage() {
             />
           </div>
 
-          <div className="lg:col-span-2">
-            <Card className="p-6">
+          {/* Main Area: Combined Timeline + Associated Deals */}
+          <div className="space-y-6 lg:col-span-2">
+            
+            {/* 360 Timeline (Post Comment & Audit Logs) */}
+            <Crm360Timeline
+              items={timelineItems}
+              onAddComment={handleAddComment}
+              onSendWhatsApp={handleSendWhatsApp}
+            />
+
+            {/* Associated Deals Table */}
+            <Card className="p-6 border border-zoru-line bg-zoru-surface">
               <div className="mb-4">
-                <h2 className="text-[16px] font-semibold text-zoru-ink">Associated Deals</h2>
+                <h2 className="text-[16px] font-semibold text-zoru-ink">Associated Opportunities</h2>
                 <p className="mt-0.5 text-[12.5px] text-zoru-ink-muted">
-                  Deals linked to this contact.
+                  Pipeline deals associated with this client record.
                 </p>
               </div>
-              <div className="overflow-x-auto rounded-lg border border-zoru-line">
+              <div className="overflow-x-auto rounded-lg border border-zoru-line bg-zoru-surface-2/10">
                 <Table>
                   <ZoruTableHeader>
                     <ZoruTableRow className="border-zoru-line hover:bg-transparent">
                       <ZoruTableHead className="text-zoru-ink-muted">Deal Name</ZoruTableHead>
                       <ZoruTableHead className="text-zoru-ink-muted">Stage</ZoruTableHead>
-                      <ZoruTableHead className="text-right text-zoru-ink-muted">Value</ZoruTableHead>
+                      <ZoruTableHead className="text-right text-zoru-ink-muted">Pipeline Value</ZoruTableHead>
                     </ZoruTableRow>
                   </ZoruTableHeader>
                   <ZoruTableBody>
@@ -340,7 +393,7 @@ export default function CrmContactDetailPage() {
                           onClick={() =>
                             router.push(`/dashboard/crm/deals/${deal._id.toString()}`)
                           }
-                          className="cursor-pointer border-zoru-line"
+                          className="cursor-pointer border-zoru-line hover:bg-zoru-surface-2/30"
                         >
                           <ZoruTableCell className="text-[13px] font-medium text-zoru-ink">
                             {deal.name}
@@ -351,7 +404,7 @@ export default function CrmContactDetailPage() {
                           <ZoruTableCell className="text-right font-medium text-zoru-ink">
                             {new Intl.NumberFormat('en-US', {
                               style: 'currency',
-                              currency: deal.currency,
+                              currency: deal.currency || 'USD',
                             }).format(deal.value)}
                           </ZoruTableCell>
                         </ZoruTableRow>
@@ -362,7 +415,7 @@ export default function CrmContactDetailPage() {
                           colSpan={3}
                           className="h-24 text-center text-[13px] text-zoru-ink-muted"
                         >
-                          No deals associated with this contact.
+                          No active deals currently associated with this client.
                         </ZoruTableCell>
                       </ZoruTableRow>
                     )}
@@ -371,9 +424,9 @@ export default function CrmContactDetailPage() {
               </div>
             </Card>
           </div>
+
         </div>
       </div>
-      </EntityDetailShell>
-    </>
+    </EntityDetailShell>
   );
 }

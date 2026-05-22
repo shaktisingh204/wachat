@@ -121,6 +121,7 @@ interface ToolbarProps {
   preset: PresetKey;
   onPresetChange: (next: PresetKey) => void;
   onExportCsv: () => void;
+  onNewClick?: () => void;
 }
 
 export function DealListToolbar({
@@ -133,6 +134,7 @@ export function DealListToolbar({
   preset,
   onPresetChange,
   onExportCsv,
+  onNewClick,
 }: ToolbarProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
@@ -218,11 +220,17 @@ export function DealListToolbar({
           </Link>
         </Button>
 
-        <Button size="sm" asChild>
-          <Link href="/dashboard/crm/sales-crm/deals/new">
+        {onNewClick ? (
+          <Button size="sm" onClick={onNewClick}>
             <Plus className="h-3.5 w-3.5" /> New deal
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button size="sm" asChild>
+            <Link href="/dashboard/crm/sales-crm/deals/new">
+              <Plus className="h-3.5 w-3.5" /> New deal
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

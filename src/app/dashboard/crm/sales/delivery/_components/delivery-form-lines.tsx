@@ -1,15 +1,25 @@
 'use client';
 
-import { Button, Input, Textarea } from '@/components/zoruui';
-import { Plus, Trash2 } from 'lucide-react';
+import {
+  Button,
+  Input,
+  Textarea,
+  Dialog,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogDescription,
+  ZoruDialogFooter,
+  ZoruDialogClose,
+  Label,
+} from '@/components/zoruui';
+import { Plus, Trash2, Edit, Check, AlertTriangle, Barcode, Calendar } from 'lucide-react';
 
 /**
- * Line-items table for `<DeliveryForm>`. Extracted to its own file
- * to keep the parent form under the 600-line per-file cap.
+ * Line-items table for `<DeliveryForm>`. Extracted to its own file.
  *
- * Each row carries DC-specific fields (batch, expiry, serial numbers)
- * stored as freeform strings. The parent form serialises these into
- * a single JSON blob on the `lineItems` FormData entry.
+ * Upgraded with a premium popup Serial & Batch Number Allocation Dialog.
+ * Displays a clean summary of allocated inventory details per row.
  */
 
 import * as React from 'react';
@@ -35,12 +45,190 @@ export interface DcLineItemsTableProps {
   onPatch: (id: string, patch: Partial<DcLineRow>) => void;
 }
 
+interface AllocationDialogProps {
+  row: DcLineRow;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSave: (batch: string, expiry: string, serialNumbersText: string) => void;
+}
+
+function SerialBatchAllocationDialog({
+  row,
+  isOpen,
+  onOpenChange,
+  onSave,
+}: AllocationDialogProps) {
+  const [batch, setBatch] = React.useState(row.batch ?? '');
+  const [expiry, setExpiry] = React.useState(row.expiry ?? '');
+  const [inputText, setInputText] = React.useState('');
+  const [serials, setSerials] = React.useState<string[]>(() => {
+    return (row.serialNumbersText ?? '')
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  });
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setBatch(row.batch ?? '');
+      setExpiry(row.expiry ?? '');
+      setSerials(
+        (row.serialNumbersText ?? '')
+          .split(/[\n,]+/)
+          .map((s) => s.trim())
+          .filter(Boolean)
+      );
+    }
+  }, [isOpen, row]);
+
+  const handleAddSerials = () => {
+    if (!inputText.trim()) return;
+    const newItems = inputText
+      .split(/[\n,]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    setSerials((prev) => {
+      const next = [...prev];
+      newItems.forEach((item) => {
+        if (!next.includes(item)) next.push(item);
+      });
+      return next;
+    });
+    setInputText('');
+  };
+
+  const handleRemoveSerial = (idx: number) => {
+    setSerials((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const handleApply = () => {
+    onSave(batch.trim(), expiry, serials.join('\n'));
+    onOpenChange(false);
+  };
+
+  const serialsMatch = serials.length === row.quantity;
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <ZoruDialogContent className="max-w-md rounded-lg p-6 bg-zoru-bg border border-zoru-line text-zoru-ink">
+        <ZoruDialogHeader>
+          <ZoruDialogTitle className="flex items-center gap-2 text-base font-semibold">
+            <Barcode className="h-5 w-5 text-zoru-primary" /> Allocate Serials & Batches
+          </ZoruDialogTitle>
+          <ZoruDialogDescription className="text-xs text-zoru-ink-muted">
+            Specify the tracking batch number, expiration date, and physical serial codes for:
+            <strong className="block mt-1 text-zoru-ink">{row.name || 'Unnamed Item'}</strong>
+          </ZoruDialogDescription>
+        </ZoruDialogHeader>
+
+        <div className="space-y-4 my-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs font-semibold text-zoru-ink-muted">Batch Number</Label>
+              <Input
+                value={batch}
+                onChange={(e) => setBatch(e.target.value)}
+                placeholder="e.g. BAT-2026-05"
+                className="mt-1 h-9 text-xs"
+              />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold text-zoru-ink-muted">Expiry Date</Label>
+              <Input
+                type="date"
+                value={expiry}
+                onChange={(e) => setExpiry(e.target.value)}
+                className="mt-1 h-9 text-xs"
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-zoru-line pt-3">
+            <Label className="text-xs font-semibold text-zoru-ink-muted flex items-center justify-between mb-1.5">
+              <span>Serial Numbers</span>
+              {row.quantity > 0 && (
+                <span
+                  className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                    serialsMatch
+                      ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                      : 'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                  }`}
+                >
+                  {serialsMatch ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <AlertTriangle className="h-3 w-3" />
+                  )}
+                  {serials.length} of {row.quantity} Allocated
+                </span>
+              )}
+            </Label>
+
+            <div className="flex gap-2">
+              <Textarea
+                rows={2}
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Type serials (one per line or comma-separated)..."
+                className="text-xs flex-1"
+              />
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleAddSerials}
+                className="h-auto shrink-0 text-xs px-3"
+              >
+                Add
+              </Button>
+            </div>
+
+            {serials.length > 0 && (
+              <div className="mt-3 max-h-32 overflow-y-auto rounded border border-zoru-line bg-zoru-surface-2 p-2 flex flex-wrap gap-1.5">
+                {serials.map((s, idx) => (
+                  <span
+                    key={idx}
+                    className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] text-zoru-ink hover:border-zoru-danger-ink/40 group transition-colors"
+                  >
+                    {s}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSerial(idx)}
+                      className="text-zoru-ink-muted group-hover:text-zoru-danger-ink hover:font-bold"
+                    >
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <ZoruDialogFooter className="mt-4 gap-2">
+          <ZoruDialogClose asChild>
+            <Button variant="ghost" size="sm" className="text-xs">
+              Cancel
+            </Button>
+          </ZoruDialogClose>
+          <Button type="button" size="sm" onClick={handleApply} className="text-xs">
+            Apply Allocation
+          </Button>
+        </ZoruDialogFooter>
+      </ZoruDialogContent>
+    </Dialog>
+  );
+}
+
 export function DcLineItemsTable({
   rows,
   onAdd,
   onRemove,
   onPatch,
 }: DcLineItemsTableProps) {
+  const [activeAllocRow, setActiveAllocRow] = React.useState<DcLineRow | null>(null);
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -56,128 +244,167 @@ export function DcLineItemsTable({
         <table className="w-full text-[13px]">
           <thead className="bg-zoru-surface-2 text-left text-zoru-ink-muted">
             <tr>
-              <th className="p-2.5 font-medium">Item</th>
-              <th className="p-2.5 font-medium">HSN</th>
-              <th className="w-[90px] p-2.5 text-right font-medium">Qty</th>
-              <th className="w-[120px] p-2.5 font-medium">Unit</th>
-              <th className="w-[120px] p-2.5 font-medium">Batch</th>
-              <th className="w-[140px] p-2.5 font-medium">Expiry</th>
-              <th className="min-w-[180px] p-2.5 font-medium">Serial nos</th>
-              <th className="w-[40px] p-2.5"></th>
+              <th className="p-2.5 font-medium">Item Description</th>
+              <th className="p-2.5 font-medium">HSN/SAC</th>
+              <th className="w-[100px] p-2.5 text-right font-medium">Qty</th>
+              <th className="w-[140px] p-2.5 font-medium">Unit</th>
+              <th className="p-2.5 font-medium">Tracking & Allocation details</th>
+              <th className="w-[100px] p-2.5 text-center font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.id} className="border-t border-zoru-line align-top">
-                <td className="min-w-[200px] p-2">
-                  <EntityFormField
-                    entity="item"
-                    name={`row-${row.id}-itemPicker`}
-                    initialId={row.itemId ?? null}
-                    placeholder="Pick item or type below…"
-                    onChange={(id, hydrated) => {
-                      const raw = (hydrated?.raw ?? {}) as Record<string, unknown>;
-                      const nm =
-                        (typeof raw.name === 'string' && raw.name) ||
-                        hydrated?.chip?.primary ||
-                        row.name;
-                      const hsn =
-                        (typeof raw.hsnSac === 'string' && raw.hsnSac) ||
-                        (typeof raw.hsnCode === 'string' && raw.hsnCode) ||
-                        row.hsnCode;
-                      const unit =
-                        (typeof raw.unit === 'string' && raw.unit) || row.unit;
-                      onPatch(row.id, {
-                        itemId: id ?? undefined,
-                        name: nm,
-                        hsnCode: hsn,
-                        unit,
-                      });
-                    }}
-                  />
-                  <Input
-                    value={row.name}
-                    onChange={(e) => onPatch(row.id, { name: e.target.value })}
-                    placeholder="Item description"
-                    className="mt-1 h-8 text-[12.5px]"
-                    maxLength={200}
-                  />
-                </td>
-                <td className="p-2">
-                  <Input
-                    value={row.hsnCode ?? ''}
-                    onChange={(e) => onPatch(row.id, { hsnCode: e.target.value })}
-                    placeholder="e.g. 998314"
-                    className="h-9 text-[12.5px]"
-                    maxLength={20}
-                  />
-                </td>
-                <td className="p-2">
-                  <Input
-                    type="number"
-                    min={0}
-                    step="any"
-                    value={row.quantity}
-                    onChange={(e) =>
-                      onPatch(row.id, { quantity: Number(e.target.value) || 0 })
-                    }
-                    className="h-9 text-right text-[12.5px] tabular-nums"
-                  />
-                </td>
-                <td className="min-w-[120px] p-2">
-                  <EntityFormField
-                    entity="unit"
-                    name={`row-${row.id}-unitPicker`}
-                    initialId={row.unit ?? null}
-                    placeholder="e.g. PCS"
-                    onChange={(id) => onPatch(row.id, { unit: id ?? undefined })}
-                  />
-                </td>
-                <td className="p-2">
-                  <Input
-                    value={row.batch ?? ''}
-                    onChange={(e) => onPatch(row.id, { batch: e.target.value })}
-                    placeholder="Batch #"
-                    className="h-9 text-[12.5px]"
-                    maxLength={40}
-                  />
-                </td>
-                <td className="p-2">
-                  <Input
-                    type="date"
-                    value={row.expiry ?? ''}
-                    onChange={(e) => onPatch(row.id, { expiry: e.target.value })}
-                    className="h-9 text-[12.5px]"
-                  />
-                </td>
-                <td className="p-2">
-                  <Textarea
-                    rows={2}
-                    value={row.serialNumbersText ?? ''}
-                    onChange={(e) =>
-                      onPatch(row.id, { serialNumbersText: e.target.value })
-                    }
-                    placeholder="One per line or comma-separated"
-                    className="text-[12.5px]"
-                  />
-                </td>
-                <td className="p-2 text-right">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => onRemove(row.id)}
-                    disabled={rows.length === 1}
-                    className="text-zoru-danger-ink"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
+            {rows.map((row) => {
+              const serials = (row.serialNumbersText ?? '')
+                .split(/[\n,]+/)
+                .map((s) => s.trim())
+                .filter(Boolean);
+
+              const hasBatch = !!row.batch;
+              const hasExpiry = !!row.expiry;
+              const hasSerials = serials.length > 0;
+
+              return (
+                <tr key={row.id} className="border-t border-zoru-line align-middle">
+                  <td className="min-w-[200px] p-2">
+                    <EntityFormField
+                      entity="item"
+                      name={`row-${row.id}-itemPicker`}
+                      initialId={row.itemId ?? null}
+                      placeholder="Pick item or type below…"
+                      onChange={(id, hydrated) => {
+                        const raw = (hydrated?.raw ?? {}) as Record<string, unknown>;
+                        const nm =
+                          (typeof raw.name === 'string' && raw.name) ||
+                          hydrated?.chip?.primary ||
+                          row.name;
+                        const hsn =
+                          (typeof raw.hsnSac === 'string' && raw.hsnSac) ||
+                          (typeof raw.hsnCode === 'string' && raw.hsnCode) ||
+                          row.hsnCode;
+                        const unit =
+                          (typeof raw.unit === 'string' && raw.unit) || row.unit;
+                        onPatch(row.id, {
+                          itemId: id ?? undefined,
+                          name: nm,
+                          hsnCode: hsn,
+                          unit,
+                        });
+                      }}
+                    />
+                    <Input
+                      value={row.name}
+                      onChange={(e) => onPatch(row.id, { name: e.target.value })}
+                      placeholder="Item description"
+                      className="mt-1 h-8 text-[12.5px]"
+                      maxLength={200}
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Input
+                      value={row.hsnCode ?? ''}
+                      onChange={(e) => onPatch(row.id, { hsnCode: e.target.value })}
+                      placeholder="e.g. 998314"
+                      className="h-9 text-[12.5px]"
+                      maxLength={20}
+                    />
+                  </td>
+                  <td className="p-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      step="any"
+                      value={row.quantity}
+                      onChange={(e) =>
+                        onPatch(row.id, { quantity: Number(e.target.value) || 0 })
+                      }
+                      className="h-9 text-right text-[12.5px] tabular-nums"
+                    />
+                  </td>
+                  <td className="min-w-[120px] p-2">
+                    <EntityFormField
+                      entity="unit"
+                      name={`row-${row.id}-unitPicker`}
+                      initialId={row.unit ?? null}
+                      placeholder="e.g. PCS"
+                      onChange={(id) => onPatch(row.id, { unit: id ?? undefined })}
+                    />
+                  </td>
+                  <td className="p-2 min-w-[220px]">
+                    <div className="flex flex-col gap-1.5">
+                      {(!hasBatch && !hasExpiry && !hasSerials) ? (
+                        <span className="text-[12px] text-zoru-ink-muted italic">
+                          No batches or serial numbers assigned
+                        </span>
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {hasBatch && (
+                            <span className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] font-medium text-zoru-ink">
+                              <Barcode className="h-3 w-3 text-zoru-ink-muted" /> Batch: {row.batch}
+                            </span>
+                          )}
+                          {hasExpiry && (
+                            <span className="inline-flex items-center gap-1 rounded bg-zoru-surface border border-zoru-line px-2 py-0.5 text-[11px] font-medium text-zoru-ink">
+                              <Calendar className="h-3 w-3 text-zoru-ink-muted" /> Exp: {row.expiry}
+                            </span>
+                          )}
+                          {hasSerials && (
+                            <span className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[11px] font-semibold ${
+                              serials.length === row.quantity
+                                ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                                : 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                            }`}>
+                              {serials.length} serials
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      <Button
+                        type="button"
+                        variant="link"
+                        size="sm"
+                        onClick={() => setActiveAllocRow(row)}
+                        className="text-xs h-auto p-0 justify-start text-zoru-primary hover:underline"
+                      >
+                        <Edit className="h-3 w-3 mr-1" /> Allocate & Manage
+                      </Button>
+                    </div>
+                  </td>
+                  <td className="p-2 text-center">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onRemove(row.id)}
+                      disabled={rows.length === 1}
+                      className="text-zoru-danger-ink mx-auto"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
+
+      {activeAllocRow && (
+        <SerialBatchAllocationDialog
+          row={activeAllocRow}
+          isOpen={activeAllocRow !== null}
+          onOpenChange={(open) => {
+            if (!open) setActiveAllocRow(null);
+          }}
+          onSave={(b, e, s) => {
+            onPatch(activeAllocRow.id, {
+              batch: b,
+              expiry: e,
+              serialNumbersText: s,
+            });
+            setActiveAllocRow(null);
+          }}
+        />
+      )}
     </div>
   );
 }

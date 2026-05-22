@@ -8,9 +8,15 @@ Rules:
 - For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
 - After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
 
+## ZoruUI design system
+
+- **ALWAYS use ZoruUI** (`@/components/zoruui`) primitives and namespaced `--zoru-*` CSS variables (scoped under `.zoruui` class) for UI components, pages, and modules.
+- Avoid using legacy design systems (like `clay`), raw Tailwind accents, or bespoke layouts. Rebuild/port legacy views to ZoruUI.
+
 ## SabFiles policy
 
-Every file in SabNode lives in SabFiles. NEVER expose a free-text URL paste for files — file inputs source from `<SabFilePicker>` / `<SabFileUrlInput>` / `<SabFilePickerButton>` / `<SabFileToFileButton>` (all in `@/components/sabfiles`), which read from the user's library or upload fresh. The picker has only Library + Upload modes; do not re-add a "From URL" tab.
+- **ALWAYS use SabFiles** for all file inputs, uploads, and file-picking interfaces.
+- Every file in SabNode lives in SabFiles. NEVER expose a free-text URL paste for files — file inputs source from `<SabFilePicker>` / `<SabFileUrlInput>` / `<SabFilePickerButton>` / `<SabFileToFileButton>` (all in `@/components/sabfiles`), which read from the user's library or upload fresh. The picker has only Library + Upload modes; do not re-add a "From URL" tab.
 
 ## SabWa engine
 

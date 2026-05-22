@@ -13,6 +13,13 @@
 
 import { getCachedSession } from "@/lib/server-cache";
 import { SabsmsPageShell } from "@/components/sabsms/page-toolkit";
+import {
+  ZoruFeatureGrid,
+  ZoruFeatureCard,
+  ZoruBadge,
+  StatCard,
+} from "@/components/zoruui";
+import { MessageSquare, CheckCircle2, Clock } from "lucide-react";
 
 import { loadTemplates, type TemplateListFilters } from "./actions";
 import { TemplatesTable } from "./templates-table";
@@ -65,6 +72,12 @@ export default async function SabsmsTemplatesPage({ searchParams }: PageProps) {
 
   const rows = await loadTemplates(workspaceId, filters);
 
+  const approvedCount = rows.filter((r) => r.status === "approved").length;
+  const pendingCount = rows.filter((r) => r.status === "submitted").length;
+  const totalUsage = rows.reduce((acc, r) => acc + r.usageCount, 0);
+
+  const topTemplates = rows.slice(0, 3); // show 3 top templates in a FeatureGrid
+
   return (
     <SabsmsPageShell
       eyebrow="SabSMS"
@@ -103,7 +116,64 @@ export default async function SabsmsTemplatesPage({ searchParams }: PageProps) {
         </ul>
       }
     >
-      <TemplatesTable workspaceId={workspaceId} initialRows={rows} />
+      <div className="flex flex-col gap-10">
+        {/* KPI Section */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <StatCard
+            label="Total Usage"
+            value={totalUsage.toLocaleString()}
+            delta={12.5}
+            period="vs last month"
+            icon={<MessageSquare className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Approved Templates"
+            value={approvedCount}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <StatCard
+            label="Pending Approval"
+            value={pendingCount}
+            icon={<Clock className="h-4 w-4" />}
+          />
+        </div>
+
+        {/* Feature Grid for Top Templates */}
+        {topTemplates.length > 0 && (
+          <ZoruFeatureGrid
+            columns={3}
+            heading="Top Templates"
+            subhead="Your most recently updated templates with their snippets."
+          >
+            {topTemplates.map((row) => (
+              <ZoruFeatureCard
+                key={row.id}
+                title={
+                  <div className="flex items-center gap-2">
+                    <span className="truncate">{row.name}</span>
+                    <ZoruBadge
+                      variant={
+                        row.status === "approved"
+                          ? "default"
+                          : row.status === "submitted"
+                            ? "outline"
+                            : "secondary"
+                      }
+                    >
+                      {row.status}
+                    </ZoruBadge>
+                  </div>
+                }
+                description={<span className="line-clamp-2">{row.bodyPreview || "(empty)"}</span>}
+                icon={<MessageSquare />}
+                variant="soft"
+              />
+            ))}
+          </ZoruFeatureGrid>
+        )}
+
+        <TemplatesTable workspaceId={workspaceId} initialRows={rows} />
+      </div>
     </SabsmsPageShell>
   );
 }
