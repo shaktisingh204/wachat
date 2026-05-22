@@ -10,11 +10,12 @@
 import 'server-only';
 import { nanoid } from 'nanoid';
 import { connectToDatabase } from '@/lib/mongodb';
+import { ObjectId } from 'mongodb';
 
 export type ShareLinkRole = 'viewer' | 'editor';
 
 export interface ShareLinkDoc {
-  _id?: unknown;
+  _id?: ObjectId;
   docId: string;
   token: string;
   role: ShareLinkRole;
