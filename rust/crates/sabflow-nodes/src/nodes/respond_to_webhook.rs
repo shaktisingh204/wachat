@@ -24,7 +24,9 @@ use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -73,8 +75,12 @@ impl Node for RespondToWebhookNode {
             NodeProperty::new("responseText", "Response Text", NodePropertyType::String)
                 .description("Plain text body to return")
                 .show_when("respondWith", &["text"]),
-            NodeProperty::new("responseHeaders", "Response Headers", NodePropertyType::Json)
-                .description("Object of name → value HTTP header pairs"),
+            NodeProperty::new(
+                "responseHeaders",
+                "Response Headers",
+                NodePropertyType::Json,
+            )
+            .description("Object of name → value HTTP header pairs"),
         ])
     }
 

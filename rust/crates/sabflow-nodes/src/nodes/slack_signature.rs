@@ -65,9 +65,10 @@ impl SignatureMeta {
 /// timestamp, or malformed inputs.
 pub fn verify_slack_signature(signing_secret: &str, meta: &SignatureMeta) -> NodeResult<()> {
     // Reject obvious replays.
-    let ts: i64 = meta.timestamp.parse().map_err(|_| {
-        NodeError::AuthError("invalid X-Slack-Request-Timestamp".into())
-    })?;
+    let ts: i64 = meta
+        .timestamp
+        .parse()
+        .map_err(|_| NodeError::AuthError("invalid X-Slack-Request-Timestamp".into()))?;
     let now = chrono::Utc::now().timestamp();
     if (now - ts).abs() > MAX_SKEW_SECS {
         return Err(NodeError::AuthError(

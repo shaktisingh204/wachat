@@ -25,7 +25,9 @@ use serde_json::{Map, Value};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -77,9 +79,7 @@ impl Node for SetNode {
                     NodePropertyOption {
                         name: "Expression".into(),
                         value: Value::String("expression".into()),
-                        description: Some(
-                            "Evaluate an expression for each field".into(),
-                        ),
+                        description: Some("Evaluate an expression for each field".into()),
                     },
                 ])
                 .default(Value::String("manual".into())),

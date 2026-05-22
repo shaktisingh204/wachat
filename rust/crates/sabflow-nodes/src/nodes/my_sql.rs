@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
+    NodeInput, NodeOutput, NodeResult,
     context::ExecutionContext,
     descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct MySqlNode;
@@ -13,12 +13,7 @@ pub struct MySqlNode;
 #[async_trait]
 impl Node for MySqlNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "mySql",
-            "MySQL",
-            "MySQL operations",
-            NodeCategory::Database,
-        )
+        NodeDescriptor::new("mySql", "MySQL", "MySQL operations", NodeCategory::Database)
     }
 
     async fn execute(

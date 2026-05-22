@@ -131,8 +131,12 @@ impl Node for TelegramNode {
             )
             .default(json!(false))
             .show_when("operation", &["sendMessage", "sendPhoto"]),
-            NodeProperty::new("replyToMessageId", "Reply To Message ID", NodePropertyType::Number)
-                .show_when("operation", &["sendMessage"]),
+            NodeProperty::new(
+                "replyToMessageId",
+                "Reply To Message ID",
+                NodePropertyType::Number,
+            )
+            .show_when("operation", &["sendMessage"]),
             NodeProperty::new("photoUrl", "Photo URL", NodePropertyType::String)
                 .show_when("operation", &["sendPhoto"]),
             NodeProperty::new("caption", "Caption", NodePropertyType::String)
@@ -143,11 +147,15 @@ impl Node for TelegramNode {
                 .show_when("operation", &["sendLocation"]),
             NodeProperty::new("longitude", "Longitude", NodePropertyType::Number)
                 .show_when("operation", &["sendLocation"]),
-            NodeProperty::new("messageId", "Message ID", NodePropertyType::Number)
-                .show_when(
-                    "operation",
-                    &["editMessageText", "deleteMessage", "pinMessage", "unpinMessage"],
-                ),
+            NodeProperty::new("messageId", "Message ID", NodePropertyType::Number).show_when(
+                "operation",
+                &[
+                    "editMessageText",
+                    "deleteMessage",
+                    "pinMessage",
+                    "unpinMessage",
+                ],
+            ),
             NodeProperty::new("userId", "User ID", NodePropertyType::Number)
                 .show_when("operation", &["getMember"]),
             NodeProperty::new("fileId", "File ID", NodePropertyType::String)
@@ -222,8 +230,9 @@ impl Node for TelegramNode {
         let body_value: Value = if body_bytes.is_empty() {
             Value::Null
         } else {
-            serde_json::from_slice(&body_bytes)
-                .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&body_bytes).into_owned()))
+            serde_json::from_slice(&body_bytes).unwrap_or_else(|_| {
+                Value::String(String::from_utf8_lossy(&body_bytes).into_owned())
+            })
         };
 
         // Transport-level failure (e.g. 404 on the bot URL when the token is invalid).
@@ -237,7 +246,10 @@ impl Node for TelegramNode {
         }
 
         // Telegram's envelope: {ok: bool, result?: ..., description?: ...}
-        let ok = body_value.get("ok").and_then(|v| v.as_bool()).unwrap_or(false);
+        let ok = body_value
+            .get("ok")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
         if !ok {
             return Err(NodeError::UpstreamError {
                 status: status.as_u16(),
@@ -245,10 +257,7 @@ impl Node for TelegramNode {
             });
         }
 
-        let result = body_value
-            .get("result")
-            .cloned()
-            .unwrap_or(Value::Null);
+        let result = body_value.get("result").cloned().unwrap_or(Value::Null);
         Ok(NodeOutput::single(vec![result]))
     }
 }
@@ -302,7 +311,10 @@ fn build_send_message(ctx: &ExecutionContext, params: &Value) -> NodeResult<Valu
             map.insert("parse_mode".into(), Value::String(parse_mode));
         }
     }
-    if let Some(v) = params.get("disableWebPagePreview").and_then(|v| v.as_bool()) {
+    if let Some(v) = params
+        .get("disableWebPagePreview")
+        .and_then(|v| v.as_bool())
+    {
         map.insert("disable_web_page_preview".into(), Value::Bool(v));
     }
     if let Some(v) = params.get("disableNotification").and_then(|v| v.as_bool()) {

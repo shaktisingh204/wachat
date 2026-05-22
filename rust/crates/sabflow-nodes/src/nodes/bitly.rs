@@ -1,11 +1,14 @@
+//! Bitly node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct BitlyNode;
@@ -13,12 +16,7 @@ pub struct BitlyNode;
 #[async_trait]
 impl Node for BitlyNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "bitly",
-            "Bitly",
-            "URL shortener",
-            NodeCategory::Marketing,
-        )
+        NodeDescriptor::new("bitly", "Bitly", "URL shortener", NodeCategory::Marketing)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for BitlyNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for bitly
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

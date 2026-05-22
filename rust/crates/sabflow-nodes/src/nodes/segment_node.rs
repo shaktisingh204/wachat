@@ -275,7 +275,9 @@ fn parse_json_param(ctx: &ExecutionContext, params: &Value, key: &str) -> Option
 fn substitute_value(ctx: &ExecutionContext, v: Value) -> Value {
     match v {
         Value::String(s) => Value::String(ctx.substitute(&s)),
-        Value::Array(arr) => Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect()),
+        Value::Array(arr) => {
+            Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect())
+        }
         Value::Object(map) => {
             let mut out = Map::new();
             for (k, val) in map {

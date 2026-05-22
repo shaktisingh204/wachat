@@ -187,8 +187,9 @@ impl Node for WhatsAppNode {
         let body_value: Value = if body_bytes.is_empty() {
             Value::Null
         } else {
-            serde_json::from_slice(&body_bytes)
-                .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&body_bytes).into_owned()))
+            serde_json::from_slice(&body_bytes).unwrap_or_else(|_| {
+                Value::String(String::from_utf8_lossy(&body_bytes).into_owned())
+            })
         };
 
         if !status.is_success() {
@@ -254,7 +255,9 @@ fn build_send_template(ctx: &ExecutionContext, params: &Value) -> NodeResult<Val
     // `components` is optional. Accept either an already-parsed JSON value
     // (preferred — the UI emits Json), or a string blob that we parse here.
     let components = match params.get("components") {
-        Some(Value::Array(_)) | Some(Value::Object(_)) => params.get("components").cloned().unwrap(),
+        Some(Value::Array(_)) | Some(Value::Object(_)) => {
+            params.get("components").cloned().unwrap()
+        }
         Some(Value::String(s)) => {
             let substituted = ctx.substitute(s);
             let trimmed = substituted.trim();

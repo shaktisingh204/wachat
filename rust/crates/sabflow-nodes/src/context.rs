@@ -5,8 +5,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 use std::sync::{
-    atomic::{AtomicU64, Ordering},
     Arc,
+    atomic::{AtomicU64, Ordering},
 };
 
 use crate::error::{NodeError, NodeResult};
@@ -63,7 +63,10 @@ pub trait WaitResumer: Send + Sync {
 #[derive(Debug, Clone)]
 pub enum WaitMode {
     /// Block on an HTTP callback to a generated URL.
-    Webhook { http_method: String, path_hint: Option<String> },
+    Webhook {
+        http_method: String,
+        path_hint: Option<String>,
+    },
     /// Block until the given ISO-8601 instant.
     DateTime { resume_at_iso: String },
 }
@@ -121,7 +124,10 @@ impl NodeOutput {
     }
     pub fn multi(branches: Vec<Vec<Value>>) -> Self {
         Self {
-            branches: branches.into_iter().map(|items| NodeInput { items }).collect(),
+            branches: branches
+                .into_iter()
+                .map(|items| NodeInput { items })
+                .collect(),
         }
     }
     pub fn empty() -> Self {
@@ -281,7 +287,10 @@ impl ExecutionContext {
 
     /// Optional string param — None if absent or null.
     pub fn param_str_opt(&self, params: &Value, key: &str) -> Option<String> {
-        params.get(key).and_then(|v| v.as_str()).map(|s| self.substitute(s))
+        params
+            .get(key)
+            .and_then(|v| v.as_str())
+            .map(|s| self.substitute(s))
     }
 
     /// Bool param with default.

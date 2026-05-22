@@ -22,11 +22,13 @@
 //! match that file 1:1.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -53,7 +55,9 @@ impl Node for ScheduleTriggerNode {
                     NodePropertyOption {
                         name: "Every Minute".into(),
                         value: Value::String("everyMinute".into()),
-                        description: Some("Fire once a minute (Vercel Cron's resolution floor).".into()),
+                        description: Some(
+                            "Fire once a minute (Vercel Cron's resolution floor).".into(),
+                        ),
                     },
                     NodePropertyOption {
                         name: "Every Hour".into(),
@@ -86,20 +90,51 @@ impl Node for ScheduleTriggerNode {
             NodeProperty::new("minute", "Minute", NodePropertyType::Number)
                 .default(json!(0))
                 .description("Minute of the hour (0–59).")
-                .show_when("mode", &["everyHour", "everyDay", "everyWeek", "everyMonth"]),
+                .show_when(
+                    "mode",
+                    &["everyHour", "everyDay", "everyWeek", "everyMonth"],
+                ),
             NodeProperty::new("hour", "Hour", NodePropertyType::Number)
                 .default(json!(0))
                 .description("Hour of the day, UTC (0–23).")
                 .show_when("mode", &["everyDay", "everyWeek", "everyMonth"]),
             NodeProperty::new("weekday", "Day of Week", NodePropertyType::Options)
                 .options(vec![
-                    NodePropertyOption { name: "Sunday".into(),    value: json!(0), description: None },
-                    NodePropertyOption { name: "Monday".into(),    value: json!(1), description: None },
-                    NodePropertyOption { name: "Tuesday".into(),   value: json!(2), description: None },
-                    NodePropertyOption { name: "Wednesday".into(), value: json!(3), description: None },
-                    NodePropertyOption { name: "Thursday".into(),  value: json!(4), description: None },
-                    NodePropertyOption { name: "Friday".into(),    value: json!(5), description: None },
-                    NodePropertyOption { name: "Saturday".into(),  value: json!(6), description: None },
+                    NodePropertyOption {
+                        name: "Sunday".into(),
+                        value: json!(0),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Monday".into(),
+                        value: json!(1),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Tuesday".into(),
+                        value: json!(2),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Wednesday".into(),
+                        value: json!(3),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Thursday".into(),
+                        value: json!(4),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Friday".into(),
+                        value: json!(5),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Saturday".into(),
+                        value: json!(6),
+                        description: None,
+                    },
                 ])
                 .default(json!(1))
                 .show_when("mode", &["everyWeek"]),

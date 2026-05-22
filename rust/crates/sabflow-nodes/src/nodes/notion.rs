@@ -152,8 +152,8 @@ impl Node for NotionNode {
             // ─── Pages ───────────────────────────────────────────────────────
             ("page", "create") => {
                 let parent_id = ctx.param_str(params, "parentId")?;
-                let properties = resolve_json(ctx, params.get("properties"))
-                    .unwrap_or_else(|| json!({}));
+                let properties =
+                    resolve_json(ctx, params.get("properties")).unwrap_or_else(|| json!({}));
                 let children = resolve_json(ctx, params.get("children"));
                 let title_opt = ctx.param_str_opt(params, "title");
 
@@ -161,10 +161,7 @@ impl Node for NotionNode {
                 // Caller can pass either a database or page parent — we prefer
                 // database_id, which is the typical create flow.
                 let mut payload = Map::new();
-                payload.insert(
-                    "parent".into(),
-                    json!({ "database_id": parent_id }),
-                );
+                payload.insert("parent".into(), json!({ "database_id": parent_id }));
 
                 // Merge title into properties if user provided a top-level title and
                 // no `title` key was set in properties.
@@ -173,7 +170,8 @@ impl Node for NotionNode {
                     _ => Map::new(),
                 };
                 if let Some(title) = title_opt {
-                    if !title.is_empty() && !props_obj.contains_key("title")
+                    if !title.is_empty()
+                        && !props_obj.contains_key("title")
                         && !props_obj.contains_key("Name")
                     {
                         props_obj.insert(
@@ -193,8 +191,11 @@ impl Node for NotionNode {
                 }
 
                 let url = format!("{NOTION_BASE}/pages");
-                send_json(notion_req(ctx, &token, reqwest::Method::POST, &url), &Value::Object(payload))
-                    .await?
+                send_json(
+                    notion_req(ctx, &token, reqwest::Method::POST, &url),
+                    &Value::Object(payload),
+                )
+                .await?
             }
             ("page", "get") => {
                 let page_id = ctx.param_str(params, "pageId")?;
@@ -297,8 +298,7 @@ impl Node for NotionNode {
             }
             ("block", "update") => {
                 let block_id = ctx.param_str(params, "blockId")?;
-                let body =
-                    resolve_json(ctx, params.get("properties")).unwrap_or_else(|| json!({}));
+                let body = resolve_json(ctx, params.get("properties")).unwrap_or_else(|| json!({}));
                 let url = format!("{NOTION_BASE}/blocks/{block_id}");
                 send_json(notion_req(ctx, &token, reqwest::Method::PATCH, &url), &body).await?
             }
@@ -359,10 +359,8 @@ async fn send_no_body(req: RequestBuilder) -> NodeResult<Value> {
 async fn decode(res: reqwest::Response) -> NodeResult<Value> {
     let status = res.status();
     let bytes = res.bytes().await?;
-    let body: Value =
-        serde_json::from_slice(&bytes).unwrap_or_else(|_| {
-            Value::String(String::from_utf8_lossy(&bytes).into_owned())
-        });
+    let body: Value = serde_json::from_slice(&bytes)
+        .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&bytes).into_owned()));
     if !status.is_success() {
         return Err(NodeError::UpstreamError {
             status: status.as_u16(),
@@ -379,7 +377,9 @@ async fn decode(res: reqwest::Response) -> NodeResult<Value> {
 fn substitute_value(ctx: &ExecutionContext, v: Value) -> Value {
     match v {
         Value::String(s) => Value::String(ctx.substitute(&s)),
-        Value::Array(arr) => Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect()),
+        Value::Array(arr) => {
+            Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect())
+        }
         Value::Object(map) => {
             let mut out = Map::new();
             for (k, val) in map {

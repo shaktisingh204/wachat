@@ -73,8 +73,7 @@ impl Node for AnthropicNode {
                 .default(json!(1024)),
             NodeProperty::new("temperature", "Temperature", NodePropertyType::Number)
                 .default(json!(1.0)),
-            NodeProperty::new("topP", "Top P", NodePropertyType::Number)
-                .default(json!(1.0)),
+            NodeProperty::new("topP", "Top P", NodePropertyType::Number).default(json!(1.0)),
         ])
     }
 

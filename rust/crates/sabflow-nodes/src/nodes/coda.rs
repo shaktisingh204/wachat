@@ -1,11 +1,14 @@
+//! Coda node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct CodaNode;
@@ -13,12 +16,7 @@ pub struct CodaNode;
 #[async_trait]
 impl Node for CodaNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "coda",
-            "Coda",
-            "All-in-one doc",
-            NodeCategory::Productivity,
-        )
+        NodeDescriptor::new("coda", "Coda", "All-in-one doc", NodeCategory::Productivity)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for CodaNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for coda
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

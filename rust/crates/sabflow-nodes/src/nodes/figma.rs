@@ -1,11 +1,14 @@
+//! Figma node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct FigmaNode;
@@ -13,12 +16,7 @@ pub struct FigmaNode;
 #[async_trait]
 impl Node for FigmaNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "figma",
-            "Figma",
-            "Design files",
-            NodeCategory::Productivity,
-        )
+        NodeDescriptor::new("figma", "Figma", "Design files", NodeCategory::Productivity)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for FigmaNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for figma
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

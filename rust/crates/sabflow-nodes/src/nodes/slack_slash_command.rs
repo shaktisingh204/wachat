@@ -78,7 +78,10 @@ impl Node for SlackSlashCommandTriggerNode {
             NodeProperty::new("mode", "Source", NodePropertyType::Options)
                 .options(vec![
                     opt("Slash Command", "slashCommand"),
-                    opt("Interactivity (block actions / view submit)", "interactivity"),
+                    opt(
+                        "Interactivity (block actions / view submit)",
+                        "interactivity",
+                    ),
                     opt("Any (auto-detect)", "any"),
                 ])
                 .default(json!("any"))
@@ -92,9 +95,13 @@ impl Node for SlackSlashCommandTriggerNode {
                 .description(
                     "If set, only flows matching this exact command name fire (include the slash).",
                 ),
-            NodeProperty::new("verifySignature", "Verify Signature", NodePropertyType::Boolean)
-                .default(json!(true))
-                .description("Re-verify the X-Slack-Signature header on each delivery."),
+            NodeProperty::new(
+                "verifySignature",
+                "Verify Signature",
+                NodePropertyType::Boolean,
+            )
+            .default(json!(true))
+            .description("Re-verify the X-Slack-Signature header on each delivery."),
         ])
     }
 
@@ -147,7 +154,10 @@ impl Node for SlackSlashCommandTriggerNode {
             "trigger_id",
             "api_app_id",
         ] {
-            out.insert(key.to_string(), raw.get(key).cloned().unwrap_or(Value::Null));
+            out.insert(
+                key.to_string(),
+                raw.get(key).cloned().unwrap_or(Value::Null),
+            );
         }
         // Copy across any extra fields the receiver added that we don't
         // canonicalise above, except the signature-meta blob.

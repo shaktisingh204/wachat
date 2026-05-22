@@ -82,10 +82,9 @@ impl Node for FunctionNode {
         // test surface.
         Err(NodeError::InvalidParameter {
             name: FUNCTION_JS_NOT_YET_SUPPORTED.to_string(),
-            reason:
-                "the SabFlow expression-engine sandbox required for the Function node is not \
+            reason: "the SabFlow expression-engine sandbox required for the Function node is not \
                  wired up yet — track via PLAN-sabflow-coverage.md Phase C.3.2."
-                    .to_string(),
+                .to_string(),
         })
     }
 }
@@ -121,6 +120,9 @@ mod tests {
         let d = FunctionNode.descriptor();
         assert_eq!(d.name, "function");
         assert!(matches!(d.category, NodeCategory::Logic));
-        assert!(!d.stub, "function should be un-stubbed even though execute errors today");
+        assert!(
+            !d.stub,
+            "function should be un-stubbed even though execute errors today"
+        );
     }
 }

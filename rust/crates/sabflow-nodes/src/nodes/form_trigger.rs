@@ -20,7 +20,9 @@ use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -64,29 +66,25 @@ impl Node for FormTriggerNode {
                     "Schema for the rendered form fields. Each entry needs `name`, `label`, \
                      and `type` (`text`, `email`, `number`, `textarea`, `select`, `file`).",
                 ),
-            NodeProperty::new(
-                "responseMode",
-                "Response Mode",
-                NodePropertyType::Options,
-            )
-            .options(vec![
-                NodePropertyOption {
-                    name: "Show Confirmation Message".into(),
-                    value: Value::String("onReceived".into()),
-                    description: None,
-                },
-                NodePropertyOption {
-                    name: "When Last Node Finishes".into(),
-                    value: Value::String("lastNode".into()),
-                    description: None,
-                },
-                NodePropertyOption {
-                    name: "Redirect URL".into(),
-                    value: Value::String("redirect".into()),
-                    description: None,
-                },
-            ])
-            .default(Value::String("onReceived".into())),
+            NodeProperty::new("responseMode", "Response Mode", NodePropertyType::Options)
+                .options(vec![
+                    NodePropertyOption {
+                        name: "Show Confirmation Message".into(),
+                        value: Value::String("onReceived".into()),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "When Last Node Finishes".into(),
+                        value: Value::String("lastNode".into()),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "Redirect URL".into(),
+                        value: Value::String("redirect".into()),
+                        description: None,
+                    },
+                ])
+                .default(Value::String("onReceived".into())),
             NodeProperty::new(
                 "confirmationMessage",
                 "Confirmation Message",
@@ -97,25 +95,29 @@ impl Node for FormTriggerNode {
             NodeProperty::new("redirectUrl", "Redirect URL", NodePropertyType::String)
                 .default(Value::String(String::new()))
                 .show_when("responseMode", &["redirect"]),
-            NodeProperty::new("authentication", "Authentication", NodePropertyType::Options)
-                .options(vec![
-                    NodePropertyOption {
-                        name: "None (Public)".into(),
-                        value: Value::String("none".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Basic Auth".into(),
-                        value: Value::String("basicAuth".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Workspace Members Only".into(),
-                        value: Value::String("workspaceMembers".into()),
-                        description: None,
-                    },
-                ])
-                .default(Value::String("none".into())),
+            NodeProperty::new(
+                "authentication",
+                "Authentication",
+                NodePropertyType::Options,
+            )
+            .options(vec![
+                NodePropertyOption {
+                    name: "None (Public)".into(),
+                    value: Value::String("none".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Basic Auth".into(),
+                    value: Value::String("basicAuth".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Workspace Members Only".into(),
+                    value: Value::String("workspaceMembers".into()),
+                    description: None,
+                },
+            ])
+            .default(Value::String("none".into())),
         ])
     }
 
@@ -126,9 +128,10 @@ impl Node for FormTriggerNode {
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
         // Trigger data shape: { formData: {...}, files: [SabFileRef, ...] }
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({ "formData": {}, "files": [] }))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data
+                .clone()
+                .unwrap_or(json!({ "formData": {}, "files": [] })),
+        ]))
     }
 }

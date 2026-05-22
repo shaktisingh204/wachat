@@ -27,7 +27,9 @@ impl Node for StubNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Err(NodeError::NotImplemented(self.descriptor.display_name.clone()))
+        Err(NodeError::NotImplemented(
+            self.descriptor.display_name.clone(),
+        ))
     }
 }
 

@@ -84,9 +84,8 @@ impl Node for TypeformTriggerNode {
             .unwrap_or_default();
         let secret_trimmed = secret.trim();
         if !secret_trimmed.is_empty() {
-            let header = header_str(&headers, "typeform-signature").ok_or_else(|| {
-                NodeError::AuthError("missing Typeform-Signature header".into())
-            })?;
+            let header = header_str(&headers, "typeform-signature")
+                .ok_or_else(|| NodeError::AuthError("missing Typeform-Signature header".into()))?;
             verify_typeform_signature(secret_trimmed, raw_body.as_bytes(), &header)?;
         }
 
@@ -162,7 +161,11 @@ fn normalize(body: &Value, form_response: &Value) -> Value {
                 .get("field")
                 .and_then(|f| f.get("ref"))
                 .and_then(|v| v.as_str())
-                .or_else(|| ans.get("field").and_then(|f| f.get("id")).and_then(|v| v.as_str()))
+                .or_else(|| {
+                    ans.get("field")
+                        .and_then(|f| f.get("id"))
+                        .and_then(|v| v.as_str())
+                })
                 .unwrap_or("");
             if key.is_empty() {
                 continue;

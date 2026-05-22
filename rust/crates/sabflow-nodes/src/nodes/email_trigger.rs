@@ -60,25 +60,29 @@ impl Node for EmailTriggerNode {
             .description(
                 "How often to poll the mailbox. Backed by Vercel Cron — minimum 1 minute.",
             ),
-            NodeProperty::new("postProcessAction", "Action After Read", NodePropertyType::Options)
-                .options(vec![
-                    NodePropertyOption {
-                        name: "Mark as Read".into(),
-                        value: Value::String("markRead".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Leave Unread".into(),
-                        value: Value::String("leaveUnread".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Delete".into(),
-                        value: Value::String("delete".into()),
-                        description: None,
-                    },
-                ])
-                .default(Value::String("markRead".into())),
+            NodeProperty::new(
+                "postProcessAction",
+                "Action After Read",
+                NodePropertyType::Options,
+            )
+            .options(vec![
+                NodePropertyOption {
+                    name: "Mark as Read".into(),
+                    value: Value::String("markRead".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Leave Unread".into(),
+                    value: Value::String("leaveUnread".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Delete".into(),
+                    value: Value::String("delete".into()),
+                    description: None,
+                },
+            ])
+            .default(Value::String("markRead".into())),
             NodeProperty::new("format", "Output Format", NodePropertyType::Options)
                 .options(vec![
                     NodePropertyOption {

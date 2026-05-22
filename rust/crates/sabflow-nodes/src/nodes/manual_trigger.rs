@@ -12,7 +12,7 @@
 //! Like every trigger, this node has zero inputs and one output port.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},

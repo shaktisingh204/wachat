@@ -34,13 +34,17 @@ impl Node for CronTriggerNode {
         .color("#3b82f6")
         .trigger()
         .properties(vec![
-            NodeProperty::new("cronExpression", "Cron Expression", NodePropertyType::String)
-                .default(Value::String("0 9 * * 1-5".into()))
-                .required()
-                .description(
-                    "Standard 5-field cron expression (min hour day month weekday). \
+            NodeProperty::new(
+                "cronExpression",
+                "Cron Expression",
+                NodePropertyType::String,
+            )
+            .default(Value::String("0 9 * * 1-5".into()))
+            .required()
+            .description(
+                "Standard 5-field cron expression (min hour day month weekday). \
                      Sub-minute granularity is not supported on Vercel Cron.",
-                ),
+            ),
             NodeProperty::new("timezone", "Timezone", NodePropertyType::String)
                 .default(Value::String("UTC".into()))
                 .description("IANA timezone name (e.g. `America/Los_Angeles`)."),
@@ -53,9 +57,10 @@ impl Node for CronTriggerNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({ "timestamp": chrono::Utc::now().to_rfc3339() }))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data
+                .clone()
+                .unwrap_or(json!({ "timestamp": chrono::Utc::now().to_rfc3339() })),
+        ]))
     }
 }

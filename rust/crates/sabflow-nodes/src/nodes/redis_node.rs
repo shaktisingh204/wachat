@@ -96,8 +96,7 @@ impl Node for RedisNode {
                 ])
                 .default(json!("get"))
                 .required(),
-            NodeProperty::new("key", "Key", NodePropertyType::String)
-                .placeholder("user:123"),
+            NodeProperty::new("key", "Key", NodePropertyType::String).placeholder("user:123"),
             NodeProperty::new("value", "Value", NodePropertyType::String)
                 .show_when("operation", &["set", "publish"]),
             NodeProperty::new("ttlSeconds", "TTL (seconds)", NodePropertyType::Number)
@@ -136,16 +135,12 @@ impl Node for RedisNode {
             reason: format!("not a valid u16: {port_str}"),
         })?;
         let password = cred.data.get("password").cloned();
-        let database: Option<u8> = cred
-            .data
-            .get("database")
-            .and_then(|s| s.parse::<u8>().ok());
+        let database: Option<u8> = cred.data.get("database").and_then(|s| s.parse::<u8>().ok());
 
         let url = build_redis_url(&host, port, password.as_deref(), database);
 
-        let config = FredConfig::from_url(&url).map_err(|e| {
-            NodeError::DatabaseError(format!("redis url `{url}` invalid: {e}"))
-        })?;
+        let config = FredConfig::from_url(&url)
+            .map_err(|e| NodeError::DatabaseError(format!("redis url `{url}` invalid: {e}")))?;
 
         let client = Client::new(config, None, None, None);
         client
@@ -185,9 +180,7 @@ async fn run_operation(
             let key = ctx.param_str(params, "key")?;
             let value = ctx.param_str(params, "value")?;
             let ttl = ctx.param_f64(params, "ttlSeconds").map(|n| n as i64);
-            let expiration = ttl
-                .filter(|n| *n > 0)
-                .map(|n| Expiration::EX(n));
+            let expiration = ttl.filter(|n| *n > 0).map(|n| Expiration::EX(n));
             let _: RedisValue = client
                 .set(&key, value.as_str(), expiration, None, false)
                 .await
@@ -289,12 +282,7 @@ async fn run_operation(
 }
 
 /// Build a `redis://[:password@]host:port[/db]` URL from credential parts.
-fn build_redis_url(
-    host: &str,
-    port: u16,
-    password: Option<&str>,
-    database: Option<u8>,
-) -> String {
+fn build_redis_url(host: &str, port: u16, password: Option<&str>, database: Option<u8>) -> String {
     let mut url = String::from("redis://");
     if let Some(pw) = password.filter(|p| !p.is_empty()) {
         url.push(':');

@@ -40,11 +40,13 @@
 //!   should branch on.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
-    context::{value_at_path, value_to_string, ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    context::{ExecutionContext, NodeInput, NodeOutput, value_at_path, value_to_string},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -116,8 +118,7 @@ impl Node for CodeNode {
                         name: "Run Once for Each Item".into(),
                         value: json!("runOnceForEachItem"),
                         description: Some(
-                            "Evaluate once per input item. Emits one output item per input."
-                                .into(),
+                            "Evaluate once per input item. Emits one output item per input.".into(),
                         ),
                     },
                 ])
@@ -145,12 +146,16 @@ impl Node for CodeNode {
                      {{ varName }} for flow variables. The rendered result is parsed \
                      as JSON when possible, otherwise wrapped as { \"value\": \"...\" }.",
                 ),
-            NodeProperty::new("continueOnFail", "Continue on Fail", NodePropertyType::Boolean)
-                .default(json!(false))
-                .description(
-                    "When enabled, per-item evaluation failures emit { error: \"...\" } \
+            NodeProperty::new(
+                "continueOnFail",
+                "Continue on Fail",
+                NodePropertyType::Boolean,
+            )
+            .default(json!(false))
+            .description(
+                "When enabled, per-item evaluation failures emit { error: \"...\" } \
                      items rather than aborting the workflow.",
-                ),
+            ),
         ])
     }
 

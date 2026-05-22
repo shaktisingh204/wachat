@@ -12,7 +12,7 @@
 //! token via the OAuth2 token endpoint, persist the rotated token, and retry.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
@@ -237,11 +237,7 @@ impl Node for GoogleSheetsNode {
             }
             ("spreadsheet", "get") => {
                 let spreadsheet_id = ctx.param_str(params, "spreadsheetId")?;
-                let url = format!(
-                    "{}/spreadsheets/{}",
-                    BASE_URL,
-                    urlencode(&spreadsheet_id),
-                );
+                let url = format!("{}/spreadsheets/{}", BASE_URL, urlencode(&spreadsheet_id),);
                 let res = ctx.http.get(&url).bearer_auth(&token).send().await?;
                 emit(res).await
             }
@@ -308,11 +304,7 @@ fn urlencode(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for b in s.as_bytes() {
         let c = *b;
-        let safe = c.is_ascii_alphanumeric()
-            || c == b'-'
-            || c == b'_'
-            || c == b'.'
-            || c == b'~';
+        let safe = c.is_ascii_alphanumeric() || c == b'-' || c == b'_' || c == b'.' || c == b'~';
         if safe {
             out.push(c as char);
         } else {

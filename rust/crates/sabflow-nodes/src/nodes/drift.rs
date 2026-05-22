@@ -1,11 +1,14 @@
+//! Drift node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct DriftNode;
@@ -27,7 +30,8 @@ impl Node for DriftNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for drift
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

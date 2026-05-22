@@ -1,11 +1,14 @@
+//! QuickBooks node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct QuickBooksNode;
@@ -27,7 +30,8 @@ impl Node for QuickBooksNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for quickBooks
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

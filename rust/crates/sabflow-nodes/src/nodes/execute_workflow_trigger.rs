@@ -16,7 +16,7 @@
 //! item so the "Test step" UX still surfaces a single tick.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
@@ -52,14 +52,18 @@ impl Node for ExecuteWorkflowTriggerNode {
                      `passthrough` (default) exposes every parent field as `$json.<name>`.",
                 )
                 .placeholder("passthrough"),
-            NodeProperty::new("expectedInputs", "Expected Inputs", NodePropertyType::String)
-                .default(Value::String(String::new()))
-                .description(
-                    "Comma-separated list of input field names this sub-workflow expects. \
+            NodeProperty::new(
+                "expectedInputs",
+                "Expected Inputs",
+                NodePropertyType::String,
+            )
+            .default(Value::String(String::new()))
+            .description(
+                "Comma-separated list of input field names this sub-workflow expects. \
                      Editor-only hint — surfaced in the docs sidebar of the parent's \
                      Execute Workflow node.",
-                )
-                .placeholder("orderId, customerEmail"),
+            )
+            .placeholder("orderId, customerEmail"),
         ])
     }
 

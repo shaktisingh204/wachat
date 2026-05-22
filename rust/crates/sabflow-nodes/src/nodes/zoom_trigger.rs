@@ -27,7 +27,9 @@ use sha2::Sha256;
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -133,11 +135,9 @@ impl Node for ZoomTriggerNode {
                 .get("payload")
                 .and_then(|p| p.get("plainToken"))
                 .and_then(|v| v.as_str())
-                .ok_or_else(|| {
-                    NodeError::InvalidParameter {
-                        name: "payload.plainToken".into(),
-                        reason: "missing in url_validation payload".into(),
-                    }
+                .ok_or_else(|| NodeError::InvalidParameter {
+                    name: "payload.plainToken".into(),
+                    reason: "missing in url_validation payload".into(),
                 })?;
             let encrypted = hex_hmac_sha256(secret_trimmed.as_bytes(), plain_token.as_bytes())?;
             return Ok(NodeOutput::single(vec![json!({
@@ -152,9 +152,8 @@ impl Node for ZoomTriggerNode {
 
         // --- Signature verification --------------------------------------
         if !secret_trimmed.is_empty() {
-            let sig = header_str(&headers, "x-zm-signature").ok_or_else(|| {
-                NodeError::AuthError("missing x-zm-signature header".into())
-            })?;
+            let sig = header_str(&headers, "x-zm-signature")
+                .ok_or_else(|| NodeError::AuthError("missing x-zm-signature header".into()))?;
             let ts = header_str(&headers, "x-zm-request-timestamp").ok_or_else(|| {
                 NodeError::AuthError("missing x-zm-request-timestamp header".into())
             })?;
@@ -202,9 +201,9 @@ fn verify_zoom_signature(
     })?;
 
     if tolerance_seconds > 0 {
-        let ts: i64 = timestamp.parse().map_err(|_| {
-            NodeError::AuthError("invalid x-zm-request-timestamp value".into())
-        })?;
+        let ts: i64 = timestamp
+            .parse()
+            .map_err(|_| NodeError::AuthError("invalid x-zm-request-timestamp value".into()))?;
         let now = chrono::Utc::now().timestamp();
         if (now - ts).abs() > tolerance_seconds {
             return Err(NodeError::AuthError(

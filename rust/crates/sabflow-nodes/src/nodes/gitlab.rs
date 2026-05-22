@@ -28,11 +28,8 @@ fn percent_encode_segment(input: &str) -> String {
     let mut out = String::with_capacity(input.len());
     for b in input.as_bytes() {
         let c = *b;
-        let unreserved = c.is_ascii_alphanumeric()
-            || c == b'-'
-            || c == b'.'
-            || c == b'_'
-            || c == b'~';
+        let unreserved =
+            c.is_ascii_alphanumeric() || c == b'-' || c == b'.' || c == b'_' || c == b'~';
         if unreserved {
             out.push(c as char);
         } else {

@@ -5,11 +5,11 @@
 //! has neither `proptest` nor `quickcheck`, the property-style tests are
 //! lowered into deterministic table tests (per the C.2.6 sub-task spec).
 
-use sabflow_nodes::{
-    PairOptions, PairedItem, PairedRow, PairingMode, attach_paired_item, error_item,
-    for_each_item, merge_branches, pair_items, paired_rows_to_items,
-};
 use sabflow_nodes::{NodeError, NodeResult};
+use sabflow_nodes::{
+    PairOptions, PairedItem, PairedRow, PairingMode, attach_paired_item, error_item, for_each_item,
+    merge_branches, pair_items, paired_rows_to_items,
+};
 use serde_json::{Value, json};
 
 // ---------------------------------------------------------------------------
@@ -155,9 +155,15 @@ fn pair_items_merge_by_key_left_join_semantics() {
     );
     assert_eq!(rows.len(), 3);
     // Alice matches.
-    assert_eq!(rows[0].right.as_ref().unwrap(), &json!({"id": "a", "score": 10}));
+    assert_eq!(
+        rows[0].right.as_ref().unwrap(),
+        &json!({"id": "a", "score": 10})
+    );
     // Bob matches.
-    assert_eq!(rows[1].right.as_ref().unwrap(), &json!({"id": "b", "score": 20}));
+    assert_eq!(
+        rows[1].right.as_ref().unwrap(),
+        &json!({"id": "b", "score": 20})
+    );
     // Carol has no match — left join keeps her with right=None.
     assert!(rows[2].right.is_none());
 }
@@ -254,9 +260,18 @@ fn merge_branches_rewrites_pairedItem_input_to_branch_index() {
         vec![json!({"v": "a0"}), json!({"v": "a1"})],
         vec![json!({"v": "b0"})],
     ]);
-    assert_eq!(out[0].get("pairedItem").unwrap(), &json!({"item": 0, "input": 0}));
-    assert_eq!(out[1].get("pairedItem").unwrap(), &json!({"item": 1, "input": 0}));
-    assert_eq!(out[2].get("pairedItem").unwrap(), &json!({"item": 0, "input": 1}));
+    assert_eq!(
+        out[0].get("pairedItem").unwrap(),
+        &json!({"item": 0, "input": 0})
+    );
+    assert_eq!(
+        out[1].get("pairedItem").unwrap(),
+        &json!({"item": 1, "input": 0})
+    );
+    assert_eq!(
+        out[2].get("pairedItem").unwrap(),
+        &json!({"item": 0, "input": 1})
+    );
 }
 
 #[test]
@@ -264,12 +279,14 @@ fn merge_branches_preserves_existing_item_index() {
     // If upstream already stamped an item index (e.g. from a previous merge
     // chain), we keep it so the lineage stays deep.
     let mut item = json!({"v": "x"});
-    item.as_object_mut().unwrap().insert(
-        "pairedItem".to_string(),
-        json!({"item": 7, "input": 0}),
-    );
+    item.as_object_mut()
+        .unwrap()
+        .insert("pairedItem".to_string(), json!({"item": 7, "input": 0}));
     let out = merge_branches(vec![vec![item]]);
-    assert_eq!(out[0].get("pairedItem").unwrap(), &json!({"item": 7, "input": 0}));
+    assert_eq!(
+        out[0].get("pairedItem").unwrap(),
+        &json!({"item": 7, "input": 0})
+    );
 }
 
 #[test]
@@ -296,9 +313,7 @@ fn merge_branches_table_sweep_total_count_matches_sum_of_branch_sizes() {
         let branches: Vec<Vec<Value>> = case
             .iter()
             .enumerate()
-            .map(|(b, &n)| {
-                (0..n).map(|i| json!({"b": b, "i": i})).collect::<Vec<_>>()
-            })
+            .map(|(b, &n)| (0..n).map(|i| json!({"b": b, "i": i})).collect::<Vec<_>>())
             .collect();
         let total: usize = case.iter().sum();
         let out = merge_branches(branches);
@@ -308,7 +323,11 @@ fn merge_branches_table_sweep_total_count_matches_sum_of_branch_sizes() {
             let p = v.get("pairedItem").unwrap();
             let b = p.get("input").unwrap().as_u64().unwrap();
             let i = p.get("item").unwrap().as_u64().unwrap();
-            assert!(seen.insert((b, i)), "duplicate ({b}, {i}) for case {:?}", case);
+            assert!(
+                seen.insert((b, i)),
+                "duplicate ({b}, {i}) for case {:?}",
+                case
+            );
         }
     }
 }
@@ -343,6 +362,13 @@ fn attach_paired_item_emits_full_form_for_nonzero_branch() {
 fn error_item_carries_message_and_paired_item() {
     let e = NodeError::Other("boom".into());
     let sentinel = error_item(&e, Some(PairedItem::new(7)));
-    assert!(sentinel.get("error").unwrap().as_str().unwrap().contains("boom"));
+    assert!(
+        sentinel
+            .get("error")
+            .unwrap()
+            .as_str()
+            .unwrap()
+            .contains("boom")
+    );
     assert_eq!(sentinel.get("pairedItem").unwrap(), &json!({"item": 7}));
 }

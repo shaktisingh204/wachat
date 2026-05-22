@@ -23,7 +23,9 @@ use sha2::Sha256;
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -154,9 +156,8 @@ fn verify_calendly_signature(
             v1 = Some(rest);
         }
     }
-    let t = t.ok_or_else(|| {
-        NodeError::AuthError("missing `t=` in Calendly-Webhook-Signature".into())
-    })?;
+    let t =
+        t.ok_or_else(|| NodeError::AuthError("missing `t=` in Calendly-Webhook-Signature".into()))?;
     let v1 = v1.ok_or_else(|| {
         NodeError::AuthError("missing `v1=` in Calendly-Webhook-Signature".into())
     })?;

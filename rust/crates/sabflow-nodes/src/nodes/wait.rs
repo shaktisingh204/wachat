@@ -24,11 +24,13 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use chrono::{DateTime, Utc};
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput, WaitMode},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -62,9 +64,7 @@ impl Node for WaitNode {
                         NodePropertyOption {
                             name: "At Specified Time".into(),
                             value: json!("dateTime"),
-                            description: Some(
-                                "Pause until a specific ISO-8601 datetime".into(),
-                            ),
+                            description: Some("Pause until a specific ISO-8601 datetime".into()),
                         },
                         NodePropertyOption {
                             name: "On Webhook Call".into(),
@@ -108,26 +108,30 @@ impl Node for WaitNode {
                     .placeholder("2026-01-01T09:00:00Z")
                     .show_when("resume", &["dateTime"])
                     .description("ISO-8601 instant at which the flow resumes."),
-                NodeProperty::new("httpMethod", "Webhook HTTP Method", NodePropertyType::Options)
-                    .options(vec![
-                        NodePropertyOption {
-                            name: "GET".into(),
-                            value: json!("GET"),
-                            description: None,
-                        },
-                        NodePropertyOption {
-                            name: "POST".into(),
-                            value: json!("POST"),
-                            description: None,
-                        },
-                        NodePropertyOption {
-                            name: "ANY".into(),
-                            value: json!("ANY"),
-                            description: None,
-                        },
-                    ])
-                    .default(json!("GET"))
-                    .show_when("resume", &["webhook"]),
+                NodeProperty::new(
+                    "httpMethod",
+                    "Webhook HTTP Method",
+                    NodePropertyType::Options,
+                )
+                .options(vec![
+                    NodePropertyOption {
+                        name: "GET".into(),
+                        value: json!("GET"),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "POST".into(),
+                        value: json!("POST"),
+                        description: None,
+                    },
+                    NodePropertyOption {
+                        name: "ANY".into(),
+                        value: json!("ANY"),
+                        description: None,
+                    },
+                ])
+                .default(json!("GET"))
+                .show_when("resume", &["webhook"]),
                 NodeProperty::new("path", "Webhook Path Hint", NodePropertyType::String)
                     .placeholder("approve-order")
                     .show_when("resume", &["webhook"])
@@ -346,7 +350,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "interval", "amount": 0, "unit": "seconds" });
-        let out = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap();
+        let out = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap();
         assert_eq!(out.branches.len(), 1);
     }
 
@@ -355,7 +362,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "interval", "amount": -1, "unit": "seconds" });
-        let err = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap_err();
+        let err = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap_err();
         match err {
             NodeError::InvalidParameter { name, .. } => assert_eq!(name, "amount"),
             other => panic!("expected InvalidParameter, got: {other:?}"),
@@ -367,7 +377,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "dateTime", "dateTime": "2000-01-01T00:00:00Z" });
-        let out = node.execute(&mut c, NodeInput::one(json!({"x": 1})), &params).await.unwrap();
+        let out = node
+            .execute(&mut c, NodeInput::one(json!({"x": 1})), &params)
+            .await
+            .unwrap();
         assert_eq!(out.branches[0].items.len(), 1);
         assert_eq!(out.branches[0].items[0]["x"], 1);
     }
@@ -377,7 +390,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "dateTime", "dateTime": "not-a-date" });
-        let err = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap_err();
+        let err = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap_err();
         match err {
             NodeError::InvalidParameter { name, .. } => assert_eq!(name, "dateTime"),
             other => panic!("expected InvalidParameter, got: {other:?}"),
@@ -389,7 +405,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "webhook", "httpMethod": "POST" });
-        let out = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap();
+        let out = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap();
         let item = &out.branches[0].items[0];
         assert_eq!(item["__wait__"], true);
         assert_eq!(item["mode"], "webhook");
@@ -402,7 +421,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "interval", "amount": 1, "unit": "fortnights" });
-        let err = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap_err();
+        let err = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap_err();
         match err {
             NodeError::InvalidParameter { name, .. } => assert_eq!(name, "unit"),
             other => panic!("expected InvalidParameter, got: {other:?}"),
@@ -414,7 +436,10 @@ mod tests {
         let node = WaitNode;
         let mut c = ctx();
         let params = json!({ "resume": "telepathy" });
-        let err = node.execute(&mut c, NodeInput::empty(), &params).await.unwrap_err();
+        let err = node
+            .execute(&mut c, NodeInput::empty(), &params)
+            .await
+            .unwrap_err();
         match err {
             NodeError::InvalidParameter { name, .. } => assert_eq!(name, "resume"),
             other => panic!("expected InvalidParameter, got: {other:?}"),

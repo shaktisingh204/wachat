@@ -28,7 +28,9 @@ use serde_json::{Map, Value};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
     nodes::set::assign_at_path,
@@ -58,16 +60,21 @@ impl Node for EditFieldsNode {
 
         let mut assignments_prop =
             NodeProperty::new("fields", "Fields to Set", NodePropertyType::Collection)
-                .description("Each entry assigns `name = coerce(value, type)` onto the output item.")
+                .description(
+                    "Each entry assigns `name = coerce(value, type)` onto the output item.",
+                )
                 .show_when("mode", &["manual"]);
         assignments_prop.children = assignment_children;
 
-        let mut options_prop = NodeProperty::new("options", "Options", NodePropertyType::Collection)
-            .description("Behaviour switches: `keepOnlySet` and `dotNotation`.");
+        let mut options_prop =
+            NodeProperty::new("options", "Options", NodePropertyType::Collection)
+                .description("Behaviour switches: `keepOnlySet` and `dotNotation`.");
         options_prop.children = vec![
             NodeProperty::new("keepOnlySet", "Keep Only Set", NodePropertyType::Boolean)
                 .default(Value::Bool(false))
-                .description("If true, drop all incoming JSON keys and emit only the declared fields."),
+                .description(
+                    "If true, drop all incoming JSON keys and emit only the declared fields.",
+                ),
             NodeProperty::new("dotNotation", "Dot Notation", NodePropertyType::Boolean)
                 .default(Value::Bool(true))
                 .description("When true, dotted names create nested objects."),
@@ -87,9 +94,7 @@ impl Node for EditFieldsNode {
                     NodePropertyOption {
                         name: "Manual Mapping".into(),
                         value: Value::String("manual".into()),
-                        description: Some(
-                            "Declare each output field — name, type, value.".into(),
-                        ),
+                        description: Some("Declare each output field — name, type, value.".into()),
                     },
                     NodePropertyOption {
                         name: "JSON Output".into(),
@@ -209,12 +214,11 @@ fn execute_raw(
     // Substitute expressions once — raw mode treats the literal as a single
     // template, not per-item (n8n parity: no $json in the raw template).
     let substituted = ctx.substitute(&template);
-    let parsed: Value = serde_json::from_str(&substituted).map_err(|e| {
-        NodeError::InvalidParameter {
+    let parsed: Value =
+        serde_json::from_str(&substituted).map_err(|e| NodeError::InvalidParameter {
             name: "jsonOutput".into(),
             reason: format!("not valid JSON after substitution: {e}"),
-        }
-    })?;
+        })?;
 
     let out_items: Vec<Value> = items.into_iter().map(|_| parsed.clone()).collect();
     Ok(NodeOutput::single(out_items))
@@ -284,9 +288,7 @@ fn coerce(
         "boolean" => match rendered {
             Value::Bool(_) => Ok(rendered),
             Value::String(s) => parse_bool(&s, field_name, item_index),
-            Value::Number(n) => Ok(Value::Bool(
-                n.as_f64().map(|x| x != 0.0).unwrap_or(false),
-            )),
+            Value::Number(n) => Ok(Value::Bool(n.as_f64().map(|x| x != 0.0).unwrap_or(false))),
             Value::Null => Ok(Value::Bool(false)),
             other => Err(coerce_err(
                 field_name,

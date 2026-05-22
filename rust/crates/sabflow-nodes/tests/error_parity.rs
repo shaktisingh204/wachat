@@ -6,10 +6,10 @@
 //! two implementations breaks here, not in production.
 
 use sabflow_nodes::errors::{
-    codes, CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode,
-    NodeOperationReason, WireError, WorkflowFaultKind,
+    CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode, NodeOperationReason,
+    WireError, WorkflowFaultKind, codes,
 };
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 /// Helper: serialise to a `serde_json::Value` so we can assert on the
 /// JSON shape without worrying about key ordering.
@@ -72,8 +72,7 @@ fn node_api_error_5xx_round_trip() {
     );
 
     // Round-trip back through from_wire.
-    let wire: WireError =
-        serde_json::from_value(v).expect("wire must deserialise");
+    let wire: WireError = serde_json::from_value(v).expect("wire must deserialise");
     let back = ExecutorError::from_wire(&wire);
     assert_eq!(back.code(), ExecutorErrorCode::NodeApi);
     assert!(back.is_retryable());
@@ -166,10 +165,7 @@ fn workflow_operation_error_round_trip() {
         details.get("reason").and_then(Value::as_str),
         Some("canceled")
     );
-    assert_eq!(
-        details.get("blocking").and_then(Value::as_bool),
-        Some(true)
-    );
+    assert_eq!(details.get("blocking").and_then(Value::as_bool), Some(true));
     assert_eq!(
         details.get("code").and_then(Value::as_str),
         Some(codes::WF_OP_CANCELED)
@@ -218,16 +214,8 @@ fn expression_error_round_trip() {
 #[test]
 fn credentials_error_all_failures_round_trip() {
     let cases = [
-        (
-            CredentialFailure::Missing,
-            codes::CRED_MISSING,
-            "missing",
-        ),
-        (
-            CredentialFailure::Denied,
-            codes::CRED_DENIED,
-            "invalid",
-        ),
+        (CredentialFailure::Missing, codes::CRED_MISSING, "missing"),
+        (CredentialFailure::Denied, codes::CRED_DENIED, "invalid"),
         (
             CredentialFailure::DecryptFailed,
             codes::CRED_DECRYPT_FAILED,
@@ -312,7 +300,10 @@ fn resource_limit_transient_vs_permanent() {
     let v = to_value(&transient);
     assert_top_level(&v, "RESOURCE_LIMIT", true);
     let details = v.get("details").expect("details");
-    assert_eq!(details.get("kind").and_then(Value::as_str), Some("transient"));
+    assert_eq!(
+        details.get("kind").and_then(Value::as_str),
+        Some("transient")
+    );
 
     let permanent = ExecutorError::ResourceLimit {
         message: "plan quota".into(),
@@ -362,7 +353,10 @@ fn subworkflow_defers_retryability_to_inner() {
         Some("wf-sub")
     );
     let inner_v = details.get("innerError").expect("innerError");
-    assert_eq!(inner_v.get("code").and_then(Value::as_str), Some("NODE_API"));
+    assert_eq!(
+        inner_v.get("code").and_then(Value::as_str),
+        Some("NODE_API")
+    );
 
     let wire: WireError = serde_json::from_value(v).unwrap();
     let back = ExecutorError::from_wire(&wire);
@@ -377,7 +371,10 @@ fn continue_on_fail_marker_round_trip() {
     let v = to_value(&marker);
     assert_top_level(&v, "CONTINUE_ON_FAIL", false);
     let details = v.get("details").expect("details");
-    assert_eq!(details.get("nodeId").and_then(Value::as_str), Some("http-1"));
+    assert_eq!(
+        details.get("nodeId").and_then(Value::as_str),
+        Some("http-1")
+    );
     assert!(details.get("wrapped").is_some());
     assert_eq!(
         details.get("code").and_then(Value::as_str),

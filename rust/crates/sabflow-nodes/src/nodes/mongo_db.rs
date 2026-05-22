@@ -145,7 +145,10 @@ impl Node for MongoDbNode {
         match operation.as_str() {
             "find" => {
                 let filter = read_doc(ctx, params, "query")?;
-                let limit = ctx.param_f64(params, "limit").map(|n| n as i64).unwrap_or(100);
+                let limit = ctx
+                    .param_f64(params, "limit")
+                    .map(|n| n as i64)
+                    .unwrap_or(100);
                 let mut cursor = coll
                     .find(filter)
                     .limit(limit)
@@ -175,9 +178,8 @@ impl Node for MongoDbNode {
                 }
                 let mut bson_docs: Vec<Document> = Vec::with_capacity(docs.len());
                 for d in &docs {
-                    let bson = bson::to_bson(d).map_err(|e| {
-                        NodeError::SerializationError(format!("doc → bson: {e}"))
-                    })?;
+                    let bson = bson::to_bson(d)
+                        .map_err(|e| NodeError::SerializationError(format!("doc → bson: {e}")))?;
                     match bson {
                         Bson::Document(doc) => bson_docs.push(doc),
                         _ => {
@@ -250,9 +252,8 @@ impl Node for MongoDbNode {
                 };
                 let mut docs: Vec<Document> = Vec::with_capacity(stages.len());
                 for stage in &stages {
-                    let bson = bson::to_bson(stage).map_err(|e| {
-                        NodeError::SerializationError(format!("stage → bson: {e}"))
-                    })?;
+                    let bson = bson::to_bson(stage)
+                        .map_err(|e| NodeError::SerializationError(format!("stage → bson: {e}")))?;
                     match bson {
                         Bson::Document(d) => docs.push(d),
                         _ => {
@@ -344,8 +345,7 @@ fn read_json_value(ctx: &ExecutionContext, params: &Value, key: &str) -> NodeRes
 /// so extended-JSON types (`ObjectId`, `DateTime`, etc.) serialize through
 /// `bson`'s built-in `Serialize` impl.
 fn bson_to_json(b: Bson) -> NodeResult<Value> {
-    serde_json::to_value(b)
-        .map_err(|e| NodeError::SerializationError(format!("bson → json: {e}")))
+    serde_json::to_value(b).map_err(|e| NodeError::SerializationError(format!("bson → json: {e}")))
 }
 
 fn type_of_json(v: &Value) -> &'static str {

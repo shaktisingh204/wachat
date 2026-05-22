@@ -4,10 +4,10 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
+    NodeInput, NodeOutput, NodeResult,
     context::ExecutionContext,
     descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct NoOpNode;
@@ -15,7 +15,12 @@ pub struct NoOpNode;
 #[async_trait]
 impl Node for NoOpNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new("noOp", "No Operation", "Pass items through unchanged", NodeCategory::Logic)
+        NodeDescriptor::new(
+            "noOp",
+            "No Operation",
+            "Pass items through unchanged",
+            NodeCategory::Logic,
+        )
     }
 
     async fn execute(

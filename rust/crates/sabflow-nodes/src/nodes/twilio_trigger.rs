@@ -89,12 +89,16 @@ impl Node for TwilioTriggerNode {
                     "Optional E.164 number to bind the webhook to. Leave blank to attach to \
                      every number on the account.",
                 ),
-            NodeProperty::new("validateSignature", "Validate Signature", NodePropertyType::Boolean)
-                .default(json!(true))
-                .description(
-                    "Reject inbound requests whose `X-Twilio-Signature` does not match the \
+            NodeProperty::new(
+                "validateSignature",
+                "Validate Signature",
+                NodePropertyType::Boolean,
+            )
+            .default(json!(true))
+            .description(
+                "Reject inbound requests whose `X-Twilio-Signature` does not match the \
                      credential's authToken. Recommended.",
-                ),
+            ),
             NodeProperty::new("path", "Webhook Path", NodePropertyType::String)
                 .default(Value::String(String::new()))
                 .description(
@@ -110,9 +114,8 @@ impl Node for TwilioTriggerNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({}))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data.clone().unwrap_or(json!({})),
+        ]))
     }
 }

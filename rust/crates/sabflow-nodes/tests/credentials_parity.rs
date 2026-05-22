@@ -28,13 +28,13 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use base64::Engine;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 use wiremock::matchers::{header, method as wm_method, path as wm_path};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 use sabflow_nodes::{
-    test_support::CredentialsMock, CredentialBinding, ExecutionContext, NodeCategory, NodeDescriptor,
-    NodeError, NodeProperty, NodePropertyType, NodeResult,
+    CredentialBinding, ExecutionContext, NodeCategory, NodeDescriptor, NodeError, NodeProperty,
+    NodePropertyType, NodeResult, test_support::CredentialsMock,
 };
 // Re-exported via `lib.rs`.
 use sabflow_nodes::{Credential, Node, NodeInput, NodeOutput};
@@ -87,12 +87,7 @@ impl Node for FakeBasicAuthHttpNode {
         let password = cred.data.get("password").cloned();
 
         let url = ctx.param_str(params, "url")?;
-        let res = ctx
-            .http
-            .get(&url)
-            .basic_auth(user, password)
-            .send()
-            .await?;
+        let res = ctx.http.get(&url).basic_auth(user, password).send().await?;
 
         let status = res.status().as_u16();
         let body = res.text().await.unwrap_or_default();
@@ -119,7 +114,10 @@ async fn basic_auth_credential_drives_authorization_header() {
     // Sanity: the record exposes plaintext for assertions.
     let rec = store.get_by_id("basic-cred-1").expect("record");
     assert_eq!(rec.credential_type, "httpBasicAuth");
-    assert_eq!(rec.plaintext(), &json!({ "user": "alice", "password": "x" }));
+    assert_eq!(
+        rec.plaintext(),
+        &json!({ "user": "alice", "password": "x" })
+    );
     assert_eq!(rec.envelope.kek_id, "test");
 
     // Wire-format check: the persisted envelope round-trips through
@@ -165,7 +163,10 @@ async fn basic_auth_credential_drives_authorization_header() {
     assert_eq!(out.branches.len(), 1);
     let items = &out.branches[0].items;
     assert_eq!(items.len(), 1);
-    assert_eq!(items[0].get("statusCode").and_then(|v| v.as_u64()), Some(200));
+    assert_eq!(
+        items[0].get("statusCode").and_then(|v| v.as_u64()),
+        Some(200)
+    );
     assert_eq!(items[0].get("body").and_then(|v| v.as_str()), Some("ok"));
 
     // The wiremock `.expect(1)` above panics on drop if it didn't see
@@ -217,5 +218,8 @@ async fn default_credential_lookup_returns_first_of_type() {
         .expect("default httpBasicAuth must resolve");
     assert_eq!(default.name, "First");
     assert_eq!(default.id, "cred_0");
-    assert_eq!(default.plaintext().get("user").and_then(|v| v.as_str()), Some("first"));
+    assert_eq!(
+        default.plaintext().get("user").and_then(|v| v.as_str()),
+        Some("first")
+    );
 }

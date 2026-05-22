@@ -24,29 +24,29 @@ pub mod nodes;
 pub mod registry;
 
 pub use binary::{
-    default_binary_store, set_default_binary_store, BinaryDataRef, BinaryFetchContext,
-    BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
+    BinaryDataRef, BinaryFetchContext, BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
+    default_binary_store, set_default_binary_store,
 };
 pub use context::{
     Credential, ExecutionContext, NodeContext, NodeInput, NodeMetrics, NodeOutput, SubFlowInvoker,
     WaitMode, WaitRegistration, WaitResumer,
 };
-pub use continue_on_fail::{error_sentinel, try_with_continue_on_fail, ItemResult};
+pub use continue_on_fail::{ItemResult, error_sentinel, try_with_continue_on_fail};
 pub use descriptor::{
     CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption,
     NodePropertyType,
 };
 pub use error::{NodeError, NodeResult};
 pub use errors::{
-    codes, CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode, NodeOperationReason,
-    WireError, WorkflowFaultKind,
+    CredentialFailure, ErrorContext, ExecutorError, ExecutorErrorCode, NodeOperationReason,
+    WireError, WorkflowFaultKind, codes,
 };
 pub use item_helpers::{
-    attach_paired_item, error_item, for_each_item, for_each_item_async, merge_branches,
-    pair_items, paired_rows_to_items, PairOptions, PairedItem, PairedRow, PairingMode,
+    PairOptions, PairedItem, PairedRow, PairingMode, attach_paired_item, error_item, for_each_item,
+    for_each_item_async, merge_branches, pair_items, paired_rows_to_items,
 };
 pub use node::Node;
-pub use registry::{default_registry, NodeRegistry};
+pub use registry::{NodeRegistry, default_registry};
 
 /// Author-facing attribute macro `#[node(...)]`. Generates the
 /// `impl sabflow_nodes::Node for ...` block so a typical node file shrinks

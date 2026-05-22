@@ -96,7 +96,10 @@ impl Node for SendGridNode {
             NodeProperty::new("subject", "Subject", NodePropertyType::String)
                 .show_when("operation", &["send"]),
             NodeProperty::new("contentType", "Content Type", NodePropertyType::Options)
-                .options(vec![opt("HTML", "text/html"), opt("Plain Text", "text/plain")])
+                .options(vec![
+                    opt("HTML", "text/html"),
+                    opt("Plain Text", "text/plain"),
+                ])
                 .default(json!("text/html"))
                 .show_when("operation", &["send"]),
             NodeProperty::new("content", "Content", NodePropertyType::String)
@@ -111,7 +114,9 @@ impl Node for SendGridNode {
                 .show_when("operation", &["addOrUpdate"]),
             NodeProperty::new("contactId", "Contact ID", NodePropertyType::String)
                 .show_when("operation", &["get", "delete"])
-                .description("SendGrid contact id (resolved by get/delete on the contact resource)"),
+                .description(
+                    "SendGrid contact id (resolved by get/delete on the contact resource)",
+                ),
             // list fields
             NodeProperty::new("listName", "List Name", NodePropertyType::String)
                 .show_when("operation", &["create"]),
@@ -168,14 +173,7 @@ impl Node for SendGridNode {
                         "value": content,
                     }],
                 });
-                send_request(
-                    ctx,
-                    &api_key,
-                    Method::Post,
-                    "/mail/send",
-                    Some(payload),
-                )
-                .await?
+                send_request(ctx, &api_key, Method::Post, "/mail/send", Some(payload)).await?
             }
             // ----- Contacts -----
             ("contact", "addOrUpdate") => {

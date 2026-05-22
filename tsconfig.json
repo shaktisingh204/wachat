@@ -84,6 +84,12 @@
     "n8n-master",
     "typebot.io-main",
     ".claude/worktrees",
-    "src/lib/sabflow/n8n/core"
+    "src/lib/sabflow/n8n/core",
+    "sdks",
+    "crates",
+    "rust",
+    "benches",
+    "packages",
+    "services"
   ]
 }

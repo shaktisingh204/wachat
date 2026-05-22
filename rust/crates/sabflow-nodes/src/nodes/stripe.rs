@@ -137,7 +137,9 @@ impl Node for StripeNode {
                 .placeholder("e.g. cus_..., ch_..., sub_...")
                 .show_when(
                     "operation",
-                    &["get", "update", "delete", "cancel", "capture", "send", "pay", "void"],
+                    &[
+                        "get", "update", "delete", "cancel", "capture", "send", "pay", "void",
+                    ],
                 ),
             // ----- create fields -----
             NodeProperty::new("email", "Email", NodePropertyType::String)

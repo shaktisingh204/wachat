@@ -105,10 +105,7 @@ impl Node for BoxNode {
                 .required(),
             NodeProperty::new("fileId", "File ID", NodePropertyType::String)
                 .placeholder("123456789")
-                .show_when(
-                    "operation",
-                    &["getFile", "deleteFile", "createSharedLink"],
-                )
+                .show_when("operation", &["getFile", "deleteFile", "createSharedLink"])
                 .required(),
             NodeProperty::new("query", "Query", NodePropertyType::String)
                 .placeholder("quarterly report")

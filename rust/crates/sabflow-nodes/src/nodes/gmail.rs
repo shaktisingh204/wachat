@@ -13,7 +13,7 @@
 
 use async_trait::async_trait;
 use base64::Engine;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
@@ -189,7 +189,9 @@ impl Node for GmailNode {
                         body,
                     });
                 }
-                Ok(NodeOutput::single(vec![json!({ "deleted": true, "id": message_id })]))
+                Ok(NodeOutput::single(vec![
+                    json!({ "deleted": true, "id": message_id }),
+                ]))
             }
             ("message", "reply") => {
                 let to = ctx.param_str(params, "to")?;
@@ -255,7 +257,9 @@ impl Node for GmailNode {
                         body,
                     });
                 }
-                Ok(NodeOutput::single(vec![json!({ "deleted": true, "id": draft_id })]))
+                Ok(NodeOutput::single(vec![
+                    json!({ "deleted": true, "id": draft_id }),
+                ]))
             }
             ("draft", "send") => {
                 let draft_id = ctx.param_str(params, "draftId")?;
@@ -300,7 +304,9 @@ impl Node for GmailNode {
                         body,
                     });
                 }
-                Ok(NodeOutput::single(vec![json!({ "deleted": true, "id": label_id })]))
+                Ok(NodeOutput::single(vec![
+                    json!({ "deleted": true, "id": label_id }),
+                ]))
             }
 
             // ---------- thread ----------
@@ -369,11 +375,7 @@ fn urlencode(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for b in s.as_bytes() {
         let c = *b;
-        let safe = c.is_ascii_alphanumeric()
-            || c == b'-'
-            || c == b'_'
-            || c == b'.'
-            || c == b'~';
+        let safe = c.is_ascii_alphanumeric() || c == b'-' || c == b'_' || c == b'.' || c == b'~';
         if safe {
             out.push(c as char);
         } else {

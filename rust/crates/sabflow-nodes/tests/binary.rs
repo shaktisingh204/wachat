@@ -10,10 +10,10 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use async_trait::async_trait;
 use serde_json::json;
 
+use sabflow_nodes::NodeError;
 use sabflow_nodes::binary::{
     BinaryDataRef, BinaryFetchContext, BinaryStore, InMemoryBinaryStore, UnconfiguredBinaryStore,
 };
-use sabflow_nodes::NodeError;
 
 /// Mocked BFF that records every call and serves canned payloads.
 ///

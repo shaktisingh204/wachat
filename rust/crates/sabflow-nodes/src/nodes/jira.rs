@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
+    NodeInput, NodeOutput, NodeResult,
     context::ExecutionContext,
     descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct JiraNode;
@@ -13,12 +13,7 @@ pub struct JiraNode;
 #[async_trait]
 impl Node for JiraNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "jira",
-            "Jira",
-            "Issue tracking",
-            NodeCategory::Developer,
-        )
+        NodeDescriptor::new("jira", "Jira", "Issue tracking", NodeCategory::Developer)
     }
 
     async fn execute(

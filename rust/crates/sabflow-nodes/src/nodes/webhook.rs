@@ -38,7 +38,9 @@ use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -85,14 +87,18 @@ impl Node for WebhookNode {
                     "Sub-path appended to the webhook prefix. Empty means auto-generated at \
                     activation; the public receiver derives the webhookId from the flow id.",
                 ),
-            NodeProperty::new("authentication", "Authentication", NodePropertyType::Options)
-                .options(vec![
-                    opt("None", "none"),
-                    opt("Basic Auth", "basicAuth"),
-                    opt("Header Auth", "headerAuth"),
-                    opt("Query Auth", "queryAuth"),
-                ])
-                .default(json!("none")),
+            NodeProperty::new(
+                "authentication",
+                "Authentication",
+                NodePropertyType::Options,
+            )
+            .options(vec![
+                opt("None", "none"),
+                opt("Basic Auth", "basicAuth"),
+                opt("Header Auth", "headerAuth"),
+                opt("Query Auth", "queryAuth"),
+            ])
+            .default(json!("none")),
             NodeProperty::new("username", "Username", NodePropertyType::String)
                 .show_when("authentication", &["basicAuth"]),
             NodeProperty::new("password", "Password", NodePropertyType::String)
@@ -101,10 +107,18 @@ impl Node for WebhookNode {
                 .show_when("authentication", &["headerAuth"]),
             NodeProperty::new("headerValue", "Header Value", NodePropertyType::String)
                 .show_when("authentication", &["headerAuth"]),
-            NodeProperty::new("queryAuthName", "Query Param Name", NodePropertyType::String)
-                .show_when("authentication", &["queryAuth"]),
-            NodeProperty::new("queryAuthValue", "Query Param Value", NodePropertyType::String)
-                .show_when("authentication", &["queryAuth"]),
+            NodeProperty::new(
+                "queryAuthName",
+                "Query Param Name",
+                NodePropertyType::String,
+            )
+            .show_when("authentication", &["queryAuth"]),
+            NodeProperty::new(
+                "queryAuthValue",
+                "Query Param Value",
+                NodePropertyType::String,
+            )
+            .show_when("authentication", &["queryAuth"]),
             NodeProperty::new("responseMode", "Response Mode", NodePropertyType::Options)
                 .options(vec![
                     opt("Immediately on Received", "onReceived"),
@@ -216,12 +230,8 @@ fn verify_authentication(
     match mode {
         "none" => Ok(()),
         "headerAuth" => {
-            let header_name = ctx
-                .param_str_opt(params, "headerName")
-                .unwrap_or_default();
-            let header_value = ctx
-                .param_str_opt(params, "headerValue")
-                .unwrap_or_default();
+            let header_name = ctx.param_str_opt(params, "headerName").unwrap_or_default();
+            let header_value = ctx.param_str_opt(params, "headerValue").unwrap_or_default();
             if header_name.is_empty() {
                 return Err(NodeError::MissingParameter("headerName".into()));
             }
@@ -240,8 +250,7 @@ fn verify_authentication(
                 return Err(NodeError::MissingParameter("username".into()));
             }
             let auth_header = lookup_header(payload, "authorization").unwrap_or_default();
-            let (supplied_user, supplied_pass) =
-                parse_basic_auth(&auth_header).unwrap_or_default();
+            let (supplied_user, supplied_pass) = parse_basic_auth(&auth_header).unwrap_or_default();
             if supplied_user != user || supplied_pass != pass {
                 return Err(NodeError::AuthError(
                     "basic auth credentials did not match".into(),
@@ -298,7 +307,10 @@ fn lookup_header(payload: &Value, name: &str) -> Option<String> {
 /// Decode the user / pass out of a `Basic <base64(user:pass)>` header.
 /// Returns `(user, pass)` or `None` if it doesn't look like a Basic header.
 fn parse_basic_auth(header: &str) -> Option<(String, String)> {
-    let rest = header.trim().strip_prefix("Basic ").or_else(|| header.trim().strip_prefix("basic "))?;
+    let rest = header
+        .trim()
+        .strip_prefix("Basic ")
+        .or_else(|| header.trim().strip_prefix("basic "))?;
     let bytes =
         base64::Engine::decode(&base64::engine::general_purpose::STANDARD, rest.trim()).ok()?;
     let decoded = String::from_utf8(bytes).ok()?;

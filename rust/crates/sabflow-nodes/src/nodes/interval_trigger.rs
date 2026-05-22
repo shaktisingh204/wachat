@@ -14,7 +14,9 @@ use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -68,9 +70,10 @@ impl Node for IntervalTriggerNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({ "timestamp": chrono::Utc::now().to_rfc3339() }))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data
+                .clone()
+                .unwrap_or(json!({ "timestamp": chrono::Utc::now().to_rfc3339() })),
+        ]))
     }
 }

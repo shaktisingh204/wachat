@@ -74,13 +74,17 @@ impl Node for SlackTriggerNode {
                 ])
                 .default(json!("any"))
                 .description("Which Slack event should start this flow"),
-            NodeProperty::new("verifySignature", "Verify Signature", NodePropertyType::Boolean)
-                .default(json!(true))
-                .description(
-                    "Re-verify the X-Slack-Signature header on each delivery using \
+            NodeProperty::new(
+                "verifySignature",
+                "Verify Signature",
+                NodePropertyType::Boolean,
+            )
+            .default(json!(true))
+            .description(
+                "Re-verify the X-Slack-Signature header on each delivery using \
                      the credential's signing secret. The receiver also verifies this; \
                      leave on for defence in depth.",
-                ),
+            ),
         ])
     }
 

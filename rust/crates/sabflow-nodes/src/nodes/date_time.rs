@@ -159,12 +159,13 @@ fn shift_datetime(
 }
 
 fn apply_months(dt: DateTime<Utc>, months: i64) -> NodeResult<DateTime<Utc>> {
-    let abs: u32 = months.unsigned_abs().try_into().map_err(|_| {
-        NodeError::InvalidParameter {
+    let abs: u32 = months
+        .unsigned_abs()
+        .try_into()
+        .map_err(|_| NodeError::InvalidParameter {
             name: "amount".into(),
             reason: "month offset too large".into(),
-        }
-    })?;
+        })?;
     let result = if months >= 0 {
         dt.checked_add_months(Months::new(abs))
     } else {
@@ -287,9 +288,10 @@ impl Node for DateTimeNode {
                 let unit = ctx
                     .param_str_opt(params, "unit")
                     .unwrap_or_else(|| "days".to_string());
-                let amount = ctx.param_f64(params, "amount").ok_or_else(|| {
-                    NodeError::MissingParameter("amount".into())
-                })? as i64;
+                let amount = ctx
+                    .param_f64(params, "amount")
+                    .ok_or_else(|| NodeError::MissingParameter("amount".into()))?
+                    as i64;
 
                 let dt = parse_datetime(&value)?;
                 let shifted = shift_datetime(dt, &unit, amount, operation == "subtract")?;
@@ -332,10 +334,7 @@ mod tests {
     use std::sync::Arc;
 
     fn ctx() -> ExecutionContext {
-        ExecutionContext::new(
-            "test-exec".to_string(),
-            Arc::new(reqwest::Client::new()),
-        )
+        ExecutionContext::new("test-exec".to_string(), Arc::new(reqwest::Client::new()))
     }
 
     #[test]

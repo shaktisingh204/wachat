@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
+    NodeInput, NodeOutput, NodeResult,
     context::ExecutionContext,
     descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct PipedriveNode;
@@ -13,12 +13,7 @@ pub struct PipedriveNode;
 #[async_trait]
 impl Node for PipedriveNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "pipedrive",
-            "Pipedrive",
-            "Sales CRM",
-            NodeCategory::Sales,
-        )
+        NodeDescriptor::new("pipedrive", "Pipedrive", "Sales CRM", NodeCategory::Sales)
     }
 
     async fn execute(

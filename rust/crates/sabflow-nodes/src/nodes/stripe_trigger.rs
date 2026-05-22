@@ -91,7 +91,10 @@ impl Node for StripeTriggerNode {
                     opt("invoice.paid", "invoice.paid"),
                     opt("invoice.payment_failed", "invoice.payment_failed"),
                     opt("payment_intent.succeeded", "payment_intent.succeeded"),
-                    opt("payment_intent.payment_failed", "payment_intent.payment_failed"),
+                    opt(
+                        "payment_intent.payment_failed",
+                        "payment_intent.payment_failed",
+                    ),
                 ])
                 .default(json!("*"))
                 .description("Event type filter applied by the upstream receiver"),
@@ -119,9 +122,11 @@ impl Node for StripeTriggerNode {
         if let Some(cred_id) = ctx.param_str_opt(params, "credentialId") {
             if !cred_id.trim().is_empty() {
                 let cred = ctx.credential(&cred_id)?;
-                let secret = cred.data.get("webhookSecret").cloned().ok_or_else(|| {
-                    NodeError::MissingParameter("webhookSecret".into())
-                })?;
+                let secret = cred
+                    .data
+                    .get("webhookSecret")
+                    .cloned()
+                    .ok_or_else(|| NodeError::MissingParameter("webhookSecret".into()))?;
                 let signature = read_header(&trigger, "stripe-signature").ok_or_else(|| {
                     NodeError::AuthError("missing Stripe-Signature header".into())
                 })?;

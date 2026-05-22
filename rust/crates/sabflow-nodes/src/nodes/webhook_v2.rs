@@ -8,11 +8,13 @@
 //! and this node simply surfaces it as the trigger output.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -178,9 +180,8 @@ impl Node for WebhookV2Node {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({}))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data.clone().unwrap_or(json!({})),
+        ]))
     }
 }

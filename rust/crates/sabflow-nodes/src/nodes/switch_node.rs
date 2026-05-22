@@ -27,7 +27,9 @@ use serde_json::Value;
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -56,12 +58,7 @@ impl Node for SwitchNode {
             is_trigger: false,
             inputs: 1,
             outputs: 4,
-            output_names: vec![
-                "0".into(),
-                "1".into(),
-                "2".into(),
-                "fallback".into(),
-            ],
+            output_names: vec!["0".into(), "1".into(), "2".into(), "fallback".into()],
             credentials: vec![],
             properties: vec![
                 NodeProperty::new("mode", "Mode", NodePropertyType::Options)
@@ -80,9 +77,13 @@ impl Node for SwitchNode {
                     )
                     .default(Value::Array(vec![]))
                     .show_when("mode", &["rules"]),
-                NodeProperty::new("fallbackOutput", "Fallback Output", NodePropertyType::Number)
-                    .description("Output index used when no rule matches / expression is invalid.")
-                    .default(Value::Number(serde_json::Number::from(3))),
+                NodeProperty::new(
+                    "fallbackOutput",
+                    "Fallback Output",
+                    NodePropertyType::Number,
+                )
+                .description("Output index used when no rule matches / expression is invalid.")
+                .default(Value::Number(serde_json::Number::from(3))),
             ],
             stub: false,
         }

@@ -8,11 +8,13 @@
 //! item so downstream nodes can read it.
 
 use async_trait::async_trait;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::NodeResult,
     node::Node,
 };
@@ -59,41 +61,55 @@ impl Node for GraphqlTriggerNode {
                 .description("Optional variables passed alongside the subscription."),
             NodeProperty::new("operationName", "Operation Name", NodePropertyType::String)
                 .default(Value::String("".into())),
-            NodeProperty::new("authentication", "Authentication", NodePropertyType::Options)
-                .options(vec![
-                    NodePropertyOption {
-                        name: "None".into(),
-                        value: Value::String("none".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Bearer Token".into(),
-                        value: Value::String("bearerToken".into()),
-                        description: None,
-                    },
-                    NodePropertyOption {
-                        name: "Connection Params".into(),
-                        value: Value::String("connectionParams".into()),
-                        description: None,
-                    },
-                ])
-                .default(Value::String("none".into())),
+            NodeProperty::new(
+                "authentication",
+                "Authentication",
+                NodePropertyType::Options,
+            )
+            .options(vec![
+                NodePropertyOption {
+                    name: "None".into(),
+                    value: Value::String("none".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Bearer Token".into(),
+                    value: Value::String("bearerToken".into()),
+                    description: None,
+                },
+                NodePropertyOption {
+                    name: "Connection Params".into(),
+                    value: Value::String("connectionParams".into()),
+                    description: None,
+                },
+            ])
+            .default(Value::String("none".into())),
             NodeProperty::new("token", "Token", NodePropertyType::String)
                 .default(Value::String("".into()))
                 .show_when("authentication", &["bearerToken"]),
-            NodeProperty::new("connectionParams", "Connection Params (JSON)", NodePropertyType::Json)
-                .default(json!({}))
-                .show_when("authentication", &["connectionParams"])
-                .description("Sent on the `connection_init` message."),
-            NodeProperty::new("reconnectDelayMs", "Reconnect Delay (ms)", NodePropertyType::Number)
-                .default(json!(3_000)),
+            NodeProperty::new(
+                "connectionParams",
+                "Connection Params (JSON)",
+                NodePropertyType::Json,
+            )
+            .default(json!({}))
+            .show_when("authentication", &["connectionParams"])
+            .description("Sent on the `connection_init` message."),
+            NodeProperty::new(
+                "reconnectDelayMs",
+                "Reconnect Delay (ms)",
+                NodePropertyType::Number,
+            )
+            .default(json!(3_000)),
             NodeProperty::new(
                 "emitErrors",
                 "Emit GraphQL Errors as Items",
                 NodePropertyType::Boolean,
             )
             .default(Value::Bool(false))
-            .description("If true, error payloads are forwarded as items instead of being dropped."),
+            .description(
+                "If true, error payloads are forwarded as items instead of being dropped.",
+            ),
         ])
     }
 
@@ -103,9 +119,8 @@ impl Node for GraphqlTriggerNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({}))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data.clone().unwrap_or(json!({})),
+        ]))
     }
 }

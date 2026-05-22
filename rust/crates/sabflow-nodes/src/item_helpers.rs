@@ -277,10 +277,7 @@ pub fn pair_items(
                 out.push(PairedRow {
                     left: l,
                     right: Some(r),
-                    paired: [
-                        PairedItem::from_branch(0, i),
-                        PairedItem::from_branch(1, i),
-                    ],
+                    paired: [PairedItem::from_branch(0, i), PairedItem::from_branch(1, i)],
                 });
             }
             out
@@ -323,10 +320,7 @@ pub fn pair_items(
                     out.push(PairedRow {
                         left: l.clone(),
                         right: Some(r.clone()),
-                        paired: [
-                            PairedItem::from_branch(0, i),
-                            PairedItem::from_branch(1, j),
-                        ],
+                        paired: [PairedItem::from_branch(0, i), PairedItem::from_branch(1, j)],
                     });
                 }
             }
@@ -473,7 +467,12 @@ mod tests {
     fn pair_items_multiplex_is_cartesian() {
         let left = vec![json!({"a": 1}), json!({"a": 2})];
         let right = vec![json!({"b": 10}), json!({"b": 20}), json!({"b": 30})];
-        let rows = pair_items(&left, &right, PairingMode::Multiplex, PairOptions::default());
+        let rows = pair_items(
+            &left,
+            &right,
+            PairingMode::Multiplex,
+            PairOptions::default(),
+        );
         assert_eq!(rows.len(), 6);
     }
 

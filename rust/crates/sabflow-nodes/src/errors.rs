@@ -471,9 +471,9 @@ impl ExecutorError {
                 retryable,
                 http_status,
                 ..
-            } => retryable.unwrap_or_else(|| {
-                matches!(http_status, Some(s) if *s >= 500 || *s == 429 || *s == 408)
-            }),
+            } => retryable.unwrap_or_else(
+                || matches!(http_status, Some(s) if *s >= 500 || *s == 429 || *s == 408),
+            ),
             Self::NodeOperation { .. }
             | Self::Credentials { .. }
             | Self::Expression { .. }
@@ -535,10 +535,7 @@ impl ExecutorError {
                     details.insert("body".into(), b.clone());
                 }
                 if let Some(r) = retry_after {
-                    details.insert(
-                        "retryAfter".into(),
-                        serde_json::Value::String(r.clone()),
-                    );
+                    details.insert("retryAfter".into(), serde_json::Value::String(r.clone()));
                 }
                 if let Some(u) = url {
                     details.insert("url".into(), serde_json::Value::String(u.clone()));
@@ -626,10 +623,7 @@ impl ExecutorError {
                     serde_json::to_value(failure).unwrap_or(serde_json::Value::Null),
                 );
                 if let Some(id) = credential_id {
-                    details.insert(
-                        "credentialId".into(),
-                        serde_json::Value::String(id.clone()),
-                    );
+                    details.insert("credentialId".into(), serde_json::Value::String(id.clone()));
                 }
                 if let Some(t) = credential_type {
                     details.insert(
@@ -647,10 +641,7 @@ impl ExecutorError {
                     CredentialFailure::DecryptFailed => "invalid",
                     CredentialFailure::RefreshFailed => "expired",
                 };
-                details.insert(
-                    "reason".into(),
-                    serde_json::Value::String(ts_reason.into()),
-                );
+                details.insert("reason".into(), serde_json::Value::String(ts_reason.into()));
                 details.insert(
                     "code".into(),
                     serde_json::Value::String(self.stable_code().into()),
@@ -700,10 +691,7 @@ impl ExecutorError {
             Self::WorkflowValidation {
                 message, issues, ..
             } => {
-                details.insert(
-                    "issues".into(),
-                    serde_json::Value::Array(issues.clone()),
-                );
+                details.insert("issues".into(), serde_json::Value::Array(issues.clone()));
                 message.clone()
             }
             Self::Subworkflow {
@@ -728,21 +716,16 @@ impl ExecutorError {
                 if let Some(inner) = inner_error {
                     details.insert(
                         "innerError".into(),
-                        serde_json::to_value(inner.as_ref())
-                            .unwrap_or(serde_json::Value::Null),
+                        serde_json::to_value(inner.as_ref()).unwrap_or(serde_json::Value::Null),
                     );
                 }
                 message.clone()
             }
             Self::ContinueOnFailMarker { node_id, wrapped } => {
-                details.insert(
-                    "nodeId".into(),
-                    serde_json::Value::String(node_id.clone()),
-                );
+                details.insert("nodeId".into(), serde_json::Value::String(node_id.clone()));
                 details.insert(
                     "wrapped".into(),
-                    serde_json::to_value(wrapped.as_ref())
-                        .unwrap_or(serde_json::Value::Null),
+                    serde_json::to_value(wrapped.as_ref()).unwrap_or(serde_json::Value::Null),
                 );
                 details.insert(
                     "code".into(),
@@ -783,9 +766,7 @@ impl ExecutorError {
             execution_id: wire.execution_id.clone(),
         };
         let details = wire.details.clone().unwrap_or_default();
-        let get_str = |k: &str| {
-            details.get(k).and_then(|v| v.as_str()).map(String::from)
-        };
+        let get_str = |k: &str| details.get(k).and_then(|v| v.as_str()).map(String::from);
         let get_u64 = |k: &str| details.get(k).and_then(|v| v.as_u64());
 
         match wire.code {
@@ -850,13 +831,14 @@ impl ExecutorError {
                     .and_then(|v| serde_json::from_value::<CredentialFailure>(v.clone()).ok())
                     .or_else(|| {
                         // Fall back to the 3-value TS `reason` field.
-                        details.get("reason").and_then(|v| v.as_str()).map(|s| {
-                            match s {
+                        details
+                            .get("reason")
+                            .and_then(|v| v.as_str())
+                            .map(|s| match s {
                                 "missing" => CredentialFailure::Missing,
                                 "expired" => CredentialFailure::RefreshFailed,
                                 _ => CredentialFailure::DecryptFailed,
-                            }
-                        })
+                            })
                     })
                     .unwrap_or(CredentialFailure::Missing);
                 Self::Credentials {
@@ -1005,10 +987,7 @@ mod tests {
 
     #[test]
     fn code_strings_match_registry() {
-        assert_eq!(
-            ExecutorErrorCode::NodeApi.as_str(),
-            codes::NODE_API
-        );
+        assert_eq!(ExecutorErrorCode::NodeApi.as_str(), codes::NODE_API);
         assert_eq!(
             ExecutorErrorCode::ContinueOnFail.as_str(),
             codes::CONTINUE_ON_FAIL
@@ -1031,8 +1010,7 @@ mod tests {
 
     #[test]
     fn node_operation_never_retryable() {
-        let err =
-            ExecutorError::node_operation(NodeOperationReason::MissingParam, "no url");
+        let err = ExecutorError::node_operation(NodeOperationReason::MissingParam, "no url");
         assert!(!err.is_retryable());
         assert_eq!(err.stable_code(), codes::NODE_OP_MISSING_PARAM);
     }

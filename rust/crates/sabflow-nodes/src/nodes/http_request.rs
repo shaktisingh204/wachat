@@ -293,7 +293,10 @@ impl HttpRequestConfig {
             BodyKind::None
         };
         let body = if send_body {
-            params.get("body").cloned().map(|v| substitute_value(ctx, v))
+            params
+                .get("body")
+                .cloned()
+                .map(|v| substitute_value(ctx, v))
         } else {
             None
         };
@@ -327,9 +330,8 @@ fn build_auth(ctx: &ExecutionContext, params: &Value, mode: &str) -> NodeResult<
         Some(id) if !id.is_empty() => Some(ctx.credential(id)?),
         _ => None,
     };
-    let cred_field = |name: &str| -> Option<String> {
-        cred.and_then(|c| c.data.get(name)).cloned()
-    };
+    let cred_field =
+        |name: &str| -> Option<String> { cred.and_then(|c| c.data.get(name)).cloned() };
 
     match mode {
         "none" => Ok(AuthSpec::None),
@@ -514,9 +516,11 @@ fn error_item(err: &NodeError) -> Value {
             format!("invalid parameter '{name}': {reason}"),
             None,
         ),
-        NodeError::MissingCredential(id) => {
-            ("MissingCredential", format!("missing credential: {id}"), None)
-        }
+        NodeError::MissingCredential(id) => (
+            "MissingCredential",
+            format!("missing credential: {id}"),
+            None,
+        ),
         other => ("NodeError", other.to_string(), None),
     };
     let mut err_obj = Map::new();
@@ -652,25 +656,19 @@ fn apply_body(
                 //                 "binary": false } }          → file part
                 match v {
                     Value::Object(spec) => {
-                        let val = spec
-                            .get("value")
-                            .map(value_to_qstring)
-                            .unwrap_or_default();
+                        let val = spec.get("value").map(value_to_qstring).unwrap_or_default();
                         let is_binary = spec
                             .get("binary")
                             .and_then(|b| b.as_bool())
                             .unwrap_or(false);
                         let bytes: Vec<u8> = if is_binary {
-                            base64::Engine::decode(
-                                &base64::engine::general_purpose::STANDARD,
-                                &val,
-                            )
-                            .map_err(|e| NodeError::InvalidParameter {
-                                name: "body".into(),
-                                reason: format!(
-                                    "invalid base64 for multipart field '{k}': {e}"
-                                ),
-                            })?
+                            base64::Engine::decode(&base64::engine::general_purpose::STANDARD, &val)
+                                .map_err(|e| NodeError::InvalidParameter {
+                                    name: "body".into(),
+                                    reason: format!(
+                                        "invalid base64 for multipart field '{k}': {e}"
+                                    ),
+                                })?
                         } else {
                             val.into_bytes()
                         };
@@ -832,7 +830,10 @@ mod tests {
         };
         let v = error_item(&err);
         let e = v.get("error").unwrap();
-        assert_eq!(e.get("code").and_then(|x| x.as_str()), Some("UpstreamError"));
+        assert_eq!(
+            e.get("code").and_then(|x| x.as_str()),
+            Some("UpstreamError")
+        );
         assert_eq!(e.get("statusCode").and_then(|x| x.as_u64()), Some(502));
         assert!(
             e.get("message")

@@ -113,7 +113,15 @@ impl Node for AirtableNode {
                 .placeholder("appXXXXXXXXXXXXXX")
                 .show_when(
                     "operation",
-                    &["create", "get", "list", "update", "upsert", "delete", "getSchema"],
+                    &[
+                        "create",
+                        "get",
+                        "list",
+                        "update",
+                        "upsert",
+                        "delete",
+                        "getSchema",
+                    ],
                 )
                 .required(),
             NodeProperty::new("tableId", "Table ID or Name", NodePropertyType::String)
@@ -316,7 +324,10 @@ impl Node for AirtableNode {
             }
             "getSchema" => {
                 let base_id = substituted(ctx, params, "baseId")?;
-                let url = format!("{AIRTABLE_BASE}/meta/bases/{}/tables", encode_path(&base_id));
+                let url = format!(
+                    "{AIRTABLE_BASE}/meta/bases/{}/tables",
+                    encode_path(&base_id)
+                );
                 let res = ctx.http.get(&url).bearer_auth(&token).send().await?;
                 json_or_err(res).await.map(|v| NodeOutput::single(vec![v]))
             }

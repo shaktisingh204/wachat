@@ -1,11 +1,14 @@
+//! BambooHR node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct BambooHrNode;
@@ -13,12 +16,7 @@ pub struct BambooHrNode;
 #[async_trait]
 impl Node for BambooHrNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "bambooHr",
-            "BambooHR",
-            "HR management",
-            NodeCategory::Hr,
-        )
+        NodeDescriptor::new("bambooHr", "BambooHR", "HR management", NodeCategory::Hr)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for BambooHrNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for bambooHr
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

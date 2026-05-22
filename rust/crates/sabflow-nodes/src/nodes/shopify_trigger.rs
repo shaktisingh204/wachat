@@ -105,9 +105,11 @@ impl Node for ShopifyTriggerNode {
         if let Some(cred_id) = ctx.param_str_opt(params, "credentialId") {
             if !cred_id.trim().is_empty() {
                 let cred = ctx.credential(&cred_id)?;
-                let secret = cred.data.get("sharedSecret").cloned().ok_or_else(|| {
-                    NodeError::MissingParameter("sharedSecret".into())
-                })?;
+                let secret = cred
+                    .data
+                    .get("sharedSecret")
+                    .cloned()
+                    .ok_or_else(|| NodeError::MissingParameter("sharedSecret".into()))?;
                 let signature =
                     read_header(&trigger, "x-shopify-hmac-sha256").ok_or_else(|| {
                         NodeError::AuthError("missing X-Shopify-Hmac-Sha256 header".into())

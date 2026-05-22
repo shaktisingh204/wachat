@@ -101,9 +101,13 @@ impl Node for DiscordNode {
         let mode = ctx
             .param_str_opt(params, "mode")
             .unwrap_or_else(|| "webhook".to_string());
-        let operation = ctx
-            .param_str_opt(params, "operation")
-            .unwrap_or_else(|| if mode == "bot" { "sendMessage".to_string() } else { "send".to_string() });
+        let operation = ctx.param_str_opt(params, "operation").unwrap_or_else(|| {
+            if mode == "bot" {
+                "sendMessage".to_string()
+            } else {
+                "send".to_string()
+            }
+        });
 
         match mode.as_str() {
             "webhook" => execute_webhook(ctx, params, &operation).await,
@@ -381,7 +385,9 @@ fn resolve_embeds(ctx: &ExecutionContext, params: &Value) -> Option<Value> {
 fn substitute_value(ctx: &ExecutionContext, v: Value) -> Value {
     match v {
         Value::String(s) => Value::String(ctx.substitute(&s)),
-        Value::Array(arr) => Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect()),
+        Value::Array(arr) => {
+            Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect())
+        }
         Value::Object(map) => {
             let mut out = Map::new();
             for (k, val) in map {

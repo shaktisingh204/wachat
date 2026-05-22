@@ -102,9 +102,13 @@ impl Node for SlackNode {
                 .show_when("operation", &["send"])
                 .description("Legacy attachments as a JSON array"),
             // message:update / delete
-            NodeProperty::new("messageTs", "Message Timestamp (ts)", NodePropertyType::String)
-                .placeholder("1234567890.123456")
-                .show_when("operation", &["update", "delete"]),
+            NodeProperty::new(
+                "messageTs",
+                "Message Timestamp (ts)",
+                NodePropertyType::String,
+            )
+            .placeholder("1234567890.123456")
+            .show_when("operation", &["update", "delete"]),
             // message:getHistory
             NodeProperty::new("limit", "Limit", NodePropertyType::Number)
                 .default(json!(100))
@@ -146,9 +150,7 @@ impl Node for SlackNode {
             // ----- Messages -----
             ("message", "send") => {
                 let channel = ctx.param_str(params, "channel")?;
-                let text = ctx
-                    .param_str_opt(params, "text")
-                    .unwrap_or_default();
+                let text = ctx.param_str_opt(params, "text").unwrap_or_default();
                 let mut payload = Map::new();
                 payload.insert("channel".into(), json!(channel));
                 if !text.is_empty() {

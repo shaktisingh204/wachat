@@ -2,10 +2,10 @@ use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
+    NodeInput, NodeOutput, NodeResult,
     context::ExecutionContext,
     descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct MagentoNode;

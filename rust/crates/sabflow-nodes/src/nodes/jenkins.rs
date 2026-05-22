@@ -1,11 +1,14 @@
+//! Jenkins node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct JenkinsNode;
@@ -13,12 +16,7 @@ pub struct JenkinsNode;
 #[async_trait]
 impl Node for JenkinsNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "jenkins",
-            "Jenkins",
-            "CI/CD jobs",
-            NodeCategory::Developer,
-        )
+        NodeDescriptor::new("jenkins", "Jenkins", "CI/CD jobs", NodeCategory::Developer)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for JenkinsNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for jenkins
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }

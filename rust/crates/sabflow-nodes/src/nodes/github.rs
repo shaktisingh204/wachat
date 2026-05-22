@@ -93,7 +93,11 @@ impl Node for GithubNode {
                 .show_when("operation", &["create", "edit"])
                 .description("JSON array of label names"),
             NodeProperty::new("state", "State", NodePropertyType::Options)
-                .options(vec![opt("Open", "open"), opt("Closed", "closed"), opt("All", "all")])
+                .options(vec![
+                    opt("Open", "open"),
+                    opt("Closed", "closed"),
+                    opt("All", "all"),
+                ])
                 .default(json!("open"))
                 .show_when("operation", &["getAll"]),
             NodeProperty::new("head", "Head Branch", NodePropertyType::String)
@@ -163,7 +167,14 @@ impl Node for GithubNode {
                     payload.insert("labels".into(), json!(labels));
                 }
                 let url = format!("{API_BASE}/repos/{owner}/{repository}/issues");
-                send_json(ctx, &token, Method::POST, &url, Some(Value::Object(payload))).await
+                send_json(
+                    ctx,
+                    &token,
+                    Method::POST,
+                    &url,
+                    Some(Value::Object(payload)),
+                )
+                .await
             }
             ("issue", "get") => {
                 let n = require_number(ctx, params, "issueNumber")?;
@@ -174,8 +185,7 @@ impl Node for GithubNode {
                 let state = ctx
                     .param_str_opt(params, "state")
                     .unwrap_or_else(|| "open".to_string());
-                let url =
-                    format!("{API_BASE}/repos/{owner}/{repository}/issues?state={state}");
+                let url = format!("{API_BASE}/repos/{owner}/{repository}/issues?state={state}");
                 send_json(ctx, &token, Method::GET, &url, None).await
             }
             ("issue", "edit") => {
@@ -242,7 +252,14 @@ impl Node for GithubNode {
                     payload.insert("body".into(), json!(body));
                 }
                 let url = format!("{API_BASE}/repos/{owner}/{repository}/pulls");
-                send_json(ctx, &token, Method::POST, &url, Some(Value::Object(payload))).await
+                send_json(
+                    ctx,
+                    &token,
+                    Method::POST,
+                    &url,
+                    Some(Value::Object(payload)),
+                )
+                .await
             }
             ("pullRequest", "get") => {
                 let n = require_number(ctx, params, "issueNumber")?;
@@ -293,7 +310,14 @@ impl Node for GithubNode {
                     payload.insert("body".into(), json!(body));
                 }
                 let url = format!("{API_BASE}/repos/{owner}/{repository}/releases");
-                send_json(ctx, &token, Method::POST, &url, Some(Value::Object(payload))).await
+                send_json(
+                    ctx,
+                    &token,
+                    Method::POST,
+                    &url,
+                    Some(Value::Object(payload)),
+                )
+                .await
             }
             ("release", "get") => {
                 let id = require_number(ctx, params, "releaseId")?;
@@ -331,11 +355,7 @@ impl Node for GithubNode {
 }
 
 /// Fetch a required user-supplied string param and substitute `{{var}}`.
-fn sub_required(
-    ctx: &ExecutionContext,
-    params: &Value,
-    key: &str,
-) -> NodeResult<String> {
+fn sub_required(ctx: &ExecutionContext, params: &Value, key: &str) -> NodeResult<String> {
     let raw = ctx.param_str(params, key)?;
     let v = ctx.substitute(&raw);
     if v.trim().is_empty() {
@@ -414,9 +434,8 @@ async fn send_json(
     let parsed: Value = if bytes.is_empty() {
         Value::Null
     } else {
-        serde_json::from_slice::<Value>(&bytes).unwrap_or_else(|_| {
-            Value::String(String::from_utf8_lossy(&bytes).into_owned())
-        })
+        serde_json::from_slice::<Value>(&bytes)
+            .unwrap_or_else(|_| Value::String(String::from_utf8_lossy(&bytes).into_owned()))
     };
     if !status.is_success() {
         return Err(NodeError::UpstreamError {

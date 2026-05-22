@@ -119,14 +119,14 @@ impl Node for ${structName} {
         ...modLines.slice(registerAllIdx)
     ];
 
-    let newModStr = newModContent.join('\\n');
+    let newModStr = newModContent.join('\n');
     
     const regImplStart = newModStr.indexOf('fn register_implemented(r: &mut NodeRegistry) {');
     const regImplEnd = newModStr.indexOf('}', regImplStart);
     
     const updatedRegImpl = newModStr.substring(regImplStart, regImplEnd) + 
-        '    // Newly implemented nodes\\n' + 
-        registersToAdd.join('\\n') + '\\n';
+        '    // Newly implemented nodes\n' + 
+        registersToAdd.join('\n') + '\n';
         
     newModStr = newModStr.substring(0, regImplStart) + updatedRegImpl + newModStr.substring(regImplEnd);
     

@@ -231,7 +231,10 @@ impl InMemoryBinaryStore {
     }
 
     pub fn insert(&self, id: impl Into<String>, bytes: Vec<u8>) {
-        self.entries.lock().expect("poisoned").insert(id.into(), bytes);
+        self.entries
+            .lock()
+            .expect("poisoned")
+            .insert(id.into(), bytes);
     }
 }
 

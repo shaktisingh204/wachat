@@ -7,20 +7,20 @@ import {
   Input, 
   Label, 
   Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow,
+  ZoruTableBody, 
+  ZoruTableCell, 
+  ZoruTableHead, 
+  ZoruTableHeader, 
+  ZoruTableRow,
   Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  ZoruDialogContent,
+  ZoruDialogHeader,
+  ZoruDialogTitle,
+  ZoruDialogTrigger,
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
+  ZoruDropdownMenuContent,
+  ZoruDropdownMenuItem,
+  ZoruDropdownMenuTrigger,
   Badge,
 } from '@/components/zoruui';
 import { Plus, MoreHorizontal, Pencil, Trash, Search } from 'lucide-react';
@@ -110,15 +110,15 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
       subtitle="Manage recurring billing and subscriptions."
       primaryAction={
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
+          <ZoruDialogTrigger asChild>
             <Button size="sm" onClick={openNew}>
               <Plus className="mr-2 h-4 w-4" /> New Record
             </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>{editingId ? 'Edit' : 'Create'} Record</DialogTitle>
-            </DialogHeader>
+          </ZoruDialogTrigger>
+          <ZoruDialogContent>
+            <ZoruDialogHeader>
+              <ZoruDialogTitle>{editingId ? 'Edit' : 'Create'} Record</ZoruDialogTitle>
+            </ZoruDialogHeader>
             <form onSubmit={onSubmit} className="space-y-4 py-4 max-h-[70vh] overflow-y-auto px-1">
               <div className="grid gap-4">
             <div className="space-y-1">
@@ -175,7 +175,7 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
                 </Button>
               </div>
             </form>
-          </DialogContent>
+          </ZoruDialogContent>
         </Dialog>
       }
     >
@@ -199,44 +199,44 @@ export function SubscriptionListClient({ initialItems, error }: { initialItems: 
 
       <div className="rounded-md border bg-white overflow-hidden">
         <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>CustomerId</TableHead><TableHead>PlanId</TableHead><TableHead>BillingCycle</TableHead><TableHead>NextBillingDate</TableHead><TableHead>Amount</TableHead><TableHead>Status</TableHead>
-              <TableHead className="w-[80px]"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+          <ZoruTableHeader>
+            <ZoruTableRow>
+              <ZoruTableHead>CustomerId</ZoruTableHead><ZoruTableHead>PlanId</ZoruTableHead><ZoruTableHead>BillingCycle</ZoruTableHead><ZoruTableHead>NextBillingDate</ZoruTableHead><ZoruTableHead>Amount</ZoruTableHead><ZoruTableHead>Status</ZoruTableHead>
+              <ZoruTableHead className="w-[80px]"></ZoruTableHead>
+            </ZoruTableRow>
+          </ZoruTableHeader>
+          <ZoruTableBody>
             {filteredItems.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={7} className="h-24 text-center">
+              <ZoruTableRow>
+                <ZoruTableCell colSpan={7} className="h-24 text-center">
                   No results.
-                </TableCell>
-              </TableRow>
+                </ZoruTableCell>
+              </ZoruTableRow>
             ) : (
               filteredItems.map((item) => (
-                <TableRow key={item._id}>
-                  <TableCell>{String(item.customerId ?? '')}</TableCell><TableCell>{String(item.planId ?? '')}</TableCell><TableCell>{String(item.billingCycle ?? '')}</TableCell><TableCell>{String(item.nextBillingDate ?? '')}</TableCell><TableCell>{String(item.amount ?? '')}</TableCell><TableCell>{String(item.status ?? '')}</TableCell>
-                  <TableCell>
+                <ZoruTableRow key={item._id}>
+                  <ZoruTableCell>{String(item.customerId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.planId ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.billingCycle ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.nextBillingDate ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.amount ?? '')}</ZoruTableCell><ZoruTableCell>{String(item.status ?? '')}</ZoruTableCell>
+                  <ZoruTableCell>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <ZoruDropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(item._id as string)}>
+                      </ZoruDropdownMenuTrigger>
+                      <ZoruDropdownMenuContent align="end">
+                        <ZoruDropdownMenuItem onClick={() => openEdit(item._id as string)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
+                        </ZoruDropdownMenuItem>
+                        <ZoruDropdownMenuItem className="text-red-600 focus:bg-red-50" onClick={() => handleDelete(item._id as string)}>
                           <Trash className="mr-2 h-4 w-4" /> Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
+                        </ZoruDropdownMenuItem>
+                      </ZoruDropdownMenuContent>
                     </DropdownMenu>
-                  </TableCell>
-                </TableRow>
+                  </ZoruTableCell>
+                </ZoruTableRow>
               ))
             )}
-          </TableBody>
+          </ZoruTableBody>
         </Table>
       </div>
     </EntityListShell>

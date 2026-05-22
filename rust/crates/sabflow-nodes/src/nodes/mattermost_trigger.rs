@@ -111,9 +111,8 @@ impl Node for MattermostTriggerNode {
         _input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        Ok(NodeOutput::single(vec![ctx
-            .trigger_data
-            .clone()
-            .unwrap_or(json!({}))]))
+        Ok(NodeOutput::single(vec![
+            ctx.trigger_data.clone().unwrap_or(json!({})),
+        ]))
     }
 }

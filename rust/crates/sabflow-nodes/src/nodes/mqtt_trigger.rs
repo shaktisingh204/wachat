@@ -48,9 +48,7 @@ impl Node for MqttTriggerNode {
             NodeProperty::new("topics", "Topics", NodePropertyType::String)
                 .default(Value::String("sabflow/#".into()))
                 .required()
-                .description(
-                    "Comma-separated topic filters (MQTT wildcards `+` and `#` allowed).",
-                ),
+                .description("Comma-separated topic filters (MQTT wildcards `+` and `#` allowed)."),
             NodeProperty::new("qos", "QoS", NodePropertyType::Options)
                 .options(vec![
                     NodePropertyOption {
@@ -70,12 +68,16 @@ impl Node for MqttTriggerNode {
                     },
                 ])
                 .default(Value::Number(0.into())),
-            NodeProperty::new("jsonParseBody", "JSON-parse Body", NodePropertyType::Boolean)
-                .default(Value::Bool(false))
-                .description(
-                    "When enabled, the payload is parsed as JSON and surfaced as `message`; \
+            NodeProperty::new(
+                "jsonParseBody",
+                "JSON-parse Body",
+                NodePropertyType::Boolean,
+            )
+            .default(Value::Bool(false))
+            .description(
+                "When enabled, the payload is parsed as JSON and surfaced as `message`; \
                      otherwise the raw UTF-8 string is forwarded.",
-                ),
+            ),
             NodeProperty::new(
                 "onlyMessage",
                 "Only Message (drop topic + metadata)",

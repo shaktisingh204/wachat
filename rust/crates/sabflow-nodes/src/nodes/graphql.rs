@@ -12,9 +12,7 @@ use serde_json::{Map, Value};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{
-        CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyType,
-    },
+    descriptor::{CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyType},
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -68,17 +66,14 @@ impl Node for GraphqlNode {
             Some(id) => {
                 let cred = ctx.credential(&id)?;
                 let endpoint = cred.data.get("endpointUrl").cloned();
-                let headers = cred
-                    .data
-                    .get("headers")
-                    .and_then(|s| {
-                        let trimmed = s.trim();
-                        if trimmed.is_empty() {
-                            None
-                        } else {
-                            serde_json::from_str::<Value>(trimmed).ok()
-                        }
-                    });
+                let headers = cred.data.get("headers").and_then(|s| {
+                    let trimmed = s.trim();
+                    if trimmed.is_empty() {
+                        None
+                    } else {
+                        serde_json::from_str::<Value>(trimmed).ok()
+                    }
+                });
                 (endpoint, headers)
             }
             None => (None, None),
@@ -169,10 +164,7 @@ impl Node for GraphqlNode {
             }
         }
 
-        let data = response_body
-            .get("data")
-            .cloned()
-            .unwrap_or(Value::Null);
+        let data = response_body.get("data").cloned().unwrap_or(Value::Null);
 
         Ok(NodeOutput::single(vec![data]))
     }

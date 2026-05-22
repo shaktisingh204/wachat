@@ -117,8 +117,10 @@ impl NodeProperty {
         self
     }
     pub fn show_when(mut self, key: &str, vals: &[&str]) -> Self {
-        let arr: Vec<serde_json::Value> =
-            vals.iter().map(|v| serde_json::Value::String((*v).to_string())).collect();
+        let arr: Vec<serde_json::Value> = vals
+            .iter()
+            .map(|v| serde_json::Value::String((*v).to_string()))
+            .collect();
         let map: serde_json::Map<String, serde_json::Value> =
             std::iter::once((key.to_string(), serde_json::Value::Array(arr))).collect();
         self.display_options = Some(serde_json::Value::Object(map));

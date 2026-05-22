@@ -27,7 +27,9 @@ use serde_json::{Map, Value, json};
 
 use crate::{
     context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType},
+    descriptor::{
+        NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption, NodePropertyType,
+    },
     error::{NodeError, NodeResult},
     node::Node,
 };
@@ -45,47 +47,52 @@ fn opt(name: &str, value: &str, desc: &str) -> NodePropertyOption {
 #[async_trait]
 impl Node for MergeNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new("merge", "Merge", "Combine multiple inputs", NodeCategory::Logic)
-            .icon("merge")
-            .color("#6366f1")
-            .properties(vec![
-                NodeProperty::new("mode", "Mode", NodePropertyType::Options)
-                    .options(vec![
-                        opt("Append", "append", "Concatenate items from every input"),
-                        opt(
-                            "Merge By Position",
-                            "mergeByPosition",
-                            "Walk branches in lock-step and merge fields per index",
-                        ),
-                        opt(
-                            "Merge By Key",
-                            "mergeByKey",
-                            "Outer-join items that share a field value",
-                        ),
-                        opt(
-                            "Multiplex",
-                            "multiplex",
-                            "Cartesian product across all branches",
-                        ),
-                    ])
-                    .default(Value::String("append".into()))
-                    .required(),
-                NodeProperty::new("mergeByField", "Merge By Field", NodePropertyType::String)
-                    .placeholder("id")
-                    .show_when("mode", &["mergeByKey"])
-                    .description("Field name used to outer-join items across branches."),
-                NodeProperty::new(
-                    "includeUnpaired",
-                    "Include Unpaired Items",
-                    NodePropertyType::Boolean,
-                )
-                .default(Value::Bool(false))
+        NodeDescriptor::new(
+            "merge",
+            "Merge",
+            "Combine multiple inputs",
+            NodeCategory::Logic,
+        )
+        .icon("merge")
+        .color("#6366f1")
+        .properties(vec![
+            NodeProperty::new("mode", "Mode", NodePropertyType::Options)
+                .options(vec![
+                    opt("Append", "append", "Concatenate items from every input"),
+                    opt(
+                        "Merge By Position",
+                        "mergeByPosition",
+                        "Walk branches in lock-step and merge fields per index",
+                    ),
+                    opt(
+                        "Merge By Key",
+                        "mergeByKey",
+                        "Outer-join items that share a field value",
+                    ),
+                    opt(
+                        "Multiplex",
+                        "multiplex",
+                        "Cartesian product across all branches",
+                    ),
+                ])
+                .default(Value::String("append".into()))
+                .required(),
+            NodeProperty::new("mergeByField", "Merge By Field", NodePropertyType::String)
+                .placeholder("id")
                 .show_when("mode", &["mergeByKey"])
-                .description(
-                    "When on, items that don't match any partner branch still appear in \
+                .description("Field name used to outer-join items across branches."),
+            NodeProperty::new(
+                "includeUnpaired",
+                "Include Unpaired Items",
+                NodePropertyType::Boolean,
+            )
+            .default(Value::Bool(false))
+            .show_when("mode", &["mergeByKey"])
+            .description(
+                "When on, items that don't match any partner branch still appear in \
                      the output (left-outer-join semantics).",
-                ),
-            ])
+            ),
+        ])
     }
 
     async fn execute(
@@ -112,7 +119,9 @@ impl Node for MergeNode {
             }
 
             "mergeByKey" => {
-                let field = ctx.param_str_opt(params, "mergeByField").unwrap_or_default();
+                let field = ctx
+                    .param_str_opt(params, "mergeByField")
+                    .unwrap_or_default();
                 let include_unpaired = ctx.param_bool(params, "includeUnpaired", false);
                 if field.is_empty() {
                     return Err(NodeError::MissingParameter("mergeByField".into()));
@@ -257,8 +266,10 @@ fn merge_by_key(branches: Vec<Vec<Value>>, field: &str, include_unpaired: bool) 
         if let Some(key_val) = key.as_ref().filter(|k| !k.is_null()) {
             for (branch_offset, branch) in rest.iter().enumerate() {
                 let branch_idx = branch_offset + 1;
-                if let Some((j, partner)) =
-                    branch.iter().enumerate().find(|(_, it)| it.get(field) == Some(key_val))
+                if let Some((j, partner)) = branch
+                    .iter()
+                    .enumerate()
+                    .find(|(_, it)| it.get(field) == Some(key_val))
                 {
                     any_match = true;
                     if let Some(map) = partner.as_object() {

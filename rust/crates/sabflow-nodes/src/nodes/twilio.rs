@@ -49,7 +49,11 @@ impl Node for TwilioNode {
             NodeProperty::new("credentialId", "Credential", NodePropertyType::Credential)
                 .required(),
             NodeProperty::new("resource", "Resource", NodePropertyType::Options)
-                .options(vec![opt("SMS", "sms"), opt("MMS", "mms"), opt("Call", "call")])
+                .options(vec![
+                    opt("SMS", "sms"),
+                    opt("MMS", "mms"),
+                    opt("Call", "call"),
+                ])
                 .default(json!("sms"))
                 .required(),
             // SMS operations
@@ -162,8 +166,7 @@ impl Node for TwilioNode {
                 let from = ctx.param_str(params, "from")?;
                 let to = ctx.param_str(params, "to")?;
                 let url = ctx.param_str(params, "url")?;
-                let form: Vec<(&str, String)> =
-                    vec![("From", from), ("To", to), ("Url", url)];
+                let form: Vec<(&str, String)> = vec![("From", from), ("To", to), ("Url", url)];
                 post_form(ctx, &account_sid, &auth_token, "Calls.json", &form).await?
             }
             ("call", "get") => {

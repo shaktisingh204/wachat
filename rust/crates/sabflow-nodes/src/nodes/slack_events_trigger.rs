@@ -118,9 +118,7 @@ impl Node for SlackEventsApiTriggerNode {
         }
 
         // 3) Optional client-side event-type filter.
-        let filter_csv = ctx
-            .param_str_opt(params, "eventTypes")
-            .unwrap_or_default();
+        let filter_csv = ctx.param_str_opt(params, "eventTypes").unwrap_or_default();
         let allow: Vec<String> = filter_csv
             .split(',')
             .map(|s| s.trim().to_string())
@@ -132,10 +130,7 @@ impl Node for SlackEventsApiTriggerNode {
         //    `{{$json.user}}`, `{{$json.text}}`, etc. without an extra hop.
         let envelope_type = raw.get("type").and_then(|v| v.as_str()).unwrap_or("");
         if envelope_type == "event_callback" {
-            let inner = raw
-                .get("event")
-                .cloned()
-                .unwrap_or_else(|| json!({}));
+            let inner = raw.get("event").cloned().unwrap_or_else(|| json!({}));
             let inner_type = inner.get("type").and_then(|v| v.as_str()).unwrap_or("");
             if !allow.is_empty() && !allow.iter().any(|t| t == inner_type) {
                 return Ok(NodeOutput::single(vec![]));
@@ -149,7 +144,13 @@ impl Node for SlackEventsApiTriggerNode {
                 }
             };
             // Attach interesting envelope fields as siblings.
-            for key in ["team_id", "api_app_id", "event_id", "event_time", "event_context"] {
+            for key in [
+                "team_id",
+                "api_app_id",
+                "event_id",
+                "event_time",
+                "event_context",
+            ] {
                 if let Some(v) = raw.get(key) {
                     out.entry(key.to_string()).or_insert_with(|| v.clone());
                 }

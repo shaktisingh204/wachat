@@ -46,7 +46,7 @@
 
 use std::future::Future;
 
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::{
     context::NodeContext,
@@ -179,10 +179,9 @@ mod tests {
     #[tokio::test]
     async fn failure_with_continue_emits_sentinel_and_bumps_metric() {
         let c = ctx(true);
-        let r: ItemResult<u32> = try_with_continue_on_fail(&c, 7, || async {
-            Err(NodeError::Other("boom".into()))
-        })
-        .await;
+        let r: ItemResult<u32> =
+            try_with_continue_on_fail(&c, 7, || async { Err(NodeError::Other("boom".into())) })
+                .await;
         match r {
             ItemResult::ErrorItem(v) => {
                 assert_eq!(v["pairedItem"]["item"], 7);
@@ -196,10 +195,9 @@ mod tests {
     #[tokio::test]
     async fn failure_without_continue_aborts() {
         let c = ctx(false);
-        let r: ItemResult<u32> = try_with_continue_on_fail(&c, 0, || async {
-            Err(NodeError::Other("nope".into()))
-        })
-        .await;
+        let r: ItemResult<u32> =
+            try_with_continue_on_fail(&c, 0, || async { Err(NodeError::Other("nope".into())) })
+                .await;
         assert!(matches!(r, ItemResult::Abort(_)));
         assert_eq!(c.metrics.continue_on_fail_count(), 0);
     }

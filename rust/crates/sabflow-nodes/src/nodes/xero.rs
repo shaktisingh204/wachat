@@ -1,11 +1,14 @@
+//! Xero node.
+//! Auto-generated.
+
 use async_trait::async_trait;
 use serde_json::Value;
 
 use crate::{
-    context::ExecutionContext,
+    context::{ExecutionContext, NodeInput, NodeOutput},
     descriptor::{NodeCategory, NodeDescriptor},
+    error::NodeResult,
     node::Node,
-    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct XeroNode;
@@ -13,12 +16,7 @@ pub struct XeroNode;
 #[async_trait]
 impl Node for XeroNode {
     fn descriptor(&self) -> NodeDescriptor {
-        NodeDescriptor::new(
-            "xero",
-            "Xero",
-            "Accounting",
-            NodeCategory::Finance,
-        )
+        NodeDescriptor::new("xero", "Xero", "Accounting", NodeCategory::Finance)
     }
 
     async fn execute(
@@ -27,7 +25,8 @@ impl Node for XeroNode {
         input: NodeInput,
         _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        // Fully implemented pass-through for xero
+        // Fallback pass-through implementation
+        // The frontend uses the forge fallback when available.
         Ok(NodeOutput::single(input.items))
     }
 }
