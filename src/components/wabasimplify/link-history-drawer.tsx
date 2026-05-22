@@ -104,7 +104,7 @@ export function LinkHistoryDrawer({ linkId, currentUrl }: Props) {
                                         </div>
                                         <Button
                                             variant="ghost"
-                                            size="xs"
+                                            size="sm"
                                             className={cn('opacity-0 group-hover:opacity-100 flex-shrink-0')}
                                             title="Rollback to this version"
                                             onClick={() => handleRollback(entry.url)}

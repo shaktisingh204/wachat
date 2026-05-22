@@ -40,10 +40,10 @@ import { useToast } from '@/hooks/use-toast';
 import React, { useState, useTransition } from 'react';
 
 import { getPaymentRequestStatus } from '@/app/actions/whatsapp.actions';
-import { TemplateMessageContent } from './messages/template-message-content';
-import { ProductMessageContent } from './messages/product-message-content';
-import { OrderMessageContent } from './messages/order-message-content';
-import { ContactMessageContent } from './messages/contact-message-content';
+import { TemplateMessageContent } from '@/components/wabasimplify/messages/template-message-content';
+import { ProductMessageContent } from '@/components/wabasimplify/messages/product-message-content';
+import { OrderMessageContent } from '@/components/wabasimplify/messages/order-message-content';
+import { ContactMessageContent } from '@/components/wabasimplify/messages/contact-message-content';
 
 interface ChatMessageProps {
     message: AnyMessage;

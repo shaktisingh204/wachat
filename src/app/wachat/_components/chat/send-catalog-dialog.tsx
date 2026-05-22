@@ -28,8 +28,7 @@ import type { WithId,
   Contact,
   Project } from '@/lib/definitions';
 
-import { ScrollArea } from '../ui/scroll-area';
-import { Checkbox } from '../ui/checkbox';
+import { ScrollArea, Checkbox } from '@/components/zoruui';
 import Image from 'next/image';
 
 const initialState = { message: undefined, error: undefined };

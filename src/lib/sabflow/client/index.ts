@@ -16,30 +16,47 @@
 // React context + provider
 // ---------------------------------------------------------------------------
 export * from './SabFlowProvider';
-export * from './useSabFlowContext';
 
 // ---------------------------------------------------------------------------
 // Doc subscription hooks
 // ---------------------------------------------------------------------------
 export * from './useSabFlowDoc';
-export * from './useSabFlowDocOrNull';
 
 // ---------------------------------------------------------------------------
 // Presence
 // ---------------------------------------------------------------------------
-export * from './usePresence';
+export {
+  usePresence,
+  type AwarenessLike,
+  type AwarenessFactory,
+} from './usePresence';
 
 // ---------------------------------------------------------------------------
 // Undo / migrations
 // ---------------------------------------------------------------------------
-export * from './SabFlowUndoManager';
-export * from './runMigrations';
+export {
+  SabFlowUndoManager,
+  type SabFlowUndoManagerOptions,
+  type YUndoManagerOptions,
+  type YUndoManagerEvent,
+} from './undo-redo';
+export * from './schema-migrate';
 
 // ---------------------------------------------------------------------------
 // Offline + optimistic buffers (classes)
 // ---------------------------------------------------------------------------
-export * from './OfflineQueue';
-export * from './OptimisticBuffer';
+export * from './offline-queue';
+export {
+  OptimisticBuffer,
+  NACK_REASON,
+  UPDATE_ID_BYTES,
+  DEFAULT_PENDING_CAP,
+  type OptimisticBufferOptions,
+  type RollbackEventDetail,
+  type ConfirmedEventDetail,
+  type DroppedEventDetail,
+  type ApplyHandle,
+} from './optimistic';
 
 // ---------------------------------------------------------------------------
 // Error boundary + UX toasts
@@ -59,9 +76,8 @@ export { track } from './telemetry';
 // ---------------------------------------------------------------------------
 // Shared types — re-exported as type-only to avoid runtime cost.
 // ---------------------------------------------------------------------------
-export type {
-  PresenceState,
-  ConnectionStatus,
-  NackReason,
-  Migration,
-} from './types';
+export type { PresenceState } from './usePresence';
+export type { SabFlowConnectionStatus as ConnectionStatus } from './SabFlowProvider';
+export type { NackReason } from './optimistic';
+export type { Migration } from '../migrations';
+

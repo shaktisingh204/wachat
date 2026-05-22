@@ -24,7 +24,7 @@ import type { WithId,
   Contact } from '@/lib/definitions';
 
 import { handleRequestWhatsAppPayment } from '@/app/actions/whatsapp.actions';
-import { WaPayIcon } from './custom-sidebar-components';
+import { WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const initialState = { message: null, error: undefined };
 

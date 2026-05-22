@@ -31,6 +31,7 @@ export interface ApiAuthContext {
   scopes: OAuthScope[];
   tier: RateLimitTier;
   keyId: string;
+  userId?: string;
 }
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */

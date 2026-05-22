@@ -333,7 +333,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
     if (!target || typeof (target as { tagName?: unknown }).tagName !== 'string') {
         return false;
     }
-    const el = target as {
+    const el = target as unknown as {
         tagName: string;
         isContentEditable?: boolean;
         readOnly?: boolean;

@@ -91,7 +91,7 @@ async function loadBytes(ctx: ForgeActionContext): Promise<{ buf: Buffer; source
   if (url) {
     const res = await fetch(url);
     if (!res.ok) throw new Error(`SpreadsheetFile: fetch ${url} failed (${res.status})`);
-    return { buf: Buffer.from(await res.arrayBuffer()), source: url };
+    return { buf: Buffer.from(new Uint8Array(await res.arrayBuffer())), source: url };
   }
   throw new Error('SpreadsheetFile: provide input_base64 or url');
 }
@@ -115,7 +115,7 @@ async function readCsv(ctx: ForgeActionContext): Promise<ForgeActionResult> {
     if (!worksheet) throw new Error(`SpreadsheetFile: sheet "${requestedSheet || '(first)'}" not found`);
     const headers: string[] = [];
     worksheet.eachRow((row, rowNumber) => {
-      const vals = (row.values as ExcelJS.CellValue[]).slice(1);
+      const vals = (row.values as any[]).slice(1);
       if (rowNumber === 1) {
         headers.push(...vals.map(v => v == null ? '' : String(v)));
       } else {

@@ -48,9 +48,8 @@ import {
   LuChevronLeft,
   LuChevronRight,
   LuCircleAlert,
-  LuLoader2,
-  LuCheckCircle2,
-  LuAlertCircle,
+  LuLoader,
+  LuCheck,
   LuClock,
   LuBraces,
 } from 'react-icons/lu';
@@ -145,12 +144,12 @@ function StatusPill({ status }: { status: PlaybackStatus }) {
       loading: {
         label: 'Loading',
         className: 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-        icon: <LuLoader2 className="h-3 w-3 animate-spin" strokeWidth={2} />,
+        icon: <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />,
       },
       buffering: {
         label: 'Buffering',
         className: 'bg-[var(--gray-3)] text-[var(--gray-10)]',
-        icon: <LuLoader2 className="h-3 w-3 animate-spin" strokeWidth={2} />,
+        icon: <LuLoader className="h-3 w-3 animate-spin" strokeWidth={2} />,
       },
       playing: {
         label: 'Playing',
@@ -165,12 +164,12 @@ function StatusPill({ status }: { status: PlaybackStatus }) {
       done: {
         label: 'Done',
         className: 'bg-blue-900/50 text-blue-300 border border-blue-700/40',
-        icon: <LuCheckCircle2 className="h-3 w-3" strokeWidth={2} />,
+        icon: <LuCheck className="h-3 w-3" strokeWidth={2} />,
       },
       error: {
         label: 'Error',
         className: 'bg-red-900/50 text-red-300 border border-red-700/40',
-        icon: <LuAlertCircle className="h-3 w-3" strokeWidth={2} />,
+        icon: <LuCircleAlert className="h-3 w-3" strokeWidth={2} />,
       },
     };
   const { label, className, icon } = map[status];
@@ -559,7 +558,7 @@ export function PlaybackInspector({
           >
             {status === 'loading' || status === 'buffering' ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
-                <LuLoader2 className="h-5 w-5 text-[#f76808] animate-spin" strokeWidth={1.75} />
+                <LuLoader className="h-5 w-5 text-[#f76808] animate-spin" strokeWidth={1.75} />
                 <p className="text-[12px] text-[var(--gray-9)]">
                   {status === 'loading' ? 'Connecting to replay stream…' : 'Waiting for events…'}
                 </p>

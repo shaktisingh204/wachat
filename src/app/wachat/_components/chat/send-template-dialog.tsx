@@ -23,7 +23,7 @@ import { handleSendTemplateMessage } from '@/app/actions/send-template.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Contact, Template } from '@/lib/definitions';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
+import { RadioGroup, ZoruRadioGroupItem as RadioGroupItem } from '@/components/zoruui';
 
 const initialState: { message?: string; error?: string } = {
   message: undefined,

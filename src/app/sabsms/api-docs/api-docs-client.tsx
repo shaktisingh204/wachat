@@ -38,7 +38,7 @@ import {
   ZoruAccordionTrigger,
   ZoruAccordionContent,
 } from "@/components/zoruui";
-import { cn } from "@/components/zoruui/lib/utils";
+import { cn } from "@/components/zoruui";
 
 // ---------------------------------------------------------------------------
 // DATA MODEL

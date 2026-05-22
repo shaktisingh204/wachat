@@ -268,12 +268,19 @@ export {
 export {
   Table,
   ZoruTableHeader,
+  ZoruTableHeader as TableHeader,
   ZoruTableBody,
+  ZoruTableBody as TableBody,
   ZoruTableFooter,
+  ZoruTableFooter as TableFooter,
   ZoruTableRow,
+  ZoruTableRow as TableRow,
   ZoruTableHead,
+  ZoruTableHead as TableHead,
   ZoruTableCell,
+  ZoruTableCell as TableCell,
   ZoruTableCaption,
+  ZoruTableCaption as TableCaption,
 } from "./table";
 export {
   DataTable,

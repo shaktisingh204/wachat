@@ -212,27 +212,25 @@ function levenshtein(a: string, b: string, cap: number): number {
   if (a.length === 0) return b.length;
   if (b.length === 0) return a.length;
   // Two-row DP.
-  let prev = new Array<number>(b.length + 1);
-  let curr = new Array<number>(b.length + 1);
-  for (let j = 0; j <= b.length; j++) prev[j] = j;
+  let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+  let curr = new Array<number>(b.length + 1).fill(0);
   for (let i = 1; i <= a.length; i++) {
     curr[0] = i;
-    let rowMin = curr[0];
+    let rowMin = curr[0] ?? 0;
     for (let j = 1; j <= b.length; j++) {
-      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      curr[j] = Math.min(
-        curr[j - 1] + 1,        // insertion
-        prev[j] + 1,            // deletion
-        prev[j - 1] + cost,     // substitution
-      );
-      if (curr[j] < rowMin) rowMin = curr[j];
+      const cost = (a[i - 1] ?? '') === (b[j - 1] ?? '') ? 0 : 1;
+      const c1 = (curr[j - 1] ?? 0) + 1;
+      const c2 = (prev[j] ?? 0) + 1;
+      const c3 = (prev[j - 1] ?? 0) + cost;
+      curr[j] = Math.min(c1, c2, c3);
+      if ((curr[j] ?? 0) < rowMin) rowMin = curr[j] ?? 0;
     }
     if (rowMin > cap) return cap + 1;
     const swap = prev;
     prev = curr;
     curr = swap;
   }
-  return prev[b.length];
+  return prev[b.length] ?? b.length;
 }
 
 /**

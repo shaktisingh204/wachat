@@ -193,13 +193,13 @@ export function TemplateCard({ template }: Props) {
         </div>
       </article>
 
-      {/* ── Install modal ────────────────────────────────────────────────── */}
-      <InstallModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        templateSlug={template.slug}
-        templateName={template.name}
-      />
+      {modalOpen && (
+        <InstallModal
+          onClose={() => setModalOpen(false)}
+          templateId={template.slug}
+          templateName={template.name}
+        />
+      )}
     </>
   );
 }

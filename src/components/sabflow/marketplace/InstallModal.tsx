@@ -88,7 +88,7 @@ export function InstallModal({
 
       let data: { docId?: string; editorUrl?: string; error?: string } | null = null;
       try {
-        data = (await res.json()) as typeof data;
+        data = (await res.json()) as any;
       } catch {
         /* empty body */
       }

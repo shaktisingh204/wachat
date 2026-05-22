@@ -36,8 +36,8 @@ import {
   type ReactNode,
 } from 'react';
 
-import type { SabFlowDoc } from '@/lib/sabflow/types';
 import type { PresenceEntry } from '@/lib/sabflow/presence/store';
+import * as Y from 'yjs';
 
 // ── Forward-declared sibling modules ────────────────────────────────────────
 //
@@ -49,13 +49,14 @@ import type { PresenceEntry } from '@/lib/sabflow/presence/store';
 
 import { useSabFlowDoc } from './useSabFlowDoc';
 import { usePresence } from './usePresence';
-import { reportSabFlowError } from './errorSink';
+import { reportSabFlowError } from './SabFlowErrorBoundary';
 
 // ── Public types ────────────────────────────────────────────────────────────
 
 export type SabFlowConnectionStatus =
   | 'idle'
   | 'connecting'
+  | 'syncing'
   | 'connected'
   | 'reconnecting'
   | 'error'
@@ -69,7 +70,7 @@ export type SabFlowLocalUser = {
 
 export type SabFlowContextValue = {
   /** The live SabFlow document, or `null` until the first sync completes. */
-  doc: SabFlowDoc | null;
+  doc: Y.Doc | null;
   /** Connection lifecycle state for the underlying transport. */
   status: SabFlowConnectionStatus;
   /** Other users currently editing this doc (excluding the local user). */
@@ -155,25 +156,36 @@ function SabFlowProviderInner({
   const {
     doc,
     status,
-    lastError,
+    error: lastError,
     reconnectAttempts,
   } = useSabFlowDoc({ workspaceId, docId, fetchToken });
 
-  const { peers, setLocalPresence } = usePresence({
-    workspaceId,
-    docId,
-    localUser,
-  });
+  const { peers: presencePeers, setLocal } = usePresence(
+    doc || new Y.Doc(),
+    {
+      localUser: {
+        id: localUser.userId,
+        name: localUser.name || 'Anonymous',
+        color: '#ff8800',
+      },
+    }
+  );
+
+  const peers = useMemo<PresenceEntry[]>(() => {
+    return Array.from(presencePeers.values()).map((p) => ({
+      userId: p.userId,
+      name: p.name,
+      cursor: p.cursor ? { x: p.cursor.x, y: p.cursor.y } : undefined,
+      lastSeen: p.lastSeen,
+    }));
+  }, [presencePeers]);
 
   // Bridge errors from the doc hook into the central error sink so the
   // surface layer (sibling #8) can render a toast / banner.
   useEffect(() => {
     if (lastError) {
-      reportSabFlowError({
-        scope: 'doc',
-        workspaceId,
-        docId,
-        error: lastError,
+      reportSabFlowError(lastError, {
+        componentStack: `scope: doc, workspace: ${workspaceId}, doc: ${docId}`,
       });
     }
   }, [lastError, workspaceId, docId]);
@@ -183,17 +195,16 @@ function SabFlowProviderInner({
   >(
     (patch) => {
       try {
-        setLocalPresence(patch);
+        setLocal({
+          cursor: patch.cursor,
+        });
       } catch (err) {
-        reportSabFlowError({
-          scope: 'presence',
-          workspaceId,
-          docId,
-          error: err instanceof Error ? err : new Error(String(err)),
+        reportSabFlowError(err instanceof Error ? err : new Error(String(err)), {
+          componentStack: `scope: presence, workspace: ${workspaceId}, doc: ${docId}`,
         });
       }
     },
-    [setLocalPresence, workspaceId, docId],
+    [setLocal, workspaceId, docId],
   );
 
   const value = useMemo<SabFlowContextValue>(
@@ -202,7 +213,7 @@ function SabFlowProviderInner({
       status,
       peers,
       setLocalPresence: safeSetLocalPresence,
-      lastError,
+      lastError: lastError || null,
       reconnectAttempts,
     }),
     [doc, status, peers, safeSetLocalPresence, lastError, reconnectAttempts],
@@ -210,11 +221,8 @@ function SabFlowProviderInner({
 
   const handleBoundaryError = useCallback(
     (error: Error) => {
-      reportSabFlowError({
-        scope: 'render',
-        workspaceId,
-        docId,
-        error,
+      reportSabFlowError(error, {
+        componentStack: `scope: render, workspace: ${workspaceId}, doc: ${docId}`,
       });
     },
     [workspaceId, docId],
@@ -241,7 +249,7 @@ export function useSabFlowContext(): SabFlowContextValue {
   return ctx;
 }
 
-export function useSabFlowDocOrNull(): SabFlowDoc | null {
+export function useSabFlowDocOrNull(): Y.Doc | null {
   const ctx = useContext(SabFlowContext);
   return ctx?.doc ?? null;
 }

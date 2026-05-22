@@ -5,11 +5,11 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
+    Button
+} from "@/components/zoruui"
 import { Plus, Image as ImageIcon, FileText, ClipboardList, ShoppingBag, IndianRupee } from "lucide-react"
 import type { Project } from "@/lib/definitions"
-import { WaPayIcon } from "./custom-sidebar-components"
+import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components"
 
 interface ChatAttachmentMenuProps {
     disabled?: boolean;

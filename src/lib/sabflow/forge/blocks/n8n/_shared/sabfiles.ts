@@ -63,7 +63,7 @@ export async function uploadStreamToSabFiles(
     headers: uploadHeaders,
     body: streamOrBuffer as any,
     duplex: streamOrBuffer instanceof ReadableStream ? 'half' : undefined,
-  });
+  } as any);
 
   if (!uploadRes.ok) {
     const txt = await uploadRes.text().catch(() => '');

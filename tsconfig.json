@@ -90,6 +90,9 @@
     "rust",
     "benches",
     "packages",
-    "services"
+    "services",
+    "**/__tests__/**",
+    "**/*.test.ts",
+    "**/*.test.tsx"
   ]
 }

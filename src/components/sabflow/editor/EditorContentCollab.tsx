@@ -315,7 +315,7 @@ export function EditorContentCollab({ flow: initialFlow }: Props) {
    * JavaScript object spread.
    */
   const patchMeta = useCallback(
-    (patch: Partial<SabFlowDoc> & { _id?: string }) => {
+    (patch: any) => {
       if (!doc) return;
       doc.transact(() => {
         const meta = doc.getMap(META_MAP_KEY);

@@ -72,7 +72,7 @@ const CATEGORIES: { label: string; keys: (keyof PlanFeaturePermissions)[] }[] = 
     { label: 'Team', keys: ['teamChat', 'teamTasks'] },
     {
         label: 'Standalone Tools',
-        keys: ['chatbot', 'email', 'sms', 'seo', 'websiteBuilder', 'urlShortener', 'qrCodeMaker'],
+        keys: ['chatbot', 'email', 'sabsms', 'seo', 'websiteBuilder', 'urlShortener', 'qrCodeMaker'],
     },
     {
         label: 'Settings & Account',

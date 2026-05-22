@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/zoruui';
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,

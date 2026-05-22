@@ -64,21 +64,21 @@ const block: ForgeBlock = {
   fields: [
     {
       name: "toolName",
-      type: "string",
+      type: "text",
       label: "Tool Name",
       required: true,
       description: "The name of the tool to execute.",
     },
     {
       name: "toolUrl",
-      type: "string",
+      type: "text",
       label: "Tool Endpoint URL",
       required: true,
       description: "The REST API endpoint to call.",
     },
     {
       name: "input",
-      type: "string",
+      type: "text",
       label: "Input",
       required: true,
       description: "Input arguments for the tool (JSON).",

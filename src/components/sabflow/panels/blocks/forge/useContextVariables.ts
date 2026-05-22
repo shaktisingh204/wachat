@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import { useReactFlow } from '@xyflow/react';
 import { VariableOption } from '@/lib/sabflow/editor/autocomplete';
 import { getForgeBlockMetadataSync } from '@/lib/sabflow/forge/metadata-client';
-import { Block } from '@/lib/sabflow/types';
+
 
 export function useContextVariables(nodeId?: string): VariableOption[] {
-  const rf = useReactFlow<Block>();
+  const rf = useReactFlow();
 
   return useMemo(() => {
     if (!nodeId) return [];

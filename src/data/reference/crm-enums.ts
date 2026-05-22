@@ -2904,8 +2904,6 @@ export const CRM_ENUMS = {
   currencyPosition: CURRENCY_POSITION,
   calendarPeriod: CALENDAR_PERIOD,
   reminderUnit: REMINDER_UNIT,
-  leaveDuration: LEAVE_DURATION,
-  halfDayType: HALF_DAY_TYPE,
 
   // Payroll settings (1E.sweep)
   payFrequency: PAY_FREQUENCY,

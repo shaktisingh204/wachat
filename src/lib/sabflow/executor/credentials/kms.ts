@@ -239,15 +239,59 @@ async function loadRotateCredential(): Promise<RotateCredentialFn> {
   try {
     // Sibling file from Phase 5 #2.
     const mod = (await import('./crypto')) as {
-      rotateCredential?: RotateCredentialFn;
+      rotateCredential?: any;
     };
     if (typeof mod.rotateCredential === 'function') {
-      rotateCredentialImpl = mod.rotateCredential;
+      rotateCredentialImpl = async (credentialId: string, { from, to }: { from: string; to: string }) => {
+        const col = await getCredentialsCollection();
+        const objId = new ObjectId(credentialId);
+        const row = await col.findOne({ _id: objId });
+        if (!row) {
+          throw new Error(`Credential ${credentialId} not found`);
+        }
+        const fullRow = row as any;
+        if (!fullRow.dataEncrypted) {
+          throw new Error(`Credential ${credentialId} is missing dataEncrypted buffer`);
+        }
+
+        const buf = fullRow.dataEncrypted;
+        const IV_LENGTH = 12;
+        const TAG_LENGTH = 16;
+        const WRAPPED_DEK_LENGTH = 60;
+
+        if (buf.length < IV_LENGTH + TAG_LENGTH + WRAPPED_DEK_LENGTH) {
+          throw new Error(`Credential ${credentialId} has malformed dataEncrypted buffer (length ${buf.length})`);
+        }
+
+        const iv = buf.subarray(0, IV_LENGTH);
+        const ciphertext = buf.subarray(IV_LENGTH, buf.length - TAG_LENGTH - WRAPPED_DEK_LENGTH);
+        const tag = buf.subarray(buf.length - TAG_LENGTH - WRAPPED_DEK_LENGTH, buf.length - WRAPPED_DEK_LENGTH);
+        const dek = buf.subarray(buf.length - WRAPPED_DEK_LENGTH);
+
+        const envelope = { iv, ciphertext, tag, dek, kekId: from };
+
+        // Call crypto-level rotateCredential
+        const rotatedEnv = mod.rotateCredential(envelope, from, to);
+
+        // Pack it back
+        const newBuf = Buffer.concat([rotatedEnv.iv, rotatedEnv.ciphertext, rotatedEnv.tag, rotatedEnv.dek]);
+
+        // Save back
+        await col.updateOne(
+          { _id: objId },
+          {
+            $set: {
+              dataEncrypted: newBuf,
+              kek: to,
+              updatedAt: new Date(),
+            },
+          }
+        );
+      };
       return rotateCredentialImpl;
     }
-  } catch {
-    // Fall through to the deferred error below — `./crypto` may not be
-    // committed yet when this file is reviewed in isolation.
+  } catch (err) {
+    // Fall through
   }
   throw new Error(
     '[sabflow/kms] rotateCredential is not available yet — Phase 5 #2 has not landed. ' +

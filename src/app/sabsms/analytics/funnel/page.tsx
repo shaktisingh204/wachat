@@ -46,10 +46,6 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
   ZoruChart,
   ZoruChartContainer,
   ZoruChartTooltip,
@@ -311,12 +307,28 @@ export default function FunnelAnalyticsPage() {
               </ZoruCardDescription>
             </div>
             <div className="flex items-center gap-3">
-              <Tabs value={activeVariant} onValueChange={setActiveVariant}>
-                <TabsList className="grid w-48 grid-cols-2 bg-zoru-surface-2 p-1 rounded-lg">
-                  <TabsTrigger value="control" className="rounded-md">Control</TabsTrigger>
-                  <TabsTrigger value="variant" className="rounded-md">Variant</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              <div className="flex items-center gap-1 bg-zoru-surface-2 p-1 rounded-lg w-48">
+                <button
+                  onClick={() => setActiveVariant("control")}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    activeVariant === "control" 
+                      ? "bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)]" 
+                      : "text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-1/50"
+                  }`}
+                >
+                  Control
+                </button>
+                <button
+                  onClick={() => setActiveVariant("variant")}
+                  className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all ${
+                    activeVariant === "variant" 
+                      ? "bg-zoru-surface text-zoru-ink shadow-[var(--zoru-shadow-sm)]" 
+                      : "text-zoru-ink-muted hover:text-zoru-ink hover:bg-zoru-surface-1/50"
+                  }`}
+                >
+                  Variant
+                </button>
+              </div>
               <Button variant="outline" size="icon" title="Toggle full screen">
                 <BarChart2 className="size-4 text-zoru-ink-muted" />
               </Button>
