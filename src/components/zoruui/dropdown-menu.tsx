@@ -177,3 +177,20 @@ export function ZoruDropdownMenuShortcut({
     />
   );
 }
+
+// Backward compatibility transitional aliases
+export const DropdownMenuTrigger = ZoruDropdownMenuTrigger;
+export const DropdownMenuGroup = ZoruDropdownMenuGroup;
+export const DropdownMenuPortal = ZoruDropdownMenuPortal;
+export const DropdownMenuSub = ZoruDropdownMenuSub;
+export const DropdownMenuRadioGroup = ZoruDropdownMenuRadioGroup;
+export const DropdownMenuSubTrigger = ZoruDropdownMenuSubTrigger;
+export const DropdownMenuSubContent = ZoruDropdownMenuSubContent;
+export const DropdownMenuContent = ZoruDropdownMenuContent;
+export const DropdownMenuItem = ZoruDropdownMenuItem;
+export const DropdownMenuCheckboxItem = ZoruDropdownMenuCheckboxItem;
+export const DropdownMenuRadioItem = ZoruDropdownMenuRadioItem;
+export const DropdownMenuLabel = ZoruDropdownMenuLabel;
+export const DropdownMenuSeparator = ZoruDropdownMenuSeparator;
+export const DropdownMenuShortcut = ZoruDropdownMenuShortcut;
+

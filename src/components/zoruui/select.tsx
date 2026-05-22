@@ -147,3 +147,13 @@ export const ZoruSelectSeparator = React.forwardRef<
   />
 ));
 ZoruSelectSeparator.displayName = "ZoruSelectSeparator";
+
+// Backward compatibility transitional aliases
+export const SelectGroup = ZoruSelectGroup;
+export const SelectValue = ZoruSelectValue;
+export const SelectTrigger = ZoruSelectTrigger;
+export const SelectContent = ZoruSelectContent;
+export const SelectLabel = ZoruSelectLabel;
+export const SelectItem = ZoruSelectItem;
+export const SelectSeparator = ZoruSelectSeparator;
+

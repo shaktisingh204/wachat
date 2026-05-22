@@ -10,7 +10,7 @@ import {
   Label,
 } from '@/components/zoruui';
 import {
-  TemplateInputRenderer } from './template-input-renderer';
+  TemplateInputRenderer } from '../template-input-renderer';
 import { useActionState,
   useEffect,
   useRef,

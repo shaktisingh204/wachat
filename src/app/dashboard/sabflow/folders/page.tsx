@@ -6,7 +6,6 @@ import {
   LuFolderOpen,
   LuSearch,
   LuPlus,
-  LuSettings,
   LuChevronRight,
   LuChevronDown,
   LuHardDrive,

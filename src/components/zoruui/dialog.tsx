@@ -119,3 +119,15 @@ export const ZoruDialogDescription = React.forwardRef<
   />
 ));
 ZoruDialogDescription.displayName = "ZoruDialogDescription";
+
+// Backward compatibility transitional aliases
+export const DialogTrigger = ZoruDialogTrigger;
+export const DialogClose = ZoruDialogClose;
+export const DialogPortal = ZoruDialogPortal;
+export const DialogOverlay = ZoruDialogOverlay;
+export const DialogContent = ZoruDialogContent;
+export const DialogHeader = ZoruDialogHeader;
+export const DialogFooter = ZoruDialogFooter;
+export const DialogTitle = ZoruDialogTitle;
+export const DialogDescription = ZoruDialogDescription;
+

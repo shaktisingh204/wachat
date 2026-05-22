@@ -9,7 +9,7 @@ import {
   DataTable,
   Badge,
 } from '@/components/zoruui';
-import { LuUsers, LuCheckCircle, LuActivity, LuMessageSquare, LuXCircle } from 'react-icons/lu';
+import { Users, CheckCircle, Activity, MessageSquare, XCircle } from 'lucide-react';
 import { type ColumnDef } from '@tanstack/react-table';
 import type { DailyCount, FlowResultsStats, FlowSession } from '@/app/actions/sabflow-results';
 import { format } from 'date-fns';
@@ -26,22 +26,22 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
     {
       label: 'Total Sessions',
       value: stats.totalSessions,
-      icon: <LuUsers className="w-4 h-4" />,
+      icon: <Users className="w-4 h-4" />,
     },
     {
       label: 'Completed',
       value: stats.completedSessions,
-      icon: <LuCheckCircle className="w-4 h-4 text-zoru-success" />,
+      icon: <CheckCircle className="w-4 h-4 text-zoru-success" />,
     },
     {
       label: 'Completion Rate',
       value: `${stats.completionRate}%`,
-      icon: <LuActivity className="w-4 h-4" />,
+      icon: <Activity className="w-4 h-4" />,
     },
     {
       label: 'Avg Messages',
       value: stats.avgMessageCount,
-      icon: <LuMessageSquare className="w-4 h-4" />,
+      icon: <MessageSquare className="w-4 h-4" />,
     },
   ];
 
@@ -92,7 +92,7 @@ export function ResultsDashboard({ stats, dailyCounts, sessions }: Props) {
       header: 'Status',
       cell: () => (
         <Badge variant="destructive" className="bg-red-500/10 text-red-500 hover:bg-red-500/20 border-0">
-          <LuXCircle className="mr-1 h-3 w-3" />
+          <XCircle className="mr-1 h-3 w-3" />
           Failed/Abandoned
         </Badge>
       ),
