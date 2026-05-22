@@ -24,8 +24,6 @@ import type {
 
 import { projectTemplate, type TemplateDocExt, type TemplateRow } from "./projection";
 
-export type { TemplateRow };
-
 // ─── Auth ────────────────────────────────────────────────────────────────
 
 async function resolveWorkspace(): Promise<

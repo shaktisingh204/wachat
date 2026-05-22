@@ -20,7 +20,7 @@ export interface ZoruStatCardProps extends React.HTMLAttributes<HTMLDivElement> 
   invertDelta?: boolean;
 }
 
-export function ZoruStatCard({
+export function StatCard({
   label,
   value,
   delta,
@@ -36,7 +36,7 @@ export function ZoruStatCard({
   const isGood = invertDelta ? !positive : positive;
 
   return (
-    <ZoruCard className={cn("overflow-hidden", className)} {...props}>
+    <Card className={cn("overflow-hidden", className)} {...props}>
       <ZoruCardContent className="flex flex-col gap-3 pt-6">
         <div className="flex items-start justify-between gap-3">
           <div className="flex flex-col gap-1">
@@ -75,6 +75,6 @@ export function ZoruStatCard({
         )}
         {chart && <div className="-mx-2 -mb-2">{chart}</div>}
       </ZoruCardContent>
-    </ZoruCard>
+    </Card>
   );
 }

@@ -7,7 +7,7 @@ export interface ZoruPageHeaderProps extends React.HTMLAttributes<HTMLElement> {
   bordered?: boolean;
 }
 
-export function ZoruPageHeader({
+export function PageHeader({
   className,
   bordered = true,
   ...props

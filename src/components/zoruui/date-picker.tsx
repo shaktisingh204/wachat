@@ -25,7 +25,7 @@ export interface ZoruDatePickerProps {
   align?: "start" | "center" | "end";
 }
 
-export function ZoruDatePicker({
+export function DatePicker({
   value,
   onChange,
   placeholder = "Pick a date",
@@ -35,9 +35,9 @@ export function ZoruDatePicker({
   align = "start",
 }: ZoruDatePickerProps) {
   return (
-    <ZoruPopover>
+    <Popover>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton
+        <Button
           variant="outline"
           disabled={disabled}
           className={cn(
@@ -48,17 +48,17 @@ export function ZoruDatePicker({
         >
           <CalendarIcon />
           {value ? format(value, displayFormat) : placeholder}
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent align={align} className="w-auto p-0">
-        <ZoruCalendar
+        <Calendar
           mode="single"
           selected={value}
           onSelect={onChange}
           autoFocus
         />
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }
 
@@ -90,9 +90,9 @@ export function ZoruDateRangePicker({
   }, [value, placeholder, displayFormat]);
 
   return (
-    <ZoruPopover>
+    <Popover>
       <ZoruPopoverTrigger asChild>
-        <ZoruButton
+        <Button
           variant="outline"
           disabled={disabled}
           className={cn(
@@ -103,10 +103,10 @@ export function ZoruDateRangePicker({
         >
           <CalendarIcon />
           {label}
-        </ZoruButton>
+        </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent align={align} className="w-auto p-0">
-        <ZoruCalendar
+        <Calendar
           mode="range"
           selected={value}
           onSelect={onChange}
@@ -114,6 +114,6 @@ export function ZoruDateRangePicker({
           autoFocus
         />
       </ZoruPopoverContent>
-    </ZoruPopover>
+    </Popover>
   );
 }

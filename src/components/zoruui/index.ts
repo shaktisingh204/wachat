@@ -427,3 +427,39 @@ export {
   type ZoruDynamicSelectorProps,
   type DynamicSelectorOption,
 } from "./dynamic-selector";
+
+// ── Transitional aliases ──────────────────────────────────────────────────
+// Base component names are mid-migration from `Zoru`-prefixed to bare
+// (`ZoruButton` → `Button`, …). These aliases keep not-yet-migrated call
+// sites compiling during the rename. Remove this block once every consumer
+// has been moved to the bare names.
+export { Button as ZoruButton } from "./button";
+export { Input as ZoruInput } from "./input";
+export { Textarea as ZoruTextarea } from "./textarea";
+export { Label as ZoruLabel } from "./label";
+export { Checkbox as ZoruCheckbox } from "./checkbox";
+export { RadioGroup as ZoruRadioGroup } from "./radio-group";
+export { Switch as ZoruSwitch } from "./switch";
+export { Select as ZoruSelect } from "./select";
+export { Separator as ZoruSeparator } from "./separator";
+export { Skeleton as ZoruSkeleton } from "./skeleton";
+export { Avatar as ZoruAvatar } from "./avatar";
+export { Badge as ZoruBadge } from "./badge";
+export { Progress as ZoruProgress } from "./progress";
+export { Tooltip as ZoruTooltip } from "./tooltip";
+export { Dialog as ZoruDialog } from "./dialog";
+export { Sheet as ZoruSheet } from "./sheet";
+export { Popover as ZoruPopover } from "./popover";
+export { DropdownMenu as ZoruDropdownMenu } from "./dropdown-menu";
+export { Alert as ZoruAlert } from "./alert";
+export { Card as ZoruCard } from "./card";
+export { PageHeader as ZoruPageHeader } from "./page-header";
+export { Breadcrumb as ZoruBreadcrumb } from "./breadcrumb";
+export { Accordion as ZoruAccordion } from "./accordion";
+export { ScrollArea as ZoruScrollArea } from "./scroll-area";
+export { EmptyState as ZoruEmptyState } from "./empty-state";
+export { Table as ZoruTable } from "./table";
+export { DataTable as ZoruDataTable } from "./data-table";
+export { Calendar as ZoruCalendar } from "./calendar";
+export { DatePicker as ZoruDatePicker } from "./date-picker";
+export { StatCard as ZoruStatCard } from "./stat-card";

@@ -73,8 +73,8 @@ import {
   submitTemplatesForApproval,
   withdrawSubmission,
   type TemplateAuditEvent,
-  type TemplateRow,
 } from "./actions";
+import type { TemplateRow } from "./projection";
 
 interface TemplatesTableProps {
   workspaceId: string;

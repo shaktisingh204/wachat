@@ -41,7 +41,7 @@ const toneToVariant: Record<NonNullable<ZoruBadgeProps["tone"]>, NonNullable<Zor
   blue: "info",
 };
 
-export function ZoruBadge({ className, variant, tone, ...props }: ZoruBadgeProps) {
+export function Badge({ className, variant, tone, ...props }: ZoruBadgeProps) {
   return (
     <span
       className={cn(zoruBadgeVariants({ variant: variant ?? (tone ? toneToVariant[tone] : undefined) }), className)}

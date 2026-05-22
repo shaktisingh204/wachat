@@ -4,7 +4,7 @@ import { cn } from "./lib/cn";
 
 export interface ZoruSkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-export function ZoruSkeleton({ className, ...props }: ZoruSkeletonProps) {
+export function Skeleton({ className, ...props }: ZoruSkeletonProps) {
   return (
     <div
       className={cn(

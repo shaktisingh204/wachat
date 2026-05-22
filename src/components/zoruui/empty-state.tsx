@@ -12,7 +12,7 @@ export interface ZoruEmptyStateProps
   compact?: boolean;
 }
 
-export function ZoruEmptyState({
+export function EmptyState({
   icon,
   title,
   description,

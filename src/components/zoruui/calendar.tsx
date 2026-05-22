@@ -13,7 +13,7 @@ export type ZoruCalendarProps = React.ComponentProps<typeof DayPicker>;
  * Pass `mode="single"` (default), `mode="range"`, or `mode="multiple"`
  * via the underlying API.
  */
-export function ZoruCalendar({
+export function Calendar({
   className,
   classNames,
   showOutsideDays = true,
