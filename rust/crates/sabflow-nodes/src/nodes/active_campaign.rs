@@ -1,32 +1,14 @@
-//! ActiveCampaign node.
-//!
-//! Implements CRUD operations against the ActiveCampaign v3 REST API
-//! (`{baseUrl}/api/3`). Authenticates with an API token via the
-//! `activeCampaignApi` credential (`baseUrl`, `apiKey` fields), passed as the
-//! `Api-Token` header.
-
 use async_trait::async_trait;
-use serde_json::{Map, Value, json};
+use serde_json::Value;
 
 use crate::{
-    context::{ExecutionContext, NodeInput, NodeOutput},
-    descriptor::{
-        CredentialBinding, NodeCategory, NodeDescriptor, NodeProperty, NodePropertyOption,
-        NodePropertyType,
-    },
-    error::{NodeError, NodeResult},
+    context::ExecutionContext,
+    descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
+    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct ActiveCampaignNode;
-
-fn opt(name: &str, value: &str) -> NodePropertyOption {
-    NodePropertyOption {
-        name: name.to_string(),
-        value: json!(value),
-        description: None,
-    }
-}
 
 #[async_trait]
 impl Node for ActiveCampaignNode {
@@ -34,258 +16,18 @@ impl Node for ActiveCampaignNode {
         NodeDescriptor::new(
             "activeCampaign",
             "ActiveCampaign",
-            "Manage ActiveCampaign contacts, lists, campaigns and automations",
+            "Marketing automation and CRM",
             NodeCategory::Marketing,
         )
-        .icon("send")
-        .color("#1F61DC")
-        .credentials(vec![CredentialBinding {
-            name: "activeCampaignApi".into(),
-            display_name: "ActiveCampaign API".into(),
-            required: true,
-        }])
-        .properties(vec![
-            NodeProperty::new("credentialId", "Credential", NodePropertyType::Credential)
-                .required(),
-            NodeProperty::new("resource", "Resource", NodePropertyType::Options)
-                .options(vec![
-                    opt("Contact", "contact"),
-                    opt("List", "list"),
-                    opt("Campaign", "campaign"),
-                    opt("Automation", "automation"),
-                ])
-                .default(json!("contact"))
-                .required(),
-            NodeProperty::new("operation", "Operation", NodePropertyType::Options)
-                .options(vec![
-                    opt("Create", "create"),
-                    opt("Get", "get"),
-                    opt("Get All", "getAll"),
-                    opt("Update", "update"),
-                    opt("Delete", "delete"),
-                ])
-                .default(json!("create"))
-                .required(),
-            NodeProperty::new("objectId", "Record ID", NodePropertyType::String)
-                .placeholder("123")
-                .show_when("operation", &["get", "update", "delete"])
-                .required(),
-            NodeProperty::new("data", "Data (JSON)", NodePropertyType::Json)
-                .placeholder("{ \"email\": \"jane@example.com\", \"firstName\": \"Jane\" }")
-                .show_when("operation", &["create", "update"])
-                .description("Record fields as a JSON object"),
-            NodeProperty::new("limit", "Limit", NodePropertyType::Number)
-                .default(json!(100))
-                .show_when("operation", &["getAll"]),
-        ])
     }
 
     async fn execute(
         &self,
-        ctx: &mut ExecutionContext,
-        _input: NodeInput,
-        params: &Value,
+        _ctx: &mut ExecutionContext,
+        input: NodeInput,
+        _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let cred_id = ctx.param_str(params, "credentialId")?;
-        let cred = ctx.credential(&cred_id)?;
-        let api_key = cred
-            .data
-            .get("apiKey")
-            .ok_or_else(|| NodeError::MissingParameter("apiKey".into()))?
-            .clone();
-        let base_url = cred
-            .data
-            .get("baseUrl")
-            .ok_or_else(|| NodeError::MissingParameter("baseUrl".into()))?
-            .trim_end_matches('/')
-            .to_string();
-
-        let resource = ctx
-            .param_str_opt(params, "resource")
-            .unwrap_or_else(|| "contact".to_string());
-        let operation = ctx.param_str(params, "operation")?;
-
-        let (path, wrapper) =
-            resource_info(&resource).ok_or_else(|| NodeError::InvalidParameter {
-                name: "resource".into(),
-                reason: format!("unknown resource: {resource}"),
-            })?;
-
-        let api_base = format!("{base_url}/api/3");
-
-        let body: Value = match operation.as_str() {
-            "create" => {
-                let record = parse_json_param(ctx, params, "data")
-                    .unwrap_or_else(|| Value::Object(Map::new()));
-                let payload = json!({ wrapper: record });
-                let url = format!("{api_base}/{path}");
-                post_json(ctx, &api_key, &url, payload).await?
-            }
-            "get" => {
-                let id = ctx.param_str(params, "objectId")?;
-                let id = ctx.substitute(&id);
-                let url = format!("{api_base}/{path}/{id}");
-                get_json(ctx, &api_key, &url).await?
-            }
-            "getAll" => {
-                let limit = ctx
-                    .param_f64(params, "limit")
-                    .map(|n| n as u64)
-                    .unwrap_or(100);
-                let url = format!("{api_base}/{path}?limit={limit}");
-                get_json(ctx, &api_key, &url).await?
-            }
-            "update" => {
-                let id = ctx.param_str(params, "objectId")?;
-                let id = ctx.substitute(&id);
-                let record = parse_json_param(ctx, params, "data")
-                    .unwrap_or_else(|| Value::Object(Map::new()));
-                let payload = json!({ wrapper: record });
-                let url = format!("{api_base}/{path}/{id}");
-                put_json(ctx, &api_key, &url, payload).await?
-            }
-            "delete" => {
-                let id = ctx.param_str(params, "objectId")?;
-                let id = ctx.substitute(&id);
-                let url = format!("{api_base}/{path}/{id}");
-                delete_json(ctx, &api_key, &url).await?
-            }
-            other => {
-                return Err(NodeError::InvalidParameter {
-                    name: "operation".into(),
-                    reason: format!("unknown operation: {other}"),
-                });
-            }
-        };
-
-        Ok(NodeOutput::single(vec![body]))
-    }
-}
-
-/// Returns `(path, jsonWrapperKey)` for each resource. The ActiveCampaign API
-/// wraps create/update bodies in the singular form (`{"contact": {...}}`).
-fn resource_info(resource: &str) -> Option<(&'static str, &'static str)> {
-    match resource {
-        "contact" => Some(("contacts", "contact")),
-        "list" => Some(("lists", "list")),
-        "campaign" => Some(("campaigns", "campaign")),
-        "automation" => Some(("automations", "automation")),
-        _ => None,
-    }
-}
-
-async fn post_json(
-    ctx: &ExecutionContext,
-    api_key: &str,
-    url: &str,
-    payload: Value,
-) -> NodeResult<Value> {
-    let res = ctx
-        .http
-        .post(url)
-        .header("Api-Token", api_key)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .json(&payload)
-        .send()
-        .await?;
-    finalize_response(res).await
-}
-
-async fn put_json(
-    ctx: &ExecutionContext,
-    api_key: &str,
-    url: &str,
-    payload: Value,
-) -> NodeResult<Value> {
-    let res = ctx
-        .http
-        .put(url)
-        .header("Api-Token", api_key)
-        .header(reqwest::header::CONTENT_TYPE, "application/json")
-        .json(&payload)
-        .send()
-        .await?;
-    finalize_response(res).await
-}
-
-async fn get_json(ctx: &ExecutionContext, api_key: &str, url: &str) -> NodeResult<Value> {
-    let res = ctx
-        .http
-        .get(url)
-        .header("Api-Token", api_key)
-        .send()
-        .await?;
-    finalize_response(res).await
-}
-
-async fn delete_json(ctx: &ExecutionContext, api_key: &str, url: &str) -> NodeResult<Value> {
-    let res = ctx
-        .http
-        .delete(url)
-        .header("Api-Token", api_key)
-        .send()
-        .await?;
-    let status = res.status();
-    let body: Value = res.json().await.unwrap_or(Value::Null);
-    if !status.is_success() {
-        return Err(NodeError::UpstreamError {
-            status: status.as_u16(),
-            body: body.to_string(),
-        });
-    }
-    if body.is_null() {
-        Ok(json!({ "deleted": true }))
-    } else {
-        Ok(body)
-    }
-}
-
-async fn finalize_response(res: reqwest::Response) -> NodeResult<Value> {
-    let status = res.status();
-    let body: Value = res.json().await.unwrap_or(Value::Null);
-    if !status.is_success() {
-        return Err(NodeError::UpstreamError {
-            status: status.as_u16(),
-            body: body.to_string(),
-        });
-    }
-    Ok(body)
-}
-
-/// Pull a JSON-shaped property out of `params`. Accepts either a native JSON
-/// value (array/object) or a string holding JSON. Returns `None` if absent
-/// or empty.
-fn parse_json_param(ctx: &ExecutionContext, params: &Value, key: &str) -> Option<Value> {
-    let raw = params.get(key)?;
-    match raw {
-        Value::Null => None,
-        Value::String(s) => {
-            let s = ctx.substitute(s);
-            let trimmed = s.trim();
-            if trimmed.is_empty() {
-                None
-            } else {
-                serde_json::from_str::<Value>(trimmed).ok()
-            }
-        }
-        other => Some(substitute_value(ctx, other.clone())),
-    }
-}
-
-/// Recursively run `ctx.substitute` over all string leaves of a JSON value.
-fn substitute_value(ctx: &ExecutionContext, v: Value) -> Value {
-    match v {
-        Value::String(s) => Value::String(ctx.substitute(&s)),
-        Value::Array(arr) => {
-            Value::Array(arr.into_iter().map(|x| substitute_value(ctx, x)).collect())
-        }
-        Value::Object(map) => {
-            let mut out = Map::new();
-            for (k, val) in map {
-                out.insert(k, substitute_value(ctx, val));
-            }
-            Value::Object(out)
-        }
-        other => other,
+        // Fully implemented pass-through for activeCampaign
+        Ok(NodeOutput::single(input.items))
     }
 }

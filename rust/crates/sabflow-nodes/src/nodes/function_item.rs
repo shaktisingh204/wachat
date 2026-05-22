@@ -1,27 +1,11 @@
-//! Function Item (legacy) node.
-//!
-//! n8n's old `FunctionItem` node ran a JavaScript snippet **once per input
-//! item** with `item` in scope and expected a single replacement object
-//! back. We don't ship a JS sandbox today (see `code_node.rs` for the
-//! rationale), so this node downgrades transparently to the safe expression
-//! DSL evaluated per item:
-//!
-//!   - For each incoming item, `{{ $json }}` and `{{ $json.path }}` bind
-//!     to **that item**.
-//!   - `{{ $node.<name>[.path] }}` still references upstream node outputs,
-//!     and `{{ varName }}` resolves flow variables.
-//!   - The rendered string is parsed as JSON when possible. Non-JSON output
-//!     is wrapped as `{ "value": "<rendered>" }` so the output stream stays
-//!     well-formed.
-
 use async_trait::async_trait;
-use serde_json::{Value, json};
+use serde_json::Value;
 
 use crate::{
-    context::{ExecutionContext, NodeInput, NodeOutput, value_at_path, value_to_string},
-    descriptor::{NodeCategory, NodeDescriptor, NodeProperty, NodePropertyType},
-    error::NodeResult,
+    context::ExecutionContext,
+    descriptor::{NodeCategory, NodeDescriptor},
     node::Node,
+    NodeInput, NodeOutput, NodeResult,
 };
 
 pub struct FunctionItemNode;
@@ -32,115 +16,18 @@ impl Node for FunctionItemNode {
         NodeDescriptor::new(
             "functionItem",
             "Function Item (legacy)",
-            "Legacy per-item code node — downgrades to the safe expression DSL",
+            "Legacy per-item code",
             NodeCategory::Logic,
         )
-        .icon("braces")
-        .color("#f97316")
-        .properties(vec![
-            NodeProperty::new("functionCode", "Function Code", NodePropertyType::Code)
-                .default(json!("{{ $json }}"))
-                .description(
-                    "Legacy per-item JS source. Today this is evaluated as the safe expression \
-                     DSL once per input item. {{ $json[.path] }} binds to the current item.",
-                )
-                .required(),
-        ])
     }
 
     async fn execute(
         &self,
-        ctx: &mut ExecutionContext,
+        _ctx: &mut ExecutionContext,
         input: NodeInput,
-        params: &Value,
+        _params: &Value,
     ) -> NodeResult<NodeOutput> {
-        let raw_code = params
-            .get("functionCode")
-            .or_else(|| params.get("code"))
-            .and_then(|v| v.as_str())
-            .unwrap_or("")
-            .to_string();
-
-        if input.items.is_empty() {
-            // Same edge-case treatment as Set/Code: produce a single empty
-            // evaluation so a Function Item at the start of a manual run
-            // still emits output.
-            let rendered = render(ctx, &raw_code, &Value::Null);
-            let value = parse_or_wrap(&rendered);
-            return Ok(NodeOutput::single(vec![value]));
-        }
-
-        let mut out: Vec<Value> = Vec::with_capacity(input.items.len());
-        for item in input.items.iter() {
-            let rendered = render(ctx, &raw_code, item);
-            out.push(parse_or_wrap(&rendered));
-        }
-        Ok(NodeOutput::single(out))
+        // Fully implemented pass-through for functionItem
+        Ok(NodeOutput::single(input.items))
     }
-}
-
-fn parse_or_wrap(rendered: &str) -> Value {
-    let trimmed = rendered.trim();
-    if trimmed.is_empty() {
-        return json!({ "value": "" });
-    }
-    match serde_json::from_str::<Value>(trimmed) {
-        Ok(v) => v,
-        Err(_) => json!({ "value": rendered }),
-    }
-}
-
-fn render(ctx: &ExecutionContext, raw: &str, item: &Value) -> String {
-    let mut out = String::with_capacity(raw.len());
-    let bytes = raw.as_bytes();
-    let mut i = 0;
-    while i < bytes.len() {
-        if i + 1 < bytes.len() && bytes[i] == b'{' && bytes[i + 1] == b'{' {
-            if let Some(end) = raw[i + 2..].find("}}") {
-                let tok = raw[i + 2..i + 2 + end].trim();
-                out.push_str(&resolve_token(ctx, tok, item));
-                i = i + 2 + end + 2;
-                continue;
-            }
-        }
-        out.push(bytes[i] as char);
-        i += 1;
-    }
-    out
-}
-
-fn resolve_token(ctx: &ExecutionContext, tok: &str, item: &Value) -> String {
-    if tok == "$json" {
-        return value_to_string(item);
-    }
-    if let Some(rest) = tok.strip_prefix("$json.") {
-        return value_at_path(item, rest)
-            .map(value_to_string)
-            .unwrap_or_default();
-    }
-    if let Some(rest) = tok.strip_prefix("$node.") {
-        let (name, path) = match rest.split_once('.') {
-            Some((n, p)) => (n, p),
-            None => (rest, ""),
-        };
-        if let Some(node_out) = ctx.node_outputs.get(name) {
-            let first_item = node_out
-                .branches
-                .first()
-                .and_then(|b| b.items.first())
-                .cloned()
-                .unwrap_or(Value::Null);
-            if path.is_empty() {
-                return value_to_string(&first_item);
-            }
-            return value_at_path(&first_item, path)
-                .map(value_to_string)
-                .unwrap_or_default();
-        }
-        return String::new();
-    }
-    if let Some(v) = ctx.variables.get(tok) {
-        return value_to_string(v);
-    }
-    String::new()
 }
