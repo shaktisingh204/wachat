@@ -73,8 +73,10 @@ export function EmployeeDashboardClient({
         </div>
       </div>
 
-      {/* Main Punch Widget */}
-      <EmployeePunchWidget employeeId={String(employee._id)} initialAttendance={attendance} />
+      {/* Main Punch Widget (Hidden for Admins) */}
+      {!employee.isAdmin && (
+        <EmployeePunchWidget employeeId={String(employee._id)} initialAttendance={attendance} />
+      )}
 
       {/* Advanced Features Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

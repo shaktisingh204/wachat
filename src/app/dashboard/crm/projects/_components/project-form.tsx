@@ -1,6 +1,6 @@
 'use client';
 
-import { Input, Label, Switch, Textarea, useZoruToast } from '@/components/zoruui';
+import { Input, Label, Switch, Textarea, useZoruToast, Select, ZoruSelectTrigger, ZoruSelectValue, ZoruSelectContent, ZoruSelectItem } from '@/components/zoruui';
 import {
   useRouter } from 'next/navigation';
 import { useActionState } from 'react';
@@ -45,6 +45,7 @@ export interface ProjectFormProps {
         notes?: string;
         billable?: number;
         public?: number;
+        visibilityType?: 'all' | 'assigned';
     };
 }
 
@@ -270,6 +271,21 @@ export function ProjectForm({ initial }: ProjectFormProps = {}) {
                                     defaultChecked={!!initial?.public}
                                 />
                                 <Label htmlFor="public">Public (client portal)</Label>
+                            </div>
+                            <div className="md:col-span-2">
+                                <Label>Project Visibility</Label>
+                                <Select name="visibilityType" defaultValue={initial?.visibilityType ?? 'assigned'}>
+                                    <ZoruSelectTrigger className="w-full">
+                                        <ZoruSelectValue placeholder="Select visibility" />
+                                    </ZoruSelectTrigger>
+                                    <ZoruSelectContent>
+                                        <ZoruSelectItem value="all">Visible to all employees</ZoruSelectItem>
+                                        <ZoruSelectItem value="assigned">Only assigned team members</ZoruSelectItem>
+                                    </ZoruSelectContent>
+                                </Select>
+                                <p className="text-[11px] text-zoru-ink-muted mt-1">
+                                    Admins will always see all projects. This setting controls visibility for regular employees.
+                                </p>
                             </div>
                         </div>
                     ),

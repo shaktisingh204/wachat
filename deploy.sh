@@ -17,9 +17,14 @@ set -euo pipefail
 REPO_DIR="/var/www/sabnode"
 cd "$REPO_DIR"
 
-# ── env -----------------------------------------------------------------
-CORES=$(nproc)
-USE_CORES=$((CORES - 1))
+if command -v nproc >/dev/null 2>&1; then
+  CORES=$(nproc)
+elif command -v sysctl >/dev/null 2>&1; then
+  CORES=$(sysctl -n hw.ncpu)
+else
+  CORES=4
+fi
+USE_CORES=$CORES
 if [ "$USE_CORES" -lt 1 ]; then USE_CORES=1; fi
 
 export NEXT_TELEMETRY_DISABLED=1

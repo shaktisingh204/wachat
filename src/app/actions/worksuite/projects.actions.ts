@@ -107,7 +107,28 @@ async function genericSave(
  * ══════════════════════════════════════════════════════════════════ */
 
 export async function getWsProjects() {
-  return hrList<WsProject>('crm_projects');
+  const user = await requireSession();
+  if (!user) return [];
+
+  const { db } = await connectToDatabase();
+  const userObjectId = new ObjectId(user._id);
+
+  const employee = await db.collection('crm_employees').findOne({ employeeUserId: userObjectId });
+  let extraFilter: any = {};
+
+  if (employee) {
+    const assignments = await db.collection('crm_project_members')
+      .find({ memberUserId: userObjectId })
+      .toArray();
+    const assignedProjectIds = assignments.map(a => new ObjectId(String(a.projectId)));
+
+    extraFilter.$or = [
+      { visibilityType: 'all' },
+      { _id: { $in: assignedProjectIds } }
+    ];
+  }
+
+  return hrList<WsProject>('crm_projects', { extraFilter });
 }
 export async function getWsProjectById(id: string) {
   return hrGetById<WsProject>('crm_projects', id);
