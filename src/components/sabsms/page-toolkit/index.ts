@@ -10,7 +10,7 @@ export {
   type SabsmsBreadcrumb,
   type SabsmsPageShellProps,
   type SabsmsSecondaryAction,
-} from "./sabsms-page-shell";
+} from "./SabsmsPageShell";
 export {
   SabsmsFilterBar,
   type SabsmsFacet,

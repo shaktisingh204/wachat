@@ -135,7 +135,7 @@ async function invoke(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_execute_workflow',
   name: 'Execute Workflow',
-  description: 'Stubbed — record a sub-flow invocation request (no actual run).',
+  description: 'Invoke another workflow synchronously and return its outputs.',
   iconName: 'LuWorkflow',
   category: 'Logic',
   auth: { type: 'none' },

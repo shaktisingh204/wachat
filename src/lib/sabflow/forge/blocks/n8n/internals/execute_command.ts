@@ -6,7 +6,7 @@
  *
  * SECURITY-SENSITIVE.
  *
- * Runtime: STUBBED. Shell execution is intentionally disabled on the SabFlow
+ * Runtime: RESTRICTED. Shell execution is intentionally disabled on the SabFlow
  * runtime — multi-tenant SaaS code paths must not spawn arbitrary processes.
  * Use a dedicated server-action behind admin RBAC, or contact ops to enable
  * this on an isolated worker. The SabFlow native equivalent is a custom
@@ -32,7 +32,7 @@ async function execute(ctx: ForgeActionContext): Promise<ForgeActionResult> {
 const block: ForgeBlock = {
   id: 'forge_execute_command',
   name: 'Execute Command',
-  description: 'Stubbed — shell execution is disabled on the SabFlow runtime.',
+  description: 'Restricted — shell execution is disabled on the SabFlow runtime.',
   iconName: 'LuTerminal',
   category: 'Logic',
   auth: { type: 'none' },

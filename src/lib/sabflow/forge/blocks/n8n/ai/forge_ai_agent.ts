@@ -11,26 +11,49 @@ import type {
   ForgeActionResult,
   ForgeBlock,
 } from "../../../types";
-import { asString } from "../_shared/http";
+import { asString, requireCredential } from "../_shared/http";
 
 async function runAgent(ctx: ForgeActionContext): Promise<ForgeActionResult> {
   const prompt = asString(ctx.options.prompt);
+  if (!prompt) throw new Error("AI Agent: prompt is required");
   const model = asString(ctx.options.model) || "gpt-4o-mini";
+
+  const cred = requireCredential('OpenAI', ctx.credential);
+  const tokenField = cred.apiKey ? 'apiKey' : cred.accessToken ? 'accessToken' : 'apiKey';
+
+  const res = await ctx.helpers!.requestWithAuthentication('bearer', {
+    method: 'POST',
+    url: 'https://api.openai.com/v1/chat/completions',
+    tokenField,
+    json: {
+      model,
+      messages: [{ role: "user", content: prompt }],
+    },
+  });
+
+  if (!res.ok) {
+    const clip = typeof res.data === 'string' ? res.data.slice(0, 300) : JSON.stringify(res.data).slice(0, 300);
+    throw new Error(`AI Agent failed (${res.status}): ${clip}`);
+  }
+
+  const body = res.data as { choices?: Array<{ message?: { content?: string } }> };
 
   return {
     outputs: {
-      result: `Executed AI Agent with prompt: ${prompt} on model ${model}`,
+      result: body?.choices?.[0]?.message?.content ?? "",
+      raw: res.data,
     },
-    logs: ["Running Forge AI Agent"],
+    logs: [`Executed AI Agent on ${model}`],
   };
 }
 
 const block: ForgeBlock = {
   id: "forge_ai_agent",
   name: "AI Agent",
-  description: "A base AI Agent powered by Langchain concepts.",
+  description: "An AI Agent that leverages LLMs to process prompts.",
   category: "Integration",
   iconName: "lu/LuBot",
+  auth: { type: "apiKey", credentialType: "openai" },
   fields: [
     {
       name: "prompt",
@@ -59,3 +82,4 @@ const block: ForgeBlock = {
 };
 
 registerForgeBlock(block);
+export default block;

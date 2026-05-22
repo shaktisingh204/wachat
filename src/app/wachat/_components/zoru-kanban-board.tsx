@@ -33,7 +33,29 @@ import { useRouter } from "next/navigation";
 import { AlertCircle,
   MessageSquare,
   MoreHorizontal,
-  Plus } from "lucide-react";
+  Plus, GripVertical } from "lucide-react";
+
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragStartEvent,
+  DragOverEvent,
+  DragEndEvent,
+  defaultDropAnimationSideEffects,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 import {
   getKanbanData,
@@ -46,27 +68,6 @@ import type {
   Project,
   KanbanColumnData,
   } from "@/lib/definitions";
-
-/**
- * /wachat/chat/kanban — ZoruUI rebuild of `KanbanBoard`.
- *
- * Conversations grouped by status into columns. Each column is a
- * Card, each conversation is a row card with avatar + badge.
- *
- * Server-action wiring preserved:
- *   - getKanbanData(projectId)
- *   - saveKanbanStatuses(projectId, names)
- *   - handleUpdateContactStatus(contactId, newStatus, assignedAgentId)
- *
- * Drag-and-drop is intentionally stubbed (the legacy version pulled in
- * @dnd-kit/core for cross-column reordering). Status changes happen
- * via the per-row DropdownMenu instead.
- *
- * TODO: drag-reorder — re-introduce @dnd-kit/core (DndContext +
- * useDroppable on columns + useDraggable on cards) and call
- * handleUpdateContactStatus from the drop handler. Until then the
- * dropdown menu is the only path to move a contact between lists.
- */
 
 import * as React from "react";
 
@@ -145,6 +146,7 @@ interface KanbanCardProps {
   allColumns: string[];
   currentColumn: string;
   onMove: (contactId: string, toColumn: string) => void;
+  isOverlay?: boolean;
 }
 
 function ZoruKanbanCard({
@@ -152,6 +154,7 @@ function ZoruKanbanCard({
   allColumns,
   currentColumn,
   onMove,
+  isOverlay,
 }: KanbanCardProps) {
   const router = useRouter();
   const id = contact._id.toString();
@@ -160,13 +163,40 @@ function ZoruKanbanCard({
     .toUpperCase();
   const unread = contact.unreadCount || 0;
 
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: contact._id.toString(), data: { type: "Contact", contact, currentColumn } });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
   const handleGoToChat = () => {
     router.push(`/wachat/chat?contactId=${id}`);
   };
 
   return (
-    <Card className="p-3" variant="default">
+    <Card
+      ref={setNodeRef}
+      style={style}
+      className={cn("p-3 relative", isOverlay && "shadow-2xl cursor-grabbing scale-105")}
+      variant="default"
+    >
       <div className="flex items-start gap-2.5">
+        <div
+            {...attributes}
+            {...listeners}
+            className={cn("mt-1.5 cursor-grab", isOverlay && "cursor-grabbing")}
+        >
+            <GripVertical className="h-4 w-4 text-zoru-ink-muted" />
+        </div>
         <Avatar className="h-8 w-8 shrink-0">
           <ZoruAvatarFallback>{initial}</ZoruAvatarFallback>
         </Avatar>
@@ -241,11 +271,16 @@ interface KanbanColumnProps {
 }
 
 function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
+  const { setNodeRef } = useSortable({
+      id: title,
+      data: { type: "Column", title },
+  });
+
   return (
     <Card
+      ref={setNodeRef}
       className={cn(
         "flex h-full w-80 shrink-0 flex-col gap-0 p-0",
-        // TODO: drag-reorder — wire useDroppable here when DnD returns.
       )}
       variant="soft"
     >
@@ -258,7 +293,7 @@ function ZoruKanbanColumn({ title, count, children }: KanbanColumnProps) {
         </ZoruCardTitle>
       </ZoruCardHeader>
       <ScrollArea className="flex-1">
-        <ZoruCardContent className="flex flex-col gap-3 p-3">
+        <ZoruCardContent className="flex flex-col gap-3 p-3 min-h-[200px]">
           {children}
         </ZoruCardContent>
       </ScrollArea>
@@ -274,6 +309,7 @@ export function ZoruKanbanBoard() {
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
   const { toast } = useZoruToast();
+  const [activeContact, setActiveContact] = useState<WithId<Contact> | null>(null);
 
   const fetchData = React.useCallback(() => {
     const storedProjectId =
@@ -321,8 +357,7 @@ export function ZoruKanbanBoard() {
   };
 
   /**
-   * Optimistic move via the dropdown menu. Mirrors the legacy DnD
-   * drop-handler shape so the server-action call is identical.
+   * Optimistic move via the dropdown menu or DnD
    */
   const handleMove = (contactId: string, destinationColumnName: string) => {
     const sourceColumn = boardData.find((col) =>
@@ -366,6 +401,102 @@ export function ZoruKanbanBoard() {
     );
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const onDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+    if (active.data.current?.type === "Contact") {
+      setActiveContact(active.data.current.contact);
+    }
+  };
+
+  const onDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const isActiveContact = active.data.current?.type === "Contact";
+    const isOverContact = over.data.current?.type === "Contact";
+    const isOverColumn = over.data.current?.type === "Column";
+
+    if (!isActiveContact) return;
+
+    // Moving a contact over another contact or an empty column
+    let destinationColumnName = "";
+    if (isOverContact) {
+      destinationColumnName = over.data.current?.currentColumn;
+    } else if (isOverColumn) {
+      destinationColumnName = over.data.current?.title;
+    }
+
+    if (!destinationColumnName) return;
+
+    // If it's a different column, we optimistically update UI,
+    // but the final server sync happens in DragEnd for safety,
+    // or we can do it here for smoother visual if needed.
+    // In many kanban setups, dragOver handles array Move within the same col.
+    // For simplicity, we let the UI naturally render the preview and save onEnd.
+  };
+
+  const onDragEnd = (event: DragEndEvent) => {
+    setActiveContact(null);
+    const { active, over } = event;
+    if (!over) return;
+
+    const activeId = active.id;
+    const overId = over.id;
+
+    if (activeId === overId) return;
+
+    const isActiveContact = active.data.current?.type === "Contact";
+    const isOverContact = over.data.current?.type === "Contact";
+    const isOverColumn = over.data.current?.type === "Column";
+
+    if (isActiveContact) {
+      const sourceColumn = active.data.current?.currentColumn;
+      let destinationColumnName = "";
+
+      if (isOverContact) {
+        destinationColumnName = over.data.current?.currentColumn;
+      } else if (isOverColumn) {
+        destinationColumnName = over.data.current?.title;
+      }
+
+      if (destinationColumnName && destinationColumnName !== sourceColumn) {
+        handleMove(activeId as string, destinationColumnName);
+      } else if (destinationColumnName === sourceColumn) {
+          // Reordering within the same column
+          const colIndex = boardData.findIndex(col => col.name === sourceColumn);
+          if (colIndex !== -1) {
+              const contacts = [...boardData[colIndex].contacts];
+              const oldIndex = contacts.findIndex(c => c._id.toString() === activeId);
+              const newIndex = isOverContact
+                ? contacts.findIndex(c => c._id.toString() === overId)
+                : contacts.length;
+              if (oldIndex !== -1 && newIndex !== -1) {
+                 const newContacts = arrayMove(contacts, oldIndex, newIndex);
+                 const newBoard = [...boardData];
+                 newBoard[colIndex] = { ...newBoard[colIndex], contacts: newContacts };
+                 setBoardData(newBoard);
+              }
+          }
+      }
+    }
+  };
+
   if (!isClient || isLoading) {
     return <KanbanPageSkeleton />;
   }
@@ -390,32 +521,63 @@ export function ZoruKanbanBoard() {
   return (
     <div className="h-full w-full">
       <ScrollArea className="h-full w-full">
-        <div className="flex h-full w-max gap-4 p-4">
-          {boardData.map((column) => (
-            <ZoruKanbanColumn
-              key={column.name}
-              title={column.name}
-              count={column.contacts.length}
-            >
-              {column.contacts.length === 0 ? (
-                <p className="px-1 py-4 text-center text-[11.5px] text-zoru-ink-subtle">
-                  No conversations.
-                </p>
-              ) : (
-                column.contacts.map((contact) => (
-                  <ZoruKanbanCard
-                    key={contact._id.toString()}
-                    contact={contact}
-                    allColumns={allColumnNames}
-                    currentColumn={column.name}
-                    onMove={handleMove}
-                  />
-                ))
-              )}
-            </ZoruKanbanColumn>
-          ))}
-          <AddListInline onAddList={handleAddList} />
-        </div>
+        <DndContext
+            sensors={sensors}
+            collisionDetection={closestCorners}
+            onDragStart={onDragStart}
+            onDragOver={onDragOver}
+            onDragEnd={onDragEnd}
+        >
+          <div className="flex h-full w-max gap-4 p-4">
+            {boardData.map((column) => (
+              <ZoruKanbanColumn
+                key={column.name}
+                title={column.name}
+                count={column.contacts.length}
+              >
+                <SortableContext
+                  items={column.contacts.map(c => c._id.toString())}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {column.contacts.length === 0 ? (
+                    <p className="px-1 py-4 text-center text-[11.5px] text-zoru-ink-subtle">
+                      No conversations.
+                    </p>
+                  ) : (
+                    column.contacts.map((contact) => (
+                      <ZoruKanbanCard
+                        key={contact._id.toString()}
+                        contact={contact}
+                        allColumns={allColumnNames}
+                        currentColumn={column.name}
+                        onMove={handleMove}
+                      />
+                    ))
+                  )}
+                </SortableContext>
+              </ZoruKanbanColumn>
+            ))}
+            <AddListInline onAddList={handleAddList} />
+          </div>
+
+          <DragOverlay
+            dropAnimation={{
+              sideEffects: defaultDropAnimationSideEffects({
+                styles: { active: { opacity: "0.5" } },
+              }),
+            }}
+          >
+            {activeContact ? (
+              <ZoruKanbanCard
+                contact={activeContact}
+                allColumns={allColumnNames}
+                currentColumn={activeContact.status || 'new'}
+                onMove={() => {}}
+                isOverlay
+              />
+            ) : null}
+          </DragOverlay>
+        </DndContext>
         <ZoruScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>

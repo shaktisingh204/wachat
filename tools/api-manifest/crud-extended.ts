@@ -59,6 +59,12 @@ export interface CrudExtendedOptions {
   >;
   /** Webhook event prefix; emits `<prefix>.created`, `.updated`, `.deleted`. */
   eventPrefix?: string;
+  verbs?: ReadonlyArray<string>;
+  emits?: {
+    create?: string;
+    update?: string;
+    delete?: string;
+  };
 }
 
 const generic2xx = { description: 'OK', schema: { type: 'object' as const } };
@@ -127,7 +133,7 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
     out.push(
       endpoint(opts, 'list', '', '', 'GET', opts.scopeRead, `List ${display}`),
       endpoint(opts, 'create', '', '', 'POST', opts.scopeWrite, `Create ${display}`, {
-        emits: ev ? [`${ev}.created`] : undefined,
+        emits: opts.emits?.create ? [opts.emits.create] : (ev ? [`${ev}.created`] : undefined),
       }),
       endpoint(opts, 'get', idPath, rustIdPath, 'GET', opts.scopeRead, `Get ${display}`, {
         pathParams: [pathParam],
@@ -135,7 +141,7 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
       }),
       endpoint(opts, 'update', idPath, rustIdPath, 'PATCH', opts.scopeWrite, `Update ${display}`, {
         pathParams: [pathParam],
-        emits: ev ? [`${ev}.updated`] : undefined,
+        emits: opts.emits?.update ? [opts.emits.update] : (ev ? [`${ev}.updated`] : undefined),
         responses: { '2xx': generic2xx, '404': { description: 'Not found' }, ...auth },
       }),
       endpoint(opts, 'update', idPath, rustIdPath, 'PUT', opts.scopeWrite, `Replace ${display}`, {
@@ -144,7 +150,7 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
       }),
       endpoint(opts, 'delete', idPath, rustIdPath, 'DELETE', opts.scopeWrite, `Delete ${display}`, {
         pathParams: [pathParam],
-        emits: ev ? [`${ev}.deleted`] : undefined,
+        emits: opts.emits?.delete ? [opts.emits.delete] : (ev ? [`${ev}.deleted`] : undefined),
         responses: { '2xx': generic2xx, '404': { description: 'Not found' }, ...auth },
       }),
     );
@@ -221,7 +227,7 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
    * tag). Also auto-deconflict the sub-id-param when it collides with
    * the parent idParam by prefixing with `sub`. */
   const sub = (
-    key: CrudExtendedOptions['exclude'] extends ReadonlyArray<infer T> ? T : never,
+    key: NonNullable<CrudExtendedOptions['exclude']>[number],
     seg: string,
     label: string,
     subIdParamRaw: string,
@@ -289,6 +295,16 @@ export function crudExtendedResource(opts: CrudExtendedOptions): EndpointSpec[] 
       }),
       endpoint(opts, 'custom', '/sync', '/sync', 'POST', opts.scopeWrite, `Sync ${display} from upstream`),
     );
+  }
+
+  if (opts.verbs) {
+    const verbsSet = new Set(opts.verbs);
+    return out.filter(spec => {
+      if (['list', 'get', 'create', 'update', 'delete'].includes(spec.verb)) {
+        return verbsSet.has(spec.verb);
+      }
+      return true;
+    });
   }
 
   return out;
