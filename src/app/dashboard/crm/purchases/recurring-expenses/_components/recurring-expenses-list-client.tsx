@@ -7,8 +7,7 @@ import {
   Label,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   Download,
   ListChecks,
@@ -18,19 +17,7 @@ import {
   Search,
   Trash2,
   X,
-  } from 'lucide-react';
-
-/**
- * <RecurringExpensesListClient> — canonical list view per §1D thin slice.
- *
- * KPI strip (4 cards) · filters (status, vendor, frequency, next-run
- * range) · bulk bar (pause / resume / delete / export) · 10-column
- * table.
- *
- * Recurring expenses live on Mongo (`crm_recurring_expenses`) via the
- * worksuite billing actions — no Rust BFF parity yet, so this view does
- * its own client-side filtering on a single fetched page.
- */
+} from 'lucide-react';
 
 import * as React from 'react';
 import Link from 'next/link';
@@ -44,12 +31,16 @@ import {
   deleteRecurringExpense,
   pauseRecurringExpense,
   resumeRecurringExpense,
+  stopRecurringExpense,
 } from '@/app/actions/worksuite/billing.actions';
 import {
   dateStamp,
   downloadXlsx,
   type ExportRow,
 } from '@/lib/crm-list-export';
+
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 import { RecurringExpensesKpiStrip } from './kpi-strip';
 import type { RecurringExpenseKpiSnapshot, RecurringExpenseRow } from './types';
@@ -58,7 +49,6 @@ interface ListClientProps {
   rows: RecurringExpenseRow[];
   kpi: RecurringExpenseKpiSnapshot;
   defaultCurrency: string;
-  /** Pagination state — defaults preserve the pre-pagination call sites. */
   page?: number;
   limit?: number;
   hasMore?: boolean;
@@ -137,14 +127,21 @@ export function RecurringExpensesListClient({
   const [nextFrom, setNextFrom] = React.useState('');
   const [nextTo, setNextTo] = React.useState('');
 
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
   const [deletePending, setDeletePending] = React.useState(false);
+
+  const bulky = useCrmBulkyState<RecurringExpenseRow>({
+    initialData: serverRows,
+  });
+
+  React.useEffect(() => {
+    bulky.setData(serverRows);
+  }, [serverRows]);
 
   const filtered = React.useMemo(() => {
     const q = query.trim().toLowerCase();
     const fromTs = nextFrom ? new Date(nextFrom).getTime() : null;
     const toTs = nextTo ? new Date(nextTo).getTime() : null;
-    return serverRows.filter((row) => {
+    return bulky.data.filter((row) => {
       if (q) {
         const hay = `${row.name ?? ''} ${row.vendor ?? ''}`.toLowerCase();
         if (!hay.includes(q)) return false;
@@ -162,39 +159,148 @@ export function RecurringExpensesListClient({
       }
       return true;
     });
-  }, [serverRows, query, statusFilter, frequencyFilter, nextFrom, nextTo]);
+  }, [bulky.data, query, statusFilter, frequencyFilter, nextFrom, nextTo]);
 
-  const toggleRow = React.useCallback(
-    (id: string) =>
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      }),
-    [],
-  );
-
-  const allSelectedOnPage =
-    filtered.length > 0 && filtered.every((d) => selected.has(d._id));
-  const toggleAll = React.useCallback(() => {
-    setSelected((prev) => {
-      if (filtered.length === 0) return prev;
-      const allSel = filtered.every((d) => prev.has(d._id));
-      if (allSel) {
-        const next = new Set(prev);
-        for (const d of filtered) next.delete(d._id);
-        return next;
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<RecurringExpenseRow>) => {
+    if (!updatedFields.status) return;
+    try {
+      let res;
+      if (updatedFields.status === 'paused') {
+        res = await pauseRecurringExpense(id);
+      } else if (updatedFields.status === 'active') {
+        res = await resumeRecurringExpense(id);
+      } else if (updatedFields.status === 'stopped') {
+        res = await stopRecurringExpense(id);
+      } else {
+        return;
       }
-      const next = new Set(prev);
-      for (const d of filtered) next.add(d._id);
-      return next;
-    });
-  }, [filtered]);
+
+      if (res && !res.error) {
+        toast({
+          title: 'Saved inline',
+          description: `Schedule status updated to ${updatedFields.status}.`,
+        });
+        bulky.cancelInlineEdit();
+        router.refresh();
+      } else {
+        toast({
+          title: 'Update failed',
+          description: res?.error || 'Unknown error occurred.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Update failed',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const columns = React.useMemo<ColumnDef<RecurringExpenseRow>[]>(() => [
+    {
+      key: 'name',
+      header: 'Name',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
+          label={row.name || '—'}
+          subtitle={row.vendor || undefined}
+        />
+      ),
+    },
+    {
+      key: 'vendor',
+      header: 'Vendor',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{row.vendor || '—'}</span>
+      ),
+    },
+    {
+      key: 'frequency',
+      header: 'Frequency',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">
+          Every {row.frequency_count} {row.frequency}
+        </span>
+      ),
+    },
+    {
+      key: 'amount',
+      header: 'Amount',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+          {fmtMoney(row.amount, row.currency)}
+        </span>
+      ),
+    },
+    {
+      key: 'next_run_date',
+      header: 'Next run',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{fmtDate(row.next_run_date)}</span>
+      ),
+    },
+    {
+      key: 'until_date',
+      header: 'End date',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{fmtDate(row.until_date)}</span>
+      ),
+    },
+    {
+      key: 'last_run_date',
+      header: 'Last run',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{fmtDate(row.last_run_date)}</span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => (
+        <StatusPill
+          label={row.status}
+          tone={statusToTone(row.status)}
+        />
+      ),
+      editRender: (row, value, onChange) => (
+        <select
+          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          value={value || 'active'}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="active">Active</option>
+          <option value="paused">Paused</option>
+          <option value="stopped">Stopped</option>
+        </select>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      render: (row) => (
+        <Button size="sm" variant="ghost" asChild>
+          <Link href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}>
+            Open
+          </Link>
+        </Button>
+      ),
+    },
+  ], []);
 
   const exportXlsx = React.useCallback(async () => {
     const rows = filtered.filter(
-      (d) => selected.size === 0 || selected.has(d._id),
+      (d) => bulky.selected.size === 0 || bulky.selected.has(d._id),
     );
     if (rows.length === 0) {
       toast({
@@ -237,11 +343,11 @@ export function RecurringExpensesListClient({
       title: 'Exported',
       description: `${rows.length} schedules saved to XLSX.`,
     });
-  }, [filtered, selected, toast]);
+  }, [filtered, bulky.selected, toast]);
 
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter(
-      (d) => selected.size === 0 || selected.has(d._id),
+      (d) => bulky.selected.size === 0 || bulky.selected.has(d._id),
     );
     if (rows.length === 0) {
       toast({
@@ -264,10 +370,10 @@ export function RecurringExpensesListClient({
       title: 'Exported',
       description: `${rows.length} schedules saved to CSV.`,
     });
-  }, [filtered, selected, toast]);
+  }, [filtered, bulky.selected, toast]);
 
   const bulkPause = React.useCallback(() => {
-    const ids = Array.from(selected);
+    const ids = Array.from(bulky.selected);
     if (ids.length === 0) return;
     startTransition(async () => {
       let ok = 0;
@@ -276,13 +382,13 @@ export function RecurringExpensesListClient({
         if (!res.error) ok += 1;
       }
       toast({ title: `${ok} schedule${ok === 1 ? '' : 's'} paused` });
-      setSelected(new Set());
+      bulky.clearSelection();
       router.refresh();
     });
-  }, [selected, router, toast]);
+  }, [bulky, router, toast]);
 
   const bulkResume = React.useCallback(() => {
-    const ids = Array.from(selected);
+    const ids = Array.from(bulky.selected);
     if (ids.length === 0) return;
     startTransition(async () => {
       let ok = 0;
@@ -291,13 +397,13 @@ export function RecurringExpensesListClient({
         if (!res.error) ok += 1;
       }
       toast({ title: `${ok} schedule${ok === 1 ? '' : 's'} resumed` });
-      setSelected(new Set());
+      bulky.clearSelection();
       router.refresh();
     });
-  }, [selected, router, toast]);
+  }, [bulky, router, toast]);
 
   const bulkDelete = React.useCallback(() => {
-    const ids = Array.from(selected);
+    const ids = Array.from(bulky.selected);
     if (ids.length === 0) return;
     startTransition(async () => {
       let ok = 0;
@@ -306,24 +412,17 @@ export function RecurringExpensesListClient({
         if (res.success) ok += 1;
       }
       toast({ title: `${ok} schedule${ok === 1 ? '' : 's'} deleted` });
-      setSelected(new Set());
+      bulky.clearSelection();
       setDeletePending(false);
       router.refresh();
     });
-  }, [selected, router, toast]);
-
-  const filtersActive =
-    Boolean(query) ||
-    statusFilter !== 'all' ||
-    frequencyFilter !== 'all' ||
-    Boolean(nextFrom) ||
-    Boolean(nextTo);
+  }, [bulky, router, toast]);
 
   return (
     <div className="flex w-full flex-col gap-5">
       <RecurringExpensesKpiStrip kpi={kpi} currency={defaultCurrency} />
 
-      <Card className="overflow-hidden p-0">
+      <Card className="overflow-hidden p-0 border border-zoru-line">
         {/* Toolbar */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zoru-line p-3">
           <div className="relative w-full max-w-sm">
@@ -394,11 +493,11 @@ export function RecurringExpensesListClient({
         </details>
 
         {/* Bulk bar */}
-        {selected.size > 0 ? (
+        {bulky.selected.size > 0 ? (
           <div className="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-zoru-line bg-zoru-surface px-3 py-2 shadow-sm">
             <div className="flex items-center gap-2 text-[12.5px] text-zoru-ink">
               <ListChecks className="h-4 w-4 text-zoru-primary" />
-              {selected.size} selected
+              {bulky.selected.size} selected
             </div>
             <div className="flex flex-wrap items-center gap-1">
               <Button
@@ -433,7 +532,7 @@ export function RecurringExpensesListClient({
               <Button
                 size="sm"
                 variant="ghost"
-                onClick={() => setSelected(new Set())}
+                onClick={bulky.clearSelection}
                 aria-label="Clear selection"
               >
                 <X className="h-3.5 w-3.5" />
@@ -442,102 +541,27 @@ export function RecurringExpensesListClient({
           </div>
         ) : null}
 
-        {/* Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-[12.5px]">
-            <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-              <tr>
-                <th className="p-2 text-left">
-                  <input
-                    type="checkbox"
-                    checked={allSelectedOnPage}
-                    onChange={toggleAll}
-                    aria-label="Select all visible schedules"
-                  />
-                </th>
-                <th className="p-2 text-left">Name</th>
-                <th className="p-2 text-left">Vendor</th>
-                <th className="p-2 text-left">Frequency</th>
-                <th className="p-2 text-right">Amount</th>
-                <th className="p-2 text-left">Next run</th>
-                <th className="p-2 text-left">End date</th>
-                <th className="p-2 text-left">Last run</th>
-                <th className="p-2 text-left">Status</th>
-                <th className="p-2"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={10}
-                    className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                  >
-                    {filtersActive
-                      ? 'No schedules match the filters.'
-                      : 'No recurring expenses yet — click "New schedule".'}
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((row) => (
-                  <tr
-                    key={row._id}
-                    className="border-t border-zoru-line hover:bg-zoru-surface-2/60"
-                  >
-                    <td className="p-2 align-middle">
-                      <input
-                        type="checkbox"
-                        checked={selected.has(row._id)}
-                        onChange={() => toggleRow(row._id)}
-                        aria-label={`Select ${row.name}`}
-                      />
-                    </td>
-                    <td className="p-2 align-middle">
-                      <EntityRowLink
-                        href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
-                        label={row.name || '—'}
-                        subtitle={row.vendor || undefined}
-                      />
-                    </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
-                      {row.vendor || '—'}
-                    </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
-                      Every {row.frequency_count} {row.frequency}
-                    </td>
-                    <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
-                      {fmtMoney(row.amount, row.currency)}
-                    </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
-                      {fmtDate(row.next_run_date)}
-                    </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
-                      {fmtDate(row.until_date)}
-                    </td>
-                    <td className="p-2 align-middle text-zoru-ink-muted">
-                      {fmtDate(row.last_run_date)}
-                    </td>
-                    <td className="p-2 align-middle">
-                      <StatusPill
-                        label={row.status}
-                        tone={statusToTone(row.status)}
-                      />
-                    </td>
-                    <td className="p-2 text-right align-middle">
-                      <Button size="sm" variant="ghost" asChild>
-                        <Link
-                          href={`/dashboard/crm/purchases/recurring-expenses/${row._id}`}
-                        >
-                          Open
-                        </Link>
-                      </Button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        {/* Bulky Grid Table */}
+        <CrmBulkyGrid<RecurringExpenseRow>
+          columns={columns}
+          data={filtered}
+          selectedIds={bulky.selected}
+          onSelectOne={bulky.toggleSelectOne}
+          onSelectAll={(checked) =>
+            bulky.toggleSelectAll(
+              filtered.map((d) => d._id),
+              checked
+            )
+          }
+          density="comfortable"
+          inlineEditRowId={bulky.inlineEditRowId}
+          editBuffer={bulky.editBuffer}
+          onStartInlineEdit={bulky.startInlineEdit}
+          onCancelInlineEdit={bulky.cancelInlineEdit}
+          onSaveInlineEdit={handleSaveInlineEdit}
+          onUpdateEditBuffer={bulky.updateEditBuffer}
+          isLoading={pending}
+        />
 
         <div className="border-t border-zoru-line p-3">
           <PaginationBar page={page} limit={limit} hasMore={hasMore} />
@@ -547,7 +571,9 @@ export function RecurringExpensesListClient({
       <ConfirmDialog
         open={deletePending}
         onOpenChange={setDeletePending}
-        title={`Delete ${selected.size} schedule${selected.size === 1 ? '' : 's'}?`}
+        title={`Delete ${bulky.selected.size} schedule${
+          bulky.selected.size === 1 ? '' : 's'
+        }?`}
         description="This permanently removes the selected schedules. Already-generated expenses are not affected."
         requireTyped="DELETE"
         confirmLabel="Delete"

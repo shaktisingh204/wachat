@@ -1,5 +1,8 @@
 'use client';
 
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   DropdownMenu,
@@ -7,27 +10,16 @@ import {
   ZoruDropdownMenuItem,
   ZoruDropdownMenuSeparator,
   ZoruDropdownMenuTrigger,
+  useZoruToast,
 } from '@/components/zoruui';
-import {
-  MoreHorizontal } from 'lucide-react';
-
-/**
- * <PurchaseOrdersTable> — table-view body for the canonical PO list.
- *
- * 12 columns: select · PO no · Vendor (EntityPickerChip) · Date ·
- * Expected delivery (red if overdue) · Currency · Total · Status pill ·
- * Buyer/Owner · Approver · Created · Actions.
- *
- * Density modes control row padding; the parent owns selection state.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
+import { MoreHorizontal } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
-
+import { updatePurchaseOrderStatus } from '@/app/actions/crm/purchase-orders.actions';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 import type { PurchaseOrderDensity, PurchaseOrderListRow } from './types';
 
 interface PurchaseOrdersTableProps {
@@ -39,12 +31,6 @@ interface PurchaseOrdersTableProps {
   filtersActive: boolean;
   density?: PurchaseOrderDensity;
 }
-
-const DENSITY_CELL: Record<PurchaseOrderDensity, string> = {
-  comfortable: 'p-2',
-  compact: 'p-1.5',
-  dense: 'p-1',
-};
 
 function fmtMoney(value: number | undefined, currency: string): string {
   if (typeof value !== 'number' || Number.isNaN(value)) return '—';
@@ -92,182 +78,216 @@ export function PurchaseOrdersTable({
   filtersActive,
   density = 'comfortable',
 }: PurchaseOrdersTableProps) {
-  const cell = DENSITY_CELL[density];
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-          <tr>
-            <th className={`${cell} text-left`}>
-              <input
-                type="checkbox"
-                checked={allSelectedOnPage}
-                onChange={onToggleAll}
-                aria-label="Select all visible purchase orders"
-              />
-            </th>
-            <th className={`${cell} text-left`}>PO #</th>
-            <th className={`${cell} text-left`}>Vendor</th>
-            <th className={`${cell} text-left`}>Date</th>
-            <th className={`${cell} text-left`}>Expected delivery</th>
-            <th className={`${cell} text-left`}>Currency</th>
-            <th className={`${cell} text-right`}>Total</th>
-            <th className={`${cell} text-left`}>Status</th>
-            <th className={`${cell} text-left`}>Buyer</th>
-            <th className={`${cell} text-left`}>Approver</th>
-            <th className={`${cell} text-left`}>Created</th>
-            <th className={cell}></th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.length === 0 ? (
-            <tr>
-              <td
-                colSpan={12}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
+  const { toast } = useZoruToast();
+  const router = useRouter();
+
+  const bulky = useCrmBulkyState<PurchaseOrderListRow>({
+    initialData: orders,
+  });
+
+  React.useEffect(() => {
+    bulky.setData(orders);
+  }, [orders]);
+
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<PurchaseOrderListRow>) => {
+    if (!updatedFields.status) return;
+    try {
+      const res = await updatePurchaseOrderStatus(id, updatedFields.status);
+      if (res.success) {
+        toast({ title: 'Saved inline', description: `Status updated to ${updatedFields.status.replace(/_/g, ' ')}.` });
+        bulky.cancelInlineEdit();
+        router.refresh();
+      } else {
+        toast({
+          title: 'Update failed',
+          description: res.error,
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
+    }
+  };
+
+  const columns = React.useMemo<ColumnDef<PurchaseOrderListRow>[]>(() => [
+    {
+      key: 'poNo',
+      header: 'PO #',
+      sortable: true,
+      render: (row) => (
+        <EntityRowLink
+          href={`/dashboard/crm/purchases/orders/${row._id}`}
+          label={row.poNo || '—'}
+          subtitle={row.vendorLabel}
+        />
+      ),
+    },
+    {
+      key: 'vendorId',
+      header: 'Vendor',
+      sortable: true,
+      render: (row) => row.vendorId ? (
+        <EntityPickerChip entity="vendor" id={row.vendorId} />
+      ) : (
+        <span className="text-zoru-ink-muted">{row.vendorLabel ?? '—'}</span>
+      ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>
+      ),
+    },
+    {
+      key: 'expectedDelivery',
+      header: 'Expected Delivery',
+      sortable: true,
+      render: (row) => {
+        const overdue = isDeliveryOverdue(row);
+        const overdueClass = overdue ? 'text-zoru-danger-ink font-semibold' : 'text-zoru-ink-muted';
+        return (
+          <span className={overdueClass} title={relativeDays(row.expectedDelivery)}>
+            {fmtDate(row.expectedDelivery)}
+            {overdue && <span className="ml-1 text-[10px] uppercase font-bold">[Overdue]</span>}
+          </span>
+        );
+      },
+    },
+    {
+      key: 'currency',
+      header: 'Currency',
+      render: (row) => <span className="text-zoru-ink-muted">{row.currency || '—'}</span>,
+    },
+    {
+      key: 'total',
+      header: 'Total',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink font-semibold">
+          {fmtMoney(row.total, row.currency)}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => row.status ? (
+        <StatusPill
+          label={String(row.status).replace(/_/g, ' ')}
+          tone={statusToTone(row.status)}
+        />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+      editRender: (row, value, onChange) => {
+        const options = ['draft', 'awaiting_approval', 'approved', 'sent', 'partial', 'received', 'closed', 'cancelled'];
+        return (
+          <select
+            className="h-8 w-36 rounded-[var(--zoru-radius)] border border-zoru-line bg-zoru-bg text-zoru-ink text-[12.5px] p-1 outline-none focus:ring-1 focus:ring-zoru-primary"
+            value={value !== undefined ? String(value) : 'draft'}
+            onChange={(e) => onChange(e.target.value)}
+          >
+            {options.map((opt) => (
+              <option key={opt} value={opt}>
+                {opt.replace(/_/g, ' ')}
+              </option>
+            ))}
+          </select>
+        );
+      },
+    },
+    {
+      key: 'buyerId',
+      header: 'Buyer',
+      render: (row) => row.buyerId ? (
+        <EntityPickerChip entity="user" id={row.buyerId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'approverId',
+      header: 'Approver',
+      render: (row) => row.approverId ? (
+        <EntityPickerChip entity="user" id={row.approverId} />
+      ) : (
+        <span className="text-zoru-ink-muted">—</span>
+      ),
+    },
+    {
+      key: 'createdAt',
+      header: 'Created',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink-muted">{fmtDate(row.createdAt)}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (row) => {
+        const id = row._id;
+        return (
+          <DropdownMenu>
+            <ZoruDropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-label="Row actions"
+                className="h-8 w-8 p-0"
               >
-                {filtersActive
-                  ? 'No purchase orders match the current filters.'
-                  : 'No purchase orders yet — click "New purchase order" to add the first one.'}
-              </td>
-            </tr>
-          ) : (
-            orders.map((po) => {
-              const overdue = isDeliveryOverdue(po);
-              const overdueClass = overdue
-                ? 'text-zoru-danger-ink'
-                : 'text-zoru-ink-muted';
-              const id = po._id;
-              return (
-                <tr
-                  key={id}
-                  className="border-t border-zoru-line hover:bg-zoru-surface-2/60"
-                >
-                  <td className={`${cell} align-middle`}>
-                    <input
-                      type="checkbox"
-                      checked={selected.has(id)}
-                      onChange={() => onToggleRow(id)}
-                      aria-label={`Select ${po.poNo}`}
-                    />
-                  </td>
-                  <td className={`${cell} align-middle`}>
-                    <EntityRowLink
-                      href={`/dashboard/crm/purchases/orders/${id}`}
-                      label={po.poNo || '—'}
-                      subtitle={po.vendorLabel || undefined}
-                    />
-                  </td>
-                  <td className={`${cell} align-middle`}>
-                    {po.vendorId ? (
-                      <EntityPickerChip entity="vendor" id={po.vendorId} />
-                    ) : (
-                      <span className="text-zoru-ink-muted">
-                        {po.vendorLabel ?? '—'}
-                      </span>
-                    )}
-                  </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
-                    {fmtDate(po.date)}
-                  </td>
-                  <td className={`${cell} align-middle ${overdueClass}`}>
-                    <span title={relativeDays(po.expectedDelivery)}>
-                      {fmtDate(po.expectedDelivery)}
-                    </span>
-                    {overdue ? (
-                      <span className="ml-1 text-[10px] uppercase">overdue</span>
-                    ) : null}
-                  </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
-                    {po.currency || '—'}
-                  </td>
-                  <td
-                    className={`${cell} text-right align-middle font-mono tabular-nums text-zoru-ink`}
-                  >
-                    {fmtMoney(po.total, po.currency)}
-                  </td>
-                  <td className={`${cell} align-middle`}>
-                    {po.status ? (
-                      <StatusPill
-                        label={String(po.status).replace(/_/g, ' ')}
-                        tone={statusToTone(po.status)}
-                      />
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className={`${cell} align-middle`}>
-                    {po.buyerId ? (
-                      <EntityPickerChip entity="user" id={po.buyerId} />
-                    ) : (
-                      <span className="text-zoru-ink-muted">—</span>
-                    )}
-                  </td>
-                  <td className={`${cell} align-middle`}>
-                    {po.approverId ? (
-                      <EntityPickerChip entity="user" id={po.approverId} />
-                    ) : (
-                      <span className="text-zoru-ink-muted">—</span>
-                    )}
-                  </td>
-                  <td className={`${cell} align-middle text-zoru-ink-muted`}>
-                    {fmtDate(po.createdAt)}
-                  </td>
-                  <td className={`${cell} text-right align-middle`}>
-                    <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          aria-label="Row actions"
-                        >
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                        </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link href={`/dashboard/crm/purchases/orders/${id}`}>
-                            View
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/crm/purchases/orders/${id}/edit`}
-                          >
-                            Edit
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/crm/inventory/grn/new?fromKind=purchaseOrder&fromId=${id}`}
-                          >
-                            Convert to GRN
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/crm/purchases/bills/new?fromKind=purchaseOrder&fromId=${id}`}
-                          >
-                            Convert to bill
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/crm/purchases/orders/${id}/activity`}
-                          >
-                            Activity
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
-    </div>
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </ZoruDropdownMenuTrigger>
+            <ZoruDropdownMenuContent align="end">
+              <ZoruDropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/orders/${id}`}>
+                  View Details
+                </Link>
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/orders/${id}/edit`}>
+                  Edit Order
+                </Link>
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/inventory/grn/new?fromKind=purchaseOrder&fromId=${id}`}>
+                  Convert to GRN
+                </Link>
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/bills/new?fromKind=purchaseOrder&fromId=${id}`}>
+                  Convert to Bill
+                </Link>
+              </ZoruDropdownMenuItem>
+              <ZoruDropdownMenuSeparator />
+              <ZoruDropdownMenuItem asChild>
+                <Link href={`/dashboard/crm/purchases/orders/${id}/activity`}>
+                  Audit Logs / Activity
+                </Link>
+              </ZoruDropdownMenuItem>
+            </ZoruDropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ], []);
+
+  return (
+    <CrmBulkyGrid<PurchaseOrderListRow>
+      columns={columns}
+      data={orders}
+      selectedIds={selected}
+      onSelectOne={onToggleRow}
+      onSelectAll={(checked) => onToggleAll()}
+      density={density}
+      inlineEditRowId={bulky.inlineEditRowId}
+      editBuffer={bulky.editBuffer}
+      onStartInlineEdit={bulky.startInlineEdit}
+      onCancelInlineEdit={bulky.cancelInlineEdit}
+      onSaveInlineEdit={handleSaveInlineEdit}
+      onUpdateEditBuffer={bulky.updateEditBuffer}
+    />
   );
 }

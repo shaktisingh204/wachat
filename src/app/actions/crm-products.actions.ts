@@ -690,3 +690,63 @@ export async function deleteCrmProduct(
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+/* ─── updateProductStatus ────────────────────────────────────────────── */
+
+export async function updateProductStatus(
+    productId: string,
+    status: 'active' | 'archived',
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied' };
+    if (!productId) return { success: false, error: 'Invalid ID.' };
+
+    if (useRustCrm()) {
+        try {
+            await itemApi.update(productId, {
+                status,
+            } as any);
+            revalidatePath('/dashboard/crm/inventory/items');
+            return { success: true };
+        } catch (e) {
+            console.error('[updateProductStatus] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'item',
+                op: 'update',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const result = await db.collection('crm_products').updateOne(
+            { _id: new ObjectId(productId), userId: userObjectId },
+            { $set: { status, updatedAt: new Date() } },
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Product not found.' };
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'item',
+            entityId: productId,
+        });
+
+        revalidatePath('/dashboard/crm/inventory/items');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+

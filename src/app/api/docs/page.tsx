@@ -1,7 +1,9 @@
+'use client';
+
+import { useState } from 'react';
 import {
   Card,
   ZoruCardContent,
-  ZoruCardDescription,
   ZoruCardHeader,
   ZoruCardTitle,
   Button,
@@ -11,13 +13,9 @@ import {
   ZoruTableHead,
   ZoruTableHeader,
   ZoruTableRow,
-  Badge,
-  Separator,
+  cn,
 } from '@/components/zoruui';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
-import { ArrowLeft,
-  BookOpen } from 'lucide-react';
-
+import { ArrowLeft, Database, Shield, Copy, Check } from 'lucide-react';
 import Link from 'next/link';
 
 const wachatApiDocs = [
@@ -196,92 +194,245 @@ const wachatApiDocs = [
     }
 ];
 
-export default function ApiDocsPage() {
-    return (
-        <div className="max-w-4xl mx-auto space-y-8">
-             <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/api">
-                        <ArrowLeft className="mr-2 h-4 w-4" />
-                        Back to API Keys
-                    </Link>
-                </Button>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <BookOpen className="h-8 w-8" />
-                    API Documentation
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Integrate your applications with SabNode using our REST API.
-                </p>
-            </div>
+function CodeTerminal({ title, code, response }: { title: string; code: string; response?: string }) {
+  const [copiedReq, setCopiedReq] = useState(false);
+  const [copiedRes, setCopiedRes] = useState(false);
 
-            <Card>
-                <ZoruCardHeader>
-                    <ZoruCardTitle>Authentication</ZoruCardTitle>
-                    <ZoruCardDescription>
-                        Authenticate your API requests by including your API key in the `Authorization` header.
-                    </ZoruCardDescription>
-                </ZoruCardHeader>
-                <ZoruCardContent>
-                    <CodeBlock code={`Authorization: Bearer YOUR_API_KEY`} language="bash" />
-                    <p className="text-sm text-muted-foreground mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-primary hover:underline">API settings page</Link>.</p>
-                </ZoruCardContent>
-            </Card>
+  const handleCopyReq = () => {
+    navigator.clipboard.writeText(code);
+    setCopiedReq(true);
+    setTimeout(() => setCopiedReq(false), 2000);
+  };
 
-            <div className="space-y-4">
-                 <h2 className="text-2xl font-bold font-headline">Wachat Suite APIs</h2>
-                 <div className="space-y-6">
-                    {wachatApiDocs.map((endpoint, i) => {
-                        const [method, path] = endpoint.endpoint.split(' ');
-                        return (
-                            <Card key={i} className="card-gradient card-gradient-green">
-                                <ZoruCardHeader>
-                                    <div className="flex items-center gap-4">
-                                        <Badge className={method === 'GET' ? 'bg-blue-600' : 'bg-green-600'}>{method}</Badge>
-                                        <ZoruCardTitle className="font-mono text-lg">{path}</ZoruCardTitle>
-                                    </div>
-                                    <ZoruCardDescription>{endpoint.description}</ZoruCardDescription>
-                                </ZoruCardHeader>
-                                <ZoruCardContent className="space-y-6">
-                                    {endpoint.bodyParams.length > 0 && (
-                                        <>
-                                            <h4 className="font-semibold">Request Body Parameters</h4>
-                                            <div className="border rounded-md overflow-hidden">
-                                                <Table>
-                                                    <ZoruTableHeader>
-                                                        <ZoruTableRow>
-                                                            <ZoruTableHead>Parameter</ZoruTableHead>
-                                                            <ZoruTableHead>Type</ZoruTableHead>
-                                                            <ZoruTableHead>Description</ZoruTableHead>
-                                                        </ZoruTableRow>
-                                                    </ZoruTableHeader>
-                                                    <ZoruTableBody>
-                                                        {endpoint.bodyParams.map(param => (
-                                                            <ZoruTableRow key={param.name}>
-                                                                <ZoruTableCell className="font-mono">{param.name}</ZoruTableCell>
-                                                                <ZoruTableCell className="font-mono text-xs">{param.type}</ZoruTableCell>
-                                                                <ZoruTableCell className="text-muted-foreground text-xs">{param.desc}</ZoruTableCell>
-                                                            </ZoruTableRow>
-                                                        ))}
-                                                    </ZoruTableBody>
-                                                </Table>
-                                            </div>
-                                        </>
-                                    )}
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Example Request</h4>
-                                        <CodeBlock code={endpoint.example} language="bash" />
-                                    </div>
-                                    <div>
-                                        <h4 className="font-semibold mb-2">Example Response</h4>
-                                        <CodeBlock code={endpoint.response} language="json" />
-                                    </div>
-                                </ZoruCardContent>
-                            </Card>
-                        )
-                    })}
-                 </div>
-            </div>
+  const handleCopyRes = () => {
+    if (response) {
+      navigator.clipboard.writeText(response);
+      setCopiedRes(true);
+      setTimeout(() => setCopiedRes(false), 2000);
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-950 text-zinc-100 shadow-lg overflow-hidden font-mono text-[12px]">
+      {/* Top Window Bar */}
+      <div className="flex items-center justify-between border-b border-zinc-900 bg-zinc-900 px-4 py-2.5 text-[11px] text-zinc-400">
+        <div className="flex items-center gap-1.5">
+          <span className="h-2 w-2 rounded-full bg-zinc-850 border border-zinc-750" />
+          <span className="h-2 w-2 rounded-full bg-zinc-850 border border-zinc-750" />
+          <span className="h-2 w-2 rounded-full bg-zinc-850 border border-zinc-750" />
+          <span className="ml-2 font-medium tracking-tight text-zinc-400">{title}</span>
         </div>
-    );
+        <span className="text-[10px] text-zinc-500 uppercase tracking-widest font-bold">cURL // BASH</span>
+      </div>
+
+      {/* Code Container */}
+      <div className="p-4 space-y-4">
+        <div>
+          <div className="flex items-center justify-between text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5 font-bold">
+            <span>// REQUEST PAYLOAD</span>
+            <button
+              onClick={handleCopyReq}
+              className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors uppercase"
+            >
+              {copiedReq ? <Check className="h-3 w-3 text-zinc-400" /> : <Copy className="h-3 w-3" />}
+              <span>{copiedReq ? 'Copied' : 'Copy'}</span>
+            </button>
+          </div>
+          <pre className="overflow-x-auto whitespace-pre p-3 rounded-lg bg-zinc-900/50 border border-zinc-900/80 leading-relaxed text-zinc-300">
+            <code>{code.trim()}</code>
+          </pre>
+        </div>
+
+        {response ? (
+          <div>
+            <div className="flex items-center justify-between text-[10px] text-zinc-500 uppercase tracking-wider mb-1.5 font-bold">
+              <span>// RESPONSE BLOB</span>
+              <button
+                onClick={handleCopyRes}
+                className="flex items-center gap-1 text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors uppercase"
+              >
+                {copiedRes ? <Check className="h-3 w-3 text-zinc-400" /> : <Copy className="h-3 w-3" />}
+                <span>{copiedRes ? 'Copied' : 'Copy'}</span>
+              </button>
+            </div>
+            <pre className="overflow-x-auto whitespace-pre p-3 rounded-lg bg-zinc-900/50 border border-zinc-900/80 leading-relaxed text-zinc-300">
+              <code>{response.trim()}</code>
+            </pre>
+          </div>
+        ) : null}
+      </div>
+    </div>
+  );
 }
+
+export default function ApiDocsPage() {
+  return (
+    <div className="zoruui max-w-6xl mx-auto space-y-12">
+      {/* HEADER SECTION */}
+      <div>
+        <Button variant="ghost" asChild className="mb-4 -ml-2 text-zinc-500 hover:text-black">
+          <Link href="/dashboard/api" className="flex items-center gap-1.5 font-mono text-xs uppercase tracking-tight">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to API Keys
+          </Link>
+        </Button>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold tracking-tight text-black font-mono">
+            SABNODE // API.DOCUMENTATION
+          </h1>
+          <p className="text-[13px] text-zinc-500">
+            Integrate your applications with SabNode using our secure REST API protocol.
+          </p>
+        </div>
+      </div>
+
+      {/* AUTHENTICATION SECTION (OpenAPI split) */}
+      <div className="grid gap-8 lg:grid-cols-5 border-t border-zinc-200 pt-8">
+        {/* Left Column: Docs & Table */}
+        <div className="flex flex-col gap-4 lg:col-span-3">
+          <div className="flex items-center gap-2">
+            <span className="rounded bg-zinc-100 border border-zinc-300 px-2 py-0.5 font-mono text-[10px] font-bold text-zinc-800 uppercase tracking-wider">
+              SECURE
+            </span>
+            <span className="font-mono text-[13px] text-black font-semibold">
+              Bearer Token Security
+            </span>
+          </div>
+          <h2 className="text-xl font-bold tracking-tight text-black font-mono mt-1">
+            Authentication Protocols
+          </h2>
+          <p className="text-[13px] text-zinc-500 leading-relaxed">
+            Authenticate your API requests by including your secret API key in the <code>Authorization</code> header of every request. All API requests must be made over HTTPS. Requests made over plain HTTP will fail.
+          </p>
+
+          <Card className="border border-zinc-200 shadow-none">
+            <ZoruCardHeader className="border-b border-zinc-200 py-3 bg-zinc-50">
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-zinc-400" />
+                <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-zinc-600">
+                  Header Parameters
+                </ZoruCardTitle>
+              </div>
+            </ZoruCardHeader>
+            <ZoruCardContent className="p-0">
+              <Table>
+                <ZoruTableHeader className="bg-zinc-50/50">
+                  <ZoruTableRow>
+                    <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600">Parameter</ZoruTableHead>
+                    <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600">Type</ZoruTableHead>
+                    <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600 text-right">Value</ZoruTableHead>
+                  </ZoruTableRow>
+                </ZoruTableHeader>
+                <ZoruTableBody>
+                  <ZoruTableRow>
+                    <ZoruTableCell className="font-mono text-[12.5px] text-black font-bold">Authorization</ZoruTableCell>
+                    <ZoruTableCell className="font-mono text-[11px] text-zinc-500">string</ZoruTableCell>
+                    <ZoruTableCell className="text-right text-[12px] font-mono text-zinc-600">Bearer YOUR_API_KEY</ZoruTableCell>
+                  </ZoruTableRow>
+                </ZoruTableBody>
+              </Table>
+            </ZoruCardContent>
+          </Card>
+          <p className="text-[12px] text-zinc-500 italic mt-1 font-mono">
+            * You can generate, manage, or rotate API keys from the <Link href="/dashboard/api" className="text-black font-bold hover:underline">API settings page</Link>.
+          </p>
+        </div>
+
+        {/* Right Column: Terminal Panel */}
+        <div className="lg:col-span-2">
+          <CodeTerminal
+            title="Authorization Header"
+            code="Authorization: Bearer YOUR_API_KEY"
+          />
+        </div>
+      </div>
+
+      {/* ENDPOINTS SECTION */}
+      <div className="space-y-12">
+        <div className="border-t border-zinc-200 pt-8">
+          <h2 className="text-2xl font-bold tracking-tight text-black font-mono">
+            Wachat Suite APIs
+          </h2>
+          <p className="text-[13px] text-zinc-500 mt-1">
+            Standard endpoint reference specifications for orchestrating projects, templates, campaigns, and WhatsApp message logs.
+          </p>
+        </div>
+
+        {wachatApiDocs.map((endpoint, i) => {
+          const [method, path] = endpoint.endpoint.split(' ');
+          return (
+            <div key={i} className="grid gap-8 lg:grid-cols-5 border-t border-zinc-200 pt-8">
+              {/* Left Column: Spec */}
+              <div className="flex flex-col gap-4 lg:col-span-3">
+                <div className="flex items-center gap-2.5">
+                  <span className={cn(
+                    "rounded font-mono text-[10px] font-bold px-2 py-0.5 border uppercase tracking-wider",
+                    method === 'GET'
+                      ? "bg-zinc-100 text-zinc-800 border-zinc-300"
+                      : "bg-black text-white border-black"
+                  )}>
+                    {method}
+                  </span>
+                  <span className="font-mono text-[13px] text-black font-bold tracking-tight">
+                    {path}
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold tracking-tight text-black font-mono">
+                    {path.split('/').pop()?.replace(/-/g, ' ').toUpperCase() || 'Endpoint Specification'}
+                  </h3>
+                  <p className="text-[13px] text-zinc-500 mt-1 leading-relaxed">
+                    {endpoint.description}
+                  </p>
+                </div>
+
+                {endpoint.bodyParams.length > 0 ? (
+                  <Card className="border border-zinc-200 shadow-none">
+                    <ZoruCardHeader className="border-b border-zinc-200 py-3 bg-zinc-50">
+                      <div className="flex items-center gap-2">
+                        <Database className="h-4 w-4 text-zinc-400" />
+                        <ZoruCardTitle className="text-[12px] font-mono uppercase tracking-wider text-zinc-600">
+                          Request Body Parameters
+                        </ZoruCardTitle>
+                      </div>
+                    </ZoruCardHeader>
+                    <ZoruCardContent className="p-0">
+                      <Table>
+                        <ZoruTableHeader className="bg-zinc-50/50">
+                          <ZoruTableRow>
+                            <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600">Parameter</ZoruTableHead>
+                            <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600">Type</ZoruTableHead>
+                            <ZoruTableHead className="font-mono text-[11.5px] text-zinc-600">Description</ZoruTableHead>
+                          </ZoruTableRow>
+                        </ZoruTableHeader>
+                        <ZoruTableBody>
+                          {endpoint.bodyParams.map(param => (
+                            <ZoruTableRow key={param.name}>
+                              <ZoruTableCell className="font-mono text-[12.5px] text-black font-bold">{param.name}</ZoruTableCell>
+                              <ZoruTableCell className="font-mono text-[11px] text-zinc-500">{param.type}</ZoruTableCell>
+                              <ZoruTableCell className="text-zinc-600 text-[12px] leading-normal">{param.desc}</ZoruTableCell>
+                            </ZoruTableRow>
+                          ))}
+                        </ZoruTableBody>
+                      </Table>
+                    </ZoruCardContent>
+                  </Card>
+                ) : null}
+              </div>
+
+              {/* Right Column: Code Terminal */}
+              <div className="lg:col-span-2">
+                <CodeTerminal
+                  title={path}
+                  code={endpoint.example}
+                  response={endpoint.response}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+

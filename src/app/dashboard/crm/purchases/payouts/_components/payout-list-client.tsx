@@ -1,49 +1,26 @@
 'use client';
 
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Badge,
   Button,
-  Card,
-  Checkbox,
   DropdownMenu,
   ZoruDropdownMenuContent,
   ZoruDropdownMenuItem,
-  ZoruDropdownMenuTrigger,
   ZoruDropdownMenuSeparator,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  ZoruDropdownMenuTrigger,
   useZoruToast,
 } from '@/components/zoruui';
-import {
-  Pencil,
-  Trash2,
-  MoreHorizontal,
-  CheckCircle2,
-  XCircle,
-  FileText } from 'lucide-react';
-
-/**
- * Payouts table — 11 columns per §1D.1:
- *
- *   select · Payment no · Vendor · Date · Mode · Bank · Cheque/Ref ·
- *   Amount · Status · Applied (count chip) · Actions
- *
- * Selection-aware; selection state lives in the parent list page so
- * the bulk-action bar can read it. Mark Cleared / Mark Failed actions
- * live on each row's overflow menu.
- */
-
-import * as React from 'react';
-import Link from 'next/link';
+import { MoreHorizontal, Pencil, Trash2, CheckCircle2, XCircle, FileText } from 'lucide-react';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
 import { setPayoutStatus } from '@/app/actions/crm/payouts.actions';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 import type { CrmPayoutDoc } from '@/lib/rust-client/crm-payouts';
 
 interface PayoutListClientProps {
@@ -98,21 +75,24 @@ export function PayoutListClient({
     onDelete,
 }: PayoutListClientProps) {
     const { toast } = useZoruToast();
-    const [pendingId, startTransition] = React.useTransition();
-    const [busyId, setBusyId] = React.useState<string | null>(null);
+    const router = useRouter();
 
-    const allSelected =
-        payouts.length > 0 && payouts.every((p) => selectedIds.has(String(p._id)));
-    const someSelected =
-        payouts.some((p) => selectedIds.has(String(p._id))) && !allSelected;
+    const bulky = useCrmBulkyState<CrmPayoutDoc>({
+        initialData: payouts,
+    });
 
-    const inlineSetStatus = (id: string, status: 'cleared' | 'failed') => {
-        setBusyId(id);
-        startTransition(async () => {
-            const res = await setPayoutStatus(id, status);
-            setBusyId(null);
+    React.useEffect(() => {
+        bulky.setData(payouts);
+    }, [payouts]);
+
+    const handleSaveInlineEdit = async (id: string, updatedFields: Partial<CrmPayoutDoc>) => {
+        if (!updatedFields.status) return;
+        try {
+            const res = await setPayoutStatus(id, updatedFields.status as any);
             if (res.success) {
-                toast({ title: `Marked ${status}` });
+                toast({ title: 'Saved inline', description: `Payout status updated to ${updatedFields.status}.` });
+                bulky.cancelInlineEdit();
+                router.refresh();
             } else {
                 toast({
                     title: 'Update failed',
@@ -120,167 +100,189 @@ export function PayoutListClient({
                     variant: 'destructive',
                 });
             }
-        });
+        } catch (err: any) {
+            toast({ title: 'Update failed', description: err.message, variant: 'destructive' });
+        }
     };
 
+    const columns = React.useMemo<ColumnDef<CrmPayoutDoc>[]>(() => [
+        {
+            key: 'paymentNo',
+            header: 'Payment #',
+            sortable: true,
+            render: (row) => {
+                const id = String(row._id);
+                const refLabel = row.chequeNo || row.txnId || row.reference || '—';
+                return (
+                    <EntityRowLink
+                        href={`/dashboard/crm/purchases/payouts/${id}`}
+                        label={row.paymentNo || id.slice(-6)}
+                        subtitle={refLabel !== '—' ? refLabel : undefined}
+                    />
+                );
+            },
+        },
+        {
+            key: 'vendorId',
+            header: 'Vendor',
+            sortable: true,
+            render: (row) => row.vendorId ? (
+                <EntityPickerChip entity="vendor" id={row.vendorId} />
+            ) : (
+                <span className="text-zoru-ink-muted">—</span>
+            ),
+        },
+        {
+            key: 'date',
+            header: 'Date',
+            sortable: true,
+            render: (row) => (
+                <span className="text-zoru-ink-muted">{fmtDate(row.date)}</span>
+            ),
+        },
+        {
+            key: 'mode',
+            header: 'Mode',
+            sortable: true,
+            render: (row) => (
+                <Badge variant="outline">{modeLabel(row.mode)}</Badge>
+            ),
+        },
+        {
+            key: 'bankAccountId',
+            header: 'Bank',
+            sortable: true,
+            render: (row) => row.bankAccountId ? (
+                <EntityPickerChip entity="bankAccount" id={row.bankAccountId} />
+            ) : (
+                <span className="text-zoru-ink-muted">—</span>
+            ),
+        },
+        {
+            key: 'reference',
+            header: 'Cheque / Ref',
+            render: (row) => {
+                const refLabel = row.chequeNo || row.txnId || row.reference || '—';
+                return <span className="text-zoru-ink-muted">{refLabel}</span>;
+            },
+        },
+        {
+            key: 'amount',
+            header: 'Amount',
+            sortable: true,
+            render: (row) => (
+                <span className="font-mono tabular-nums text-zoru-ink text-right block w-full">
+                    {fmtMoney(row.amount, row.currency)}
+                </span>
+            ),
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            sortable: true,
+            render: (row) => {
+                const status = row.status || 'sent';
+                return <StatusPill label={status} tone={statusToTone(status)} />;
+            },
+            editRender: (row, value, onChange) => (
+                <select
+                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    value={value || 'sent'}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    <option value="sent">Sent</option>
+                    <option value="cleared">Cleared</option>
+                    <option value="failed">Failed</option>
+                </select>
+            ),
+        },
+        {
+            key: 'applied',
+            header: 'Applied',
+            render: (row) => {
+                const appliedCount = row.applyTo?.length ?? 0;
+                return appliedCount > 0 ? (
+                    <Badge variant="secondary">
+                        <FileText className="mr-1 h-3 w-3" /> {appliedCount}
+                    </Badge>
+                ) : (
+                    <span className="text-zoru-ink-muted">—</span>
+                );
+            },
+        },
+        {
+            key: 'actions',
+            header: '',
+            render: (row) => {
+                const id = String(row._id);
+                return (
+                    <div className="flex items-center justify-end gap-1">
+                        <Button size="sm" variant="ghost" asChild>
+                            <Link href={`/dashboard/crm/purchases/payouts/${id}/edit`}>
+                                <Pencil className="h-3.5 w-3.5" />
+                            </Link>
+                        </Button>
+                        <DropdownMenu>
+                            <ZoruDropdownMenuTrigger asChild>
+                                <Button size="sm" variant="ghost">
+                                    <MoreHorizontal className="h-3.5 w-3.5" />
+                                </Button>
+                            </ZoruDropdownMenuTrigger>
+                            <ZoruDropdownMenuContent align="end">
+                                <ZoruDropdownMenuItem onClick={() => {
+                                    setPayoutStatus(id, 'cleared').then(res => {
+                                        if (res.success) {
+                                            toast({ title: 'Marked cleared' });
+                                            router.refresh();
+                                        } else {
+                                            toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+                                        }
+                                    });
+                                }}>
+                                    <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                                    Mark cleared
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuItem onClick={() => {
+                                    setPayoutStatus(id, 'failed').then(res => {
+                                        if (res.success) {
+                                            toast({ title: 'Marked failed' });
+                                            router.refresh();
+                                        } else {
+                                            toast({ title: 'Update failed', description: res.error, variant: 'destructive' });
+                                        }
+                                    });
+                                }}>
+                                    <XCircle className="h-3.5 w-3.5 mr-1.5" />
+                                    Mark failed
+                                </ZoruDropdownMenuItem>
+                                <ZoruDropdownMenuSeparator />
+                                <ZoruDropdownMenuItem onClick={() => onDelete(id)} className="text-zoru-danger-ink">
+                                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                                    Delete
+                                </ZoruDropdownMenuItem>
+                            </ZoruDropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                );
+            },
+        },
+    ], [toast, router, onDelete]);
+
     return (
-        <Card className="overflow-hidden p-0">
-            <Table>
-                <ZoruTableHeader>
-                    <ZoruTableRow>
-                        <ZoruTableHead className="w-[36px]">
-                            <Checkbox
-                                checked={allSelected}
-                                aria-checked={someSelected ? 'mixed' : allSelected}
-                                onCheckedChange={(v) => onToggleAll(v === true)}
-                                aria-label="Select all"
-                            />
-                        </ZoruTableHead>
-                        <ZoruTableHead>Payment #</ZoruTableHead>
-                        <ZoruTableHead>Vendor</ZoruTableHead>
-                        <ZoruTableHead>Date</ZoruTableHead>
-                        <ZoruTableHead>Mode</ZoruTableHead>
-                        <ZoruTableHead>Bank</ZoruTableHead>
-                        <ZoruTableHead>Cheque / Ref</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Amount</ZoruTableHead>
-                        <ZoruTableHead>Status</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Applied</ZoruTableHead>
-                        <ZoruTableHead className="text-right">Actions</ZoruTableHead>
-                    </ZoruTableRow>
-                </ZoruTableHeader>
-                <ZoruTableBody>
-                    {payouts.length === 0 ? (
-                        <ZoruTableRow>
-                            <ZoruTableCell
-                                colSpan={11}
-                                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                            >
-                                {loading ? 'Loading…' : 'No payouts.'}
-                            </ZoruTableCell>
-                        </ZoruTableRow>
-                    ) : (
-                        payouts.map((p) => {
-                            const id = String(p._id);
-                            const isChecked = selectedIds.has(id);
-                            const refLabel = p.chequeNo || p.txnId || p.reference || '—';
-                            const appliedCount = p.applyTo?.length ?? 0;
-                            const statusLabel = p.status || 'sent';
-                            return (
-                                <ZoruTableRow key={id}>
-                                    <ZoruTableCell>
-                                        <Checkbox
-                                            checked={isChecked}
-                                            onCheckedChange={() => onToggleOne(id)}
-                                            aria-label={`Select ${p.paymentNo}`}
-                                        />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
-                                        <EntityRowLink
-                                            href={`/dashboard/crm/purchases/payouts/${id}`}
-                                            label={p.paymentNo || id.slice(-6)}
-                                            subtitle={refLabel !== '—' ? refLabel : undefined}
-                                        />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {p.vendorId ? (
-                                            <EntityPickerChip entity="vendor" id={p.vendorId} />
-                                        ) : (
-                                            '—'
-                                        )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {fmtDate(p.date)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
-                                        <Badge variant="outline">{modeLabel(p.mode)}</Badge>
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {p.bankAccountId ? (
-                                            <EntityPickerChip
-                                                entity="bankAccount"
-                                                id={p.bankAccountId}
-                                            />
-                                        ) : (
-                                            '—'
-                                        )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-[12.5px] text-zoru-ink-muted">
-                                        {refLabel}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right tabular-nums text-[12.5px] text-zoru-ink">
-                                        {fmtMoney(p.amount, p.currency)}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell>
-                                        <StatusPill
-                                            label={statusLabel}
-                                            tone={statusToTone(statusLabel)}
-                                        />
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
-                                        {appliedCount > 0 ? (
-                                            <Badge variant="secondary">
-                                                <FileText className="mr-1 h-3 w-3" /> {appliedCount}
-                                            </Badge>
-                                        ) : (
-                                            <span className="text-[12.5px] text-zoru-ink-muted">
-                                                —
-                                            </span>
-                                        )}
-                                    </ZoruTableCell>
-                                    <ZoruTableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            <Button size="sm" variant="ghost" asChild>
-                                                <Link
-                                                    href={`/dashboard/crm/purchases/payouts/${id}/edit`}
-                                                >
-                                                    <Pencil className="h-3.5 w-3.5" />
-                                                </Link>
-                                            </Button>
-                                            <DropdownMenu>
-                                                <ZoruDropdownMenuTrigger asChild>
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        disabled={busyId === id || pendingId}
-                                                    >
-                                                        <MoreHorizontal className="h-3.5 w-3.5" />
-                                                    </Button>
-                                                </ZoruDropdownMenuTrigger>
-                                                <ZoruDropdownMenuContent align="end">
-                                                    <ZoruDropdownMenuItem
-                                                        onClick={() =>
-                                                            inlineSetStatus(id, 'cleared')
-                                                        }
-                                                    >
-                                                        <CheckCircle2 className="h-3.5 w-3.5" />
-                                                        Mark cleared
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuItem
-                                                        onClick={() =>
-                                                            inlineSetStatus(id, 'failed')
-                                                        }
-                                                    >
-                                                        <XCircle className="h-3.5 w-3.5" />
-                                                        Mark failed
-                                                    </ZoruDropdownMenuItem>
-                                                    <ZoruDropdownMenuSeparator />
-                                                    <ZoruDropdownMenuItem
-                                                        onClick={() => onDelete(id)}
-                                                        className="text-zoru-danger-ink"
-                                                    >
-                                                        <Trash2 className="h-3.5 w-3.5" />
-                                                        Delete
-                                                    </ZoruDropdownMenuItem>
-                                                </ZoruDropdownMenuContent>
-                                            </DropdownMenu>
-                                        </div>
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            );
-                        })
-                    )}
-                </ZoruTableBody>
-            </Table>
-        </Card>
+        <CrmBulkyGrid<CrmPayoutDoc>
+            columns={columns}
+            data={bulky.data}
+            selectedIds={selectedIds}
+            onSelectOne={onToggleOne}
+            onSelectAll={onToggleAll}
+            density="comfortable"
+            inlineEditRowId={bulky.inlineEditRowId}
+            editBuffer={bulky.editBuffer}
+            onStartInlineEdit={bulky.startInlineEdit}
+            onCancelInlineEdit={bulky.cancelInlineEdit}
+            onSaveInlineEdit={handleSaveInlineEdit}
+            onUpdateEditBuffer={bulky.updateEditBuffer}
+            isLoading={loading}
+        />
     );
 }
