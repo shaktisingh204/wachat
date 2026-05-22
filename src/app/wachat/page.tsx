@@ -11,7 +11,7 @@ import {
   Card,
   Input,
   Badge,
-  EmptyState,
+  ZoruEmptyState,
   Skeleton,
   cn,
 } from '@/components/zoruui';

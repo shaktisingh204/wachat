@@ -16,7 +16,7 @@ import {
   ZoruCardTitle,
   Checkbox,
   DatePicker,
-  EmptyState,
+  ZoruEmptyState,
   Input,
   Label,
   RadioGroup,

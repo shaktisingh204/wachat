@@ -12,7 +12,7 @@ import {
   Card,
   ZoruCardContent,
   Checkbox,
-  EmptyState,
+  ZoruEmptyState,
   Input,
   Popover,
   ZoruPopoverContent,

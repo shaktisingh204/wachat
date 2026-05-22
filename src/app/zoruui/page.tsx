@@ -40,7 +40,7 @@ import {
   Card,
   ZoruCardContent,
   ZoruCardDescription,
-  Calendar,
+  ZoruCalendar,
   ZoruCardFooter,
   ZoruCardHeader,
   ZoruCardTitle,

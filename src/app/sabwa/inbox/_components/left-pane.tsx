@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  EmptyState,
+  ZoruEmptyState,
   Input,
   ScrollArea,
   Select,
