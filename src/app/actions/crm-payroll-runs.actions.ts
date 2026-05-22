@@ -473,3 +473,58 @@ export async function deletePayrollRun(
         return { success: false, error: msg };
     }
 }
+
+export async function updatePayrollRunStatus(
+    id: string,
+    status: CrmPayrollRunStatus,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_payroll', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!id) return { success: false, error: 'Invalid run id.' };
+
+    if (useRustCrm()) {
+        try {
+            let rustStatus: string = status;
+            if (status === 'in_progress') rustStatus = 'processing';
+            if (status === 'processed') rustStatus = 'approved';
+            if (status === 'paid') rustStatus = 'disbursed';
+            if (status === 'archived') rustStatus = 'closed';
+
+            await crmPayrollRunsApi.update(id, { status: rustStatus } as any);
+            revalidatePath('/dashboard/hrm/payroll/payroll');
+            return { success: true };
+        } catch (e) {
+            console.error('[updatePayrollRunStatus] rust path failed; falling back:', e);
+            recordRustFallback({
+                entity: 'payroll_run',
+                op: 'update_status',
+                errorCode: e instanceof RustApiError ? e.code : undefined,
+                status: e instanceof RustApiError ? e.status : undefined,
+            });
+            // fall through
+        }
+    }
+
+    if (!ObjectId.isValid(id))
+        return { success: false, error: 'Invalid run id.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_payroll_runs').updateOne(
+            {
+                _id: new ObjectId(id),
+                userId: new ObjectId(session.user._id),
+            },
+            { $set: { status, updatedAt: new Date() } },
+        );
+        revalidatePath('/dashboard/hrm/payroll/payroll');
+        return { success: true };
+    } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : 'Unknown error';
+        return { success: false, error: msg };
+    }
+}

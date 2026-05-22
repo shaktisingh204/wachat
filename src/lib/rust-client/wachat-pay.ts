@@ -201,6 +201,12 @@ export const wachatPayApi = {
         rustFetch<ListTransactionsResponse>(
             `${BASE}/projects/${encodeURIComponent(projectId)}/transactions`,
         ),
+
+    refundTransaction: (projectId: string, transactionId: string) =>
+        rustFetch<{ success: boolean; message?: string; error?: string }>(
+            `${BASE}/projects/${encodeURIComponent(projectId)}/transactions/${encodeURIComponent(transactionId)}/refund`,
+            { method: 'POST' }
+        ),
 };
 
 export type WachatPayApi = typeof wachatPayApi;

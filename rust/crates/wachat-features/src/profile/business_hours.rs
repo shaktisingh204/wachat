@@ -34,6 +34,8 @@ pub struct SaveBody {
     pub offline_message: Option<String>,
     #[serde(default)]
     pub schedule: Option<Value>,
+    #[serde(default)]
+    pub holidays: Option<Value>,
 }
 
 #[derive(Debug, Serialize)]
@@ -71,6 +73,10 @@ pub async fn save(
     let schedule_bson = to_bson(&schedule)
         .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("schedule encode")))?;
 
+    let holidays = body.holidays.unwrap_or(Value::Array(vec![]));
+    let holidays_bson = to_bson(&holidays)
+        .map_err(|e| ApiError::Internal(anyhow::Error::new(e).context("holidays encode")))?;
+
     let opts = UpdateOptions::builder().upsert(true).build();
     coll.update_one(
         doc! { "projectId": project.id },
@@ -79,6 +85,7 @@ pub async fn save(
                 "timezone": body.timezone.unwrap_or_else(|| "UTC".to_owned()),
                 "offlineMessage": body.offline_message.unwrap_or_default(),
                 "schedule": schedule_bson,
+                "holidays": holidays_bson,
                 "updatedAt": now,
             },
             "$setOnInsert": { "projectId": project.id, "createdAt": now },

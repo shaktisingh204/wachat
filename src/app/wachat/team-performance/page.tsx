@@ -92,7 +92,8 @@ export default function TeamPerformancePage() {
   const fetchData = useCallback(() => {
     if (!activeProjectId) return;
     startTransition(async () => {
-      const res = await getAgentPerformance(activeProjectId);
+      const days = parseInt(timeRange.replace('d', ''));
+      const res = await getAgentPerformance(activeProjectId, days);
       if (res.error) {
         toast({ title: 'Error', description: res.error, variant: 'destructive' });
       } else {
@@ -102,7 +103,7 @@ export default function TeamPerformancePage() {
         setAgents(sorted);
       }
     });
-  }, [activeProjectId, toast]);
+  }, [activeProjectId, toast, timeRange]);
 
   useEffect(() => {
     fetchData();

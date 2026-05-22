@@ -1450,6 +1450,8 @@ export type SabFlowDoc = {
   version?: number;
   createdAt: Date;
   updatedAt: Date;
+  /** Third-party registration payload (e.g. Stripe webhook id) */
+  triggerData?: Record<string, unknown>;
 };
 
 /* ── SabFlow folder ───────────────────────────────────── */
@@ -1467,6 +1469,8 @@ export interface SabFlowFolder {
   color?: string;
   createdAt: Date;
   updatedAt: Date;
+  /** Third-party registration payload (e.g. Stripe webhook id) */
+  triggerData?: Record<string, unknown>;
 }
 
 /* ── Notification settings ────────────────────────────── */
@@ -1690,4 +1694,6 @@ export interface SabFlowWebhook {
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
+  /** Third-party registration payload (e.g. Stripe webhook id) */
+  triggerData?: Record<string, unknown>;
 }

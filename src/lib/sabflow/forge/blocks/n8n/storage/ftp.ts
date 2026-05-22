@@ -20,6 +20,7 @@ import type SftpClient from 'ssh2-sftp-client';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asBoolean, asNumber, asString, requireCredential } from '../_shared/http';
+import { uploadStreamToSabFiles } from '../_shared/sabfiles';
 
 type FtpCredential = {
   host: string;
@@ -137,7 +138,26 @@ async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult>
       return Buffer.concat(chunks).toString('utf-8');
     });
   }
-  return { outputs: { body, path }, logs: [`FTP download → ${path} (${body.length} bytes)`] };
+  const buf = Buffer.from(body, 'utf-8');
+  const name = path.split('/').pop() || 'download';
+  const sabFile = await uploadStreamToSabFiles(
+    ctx,
+    name,
+    'application/octet-stream',
+    buf,
+    buf.length
+  );
+
+  return { 
+    outputs: { 
+      fileId: sabFile.id,
+      fileName: sabFile.name,
+      contentType: sabFile.mime,
+      contentLength: sabFile.size,
+      path 
+    }, 
+    logs: [`FTP download → SabFiles ${sabFile.id} (${buf.length} bytes)`] 
+  };
 }
 
 async function fileList(ctx: ForgeActionContext): Promise<ForgeActionResult> {

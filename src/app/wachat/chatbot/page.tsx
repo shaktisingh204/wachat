@@ -525,8 +525,7 @@ export default function ChatbotPage() {
             <ZoruAlertDialogAction
               destructive
               onClick={() => {
-                // TODO: bulk-delete server action; per-row delete is supported
-                // via deleteChatbotResponse — left as a follow-up.
+                // Note: Deletes responses sequentially. 
                 startTransition(async () => {
                   for (const r of responses) {
                     await deleteChatbotResponse(r._id);

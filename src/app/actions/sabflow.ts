@@ -9,6 +9,8 @@ import { getErrorMessage } from '@/lib/utils';
 import { upsertFlowWebhooks, deactivateFlowWebhooks } from '@/lib/sabflow/db';
 import type { WebhookEventOptions } from '@/lib/sabflow/types';
 import { serializeDoc, serializeForClient } from '@/lib/sabflow/serializeForClient';
+import { registerTriggerBlocks, deregisterTriggerBlocks } from '@/lib/sabflow/triggers/manager';
+import { listFlowWebhooks } from '@/lib/sabflow/db';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 
@@ -255,6 +257,9 @@ export async function activateSabFlow(
         ...r,
         webhookUrl: `${baseUrl}/api/sabflow/webhook/${r.webhookId}`,
       }));
+
+      // Trigger hooks
+      await registerTriggerBlocks(flow, userId, webhookResults);
     }
 
     // Fire-and-forget to Rust engine — imports lazily to avoid loading fetcher in every bundle.
@@ -292,6 +297,11 @@ export async function deactivateSabFlow(flowId: string): Promise<{ ok: true } | 
     if (result.matchedCount === 0) return { error: 'Flow not found or access denied' };
 
     // Deactivate all webhook registrations for this flow
+    const existingWebhooks = await listFlowWebhooks(userId, flowId);
+    const flowData = await col.findOne({ _id: new ObjectId(flowId), userId });
+    if (flowData) {
+      await deregisterTriggerBlocks(flowData, userId, existingWebhooks);
+    }
     await deactivateFlowWebhooks(flowId, userId);
 
     try {

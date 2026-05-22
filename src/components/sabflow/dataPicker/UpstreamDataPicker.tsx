@@ -145,6 +145,20 @@ const GLOBAL_ENTRIES: GlobalEntry[] = [
     insert: "{{ DateTime.now().toFormat('yyyy-MM-dd') }}",
     searchTokens: 'datetime luxon date time',
   },
+  {
+    id: 'duration',
+    label: 'Duration (Luxon)',
+    description: 'Luxon Duration instance for time spans.',
+    insert: "{{ Duration.fromObject({ days: 1 }) }}",
+    searchTokens: 'duration luxon time span',
+  },
+  {
+    id: 'interval',
+    label: 'Interval (Luxon)',
+    description: 'Luxon Interval instance for time ranges.',
+    insert: "{{ Interval.fromDateTimes($now, $now.plus({ days: 1 })) }}",
+    searchTokens: 'interval luxon time range',
+  },
 ];
 
 type FlatRow =

@@ -19,6 +19,7 @@
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asString, requireCredential } from '../_shared/http';
+import { uploadStreamToSabFiles } from '../_shared/sabfiles';
 
 const API = 'https://api.dropboxapi.com/2';
 const CONTENT_API = 'https://content.dropboxapi.com/2';
@@ -78,10 +79,28 @@ async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult>
     },
   });
   const meta = res.headers['dropbox-api-result'];
+  const metaObj = meta ? JSON.parse(meta) : null;
   const text = typeof res.data === 'string' ? res.data : JSON.stringify(res.data ?? '');
+  
+  const buf = Buffer.from(text);
+  const name = metaObj?.name || path.split('/').pop() || 'download';
+  const sabFile = await uploadStreamToSabFiles(
+    ctx,
+    name,
+    'application/octet-stream',
+    buf,
+    buf.length
+  );
+
   return {
-    outputs: { body: text, meta: meta ? JSON.parse(meta) : null },
-    logs: [`Dropbox download → ${path} (${text.length} bytes)`],
+    outputs: { 
+      fileId: sabFile.id,
+      fileName: sabFile.name,
+      contentType: sabFile.mime,
+      contentLength: sabFile.size,
+      meta: metaObj 
+    },
+    logs: [`Dropbox download → SabFiles ${sabFile.id} (${buf.length} bytes)`],
   };
 }
 

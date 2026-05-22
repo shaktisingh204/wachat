@@ -74,7 +74,7 @@ export function BulkActionsClient({
       'bulkProjectIds',
       JSON.stringify(selectedProjects.map((p) => p._id.toString())),
     );
-    router.push('/wachat/bulk/template');
+    router.push('/wachat/broadcasts/bulk-template');
   };
 
   return (

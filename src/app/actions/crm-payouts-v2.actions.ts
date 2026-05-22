@@ -212,3 +212,37 @@ export async function deletePayout(
         return { success: false, error: `Failed to delete payout: ${msg}` };
     }
 }
+
+export async function updatePayoutStatus(
+    id: string,
+    status: CrmPayoutStatus,
+): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!id) return { success: false, error: 'Payout id is required.' };
+
+    const guard = await requirePermission('crm_payout', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!VALID_STATUSES.has(status)) {
+        return { success: false, error: 'Invalid status.' };
+    }
+
+    try {
+        await crmPayoutsApi.update(id, { status });
+        revalidatePath('/dashboard/crm/purchases/payouts');
+        revalidatePath(`/dashboard/crm/purchases/payouts/${id}`);
+        return { success: true };
+    } catch (e) {
+        const { code, status: httpStatus, msg } = rustError(e);
+        console.error('[updatePayoutStatus] rust call failed:', msg);
+        recordRustFallback({
+            entity: 'payout',
+            op: 'update',
+            errorCode: code,
+            status: httpStatus,
+        });
+        return { success: false, error: `Failed to update status: ${msg}` };
+    }
+}
+

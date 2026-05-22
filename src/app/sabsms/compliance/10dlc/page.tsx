@@ -418,7 +418,7 @@ export default function TenDlcRegistrationPage() {
                     <ZoruAccordionTrigger className="text-base py-5">Message Samples</ZoruAccordionTrigger>
                     <ZoruAccordionContent className="space-y-6 pb-6">
                       <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800/30 rounded-lg p-4 flex gap-3 text-sm text-blue-800 dark:text-blue-300">
-                        <Info, ChevronDown className="h-5 w-5 shrink-0 mt-0.5" />
+                        <Info className="h-5 w-5 shrink-0 mt-0.5" />
                         <div>
                           <p className="font-semibold mb-1">Required Samples</p>
                           <p>You must provide at least 2 representative message samples. Ensure they accurately reflect the content you will be sending, including any URLs.</p>

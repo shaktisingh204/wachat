@@ -54,3 +54,39 @@ pub async fn list_for_project(
 
     Ok(TransactionsResponse { transactions: out })
 }
+
+/// Initiates a refund for a transaction.
+/// For now, this is a stub implementation that just marks the transaction as "REFUNDED"
+/// in the database. A real implementation would call the payment provider's API.
+pub async fn refund_transaction(
+    mongo: &MongoHandle,
+    project_id: &ObjectId,
+    transaction_id_hex: &str,
+) -> Result<(bool, String)> {
+    let coll = mongo.collection::<Document>(TRANSACTIONS_COLL);
+    let oid = sabnode_db::bson_helpers::oid_from_str(transaction_id_hex)
+        .map_err(|e| ApiError::BadRequest(format!("invalid transaction ID: {}", e)))?;
+
+    let filter = doc! {
+        "_id": oid,
+        "projectId": project_id,
+    };
+
+    let update = doc! {
+        "$set": {
+            "status": "REFUNDED",
+            "updatedAt": bson::DateTime::now(),
+        }
+    };
+
+    let result = coll
+        .update_one(filter, update)
+        .await
+        .map_err(|e| ApiError::Internal(anyhow::anyhow!(e)))?;
+
+    if result.matched_count == 0 {
+        return Ok((false, "Transaction not found".to_owned()));
+    }
+
+    Ok((true, "Refund successful".to_owned()))
+}

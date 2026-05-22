@@ -784,3 +784,75 @@ export async function getCrmVendorRelatedCounts(vendorId: string): Promise<{
         return empty;
     }
 }
+
+export async function patchCrmVendor(
+    vendorId: string,
+    fields: Partial<CrmVendor>,
+): Promise<{ success: boolean; message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const guard = await requirePermission('crm_vendor', 'edit');
+    if (!guard.ok) return { success: false, error: guard.error };
+
+    if (!vendorId) return { success: false, error: 'Vendor ID is required.' };
+
+    if (useRustCrm()) {
+        try {
+            const doc = await vendorApi.getById(vendorId);
+            if (!doc) return { success: false, error: 'Vendor not found.' };
+            const payload = {
+                name: doc.name,
+                ...doc,
+                ...fields,
+            };
+            delete (payload as any)._id;
+            delete (payload as any).userId;
+            delete (payload as any).createdAt;
+            delete (payload as any).updatedAt;
+            
+            await vendorApi.update(vendorId, payload as any);
+            revalidateVendorSurfaces(vendorId);
+            return { success: true, message: 'Vendor updated successfully.' };
+        } catch (e) {
+            console.error('[patchCrmVendor] rust path failed; falling back:', e);
+            recordRustFallback({ entity: 'vendor', op: 'patch', errorCode: e instanceof RustApiError ? e.code : undefined, status: e instanceof RustApiError ? e.status : undefined });
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const updateData = {
+            ...fields,
+            updatedAt: new Date(),
+        };
+        delete (updateData as any)._id;
+        delete (updateData as any).userId;
+        delete (updateData as any).createdAt;
+
+        const result = await db
+            .collection('crm_vendors')
+            .updateOne(
+                { _id: new ObjectId(vendorId), userId: new ObjectId(session.user._id) },
+                { $set: updateData },
+            );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Vendor not found or access denied.' };
+        }
+
+        await writeAuditEntry({
+            tenantUserId: String(session.user._id),
+            actorId: String(session.user._id),
+            action: 'update',
+            entityKind: 'vendor',
+            entityId: vendorId,
+        });
+
+        revalidateVendorSurfaces(vendorId);
+        return { success: true, message: 'Vendor updated successfully.' };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+

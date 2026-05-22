@@ -10,16 +10,14 @@ import {
 } from '@/components/zoruui';
 import {
   MoreHorizontal,
-  UserCircle2 } from 'lucide-react';
+  UserCircle2,
+} from 'lucide-react';
 
 /**
  * <EmployeesTable> — table-view body for the canonical Employees list.
  *
- * 13 columns: select · Photo + Name chip · Employee ID · Department ·
- * Designation · Email · Phone · Reporting manager · Status · Joined ·
- * Tenure · Salary · Actions.
- *
- * Parent owns selection state. Status colour comes from `statusToTone`.
+ * Upgraded to use spreadsheet-style `<CrmBulkyGrid>` for comfortable dense
+ * layout, column sorting, status updates via double-click dropdowns.
  */
 
 import * as React from 'react';
@@ -27,6 +25,7 @@ import Link from 'next/link';
 
 import { EntityPickerChip } from '@/components/crm/entity-picker';
 import { StatusPill, statusToTone } from '@/components/crm/status-pill';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
 
 import type { EmployeeListRow } from './types';
 
@@ -34,9 +33,14 @@ interface EmployeesTableProps {
   rows: EmployeeListRow[];
   selected: Set<string>;
   onToggleRow: (id: string) => void;
-  onToggleAll: () => void;
-  allSelectedOnPage: boolean;
-  filtersActive: boolean;
+  onToggleAll: (checked: boolean) => void;
+  inlineEditRowId: string | null;
+  editBuffer: any;
+  onStartInlineEdit: (row: EmployeeListRow) => void;
+  onCancelInlineEdit: () => void;
+  onSaveInlineEdit: (id: string, updatedFields: Partial<EmployeeListRow>) => Promise<void>;
+  onUpdateEditBuffer: (field: keyof EmployeeListRow, value: any) => void;
+  isLoading?: boolean;
 }
 
 function fmtDate(v?: string | null): string {
@@ -96,177 +100,206 @@ export function EmployeesTable({
   selected,
   onToggleRow,
   onToggleAll,
-  allSelectedOnPage,
-  filtersActive,
+  inlineEditRowId,
+  editBuffer,
+  onStartInlineEdit,
+  onCancelInlineEdit,
+  onSaveInlineEdit,
+  onUpdateEditBuffer,
+  isLoading = false,
 }: EmployeesTableProps) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-[12.5px]">
-        <thead className="bg-zoru-surface-2 text-zoru-ink-muted">
-          <tr>
-            <th className="p-2 text-left">
-              <input
-                type="checkbox"
-                checked={allSelectedOnPage}
-                onChange={onToggleAll}
-                aria-label="Select all visible employees"
-              />
-            </th>
-            <th className="p-2 text-left">Employee</th>
-            <th className="p-2 text-left">Employee ID</th>
-            <th className="p-2 text-left">Department</th>
-            <th className="p-2 text-left">Designation</th>
-            <th className="p-2 text-left">Email</th>
-            <th className="p-2 text-left">Phone</th>
-            <th className="p-2 text-left">Reporting manager</th>
-            <th className="p-2 text-left">Status</th>
-            <th className="p-2 text-left">Joined</th>
-            <th className="p-2 text-left">Tenure</th>
-            <th className="p-2 text-right">Salary</th>
-            <th className="p-2"></th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.length === 0 ? (
-            <tr>
-              <td
-                colSpan={13}
-                className="h-24 text-center text-[13px] text-zoru-ink-muted"
-              >
-                {filtersActive
-                  ? 'No employees match the current filters.'
-                  : 'No employees yet — click "New Employee" to add the first one.'}
-              </td>
-            </tr>
-          ) : (
-            rows.map((emp) => {
-              const id = emp._id;
-              const name = fullName(emp);
-              return (
-                <tr
-                  key={id}
-                  className="border-t border-zoru-line hover:bg-zoru-surface-2/60"
+  const columns = React.useMemo<ColumnDef<EmployeeListRow>[]>(() => [
+    {
+      key: 'firstName',
+      header: 'Employee',
+      sortable: true,
+      render: (row) => {
+        const id = row._id;
+        const name = fullName(row);
+        return (
+          <Link
+            href={`/dashboard/hrm/payroll/employees/${id}`}
+            className="inline-flex items-center gap-2 text-zoru-ink hover:underline"
+          >
+            <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
+              <UserCircle2 className="h-4 w-4" />
+            </span>
+            <span className="font-medium text-zoru-ink">{name}</span>
+          </Link>
+        );
+      },
+    },
+    {
+      key: 'employeeId',
+      header: 'Employee ID',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono text-[12px] text-zoru-ink">{row.employeeId || '—'}</span>
+      ),
+    },
+    {
+      key: 'departmentId',
+      header: 'Department',
+      sortable: true,
+      render: (row) => (
+        row.departmentId ? (
+          <EntityPickerChip entity="department" id={row.departmentId} />
+        ) : (
+          <span className="text-zoru-ink-muted">—</span>
+        )
+      ),
+    },
+    {
+      key: 'designationId',
+      header: 'Designation',
+      sortable: true,
+      render: (row) => (
+        row.designationId ? (
+          <EntityPickerChip entity="designation" id={row.designationId} />
+        ) : (
+          <span className="text-zoru-ink-muted">{row.designation || '—'}</span>
+        )
+      ),
+    },
+    {
+      key: 'workEmail',
+      header: 'Email',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink">{row.workEmail || '—'}</span>,
+    },
+    {
+      key: 'workPhone',
+      header: 'Phone',
+      sortable: true,
+      render: (row) => (
+        <span className="text-zoru-ink-muted">{row.workPhone || row.personalPhone || '—'}</span>
+      ),
+    },
+    {
+      key: 'reportingManagerId',
+      header: 'Reporting manager',
+      sortable: true,
+      render: (row) => (
+        row.reportingManagerId ? (
+          <EntityPickerChip entity="employee" id={row.reportingManagerId} />
+        ) : (
+          <span className="text-zoru-ink-muted">—</span>
+        )
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      sortable: true,
+      render: (row) => {
+        if (!row.status) return <span className="text-zoru-ink-muted">—</span>;
+        return (
+          <StatusPill
+            label={statusLabel(row.status)}
+            tone={statusToTone(row.status)}
+          />
+        );
+      },
+      editRender: (row, value, onChange) => (
+        <select
+          className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+          value={value || 'active'}
+          onChange={(e) => onChange(e.target.value)}
+        >
+          <option value="active">Active</option>
+          <option value="on_leave">On Leave</option>
+          <option value="resigned">Resigned</option>
+          <option value="terminated">Terminated</option>
+          <option value="suspended">Suspended</option>
+          <option value="probation">Probation</option>
+        </select>
+      ),
+    },
+    {
+      key: 'joiningDate',
+      header: 'Joined',
+      sortable: true,
+      render: (row) => <span className="text-zoru-ink">{fmtDate(row.joiningDate)}</span>,
+    },
+    {
+      key: 'exitDate',
+      header: 'Tenure',
+      render: (row) => (
+        <span className="text-zoru-ink">{fmtTenure(row.joiningDate, row.exitDate)}</span>
+      ),
+    },
+    {
+      key: 'ctc',
+      header: 'Salary',
+      sortable: true,
+      render: (row) => (
+        <span className="font-mono tabular-nums text-zoru-ink">{fmtMoney(row.ctc)}</span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: '',
+      render: (row) => {
+        const id = row._id;
+        return (
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <ZoruDropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  aria-label="Row actions"
                 >
-                  <td className="p-2 align-middle">
-                    <input
-                      type="checkbox"
-                      checked={selected.has(id)}
-                      onChange={() => onToggleRow(id)}
-                      aria-label={`Select ${name}`}
-                    />
-                  </td>
-                  <td className="p-2 align-middle">
-                    <Link
-                      href={`/dashboard/hrm/payroll/employees/${id}`}
-                      className="inline-flex items-center gap-2 text-zoru-ink hover:underline"
-                    >
-                      <span className="inline-flex h-7 w-7 items-center justify-center rounded-full border border-zoru-line bg-zoru-surface text-zoru-ink-muted">
-                        <UserCircle2 className="h-4 w-4" />
-                      </span>
-                      <span className="font-medium">{name}</span>
-                    </Link>
-                  </td>
-                  <td className="p-2 align-middle font-mono text-zoru-ink-muted">
-                    {emp.employeeId || '—'}
-                  </td>
-                  <td className="p-2 align-middle">
-                    {emp.departmentId ? (
-                      <EntityPickerChip
-                        entity="department"
-                        id={emp.departmentId}
-                      />
-                    ) : (
-                      <span className="text-zoru-ink-muted">—</span>
-                    )}
-                  </td>
-                  <td className="p-2 align-middle">
-                    {emp.designationId ? (
-                      <EntityPickerChip
-                        entity="designation"
-                        id={emp.designationId}
-                      />
-                    ) : (
-                      <span className="text-zoru-ink-muted">
-                        {emp.designation || '—'}
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-2 align-middle text-zoru-ink">
-                    {emp.workEmail || '—'}
-                  </td>
-                  <td className="p-2 align-middle text-zoru-ink-muted">
-                    {emp.workPhone || emp.personalPhone || '—'}
-                  </td>
-                  <td className="p-2 align-middle">
-                    {emp.reportingManagerId ? (
-                      <EntityPickerChip
-                        entity="employee"
-                        id={emp.reportingManagerId}
-                      />
-                    ) : (
-                      <span className="text-zoru-ink-muted">—</span>
-                    )}
-                  </td>
-                  <td className="p-2 align-middle">
-                    {emp.status ? (
-                      <StatusPill
-                        label={statusLabel(emp.status)}
-                        tone={statusToTone(emp.status)}
-                      />
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td className="p-2 align-middle text-zoru-ink-muted">
-                    {fmtDate(emp.joiningDate)}
-                  </td>
-                  <td className="p-2 align-middle text-zoru-ink-muted">
-                    {fmtTenure(emp.joiningDate, emp.exitDate)}
-                  </td>
-                  <td className="p-2 text-right align-middle font-mono tabular-nums text-zoru-ink">
-                    {fmtMoney(emp.ctc)}
-                  </td>
-                  <td className="p-2 text-right align-middle">
-                    <DropdownMenu>
-                      <ZoruDropdownMenuTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          aria-label="Row actions"
-                        >
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                        </Button>
-                      </ZoruDropdownMenuTrigger>
-                      <ZoruDropdownMenuContent>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link href={`/dashboard/hrm/payroll/employees/${id}`}>
-                            View
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/hrm/payroll/employees/${id}/edit`}
-                          >
-                            Edit
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                        <ZoruDropdownMenuSeparator />
-                        <ZoruDropdownMenuItem asChild>
-                          <Link
-                            href={`/dashboard/hrm/payroll/employees/${id}/activity`}
-                          >
-                            Activity
-                          </Link>
-                        </ZoruDropdownMenuItem>
-                      </ZoruDropdownMenuContent>
-                    </DropdownMenu>
-                  </td>
-                </tr>
-              );
-            })
-          )}
-        </tbody>
-      </table>
+                  <MoreHorizontal className="h-3.5 w-3.5" />
+                </Button>
+              </ZoruDropdownMenuTrigger>
+              <ZoruDropdownMenuContent>
+                <ZoruDropdownMenuItem asChild>
+                  <Link href={`/dashboard/hrm/payroll/employees/${id}`}>
+                    View
+                  </Link>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuItem asChild>
+                  <Link
+                    href={`/dashboard/hrm/payroll/employees/${id}/edit`}
+                  >
+                    Edit
+                  </Link>
+                </ZoruDropdownMenuItem>
+                <ZoruDropdownMenuSeparator />
+                <ZoruDropdownMenuItem asChild>
+                  <Link
+                    href={`/dashboard/hrm/payroll/employees/${id}/activity`}
+                  >
+                    Activity
+                  </Link>
+                </ZoruDropdownMenuItem>
+              </ZoruDropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    },
+  ], []);
+
+  return (
+    <div className="overflow-hidden bg-zoru-surface">
+      <CrmBulkyGrid<EmployeeListRow>
+        columns={columns}
+        data={rows}
+        selectedIds={selected}
+        onSelectOne={onToggleRow}
+        onSelectAll={onToggleAll}
+        density="comfortable"
+        inlineEditRowId={inlineEditRowId}
+        editBuffer={editBuffer}
+        onStartInlineEdit={onStartInlineEdit}
+        onCancelInlineEdit={onCancelInlineEdit}
+        onSaveInlineEdit={onSaveInlineEdit}
+        onUpdateEditBuffer={onUpdateEditBuffer}
+        isLoading={isLoading}
+      />
     </div>
   );
 }
+

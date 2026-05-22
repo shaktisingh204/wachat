@@ -305,20 +305,20 @@ const highlightJSON = (json: string) => {
     } else {
       cls = 'text-purple-400'; // number
     }
-    return \`<span class="\${cls}">\${match}</span>\`;
+    return `<span class="${cls}">${match}</span>`;
   });
 };
 
 const highlightCode = (code: string) => {
   // Simple regex-based highlighter for non-JSON code (JS/Python/cURL)
   let highlighted = code
-    .replace(/\\b(const|let|var|function|return|import|from|require|await|async|def|import|class|print)\\b/g, '<span class="text-pink-400">$1</span>')
-    .replace(/\\b(true|false|null)\\b/g, '<span class="text-amber-400">$1</span>')
-    .replace(/(["'])(?:(?=(\\\\?))\\2.)*?\\1/g, '<span class="text-emerald-400">$&</span>')
-    .replace(/\\b(\\d+)\\b/g, '<span class="text-purple-400">$1</span>')
+    .replace(/\b(const|let|var|function|return|import|from|require|await|async|def|import|class|print)\b/g, '<span class="text-pink-400">$1</span>')
+    .replace(/\b(true|false|null)\b/g, '<span class="text-amber-400">$1</span>')
+    .replace(/(["'])(?:(?=(\\?))\2.)*?\1/g, '<span class="text-emerald-400">$&</span>')
+    .replace(/\b(\d+)\b/g, '<span class="text-purple-400">$1</span>')
     // Highlight cURL specific flags
-    .replace(/(-\\w|--\\w+)/g, '<span class="text-sky-300">$1</span>')
-    .replace(/(https?:\\/\\/[\\w\\.\\/\\-]+)/g, '<span class="text-blue-400 underline decoration-blue-400/30 underline-offset-2">$1</span>');
+    .replace(/(-\w|--\w+)/g, '<span class="text-sky-300">$1</span>')
+    .replace(/(https?:\/\/[\w\.\/\-]+)/g, '<span class="text-blue-400 underline decoration-blue-400/30 underline-offset-2">$1</span>');
   return highlighted;
 };
 
@@ -375,7 +375,7 @@ function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setResult(endpoint.response || "{\\n  \\"success\\": true\\n}");
+      setResult(endpoint.response || '{\n  "success": true\n}');
     }, 800);
   };
 
@@ -398,7 +398,7 @@ function InteractivePlayground({ endpoint }: { endpoint: Endpoint }) {
             {endpoint.parameters.filter(p => p.required).map(p => (
               <div key={p.name} className="flex flex-col gap-1.5">
                 <Label className="text-xs font-semibold text-slate-700 dark:text-slate-300">{p.name}</Label>
-                <Input placeholder={\`Enter \${p.name}...\`} className="h-9 font-mono text-xs" />
+                <Input placeholder={`Enter ${p.name}...`} className="h-9 font-mono text-xs" />
               </div>
             ))}
           </div>
@@ -765,7 +765,7 @@ export default function ApiDocsClient() {
                         <div key={p.name} className="space-y-1.5">
                           <label className="text-xs font-medium text-slate-400 block">{p.name}</label>
                           <Input 
-                            placeholder={\`Enter \${p.name}...\`} 
+                            placeholder={`Enter ${p.name}...`} 
                             className="bg-[#0d1117] border-slate-800 text-slate-200 placeholder:text-slate-600 focus:border-blue-500 focus:ring-blue-500/20" 
                           />
                         </div>

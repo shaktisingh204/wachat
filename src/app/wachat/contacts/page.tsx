@@ -12,12 +12,6 @@ import {
   ZoruAlertDialogTitle,
   ZoruAlertDialogTrigger,
   Badge,
-  Breadcrumb,
-  ZoruBreadcrumbItem,
-  ZoruBreadcrumbLink,
-  ZoruBreadcrumbList,
-  ZoruBreadcrumbPage,
-  ZoruBreadcrumbSeparator,
   Button,
   Card,
   ZoruCommand,
@@ -26,12 +20,10 @@ import {
   ZoruCommandInput,
   ZoruCommandItem,
   ZoruCommandList,
-  EmptyState,
   Input,
   Popover,
   ZoruPopoverContent,
   ZoruPopoverTrigger,
-  Skeleton,
   cn,
 } from '@/components/zoruui';
 import {
@@ -40,10 +32,8 @@ import {
   useCallback,
   useTransition,
   useMemo,
-  } from 'react';
-import { useRouter,
-  useSearchParams,
-  usePathname } from 'next/navigation';
+} from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { WithId } from 'mongodb';
 import { useDebouncedCallback } from 'use-debounce';
 
@@ -55,43 +45,26 @@ import {
   MessageSquare,
   Trash2,
   Tag as TagIcon,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
   Check,
-  Plus,
-  } from 'lucide-react';
+} from 'lucide-react';
 
-import { getContactsPageData,
-  deleteContact } from '@/app/actions/contact.actions';
-import type { Contact,
-  Tag } from '@/lib/definitions';
+import { getContactsPageData, deleteContact } from '@/app/actions/contact.actions';
+import type { Contact, Tag } from '@/lib/definitions';
 import { AddContactDialog } from '@/app/wachat/_components/add-contact-dialog';
 import { ImportContactsDialog } from '@/app/wachat/_components/import-contacts-dialog';
 import { useProject } from '@/context/project-context';
 
-/**
- * Wachat Contacts — rebuilt on ZoruUI primitives (phase 2).
- *
- * Same data, same handlers, same server actions. Only the visual
- * primitives are swapped to ZoruUI. The shared AddContactDialog +
- * ImportContactsDialog handle the create/import flows and remain
- * unchanged (their internals will be migrated separately).
- */
-
-import * as React from 'react';
+import { FeatureShell } from '@/components/dashboard/feature-shell';
+import { FeatureTable } from '@/components/dashboard/feature-table';
 
 const CONTACTS_PER_PAGE = 20;
-
-/* ── helpers ────────────────────────────────────────────────────── */
 
 function compact(n: number): string {
   if (n >= 1_000_000) return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
   if (n >= 1_000) return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
   return String(n);
 }
-
-/* ── Tag filter (Zoru popover of tags) ──────────────────────────── */
 
 function TagsFilter({
   tags,
@@ -123,8 +96,8 @@ function TagsFilter({
     <Popover open={open} onOpenChange={setOpen}>
       <ZoruPopoverTrigger asChild>
         <Button variant="outline" size="sm">
-          <TagIcon /> {label}
-          <ChevronDown className="opacity-60" />
+          <TagIcon className="mr-2 h-4 w-4" /> {label}
+          <ChevronDown className="ml-2 h-4 w-4 opacity-60" />
         </Button>
       </ZoruPopoverTrigger>
       <ZoruPopoverContent className="w-[240px] p-0" align="end">
@@ -154,9 +127,7 @@ function TagsFilter({
                             : 'border-zoru-line',
                         )}
                       >
-                        {isSelected ? (
-                          <Check className="h-3 w-3" strokeWidth={3} />
-                        ) : null}
+                        {isSelected && <Check className="h-3 w-3" strokeWidth={3} />}
                       </span>
                       <span className="flex-1 truncate text-[13px] text-zoru-ink">
                         {tag.name}
@@ -172,8 +143,6 @@ function TagsFilter({
     </Popover>
   );
 }
-
-/* ── Delete confirmation ──────────────────────────────────────── */
 
 function DeleteContactButton({
   contact,
@@ -210,25 +179,20 @@ function DeleteContactButton({
           aria-label="Delete contact"
           className="text-zoru-danger hover:bg-zoru-danger/10"
         >
-          <Trash2 />
+          <Trash2 className="h-4 w-4" />
         </Button>
       </ZoruAlertDialogTrigger>
       <ZoruAlertDialogContent>
         <ZoruAlertDialogHeader>
           <ZoruAlertDialogTitle>Delete contact?</ZoruAlertDialogTitle>
           <ZoruAlertDialogDescription>
-            Are you sure you want to delete {contact.name}? This action cannot
-            be undone.
+            Are you sure you want to delete {contact.name}? This action cannot be undone.
           </ZoruAlertDialogDescription>
         </ZoruAlertDialogHeader>
         <ZoruAlertDialogFooter>
           <ZoruAlertDialogCancel>Cancel</ZoruAlertDialogCancel>
-          <ZoruAlertDialogAction
-            destructive
-            onClick={handleDelete}
-            disabled={isPending}
-          >
-            {isPending ? <Loader2 className="mr-2 animate-spin" /> : null}
+          <ZoruAlertDialogAction destructive onClick={handleDelete} disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Delete
           </ZoruAlertDialogAction>
         </ZoruAlertDialogFooter>
@@ -236,8 +200,6 @@ function DeleteContactButton({
     </ZoruAlertDialog>
   );
 }
-
-/* ── page ───────────────────────────────────────────────────────── */
 
 export default function ContactsPage() {
   const { activeProject, activeProjectId } = useProject();
@@ -249,12 +211,8 @@ export default function ContactsPage() {
 
   const currentPage = Number(searchParams.get('page')) || 1;
   const searchQuery = searchParams.get('query') || '';
-
   const tagsParam = searchParams.get('tags');
-  const selectedTags = useMemo(
-    () => tagsParam?.split(',').filter(Boolean) || [],
-    [tagsParam],
-  );
+  const selectedTags = useMemo(() => tagsParam?.split(',').filter(Boolean) || [], [tagsParam]);
 
   const [totalContacts, setTotalContacts] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -278,13 +236,16 @@ export default function ContactsPage() {
       } catch {
         toast({
           title: 'Error',
-          description:
-            'Failed to load contacts. Please ensure a project is selected.',
+          description: 'Failed to load contacts. Please ensure a project is selected.',
           variant: 'destructive',
         });
       }
     });
   }, [activeProjectId, currentPage, searchQuery, selectedTags, toast]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleContactAdded = useCallback(() => {
     setTimeout(() => {
@@ -294,326 +255,170 @@ export default function ContactsPage() {
     }, 300);
   }, [fetchData, router]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
-
-  const updateSearchParam = useDebouncedCallback(
-    (key: string, value: string | null) => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value && value.trim() !== '') {
-        params.set(key, value);
-      } else {
-        params.delete(key);
-      }
-      if (key !== 'page') {
-        params.set('page', '1');
-      }
-      router.replace(`${pathname}?${params.toString()}`);
-    },
-    300,
-  );
+  const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value && value.trim() !== '') {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    if (key !== 'page') params.set('page', '1');
+    router.replace(`${pathname}?${params.toString()}`);
+  }, 300);
 
   const handleMessageContact = (contact: WithId<Contact>) => {
-    router.push(
-      `/wachat/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`,
-    );
+    router.push(`/wachat/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
   };
 
-  const isLoadingInitial = isLoading && contacts.length === 0;
+  const handleExportCsv = () => {
+    toast({ title: 'Exporting...', description: 'CSV export will be available shortly.' });
+    // In real life, trigger rust-backend stream_csv here
+  };
 
-  /* Derived stats */
   const stats = useMemo(() => {
-    const withTags = contacts.filter(
-      (c) => (c.tagIds || []).length > 0,
-    ).length;
+    const withTags = contacts.filter((c) => (c.tagIds || []).length > 0).length;
     const recent = contacts.filter((c) => {
       if (!c.lastMessageTimestamp) return false;
-      const d = new Date(c.lastMessageTimestamp).getTime();
-      return Date.now() - d < 7 * 24 * 60 * 60 * 1000;
+      return Date.now() - new Date(c.lastMessageTimestamp).getTime() < 7 * 24 * 60 * 60 * 1000;
     }).length;
     return { withTags, recent };
   }, [contacts]);
 
-  return (
-    <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      {/* Breadcrumb */}
-      <Breadcrumb>
-        <ZoruBreadcrumbList>
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/dashboard">SabNode</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbLink href="/wachat">WaChat</ZoruBreadcrumbLink>
-          </ZoruBreadcrumbItem>
-          <ZoruBreadcrumbSeparator />
-          <ZoruBreadcrumbItem>
-            <ZoruBreadcrumbPage>Contacts</ZoruBreadcrumbPage>
-          </ZoruBreadcrumbItem>
-        </ZoruBreadcrumbList>
-      </Breadcrumb>
-
-      {/* Header */}
-      <div className="flex items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Contacts
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            {activeProject
-              ? `Manage the contact list for ${activeProject.name}${totalContacts > 0 ? ` · ${totalContacts.toLocaleString()} total contacts` : ''}`
-              : 'Manage your customer contact list.'}
-          </p>
+  const columns = [
+    {
+      header: 'Name',
+      cell: (c: WithId<Contact>) => (
+        <div className="flex items-center gap-3">
+          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink">
+            {(c.name || '?').slice(0, 2).toUpperCase()}
+          </span>
+          <span className="text-zoru-ink">{c.name}</span>
         </div>
-        {activeProject ? (
-          <div className="flex items-center gap-2">
-            <ImportContactsDialog
-              project={activeProject}
-              onImported={fetchData}
-            />
-            <AddContactDialog
-              key={refreshKey}
-              project={activeProject}
-              onAdded={handleContactAdded}
-            />
-          </div>
-        ) : null}
-      </div>
+      ),
+    },
+    {
+      header: 'WhatsApp ID',
+      cell: (c: WithId<Contact>) => <span className="font-mono text-[12px] text-zoru-ink-muted tabular-nums">{c.waId}</span>,
+    },
+    {
+      header: 'Email',
+      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{(c as any).email || '—'}</span>,
+    },
+    {
+      header: 'Opt-in',
+      cell: (c: WithId<Contact>) => (
+        (c as any).isOptedOut ? (
+          <Badge variant="danger"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-danger" /> Opted-out</Badge>
+        ) : (
+          <Badge variant="success"><span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-success" /> Opted-in</Badge>
+        )
+      ),
+    },
+    {
+      header: 'Tags',
+      cell: (c: WithId<Contact>) => (
+        <div className="flex flex-wrap gap-1">
+          {(c.tagIds || []).map((tagId) => {
+            const tag = activeProject?.tags?.find((t) => t._id === tagId.toString());
+            return tag ? (
+              <Badge key={tagId.toString()} variant="secondary">
+                <span className="mr-1 h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" /> {tag.name}
+              </Badge>
+            ) : null;
+          })}
+        </div>
+      ),
+    },
+    {
+      header: 'Last activity',
+      cell: (c: WithId<Contact>) => <span className="text-[12px] text-zoru-ink-muted">{c.lastMessageTimestamp ? new Date(c.lastMessageTimestamp).toLocaleString() : '—'}</span>,
+    },
+    {
+      header: 'Actions',
+      className: 'text-right',
+      cell: (c: WithId<Contact>) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="outline" size="sm" onClick={() => handleMessageContact(c)}>
+            <MessageSquare className="mr-1 h-4 w-4" /> Message
+          </Button>
+          <DeleteContactButton contact={c} onDeleted={fetchData} />
+        </div>
+      ),
+    },
+  ];
 
-      {/* Stats strip */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <Stat label="Total contacts" value={compact(totalContacts)} />
-        <Stat
-          label="With tags (this page)"
-          value={compact(stats.withTags)}
-          hint={`${contacts.length > 0 ? Math.round((stats.withTags / contacts.length) * 100) : 0}% segmented`}
-        />
-        <Stat
-          label="Active this week"
-          value={compact(stats.recent)}
-          hint="messaged in last 7 days"
-        />
-      </div>
-
-      {/* No project state */}
-      {!activeProjectId ? (
+  if (!activeProjectId) {
+    return (
+      <FeatureShell
+        title="Contacts"
+        description="Manage your customer contact list."
+        breadcrumbs={[
+          { label: 'SabNode', href: '/dashboard' },
+          { label: 'WaChat', href: '/wachat' },
+          { label: 'Contacts' },
+        ]}
+      >
         <EmptyState
           icon={<AlertCircle />}
           title="No project selected"
           description="Please select a project from the main dashboard to manage contacts."
-          action={
-            <Button size="sm" onClick={() => router.push('/wachat')}>
-              Choose a project
-            </Button>
-          }
         />
-      ) : (
-        <Card className="p-6">
-          {/* Filter bar */}
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="min-w-[260px] flex-1">
-              <Input
-                placeholder="Search by name or WhatsApp ID…"
-                leadingSlot={<Search />}
-                defaultValue={searchQuery}
-                onChange={(e) =>
-                  updateSearchParam('query', e.target.value)
-                }
-              />
-            </div>
-            <TagsFilter
-              tags={activeProject?.tags || []}
-              selectedTags={selectedTags}
-              onSelectionChange={(tags) =>
-                updateSearchParam('tags', tags.join(','))
-              }
-            />
-            <span className="ml-auto text-[11.5px] tabular-nums text-zoru-ink-muted">
-              {contacts.length} shown · {totalContacts.toLocaleString()} total
-            </span>
-          </div>
+      </FeatureShell>
+    );
+  }
 
-          {/* Table / empty / skeleton */}
-          <div className="mt-5 overflow-hidden rounded-[var(--zoru-radius-lg)] border border-zoru-line">
-            {isLoadingInitial ? (
-              <div className="flex flex-col gap-2 p-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-10 w-full" />
-                ))}
-              </div>
-            ) : contacts.length === 0 ? (
-              <EmptyState
-                icon={<Users />}
-                title={
-                  searchQuery || selectedTags.length > 0
-                    ? 'No matching contacts'
-                    : 'No contacts yet'
-                }
-                description={
-                  searchQuery || selectedTags.length > 0
-                    ? 'Try adjusting your search or tag filters.'
-                    : 'Import a CSV or add contacts one at a time to build your audience.'
-                }
-                className="border-0"
-              />
-            ) : (
-              <table className="w-full text-[13px]">
-                <thead className="border-b border-zoru-line bg-zoru-surface text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-                  <tr>
-                    <th className="px-4 py-3 text-left">Name</th>
-                    <th className="px-4 py-3 text-left">WhatsApp ID</th>
-                    <th className="px-4 py-3 text-left">Email</th>
-                    <th className="px-4 py-3 text-left">Opt-in</th>
-                    <th className="px-4 py-3 text-left">Tags</th>
-                    <th className="px-4 py-3 text-left">Last activity</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zoru-line">
-                  {contacts.map((contact) => (
-                    <tr
-                      key={contact._id.toString()}
-                      className="transition-colors hover:bg-zoru-surface"
-                    >
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zoru-surface-2 text-[11px] text-zoru-ink">
-                            {(contact.name || '?').slice(0, 2).toUpperCase()}
-                          </span>
-                          <span className="text-zoru-ink">
-                            {contact.name}
-                          </span>
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 font-mono text-[12px] text-zoru-ink-muted tabular-nums">
-                        {contact.waId}
-                      </td>
-                      <td className="px-4 py-3 text-[12px] text-zoru-ink-muted">
-                        {(contact as any).email || '—'}
-                      </td>
-                      <td className="px-4 py-3 text-[12px]">
-                        {(contact as any).isOptedOut ? (
-                          <Badge variant="danger">
-                            <span className="h-1.5 w-1.5 rounded-full bg-zoru-danger" />
-                            Opted-out
-                          </Badge>
-                        ) : (
-                          <Badge variant="success">
-                            <span className="h-1.5 w-1.5 rounded-full bg-zoru-success" />
-                            Opted-in
-                          </Badge>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex flex-wrap gap-1">
-                          {(contact.tagIds || []).map((tagId) => {
-                            const tag = activeProject?.tags?.find(
-                              (t) => t._id === tagId.toString(),
-                            );
-                            return tag ? (
-                              <Badge
-                                key={tagId.toString()}
-                                variant="secondary"
-                              >
-                                <span className="h-1.5 w-1.5 rounded-full bg-zoru-ink-muted" />
-                                {tag.name}
-                              </Badge>
-                            ) : null;
-                          })}
-                        </div>
-                      </td>
-                      <td className="px-4 py-3 text-[12px] text-zoru-ink-muted">
-                        {contact.lastMessageTimestamp
-                          ? new Date(
-                              contact.lastMessageTimestamp,
-                            ).toLocaleString()
-                          : '—'}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleMessageContact(contact)}
-                          >
-                            <MessageSquare /> Message
-                          </Button>
-                          <DeleteContactButton
-                            contact={contact}
-                            onDeleted={fetchData}
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          {totalPages > 1 ? (
-            <div className="mt-5 flex items-center justify-between gap-3 border-t border-zoru-line pt-4">
-              <span className="text-[11.5px] tabular-nums text-zoru-ink-muted">
-                Page {currentPage} of {totalPages} ·{' '}
-                {compact(totalContacts)} contacts
-              </span>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    updateSearchParam('page', String(currentPage - 1))
-                  }
-                  disabled={currentPage <= 1 || isLoading}
-                >
-                  <ChevronLeft /> Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    updateSearchParam('page', String(currentPage + 1))
-                  }
-                  disabled={currentPage >= totalPages || isLoading}
-                >
-                  Next <ChevronRight />
-                </Button>
-              </div>
-            </div>
-          ) : null}
-        </Card>
-      )}
-
-      <div className="h-6" />
-    </div>
-  );
-}
-
-/* ── stat tile ──────────────────────────────────────────────────── */
-
-function Stat({
-  label,
-  value,
-  hint,
-}: {
-  label: string;
-  value: string;
-  hint?: string;
-}) {
   return (
-    <Card className="p-4">
-      <div className="text-[11px] uppercase tracking-wide text-zoru-ink-muted">
-        {label}
-      </div>
-      <div className="mt-2 text-[22px] tracking-[-0.01em] text-zoru-ink leading-none">
-        {value}
-      </div>
-      {hint ? (
-        <div className="mt-1 truncate text-[11px] text-zoru-ink-muted leading-tight">
-          {hint}
+    <FeatureShell
+      title="Contacts"
+      description={`Manage the contact list for ${activeProject?.name} · ${totalContacts.toLocaleString()} total contacts`}
+      breadcrumbs={[
+        { label: 'SabNode', href: '/dashboard' },
+        { label: 'WaChat', href: '/wachat' },
+        { label: 'Contacts' },
+      ]}
+      actions={
+        <div className="flex items-center gap-2">
+          {activeProject && <ImportContactsDialog project={activeProject} onImported={fetchData} />}
+          {activeProject && <AddContactDialog key={refreshKey} project={activeProject} onAdded={handleContactAdded} />}
         </div>
-      ) : null}
-    </Card>
+      }
+      stats={[
+        { label: 'Total contacts', value: compact(totalContacts) },
+        { label: 'With tags (this page)', value: compact(stats.withTags), hint: `${contacts.length > 0 ? Math.round((stats.withTags / contacts.length) * 100) : 0}% segmented` },
+        { label: 'Active this week', value: compact(stats.recent), hint: 'messaged in last 7 days' },
+      ]}
+    >
+      <Card className="p-6 flex flex-col gap-5">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="min-w-[260px] flex-1">
+            <Input
+              placeholder="Search by name or WhatsApp ID…"
+              leadingSlot={<Search className="h-4 w-4" />}
+              defaultValue={searchQuery}
+              onChange={(e) => updateSearchParam('query', e.target.value)}
+            />
+          </div>
+          <TagsFilter
+            tags={activeProject?.tags || []}
+            selectedTags={selectedTags}
+            onSelectionChange={(tags) => updateSearchParam('tags', tags.join(','))}
+          />
+        </div>
+
+        <FeatureTable
+          columns={columns}
+          data={contacts}
+          isLoading={isLoading && contacts.length === 0}
+          emptyIcon={<Users />}
+          emptyTitle={searchQuery || selectedTags.length > 0 ? 'No matching contacts' : 'No contacts yet'}
+          emptyDescription={searchQuery || selectedTags.length > 0 ? 'Try adjusting your search or tag filters.' : 'Import a CSV or add contacts one at a time to build your audience.'}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={totalContacts}
+          onPageChange={(page) => updateSearchParam('page', String(page))}
+          onExportCsv={handleExportCsv}
+        />
+      </Card>
+    </FeatureShell>
   );
 }

@@ -66,6 +66,10 @@ where
             post(sync_local),
         )
         .route("/projects/{id}/transactions", get(list_transactions))
+        .route(
+            "/projects/{id}/transactions/{transaction_id}/refund",
+            post(refund_transaction),
+        )
 }
 
 // ---------------------------------------------------------------------------
@@ -154,4 +158,14 @@ async fn list_transactions(
 ) -> Result<Json<transactions::TransactionsResponse>> {
     let p = load_project_for(&user, &s.mongo, &id).await?;
     Ok(Json(transactions::list_for_project(&s.mongo, &p.id).await?))
+}
+
+async fn refund_transaction(
+    user: AuthUser,
+    State(s): State<WachatPayState>,
+    Path((id, transaction_id)): Path<(String, String)>,
+) -> Result<Json<serde_json::Value>> {
+    let p = load_project_for(&user, &s.mongo, &id).await?;
+    let (success, message) = transactions::refund_transaction(&s.mongo, &p.id, &transaction_id).await?;
+    Ok(Json(serde_json::json!({ "success": success, "message": message })))
 }

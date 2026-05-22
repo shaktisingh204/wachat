@@ -75,6 +75,8 @@ import { useProject } from '@/context/project-context';
 
 import { BroadcastForm } from '@/app/wachat/_components/broadcast-form';
 import { RequeueBroadcastDialog } from '@/app/wachat/_components/requeue-broadcast-dialog';
+import { SchedulerView } from '@/app/wachat/_components/scheduler-view';
+import { BulkActionsWrapper } from '@/app/wachat/_components/bulk-actions-wrapper';
 
 /**
  * Wachat Broadcasts — campaign list, ZoruUI rebuild.
@@ -234,6 +236,7 @@ function ISTClock() {
 export default function BroadcastPage() {
   const router = useRouter();
   const { activeProject, activeProjectId } = useProject();
+  const [view, setView] = useState<'history' | 'schedule' | 'bulk'>('history');
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
   const [history, setHistory] = useState<any[]>([]);
@@ -389,7 +392,6 @@ export default function BroadcastPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-[1320px] flex-col gap-6 px-6 pt-6 pb-10">
-      {/* ── Breadcrumb ── */}
       <Breadcrumb>
         <ZoruBreadcrumbList>
           <ZoruBreadcrumbItem>
@@ -406,17 +408,25 @@ export default function BroadcastPage() {
         </ZoruBreadcrumbList>
       </Breadcrumb>
 
-      {/* ── Header ── */}
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <div className="min-w-0">
-          <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
-            Campaigns
-          </h1>
-          <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
-            Ship a WhatsApp template to a segmented list of contacts — upload a
-            CSV, pick a tag, or reuse a previous audience.
-          </p>
-        </div>
+      <div className="flex bg-zoru-surface rounded-[var(--zoru-radius)] p-1 w-fit border border-zoru-line">
+        <button onClick={() => setView('history')} className={`px-4 py-1.5 text-[13px] rounded-[calc(var(--zoru-radius)-4px)] transition-colors ${view === 'history' ? 'bg-zoru-bg shadow-sm text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:text-zoru-ink'}`}>Live Campaigns</button>
+        <button onClick={() => setView('schedule')} className={`px-4 py-1.5 text-[13px] rounded-[calc(var(--zoru-radius)-4px)] transition-colors ${view === 'schedule' ? 'bg-zoru-bg shadow-sm text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:text-zoru-ink'}`}>Scheduler</button>
+        <button onClick={() => setView('bulk')} className={`px-4 py-1.5 text-[13px] rounded-[calc(var(--zoru-radius)-4px)] transition-colors ${view === 'bulk' ? 'bg-zoru-bg shadow-sm text-zoru-ink font-medium' : 'text-zoru-ink-muted hover:text-zoru-ink'}`}>Bulk Import</button>
+      </div>
+
+      {view === 'history' && (
+        <>
+          {/* ── Header ── */}
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="min-w-0">
+              <h1 className="text-[30px] tracking-[-0.015em] text-zoru-ink leading-[1.1]">
+                Campaigns
+              </h1>
+              <p className="mt-1.5 text-[13px] text-zoru-ink-muted">
+                Ship a WhatsApp template to a segmented list of contacts — upload a
+                CSV, pick a tag, or reuse a previous audience.
+              </p>
+            </div>
         <div className="flex flex-wrap items-center gap-2">
           <ISTClock />
           <Button
@@ -781,6 +791,12 @@ export default function BroadcastPage() {
           ) : null}
         </Card>
       </section>
+      </>
+      )}
+
+      {view === 'schedule' && <SchedulerView />}
+      
+      {view === 'bulk' && <BulkActionsWrapper />}
 
       <div className="h-6" />
     </div>

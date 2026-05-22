@@ -238,7 +238,7 @@ export function PoolClient({ rows }: PoolClientProps) {
           if (!open) setDetailRow(null);
         }}
         title={detailRow?.name ?? "Pool Details"}
-        subtitle={\`Strategy: \${detailRow?.rotationStrategy.replace(/-/g, ' ')}\`}
+        subtitle={detailRow ? `Strategy: ${detailRow.rotationStrategy.replace(/-/g, ' ')}` : ""}
         tabs={[
           {
             value: "config",

@@ -22,6 +22,8 @@ import type {
 import { cn } from '@/lib/utils';
 import { useLoadOptions } from './useLoadOptions';
 import { ResourceLocatorField } from './ResourceLocatorField';
+import { ExpressionEditor } from '../ExpressionEditor';
+import { useContextVariables } from './useContextVariables';
 
 /* ── Props ───────────────────────────────────────────────────────────────── */
 
@@ -39,6 +41,8 @@ type Props = {
   credentialId?: string;
   /** Snapshot of sibling field values — useful for dependent dropdowns. */
   options?: Record<string, unknown>;
+  /** Canvas node ID for graph traversal */
+  nodeId?: string;
 };
 
 /* ── Helpers ─────────────────────────────────────────────────────────────── */
@@ -87,7 +91,10 @@ export function ForgeFieldRenderer({
   actionId,
   credentialId,
   options,
+  nodeId,
 }: Props) {
+  const contextVariables = useContextVariables(nodeId);
+
   const handleText = useCallback(
     (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
       onChange(e.target.value);
@@ -113,13 +120,12 @@ export function ForgeFieldRenderer({
       case 'text':
       case 'variable':
         return (
-          <input
-            type="text"
-            className={inputClass}
+          <ExpressionEditor
             value={asString(value)}
-            onChange={handleText}
+            onChange={onChange}
             placeholder={field.placeholder}
-            required={field.required}
+            minHeight="38px"
+            variables={contextVariables}
           />
         );
 
@@ -150,27 +156,25 @@ export function ForgeFieldRenderer({
 
       case 'textarea':
         return (
-          <textarea
-            className={cn(inputClass, 'min-h-[90px] resize-y font-sans')}
+          <ExpressionEditor
             value={asString(value)}
-            onChange={handleText}
+            onChange={onChange}
             placeholder={field.placeholder}
-            required={field.required}
+            minHeight="90px"
+            variables={contextVariables}
           />
         );
 
       case 'code':
       case 'json':
         return (
-          <textarea
-            className={cn(
-              inputClass,
-              'min-h-[140px] resize-y font-mono text-[12px] leading-relaxed',
-            )}
+          <ExpressionEditor
+            className="font-mono text-[12px] leading-relaxed"
             value={asString(value)}
-            onChange={handleText}
+            onChange={onChange}
             placeholder={field.placeholder}
-            spellCheck={false}
+            minHeight="140px"
+            variables={contextVariables}
           />
         );
 

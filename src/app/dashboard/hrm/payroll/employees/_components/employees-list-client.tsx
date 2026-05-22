@@ -4,19 +4,8 @@ import { Card, useZoruToast } from '@/components/zoruui';
 /**
  * <EmployeesListClient> — canonical Employees list view per §1D.
  *
- * Ships:
- *   - KPI strip (total · active · on leave · terminated · avg tenure)
- *   - View switcher (table | grid | org-chart)
- *   - Filters (status, department, designation, manager, employment
- *     type, work location, joined date range, branch)
- *   - Saved filter presets ("All active", "My team", "On probation",
- *     "Joined last 30 days", "Terminated")
- *   - Search across name, employee ID, email, phone
- *   - Bulk-action bar (archive, export CSV, change department, change
- *     manager, send onboarding kit)
- *
- * Filtering / search runs purely client-side over the docs the server
- * pre-fetched. The server pages are the source of truth for pagination.
+ * Upgraded with spreadsheet-style `<CrmBulkyGrid>` via useCrmBulkyState,
+ * enabling seamless inline edits and robust state management.
  */
 
 import * as React from 'react';
@@ -31,6 +20,9 @@ import { EmployeesBulkBar } from './employees-bulk-bar';
 import { EmployeesTable } from './employees-table';
 import { EmployeesGrid } from './employees-grid';
 import { EmployeesOrgChart } from './employees-org-chart';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
+import { updateEmployee } from '@/app/actions/crm/employees.actions';
+
 import type {
   EmployeeKpiSnapshot,
   EmployeeListRow,
@@ -121,18 +113,20 @@ export function EmployeesListClient({
   const [joinedTo, setJoinedTo] = React.useState('');
   const [preset, setPreset] = React.useState<EmployeePresetKey | null>(null);
 
-  /* Selection */
-  const [selected, setSelected] = React.useState<Set<string>>(new Set());
-  const toggleRow = React.useCallback(
-    (id: string) =>
-      setSelected((prev) => {
-        const next = new Set(prev);
-        if (next.has(id)) next.delete(id);
-        else next.add(id);
-        return next;
-      }),
-    [],
-  );
+  /* State Manager */
+  const [employees, setEmployees] = React.useState<EmployeeListRow[]>(serverRows);
+
+  const bulky = useCrmBulkyState<EmployeeListRow>({
+    initialData: employees,
+  });
+
+  React.useEffect(() => {
+    setEmployees(serverRows);
+  }, [serverRows]);
+
+  React.useEffect(() => {
+    bulky.setData(employees);
+  }, [employees]);
 
   /* Confirm dialogs */
   const [archivePending, setArchivePending] = React.useState(false);
@@ -143,7 +137,7 @@ export function EmployeesListClient({
     const fromTs = joinedFrom ? new Date(joinedFrom).getTime() : null;
     const toTs = joinedTo ? new Date(joinedTo).getTime() : null;
 
-    return serverRows.filter((row) => {
+    return bulky.data.filter((row) => {
       if (q) {
         const hay = [
           row.firstName,
@@ -197,7 +191,7 @@ export function EmployeesListClient({
       return true;
     });
   }, [
-    serverRows,
+    bulky.data,
     query,
     statusFilter,
     departmentFilter,
@@ -210,27 +204,9 @@ export function EmployeesListClient({
     joinedTo,
   ]);
 
-  /* Bulk-action toggling */
-  const allSelectedOnPage =
-    filtered.length > 0 && filtered.every((r) => selected.has(r._id));
-  const toggleAll = React.useCallback(() => {
-    setSelected((prev) => {
-      if (filtered.length === 0) return prev;
-      const allSel = filtered.every((r) => prev.has(r._id));
-      if (allSel) {
-        const next = new Set(prev);
-        for (const r of filtered) next.delete(r._id);
-        return next;
-      }
-      const next = new Set(prev);
-      for (const r of filtered) next.add(r._id);
-      return next;
-    });
-  }, [filtered]);
-
   const exportCsv = React.useCallback(() => {
     const rows = filtered.filter(
-      (r) => selected.size === 0 || selected.has(r._id),
+      (r) => bulky.selected.size === 0 || bulky.selected.has(r._id),
     );
     if (rows.length === 0) {
       toast({
@@ -253,7 +229,7 @@ export function EmployeesListClient({
       title: 'Exported',
       description: `${rows.length} employees saved to CSV.`,
     });
-  }, [filtered, selected, toast]);
+  }, [filtered, bulky.selected, toast]);
 
   const clearFilters = React.useCallback(() => {
     setQuery('');
@@ -295,9 +271,7 @@ export function EmployeesListClient({
       }
       if (actual === 'on-probation') {
         // Employees still inside their probation window — approximated as
-        // joined within the last 90 days. The real "probationEnd" check
-        // requires the field on the wire shape, which the Rust DTO
-        // already has but the row projection skips today.
+        // joined within the last 90 days.
         setStatusFilter('active');
         const prev90 = new Date(today.getTime() - 90 * 86_400_000);
         setJoinedFrom(fmt(prev90));
@@ -326,8 +300,6 @@ export function EmployeesListClient({
         return;
       }
       if (actual === 'on-notice') {
-        // Notice-period employees are captured under `resigned` until
-        // the Rust DTO exposes a dedicated flag (matches `getEmployeeKpis`).
         setStatusFilter('resigned');
         setManagerFilter(null);
         setJoinedFrom('');
@@ -344,18 +316,17 @@ export function EmployeesListClient({
     [clearFilters, currentUserId],
   );
 
-  /* Bulk handlers — async wiring is currently best-effort UI feedback;
-   * server-side mutations will be added as Rust DTOs expand. */
+  /* Bulk handlers */
   const handleArchive = React.useCallback(() => {
     setArchivePending(false);
     toast({
       title: 'Archive queued',
-      description: `${selected.size} employee${
-        selected.size === 1 ? '' : 's'
+      description: `${bulky.selected.size} employee${
+        bulky.selected.size === 1 ? '' : 's'
       } marked for archival.`,
     });
-    setSelected(new Set());
-  }, [selected, toast]);
+    bulky.clearSelection();
+  }, [bulky, toast]);
 
   const handleChangeDepartment = React.useCallback(() => {
     toast({
@@ -374,11 +345,45 @@ export function EmployeesListClient({
   const handleSendOnboardingKit = React.useCallback(() => {
     toast({
       title: 'Onboarding kit',
-      description: `Queued onboarding kit for ${selected.size} employee${
-        selected.size === 1 ? '' : 's'
+      description: `Queued onboarding kit for ${bulky.selected.size} employee${
+        bulky.selected.size === 1 ? '' : 's'
       }.`,
     });
-  }, [selected, toast]);
+  }, [bulky.selected.size, toast]);
+
+  const handleSaveInlineEdit = async (id: string, updatedFields: Partial<EmployeeListRow>) => {
+    if (!updatedFields.status) return;
+    try {
+      const res = await updateEmployee(id, {
+        status: updatedFields.status as any,
+      });
+      if (res) {
+        toast({
+          title: 'Saved inline',
+          description: `Employee status updated to ${updatedFields.status.replace(/_/g, ' ')}.`,
+        });
+        setEmployees((prev) =>
+          prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
+        );
+        bulky.setData((prev) =>
+          prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
+        );
+        bulky.cancelInlineEdit();
+      } else {
+        toast({
+          title: 'Update failed',
+          description: 'Could not update employee status.',
+          variant: 'destructive',
+        });
+      }
+    } catch (err: any) {
+      toast({
+        title: 'Update failed',
+        description: err.message,
+        variant: 'destructive',
+      });
+    }
+  };
 
   const filtersActive =
     Boolean(query) ||
@@ -437,8 +442,8 @@ export function EmployeesListClient({
         />
 
         <EmployeesBulkBar
-          count={selected.size}
-          onClear={() => setSelected(new Set())}
+          count={bulky.selected.size}
+          onClear={bulky.clearSelection}
           onExportCsv={exportCsv}
           onArchive={() => setArchivePending(true)}
           onChangeDepartment={handleChangeDepartment}
@@ -449,11 +454,20 @@ export function EmployeesListClient({
         {view === 'table' ? (
           <EmployeesTable
             rows={filtered}
-            selected={selected}
-            onToggleRow={toggleRow}
-            onToggleAll={toggleAll}
-            allSelectedOnPage={allSelectedOnPage}
-            filtersActive={filtersActive}
+            selected={bulky.selected}
+            onToggleRow={(id) => bulky.toggleSelectOne(id)}
+            onToggleAll={(checked) =>
+              bulky.toggleSelectAll(
+                filtered.map((d) => String(d._id)),
+                checked
+              )
+            }
+            inlineEditRowId={bulky.inlineEditRowId}
+            editBuffer={bulky.editBuffer}
+            onStartInlineEdit={bulky.startInlineEdit}
+            onCancelInlineEdit={bulky.cancelInlineEdit}
+            onSaveInlineEdit={handleSaveInlineEdit}
+            onUpdateEditBuffer={bulky.updateEditBuffer}
           />
         ) : view === 'grid' ? (
           <EmployeesGrid rows={filtered} filtersActive={filtersActive} />
@@ -471,8 +485,8 @@ export function EmployeesListClient({
       <ConfirmDialog
         open={archivePending}
         onOpenChange={setArchivePending}
-        title={`Archive ${selected.size} employee${
-          selected.size === 1 ? '' : 's'
+        title={`Archive ${bulky.selected.size} employee${
+          bulky.selected.size === 1 ? '' : 's'
         }?`}
         description="Archived employees are hidden from default views. They can be restored later."
         confirmLabel="Archive"

@@ -287,7 +287,7 @@ export function CrmStatutoryCalculator({
                 );
               })}
             </ZoruTableBody>
-          </ZoruTable>
+          </Table>
         </div>
 
         {/* Footer Quick Add row button */}

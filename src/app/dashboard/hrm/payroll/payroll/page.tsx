@@ -15,28 +15,20 @@ import {
   ZoruSelectItem,
   ZoruSelectTrigger,
   ZoruSelectValue,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
   useZoruToast,
 } from '@/components/zoruui';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
 import {
   Edit,
-  LoaderCircle,
   Plus,
   Trash2,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
  * Payroll Runs — list page.
  *
- * Backend: `crm-payroll-runs.actions` (legacy Mongo on top of the
- * existing `generatePayrollData` / `processPayroll` / `getPayslips`
- * pipeline). One row per (period_month, period_year).
+ * Upgraded to use spreadsheet-style `<CrmBulkyGrid>` and `useCrmBulkyState`
+ * with double-click inline status editing.
  */
 
 import * as React from 'react';
@@ -44,10 +36,13 @@ import Link from 'next/link';
 
 import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 import {
     deletePayrollRun,
     listPayrollRuns,
+    updatePayrollRunStatus,
 } from '@/app/actions/crm-payroll-runs.actions';
 import type {
     CrmPayrollRunDoc,
@@ -102,6 +97,14 @@ export default function PayrollRunsListPage() {
         React.useState<CrmPayrollRunDoc | null>(null);
     const [deletePending, startDeleteTransition] = React.useTransition();
     const { toast } = useZoruToast();
+
+    const bulky = useCrmBulkyState<CrmPayrollRunDoc>({
+        initialData: rows,
+    });
+
+    React.useEffect(() => {
+        bulky.setData(rows);
+    }, [rows]);
 
     const refresh = React.useCallback(async () => {
         setIsLoading(true);
@@ -161,130 +164,209 @@ export default function PayrollRunsListPage() {
         });
     };
 
+    const handleSaveInlineEdit = async (id: string, updatedFields: Partial<CrmPayrollRunDoc>) => {
+        if (!updatedFields.status) return;
+        try {
+            const res = await updatePayrollRunStatus(id, updatedFields.status);
+            if (res.success) {
+                toast({
+                    title: 'Saved inline',
+                    description: `Payroll run status updated to ${updatedFields.status.replace(/_/g, ' ')}.`,
+                });
+                setRows((prev) =>
+                    prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
+                );
+                bulky.setData((prev) =>
+                    prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
+                );
+                bulky.cancelInlineEdit();
+            } else {
+                toast({
+                    title: 'Update failed',
+                    description: res.error ?? 'Could not update payroll run status.',
+                    variant: 'destructive',
+                });
+            }
+        } catch (err: any) {
+            toast({
+                title: 'Update failed',
+                description: err.message,
+                variant: 'destructive',
+            });
+        }
+    };
+
+    const columns = React.useMemo<ColumnDef<CrmPayrollRunDoc>[]>(() => [
+        {
+            key: 'period_month',
+            header: 'Period',
+            sortable: true,
+            render: (row) => {
+                const id = row._id;
+                return (
+                    <Link
+                        href={`${BASE}/${id}`}
+                        className="hover:underline font-medium text-zoru-ink"
+                    >
+                        {periodLabel(row)}
+                    </Link>
+                );
+            },
+        },
+        {
+            key: 'run_date',
+            header: 'Run date',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{fmtDate(row.run_date)}</span>,
+        },
+        {
+            key: 'total_employees',
+            header: 'Employees',
+            sortable: true,
+            render: (row) => (
+                <span className="font-mono text-zoru-ink">{row.total_employees ?? 0}</span>
+            ),
+        },
+        {
+            key: 'total_gross',
+            header: 'Gross',
+            sortable: true,
+            render: (row) => (
+                <span className="font-mono text-zoru-ink">{inr.format(row.total_gross ?? 0)}</span>
+            ),
+        },
+        {
+            key: 'total_deductions',
+            header: 'Deductions',
+            sortable: true,
+            render: (row) => (
+                <span className="font-mono text-zoru-ink">{inr.format(row.total_deductions ?? 0)}</span>
+            ),
+        },
+        {
+            key: 'total_net',
+            header: 'Net',
+            sortable: true,
+            render: (row) => (
+                <span className="font-mono text-zoru-ink">{inr.format(row.total_net ?? 0)}</span>
+            ),
+        },
+        {
+            key: 'status',
+            header: 'Status',
+            sortable: true,
+            render: (row) => {
+                const status = (row.status ?? 'draft') as CrmPayrollRunStatus;
+                const tone = STATUS_TONE[status] ?? 'neutral';
+                return <StatusPill label={statusLabel(status)} tone={tone} />;
+            },
+            editRender: (row, value, onChange) => (
+                <select
+                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    value={value || 'draft'}
+                    onChange={(e) => onChange(e.target.value as any)}
+                >
+                    <option value="draft">Draft</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="processed">Processed</option>
+                    <option value="paid">Paid</option>
+                    <option value="archived">Archived</option>
+                </select>
+            ),
+        },
+        {
+            key: 'actions',
+            header: '',
+            render: (row) => {
+                return (
+                    <div className="flex justify-end gap-1">
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href={`${BASE}/${row._id}/edit`}>
+                                <Edit className="h-4 w-4" />
+                            </Link>
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setPendingDelete(row)}
+                        >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                    </div>
+                );
+            },
+        },
+    ], []);
+
     return (
         <>
             <EntityListShell
-                    title="Payroll runs"
-                    subtitle="One run per pay period — generate, finalize, and archive."
-                    primaryAction={
-                        <Button asChild>
-                            <Link href={`${BASE}/new`}>
-                                <Plus className="mr-1.5 h-3.5 w-3.5" /> New payroll run
-                            </Link>
-                        </Button>
-                    }
-                    search={{
-                        value: search,
-                        onChange: setSearch,
-                        placeholder: 'Search by period…',
-                    }}
-                    filters={
-                        <>
-                            <EnumFilterField
-                                enumName="payrollRunStatus"
-                                value={statusFilter}
-                                onChange={(v) =>
-                                    setStatusFilter(v as CrmPayrollRunStatus | 'all')
-                                }
-                                placeholder="All statuses"
-                            />
-                            <Select
-                                value={yearFilter}
-                                onValueChange={setYearFilter}
-                            >
-                                <ZoruSelectTrigger className="h-9 w-[140px]">
-                                    <ZoruSelectValue placeholder="Year" />
-                                </ZoruSelectTrigger>
-                                <ZoruSelectContent>
-                                    <ZoruSelectItem value="all">All years</ZoruSelectItem>
-                                    {yearOptions.map((y) => (
-                                        <ZoruSelectItem key={y} value={String(y)}>
-                                            {y}
-                                        </ZoruSelectItem>
-                                    ))}
-                                </ZoruSelectContent>
-                            </Select>
-                        </>
-                    }
-                    loading={isLoading && rows.length === 0}
-                >
-                    <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                        <Table>
-                            <ZoruTableHeader>
-                                <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                    <ZoruTableHead className="text-zoru-ink-muted">Period</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Run date</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Employees</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Gross</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Deductions</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Net</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted">Status</ZoruTableHead>
-                                    <ZoruTableHead className="text-zoru-ink-muted text-right">Actions</ZoruTableHead>
-                                </ZoruTableRow>
-                            </ZoruTableHeader>
-                            <ZoruTableBody>
-                                {isLoading ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-zoru-ink-muted" />
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : filtered.length === 0 ? (
-                                    <ZoruTableRow className="border-zoru-line">
-                                        <ZoruTableCell colSpan={8} className="h-24 text-center text-zoru-ink-muted">
-                                            No payroll runs match this filter.
-                                        </ZoruTableCell>
-                                    </ZoruTableRow>
-                                ) : (
-                                    filtered.map((r) => {
-                                        const status = (r.status ?? 'draft') as CrmPayrollRunStatus;
-                                        const tone = STATUS_TONE[status] ?? 'neutral';
-                                        return (
-                                            <ZoruTableRow key={r._id} className="border-zoru-line">
-                                                <ZoruTableCell className="font-medium text-zoru-ink">
-                                                    <Link href={`${BASE}/${r._id}`} className="hover:underline">
-                                                        {periodLabel(r)}
-                                                    </Link>
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-zoru-ink">
-                                                    {fmtDate(r.run_date)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                                    {r.total_employees ?? 0}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                                    {inr.format(r.total_gross ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                                    {inr.format(r.total_deductions ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right font-mono text-zoru-ink">
-                                                    {inr.format(r.total_net ?? 0)}
-                                                </ZoruTableCell>
-                                                <ZoruTableCell>
-                                                    <StatusPill label={statusLabel(status)} tone={tone} />
-                                                </ZoruTableCell>
-                                                <ZoruTableCell className="text-right">
-                                                    <Button variant="ghost" size="icon" asChild>
-                                                        <Link href={`${BASE}/${r._id}/edit`}>
-                                                            <Edit className="h-4 w-4" />
-                                                        </Link>
-                                                    </Button>
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon"
-                                                        onClick={() => setPendingDelete(r)}
-                                                    >
-                                                        <Trash2 className="h-4 w-4 text-destructive" />
-                                                    </Button>
-                                                </ZoruTableCell>
-                                            </ZoruTableRow>
-                                        );
-                                    })
-                                )}
-                            </ZoruTableBody>
-                        </Table>
-                    </div>
+                title="Payroll runs"
+                subtitle="One run per pay period — generate, finalize, and archive."
+                primaryAction={
+                    <Button asChild>
+                        <Link href={`${BASE}/new`}>
+                            <Plus className="mr-1.5 h-3.5 w-3.5" /> New payroll run
+                        </Link>
+                    </Button>
+                }
+                search={{
+                    value: search,
+                    onChange: setSearch,
+                    placeholder: 'Search by period…',
+                }}
+                filters={
+                    <>
+                        <EnumFilterField
+                            enumName="payrollRunStatus"
+                            value={statusFilter}
+                            onChange={(v) =>
+                                setStatusFilter(v as CrmPayrollRunStatus | 'all')
+                            }
+                            placeholder="All statuses"
+                        />
+                        <Select
+                            value={yearFilter}
+                            onValueChange={setYearFilter}
+                        >
+                            <ZoruSelectTrigger className="h-9 w-[140px]">
+                                <ZoruSelectValue placeholder="Year" />
+                            </ZoruSelectTrigger>
+                            <ZoruSelectContent>
+                                <ZoruSelectItem value="all">All years</ZoruSelectItem>
+                                {yearOptions.map((y) => (
+                                    <ZoruSelectItem key={y} value={String(y)}>
+                                        {y}
+                                    </ZoruSelectItem>
+                                ))}
+                            </ZoruSelectContent>
+                        </Select>
+                    </>
+                }
+                loading={isLoading && rows.length === 0}
+            >
+                <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+                    <CrmBulkyGrid<CrmPayrollRunDoc>
+                        columns={columns}
+                        data={filtered}
+                        selectedIds={bulky.selected}
+                        onSelectOne={bulky.toggleSelectOne}
+                        onSelectAll={(checked) =>
+                            bulky.toggleSelectAll(
+                                filtered.map((d) => String(d._id)),
+                                checked
+                            )
+                        }
+                        density="comfortable"
+                        inlineEditRowId={bulky.inlineEditRowId}
+                        editBuffer={bulky.editBuffer}
+                        onStartInlineEdit={bulky.startInlineEdit}
+                        onCancelInlineEdit={bulky.cancelInlineEdit}
+                        onSaveInlineEdit={handleSaveInlineEdit}
+                        onUpdateEditBuffer={bulky.updateEditBuffer}
+                        isLoading={isLoading}
+                    />
+                </div>
             </EntityListShell>
 
             <ZoruAlertDialog

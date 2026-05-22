@@ -7,7 +7,7 @@ use std::collections::HashMap;
 
 use axum::{
     Json,
-    extract::{Path, State},
+    extract::{Path, Query, State},
 };
 use bson::{Document, doc, oid::ObjectId};
 use chrono::{Duration, Utc};
@@ -19,6 +19,11 @@ use serde_json::{Map, Value};
 
 use crate::{helpers::doc_to_json, state::WachatFeaturesState, tenancy::load_project_for};
 
+#[derive(Debug, serde::Deserialize)]
+pub struct DaysQuery {
+    pub days: Option<i64>,
+}
+
 #[derive(Debug, Serialize)]
 pub struct PerformanceResp {
     pub performance: Value,
@@ -27,11 +32,12 @@ pub struct PerformanceResp {
 pub async fn performance(
     user: AuthUser,
     Path(project_id): Path<String>,
+    Query(query): Query<DaysQuery>,
     State(state): State<WachatFeaturesState>,
 ) -> Result<Json<PerformanceResp>> {
     let project = load_project_for(&user, &state.mongo, &project_id).await?;
     let messages = state.mongo.collection::<Document>("messages");
-    let since = bson::DateTime::from_chrono(Utc::now() - Duration::days(30));
+    let since = bson::DateTime::from_chrono(Utc::now() - Duration::days(query.days.unwrap_or(30)));
 
     let pipeline = vec![
         doc! { "$match": {

@@ -645,6 +645,7 @@ function BlockSettingsBody({ block, variables, variableNames, onUpdate, onCreate
     if (forgeMetadata) {
       return (
         <ForgeBlockSettings
+          nodeId={block.id}
           block={forgeMetadata as unknown as ForgeBlock}
           options={options}
           onChange={(patch) => onUpdate({ options: { ...options, ...patch } })}

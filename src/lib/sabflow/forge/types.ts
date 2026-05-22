@@ -369,6 +369,20 @@ export type ForgeAuth = {
   fields?: ForgeField[];
 };
 
+
+export type ForgeTriggerHooks = {
+  /**
+   * Called when a workflow containing this block is activated.
+   * Returns metadata that will be stored on the trigger event.
+   */
+  register?: (ctx: ForgeActionContext & { webhookUrl: string }) => Promise<{ id?: string; [key: string]: unknown }>;
+
+  /**
+   * Called when a workflow containing this block is deactivated.
+   */
+  deregister?: (ctx: ForgeActionContext, triggerData: any) => Promise<void>;
+};
+
 /* ── Block schema ────────────────────────────────────────────────────────── */
 
 export type ForgeBlockCategory = 'Integration' | 'Logic' | 'Input' | 'Bubble';
@@ -402,6 +416,8 @@ export type ForgeBlock = {
   outputs?: ForgeOutput[];
   /** Credential schema — shown above the action selector when present. */
   auth?: ForgeAuth;
+  /** Lifecycle hooks for blocks that act as triggers. */
+  triggerHooks?: ForgeTriggerHooks;
 };
 
 /* ── Type-guard helpers ──────────────────────────────────────────────────── */

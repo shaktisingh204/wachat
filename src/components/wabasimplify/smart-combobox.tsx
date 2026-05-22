@@ -127,6 +127,6 @@ export function SmartCombobox({
                     </ZoruCommandList>
                 </ZoruCommand>
             </ZoruPopoverContent>
-        </ZoruPopover >
+        </Popover>
     );
 }

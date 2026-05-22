@@ -19,6 +19,7 @@ import type { S3Client } from '@aws-sdk/client-s3';
 import { registerForgeBlock } from '../../../registry';
 import type { ForgeActionContext, ForgeActionResult, ForgeBlock } from '../../../types';
 import { asNumber, asString, requireCredential } from '../_shared/http';
+import { uploadStreamToSabFiles } from '../_shared/sabfiles';
 
 type S3Cred = {
   accessKeyId: string;
@@ -130,16 +131,26 @@ async function fileDownload(ctx: ForgeActionContext): Promise<ForgeActionResult>
   if (!key) throw new Error('AWS S3: key is required for download');
   const { GetObjectCommand } = await import('@aws-sdk/client-s3');
   const res = await client.send(new GetObjectCommand({ Bucket: bucket, Key: key }));
-  const body = await streamToBase64(res.Body);
+  
+  const name = key.split('/').pop() || 'download';
+  const sabFile = await uploadStreamToSabFiles(
+    ctx,
+    name,
+    res.ContentType ?? 'application/octet-stream',
+    res.Body as ReadableStream | Buffer | Uint8Array,
+    res.ContentLength
+  );
+
   return {
     outputs: {
       bucket,
       key,
-      contentType: res.ContentType ?? null,
-      contentLength: res.ContentLength ?? null,
-      body,
+      fileId: sabFile.id,
+      fileName: sabFile.name,
+      contentType: sabFile.mime,
+      contentLength: sabFile.size,
     },
-    logs: [`S3 download ${bucket}/${key} → ${res.ContentLength ?? 'unknown'} bytes`],
+    logs: [`S3 download ${bucket}/${key} → SabFiles ${sabFile.id} (${sabFile.size} bytes)`],
   };
 }
 

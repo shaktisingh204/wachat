@@ -47,7 +47,7 @@ import {
 import type { ColumnDef } from '@tanstack/react-table';
 
 import { getProjectById } from '@/app/actions/index';
-import { getTransactionsForProject } from '@/app/actions/whatsapp.actions';
+import { getTransactionsForProject, refundTransaction } from '@/app/actions/whatsapp.actions';
 import type { Project,
   Transaction } from '@/lib/definitions';
 import { useProject } from '@/context/project-context';
@@ -430,14 +430,19 @@ export default function WhatsAppPayPage() {
               onClick={() => {
                 if (!refundTarget) return;
                 startRefundTransition(async () => {
-                  // Refund server action is not yet wired — surface a clear
-                  // toast and close the dialog. The handler stays in place
-                  // for when the action is added.
-                  toast({
-                    title: 'Refund requested',
-                    description: `Refund flow for ${refundTarget.id} is not yet available. Track in Razorpay/PayU console.`,
-                  });
-                  setRefundTarget(null);
+                  try {
+                    const res = await refundTransaction(activeProjectId, refundTarget.id);
+                    if (res.error) {
+                      toast({ title: 'Refund failed', description: res.error, variant: 'destructive' });
+                    } else {
+                      toast({ title: 'Refund requested', description: res.message || 'Refund successfully initiated.' });
+                      fetchData(false);
+                    }
+                  } catch (e: any) {
+                    toast({ title: 'Refund failed', description: e.message, variant: 'destructive' });
+                  } finally {
+                    setRefundTarget(null);
+                  }
                 });
               }}
             >

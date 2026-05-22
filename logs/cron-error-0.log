@@ -1,0 +1,230 @@
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:16: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:17: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:50: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:32:51: [cron-worker] CRON_SECRET is not configured. Exiting.
+2026-05-23 01:34:00: [cron-worker] [FAILURE] 2026-05-22T20:04:00.036Z webhook-dispatcher failed in 26ms. Error: fetch failed
+2026-05-23 01:34:00: [cron-worker] [FAILURE] 2026-05-22T20:04:00.037Z sabflow-scheduled failed in 4ms. Error: fetch failed
+2026-05-23 01:34:00: [cron-worker] [FAILURE] 2026-05-22T20:04:00.037Z send-broadcasts failed in 3ms. Error: fetch failed
+2026-05-23 01:34:00: [cron-worker] [FAILURE] 2026-05-22T20:04:00.038Z send-scheduled-emails failed in 4ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.014Z webhook-dispatcher failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.015Z sabflow-scheduled failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.015Z send-broadcasts failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.015Z send-scheduled-emails failed in 2ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.016Z process-webhooks failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.016Z qr-scan-notify failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.016Z imap-tickets failed in 3ms. Error: fetch failed
+2026-05-23 01:35:00: [cron-worker] [FAILURE] 2026-05-22T20:05:00.016Z sla-breach-check failed in 2ms. Error: fetch failed
+2026-05-23 01:36:00: [cron-worker] [FAILURE] 2026-05-22T20:06:00.010Z webhook-dispatcher failed in 1ms. Error: fetch failed
+2026-05-23 01:36:00: [cron-worker] [FAILURE] 2026-05-22T20:06:00.010Z sabflow-scheduled failed in 1ms. Error: fetch failed
+2026-05-23 01:36:00: [cron-worker] [FAILURE] 2026-05-22T20:06:00.010Z send-broadcasts failed in 1ms. Error: fetch failed
+2026-05-23 01:36:00: [cron-worker] [FAILURE] 2026-05-22T20:06:00.011Z send-scheduled-emails failed in 1ms. Error: fetch failed
+2026-05-23 01:41:57: [2026-05-22T20:11:57.807Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:07:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.810Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:08:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.811Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:09:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.812Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.813Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:11:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.817Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:07:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.818Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:08:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.820Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:09:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.821Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.822Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:11:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.825Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:07:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.827Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:08:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.829Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:09:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.830Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.831Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:11:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.834Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:07:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.835Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:08:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.836Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:09:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.838Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.839Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:11:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.842Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.844Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.845Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:41:57: [2026-05-22T20:11:57.848Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:10:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:42:00: [cron-worker] [FAILURE] 2026-05-22T20:12:00.007Z sabflow-scheduled failed in 2ms. Error: fetch failed
+2026-05-23 01:42:00: [cron-worker] [FAILURE] 2026-05-22T20:12:00.007Z webhook-dispatcher failed in 2ms. Error: fetch failed
+2026-05-23 01:42:00: [cron-worker] [FAILURE] 2026-05-22T20:12:00.007Z send-scheduled-emails failed in 2ms. Error: fetch failed
+2026-05-23 01:42:00: [cron-worker] [FAILURE] 2026-05-22T20:12:00.007Z send-broadcasts failed in 2ms. Error: fetch failed
+2026-05-23 01:43:00: [cron-worker] [FAILURE] 2026-05-22T20:13:00.013Z send-scheduled-emails failed in 4ms. Error: fetch failed
+2026-05-23 01:43:00: [cron-worker] [FAILURE] 2026-05-22T20:13:00.013Z sabflow-scheduled failed in 3ms. Error: fetch failed
+2026-05-23 01:43:00: [cron-worker] [FAILURE] 2026-05-22T20:13:00.014Z webhook-dispatcher failed in 4ms. Error: fetch failed
+2026-05-23 01:43:00: [cron-worker] [FAILURE] 2026-05-22T20:13:00.014Z send-broadcasts failed in 4ms. Error: fetch failed
+2026-05-23 01:44:00: [cron-worker] [FAILURE] 2026-05-22T20:14:00.029Z webhook-dispatcher failed in 6ms. Error: fetch failed
+2026-05-23 01:44:00: [cron-worker] [FAILURE] 2026-05-22T20:14:00.030Z send-scheduled-emails failed in 4ms. Error: fetch failed
+2026-05-23 01:44:00: [cron-worker] [FAILURE] 2026-05-22T20:14:00.031Z sabflow-scheduled failed in 4ms. Error: fetch failed
+2026-05-23 01:44:00: [cron-worker] [FAILURE] 2026-05-22T20:14:00.031Z send-broadcasts failed in 5ms. Error: fetch failed
+2026-05-23 01:54:21: [2026-05-22T20:24:20.983Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.074Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.089Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.090Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.095Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.115Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.133Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.136Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.161Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.163Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:16:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.166Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:17:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.168Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:18:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.174Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:19:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.178Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.182Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:21:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.186Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:22:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.189Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:23:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.192Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:24:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.197Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.199Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:16:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.200Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:17:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.202Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:18:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.204Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:19:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.205Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.208Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:21:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.209Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:22:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.209Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:23:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.210Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:24:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.213Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.214Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:16:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.214Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:17:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.215Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:18:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.216Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:19:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.216Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.217Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:21:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.218Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:22:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.218Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:23:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.219Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:24:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.222Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:15:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.222Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:16:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.224Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:17:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.225Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:18:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.227Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:19:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.230Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:20:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.231Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:21:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.231Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:22:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.232Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:23:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:54:21: [2026-05-22T20:24:21.232Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:24:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.094Z process-webhooks failed in 15ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.095Z imap-tickets failed in 7ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.096Z sla-breach-check failed in 7ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.096Z send-scheduled-emails failed in 6ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.096Z send-broadcasts failed in 6ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.097Z sabflow-scheduled failed in 7ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.097Z qr-scan-notify failed in 10ms. Error: fetch failed
+2026-05-23 01:55:00: [cron-worker] [FAILURE] 2026-05-22T20:25:00.097Z webhook-dispatcher failed in 6ms. Error: fetch failed
+2026-05-23 01:56:00: [cron-worker] [FAILURE] 2026-05-22T20:26:00.120Z send-scheduled-emails failed in 70ms. Error: fetch failed
+2026-05-23 01:56:00: [cron-worker] [FAILURE] 2026-05-22T20:26:00.123Z send-broadcasts failed in 31ms. Error: fetch failed
+2026-05-23 01:56:00: [cron-worker] [FAILURE] 2026-05-22T20:26:00.124Z sabflow-scheduled failed in 31ms. Error: fetch failed
+2026-05-23 01:56:00: [cron-worker] [FAILURE] 2026-05-22T20:26:00.126Z webhook-dispatcher failed in 32ms. Error: fetch failed
+2026-05-23 01:57:00: [cron-worker] [FAILURE] 2026-05-22T20:27:00.031Z send-scheduled-emails failed in 6ms. Error: fetch failed
+2026-05-23 01:57:00: [cron-worker] [FAILURE] 2026-05-22T20:27:00.032Z send-broadcasts failed in 4ms. Error: fetch failed
+2026-05-23 01:57:00: [cron-worker] [FAILURE] 2026-05-22T20:27:00.032Z webhook-dispatcher failed in 3ms. Error: fetch failed
+2026-05-23 01:57:00: [cron-worker] [FAILURE] 2026-05-22T20:27:00.032Z sabflow-scheduled failed in 4ms. Error: fetch failed
+2026-05-23 02:00:35: [2026-05-22T20:30:35.048Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:28:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.066Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:29:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.070Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.095Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:28:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.105Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:29:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.116Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.121Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:28:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.135Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:29:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.136Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.146Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:28:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.147Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:29:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.149Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.166Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.184Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.203Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.222Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.275Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.286Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.334Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.341Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.349Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:00:35: [2026-05-22T20:30:35.363Z] [PID: 34075] [32m[NODE-CRON][32m [33m[WARN][0m missed execution at Fri May 22 2026 20:30:00 GMT+0000 (Coordinated Universal Time)! Possible blocking IO or high CPU user at the same process used by node-cron.
+2026-05-23 02:01:00: [cron-worker] [FAILURE] 2026-05-22T20:31:00.018Z send-broadcasts failed in 4ms. Error: fetch failed
+2026-05-23 02:01:00: [cron-worker] [FAILURE] 2026-05-22T20:31:00.019Z sabflow-scheduled failed in 7ms. Error: fetch failed
+2026-05-23 02:01:00: [cron-worker] [FAILURE] 2026-05-22T20:31:00.019Z send-scheduled-emails failed in 5ms. Error: fetch failed
+2026-05-23 02:01:00: [cron-worker] [FAILURE] 2026-05-22T20:31:00.019Z webhook-dispatcher failed in 2ms. Error: fetch failed
+2026-05-23 02:02:00: [cron-worker] [FAILURE] 2026-05-22T20:32:00.048Z send-scheduled-emails failed in 24ms. Error: fetch failed
+2026-05-23 02:02:00: [cron-worker] [FAILURE] 2026-05-22T20:32:00.050Z webhook-dispatcher failed in 9ms. Error: fetch failed
+2026-05-23 02:02:00: [cron-worker] [FAILURE] 2026-05-22T20:32:00.051Z sabflow-scheduled failed in 8ms. Error: fetch failed
+2026-05-23 02:02:00: [cron-worker] [FAILURE] 2026-05-22T20:32:00.052Z send-broadcasts failed in 8ms. Error: fetch failed
+2026-05-23 02:03:00: [cron-worker] [FAILURE] 2026-05-22T20:33:00.130Z send-scheduled-emails failed in 18ms. Error: fetch failed
+2026-05-23 02:03:00: [cron-worker] [FAILURE] 2026-05-22T20:33:00.131Z webhook-dispatcher failed in 8ms. Error: fetch failed
+2026-05-23 02:03:00: [cron-worker] [FAILURE] 2026-05-22T20:33:00.131Z sabflow-scheduled failed in 7ms. Error: fetch failed
+2026-05-23 02:03:00: [cron-worker] [FAILURE] 2026-05-22T20:33:00.131Z send-broadcasts failed in 6ms. Error: fetch failed
+2026-05-23 02:04:00: [cron-worker] [FAILURE] 2026-05-22T20:34:00.215Z send-scheduled-emails failed in 84ms. Error: fetch failed
+2026-05-23 02:04:00: [cron-worker] [FAILURE] 2026-05-22T20:34:00.220Z webhook-dispatcher failed in 33ms. Error: fetch failed
+2026-05-23 02:04:00: [cron-worker] [FAILURE] 2026-05-22T20:34:00.221Z send-broadcasts failed in 32ms. Error: fetch failed
+2026-05-23 02:04:00: [cron-worker] [FAILURE] 2026-05-22T20:34:00.222Z sabflow-scheduled failed in 34ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.116Z process-webhooks failed in 30ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.119Z imap-tickets failed in 10ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.120Z send-scheduled-emails failed in 10ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.121Z webhook-dispatcher failed in 10ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.121Z send-broadcasts failed in 10ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.121Z sabflow-scheduled failed in 9ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.121Z qr-scan-notify failed in 8ms. Error: fetch failed
+2026-05-23 02:05:00: [cron-worker] [FAILURE] 2026-05-22T20:35:00.122Z sla-breach-check failed in 12ms. Error: fetch failed
+2026-05-23 02:06:00: [cron-worker] [FAILURE] 2026-05-22T20:36:00.347Z send-scheduled-emails failed in 178ms. Error: fetch failed
+2026-05-23 02:06:00: [cron-worker] [FAILURE] 2026-05-22T20:36:00.357Z webhook-dispatcher failed in 85ms. Error: fetch failed
+2026-05-23 02:06:00: [cron-worker] [FAILURE] 2026-05-22T20:36:00.357Z send-broadcasts failed in 79ms. Error: fetch failed
+2026-05-23 02:06:00: [cron-worker] [FAILURE] 2026-05-22T20:36:00.357Z sabflow-scheduled failed in 79ms. Error: fetch failed
+2026-05-23 02:07:00: [cron-worker] [FAILURE] 2026-05-22T20:37:00.016Z send-scheduled-emails failed in 5ms. Error: fetch failed
+2026-05-23 02:07:00: [cron-worker] [FAILURE] 2026-05-22T20:37:00.017Z webhook-dispatcher failed in 2ms. Error: fetch failed
+2026-05-23 02:07:00: [cron-worker] [FAILURE] 2026-05-22T20:37:00.017Z send-broadcasts failed in 2ms. Error: fetch failed
+2026-05-23 02:07:00: [cron-worker] [FAILURE] 2026-05-22T20:37:00.017Z sabflow-scheduled failed in 2ms. Error: fetch failed
+2026-05-23 02:08:00: [cron-worker] [FAILURE] 2026-05-22T20:38:00.007Z send-scheduled-emails failed in 1ms. Error: fetch failed
+2026-05-23 02:08:00: [cron-worker] [FAILURE] 2026-05-22T20:38:00.008Z webhook-dispatcher failed in 2ms. Error: fetch failed
+2026-05-23 02:08:00: [cron-worker] [FAILURE] 2026-05-22T20:38:00.008Z send-broadcasts failed in 1ms. Error: fetch failed
+2026-05-23 02:08:00: [cron-worker] [FAILURE] 2026-05-22T20:38:00.008Z sabflow-scheduled failed in 1ms. Error: fetch failed
+2026-05-23 02:09:00: [cron-worker] [FAILURE] 2026-05-22T20:39:00.013Z sabflow-scheduled failed in 5ms. Error: fetch failed
+2026-05-23 02:09:00: [cron-worker] [FAILURE] 2026-05-22T20:39:00.014Z send-scheduled-emails failed in 3ms. Error: fetch failed
+2026-05-23 02:09:00: [cron-worker] [FAILURE] 2026-05-22T20:39:00.014Z send-broadcasts failed in 3ms. Error: fetch failed
+2026-05-23 02:09:00: [cron-worker] [FAILURE] 2026-05-22T20:39:00.014Z webhook-dispatcher failed in 3ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.142Z process-webhooks failed in 55ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.144Z imap-tickets failed in 34ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.144Z sla-breach-check failed in 33ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.145Z qr-scan-notify failed in 33ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.145Z sabflow-scheduled failed in 31ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.146Z webhook-dispatcher failed in 29ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.147Z send-broadcasts failed in 29ms. Error: fetch failed
+2026-05-23 02:10:00: [cron-worker] [FAILURE] 2026-05-22T20:40:00.147Z send-scheduled-emails failed in 29ms. Error: fetch failed
+2026-05-23 02:11:00: [cron-worker] [FAILURE] 2026-05-22T20:41:00.152Z send-broadcasts failed in 60ms. Error: fetch failed
+2026-05-23 02:11:00: [cron-worker] [FAILURE] 2026-05-22T20:41:00.155Z webhook-dispatcher failed in 29ms. Error: fetch failed
+2026-05-23 02:11:00: [cron-worker] [FAILURE] 2026-05-22T20:41:00.156Z send-scheduled-emails failed in 29ms. Error: fetch failed
+2026-05-23 02:11:00: [cron-worker] [FAILURE] 2026-05-22T20:41:00.156Z sabflow-scheduled failed in 33ms. Error: fetch failed
+2026-05-23 02:12:00: [cron-worker] [FAILURE] 2026-05-22T20:42:00.127Z sabflow-scheduled failed in 45ms. Error: fetch failed
+2026-05-23 02:12:00: [cron-worker] [FAILURE] 2026-05-22T20:42:00.131Z send-scheduled-emails failed in 12ms. Error: fetch failed
+2026-05-23 02:12:00: [cron-worker] [FAILURE] 2026-05-22T20:42:00.131Z send-broadcasts failed in 12ms. Error: fetch failed
+2026-05-23 02:12:00: [cron-worker] [FAILURE] 2026-05-22T20:42:00.131Z webhook-dispatcher failed in 12ms. Error: fetch failed
+2026-05-23 02:13:00: [cron-worker] [FAILURE] 2026-05-22T20:43:00.209Z send-scheduled-emails failed in 30ms. Error: fetch failed
+2026-05-23 02:13:00: [cron-worker] [FAILURE] 2026-05-22T20:43:00.212Z send-broadcasts failed in 14ms. Error: fetch failed
+2026-05-23 02:13:00: [cron-worker] [FAILURE] 2026-05-22T20:43:00.213Z sabflow-scheduled failed in 12ms. Error: fetch failed
+2026-05-23 02:13:00: [cron-worker] [FAILURE] 2026-05-22T20:43:00.215Z webhook-dispatcher failed in 10ms. Error: fetch failed

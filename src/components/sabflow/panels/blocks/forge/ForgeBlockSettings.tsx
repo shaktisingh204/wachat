@@ -37,11 +37,13 @@ type Props = {
   options: Record<string, unknown>;
   /** Called with a partial patch to merge into options. */
   onChange: (patch: Record<string, unknown>) => void;
+  /** Canvas node ID for graph traversal */
+  nodeId?: string;
 };
 
 /* ── Component ───────────────────────────────────────────────────────────── */
 
-export function ForgeBlockSettings({ block, options, onChange }: Props) {
+export function ForgeBlockSettings({ block, options, onChange, nodeId }: Props) {
   const multiAction = isMultiActionBlock(block);
 
   /**
@@ -100,6 +102,7 @@ export function ForgeBlockSettings({ block, options, onChange }: Props) {
               options={options}
               onChange={patchField}
               blockId={block.id}
+              nodeId={nodeId}
             />
           ) : null}
         </Section>
@@ -113,6 +116,7 @@ export function ForgeBlockSettings({ block, options, onChange }: Props) {
             options={options}
             onChange={patchField}
             blockId={block.id}
+            nodeId={nodeId}
             credentialId={
               typeof options.credentialId === 'string' ? options.credentialId : undefined
             }
@@ -149,6 +153,7 @@ export function ForgeBlockSettings({ block, options, onChange }: Props) {
                 options={options}
                 onChange={patchField}
                 blockId={block.id}
+                nodeId={nodeId}
                 actionId={selectedActionId ?? undefined}
                 credentialId={
                   typeof options.credentialId === 'string' ? options.credentialId : undefined
@@ -174,6 +179,8 @@ type FieldGroupProps = {
   actionId?: string;
   /** Selected credential id — drives credential-bound dynamic dropdowns. */
   credentialId?: string;
+  /** Canvas node ID */
+  nodeId?: string;
 };
 
 function FieldGroup({
@@ -183,6 +190,7 @@ function FieldGroup({
   blockId,
   actionId,
   credentialId,
+  nodeId,
 }: FieldGroupProps) {
   return (
     <div className="space-y-4">
@@ -200,6 +208,7 @@ function FieldGroup({
             actionId={actionId}
             credentialId={credentialId}
             options={options}
+            nodeId={nodeId}
           />
         );
       })}

@@ -3,14 +3,8 @@
 import {
   Badge,
   Button,
-  Checkbox,
   StatCard,
-  Table,
-  ZoruTableBody,
-  ZoruTableCell,
-  ZoruTableHead,
-  ZoruTableHeader,
-  ZoruTableRow,
+  useZoruToast,
 } from '@/components/zoruui';
 import {
   CheckCircle2,
@@ -21,26 +15,25 @@ import {
   Plus,
   Sparkles,
   X,
-  } from 'lucide-react';
+} from 'lucide-react';
 
 /**
  * Hire list — client island (P1.1B Wave 3 — Purchases rebuild · §1D.1).
  *
- * Lifted onto the canonical `<EntityListShell>`. The Rust BFF for hire
- * hasn't shipped yet, so the server route hands us a pre-hydrated row
- * set (no client-side fetch — async-parallel best practice: the
- * page-level server component fetched everything).
+ * Upgraded to use spreadsheet-style CrmBulkyGrid and useCrmBulkyState.
+ * The Rust BFF for hire hasn't shipped yet, so the server route hands us a
+ * pre-hydrated row set.
  *
  * Composition:
  *  - KPI strip (Total · Open · Awarded · Total budget)
  *  - Search across title / category / vendor candidate / owner
  *  - Stage filter
  *  - Bulk select + CSV export
- *  - Table (clickable title → detail page)
+ *  - CrmBulkyGrid (clickable title → detail page)
  *
  * Deferred: bulk delete + inline mutation (need a working hire DTO + a
  * `deleteCrmHire` server action — `crm_purchase_leads` doesn't have one
- * yet). Marked with TODO so it's clear.
+ * yet). Stage edit is kept as local-state change only.
  */
 
 import * as React from 'react';
@@ -50,6 +43,8 @@ import { EntityListShell } from '@/components/crm/entity-list-shell';
 import { EntityRowLink } from '@/components/crm/entity-row-link';
 import { StatusPill, type StatusTone } from '@/components/crm/status-pill';
 import { EnumFilterField } from '@/components/crm/enum-filter-field';
+import { CrmBulkyGrid, type ColumnDef } from '@/components/crm/crm-bulky-grid';
+import { useCrmBulkyState } from '@/components/crm/use-crm-bulky-state';
 
 const BASE = '/dashboard/crm/purchases/hire';
 
@@ -141,13 +136,21 @@ function downloadHiresCsv(rows: HireListRow[]): void {
 }
 
 export function HireListClient({ rows, error, newHref }: HireListClientProps) {
+    const { toast } = useZoruToast();
     const [search, setSearch] = React.useState('');
     const [stageFilter, setStageFilter] = React.useState<string>('all');
-    const [selected, setSelected] = React.useState<Set<string>>(new Set());
+
+    const bulky = useCrmBulkyState<HireListRow>({
+        initialData: rows,
+    });
+
+    React.useEffect(() => {
+        bulky.setData(rows);
+    }, [rows]);
 
     const filtered = React.useMemo(() => {
         const q = search.trim().toLowerCase();
-        return rows.filter((h) => {
+        return bulky.data.filter((h) => {
             if (stageFilter !== 'all' && (h.stage ?? '').toString() !== stageFilter) {
                 return false;
             }
@@ -159,7 +162,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                 (h.owner ?? '').toLowerCase().includes(q)
             );
         });
-    }, [rows, search, stageFilter]);
+    }, [bulky.data, search, stageFilter]);
 
     const kpi = React.useMemo(() => {
         const total = rows.length;
@@ -175,21 +178,99 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
         return { total, open, awarded, totalBudget };
     }, [rows]);
 
-    const toggleAll = () => {
-        setSelected((prev) =>
-            prev.size === filtered.length
-                ? new Set()
-                : new Set(filtered.map((h) => h._id)),
+    const handleSaveInlineEdit = async (id: string, updatedFields: Partial<HireListRow>) => {
+        bulky.setData((prev) =>
+            prev.map((row) => (row._id === id ? { ...row, ...updatedFields } : row))
         );
-    };
-    const toggleOne = (id: string) => {
-        setSelected((prev) => {
-            const n = new Set(prev);
-            if (n.has(id)) n.delete(id);
-            else n.add(id);
-            return n;
+        bulky.cancelInlineEdit();
+        toast({
+            title: 'Stage updated locally',
+            description: 'Vendor hire requests require Rust BFF integration for persistent updates.',
         });
     };
+
+    const columns = React.useMemo<ColumnDef<HireListRow>[]>(() => [
+        {
+            key: 'title',
+            header: 'Title',
+            sortable: true,
+            render: (row) => (
+                <EntityRowLink
+                    href={`${BASE}/${row._id}`}
+                    label={row.title || 'Untitled'}
+                    subtitle={row.category || row.vendorCandidate || undefined}
+                />
+            ),
+        },
+        {
+            key: 'category',
+            header: 'Category',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{row.category || '—'}</span>,
+        },
+        {
+            key: 'vendorCandidate',
+            header: 'Vendor candidate',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{row.vendorCandidate || '—'}</span>,
+        },
+        {
+            key: 'requiredBy',
+            header: 'Required by',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{fmtDate(row.requiredBy)}</span>,
+        },
+        {
+            key: 'estimatedBudget',
+            header: 'Budget',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{fmtMoney(row.estimatedBudget)}</span>,
+        },
+        {
+            key: 'stage',
+            header: 'Stage',
+            sortable: true,
+            render: (row) => {
+                const stage = (row.stage ?? 'sourcing').toString();
+                const tone = STAGE_TONE[stage] ?? 'neutral';
+                return <StatusPill label={stage} tone={tone} />;
+            },
+            editRender: (row, value, onChange) => (
+                <select
+                    className="bg-zoru-surface-2 border border-zoru-line rounded px-1.5 py-0.5 text-xs text-zoru-ink focus:outline-none"
+                    value={value || 'sourcing'}
+                    onChange={(e) => onChange(e.target.value)}
+                >
+                    <option value="sourcing">Sourcing</option>
+                    <option value="shortlisted">Shortlisted</option>
+                    <option value="quotes_received">Quotes Received</option>
+                    <option value="negotiating">Negotiating</option>
+                    <option value="awarded">Awarded</option>
+                    <option value="closed">Closed</option>
+                    <option value="closed_lost">Closed Lost</option>
+                </select>
+            ),
+        },
+        {
+            key: 'owner',
+            header: 'Owner',
+            sortable: true,
+            render: (row) => <span className="text-zoru-ink">{row.owner || '—'}</span>,
+        },
+        {
+            key: 'actions',
+            header: '',
+            render: (row) => (
+                <div className="flex justify-end gap-1">
+                    <Button variant="ghost" size="icon" asChild>
+                        <Link href={`${BASE}/${row._id}/edit`}>
+                            <Edit className="h-4 w-4 text-zoru-ink-muted" />
+                        </Link>
+                    </Button>
+                </div>
+            ),
+        },
+    ], [toast]);
 
     return (
         <>
@@ -241,10 +322,10 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                     />
                 }
                 bulkBar={
-                    selected.size > 0 ? (
+                    bulky.selected.size > 0 ? (
                         <div className="flex flex-wrap items-center gap-2 text-[13px]">
                             <span className="font-medium text-zoru-ink">
-                                {selected.size} selected
+                                {bulky.selected.size} selected
                             </span>
                             <span className="text-zoru-ink-muted">·</span>
                             <Button
@@ -252,7 +333,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                                 size="sm"
                                 onClick={() =>
                                     downloadHiresCsv(
-                                        filtered.filter((h) => selected.has(h._id)),
+                                        filtered.filter((h) => bulky.selected.has(h._id)),
                                     )
                                 }
                             >
@@ -263,7 +344,7 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setSelected(new Set())}
+                                onClick={bulky.clearSelection}
                             >
                                 <X className="h-3.5 w-3.5" />
                                 Clear
@@ -272,137 +353,44 @@ export function HireListClient({ rows, error, newHref }: HireListClientProps) {
                     ) : null
                 }
             >
-                <div className="overflow-x-auto rounded-lg border border-zoru-line">
-                    <Table>
-                        <ZoruTableHeader>
-                            <ZoruTableRow className="border-zoru-line hover:bg-transparent">
-                                <ZoruTableHead className="w-10">
-                                    <Checkbox
-                                        checked={
-                                            filtered.length > 0 &&
-                                            selected.size === filtered.length
-                                        }
-                                        onCheckedChange={toggleAll}
-                                        aria-label="Select all hire requests"
-                                    />
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Title
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Category
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Vendor candidate
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Required by
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Budget
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Stage
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-zoru-ink-muted">
-                                    Owner
-                                </ZoruTableHead>
-                                <ZoruTableHead className="text-right text-zoru-ink-muted">
-                                    Actions
-                                </ZoruTableHead>
-                            </ZoruTableRow>
-                        </ZoruTableHeader>
-                        <ZoruTableBody>
-                            {error ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell
-                                        colSpan={9}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                    >
-                                        {error}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : filtered.length === 0 ? (
-                                <ZoruTableRow className="border-zoru-line">
-                                    <ZoruTableCell
-                                        colSpan={9}
-                                        className="h-24 text-center text-[13px] text-zoru-ink-muted"
-                                    >
-                                        {rows.length === 0
-                                            ? 'No hire requests yet. Create one to start tracking vendor sourcing.'
-                                            : 'No hire requests match this filter.'}
-                                    </ZoruTableCell>
-                                </ZoruTableRow>
-                            ) : (
-                                filtered.map((h) => {
-                                    const stage = (h.stage ?? 'sourcing').toString();
-                                    const tone = STAGE_TONE[stage] ?? 'neutral';
-                                    return (
-                                        <ZoruTableRow
-                                            key={h._id}
-                                            className="border-zoru-line"
-                                        >
-                                            <ZoruTableCell>
-                                                <Checkbox
-                                                    checked={selected.has(h._id)}
-                                                    onCheckedChange={() => toggleOne(h._id)}
-                                                    aria-label={`Select ${h.title}`}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="font-medium text-zoru-ink">
-                                                <EntityRowLink
-                                                    href={`${BASE}/${h._id}`}
-                                                    label={h.title || 'Untitled'}
-                                                    subtitle={h.category || h.vendorCandidate || undefined}
-                                                />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {h.category || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {h.vendorCandidate || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtDate(h.requiredBy)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {fmtMoney(h.estimatedBudget)}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell>
-                                                <StatusPill label={stage} tone={tone} />
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-zoru-ink">
-                                                {h.owner || '—'}
-                                            </ZoruTableCell>
-                                            <ZoruTableCell className="text-right">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    asChild
-                                                >
-                                                    <Link
-                                                        href={`${BASE}/${h._id}/edit`}
-                                                        aria-label={`Edit ${h.title}`}
-                                                    >
-                                                        <Edit className="h-4 w-4 text-zoru-ink-muted" />
-                                                    </Link>
-                                                </Button>
-                                            </ZoruTableCell>
-                                        </ZoruTableRow>
-                                    );
-                                })
-                            )}
-                        </ZoruTableBody>
-                    </Table>
+                <div className="overflow-hidden rounded-lg border border-zoru-line bg-zoru-surface">
+                    {error ? (
+                        <div className="h-24 flex items-center justify-center text-[13px] text-zoru-ink-muted">
+                            {error}
+                        </div>
+                    ) : (
+                        <CrmBulkyGrid<HireListRow>
+                            columns={columns}
+                            data={filtered}
+                            selectedIds={bulky.selected}
+                            onSelectOne={(id) => bulky.toggleSelectOne(id)}
+                            onSelectAll={(checked) =>
+                                bulky.toggleSelectAll(
+                                    filtered.map((d) => String(d._id)),
+                                    checked
+                                )
+                            }
+                            density="comfortable"
+                            inlineEditRowId={bulky.inlineEditRowId}
+                            editBuffer={bulky.editBuffer}
+                            onStartInlineEdit={bulky.startInlineEdit}
+                            onCancelInlineEdit={bulky.cancelInlineEdit}
+                            onSaveInlineEdit={handleSaveInlineEdit}
+                            onUpdateEditBuffer={bulky.updateEditBuffer}
+                        />
+                    )}
                 </div>
             </EntityListShell>
 
             {/* TODO §1D.1: bulk-delete + inline mutation actions land once
                 `crm_purchase_leads` gets `getCrmHires` + `deleteCrmHire`
                 server actions (Rust DTO not shipped — see CRM_REBUILD §1D.5). */}
-            <Badge variant="ghost" className="text-[11px]">
-                Hire DTO pending Rust BFF — bulk delete deferred
-            </Badge>
+            <div className="mt-3">
+                <Badge variant="ghost" className="text-[11px]">
+                    Hire DTO pending Rust BFF — bulk delete deferred
+                </Badge>
+            </div>
         </>
     );
 }
+

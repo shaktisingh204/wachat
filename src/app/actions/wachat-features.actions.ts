@@ -339,9 +339,9 @@ export async function saveQuickReplyCategory(projectId: string, name: string) {
 //  TEAM PERFORMANCE
 // =================================================================
 
-export async function getAgentPerformance(projectId: string) {
+export async function getAgentPerformance(projectId: string, days: number = 30) {
     try {
-        const r = await rustClient.wachatFeatures.getAgentPerformance(projectId);
+        const r = await rustClient.wachatFeatures.getAgentPerformance(projectId, days);
         return { performance: r.performance };
     } catch (e: any) { return { error: getErrorMessage(e) }; }
 }
@@ -471,12 +471,15 @@ export async function saveBusinessHours(prevState: any, formData: FormData) {
     const timezone = formData.get('timezone') as string;
     const offlineMessage = formData.get('offlineMessage') as string;
     const scheduleJson = formData.get('schedule') as string;
+    const holidaysJson = formData.get('holidays') as string;
     if (!projectId) return { error: 'Project ID is required.' };
     let schedule: unknown = {};
+    let holidays: unknown = [];
     try { schedule = JSON.parse(scheduleJson); } catch {}
+    try { if (holidaysJson) holidays = JSON.parse(holidaysJson); } catch {}
     try {
         const r = await rustClient.wachatFeatures.saveBusinessHours(projectId, {
-            timezone, offlineMessage, schedule,
+            timezone, offlineMessage, schedule, holidays,
         });
         revalidatePath('/wachat/business-hours');
         return { message: r.message };

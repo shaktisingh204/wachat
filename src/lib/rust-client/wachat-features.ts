@@ -284,8 +284,8 @@ export const wachatFeaturesApi = {
         get<{ dailyData: any[]; responseMetrics: any }>(
             `/projects/${enc(projectId)}/analytics/messages?days=${days}`,
         ),
-    getAgentPerformance: (projectId: string) =>
-        get<{ performance: any[] }>(`/projects/${enc(projectId)}/analytics/agents`),
+    getAgentPerformance: (projectId: string, days = 30) =>
+        get<{ performance: any[] }>(`/projects/${enc(projectId)}/analytics/agents?days=${days}`),
     getDeliveryReport: (projectId: string, days = 7) =>
         get<{ stats: any[]; failedMessages: any[] }>(
             `/projects/${enc(projectId)}/analytics/delivery?days=${days}`,
@@ -308,6 +308,7 @@ export const wachatFeaturesApi = {
         timezone?: string;
         offlineMessage?: string;
         schedule?: unknown;
+        holidays?: unknown;
     }) =>
         post<MessageEnvelope>(`/projects/${enc(projectId)}/business-hours`, body),
 

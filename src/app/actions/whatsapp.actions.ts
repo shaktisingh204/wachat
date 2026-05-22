@@ -657,6 +657,18 @@ export async function getTransactionsForProject(projectId: string): Promise<With
     }
 }
 
+export async function refundTransaction(projectId: string, transactionId: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    if (!projectId || !transactionId) return { success: false, error: 'Missing parameters.' };
+    try {
+        const { rustClient } = await import('@/lib/rust-client');
+        const r = await rustClient.wachatPay.refundTransaction(projectId, transactionId);
+        revalidatePath('/wachat/whatsapp-pay');
+        return { success: r.success, message: r.message, error: r.error };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 export async function handleSendCatalogMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const projectId = formData.get('projectId') as string;
