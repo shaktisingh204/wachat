@@ -56,9 +56,9 @@ import { VersionHistoryPanel } from './version-history-panel';
 import {
     saveCrmTemplate,
     compileCrmTemplate,
-    CRM_STUDIO_VARIABLES,
     type UnifiedTemplate
 } from '@/app/actions/crm-templates.actions';
+import { CRM_STUDIO_VARIABLES } from '@/data/reference/crm-template-variables';
 
 interface TemplateStudioProps {
     initialTemplate?: UnifiedTemplate | null;
